@@ -8,6 +8,7 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
+    "jsx": "react-jsx",
     "lib": ["ES2022", "DOM"],
     "paths": {
       "@seventwo-studio/block-editor": ["./src/index.ts"],
