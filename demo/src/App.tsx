@@ -245,5 +245,15 @@ function applyUiOperation(
   if (operation.type === "delete") {
     return applyOperation(current, deleteBlockOperation(current, operation.block.id))
   }
+  if (operation.type === "delete-many") {
+    return operation.blocks.reduce(
+      (state, block) =>
+        applyOperation(state, deleteBlockOperation(state, block.id)),
+      current,
+    )
+  }
+  if (operation.type === "reorder") {
+    return createCrdtState("demo", operation.blocks)
+  }
   return createCrdtState("demo", blocks)
 }
