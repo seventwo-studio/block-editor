@@ -3,3 +3,6 @@ dist
 dist-demo
 *.tgz
 .DS_Store
+
+# Local Claude Code workspace
+.claude/
