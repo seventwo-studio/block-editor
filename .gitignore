@@ -4,5 +4,8 @@ dist-demo
 *.tgz
 .DS_Store
 
-# Local Claude Code workspace
-.claude/
+# Local agent workspace state
+.claude/*
+!.claude/settings.json
+.codex/*
+!.codex/config.toml
