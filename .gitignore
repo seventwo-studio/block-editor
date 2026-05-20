@@ -3,3 +3,9 @@ dist
 dist-demo
 *.tgz
 .DS_Store
+
+# Local agent workspace state
+.claude/*
+!.claude/settings.json
+.codex/*
+!.codex/config.toml
