@@ -28,6 +28,7 @@ import {
   type KeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -58,6 +59,8 @@ export interface BlockEditorProps {
   placeholder?: string
   autoFocus?: boolean
   className?: string
+  /** Show raw Markdown editing. Defaults to true for existing consumers. */
+  allowMarkdown?: boolean
   compact?: boolean
   style?: CSSProperties
 }
@@ -684,6 +687,7 @@ export function BlockEditor({
   autoFocus = false,
   className,
   compact = false,
+  allowMarkdown = true,
   style,
 }: BlockEditorProps) {
   const [blocks, setBlocksRaw] = useState<Block[]>(() =>
@@ -1042,13 +1046,14 @@ export function BlockEditor({
   // --- Markdown mode -------------------------------------------------------
 
   function enterMarkdownMode() {
+    if (!allowMarkdown) return
     setMarkdownDraft(serializeBlocksToMarkdown(blocksRef.current))
     setMode("markdown")
     setFocusedBlockId(null)
     clearSelection()
   }
 
-  function applyMarkdown() {
+  const applyMarkdown = useCallback(() => {
     const next = parseMarkdownToBlocks(markdownDraft)
     blocksRef.current = next
     lastSyncedRef.current = next
@@ -1056,7 +1061,13 @@ export function BlockEditor({
     onChangeRef.current(next)
     onOperationRef.current?.({ type: "markdown", blocks: next }, next)
     setMode("blocks")
-  }
+  }, [markdownDraft])
+
+  // A host can disable raw editing while it is open. Preserve the draft using
+  // the same conversion as Done, before showing the visual editor.
+  useLayoutEffect(() => {
+    if (!allowMarkdown && mode === "markdown") applyMarkdown()
+  }, [allowMarkdown, mode, applyMarkdown])
 
   // --- Selection -----------------------------------------------------------
 
@@ -1415,7 +1426,7 @@ export function BlockEditor({
     .filter(Boolean)
     .join(" ")
 
-  if (mode === "markdown") {
+  if (mode === "markdown" && allowMarkdown) {
     return (
       <section className={sectionClassName} style={style}>
         <div className="s2be-toolbar">
@@ -1429,6 +1440,7 @@ export function BlockEditor({
         </div>
         <textarea
           ref={markdownRef}
+          aria-label="Markdown source"
           className="s2be-markdown"
           value={markdownDraft}
           onChange={(event) => setMarkdownDraft(event.target.value)}
@@ -1448,10 +1460,12 @@ export function BlockEditor({
           <PlusIcon className="s2be-icon-sm" />
           Block
         </button>
-        <button type="button" onClick={enterMarkdownMode}>
-          <MarkdownIcon className="s2be-icon-sm" />
-          Markdown
-        </button>
+        {allowMarkdown && (
+          <button type="button" onClick={enterMarkdownMode}>
+            <MarkdownIcon className="s2be-icon-sm" />
+            Markdown
+          </button>
+        )}
       </div>
       {/* biome-ignore lint/a11y/noStaticElementInteractions: marquee + drop target */}
       <div

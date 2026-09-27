@@ -84,6 +84,7 @@ export default function App() {
   const [crdt, setCrdt] = useState<BlockEditorCrdtState>(() =>
     createCrdtState("demo", seedBlocks),
   )
+  const [allowMarkdown, setAllowMarkdown] = useState(true)
   const [operations, setOperations] = useState<LoggedOperation[]>([])
 
   const theme = themes[themeKey]
@@ -150,6 +151,7 @@ export default function App() {
             <span>{blocks.length} blocks</span>
           </div>
           <BlockEditor
+            allowMarkdown={allowMarkdown}
             value={blocks}
             onChange={setBlocks}
             onOperation={handleOperation}
@@ -161,6 +163,17 @@ export default function App() {
         </div>
 
         <aside className="inspector">
+          <section>
+            <h2>Editing</h2>
+            <label>
+              <input
+                type="checkbox"
+                checked={allowMarkdown}
+                onChange={(event) => setAllowMarkdown(event.target.checked)}
+              />
+              Allow raw Markdown editing
+            </label>
+          </section>
           <section>
             <h2>Themes</h2>
             <div className="theme-buttons">
