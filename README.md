@@ -66,3 +66,19 @@ bun run test
 bun run build
 bun run demo:build
 ```
+
+## Visual-only editing
+
+Pass `allowMarkdown={false}` to `BlockEditor` to hide the raw Markdown editor.
+Block editing, slash commands and Markdown typing shortcuts remain available.
+The default is `true`, preserving existing integrations.
+
+```tsx
+<BlockEditor value={blocks} onChange={setBlocks} allowMarkdown={false} />
+```
+
+If the prop changes to `false` while raw editing is open, the current draft is
+converted to blocks and emitted through `onChange` and the existing `markdown`
+operation, just like pressing **Done**. The draft is not silently discarded.
+This prop controls editor UI; consumers still validate document content and
+permissions at their own application boundary.
