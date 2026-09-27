@@ -82,3 +82,17 @@ converted to blocks and emitted through `onChange` and the existing `markdown`
 operation, just like pressing **Done**. The draft is not silently discarded.
 This prop controls editor UI; consumers still validate document content and
 permissions at their own application boundary.
+
+## Updating inline text
+
+`setBlockText` uses `updateInlineText` for inline content. Plain-text edits retain
+formatting and structured references outside the changed range rather than
+flattening the whole field. New text inherits the adjacent edited text span's
+marks. A reference whose label is partially edited becomes ordinary text, so it
+cannot silently retain an incorrect entity identity. Unicode comparisons use
+code points to avoid splitting surrogate pairs.
+
+`updateInlineText` treats the difference between two plain-text values as one
+contiguous replacement. For editors with explicit selections and richer editing
+operations, use the structured `InlineNode` model directly. This helper does not
+sanitize links, implement visual formatting controls, or resolve concurrent edits.

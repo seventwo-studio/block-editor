@@ -31,6 +31,57 @@ export function plainText(nodes: InlineNode[]): string {
     .join("")
 }
 
+/** Update a plain-text projection without stripping unchanged inline structure.
+ * The changed range is measured in Unicode code points, then mapped to UTF-16
+ * offsets. Text inserted inside/after a text span inherits that span's marks.
+ * A partially edited non-text node becomes text; untouched nodes remain intact.
+ */
+export function updateInlineText(nodes: InlineNode[], text: string): InlineNode[] {
+  const before = plainText(nodes)
+  if (before === text) return nodes
+  const oldPoints = Array.from(before)
+  const newPoints = Array.from(text)
+  let prefix = 0
+  while (prefix < oldPoints.length && prefix < newPoints.length && oldPoints[prefix] === newPoints[prefix]) prefix++
+  let suffix = 0
+  while (suffix < oldPoints.length - prefix && suffix < newPoints.length - prefix && oldPoints[oldPoints.length - suffix - 1] === newPoints[newPoints.length - suffix - 1]) suffix++
+  const start = oldPoints.slice(0, prefix).join("").length
+  const end = oldPoints.slice(0, oldPoints.length - suffix).join("").length
+  const inserted = newPoints.slice(prefix, newPoints.length - suffix).join("")
+  function slice(from: number, to: number): InlineNode[] {
+    const result: InlineNode[] = []
+    let offset = 0
+    for (const node of nodes) {
+      const value = plainText([node])
+      const left = Math.max(0, from - offset)
+      const right = Math.min(value.length, to - offset)
+      if (left < right) {
+        if (left === 0 && right === value.length) result.push(node)
+        else result.push(node.type === "text" ? { ...node, text: value.slice(left, right) } : textNode(value.slice(left, right)))
+      }
+      offset += value.length
+    }
+    return result
+  }
+  let inherited: InlineNode | undefined
+  let offset = 0
+  for (const node of nodes) {
+    const length = plainText([node]).length
+    if ((start > offset && start <= offset + length) || (start === 0 && length > 0)) { inherited = node; break }
+    offset += length
+  }
+  const middle: InlineNode[] = inserted ? [{ type: "text", text: inserted, marks: inherited?.type === "text" ? inherited.marks : [] }] : []
+  const combined = [...slice(0, start), ...middle, ...slice(end, before.length)]
+  const result: InlineNode[] = []
+  for (const node of combined) {
+    const previous = result.at(-1)
+    if (node.type === "text" && previous?.type === "text" && JSON.stringify(previous.marks) === JSON.stringify(node.marks)) {
+      result[result.length - 1] = { ...previous, text: previous.text + node.text }
+    } else result.push(node)
+  }
+  return result
+}
+
 /** Get the editable text content of a block. */
 export function getBlockText(block: Block): string {
   switch (block.type) {
@@ -71,20 +122,20 @@ export function setBlockText(block: Block, text: string): Block {
     case "heading":
     case "quote":
     case "callout":
-      return { ...block, content: textContent(text) }
+      return { ...block, content: updateInlineText(block.content, text) }
     case "code":
       return { ...block, code: text }
     case "list":
       return {
         ...block,
         items: block.items.map((item, i) =>
-          i === 0 ? { ...item, content: textContent(text) } : item,
+          i === 0 ? { ...item, content: updateInlineText(item.content, text) } : item,
         ),
       }
     case "math":
       return { ...block, expression: text }
     case "toggle":
-      return { ...block, summary: textContent(text) }
+      return { ...block, summary: updateInlineText(block.summary, text) }
     default:
       return block
   }
