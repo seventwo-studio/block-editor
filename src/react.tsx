@@ -23,7 +23,9 @@ import {
   toSimpleType,
   transformShortcut,
 } from "./index.js"
+import { parseClipboardHtml, pasteBlocks } from "./clipboard.js"
 import {
+  type ClipboardEvent,
   type CSSProperties,
   type KeyboardEvent,
   type MouseEvent as ReactMouseEvent,
@@ -51,6 +53,7 @@ export type BlockEditorUiOperation =
   | { type: "delete"; block: Block }
   | { type: "delete-many"; blocks: Block[] }
   | { type: "markdown"; blocks: Block[] }
+  | { type: "paste"; before: Block; blocks: Block[] }
 
 export interface BlockEditorProps {
   value: Block[]
@@ -285,6 +288,7 @@ function AutoGrowTextarea({
   onKeyDown,
   onChange,
   spellCheck,
+  onPaste,
 }: {
   value: string
   placeholder: string
@@ -295,6 +299,7 @@ function AutoGrowTextarea({
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void
   onChange: (value: string) => void
   spellCheck?: boolean
+  onPaste?: (event: ClipboardEvent<HTMLTextAreaElement>) => void
 }) {
   const localRef = useRef<HTMLTextAreaElement>(null)
 
@@ -332,6 +337,7 @@ function AutoGrowTextarea({
       spellCheck={spellCheck}
       onFocus={onFocus}
       onKeyDown={onKeyDown}
+      onPaste={onPaste}
       onChange={(event) => onChange(event.target.value)}
     />
   )
@@ -755,6 +761,26 @@ export function BlockEditor({
   }
 
   // --- Block operations -----------------------------------------------------
+
+  function pasteHtml(block: Block, event: ClipboardEvent<HTMLTextAreaElement>) {
+    const html = event.clipboardData.getData("text/html")
+    if (!html) return
+    const target = event.currentTarget
+    const imported = parseClipboardHtml(html, target.ownerDocument)
+    const paste = pasteBlocks(block, imported, target.selectionStart, target.selectionEnd)
+    if (!paste) return // Native plain-text paste for literal destinations/unsupported HTML.
+    const current = blocksRef.current
+    if (current.length - 1 + paste.blocks.length > 5000) return
+    event.preventDefault()
+    clearSelection()
+    setSlashIndex(0)
+    const next = current.flatMap((item) => item.id === block.id ? paste.blocks : [item])
+    commit(next, { type: "paste", before: block, blocks: paste.blocks }, paste.focusId)
+    requestAnimationFrame(() => {
+      const input = inputRefs.current[paste.focusId]
+      if (input) { input.focus(); input.setSelectionRange(paste.caret, paste.caret) }
+    })
+  }
 
   function updateText(block: Block, text: string) {
     clearSelection()
@@ -1573,6 +1599,7 @@ export function BlockEditor({
               setFocusedBlockId(block.id)
             }}
             onUpdateText={(text) => updateText(block, text)}
+            onPaste={(event) => pasteHtml(block, event)}
             onSlashApply={(commandIndex) =>
               applySlashCommand(block, commandIndex)
             }
@@ -1664,6 +1691,7 @@ interface BlockRowProps {
   inputRef: (node: EditableRef) => void
   onFocusBlock: () => void
   onUpdateText: (text: string) => void
+  onPaste: (event: ClipboardEvent<HTMLTextAreaElement>) => void
   onSlashApply: (commandIndex: number) => void
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void
   onMove: (direction: -1 | 1) => void
@@ -1702,6 +1730,7 @@ function BlockRow(props: BlockRowProps) {
     inputRef,
     onFocusBlock,
     onUpdateText,
+    onPaste,
     onSlashApply,
     onKeyDown,
     onMove,
@@ -1936,6 +1965,7 @@ function BlockRow(props: BlockRowProps) {
             onFocus={onFocusBlock}
             onKeyDown={onKeyDown}
             onChange={onUpdateText}
+            onPaste={onPaste}
           />
         )}
 

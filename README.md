@@ -63,6 +63,8 @@ bun install
 bun run typecheck
 bun run demo:typecheck
 bun run test
+bunx playwright install chromium
+bun run test:browser
 bun run build
 bun run demo:build
 ```
@@ -139,3 +141,30 @@ features. The package's broader block schema is not an application authorization
 `bun run check:package` requires Node and npm and validates all packaged entrypoints,
 CSS, a schema parse and React server rendering from a fresh installation. It neither
 publishes a package nor relies on source aliases.
+
+## Formatted clipboard paste
+
+The React editor imports HTML clipboard content into the shared document model:
+paragraphs, headings (up to level three), flat bullet/numbered lists, quotes, code
+and dividers, with bold, italic, inline code and absolute HTTP(S)/email links.
+Unsupported formatting becomes text; nested lists flatten and table cells become
+tab-separated text. Script, style, embedded and foreign-namespace content is
+removed. Images contribute only their alt text: hosts must upload and authorize
+assets through their own integration. Clipboard HTML is parsed in a detached inert
+template and never rendered or attached to the page.
+
+Pasting replaces the active text selection, preserves surrounding marks/references
+and places the caret before the preserved suffix. A single `paste` UI operation
+contains `before` and the ordered replacement `blocks`; replace that original block
+at its current position when replaying it. `onChange` supplies the full resulting
+document. Literal code/table destinations, ambiguous multi-item list destinations
+and empty/rejected imports retain native plain-text paste. Imports over 1 MB of
+HTML, 5,000 blocks, 128 levels or 100,000 characters in a code block fall back to
+plain text without silently truncating content.
+
+`parseClipboardHtml` and `pasteBlocks` are exported from the package root for custom
+surfaces. Parsing requires a browser `Document`; importing the package remains
+server-safe. These helpers do not replace server-side schema, link or asset checks.
+The existing textarea surface stores marks but does not yet visually render inline
+formatting. Browser tests verify the real React paste event, caret, data model,
+namespace filtering and absence of remote-image requests.

@@ -47,7 +47,8 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test src",
     "prepublishOnly": "bun run test && bun run build",
-    "check:package": "bun run build && node scripts/check-package.mjs"
+    "check:package": "bun run build && node scripts/check-package.mjs",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "zod": "^4.3.6"
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
+    "@playwright/test": "1.63.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
