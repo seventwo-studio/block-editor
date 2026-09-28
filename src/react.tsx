@@ -1,3 +1,5 @@
+import { ImageBlockView, ImageUploadControl, type ImageUploadOptions, type ResolveImageSource, type UploadedImage } from "./image-react.js"
+export type { ImageUploadOptions, ResolveImageSource, UploadedImage } from "./image-react.js"
 import {
   type Block,
   CALLOUT_COLORS,
@@ -62,6 +64,8 @@ export type BlockEditorUiOperation =
 
 export interface BlockEditorProps {
   value: Block[]
+  /** Stable host document identity; change it when switching scope/document/language. */
+  documentKey?: string
   onChange: (blocks: Block[]) => void
   onOperation?: (operation: BlockEditorUiOperation, blocks: Block[]) => void
   placeholder?: string
@@ -69,6 +73,10 @@ export interface BlockEditorProps {
   className?: string
   /** Show raw Markdown editing. Defaults to true for existing consumers. */
   allowMarkdown?: boolean
+  /** Upload/auth/storage belong to the host. Omit to hide image insertion. */
+  imageUpload?: ImageUploadOptions
+  /** Explicitly resolve stored asset IDs to authorized display URLs. */
+  resolveImageSource?: ResolveImageSource
   compact?: boolean
   style?: CSSProperties
 }
@@ -692,6 +700,7 @@ function CalloutColorPicker({
 
 export function BlockEditor({
   value,
+  documentKey,
   onChange,
   onOperation,
   placeholder = "Write something...",
@@ -699,11 +708,15 @@ export function BlockEditor({
   className,
   compact = false,
   allowMarkdown = true,
+  imageUpload,
+  resolveImageSource,
   style,
 }: BlockEditorProps) {
   const [blocks, setBlocksRaw] = useState<Block[]>(() =>
     value.length > 0 ? value : [makeBlock("paragraph")],
   )
+  const [uploadEpoch, setUploadEpoch] = useState(0)
+  const uploadEpochRef = useRef(0)
   const [mode, setMode] = useState<"blocks" | "markdown">("blocks")
   const [markdownDraft, setMarkdownDraft] = useState("")
   const [focusedBlockId, setFocusedBlockId] = useState<string | null>(null)
@@ -734,6 +747,7 @@ export function BlockEditor({
   const containerRef = useRef<HTMLDivElement>(null)
   const markdownRef = useRef<HTMLTextAreaElement>(null)
   const lastSyncedRef = useRef(value)
+  const lastDocumentKeyRef = useRef(documentKey)
   const shouldAutofocusRef = useRef(autoFocus)
   const gripPressedRef = useRef(false)
   const isDraggingRef = useRef(false)
@@ -743,16 +757,30 @@ export function BlockEditor({
   selectedBlockIdsRef.current = selectedBlockIds
 
   // Sync from parent without re-emitting our own changes.
-  useEffect(() => {
-    if (value === lastSyncedRef.current) return
-    if (JSON.stringify(value) === JSON.stringify(lastSyncedRef.current)) return
+  useLayoutEffect(() => {
+    const sameDocument = documentKey === lastDocumentKeyRef.current
+    if (sameDocument && value === lastSyncedRef.current) return
+    if (sameDocument && JSON.stringify(value) === JSON.stringify(lastSyncedRef.current)) return
+    lastDocumentKeyRef.current = documentKey
+    if (!sameDocument) {
+      setMode("blocks")
+      setMarkdownDraft("")
+      setFocusedBlockId(null)
+      setSelectedBlockIds(new Set())
+      lastSelectedIndexRef.current = null
+      selectionHeadRef.current = null
+      pendingCaretRef.current = null
+      shouldAutofocusRef.current = autoFocus
+    }
     const next = value.length > 0 ? value : [makeBlock("paragraph")]
     undoRef.current = []
     redoRef.current = []
+    uploadEpochRef.current += 1
+    setUploadEpoch(uploadEpochRef.current)
     lastSyncedRef.current = next
     blocksRef.current = next
     setBlocksRaw(next)
-  }, [value])
+  }, [value, documentKey, autoFocus])
 
   function commit(
     next: Block[],
@@ -775,6 +803,24 @@ export function BlockEditor({
   }
 
   // --- Block operations -----------------------------------------------------
+
+  function insertUploadedImage(image: UploadedImage, anchor: string | null, epoch: number): boolean {
+    if (epoch !== uploadEpochRef.current || blocksRef.current.length >= 5000) return false
+    const block: Block = { id: crypto.randomUUID(), type: "image", src: image.src, alt: image.alt ?? "", caption: [], width: image.width, height: image.height }
+    const current = blocksRef.current
+    const afterId = current.some((item) => item.id === anchor) ? anchor! : current.at(-1)?.id
+    const next = afterId ? insertAfter(current, afterId, block) : [block]
+    commit(next, { type: "insert", block, afterId }, block.id)
+    return true
+  }
+
+  function updateImage(blockId: string, change: Partial<UploadedImage>): boolean {
+    const before = blocksRef.current.find((block) => block.id === blockId)
+    if (before?.type !== "image") return false
+    const block = { ...before, ...change, alt: change.alt ?? before.alt }
+    commit(blocksRef.current.map((item) => item.id === blockId ? block : item), { type: "update", before, block })
+    return true
+  }
 
   function history(direction: "undo" | "redo") {
     const source = direction === "undo" ? undoRef : redoRef
@@ -1353,7 +1399,7 @@ export function BlockEditor({
     if (
       event.key === "Backspace" &&
       isBlockEmpty(block) &&
-      block.type !== "divider"
+      block.type !== "divider" && block.type !== "image"
     ) {
       event.preventDefault()
       deleteBlock(block)
@@ -1515,7 +1561,7 @@ export function BlockEditor({
 
   if (mode === "markdown" && allowMarkdown) {
     return (
-      <section className={sectionClassName} style={style}>
+      <section key={documentKey} className={sectionClassName} style={style}>
         <div className="s2be-toolbar">
           <button type="button" onClick={applyMarkdown}>
             <BlocksIcon className="s2be-icon-sm" />
@@ -1538,7 +1584,7 @@ export function BlockEditor({
   }
 
   return (
-    <section className={sectionClassName}
+    <section key={documentKey} className={sectionClassName}
       onKeyDownCapture={(event) => {
         if (!(event.target as HTMLElement).isContentEditable || event.nativeEvent.isComposing) return
         if ((event.metaKey || event.ctrlKey) && ["z", "y"].includes(event.key.toLowerCase())) {
@@ -1554,6 +1600,7 @@ export function BlockEditor({
           <PlusIcon className="s2be-icon-sm" />
           Block
         </button>
+        {imageUpload && <ImageUploadControl key={uploadEpoch} options={imageUpload} label="Add image" disabled={blocks.length >= 5000} onUploaded={(image) => insertUploadedImage(image, focusedBlockId, uploadEpoch)} />}
         <button type="button" disabled={undoRef.current.length === 0} onClick={() => history("undo")}>Undo</button>
         <button type="button" disabled={redoRef.current.length === 0} onClick={() => history("redo")}>Redo</button>
         {allowMarkdown && (
@@ -1670,6 +1717,11 @@ export function BlockEditor({
             }}
             onUpdateText={(text) => updateText(block, text)}
             onUpdateInline={(content) => updateInline(block, content)}
+            imageUpload={imageUpload}
+            resolveImageSource={resolveImageSource}
+            uploadEpoch={uploadEpoch}
+            onImageAlt={(alt) => updateImage(block.id, { alt })}
+            onImageReplace={(image) => updateImage(block.id, image)}
             onEnter={(target) => enterBlock(block, target)}
             onHistory={history}
             onPaste={(event) => pasteHtml(block, event)}
@@ -1765,6 +1817,11 @@ interface BlockRowProps {
   onFocusBlock: () => void
   onUpdateText: (text: string) => void
   onUpdateInline: (content: InlineNode[]) => void
+  imageUpload?: ImageUploadOptions
+  resolveImageSource?: ResolveImageSource
+  uploadEpoch: number
+  onImageAlt: (alt: string) => void
+  onImageReplace: (image: UploadedImage) => boolean
   onEnter: (target: HTMLElement) => void
   onHistory: (direction: "undo" | "redo") => void
   onPaste: (event: ClipboardEvent<HTMLElement>) => void
@@ -1807,6 +1864,11 @@ function BlockRow(props: BlockRowProps) {
     onFocusBlock,
     onUpdateText,
     onUpdateInline,
+    imageUpload,
+    resolveImageSource,
+    uploadEpoch,
+    onImageAlt,
+    onImageReplace,
     onEnter,
     onHistory,
     onPaste,
@@ -2005,6 +2067,10 @@ function BlockRow(props: BlockRowProps) {
           >
             <span className="s2be-divider" />
           </button>
+        ) : block.type === "image" ? (
+          <ImageBlockView key={uploadEpoch} block={block} resolve={resolveImageSource} upload={imageUpload}
+            inputRef={inputRef} onFocus={onFocusBlock} onKeyDown={onKeyDown}
+            onAlt={onImageAlt} onReplace={onImageReplace} />
         ) : block.type === "table" ? (
           <TableBlockView
             block={block}

@@ -193,5 +193,57 @@ use up to 100 document snapshots. A genuinely new external `value` resets local
 history; parent echoes do not. History is local to this editor session and does not
 provide collaboration or server revision history. `split` operations carry `before`
 and replacement `blocks`, like paste; `undo`/`redo` carry the restored full `blocks`.
-Code and table cells retain literal editing surfaces. Host asset upload and image
-integration remain separate work.
+Code and table cells retain literal editing surfaces. Hosts supply the image upload and resolution callbacks described below.
+
+
+## Host-controlled images
+
+Provide `imageUpload` to enable Add image and Replace image, and
+`resolveImageSource` to display image blocks. Upload callbacks return `{ src, alt?,
+width?, height? }`; `src` can be an opaque asset ID. The editor validates that shape
+and persists only those fields, preserving the block ID and caption on replacement.
+Changing the description updates the image's alt text. Empty alt text does not make
+an image block disposable when Backspace is pressed in its description field.
+
+```tsx
+<BlockEditor
+  documentKey={`${scopeId}:${entryId}:${language}`}
+  value={blocks}
+  onChange={setBlocks}
+  allowMarkdown={false}
+  imageUpload={{
+    mimeTypes: ["image/png", "image/jpeg", "image/webp"],
+    maxBytes: 5 * 1024 * 1024,
+    upload: (file, { signal }) => uploadHelpImage(file, { signal }),
+  }}
+  resolveImageSource={(assetId) => authorizedMediaUrl(assetId)}
+/>
+```
+
+`uploadHelpImage` and `authorizedMediaUrl` above are host functions, not package
+APIs. The host owns authentication, byte-level validation, size limits, tenant/app
+ownership, storage, asset access, autosave and reference-aware retention. Declared
+MIME/size checks in the editor only catch obvious mistakes before invoking the host.
+The editor does not accept pasted remote images as uploads or configure storage.
+
+No resolver means no image request: arbitrary stored `src` strings are never fetched
+implicitly. Resolved URLs may be HTTP(S), blob previews or root-relative API paths;
+active/data/file and protocol-relative URLs are rejected. Rendering is not an
+ownership check. Loading failures show an explicit preview retry, independent from
+upload retry. Host upload failures retain the selected file for retry without adding
+a broken block. Only completed, validated uploads enter the document.
+
+Cancel, unmount and replacement of the external document abort pending uploads and
+ignore late results. Pass a stable `documentKey` for the scope/entry/language, even
+when two documents contain identical blocks; changing it also resets local history
+and selection. Hosts may instead remount the editor with a React `key`. Parent
+echoes of the editor's own changes keep uploads running. If a successful upload
+cannot be inserted because the document became full, retry reuses that asset rather
+than uploading it twice. Cancelled/failed/replaced or undone assets may remain in
+storage: the host must clean them up according to saved draft/published references,
+not delete them immediately from a client callback.
+
+The public demo decodes PNG/JPEG/WebP files into local blob previews and stores demo
+asset IDs for the lifetime of the tab. It does not upload files. The separate
+`images-test.html` development fixture exercises host failures and cancellation and
+is not a demo build entry.

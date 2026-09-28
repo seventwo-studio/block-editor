@@ -15,7 +15,7 @@ import {
   BlockEditor,
 } from "@seventwo-studio/block-editor/react"
 import "@seventwo-studio/block-editor/react.css"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 const seedBlocks: Block[] = [
   makeBlock("heading1", "Portable block documents"),
@@ -77,6 +77,8 @@ type LoggedOperation = {
 }
 
 export default function App() {
+  const imageUrls = useRef(new Map<string, string>())
+  useEffect(() => () => { for (const url of imageUrls.current.values()) URL.revokeObjectURL(url) }, [])
   const [themeKey, setThemeKey] = useState<ThemeKey>("meadow")
   const [accent, setAccent] = useState<string>(themes.meadow.accent)
   const [radius, setRadius] = useState<number>(themes.meadow.radius)
@@ -151,6 +153,20 @@ export default function App() {
             <span>{blocks.length} blocks</span>
           </div>
           <BlockEditor
+            imageUpload={{
+              mimeTypes: ["image/png", "image/jpeg", "image/webp"],
+              maxBytes: 5 * 1024 * 1024,
+              upload: async (file, { signal }) => {
+                const bitmap = await createImageBitmap(file)
+                const { width, height } = bitmap
+                bitmap.close()
+                signal.throwIfAborted()
+                const src = `demo-image:${crypto.randomUUID()}`
+                imageUrls.current.set(src, URL.createObjectURL(file))
+                return { src, width, height }
+              },
+            }}
+            resolveImageSource={(src) => imageUrls.current.get(src)}
             allowMarkdown={allowMarkdown}
             value={blocks}
             onChange={setBlocks}
@@ -165,6 +181,7 @@ export default function App() {
         <aside className="inspector">
           <section>
             <h2>Editing</h2>
+            <p>Image previews stay in this tab and are not uploaded. Hosts provide storage and authorization.</p>
             <label>
               <input
                 type="checkbox"
