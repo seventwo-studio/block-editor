@@ -63,7 +63,7 @@ bun install
 bun run typecheck
 bun run demo:typecheck
 bun run test
-bunx playwright install chromium
+bunx playwright install chromium webkit
 bun run test:browser
 bun run build
 bun run demo:build
@@ -157,14 +157,41 @@ Pasting replaces the active text selection, preserves surrounding marks/referenc
 and places the caret before the preserved suffix. A single `paste` UI operation
 contains `before` and the ordered replacement `blocks`; replace that original block
 at its current position when replaying it. `onChange` supplies the full resulting
-document. Literal code/table destinations, ambiguous multi-item list destinations
-and empty/rejected imports retain native plain-text paste. Imports over 1 MB of
+document. Literal code/table destinations and ambiguous multi-item list destinations retain
+native plain-text paste. Empty/rejected HTML imports in the visual inline surface
+use the clipboard plain-text alternative. Imports over 1 MB of
 HTML, 5,000 blocks, 128 levels or 100,000 characters in a code block fall back to
 plain text without silently truncating content.
 
 `parseClipboardHtml` and `pasteBlocks` are exported from the package root for custom
 surfaces. Parsing requires a browser `Document`; importing the package remains
 server-safe. These helpers do not replace server-side schema, link or asset checks.
-The existing textarea surface stores marks but does not yet visually render inline
-formatting. Browser tests verify the real React paste event, caret, data model,
+The custom inline surface renders stored marks while editing. Browser tests verify the real React paste event, caret, data model,
 namespace filtering and absence of remote-image requests.
+
+
+## Visual inline editing
+
+Paragraphs, headings, quotes, callouts and flat single-item list blocks use a custom
+contenteditable surface backed by the canonical inline model. Bold, italic, inline
+code and links render directly while typing; an in-place toolbar applies formatting
+to the selection. Bold/italic/code also toggle the marks for subsequent typing at a
+collapsed caret. Link addresses must be absolute HTTP(S) or mailto URLs, and clicking
+a link in the editor does not navigate away. Reference nodes remain structured when
+unaffected by edits; partial edits to a reference label become ordinary text.
+
+Use Cmd/Ctrl+B, I and E for bold, italic and code; Cmd/Ctrl+K opens the inline link
+form. Enter splits at the selection while preserving marks on either side;
+Shift+Enter inserts a line break. Browser edit ranges handle repeated text without
+moving formatting to the wrong occurrence. Composition is deferred until completion.
+HTML and plain-text paste update the model; browser HTML is never reused as rendered
+markup. Text drops and edits spanning multiple editable blocks are not supported;
+use the existing block selection/reordering controls for operations across blocks.
+
+Undo/Redo buttons, Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z, Ctrl+Y and native history input events
+use up to 100 document snapshots. A genuinely new external `value` resets local
+history; parent echoes do not. History is local to this editor session and does not
+provide collaboration or server revision history. `split` operations carry `before`
+and replacement `blocks`, like paste; `undo`/`redo` carry the restored full `blocks`.
+Code and table cells retain literal editing surfaces. Host asset upload and image
+integration remain separate work.

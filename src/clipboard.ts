@@ -1,3 +1,4 @@
+import { getInlineContent, setInlineContent, sliceInline } from "./inline.js";
 import { plainText } from "./model.js";
 import type { Block, InlineNode, Mark } from "./schema.js";
 
@@ -187,48 +188,6 @@ export function parseClipboardHtml(
   return !rejected && result.length <= 5000 ? result : [];
 }
 
-function editableContent(block: Block): InlineNode[] | null {
-  if (
-    ["paragraph", "heading", "quote", "callout"].includes(block.type) &&
-    "content" in block
-  )
-    return block.content;
-  if (
-    block.type === "list" &&
-    block.items.length === 1 &&
-    block.items[0].children.length === 0
-  )
-    return block.items[0].content;
-  return null;
-}
-
-function withContent(block: Block, content: InlineNode[]): Block {
-  if (block.type === "list")
-    return { ...block, items: [{ ...block.items[0], content }] };
-  return { ...block, content } as Block;
-}
-
-function sliceContent(
-  nodes: InlineNode[],
-  start: number,
-  end: number,
-): InlineNode[] {
-  let offset = 0;
-  return nodes.flatMap((node) => {
-    const value = plainText([node]);
-    const from = Math.max(0, start - offset);
-    const to = Math.min(value.length, end - offset);
-    offset += value.length;
-    if (from >= to) return [];
-    if (from === 0 && to === value.length) return [node];
-    return [
-      node.type === "text"
-        ? { ...node, text: value.slice(from, to) }
-        : { type: "text" as const, text: value.slice(from, to), marks: [] },
-    ];
-  });
-}
-
 /** Replace a textarea selection without losing surrounding structured content.
  * Returns null for literal/code/table or ambiguous multi-item list destinations.
  * Offsets use the browser's UTF-16 selection convention.
@@ -239,17 +198,19 @@ export function pasteBlocks(
   start: number,
   end: number,
 ): { blocks: Block[]; focusId: string; caret: number } | null {
-  const content = editableContent(block);
+  const content = getInlineContent(block);
   if (!content || !imported.length) return null;
   const length = plainText(content).length;
   start = Math.max(0, Math.min(length, start));
   end = Math.max(start, Math.min(length, end));
-  const prefix = sliceContent(content, 0, start);
-  const suffix = sliceContent(content, end, length);
+  const prefix = sliceInline(content, 0, start);
+  const suffix = sliceInline(content, end, length);
   const single = imported[0];
   if (imported.length === 1 && single.type === "paragraph") {
     return {
-      blocks: [withContent(block, [...prefix, ...single.content, ...suffix])],
+      blocks: [
+        setInlineContent(block, [...prefix, ...single.content, ...suffix]),
+      ],
       focusId: block.id,
       caret: start + plainText(single.content).length,
     };
@@ -257,13 +218,13 @@ export function pasteBlocks(
   const next = [...imported];
   // Keep the destination block identity/type when text remains before the paste.
   if (prefix.length && next[0].type === "paragraph")
-    next[0] = withContent(block, [...prefix, ...next[0].content]);
-  else if (prefix.length) next.unshift(withContent(block, prefix));
+    next[0] = setInlineContent(block, [...prefix, ...next[0].content]);
+  else if (prefix.length) next.unshift(setInlineContent(block, prefix));
   else next[0] = { ...next[0], id: block.id };
   const last = next.at(-1)!;
-  const tail = editableContent(last);
+  const tail = getInlineContent(last);
   if (tail) {
-    next[next.length - 1] = withContent(last, [...tail, ...suffix]);
+    next[next.length - 1] = setInlineContent(last, [...tail, ...suffix]);
     return { blocks: next, focusId: last.id, caret: plainText(tail).length };
   }
   const paragraph: Block = {

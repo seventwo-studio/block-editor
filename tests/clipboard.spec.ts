@@ -121,12 +121,18 @@ async function paste(
   end: number,
 ) {
   await page
-    .locator("textarea.s2be-input")
+    .locator(".s2be-rich-input")
     .first()
     .evaluate(
-      (node: HTMLTextAreaElement, args) => {
+      (node: HTMLDivElement, args) => {
         node.focus();
-        node.setSelectionRange(args.start, args.end);
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        const first = walker.nextNode()!;
+        const range = document.createRange();
+        range.setStart(first, args.start);
+        range.setEnd(first, args.end);
+        document.getSelection()!.removeAllRanges();
+        document.getSelection()!.addRange(range);
         const clipboardData = new DataTransfer();
         clipboardData.setData("text/html", args.html);
         clipboardData.setData("text/plain", args.text);
@@ -145,7 +151,7 @@ async function paste(
 test("React paste creates one operation, keeps surrounding text and restores the caret", async ({
   page,
 }) => {
-  const input = page.locator("textarea.s2be-input").first();
+  const input = page.locator(".s2be-rich-input").first();
   await input.fill("before OLD after");
   await paste(
     page,
@@ -154,12 +160,22 @@ test("React paste creates one operation, keeps surrounding text and restores the
     7,
     10,
   );
-  await expect(input).toHaveValue("before first");
-  const second = page.locator("textarea.s2be-input").nth(1);
-  await expect(second).toHaveValue("second after");
+  await expect(input).toHaveText("before first");
+  const second = page.locator(".s2be-rich-input").nth(1);
+  await expect(second).toHaveText("second after");
   await expect(second).toBeFocused();
   expect(
-    await second.evaluate((node: HTMLTextAreaElement) => node.selectionStart),
+    await second.evaluate((node: HTMLDivElement) =>
+      (() => {
+        const range = document.getSelection()!.getRangeAt(0).cloneRange();
+        range.selectNodeContents(node);
+        range.setEnd(
+          document.getSelection()!.anchorNode!,
+          document.getSelection()!.anchorOffset,
+        );
+        return range.toString().length;
+      })(),
+    ),
   ).toBe(6);
   const operation = JSON.parse(
     await page.locator(".operation-list pre").first().innerText(),
@@ -168,7 +184,7 @@ test("React paste creates one operation, keeps surrounding text and restores the
   expect(operation.blocks[0].content.at(-1).marks).toEqual([{ type: "bold" }]);
   expect(operation.blocks[1].content[0].marks).toEqual([{ type: "italic" }]);
   await second.press("!");
-  await expect(second).toHaveValue("second! after");
+  await expect(second).toHaveText("second! after");
   const afterTyping = JSON.parse(
     await page.locator(".operation-list pre").first().innerText(),
   );

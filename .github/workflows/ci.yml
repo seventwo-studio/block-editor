@@ -18,7 +18,7 @@ jobs:
       - run: bun run typecheck
       - run: bun run demo:typecheck
       - run: bun run test
-      - run: bunx playwright install --with-deps chromium
+      - run: bunx playwright install --with-deps chromium webkit
       - run: bun run test:browser
       - run: bun run check:package
       - run: bun run demo:build

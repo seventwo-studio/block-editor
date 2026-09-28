@@ -1,3 +1,4 @@
+export * from "./inline.js"
 export * from "./clipboard.js"
 export * from "./crdt.js"
 export * from "./model.js"
