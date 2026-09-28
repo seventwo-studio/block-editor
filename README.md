@@ -247,3 +247,35 @@ The public demo decodes PNG/JPEG/WebP files into local blob previews and stores 
 asset IDs for the lifetime of the tab. It does not upload files. The separate
 `images-test.html` development fixture exercises host failures and cancellation and
 is not a demo build entry.
+
+### Host block controls
+
+`allowedBlockTypes` restricts newly authored block types. Omit it to preserve the
+full editor; paragraphs always remain available for empty documents and plain-text
+fallback. The type is exported as `AuthoringBlockType` from the root package.
+
+```tsx
+<BlockEditor
+  value={blocks}
+  onChange={setBlocks}
+  allowMarkdown={false}
+  allowedBlockTypes={[
+    "paragraph", "heading1", "heading2", "heading3", "bullet", "ordered",
+    "quote", "code", "divider", "image",
+  ]}
+  imageUpload={imageUpload}
+  resolveImageSource={resolveImageSource}
+/>
+```
+
+The configuration filters slash commands, conversion controls, typing shortcuts,
+Enter continuation and image insertion. Rich paste and raw Markdown imports reduce
+unsupported blocks to paragraphs retaining their text. Disallowed typing shortcuts
+remain literal text. Existing host-provided content and undo history are preserved;
+changing the configuration never silently rewrites saved documents. Loading a new
+document should still change `documentKey` to reset history.
+
+These are authoring controls, not server-side document validation. Hosts must still
+validate the document schema, allowed inline nodes/marks, nesting, link URLs and
+asset ownership before saving. Existing unsupported blocks may still be edited or
+deleted; migrations of saved content require an explicit host workflow.
