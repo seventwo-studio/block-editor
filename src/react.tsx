@@ -23,6 +23,10 @@ import {
   toSimpleType,
   transformShortcut,
 } from "./index.js"
+import { InlineEditor, inlineSelection, selectInline } from "./inline-react.js"
+import { getInlineContent, setInlineContent, sliceInline } from "./inline.js"
+import { plainText } from "./model.js"
+import type { InlineNode } from "./schema.js"
 import { parseClipboardHtml, pasteBlocks } from "./clipboard.js"
 import {
   type ClipboardEvent,
@@ -53,7 +57,8 @@ export type BlockEditorUiOperation =
   | { type: "delete"; block: Block }
   | { type: "delete-many"; blocks: Block[] }
   | { type: "markdown"; blocks: Block[] }
-  | { type: "paste"; before: Block; blocks: Block[] }
+  | { type: "paste" | "split"; before: Block; blocks: Block[] }
+  | { type: "undo" | "redo"; blocks: Block[] }
 
 export interface BlockEditorProps {
   value: Block[]
@@ -68,7 +73,7 @@ export interface BlockEditorProps {
   style?: CSSProperties
 }
 
-type EditableRef = HTMLTextAreaElement | HTMLInputElement | null
+type EditableRef = HTMLTextAreaElement | HTMLInputElement | HTMLDivElement | null
 
 // ---------------------------------------------------------------------------
 // Inline SVG icons — kept in-package so consumers don't pull in an icon lib.
@@ -717,6 +722,9 @@ export function BlockEditor({
   } | null>(null)
 
   const inputRefs = useRef<Record<string, EditableRef>>({})
+  const pendingCaretRef = useRef<{ id: string; offset: number } | null>(null)
+  const undoRef = useRef<Block[][]>([])
+  const redoRef = useRef<Block[][]>([])
   const blocksRef = useRef(blocks)
   blocksRef.current = blocks
   const onChangeRef = useRef(onChange)
@@ -739,6 +747,8 @@ export function BlockEditor({
     if (value === lastSyncedRef.current) return
     if (JSON.stringify(value) === JSON.stringify(lastSyncedRef.current)) return
     const next = value.length > 0 ? value : [makeBlock("paragraph")]
+    undoRef.current = []
+    redoRef.current = []
     lastSyncedRef.current = next
     blocksRef.current = next
     setBlocksRaw(next)
@@ -749,6 +759,10 @@ export function BlockEditor({
     operation?: BlockEditorUiOperation,
     focusBlockId?: string,
   ) {
+    if (operation?.type !== "undo" && operation?.type !== "redo" && JSON.stringify(next) !== JSON.stringify(blocksRef.current)) {
+      undoRef.current = [...undoRef.current.slice(-99), blocksRef.current]
+      redoRef.current = []
+    }
     blocksRef.current = next
     lastSyncedRef.current = next
     setBlocksRaw(next)
@@ -762,24 +776,47 @@ export function BlockEditor({
 
   // --- Block operations -----------------------------------------------------
 
-  function pasteHtml(block: Block, event: ClipboardEvent<HTMLTextAreaElement>) {
-    const html = event.clipboardData.getData("text/html")
-    if (!html) return
+  function history(direction: "undo" | "redo") {
+    const source = direction === "undo" ? undoRef : redoRef
+    const destination = direction === "undo" ? redoRef : undoRef
+    const previous = source.current.pop()
+    if (!previous) return
+    destination.current.push(blocksRef.current)
+    const focus = previous.some((block) => block.id === focusedBlockId) ? focusedBlockId! : previous[0]?.id
+    commit(previous, { type: direction, blocks: previous }, focus)
+  }
+
+  function pasteHtml(block: Block, event: ClipboardEvent<HTMLElement>) {
     const target = event.currentTarget
-    const imported = parseClipboardHtml(html, target.ownerDocument)
-    const paste = pasteBlocks(block, imported, target.selectionStart, target.selectionEnd)
-    if (!paste) return // Native plain-text paste for literal destinations/unsupported HTML.
+    const selection = target instanceof HTMLTextAreaElement
+      ? { start: target.selectionStart, end: target.selectionEnd }
+      : inlineSelection(target)
+    if (!selection) { event.preventDefault(); return }
+    const html = event.clipboardData.getData("text/html")
+    let imported = html ? parseClipboardHtml(html, target.ownerDocument) : []
+    if (!imported.length) {
+      const text = event.clipboardData.getData("text/plain")
+      if (!text) { event.preventDefault(); return }
+      imported = [makeBlock("paragraph", text)]
+    }
+    const paste = pasteBlocks(block, imported, selection.start, selection.end)
+    if (!paste) return
     const current = blocksRef.current
-    if (current.length - 1 + paste.blocks.length > 5000) return
+    if (current.length - 1 + paste.blocks.length > 5000) { event.preventDefault(); return }
     event.preventDefault()
     clearSelection()
     setSlashIndex(0)
     const next = current.flatMap((item) => item.id === block.id ? paste.blocks : [item])
+    pendingCaretRef.current = { id: paste.focusId, offset: paste.caret }
     commit(next, { type: "paste", before: block, blocks: paste.blocks }, paste.focusId)
-    requestAnimationFrame(() => {
-      const input = inputRefs.current[paste.focusId]
-      if (input) { input.focus(); input.setSelectionRange(paste.caret, paste.caret) }
-    })
+  }
+
+  function updateInline(block: Block, content: InlineNode[]) {
+    clearSelection()
+    setSlashIndex(0)
+    const shortcut = transformShortcut(plainText(content), block)
+    const next = shortcut?.block ? { ...shortcut.block, id: block.id } : setInlineContent(block, content)
+    commit(blocksRef.current.map((item) => item.id === block.id ? next : item), { type: shortcut?.block ? "replace" : "update", before: block, block: next })
   }
 
   function updateText(block: Block, text: string) {
@@ -1081,6 +1118,8 @@ export function BlockEditor({
 
   const applyMarkdown = useCallback(() => {
     const next = parseMarkdownToBlocks(markdownDraft)
+    undoRef.current = [...undoRef.current.slice(-99), blocksRef.current]
+    redoRef.current = []
     blocksRef.current = next
     lastSyncedRef.current = next
     setBlocksRaw(next)
@@ -1236,11 +1275,39 @@ export function BlockEditor({
 
   // --- Per-block keyboard handling -----------------------------------------
 
+  function enterBlock(block: Block, target: HTMLElement) {
+    const behavior = getEnterBehavior(block)
+    if (behavior.action === "replace") {
+      const next: Block = { ...makeBlock(behavior.type), id: block.id }
+      commit(
+        blocksRef.current.map((item) => item.id === block.id ? next : item),
+        { type: "replace", before: block, block: next },
+        next.id,
+      )
+      return
+    }
+    const content = getInlineContent(block)
+    const selection = target instanceof HTMLDivElement ? inlineSelection(target) : null
+    if (!content || !selection) {
+      if (!(target instanceof HTMLDivElement)) insertBlock(block.id, behavior.type)
+      return
+    }
+    const left = setInlineContent(block, sliceInline(content, 0, selection.start))
+    const right = setInlineContent(
+      makeBlock(behavior.type),
+      sliceInline(content, selection.end, plainText(content).length),
+    )
+    const next = blocksRef.current.flatMap((item) => item.id === block.id ? [left, right] : [item])
+    pendingCaretRef.current = { id: right.id, offset: 0 }
+    commit(next, { type: "split", before: block, blocks: [left, right] }, right.id)
+  }
+
   function handleKeyDown(
-    event: KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+    event: KeyboardEvent<HTMLElement>,
     block: Block,
     index: number,
   ) {
+    if (event.nativeEvent.isComposing) return
     const slashQuery = getSlashQuery(block)
     const visible = slashQuery !== null ? filterSlashCommands(slashQuery) : []
     if (
@@ -1278,18 +1345,7 @@ export function BlockEditor({
     ) {
       if (event.shiftKey) return
       event.preventDefault()
-      const behavior = getEnterBehavior(block)
-      if (behavior.action === "replace") {
-        const fresh = makeBlock(behavior.type)
-        const next: Block = { ...fresh, id: block.id }
-        commit(
-          blocks.map((item) => (item.id === block.id ? next : item)),
-          { type: "replace", before: block, block: next },
-          next.id,
-        )
-      } else {
-        insertBlock(block.id, behavior.type)
-      }
+      enterBlock(block, event.currentTarget)
       return
     }
 
@@ -1334,18 +1390,23 @@ export function BlockEditor({
     }
   }
 
-  // Auto-focus after block operations
-  useEffect(() => {
+  // Restore selection in the same layout commit as the new blocks. Deferring it
+  // to an animation frame can overwrite the user's next selection in WebKit.
+  useLayoutEffect(() => {
     if (!shouldAutofocusRef.current || !focusedBlockId) return
     const target = inputRefs.current[focusedBlockId]
     if (!target) return
     target.focus()
-    if ("setSelectionRange" in target && typeof target.value === "string") {
-      const pos = target.value.length
+    const pending = pendingCaretRef.current
+    const offset = pending?.id === focusedBlockId ? pending.offset : null
+    if (target instanceof HTMLDivElement) selectInline(target, offset ?? target.textContent?.length ?? 0)
+    else {
+      const pos = offset ?? target.value.length
       target.setSelectionRange(pos, pos)
     }
+    pendingCaretRef.current = null
     shouldAutofocusRef.current = false
-  }, [focusedBlockId])
+  }, [blocks, focusedBlockId])
 
   // Global keyboard handler — Cmd+A, Shift+Arrow on selection, delete on
   // selection, Escape to clear selection.
@@ -1477,7 +1538,14 @@ export function BlockEditor({
   }
 
   return (
-    <section className={sectionClassName} style={style}>
+    <section className={sectionClassName}
+      onKeyDownCapture={(event) => {
+        if (!(event.target as HTMLElement).isContentEditable || event.nativeEvent.isComposing) return
+        if ((event.metaKey || event.ctrlKey) && ["z", "y"].includes(event.key.toLowerCase())) {
+          event.preventDefault()
+          history(event.shiftKey || event.key.toLowerCase() === "y" ? "redo" : "undo")
+        }
+      }} style={style}>
       <div className="s2be-toolbar">
         <button
           type="button"
@@ -1486,6 +1554,8 @@ export function BlockEditor({
           <PlusIcon className="s2be-icon-sm" />
           Block
         </button>
+        <button type="button" disabled={undoRef.current.length === 0} onClick={() => history("undo")}>Undo</button>
+        <button type="button" disabled={redoRef.current.length === 0} onClick={() => history("redo")}>Redo</button>
         {allowMarkdown && (
           <button type="button" onClick={enterMarkdownMode}>
             <MarkdownIcon className="s2be-icon-sm" />
@@ -1599,6 +1669,9 @@ export function BlockEditor({
               setFocusedBlockId(block.id)
             }}
             onUpdateText={(text) => updateText(block, text)}
+            onUpdateInline={(content) => updateInline(block, content)}
+            onEnter={(target) => enterBlock(block, target)}
+            onHistory={history}
             onPaste={(event) => pasteHtml(block, event)}
             onSlashApply={(commandIndex) =>
               applySlashCommand(block, commandIndex)
@@ -1691,9 +1764,12 @@ interface BlockRowProps {
   inputRef: (node: EditableRef) => void
   onFocusBlock: () => void
   onUpdateText: (text: string) => void
-  onPaste: (event: ClipboardEvent<HTMLTextAreaElement>) => void
+  onUpdateInline: (content: InlineNode[]) => void
+  onEnter: (target: HTMLElement) => void
+  onHistory: (direction: "undo" | "redo") => void
+  onPaste: (event: ClipboardEvent<HTMLElement>) => void
   onSlashApply: (commandIndex: number) => void
-  onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void
+  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void
   onMove: (direction: -1 | 1) => void
   onReplace: (type: SimpleBlockType) => void
   onDelete: () => void
@@ -1730,6 +1806,9 @@ function BlockRow(props: BlockRowProps) {
     inputRef,
     onFocusBlock,
     onUpdateText,
+    onUpdateInline,
+    onEnter,
+    onHistory,
     onPaste,
     onSlashApply,
     onKeyDown,
@@ -1950,6 +2029,20 @@ function BlockRow(props: BlockRowProps) {
             onKeyDown={onKeyDown}
             onChangeText={onUpdateText}
             onChangeLanguage={onCodeLanguage}
+          />
+        ) : getInlineContent(block) ? (
+          <InlineEditor
+            content={getInlineContent(block)!}
+            placeholder={index === 0 ? getPlaceholder(simpleType, placeholder) : getPlaceholder(simpleType, "")}
+            autoFocus={autoFocus}
+            focused={focused}
+            inputRef={inputRef}
+            onFocus={onFocusBlock}
+            onKeyDown={onKeyDown}
+            onPaste={onPaste}
+            onChange={onUpdateInline}
+            onEnter={onEnter}
+            onHistory={onHistory}
           />
         ) : (
           <AutoGrowTextarea
