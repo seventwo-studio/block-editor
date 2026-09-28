@@ -96,3 +96,46 @@ code points to avoid splitting surrogate pairs.
 contiguous replacement. For editors with explicit selections and richer editing
 operations, use the structured `InlineNode` model directly. This helper does not
 sanitize links, implement visual formatting controls, or resolve concurrent edits.
+
+## Internal package distribution
+
+Release `@seventwo-studio/block-editor` through the GitHub npm registry. The repository
+may be public; this does not authorize a public package release. `.npmrc` and
+`publishConfig.registry` route this scope to `https://npm.pkg.github.com`.
+
+The **Internal package release** workflow is manual and runs only from the repository's
+current default branch. Supply the exact reviewed `package.json` version and confirm
+that package access and any additional spending are approved. Merging a PR does not
+publish a package. The workflow validates types, tests and demo, installs a real tarball
+in an isolated consumer, then publishes with its short-lived `GITHUB_TOKEN`.
+It rejects an existing package that is not private and checks visibility after publishing.
+GitHub creates new packages as private by default; do not change them to public.
+
+Before the first release, check organization package usage/budgets and obtain approval
+for any new charges. Enterprise Cloud includes 50 GB of storage (shared with Actions
+artifacts) and 100 GB monthly transfer; downloads authenticated with `GITHUB_TOKEN`
+in Actions do not consume package transfer allowance. See [GitHub Packages billing](https://docs.github.com/en/billing/concepts/product-billing/github-packages).
+These allowances do not establish current remaining capacity or spending approval.
+
+After publication, open the package's settings and explicitly grant **Read** under
+**Manage Actions access** to `seventwo-studio/foliostrate`. Keep access limited to approved
+consumers; verify inherited access before granting anything broader. In Foliostrate CI,
+use `permissions: packages: read`, authenticate with its own `GITHUB_TOKEN`, and verify
+installation from a clean lockfile. Local developers need an authorized classic token
+with `read:packages`, stored outside the repository. Never commit tokens.
+
+Consumers add `@seventwo-studio:registry=https://npm.pkg.github.com` to their project
+`.npmrc` and pin an exact published version. For example, after **0.1.0 is confirmed
+published and accessible**:
+
+```sh
+npm install --save-exact @seventwo-studio/block-editor@0.1.0
+```
+
+Foliostrate configures `allowMarkdown={false}` and owns authorization, asset validation,
+uploads, autosave and publication. Publishing this package does not implement those
+features. The package's broader block schema is not an application authorization policy.
+
+`bun run check:package` requires Node and npm and validates all packaged entrypoints,
+CSS, a schema parse and React server rendering from a fresh installation. It neither
+publishes a package nor relies on source aliases.

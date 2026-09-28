@@ -18,5 +18,5 @@ jobs:
       - run: bun run typecheck
       - run: bun run demo:typecheck
       - run: bun run test
-      - run: bun run build
+      - run: bun run check:package
       - run: bun run demo:build
