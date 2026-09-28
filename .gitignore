@@ -9,3 +9,6 @@ dist-demo
 !.claude/settings.json
 .codex/*
 !.codex/config.toml
+
+test-results/
+playwright-report/
