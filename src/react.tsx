@@ -1,3 +1,4 @@
+import { allowsBlockType, allowsAuthoredBlock, authoringCommands, constrainImportedBlocks, type AuthoringBlockType } from "./authoring.js"
 import { ImageBlockView, ImageUploadControl, type ImageUploadOptions, type ResolveImageSource, type UploadedImage } from "./image-react.js"
 export type { ImageUploadOptions, ResolveImageSource, UploadedImage } from "./image-react.js"
 import {
@@ -7,7 +8,6 @@ import {
   type SimpleBlockType,
   SLASH_COMMANDS,
   calloutColorStyle,
-  filterSlashCommands,
   getBlockText,
   getCodeLanguage,
   getConvertibleTypes,
@@ -73,6 +73,8 @@ export interface BlockEditorProps {
   className?: string
   /** Show raw Markdown editing. Defaults to true for existing consumers. */
   allowMarkdown?: boolean
+  /** Restrict newly authored block types; paragraphs always remain available. Existing content is preserved. */
+  allowedBlockTypes?: readonly AuthoringBlockType[]
   /** Upload/auth/storage belong to the host. Omit to hide image insertion. */
   imageUpload?: ImageUploadOptions
   /** Explicitly resolve stored asset IDs to authorized display URLs. */
@@ -708,6 +710,7 @@ export function BlockEditor({
   className,
   compact = false,
   allowMarkdown = true,
+  allowedBlockTypes,
   imageUpload,
   resolveImageSource,
   style,
@@ -805,7 +808,7 @@ export function BlockEditor({
   // --- Block operations -----------------------------------------------------
 
   function insertUploadedImage(image: UploadedImage, anchor: string | null, epoch: number): boolean {
-    if (epoch !== uploadEpochRef.current || blocksRef.current.length >= 5000) return false
+    if (!allowsBlockType("image", allowedBlockTypes) || epoch !== uploadEpochRef.current || blocksRef.current.length >= 5000) return false
     const block: Block = { id: crypto.randomUUID(), type: "image", src: image.src, alt: image.alt ?? "", caption: [], width: image.width, height: image.height }
     const current = blocksRef.current
     const afterId = current.some((item) => item.id === anchor) ? anchor! : current.at(-1)?.id
@@ -845,7 +848,7 @@ export function BlockEditor({
       if (!text) { event.preventDefault(); return }
       imported = [makeBlock("paragraph", text)]
     }
-    const paste = pasteBlocks(block, imported, selection.start, selection.end)
+    const paste = pasteBlocks(block, constrainImportedBlocks(imported, allowedBlockTypes), selection.start, selection.end)
     if (!paste) return
     const current = blocksRef.current
     if (current.length - 1 + paste.blocks.length > 5000) { event.preventDefault(); return }
@@ -860,7 +863,8 @@ export function BlockEditor({
   function updateInline(block: Block, content: InlineNode[]) {
     clearSelection()
     setSlashIndex(0)
-    const shortcut = transformShortcut(plainText(content), block)
+    const proposed = transformShortcut(plainText(content), block)
+    const shortcut = proposed?.block && allowsAuthoredBlock(proposed.block, allowedBlockTypes) ? proposed : null
     const next = shortcut?.block ? { ...shortcut.block, id: block.id } : setInlineContent(block, content)
     commit(blocksRef.current.map((item) => item.id === block.id ? next : item), { type: shortcut?.block ? "replace" : "update", before: block, block: next })
   }
@@ -868,7 +872,8 @@ export function BlockEditor({
   function updateText(block: Block, text: string) {
     clearSelection()
     setSlashIndex(0)
-    const shortcut = transformShortcut(text, block)
+    const proposed = transformShortcut(text, block)
+    const shortcut = proposed?.block && allowsAuthoredBlock(proposed.block, allowedBlockTypes) ? proposed : null
     const replacement = shortcut?.block
       ? { ...shortcut.block, id: block.id }
       : setBlockText(block, text)
@@ -883,6 +888,7 @@ export function BlockEditor({
   }
 
   function replaceType(block: Block, type: SimpleBlockType) {
+    if (!allowsBlockType(type, allowedBlockTypes)) return
     const command = SLASH_COMMANDS.find((item) => item.id === type)
     if (!command) return
     const text = getBlockText(block)
@@ -899,7 +905,7 @@ export function BlockEditor({
   }
 
   function insertBlock(afterId: string, type: SimpleBlockType = "paragraph") {
-    const block = makeBlock(type)
+    const block = makeBlock(allowsBlockType(type, allowedBlockTypes) ? type : "paragraph")
     commit(
       insertAfter(blocks, afterId, block),
       { type: "insert", block, afterId },
@@ -980,7 +986,7 @@ export function BlockEditor({
   }
 
   function applySlashCommand(block: Block, commandIndex: number) {
-    const visible = filterSlashCommands(getSlashQuery(block))
+    const visible = authoringCommands(getSlashQuery(block), allowedBlockTypes)
     const cmd = visible[commandIndex]
     if (!cmd) return
     const fresh = cmd.apply()
@@ -1163,7 +1169,7 @@ export function BlockEditor({
   }
 
   const applyMarkdown = useCallback(() => {
-    const next = parseMarkdownToBlocks(markdownDraft)
+    const next = constrainImportedBlocks(parseMarkdownToBlocks(markdownDraft), allowedBlockTypes)
     undoRef.current = [...undoRef.current.slice(-99), blocksRef.current]
     redoRef.current = []
     blocksRef.current = next
@@ -1172,7 +1178,7 @@ export function BlockEditor({
     onChangeRef.current(next)
     onOperationRef.current?.({ type: "markdown", blocks: next }, next)
     setMode("blocks")
-  }, [markdownDraft])
+  }, [markdownDraft, allowedBlockTypes])
 
   // A host can disable raw editing while it is open. Preserve the draft using
   // the same conversion as Done, before showing the visual editor.
@@ -1322,7 +1328,8 @@ export function BlockEditor({
   // --- Per-block keyboard handling -----------------------------------------
 
   function enterBlock(block: Block, target: HTMLElement) {
-    const behavior = getEnterBehavior(block)
+    const initialBehavior = getEnterBehavior(block)
+    const behavior = { ...initialBehavior, type: allowsBlockType(initialBehavior.type, allowedBlockTypes) ? initialBehavior.type : "paragraph" as const }
     if (behavior.action === "replace") {
       const next: Block = { ...makeBlock(behavior.type), id: block.id }
       commit(
@@ -1355,7 +1362,7 @@ export function BlockEditor({
   ) {
     if (event.nativeEvent.isComposing) return
     const slashQuery = getSlashQuery(block)
-    const visible = slashQuery !== null ? filterSlashCommands(slashQuery) : []
+    const visible = slashQuery !== null ? authoringCommands(slashQuery, allowedBlockTypes) : []
     if (
       slashQuery !== null &&
       block.id === focusedBlockId &&
@@ -1600,7 +1607,7 @@ export function BlockEditor({
           <PlusIcon className="s2be-icon-sm" />
           Block
         </button>
-        {imageUpload && <ImageUploadControl key={uploadEpoch} options={imageUpload} label="Add image" disabled={blocks.length >= 5000} onUploaded={(image) => insertUploadedImage(image, focusedBlockId, uploadEpoch)} />}
+        {imageUpload && allowsBlockType("image", allowedBlockTypes) && <ImageUploadControl key={uploadEpoch} options={imageUpload} label="Add image" disabled={blocks.length >= 5000} onUploaded={(image) => insertUploadedImage(image, focusedBlockId, uploadEpoch)} />}
         <button type="button" disabled={undoRef.current.length === 0} onClick={() => history("undo")}>Undo</button>
         <button type="button" disabled={redoRef.current.length === 0} onClick={() => history("redo")}>Redo</button>
         {allowMarkdown && (
@@ -1697,6 +1704,7 @@ export function BlockEditor({
                 selectedBlockIds.has(block.id))
             }
             showDropAbove={dropIndex === index && draggedBlockId !== null}
+            allowedBlockTypes={allowedBlockTypes}
             slashIndex={slashIndex}
             menuOpen={openMenuBlockId === block.id}
             onMenuOpenChange={(next) => {
@@ -1810,6 +1818,7 @@ interface BlockRowProps {
   isMultiSelectionDrag: boolean
   isDragging: boolean
   showDropAbove: boolean
+  allowedBlockTypes?: readonly AuthoringBlockType[]
   slashIndex: number
   menuOpen: boolean
   onMenuOpenChange: (open: boolean) => void
@@ -1858,6 +1867,7 @@ function BlockRow(props: BlockRowProps) {
     isDragging,
     showDropAbove,
     slashIndex,
+    allowedBlockTypes,
     menuOpen,
     onMenuOpenChange,
     inputRef,
@@ -1898,8 +1908,8 @@ function BlockRow(props: BlockRowProps) {
   const prefix = getListPrefix(block, blocks, index)
   const slashQuery = focused ? getSlashQuery(block) : null
   const visibleCommands = useMemo(
-    () => filterSlashCommands(slashQuery),
-    [slashQuery],
+    () => authoringCommands(slashQuery, allowedBlockTypes),
+    [slashQuery, allowedBlockTypes],
   )
   const isTodo = block.type === "list" && block.style === "todo"
   const isChecked = isTodo && (block.items[0]?.checked ?? false)
@@ -1909,7 +1919,7 @@ function BlockRow(props: BlockRowProps) {
       ? calloutColorStyle(block.color)
       : null
 
-  const convertibleTypes = getConvertibleTypes(simpleType)
+  const convertibleTypes = getConvertibleTypes(simpleType).filter(type => allowsBlockType(type, allowedBlockTypes))
   const blockClassName = [
     "s2be-block",
     isDragging ? "s2be-block--dragging" : "",
