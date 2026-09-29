@@ -10,6 +10,19 @@ This package owns the portable pieces of the editor:
 - A deterministic CRDT operation layer for insert, update, move, delete, merge, encode, and decode flows.
 - A basic React editor surface with CSS variable theming.
 
+## Shared Swift engine (experimental)
+
+The next engine is implemented in Swift with optional collaboration, a native Apple
+reference view, a Kotlin/JNI Android reference, and an asynchronous React/WASM
+entrypoint. It is intended for Therein, Foliostrate, Parqeet and an unnamed local-only
+editor. The existing React editor remains available during migration.
+
+See [the technical contract, build instructions and open acceptance work](docs/shared-swift-editor.md).
+Start with `swift test`, `swift run local-editor` and `swift run collaborative-editor`.
+The browser reference is at `/block-editor/swift.html` after `bun run build:wasm`
+and `bun run demo:dev`. New npm entrypoints are `./swift` and `./swift/react`;
+hosts supply the WASM artifact. No package release is implied.
+
 ## React UI
 
 ```tsx

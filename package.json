@@ -23,9 +23,11 @@
     "registry": "https://npm.pkg.github.com"
   },
   "files": [
-    "dist",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "src/react.css",
     "README.md",
+    "docs/shared-swift-editor.md",
     "LICENSE"
   ],
   "keywords": [
@@ -48,9 +50,14 @@
     "test": "bun test src",
     "prepublishOnly": "bun run test && bun run build",
     "check:package": "bun run build && node scripts/check-package.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "build:wasm": "sh scripts/build-wasm.sh",
+    "build:android": "sh scripts/build-android.sh",
+    "test:swift": "swift test",
+    "test:wasm": "playwright test --config playwright.swift.config.ts"
   },
   "dependencies": {
+    "@bjorn3/browser_wasi_shim": "0.4.2",
     "zod": "^4.3.6"
   },
   "peerDependencies": {
@@ -89,6 +96,14 @@
     "./schema": {
       "types": "./dist/schema.d.ts",
       "import": "./dist/schema.js"
+    },
+    "./swift": {
+      "types": "./dist/swift.d.ts",
+      "import": "./dist/swift.js"
+    },
+    "./swift/react": {
+      "types": "./dist/swift-react.d.ts",
+      "import": "./dist/swift-react.js"
     }
   },
   "types": "./dist/index.d.ts"

@@ -4,6 +4,7 @@ import { defineConfig } from "vite"
 export default defineConfig({
   base: "/block-editor/",
   plugins: [react()],
+  optimizeDeps: { include: ["@bjorn3/browser_wasi_shim"] },
   resolve: {
     alias: [
       {

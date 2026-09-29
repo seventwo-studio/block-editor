@@ -12,3 +12,9 @@ dist-demo
 
 test-results/
 playwright-report/
+.build/
+.swiftpm/
+android/.gradle/
+android/**/build/
+android/editor/src/main/jniLibs/
+demo/public/block-editor.wasm

@@ -1,0 +1,183 @@
+# Shared Swift editor
+
+## Accepted direction
+
+One platform-independent Swift engine serves Therein, Foliostrate, Parqeet and an
+unnamed local-only document editor. Deliver the engine, native interfaces, then the
+React/WASM replacement. Naming a consumer neither enables collaboration nor changes
+that app's product scope. Parqeet's current scope still excludes collaborative
+document management. Foliostrate remains visual-only for help articles and FAQs.
+
+The engine owns document data, validation, editing, formatting, Markdown conversion
+and merge semantics. Hosts own storage, transport, authentication, authorization,
+media, autosave and publication. UI restrictions are not authorization. Local hosts
+need no account, network, server or synchronization configuration. Collaborative
+hosts use the same session with optional change exchange and ephemeral presence.
+
+Concurrent edits within text and author-specific undo supersede the earlier
+block-level-only collaboration proposal. Existing content, IDs, formatting,
+references and nesting must survive migration. Apple OS 26 and Android API 26 are
+the minimum targets. Public distribution and a production collaboration backend
+are outside this work. The recorded package-visibility recovery blocker remains.
+
+## Implemented foundation
+
+`BlockEditorCore` provides `Document`, `Block`, `EditorSession`, `TextAddress`,
+`ChangeBatch`, `SyncState`, `Presence` and Markdown conversion. A session is confined
+to one executor. Keep actor IDs unique per writer; resuming a saved actor requires
+exclusive ownership. A fresh actor intentionally starts without the previous
+writer's local undo history. Document IDs and actor IDs are independent.
+
+```swift
+import BlockEditorCore
+
+let document = try Document(blocks: [.paragraph(id: "intro", text: "Hello")])
+let session = try EditorSession(documentID: "note", actorID: "writer-1", document: document)
+session.onChange = { document, change in /* update UI / schedule host persistence */ }
+try session.replaceText(at: TextAddress("intro"), range: 5..<5, with: " world")
+try session.undo()
+let saved = try session.save()
+let reopened = try EditorSession.restore(saved, actorID: "writer-1")
+```
+
+Save returns a versioned session snapshot, including local undo/redo history. Bare
+document JSON is available separately from `Document.json()`. Presence is excluded
+from both. Host storage must atomically persist the returned bytes. The engine
+does not access the filesystem or network. Reference executables demonstrate host
+filesystem persistence and an in-memory exchange between disconnected replicas.
+
+Text uses Unicode scalar atoms with stable IDs and UTF-16 edit ranges. Ranges that
+split a scalar or structured reference fail. A plain-input edit inside a reference
+converts the affected reference label to ordinary text. Unaffected references and
+fields survive. Formatting targets surviving atom IDs. A Lamport counter plus
+ASCII actor ordering resolves concurrent assignments deterministically. Insertion
+anchors survive deletion and undo; top-level block movement uses placement records.
+Concurrent deletion wins over movement. Undo toggles only the local author's
+transaction; unrelated remote transactions remain active. Undoing a block insertion
+hides that block, including subsequent edits inside it, until redo restores it.
+
+Replicas exchange `changes(since: peer.syncState)` and atomically `receive` batches.
+Exact receipt IDs avoid falsely acknowledging gaps in out-of-order delivery.
+Duplicate changes are harmless; conflicting reuse of an ID, another baseline or
+document ID, and unsupported protocol versions fail explicitly. Authentication and
+binding an actor to a permitted author belong to the receiving host/service.
+Presence revisions, expiration, disconnect cleanup and authorization are host-owned.
+The current receipt set and operation log have no compaction protocol.
+
+Nested fields use stable IDs, for example `items/<item-id>/content` and
+`children/<child-id>/content`. Structural insert/move/delete currently operate at
+the document root. Unknown block fields are retained. Validation checks known
+shapes; it is not a substitute for host schema and resource-policy enforcement.
+
+`BlockEditorABI` provides a serialized JSON boundary shared by JNI and WASM. Call
+the ABI on one executor and free both request and returned response allocations.
+Kotlin serializes native calls; each WASM instance owns its bridge. Browser hosts
+supply module bytes or a compiled module to asynchronous initialization. React
+shows loading and retryable failures. The runtime creates no network transport,
+filesystem preopens or implicit image fetches.
+
+## Migration
+
+Document JSON remains the existing block array. Collaborative state is a separate,
+experimental version-1 protocol, incompatible with legacy TypeScript block
+operations. Never send both protocols to a live session. Keep original archives.
+
+1. Stop legacy writers at a coordinated cutover and retain their operation archive.
+2. Run `bun scripts/migrate-legacy-crdt.ts old-operations.json new-document.json`.
+   It validates the archive and refuses existing output or ambiguous later clocks.
+3. Compare the materialized document, including IDs, references and nested content,
+   with the legacy host's saved document. Resolve any discrepancy before adoption.
+4. Use `LegacyMigration` or create a session from that reviewed document with a new
+   collaboration document ID. Distribute its exact baseline to every replica.
+5. Keep the original archive for rollback. Legacy undo/operation history is not
+   translated into character-level undo history.
+
+Markdown is a content projection matching the existing limited dialect; it cannot
+preserve all IDs, marks, assets or custom metadata. Use JSON for lossless storage.
+
+## Toolchains and verification
+
+Use Swift **6.4.0** and matching official SDKs from
+[Swift downloads](https://www.swift.org/install/). The open-source toolchain is
+required for cross-compilation; Xcode's compiler and a similarly numbered SDK are
+not interchangeable. The verified WASM SDK archive SHA-256 is
+`f07b7be3c586d92d7a07051fc6d303b87ebea67eadc40640ba59d5a8b79aa86d`.
+Android uses the Swift 6.4.0 Android SDK, **NDK r30**, Java 17, compile SDK 35,
+AGP 8.10.1 and Kotlin 2.1.21. Install toolchains outside this repository; supply
+`SWIFT_BIN` and `ANDROID_NDK_HOME`. Scripts do not install or change system tools.
+
+```sh
+swift test
+swift run local-editor /tmp/local-document.json
+swift run collaborative-editor
+SWIFT_BIN=/path/to/swift bun run build:wasm
+SWIFT_BIN=/path/to/swift ANDROID_NDK_HOME=/path/to/android-ndk-r30 bun run build:android
+bun run typecheck
+bun run demo:typecheck
+bun run test
+bun run test:wasm
+bun run test:browser
+bun run check:package
+```
+
+`build:wasm` accepts additional Swift arguments, e.g. `--swift-sdks-path /path/to/sdks`.
+Start `bun run demo:dev` and open `/block-editor/swift.html` after building WASM.
+The reference has two independent sessions, manual/automatic change exchange,
+disconnect/reconnect, presence, save and reopen. It is a development entry, not a
+published deployment. Presence demonstrates editing activity, not remote caret UI.
+
+Android sources are a library, not an application. After generating both JNI
+architectures, a host with Android SDK 35 and Gradle 8.11.1 can run
+`gradle -p android :editor:assembleDebug :editor:connectedDebugAndroidTest` with a
+connected API-26-or-later device. No Gradle wrapper binary is committed yet.
+`tests/BlockEditorCoreTests/Fixtures/bridge.json` is shared by Swift tests, actual
+browser WASM tests and the Android instrumentation test. The Android test must run
+on a device before cross-runtime equivalence is accepted.
+
+## Evidence and remaining acceptance
+
+This is an **experimental foundation**, not completion of the approved plan.
+Local verification on 29 September 2026 established:
+
+- 19 Swift tests passed, including shared fixtures, Unicode boundaries, concurrent
+  edits/formatting, all permutations of a small delivery set, duplicate delivery,
+  local history across restore, structural conflicts and remote-preserving undo.
+- Both reference executables ran successfully, including filesystem save/reopen.
+- Swift core plus Apple view library compiled for macOS, iOS, tvOS, watchOS and
+  visionOS. This is build evidence, not interaction or accessibility acceptance.
+- Android arm64 and x86_64 Swift/JNI shared libraries built for API 26. Kotlin/AAR
+  compilation and device execution remain unverified because this environment has
+  no Android SDK/Gradle/device setup.
+- Actual WASM and React reference tests passed in Chromium and WebKit. Firefox
+  could not launch its profile in this environment, including a retry with Node
+  and a temporary profile path; Firefox behavior remains unverified.
+- Offline file reopen passes in Chromium. In WebKit automation `File.text()`
+  returns `NotReadableError`, including a byte-backed upload, so that additional
+  test is explicitly deferred. WebKit session snapshot restore passes through the
+  engine API; offline file reopening and native file-picker interaction remain open.
+- Existing TypeScript tests and type checks passed. The existing React production
+  entrypoint remains unchanged; `./swift` and `./swift/react` are opt-in references.
+
+Open acceptance work remains independently tracked in SVT-39 through SVT-48:
+
+- Full nested structural operations, stable selection mapping across remote edits,
+  larger generated convergence tests and conflict-aware resource limits. Current
+  document size/shape rejection can prevent an over-limit union from merging;
+  hosts must not treat this prototype as an unbounded collaboration service.
+- Log/receipt compaction, performance budgets and artifact-size reduction. The
+  current release WASM is about 58 MB and replays the operation log on every edit.
+- Full native authoring/rendering, rich selection and IME handling, paste policies,
+  accessibility and actual platform interaction. Apple toolbar formatting exists;
+  platform-attributed text formatting is not yet fully reconciled into operations.
+  Android is a basic Compose reference. Rich content is retained even where the
+  reference displays a placeholder instead of an authoring control.
+- Complete React behavior migration: shortcuts, structured paste, splitting,
+  selection, host image upload and full block controls. The reference currently
+  uses plain paste and its Enter inserts a paragraph rather than splitting text.
+- Comprehensive legacy corpus/schema parity, Android fixture execution, Firefox
+  verification, installable native package acceptance and CI for the new runtimes.
+- Separate consumer adoption and package visibility recovery. No consumer app was
+  edited, package published, production backend added, or release blocker cleared.
+
+Product decisions live in the [Notion record](https://app.notion.com/p/3e9bb04960098144848ed3667bfa01ea).
+Engineering acceptance lives in the [Linear project](https://linear.app/seventwo/project/block-editor-985a4bda82a5).

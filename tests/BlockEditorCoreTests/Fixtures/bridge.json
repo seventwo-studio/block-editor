@@ -1,0 +1,97 @@
+{
+  "requests": [
+    {
+      "command": "create",
+      "session": "fixture",
+      "documentID": "compatibility",
+      "actorID": "fixture-actor",
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello 😀",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "command": "replaceText",
+      "session": "fixture",
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ]
+      },
+      "start": 6,
+      "end": 8,
+      "text": "世界"
+    },
+    {
+      "command": "format",
+      "session": "fixture",
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ]
+      },
+      "start": 0,
+      "end": 5,
+      "markType": "italic",
+      "mark": {
+        "type": "italic"
+      }
+    },
+    {
+      "command": "undo",
+      "session": "fixture"
+    },
+    {
+      "command": "redo",
+      "session": "fixture"
+    }
+  ],
+  "expected": {
+    "blocks": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Hello",
+            "marks": [
+              {
+                "type": "bold"
+              },
+              {
+                "type": "italic"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " 世界",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "canUndo": true,
+    "canRedo": false
+  }
+}
