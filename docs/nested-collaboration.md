@@ -29,6 +29,16 @@ falls back to a previous placement. Document IDs are never rewritten to resolve
 these move conflicts. Missing causal owners or anchors defer a placement until
 they arrive; an existing node retains its earlier placement meanwhile.
 
+A complete transaction must reference elements introduced earlier in that same
+transaction. Forward or cyclic same-change anchors fail with `invalidChange`.
+Same-change placement anchors must name placements, inserted node identities must
+name node creations, and text anchors/deletion/formatting targets must name text
+atoms in that exact field. A text atom cannot impersonate a node or placement, and
+a placement or another field's atom cannot anchor text. Rejection leaves accepted
+content, saved history, receipts and pending recovery unchanged and does not run
+receive-preparation callbacks. References to earlier changes can still await their
+causal predecessors; this rule does not turn reordered delivery into an error.
+
 Deleting a node records the descendants the author observed. Concurrently inserted
 descendants survive and retain their ancestors as containers. Undoing an insertion
 also retains containers required by another active author's descendants or edits,

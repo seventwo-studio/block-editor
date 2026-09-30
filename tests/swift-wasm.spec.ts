@@ -20,8 +20,13 @@ test("recovery fixture retains rejected histories and converges after repair and
         if (step.error) throw new Error("Expected a rejected merge");
         if (step.capture) captured[step.capture] = value;
       } catch (error) {
-        if (step.error !== "mergeRecoveryRequired" || !(error instanceof SwiftMergeRecoveryError)) throw error;
-        if (step.capture) captured[step.capture] = error.recovery;
+        if (step.error === "mergeRecoveryRequired") {
+          if (!(error instanceof SwiftMergeRecoveryError)) throw error;
+          if (step.capture) captured[step.capture] = error.recovery;
+        } else {
+          if (!step.error || !(error instanceof Error) || error.message !== step.error) throw error;
+          if (step.capture) throw new Error("Only merge recovery errors expose a capture value");
+        }
       }
     }
     return captured;

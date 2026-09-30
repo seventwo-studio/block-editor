@@ -343,6 +343,706 @@
         "session": "a"
       },
       "capture": "afterUndo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "admission",
+        "documentID": "admission-fixture",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "kept",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Keep me",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "other",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Other field",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "admission"
+      },
+      "capture": "admissionBeforeSave"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "admission"
+      },
+      "capture": "admissionBeforeReceipt"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "admission"
+      },
+      "capture": "admissionBeforeDocument"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-1",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-1",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-child",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "other",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "other",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "admission"
+      },
+      "capture": "admissionAfterSave"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "admission"
+      },
+      "capture": "admissionAfterReceipt"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "admission"
+      },
+      "capture": "admissionAfterDocument"
     }
   ],
   "equal": [
@@ -365,6 +1065,18 @@
     [
       "finalA",
       "reopened"
+    ],
+    [
+      "admissionBeforeSave",
+      "admissionAfterSave"
+    ],
+    [
+      "admissionBeforeReceipt",
+      "admissionAfterReceipt"
+    ],
+    [
+      "admissionBeforeDocument",
+      "admissionAfterDocument"
     ]
   ],
   "expected": {

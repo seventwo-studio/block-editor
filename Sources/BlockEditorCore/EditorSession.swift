@@ -661,9 +661,24 @@ private func validUTF16Offset(_ offset: Int, in text: String) -> Bool {
 private func validate(_ change: Change, version: Int) throws {
     guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991,
           validActor(change.id.actor) else { throw EditorError.invalidChange }
+    var introduced = Set<ElementID>()
+    var introducedPlacements = Set<ElementID>()
+    var introducedNodes = Set<ElementID>()
+    var introducedText: [ElementID: TextAddress] = [:]
     func reference(_ id: ElementID?) throws {
         guard let id else { return }
         guard id.index >= 0, id.change < change.id || id.change == change.id else { throw EditorError.invalidChange }
+        // A complete change cannot gain missing predecessors later. Its references
+        // must resolve to an element already introduced earlier in this transaction.
+        if id.change == change.id, !introduced.contains(id) { throw EditorError.invalidChange }
+    }
+    func placementElement(_ id: ElementID?) throws {
+        try reference(id)
+        if let id, id.change == change.id, !introducedPlacements.contains(id) { throw EditorError.invalidChange }
+    }
+    func textElement(_ id: ElementID?, at target: TextAddress) throws {
+        try reference(id)
+        if let id, id.change == change.id, introducedText[id] != target { throw EditorError.invalidChange }
     }
     func address(_ address: TextAddress) throws {
         guard !address.blockID.isEmpty, let field = address.path.last,
@@ -680,6 +695,7 @@ private func validate(_ change: Change, version: Int) throws {
             guard !blockID.isEmpty, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
         case .inserted(let creation, let path):
             try reference(creation)
+            if creation.change == change.id, !introducedNodes.contains(creation) { throw EditorError.invalidChange }
             guard creation.change.counter > 0, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
         }
     }
@@ -692,7 +708,7 @@ private func validate(_ change: Change, version: Int) throws {
     }
     func nodePlacement(_ id: NodePlacementID?) throws {
         guard let id else { return }
-        switch id { case .initial(let node): try nodeReference(node); case .edit(let element): try reference(element) }
+        switch id { case .initial(let node): try nodeReference(node); case .edit(let element): try placementElement(element) }
     }
     func scalarPath(_ path: [String], _ value: JSONValue) throws {
         guard let last = path.last, !["id", "type", "content", "summary", "caption", "code", "expression", "children", "items", "rows", "cells"].contains(last),
@@ -703,17 +719,18 @@ private func validate(_ change: Change, version: Int) throws {
         guard target.actor == change.id.actor, target < change.id, target.counter > 0 else { throw EditorError.invalidChange }
     case .edit(let mutations):
         guard !mutations.isEmpty, mutations.count <= 10_000 else { throw EditorError.invalidChange }
-        var introduced = Set<ElementID>()
         for mutation in mutations {
             switch mutation {
             case .insertBlock(let block, let id, let after):
                 guard version == 1 else { throw EditorError.invalidChange }
-                _ = try Document(blocks: [block]); try reference(after)
+                _ = try Document(blocks: [block]); try placementElement(after)
                 guard id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != id else { throw EditorError.invalidChange }
+                introducedPlacements.insert(id)
             case .moveBlock(let blockID, let id, let after):
                 guard version == 1 else { throw EditorError.invalidChange }
-                try reference(after)
+                try placementElement(after)
                 guard !blockID.isEmpty, id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != id else { throw EditorError.invalidChange }
+                introducedPlacements.insert(id)
             case .deleteBlock(let blockID):
                 guard version == 1 else { throw EditorError.invalidChange }
                 guard !blockID.isEmpty else { throw EditorError.invalidChange }
@@ -724,9 +741,11 @@ private func validate(_ change: Change, version: Int) throws {
                 try nodeCollection(collection); try nodePlacement(after)
                 guard value.object != nil, identity == .inserted(creation: id, path: []), id.change == change.id,
                       id.index >= 0, introduced.insert(id).inserted, after != .edit(id) else { throw EditorError.invalidChange }
+                introducedPlacements.insert(id); introducedNodes.insert(id)
             case .moveNode(let identity, let collection, let id, let after):
                 try nodeReference(identity); try nodeCollection(collection); try nodePlacement(after)
                 guard id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != .edit(id) else { throw EditorError.invalidChange }
+                introducedPlacements.insert(id)
             case .deleteNodes(let identities):
                 guard version == 2, !identities.isEmpty, identities.count <= 100_000, Set(identities).count == identities.count else { throw EditorError.invalidChange }
                 for identity in identities { try nodeReference(identity) }
@@ -737,7 +756,7 @@ private func validate(_ change: Change, version: Int) throws {
                 try address(target)
                 for atom in atoms {
                     try Validation.inline(.array([atom.node]))
-                    try reference(atom.after)
+                    try textElement(atom.after, at: target)
                     guard atom.id.change == change.id, atom.id.index >= 0, introduced.insert(atom.id).inserted,
                           atom.after != atom.id else { throw EditorError.invalidChange }
                     if atom.node["type"]?.string == "text" {
@@ -747,11 +766,12 @@ private func validate(_ change: Change, version: Int) throws {
                               !plainText([atom.node]).isEmpty else { throw EditorError.invalidChange }
                     }
                     if let after = atom.after, after.change == change.id, after.index >= atom.id.index { throw EditorError.invalidChange }
+                    introducedText[atom.id] = target
                 }
             case .deleteText(let target, let ids):
-                try address(target); for id in ids { try reference(id) }
+                try address(target); for id in ids { try textElement(id, at: target) }
             case .formatText(let target, let ids, let type, let mark):
-                try address(target); for id in ids { try reference(id) }
+                try address(target); for id in ids { try textElement(id, at: target) }
                 guard ["bold", "italic", "strikethrough", "code", "link"].contains(type),
                       mark == nil || mark?["type"]?.string == type else { throw EditorError.invalidChange }
                 if type == "link", let mark {

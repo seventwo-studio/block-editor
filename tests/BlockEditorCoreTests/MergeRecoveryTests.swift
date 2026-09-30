@@ -82,6 +82,12 @@ private func collision() throws -> (EditorSession, EditorSession, NodeID, NodeID
         try a.receive(ChangeBatch(documentID: a.documentID, baseline: a.baseline,
             changes: [Change(id: id, body: .edit([.deleteBlock(blockID: "parent")]))], version: 2))
     }
+    let placement = ElementID(change: id, index: 0), missing = ElementID(change: id, index: 1)
+    #expect(throws: EditorError.invalidChange) {
+        try a.receive(ChangeBatch(documentID: a.documentID, baseline: a.baseline,
+            changes: [Change(id: id, body: .edit([.moveNode(identity: second, collection: target,
+                placement: placement, after: .edit(missing))]))], version: 2))
+    }
     #expect(a.mergeRecovery == proposal)
     #expect(try a.save() == saved)
     #expect(a.syncState == receipt)

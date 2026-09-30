@@ -33,6 +33,10 @@ class CompatibilityTest {
                 } catch (error: MergeRecoveryException) {
                     assertEquals("mergeRecoveryRequired", step.getString("error"))
                     if (step.has("capture")) captured[step.getString("capture")] = error.recovery.export()
+                } catch (error: IllegalStateException) {
+                    if (!step.has("error")) throw error
+                    assertEquals(step.getString("error"), error.message)
+                    if (step.has("capture")) fail("Only merge recovery errors expose a capture value")
                 }
             }
             val pairs = fixture.getJSONArray("equal")
@@ -46,7 +50,7 @@ class CompatibilityTest {
             assertEquals(normalize(fixture.getJSONObject("expected")), normalize(captured["finalA"]))
             assertEquals(normalize(fixture.getJSONObject("expectedAfterUndo")), normalize(captured["afterUndo"]))
         } finally {
-            for (handle in listOf("a", "b")) {
+            for (handle in listOf("a", "b", "admission")) {
                 try { NativeEngine.call(JSONObject().put("command", "close").put("session", handle)) } catch (_: Exception) { }
             }
         }

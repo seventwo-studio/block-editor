@@ -255,3 +255,92 @@ private func exchange(_ sessions: [EditorSession]) throws {
     }
     #expect(try session.save() == before)
 }
+
+@Test func sameChangePlacementCyclesAreRejectedWithoutAcknowledgmentOrContentLoss() throws {
+    let baseline = try Document(blocks: [.paragraph(id: "p", text: "Keep me")])
+    let session = try EditorSession(documentID: "placement-cycle", actorID: "local", document: baseline, collaborationVersion: 2)
+    let id = ChangeID(counter: 1, actor: "remote")
+    let first = ElementID(change: id, index: 0), second = ElementID(change: id, index: 1)
+    let mutations: [Mutation] = [
+        .insertNode(value: .object(try Block.paragraph(id: "first", text: "Alice").fields),
+            identity: .inserted(creation: first, path: []), collection: .root, placement: first, after: .edit(second)),
+        .insertNode(value: .object(try Block.paragraph(id: "second", text: "Bob").fields),
+            identity: .inserted(creation: second, path: []), collection: .root, placement: second, after: .edit(first)),
+    ]
+    let before = try session.save(), receipts = session.syncState
+    var prepared = false
+    session.onWillReceive = { prepared = true }
+    #expect(throws: EditorError.invalidChange) {
+        try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+            changes: [Change(id: id, body: .edit(mutations))], version: 2))
+    }
+    #expect(try session.save() == before)
+    #expect(session.syncState == receipts)
+    #expect(session.mergeRecovery == nil)
+    #expect(!prepared)
+    // A correctly ordered multi-insert under the same ID is accepted after rejection.
+    let valid: [Mutation] = [
+        .insertNode(value: .object(try Block.paragraph(id: "first", text: "Alice").fields),
+            identity: .inserted(creation: first, path: []), collection: .root, placement: first, after: nil),
+        .insertNode(value: .object(try Block.paragraph(id: "second", text: "Bob").fields),
+            identity: .inserted(creation: second, path: []), collection: .root, placement: second, after: .edit(first)),
+    ]
+    try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+        changes: [Change(id: id, body: .edit(valid))], version: 2))
+    #expect(try session.document.blocks.map(\.id) == ["first", "second", "p"])
+    #expect(session.syncState.received.contains(id))
+    #expect(try EditorSession.restore(session.save(), actorID: "local").document == session.document)
+}
+
+@Test(arguments: [1, 2]) func sameChangeMovesCannotHideExistingContentInAnAnchorCycle(version: Int) throws {
+    let baseline = try Document(blocks: [.paragraph(id: "p", text: "Alice"), .paragraph(id: "q", text: "Bob")])
+    let session = try EditorSession(documentID: "move-cycle", actorID: "local", document: baseline, collaborationVersion: version)
+    let id = ChangeID(counter: 1, actor: "remote")
+    let first = ElementID(change: id, index: 0), second = ElementID(change: id, index: 1)
+    let mutations: [Mutation]
+    if version == 1 {
+        mutations = [.moveBlock(blockID: "p", placement: first, after: second),
+                     .moveBlock(blockID: "q", placement: second, after: first)]
+    } else {
+        mutations = [.moveNode(identity: .baseline(blockID: "p", path: []), collection: .root, placement: first, after: .edit(second)),
+                     .moveNode(identity: .baseline(blockID: "q", path: []), collection: .root, placement: second, after: .edit(first))]
+    }
+    let before = try session.save()
+    #expect(throws: EditorError.invalidChange) {
+        try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+            changes: [Change(id: id, body: .edit(mutations))], version: version))
+    }
+    #expect(try session.save() == before)
+    #expect(try session.document == baseline)
+    #expect(session.syncState.received.isEmpty)
+}
+
+@Test(arguments: [1, 2]) func sameChangeTextAnchorsCannotNamePlacementsOrAnotherField(version: Int) throws {
+    let baseline = try Document(blocks: [.paragraph(id: "p", text: "Alice"), .paragraph(id: "q", text: "Bob")])
+    let session = try EditorSession(documentID: "text-anchor-kind", actorID: "local", document: baseline, collaborationVersion: version)
+    let p = try session.textAddressForTest("p", version: version)
+    let q = try session.textAddressForTest("q", version: version)
+    let id = ChangeID(counter: 1, actor: "remote")
+    let first = ElementID(change: id, index: 0), second = ElementID(change: id, index: 1)
+    let node = JSONValue.object(["type": .string("text"), "text": .string("X"), "marks": .array([])])
+    let move: Mutation = version == 1 ? .moveBlock(blockID: "p", placement: first, after: nil)
+        : .moveNode(identity: .baseline(blockID: "p", path: []), collection: .root, placement: first, after: nil)
+    for prefix in [move, .insertText(address: q, atoms: [TextAtom(id: first, after: nil, node: node)])] {
+        let session = try EditorSession(documentID: "text-anchor-kind", actorID: "local", document: baseline, collaborationVersion: version)
+        let before = try session.save()
+        let mutations: [Mutation] = [prefix, .insertText(address: p, atoms: [TextAtom(id: second, after: first, node: node)])]
+        #expect(throws: EditorError.invalidChange) {
+            try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+                changes: [Change(id: id, body: .edit(mutations))], version: version))
+        }
+        #expect(try session.save() == before)
+        #expect(session.syncState.received.isEmpty)
+    }
+}
+
+private extension EditorSession {
+    func textAddressForTest(_ blockID: String, version: Int) throws -> TextAddress {
+        if version == 1 { return TextAddress(blockID) }
+        return try textAddress(of: node(at: NodeAddress(blockID)))
+    }
+}
