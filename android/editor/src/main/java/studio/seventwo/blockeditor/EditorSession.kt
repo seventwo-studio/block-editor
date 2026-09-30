@@ -27,6 +27,44 @@ class EditorSession private constructor(private val handle: String, initial: JSO
         private set
     var onChange: ((JSONObject) -> Unit)? = null
     private var closed = false
+    private val listeners = linkedSetOf<() -> Unit>()
+    private val beforeReceive = linkedSetOf<() -> (() -> Unit)?>()
+    private var remoteHolds = 0
+    private val deferred = mutableListOf<String>()
+    private var deferredBytes = 0
+
+    internal fun subscribe(listener: () -> Unit): () -> Unit {
+        listeners.add(listener)
+        return { listeners.remove(listener); Unit }
+    }
+    internal fun subscribeBeforeReceive(listener: () -> (() -> Unit)?): () -> Unit {
+        beforeReceive.add(listener)
+        return { beforeReceive.remove(listener); Unit }
+    }
+    private fun publish(value: JSONObject) {
+        snapshot = value
+        listeners.toList().forEach { it() }
+        onChange?.invoke(snapshot)
+    }
+    /** Queued changes are excluded from receipts until every composition hold ends. */
+    fun deferRemoteChanges(): () -> Unit {
+        check(!closed) { "Editor session is closed" }
+        remoteHolds++
+        var released = false
+        return finish@{
+            if (released || closed) return@finish
+            released = true
+            remoteHolds--
+            if (remoteHolds > 0) return@finish
+            val batches = deferred.toList()
+            deferred.clear(); deferredBytes = 0
+            var failure: Exception? = null
+            for (batch in batches) {
+                try { receive(JSONObject(batch)) } catch (error: Exception) { if (failure == null) failure = error }
+            }
+            failure?.let { throw it }
+        }
+    }
 
     companion object {
         fun create(documentID: String, actorID: String, blocks: JSONArray = JSONArray()): EditorSession {
@@ -47,8 +85,7 @@ class EditorSession private constructor(private val handle: String, initial: JSO
         return NativeEngine.call(args.put("command", command).put("session", handle)).get("value")
     }
     fun edit(command: String, args: JSONObject = JSONObject()) {
-        snapshot = call(command, args) as JSONObject
-        onChange?.invoke(snapshot)
+        publish(call(command, args) as JSONObject)
     }
     fun setText(blockID: String, text: String, path: List<String> = listOf("content")) = edit("setText",
         JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path))).put("text", text))
@@ -59,9 +96,27 @@ class EditorSession private constructor(private val handle: String, initial: JSO
     fun resolvePosition(position: JSONObject): Int = (call("resolvePosition", JSONObject().put("position", position)) as Number).toInt()
     fun syncState(): JSONObject = call("syncState") as JSONObject
     fun changes(since: JSONObject = JSONObject().put("received", JSONArray())): JSONObject = call("changes", JSONObject().put("since", since)) as JSONObject
-    fun receive(batch: JSONObject) = edit("receive", JSONObject().put("batch", batch))
+    fun receive(batch: JSONObject) {
+        check(!closed) { "Editor session is closed" }
+        if (remoteHolds > 0) {
+            val payload = batch.toString()
+            val bytes = payload.toByteArray(Charsets.UTF_8).size
+            check(deferred.size < 64 && bytes <= 64_000_000 - deferredBytes) {
+                "Pending remote changes exceed the composition buffer; retry after composition ends"
+            }
+            deferred.add(payload); deferredBytes += bytes
+            return
+        }
+        val rollback = beforeReceive.toList().map { it() }
+        val next = try { call("receive", JSONObject().put("batch", batch)) as JSONObject }
+        catch (error: Exception) {
+            rollback.forEach { try { it?.invoke() } catch (_: Exception) { } }
+            throw error
+        }
+        publish(next)
+    }
     fun receivePresence(presence: JSONObject): JSONObject = call("presence", JSONObject().put("presence", presence)) as JSONObject
     fun undo() = edit("undo")
     fun redo() = edit("redo")
-    override fun close() { if (!closed) { call("close"); closed = true; onChange = null } }
+    override fun close() { if (!closed) { call("close"); closed = true; onChange = null; listeners.clear(); beforeReceive.clear(); deferred.clear(); deferredBytes = 0 } }
 }

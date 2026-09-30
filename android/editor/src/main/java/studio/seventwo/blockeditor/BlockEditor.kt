@@ -33,14 +33,11 @@ import java.util.UUID
                 Column(Modifier.fillMaxWidth().padding(8.dp)) {
                     val id = block.getString("id")
                     when (block.getString("type")) {
-                        "paragraph", "heading", "quote", "callout" -> OutlinedTextField(
-                            value = plainText(block.optJSONArray("content")),
-                            onValueChange = { text -> perform { session.setText(id, text) } },
-                            modifier = Modifier.fillMaxWidth(), label = { Text("Block text") })
+                        "paragraph", "heading", "quote", "callout" -> SessionTextField(session, id, "content", "Block text") { error = it.message }
                         "image" -> asset(block)
                         "divider" -> HorizontalDivider()
-                        "code" -> Text(block.optString("code"))
-                        "math" -> Text(block.optString("expression"))
+                        "code" -> SessionTextField(session, id, "code", "Code") { error = it.message }
+                        "math" -> SessionTextField(session, id, "expression", "Math") { error = it.message }
                         else -> Text("${block.getString("type")} content preserved")
                     }
                     Row {
@@ -56,7 +53,7 @@ import java.util.UUID
     }
 }
 
-private fun plainText(nodes: JSONArray?): String = if (nodes == null) "" else (0 until nodes.length()).joinToString("") {
+internal fun plainText(nodes: JSONArray?): String = if (nodes == null) "" else (0 until nodes.length()).joinToString("") {
     val node = nodes.getJSONObject(it)
     when (node.optString("type")) {
         "text" -> node.optString("text")
@@ -66,4 +63,12 @@ private fun plainText(nodes: JSONArray?): String = if (nodes == null) "" else (0
         "inline-math" -> node.optString("expression")
         else -> ""
     }
+}
+
+@Composable private fun SessionTextField(session: EditorSession, blockID: String, field: String, label: String, reportError: (Exception) -> Unit) {
+    val currentError by rememberUpdatedState(reportError)
+    val input = remember(session, blockID, field) { CollaborativeTextInput(session, blockID, listOf(field)) { currentError(it) } }
+    DisposableEffect(input) { onDispose { input.close() } }
+    OutlinedTextField(value = input.value, onValueChange = input::update,
+        modifier = Modifier.fillMaxWidth(), label = { Text(label) })
 }
