@@ -56,7 +56,7 @@
     "test:swift": "swift test",
     "demo:relay": "swift build --product editor-bridge && bun demo/relay/main.ts",
     "demo:stress": "bun demo/relay/stress.ts",
-    "test:relay": "swift build --product editor-bridge && bun test tests/relay.test.ts",
+    "test:relay": "swift build --product editor-bridge && swift build --product relay-client && bun test tests/relay.test.ts",
     "test:relay:browser": "swift build --product editor-bridge && swift build --product relay-client && playwright test --config playwright.relay.config.ts",
     "typecheck:relay": "tsc -p tsconfig.relay.json",
     "test:wasm": "playwright test --config playwright.swift.config.ts"

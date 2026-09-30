@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { startRelay } from "../demo/relay/server.ts";
 import { stressRelay } from "../demo/relay/stress.ts";
 import { NativeBridge } from "../demo/relay/bridge.ts";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 
 test("independent Swift processes converge through a persistent local relay after offline edits", async () => {
   const directory = await mkdtemp(join(tmpdir(), "editor-relay-"));
@@ -63,4 +65,30 @@ test("presence expires, rejects stale revisions and leaves saved content unchang
     expect((await exchange("observer")).presence).toEqual([]);
     expect(await readFile(join(directory, "presence.json"), "utf8")).toBe(saved);
   } finally { client.close(); await relay.close(); await rm(directory, { recursive: true, force: true }); }
+});
+
+test("native draft survives process restart with relay unavailable and preserves remote edits through undo", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "native-draft-"));
+  const executable = process.env.BLOCK_EDITOR_BRIDGE ?? "./.build/debug/editor-bridge";
+  let relay = await startRelay({ directory: join(directory, "relay"), executable, token: "test", port: 0 });
+  let running = true;
+  const endpoint = `${relay.url}/rooms/restart`, port = Number(new URL(relay.url).port);
+  const draft = join(directory, "client.json");
+  const run = async (options: Record<string, string>) => JSON.parse((await promisify(execFile)(".build/debug/relay-client", [], {
+    env: { ...process.env, DEMO_ENDPOINT: endpoint, DEMO_TOKEN: "test", ...options },
+  })).stdout);
+  try {
+    const offline = await run({ DEMO_DRAFT: draft, DEMO_OFFLINE: "1", DEMO_TEXT: " local-only 😀" });
+    await relay.close(); running = false;
+    const recovered = await run({ DEMO_DRAFT: draft, DEMO_OFFLINE: "1", DEMO_ACTION: "inspect", DEMO_TOKEN: "" });
+    expect(recovered).toEqual(offline);
+    relay = await startRelay({ directory: join(directory, "relay"), executable, token: "test", port }); running = true;
+    await run({ DEMO_TEXT: " remote-only 世界" });
+    const joined = await run({ DEMO_DRAFT: draft, DEMO_ACTION: "rejoin" });
+    expect(JSON.stringify(joined)).toContain("local-only");
+    expect(JSON.stringify(joined)).toContain("remote-only");
+    const undone = await run({ DEMO_DRAFT: draft, DEMO_ACTION: "undo" });
+    expect(JSON.stringify(undone)).not.toContain("local-only");
+    expect(JSON.stringify(undone)).toContain("remote-only");
+  } finally { if (running) await relay.close(); await rm(directory, { recursive: true, force: true }); }
 });
