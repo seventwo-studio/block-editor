@@ -106,13 +106,20 @@ reentrant edits during preparation fail explicitly. Nested holds preserve receip
 and saved-state gaps until release, cap pending input at 64 batches/64 MB, and drain
 valid messages even when another queued message fails.
 
-The macOS reference uses an AppKit text view through a SwiftUI representable to
-observe marked-text composition. Its coordinator captures selection before remote
-application, commits local composition first, maps positions after merging, and
-releases holds on disposal. Code/math fields use the same input path. Core and Apple
-coordinator tests cover these state transitions and rich-reference preservation;
-actual macOS window, input-method, paste and accessibility acceptance is still
-required. iOS/iPadOS/visionOS and watchOS/tvOS input integration remains separate.
+The macOS reference uses an AppKit text view, and iOS/iPadOS/visionOS use a UIKit
+text view, through SwiftUI representables that observe marked-text composition.
+Their coordinators capture selection before remote application, commit local
+composition first, map positions after merging, and release holds on disposal.
+Code/math fields use the same input path. Both bridges share attributed-text
+rendering that combines code, bold and italic marks. UIKit uses plain-text paste;
+host-controlled assets remain separate.
+
+Core and Apple coordinator tests cover the state transitions and rich-reference
+preservation. UIKit component tests on iPhone and iPad simulators also exercise
+marked text, remote delivery, typing, selection and undo. The visionOS library
+builds, but no visionOS runtime is installed for execution. Actual window, keyboard
+and input-method, paste and accessibility acceptance remains required, including
+macOS interaction. watchOS/tvOS composition integration remains separate.
 
 Nested fields use stable IDs, for example `items/<item-id>/content` and
 `children/<child-id>/content`. Structural insert/move/delete currently operate at

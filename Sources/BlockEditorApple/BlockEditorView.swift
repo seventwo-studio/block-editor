@@ -78,6 +78,8 @@ private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
     var body: some View {
         #if os(macOS)
         MacTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 64)
+        #elseif os(iOS) || os(visionOS)
+        UIKitTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 64)
         #else
         Text(text)
         #endif
@@ -88,14 +90,16 @@ private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
     let model: EditorModel
     let address: TextAddress
     let nodes: [JSONValue]
-    @State private var draft = AttributedString()
-    @State private var selection = AttributedTextSelection()
     @State private var nativeSelection = NSRange(location: 0, length: 0)
 
     var body: some View {
-        #if os(macOS)
+        #if os(macOS) || os(iOS) || os(visionOS)
         VStack(alignment: .leading) {
+            #if os(macOS)
             MacTextInput(model: model, address: address, selection: $nativeSelection).frame(minHeight: 64)
+            #else
+            UIKitTextInput(model: model, address: address, selection: $nativeSelection).frame(minHeight: 64)
+            #endif
             HStack {
                 Button("Bold") { formatNative("bold") }
                 Button("Italic") { formatNative("italic") }
@@ -107,58 +111,10 @@ private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
         TextField("Text", text: Binding(get: { plainText(nodes) }, set: { text in
             model.perform { try $0.setText(at: address, to: text) }
         }))
-        #else
-        VStack(alignment: .leading) {
-            TextEditor(text: Binding(get: { draft }, set: { value in
-                draft = value
-                model.perform { try $0.setText(at: address, to: String(value.characters)) }
-            }), selection: $selection)
-            .frame(minHeight: 48)
-            .accessibilityLabel("Block text")
-            HStack {
-                Button("Bold") { format("bold") }
-                Button("Italic") { format("italic") }
-                Button("Strikethrough") { format("strikethrough") }
-                Button("Clear bold") { format("bold", remove: true) }
-            }
-        }
-        .onAppear { draft = attributed(nodes) }
-        .onChange(of: nodes) { _, value in
-            let next = attributed(value)
-            if draft != next { draft = next; selection = AttributedTextSelection() }
-        }
         #endif
     }
     private func formatNative(_ type: String, remove: Bool = false) {
         model.perform { try $0.format(at: address, range: nativeSelection.location..<NSMaxRange(nativeSelection), markType: type, mark: remove ? nil : .object(["type": .string(type)])) }
-    }
-    private func format(_ type: String, remove: Bool = false) {
-        guard case .ranges(let ranges) = selection.indices(in: draft) else { return }
-        let offsets = ranges.ranges.map { range in
-            String(draft[..<range.lowerBound].characters).utf16.count..<String(draft[..<range.upperBound].characters).utf16.count
-        }
-        for range in offsets {
-            model.perform { try $0.format(at: address, range: range, markType: type, mark: remove ? nil : .object(["type": .string(type)])) }
-        }
-    }
-    private func attributed(_ nodes: [JSONValue]) -> AttributedString {
-        var result = AttributedString()
-        for node in nodes {
-            var part = AttributedString(plainText([node]))
-            for mark in node["marks"]?.array ?? [] {
-                switch mark["type"]?.string {
-                case "bold": part.inlinePresentationIntent = (part.inlinePresentationIntent ?? []).union(.stronglyEmphasized)
-                case "italic": part.inlinePresentationIntent = (part.inlinePresentationIntent ?? []).union(.emphasized)
-                case "code": part.inlinePresentationIntent = (part.inlinePresentationIntent ?? []).union(.code)
-                case "strikethrough": part.strikethroughStyle = .single
-                case "link":
-                    if let url = mark["href"]?.string.flatMap(URL.init(string:)), ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") { part.link = url }
-                default: break
-                }
-            }
-            result.append(part)
-        }
-        return result
     }
 }
 #endif

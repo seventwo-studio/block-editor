@@ -60,37 +60,9 @@ import SwiftUI
         func render() {
             guard let view, !view.hasMarkedText(), !input.composing else { return }
             rendering = true; defer { rendering = false }
-            let text = attributedText()
+            let text = nativeAttributedText(input)
             if view.textStorage?.isEqual(to: text) != true { view.textStorage?.setAttributedString(text) }
             view.setSelectedRange(input.selection)
-        }
-        private func attributedText() -> NSAttributedString {
-            let model = input.model, address = input.address
-            var value: JSONValue? = model.document.blocks.first(where: { $0.id == address.blockID }).map { .object($0.fields) }
-            for part in address.path {
-                if let array = value?.array { value = array.first { $0["id"]?.string == part } }
-                else { value = value?[part] }
-            }
-            let nodes = value?.array ?? [.object(["type": .string("text"), "text": .string(input.text)])]
-            let result = NSMutableAttributedString(string: "")
-            for node in nodes {
-                var font = NSFont.preferredFont(forTextStyle: .body)
-                var attributes: [NSAttributedString.Key: Any] = [.foregroundColor: NSColor.textColor]
-                for mark in node["marks"]?.array ?? [] {
-                    switch mark["type"]?.string {
-                    case "bold": font = NSFontManager.shared.convert(font, toHaveTrait: .boldFontMask)
-                    case "italic": font = NSFontManager.shared.convert(font, toHaveTrait: .italicFontMask)
-                    case "code": font = NSFont.monospacedSystemFont(ofSize: font.pointSize, weight: .regular)
-                    case "strikethrough": attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
-                    case "link":
-                        if let url = mark["href"]?.string.flatMap(URL.init(string:)), ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") { attributes[.link] = url }
-                    default: break
-                    }
-                }
-                attributes[.font] = font
-                result.append(NSAttributedString(string: plainText([node]), attributes: attributes))
-            }
-            return result
         }
         func close() { view?.delegate = nil; input.close() }
     }
