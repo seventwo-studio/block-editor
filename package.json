@@ -23,9 +23,11 @@
     "registry": "https://npm.pkg.github.com"
   },
   "files": [
-    "dist",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "src/react.css",
     "README.md",
+    "docs/shared-swift-editor.md",
     "LICENSE"
   ],
   "keywords": [
@@ -48,9 +50,19 @@
     "test": "bun test src",
     "prepublishOnly": "bun run test && bun run build",
     "check:package": "bun run build && node scripts/check-package.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "build:wasm": "sh scripts/build-wasm.sh",
+    "build:android": "sh scripts/build-android.sh",
+    "test:swift": "swift test",
+    "demo:relay": "swift build --product editor-bridge && bun demo/relay/main.ts",
+    "demo:stress": "bun demo/relay/stress.ts",
+    "test:relay": "swift build --product editor-bridge && bun test tests/relay.test.ts",
+    "test:relay:browser": "swift build --product editor-bridge && swift build --product relay-client && playwright test --config playwright.relay.config.ts",
+    "typecheck:relay": "tsc -p tsconfig.relay.json",
+    "test:wasm": "playwright test --config playwright.swift.config.ts"
   },
   "dependencies": {
+    "@bjorn3/browser_wasi_shim": "0.4.2",
     "zod": "^4.3.6"
   },
   "peerDependencies": {
@@ -60,6 +72,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
     "@playwright/test": "1.63.0",
+    "@types/bun": "^1.4.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.0",
@@ -89,6 +102,14 @@
     "./schema": {
       "types": "./dist/schema.d.ts",
       "import": "./dist/schema.js"
+    },
+    "./swift": {
+      "types": "./dist/swift.d.ts",
+      "import": "./dist/swift.js"
+    },
+    "./swift/react": {
+      "types": "./dist/swift-react.d.ts",
+      "import": "./dist/swift-react.js"
     }
   },
   "types": "./dist/index.d.ts"

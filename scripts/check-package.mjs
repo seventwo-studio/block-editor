@@ -15,6 +15,7 @@ try {
     for (const path of typeof entry === 'string' ? [entry] : Object.values(entry)) assert.ok(files.has(path.replace(/^\.\//, '')), `Missing export: ${path}`);
   }
   assert.ok(!packed.files.some(file => /(?:^|\/)(?:\.npmrc|\.env|node_modules|demo|scripts)(?:\/|$)/.test(file.path)));
+  assert.ok(!packed.files.some(file => file.path.endsWith('.wasm')), 'Experimental WASM artifacts require separate distribution acceptance');
   writeFileSync(join(fixture, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
   execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', '--prefix', fixture, join(fixture, packed.filename)], { stdio: 'pipe' });
   writeFileSync(join(fixture, 'verify.mjs'), `
@@ -25,12 +26,16 @@ try {
     import * as crdt from '@seventwo-studio/block-editor/crdt';
     import { Content } from '@seventwo-studio/block-editor/schema';
     import { BlockEditor } from '@seventwo-studio/block-editor/react';
+    import { SwiftEditorRuntime } from '@seventwo-studio/block-editor/swift';
+    import { SwiftBlockEditor } from '@seventwo-studio/block-editor/swift/react';
     import { createElement } from 'react';
     import { renderToStaticMarkup } from 'react-dom/server';
     const blocks = [makeBlock('paragraph')];
     assert.equal(Content.parse(blocks)[0].type, 'paragraph');
     assert.ok(Object.keys(model).length && Object.keys(crdt).length);
     assert.equal(typeof BlockEditor, 'function');
+    assert.equal(typeof SwiftEditorRuntime.initialize, 'function');
+    assert.equal(typeof SwiftBlockEditor, 'function');
     assert.ok(renderToStaticMarkup(createElement(BlockEditor, { value: blocks, onChange() {}, allowMarkdown: false })).length > 0);
     assert.ok(readFileSync(new URL(import.meta.resolve('@seventwo-studio/block-editor/react.css')), 'utf8').length > 0);
   `);

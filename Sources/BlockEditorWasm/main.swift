@@ -1,0 +1,2 @@
+import BlockEditorABI
+initializeBridge()
