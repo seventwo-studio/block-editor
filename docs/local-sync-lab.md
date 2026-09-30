@@ -22,6 +22,13 @@ and token in each browser. Each opened client gets a unique writer identity.
 `./script/build_and_run.sh` builds and opens the macOS demo as a native app bundle.
 Use `--build-only` to stage it without launching, `--verify` for a process check,
 `--debug` for LLDB, or `--logs` for runtime logs. Use
+**Open local document** to create or reopen the standalone document without a
+server, token, account, or network client. It saves automatically to
+Application Support/BlockEditorLocalLab/local-only.json and retains author undo
+history across restarts. Hosts can embed `LocalEditorDemoView(file:)` with their
+own file URL. **Open collaborative lab** opens the relay configuration below.
+
+For the collaborative lab, use
 `http://127.0.0.1:4319/rooms/shared-demo` and the same token. Other Apple demo apps
 can embed `LocalRelayDemoView` from `BlockEditorDemoApple`; their app manifests,
 local networking permissions and real-device execution still need acceptance.
@@ -95,6 +102,11 @@ produced incomplete text; Unicode paste succeeded. Real input-method composition
 VoiceOver navigation, rich paste sanitization, and the other native platforms'
 window interactions remain acceptance work. Accessibility-tree visibility alone
 does not establish screen-reader usability.
+
+The standalone chooser was also exercised in the macOS window: create a new blank
+document, paste Unicode content, quit, reopen, and undo the restored edit. No relay
+address or token was entered. Standalone storage tests verify that opening an
+existing relay draft through the local API fails without overwriting it.
 
 ## Wire contract
 

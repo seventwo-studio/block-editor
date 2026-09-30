@@ -27,6 +27,18 @@ public final class LocalDraft {
         }
     }
     deinit { if descriptor >= 0 { flock(descriptor, LOCK_UN); close(descriptor) } }
+    /// A standalone document has no relay endpoint or transport configuration.
+    private static let localIdentity = URL(string: "block-editor-local://document")!
+    public func openLocalDocument() throws -> EditorSession {
+        if let restored = try restore(endpoint: Self.localIdentity) { return restored }
+        let session = try EditorSession(documentID: UUID().uuidString, actorID: UUID().uuidString,
+                                        document: Document(blocks: [.paragraph(id: "p", text: "")]))
+        try saveLocalDocument(session)
+        return session
+    }
+    public func saveLocalDocument(_ session: EditorSession) throws {
+        try save(session, endpoint: Self.localIdentity)
+    }
     public func restore(endpoint: URL) throws -> EditorSession? {
         guard FileManager.default.fileExists(atPath: file.path) else { return nil }
         let record = try JSONDecoder().decode(Record.self, from: Data(contentsOf: file))
