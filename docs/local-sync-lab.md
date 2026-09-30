@@ -104,6 +104,10 @@ bun run typecheck:relay
 swift test --filter generatedOfflineTextAndFormattingConverge
 bun run test:relay
 bun run test:relay:browser --project chromium --project webkit
+# Starts and removes its own isolated local relay; use installed Xcode destinations.
+bun run test:relay:apple \
+  "platform=iOS Simulator,name=iPhone 18 Pro" \
+  "platform=iOS Simulator,name=iPad Pro 13-inch (M5)"
 gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.relayUrl=http://10.0.2.2:4319 \
   -Pandroid.testInstrumentationRunnerArguments.relayToken=choose-a-local-test-token
@@ -111,6 +115,15 @@ gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidT
 ANDROID_SERIAL=emulator-5556 DEMO_TOKEN=choose-a-local-test-token sh scripts/test-android-restart.sh
 DEMO_TOKEN=choose-a-local-test-token STRESS_REPLICAS=8 STRESS_ROUNDS=40 STRESS_SEED=20260930 bun run demo:stress
 ```
+
+The Apple relay runner builds the native server bridge, starts an ephemeral
+loopback listener with a fresh test token, and passes that configuration to Xcode
+using `TEST_RUNNER_` environment variables. Each destination exercises presence,
+disconnected editing, local draft save/restore, concurrent rejoin, author-specific
+undo, composition receipt gaps, and authentication recovery. The runner closes the
+server and removes its temporary room data after testing. Ordinary Swift test runs
+skip the network case unless explicitly configured; the offline draft tests still
+run. Native window and input-method acceptance is a separate check.
 
 The stress runner uses independent native Swift processes, overlapping Unicode
 inserts/replacements/deletions, formatting and mark removal, block insert/move/delete,
@@ -164,15 +177,22 @@ verify one browser author's undo retains both other authors' edits.
   is exchanged. Browser tests verify visible transport errors, recovery and local
   presence cleanup on disconnect. Android instrumentation verifies peer counts
   are cleared on disconnect.
-- macOS demo executable and reusable Apple demo view build; native UI interaction
-  is not yet verified.
+- The native relay and offline-draft suite passes on macOS and iPhone, iPad, tvOS
+  and watchOS simulators against an isolated central server. This verifies each
+  runtime's HTTP adapter, storage and merge behavior; it does not establish native
+  window, keyboard, remote-control, watch-input or accessibility acceptance.
+- macOS demo executable and reusable Apple demo views build. UIKit component tests
+  verify marked text and selection on iPhone and iPad. visionOS builds, but its
+  simulator runtime is not installed and server integration remains unverified.
 - Native draft tests verify exclusive writer access, corrupt/mismatched file
   preservation and author-history restore. Separate Swift processes save offline,
   reopen while the relay is stopped, rejoin remote edits, and undo only local text.
 - Android API 35 arm64 emulator: shared JNI fixture and two-client offline/rejoin,
   convergence, acknowledgement and author-specific undo instrumentation pass.
   Both arm64 and x86_64 native libraries build; x86_64 execution and API 26 device
-  acceptance remain open. Compose input and accessibility interaction are unverified.
+  acceptance remain open. Compose selection/typing and Android InputConnection
+  composition tests pass; third-party keyboard, paste and accessibility acceptance
+  remain open.
 - Android separate instrumentation processes save an offline draft, terminate,
   reopen without a token, merge an intervening native edit and undo only local text.
   Additional instrumentation rejects concurrent writers and preserves malformed,
