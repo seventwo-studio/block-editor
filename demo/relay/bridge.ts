@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
+import { SwiftMergeRecoveryError } from "../../src/swift.ts";
 
 /** The demo server validates and materializes changes in the actual Swift engine. */
 export class NativeBridge {
@@ -19,7 +20,8 @@ export class NativeBridge {
       if (!request) { fail(new Error("Unexpected bridge output")); return; }
       try {
         const response = JSON.parse(line);
-        if (!response.ok) request.reject(new Error(response.error));
+        if (!response.ok) request.reject(response.error === "mergeRecoveryRequired" && response.recovery
+          ? new SwiftMergeRecoveryError(response.recovery) : new Error(response.error));
         else request.resolve(response.value);
       } catch (error) { request.reject(error as Error); }
     });

@@ -249,8 +249,25 @@ struct StructuralState {
 
     func document(text: [NodeID: [String: JSONValue]]) throws -> Document {
         let selected = try effectivePlacements(), visible = visibleNodes(selected)
-        func render(_ identity: NodeID) throws -> JSONValue {
+        var childCollections: [NodeID: Set<String>] = [:]
+        for p in selected.values where visible.contains(p.node) {
+            if let owner = p.collection.owner { childCollections[owner, default: []].insert(p.collection.field) }
+        }
+        let roots = order(in: .root, selected: selected).filter { visible.contains($0) }
+        var rendered: [NodeID: JSONValue] = [:]
+        var pending = roots.reversed().map { ($0, 0, false) }
+        while let (identity, depth, ready) = pending.popLast() {
+            guard depth <= 100 else { throw EditorError.invalidDocument("Document nesting exceeds 100") }
             guard let node = nodes[identity] else { throw EditorError.invalidPath }
+            let collections = node.collections.union(childCollections[identity] ?? [])
+            if !ready {
+                pending.append((identity, depth, true))
+                for field in collections.sorted().reversed() {
+                    let children = order(in: NodeCollection(owner: identity, field: field), selected: selected).filter { visible.contains($0) }
+                    pending.append(contentsOf: children.reversed().map { ($0, depth + 2, false) })
+                }
+                continue
+            }
             var fields = node.fields
             if !node.birthActive {
                 for field in ["content", "summary", "caption", "code", "expression"] where fields[field] != nil {
@@ -258,16 +275,15 @@ struct StructuralState {
                 }
             }
             for (key, value) in text[identity] ?? [:] { fields[key] = value }
-            var collections = node.collections
-            for p in selected.values where p.collection.owner == identity && visible.contains(p.node) { collections.insert(p.collection.field) }
             for field in collections {
                 fields[field] = .array(try order(in: NodeCollection(owner: identity, field: field), selected: selected)
-                    .filter { visible.contains($0) }.map(render))
+                    .filter { visible.contains($0) }.map {
+                        guard let value = rendered[$0] else { throw EditorError.invalidPath }; return value
+                    })
             }
-            return .object(fields)
+            rendered[identity] = .object(fields)
         }
-        return try Document(blocks: order(in: .root, selected: selected).filter { visible.contains($0) }
-            .map { try Block(fields: render($0).object ?? [:]) })
+        return try Document(blocks: roots.map { try Block(fields: rendered[$0]?.object ?? [:]) })
     }
 }
 

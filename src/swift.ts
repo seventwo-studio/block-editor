@@ -17,6 +17,17 @@ export interface SwiftTextPosition {
 export interface SwiftSnapshot { blocks: Block[]; canUndo: boolean; canRedo: boolean }
 /** Opaque, versioned payloads: hosts transport them without interpreting merge operations. */
 export type SwiftChangeBatch = { version: number; documentID: string; baseline: unknown; changes: unknown[] };
+/** Persist separately from save(); its changes have not been acknowledged or applied. */
+export interface SwiftMergeRecovery { reason: "identityConflict" | "schemaConstraint"; batch: SwiftChangeBatch }
+export type SwiftMergeRepair =
+  | { move: { identity: SwiftNodeID; collection: SwiftNodeCollection } }
+  | { wrap: { identity: SwiftNodeID; container: Block; field: "children" | "items" | "rows" } }
+  | { text: { identity: SwiftNodeID; field: string; text: string } };
+export class SwiftMergeRecoveryError extends Error {
+  constructor(readonly recovery: SwiftMergeRecovery) {
+    super("Merge recovery required"); this.name = "SwiftMergeRecoveryError";
+  }
+}
 export type SwiftSyncState = { received: unknown[]; documentID?: string; version?: number };
 export type SwiftPresence = { actor: string; revision: number; address?: TextAddress; anchor?: unknown; focus?: unknown };
 
@@ -56,8 +67,11 @@ export class SwiftEditorRuntime {
       const memory = new Uint8Array(this.exports.memory.buffer);
       const end = memory.indexOf(0, output);
       if (end === -1) throw new Error("Invalid Swift response buffer");
-      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string };
-      if (!response.ok) throw new Error(response.error ?? "Swift editor operation failed");
+      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery };
+      if (!response.ok) {
+        if (response.error === "mergeRecoveryRequired" && response.recovery) throw new SwiftMergeRecoveryError(response.recovery);
+        throw new Error(response.error ?? "Swift editor operation failed");
+      }
       return response.value as T;
     } finally {
       if (output) this.exports.block_editor_free(output);
@@ -118,6 +132,14 @@ export class SwiftEditorSession {
     for (const listener of this.listeners) listener();
   }
   setText(address: TextAddress, text: string): void { this.edit("setText", { address, text }); }
+  mergeRecovery(): SwiftMergeRecovery | null { return this.call("mergeRecovery"); }
+  /** Re-submit a retained recovery.batch with receive() after restoring accepted history. */
+  repairMerge(repairs: SwiftMergeRepair[]): void {
+    if (this.remoteHolds) throw new Error("Commit composition before repairing a merge");
+    const rollback = [...this.beforeReceive].map(listener => listener());
+    try { this.edit("repairMerge", { repairs }); }
+    catch (error) { for (const cleanup of rollback) { try { cleanup?.(); } catch { /* Keep the engine error. */ } } throw error; }
+  }
   node(address: SwiftNodeAddress): SwiftNodeID { return this.call("node", { address }); }
   nodeAddress(identity: SwiftNodeID): SwiftNodeAddress { return this.call("nodeAddress", { identity }); }
   nodes(collection: SwiftNodeCollection): SwiftNodeID[] { return this.call("nodes", { collection }); }

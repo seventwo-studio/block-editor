@@ -11,6 +11,11 @@ public final class EditorBridge {
             let result = try dispatch(input)
             return try canonicalEncoder().encode(JSONValue.object(["ok": .bool(true), "value": result]))
         } catch {
+            if case EditorError.mergeRecoveryRequired(let recovery) = error,
+               let value = try? encode(recovery) {
+                return (try? canonicalEncoder().encode(JSONValue.object([
+                    "ok": .bool(false), "error": .string("mergeRecoveryRequired"), "recovery": value]))) ?? Data()
+            }
             return (try? canonicalEncoder().encode(JSONValue.object(["ok": .bool(false), "error": .string(String(describing: error))]))) ?? Data()
         }
     }
@@ -43,6 +48,8 @@ public final class EditorBridge {
         case "create", "restore", "cutoverToV2", "document": break
         case "close": sessions.removeValue(forKey: handle); return .null
         case "save": return try JSONDecoder().decode(JSONValue.self, from: session.save())
+        case "mergeRecovery": return try session.mergeRecovery.map { try encode($0) } ?? .null
+        case "repairMerge": try session.repairMerge(decode(input["repairs"], as: [MergeRepair].self))
         case "node": return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
         case "nodeAddress": return try encode(session.address(of: decode(input["identity"], as: NodeID.self)))
         case "nodes": return try encode(session.nodes(in: decode(input["collection"], as: NodeCollection.self)))

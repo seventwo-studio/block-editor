@@ -104,16 +104,18 @@ Firefox currently fails before execution because its profile folder cannot be
 opened. Android API 26/x86 execution and complete native/browser interaction remain
 separate acceptance work.
 
-ST-96 remains a required follow-up: valid histories can still exceed document/depth
-limits, and concurrently inserting the same label into one collection has no prior
-placement to fall back to. These cases fail explicitly and atomically rather than
-discarding data, but deterministic bounded recovery/admission is not yet delivered.
-Large-history performance, protocol review, full structural conflict coverage and
-platform acceptance remain open. Do not claim unrestricted convergence from the
-passing fixture or enable this prototype for production collaboration.
+Valid histories can exceed document/depth limits or insert the same sibling label
+without a prior placement to fall back to. V2 now exposes a canonical pending union
+and explicit move, wrap and text repairs. Accepted saves and receipts remain
+unchanged until the whole repaired union is valid. Required-content undo failures
+use the same recovery path; concurrent repairs replay as ordinary author changes.
+See [merge recovery](merge-recovery.md) for typed APIs, separate proposal persistence,
+relay HTTP 409 recovery and capacity exhaustion.
 
-Required-content constraints on containers retained by undo also need this policy;
-for example, hiding an inserted math expression's original atoms can leave an
-invalid empty expression. A focused sibling-insertion test proves that rejected
-unions preserve each author's saved history and do not acknowledge peer changes;
-it deliberately does not claim recovery or convergence for that unresolved case.
+The recovery fixture runs through Swift, JNI and Chromium/WebKit WASM; native tests
+also cover depth/root-count thresholds, required fields, atomic references and
+oversized-union retention. ST-96 remains open for full host recovery integration,
+expanded generated/resource coverage and the cross-runtime threshold matrix.
+Large-history performance, protocol review, full structural conflict coverage and
+platform acceptance remain open. Do not claim unrestricted convergence or enable
+this prototype for production collaboration from the passing fixtures.

@@ -73,8 +73,8 @@ private func exchange(_ sessions: [EditorSession]) throws {
     #expect(try EditorSession.restore(a.save(), actorID: "a").document == b.document)
 }
 
-// ST-96: rejection is atomic today, but these histories still need recovery.
-@Test func unresolvedSiblingInsertionConflictDoesNotAcknowledgeOrPersistRemoteChanges() throws {
+// Rejected unions remain outside saved history and receipts until an explicit repair.
+@Test func siblingInsertionConflictDoesNotAcknowledgeOrPersistRemoteChanges() throws {
     let baseline = try Document(blocks: [toggle("parent")])
     let a = try v2("a", baseline), b = try v2("b", baseline)
     let collection = NodeCollection(owner: try a.node(at: NodeAddress("parent")), field: "children")
@@ -82,8 +82,10 @@ private func exchange(_ sessions: [EditorSession]) throws {
     try b.insertNode(paragraph("same", "author b"), into: collection)
     let beforeA = try a.save(), beforeB = try b.save()
     let changesA = a.changes(), changesB = b.changes()
-    #expect(throws: EditorError.structuralConflict) { try a.receive(changesB) }
-    #expect(throws: EditorError.structuralConflict) { try b.receive(changesA) }
+    #expect(throws: EditorError.self) { try a.receive(changesB) }
+    #expect(throws: EditorError.self) { try b.receive(changesA) }
+    #expect(a.mergeRecovery?.reason == .identityConflict)
+    #expect(a.mergeRecovery == b.mergeRecovery)
     #expect(try a.save() == beforeA)
     #expect(try b.save() == beforeB)
     #expect(a.syncState.received == Set(changesA.changes.map(\.id)))

@@ -4,6 +4,12 @@ import Foundation
 /// Host authorization and media ownership are deliberately outside this validator.
 enum Validation {
     static func block(_ block: Block, depth: Int = 0) throws {
+        var pending = [(block, depth)]
+        while let (next, level) = pending.popLast() {
+            try inspectBlock(next, depth: level, pending: &pending)
+        }
+    }
+    private static func inspectBlock(_ block: Block, depth: Int, pending: inout [(Block, Int)]) throws {
         guard depth < 100 else { throw EditorError.invalidDocument("Too deeply nested") }
         let f = block.fields
         switch block.type {
@@ -13,18 +19,18 @@ enum Validation {
             try inline(f["content"])
         case "list":
             guard ["ordered", "unordered", "todo"].contains(f["style"]?.string ?? ""), let items = f["items"]?.array else { throw invalid("list") }
-            func item(_ value: JSONValue, depth: Int) throws {
-                guard depth < 100, let id = value["id"]?.string, !id.isEmpty else { throw invalid("list item") }
+            var pendingItems = items.reversed().map { ($0, depth + 1) }
+            try uniqueIDs(items)
+            while let (value, itemDepth) = pendingItems.popLast() {
+                guard itemDepth < 100, let id = value["id"]?.string, !id.isEmpty else { throw invalid("list item") }
                 try inline(value["content"])
                 if let checked = value["checked"], checked != .bool(true), checked != .bool(false) { throw invalid("checked") }
                 if let children = value["children"] {
                     guard let children = children.array else { throw invalid("children") }
                     try uniqueIDs(children)
-                    for child in children { try item(child, depth: depth + 1) }
+                    pendingItems.append(contentsOf: children.reversed().map { ($0, itemDepth + 1) })
                 }
             }
-            try uniqueIDs(items)
-            for value in items { try item(value, depth: depth + 1) }
         case "code": try string(f["code"], name: "code", max: 100_000); try string(f["language"], name: "language", max: 50, optional: true)
         case "callout":
             guard ["info", "warning", "error", "success"].contains(f["variant"]?.string ?? "") else { throw invalid("callout variant") }
@@ -64,7 +70,7 @@ enum Validation {
             if let value = f["children"] {
                 guard let children = value.array else { throw invalid("toggle children") }
                 try uniqueIDs(children)
-                for child in children { try self.block(Block(fields: child.object ?? [:]), depth: depth + 1) }
+                for child in children.reversed() { pending.append((try Block(fields: child.object ?? [:]), depth + 1)) }
             }
         default: break // Unknown blocks are preserved, not implicitly made authorable.
         }

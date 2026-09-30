@@ -1,0 +1,472 @@
+{
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "a",
+        "documentID": "recovery-fixture",
+        "actorID": "a",
+        "blocks": [
+          {
+            "id": "parent",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "parent",
+                "marks": []
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "destination",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "destination",
+                "marks": []
+              }
+            ],
+            "children": []
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "b",
+        "documentID": "recovery-fixture",
+        "actorID": "b",
+        "blocks": [
+          {
+            "id": "parent",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "parent",
+                "marks": []
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "destination",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "destination",
+                "marks": []
+              }
+            ],
+            "children": []
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "insertNode",
+        "session": "a",
+        "value": {
+          "id": "same",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "café 😀 Alice",
+              "marks": []
+            }
+          ]
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "parent",
+              "path": []
+            }
+          },
+          "field": "children"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a"
+      },
+      "capture": "batchA"
+    },
+    {
+      "request": {
+        "command": "insertNode",
+        "session": "b",
+        "value": {
+          "id": "same",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "世界 Bob",
+              "marks": []
+            }
+          ]
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "parent",
+              "path": []
+            }
+          },
+          "field": "children"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "b"
+      },
+      "capture": "batchB"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a"
+      },
+      "capture": "beforeA"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a"
+      },
+      "capture": "receiptA"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a"
+      },
+      "capture": "proposalA",
+      "bindings": {
+        "batch": "batchB"
+      },
+      "error": "mergeRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "b"
+      },
+      "capture": "proposalB",
+      "bindings": {
+        "batch": "batchA"
+      },
+      "error": "mergeRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a"
+      },
+      "capture": "afterA"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a"
+      },
+      "capture": "afterReceipt"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "a",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "beforeA"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a"
+      },
+      "bindings": {
+        "batch": [
+          "proposalA",
+          "batch"
+        ]
+      },
+      "error": "mergeRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "repairMerge",
+        "session": "a",
+        "repairs": [
+          {
+            "move": {
+              "identity": {
+                "inserted": {
+                  "creation": {
+                    "change": {
+                      "counter": 1,
+                      "actor": "b"
+                    },
+                    "index": 0
+                  },
+                  "path": []
+                }
+              },
+              "collection": {
+                "owner": {
+                  "baseline": {
+                    "blockID": "destination",
+                    "path": []
+                  }
+                },
+                "field": "children"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "a"
+      },
+      "capture": "cleared"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a"
+      },
+      "capture": "repaired"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "b"
+      },
+      "bindings": {
+        "batch": "repaired"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a"
+      },
+      "capture": "finalA"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "b"
+      },
+      "capture": "finalB"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a"
+      },
+      "capture": "acceptedSave"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "a",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "acceptedSave"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a"
+      },
+      "capture": "reopened"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "b"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "b"
+      },
+      "capture": "bobUndo"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a"
+      },
+      "bindings": {
+        "batch": "bobUndo"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a"
+      },
+      "capture": "afterUndo"
+    }
+  ],
+  "equal": [
+    [
+      "beforeA",
+      "afterA"
+    ],
+    [
+      "receiptA",
+      "afterReceipt"
+    ],
+    [
+      "proposalA",
+      "proposalB"
+    ],
+    [
+      "finalA",
+      "finalB"
+    ],
+    [
+      "finalA",
+      "reopened"
+    ]
+  ],
+  "expected": {
+    "blocks": [
+      {
+        "id": "parent",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "parent",
+            "marks": []
+          }
+        ],
+        "children": [
+          {
+            "id": "same",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀 Alice",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "destination",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "destination",
+            "marks": []
+          }
+        ],
+        "children": [
+          {
+            "id": "same",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "世界 Bob",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "canUndo": true,
+    "canRedo": false
+  },
+  "expectedAfterUndo": {
+    "blocks": [
+      {
+        "id": "parent",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "parent",
+            "marks": []
+          }
+        ],
+        "children": [
+          {
+            "id": "same",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀 Alice",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "destination",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "destination",
+            "marks": []
+          }
+        ],
+        "children": [
+          {
+            "id": "same",
+            "type": "paragraph",
+            "content": []
+          }
+        ]
+      }
+    ],
+    "canUndo": true,
+    "canRedo": false
+  }
+}

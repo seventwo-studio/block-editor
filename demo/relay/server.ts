@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { NativeBridge } from "./bridge.ts";
 import type { Block } from "../../src/schema.ts";
+import { SwiftMergeRecoveryError } from "../../src/swift.ts";
 
 const initialBlocks = [{ id: "p", type: "paragraph", content: [{ type: "text", text: "Shared local document", marks: [] }] }];
 const MAX_BODY = 8_000_000;
@@ -81,8 +82,15 @@ export async function startRelay(options: { executable: string; directory: strin
     };
     // Serializes each complete receive/save/ack transaction, not merely individual bridge calls.
     tail = tail.then(execute).catch(error => {
-      if (!response.headersSent) response.writeHead(400);
-      response.end(JSON.stringify({ error: String(error) }));
+      if (error instanceof SwiftMergeRecoveryError) {
+        if (!response.headersSent) response.writeHead(409);
+        // The caller retains this proposal separately from accepted room history,
+        // repairs it with its own author identity, then resubmits ordinary changes.
+        response.end(JSON.stringify({ error: "mergeRecoveryRequired", recovery: error.recovery }));
+      } else {
+        if (!response.headersSent) response.writeHead(400);
+        response.end(JSON.stringify({ error: String(error) }));
+      }
     });
   });
   await new Promise<void>((resolve, reject) => {

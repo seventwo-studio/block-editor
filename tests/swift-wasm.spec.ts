@@ -1,6 +1,69 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+test("recovery fixture retains rejected histories and converges after repair and restart in WASM", async ({ page }) => {
+  const fixture = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/recovery.json", "utf8"));
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const captured = await page.evaluate(async ({ source, fixture }) => {
+    const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const captured: Record<string, any> = {};
+    for (const step of fixture.steps) {
+      const request = { ...step.request };
+      for (const [key, binding] of Object.entries(step.bindings ?? {})) {
+        const path = Array.isArray(binding) ? binding : [binding];
+        request[key] = path.reduce((value, part) => value[part], captured);
+      }
+      try {
+        const value = runtime.call(request);
+        if (step.error) throw new Error("Expected a rejected merge");
+        if (step.capture) captured[step.capture] = value;
+      } catch (error) {
+        if (step.error !== "mergeRecoveryRequired" || !(error instanceof SwiftMergeRecoveryError)) throw error;
+        if (step.capture) captured[step.capture] = error.recovery;
+      }
+    }
+    return captured;
+  }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, fixture });
+  for (const [left, right] of fixture.equal) expect(captured[left]).toEqual(captured[right]);
+  expect(captured.cleared).toBeNull();
+  expect(captured.proposalA.reason).toBe("identityConflict");
+  expect(captured.proposalA.batch.changes).toHaveLength(2);
+  expect(captured.finalA).toEqual(fixture.expected);
+  expect(captured.afterUndo).toEqual(fixture.expectedAfterUndo);
+});
+
+test("typed WASM recovery APIs expose failed repairs and survive a host-retained proposal", async ({ page }) => {
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async source => {
+    const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const a = runtime.create({ documentID: "typed-recovery", actorID: "a", blocks: [], collaborationVersion: 2 });
+    const b = runtime.create({ documentID: "typed-recovery", actorID: "b", blocks: [], collaborationVersion: 2 });
+    let restarted;
+    try {
+      a.insertNode({ id: "same", type: "paragraph", content: [{ type: "text", text: "Alice", marks: [] }] }, { field: "blocks" });
+      const second = b.insertNode({ id: "same", type: "paragraph", content: [{ type: "text", text: "Bob", marks: [] }] }, { field: "blocks" });
+      const saved = a.save(); let reason;
+      try { a.receive(b.changes()); } catch (error) { if (!(error instanceof SwiftMergeRecoveryError)) throw error; reason = error.recovery.reason; }
+      const retained = JSON.parse(JSON.stringify(a.mergeRecovery()));
+      restarted = runtime.restore(saved, "a");
+      try { restarted.receive(retained.batch); } catch (error) { if (!(error instanceof SwiftMergeRecoveryError)) throw error; }
+      let failed = false;
+      try { restarted.repairMerge([{ move: { identity: second, collection: { field: "blocks" } } }]); } catch { failed = true; }
+      const preserved = JSON.stringify(restarted.save()) === JSON.stringify(saved);
+      restarted.repairMerge([{ wrap: { identity: second, container: { id: "wrapper", type: "toggle", summary: [], children: [] }, field: "children" } }]);
+      b.receive(restarted.changes());
+      return { reason, failed, preserved, cleared: restarted.mergeRecovery(), converged: JSON.stringify(b.getSnapshot().blocks) === JSON.stringify(restarted.getSnapshot().blocks),
+        address: restarted.nodeAddress(second), texts: JSON.stringify(restarted.getSnapshot().blocks) };
+    } finally { a.close(); b.close(); restarted?.close(); }
+  }, `/block-editor/@fs${process.cwd()}/src/swift.ts`);
+  expect(result).toMatchObject({ reason: "identityConflict", failed: true, preserved: true, cleared: null, converged: true, address: { blockID: "wrapper", path: ["children", "same"] } });
+  expect(result.texts).toContain("Alice"); expect(result.texts).toContain("Bob");
+});
+
 test("out-of-order concurrent formatting preserves independent marks and author undo", async ({ page }) => {
   await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");

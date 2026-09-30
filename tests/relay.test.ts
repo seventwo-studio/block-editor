@@ -7,6 +7,70 @@ import { stressRelay } from "../demo/relay/stress.ts";
 import { NativeBridge } from "../demo/relay/bridge.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { SwiftMergeRecoveryError } from "../src/swift.ts";
+
+test("relay returns an unapplied recovery proposal and admits a client repair after server and client restart", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "editor-recovery-relay-"));
+  const executable = process.env.BLOCK_EDITOR_BRIDGE ?? "./.build/debug/editor-bridge";
+  const text = (text: string) => ({ type: "text" as const, text, marks: [] });
+  const blocks = ["parent", "destination"].map(id => ({ id, type: "toggle" as const, summary: [text(id)], children: [] }));
+  const options = { directory, executable, token: "test", port: 0, blocks, collaborationVersion: 2 as const };
+  let relay = await startRelay(options);
+  const clients = [new NativeBridge(executable), new NativeBridge(executable)];
+  const headers = { "x-local-token": "test", "content-type": "application/json" };
+  const call = (index: number, command: string, args: Record<string, unknown> = {}) => clients[index].call({ command, session: "recovery-client", ...args });
+  const send = async (index: number) => await fetch(`${relay.url}/rooms/recovery`, { method: "POST", headers,
+    body: JSON.stringify({ actorID: `author-${index}`, batch: await call(index, "changes"), state: await call(index, "syncState") }) });
+  try {
+    const baseline = await (await fetch(`${relay.url}/rooms/recovery`, { headers })).json();
+    for (const index of [0, 1]) await call(index, "restore", { actorID: `author-${index}`, snapshot: baseline });
+    const parent = await call(0, "node", { address: { blockID: "parent", path: [] } });
+    const destination = await call(0, "node", { address: { blockID: "destination", path: [] } });
+    const ids = [];
+    for (const index of [0, 1]) ids.push((await call(index, "insertNode", {
+      value: { id: "same", type: "paragraph", content: [text(`author ${index} 😀`)] },
+      collection: { owner: parent, field: "children" },
+    })).identity);
+    const accepted = await send(0); expect(accepted.status).toBe(200);
+    const saved = await readFile(join(directory, "recovery.json"), "utf8");
+    const collision = await send(1); expect(collision.status).toBe(409);
+    const error = await collision.json();
+    expect(error.error).toBe("mergeRecoveryRequired"); expect(error.state).toBeUndefined();
+    expect(error.recovery.reason).toBe("identityConflict");
+    expect(error.recovery.batch.changes).toHaveLength(2);
+    expect(await readFile(join(directory, "recovery.json"), "utf8")).toBe(saved);
+    const ownSave = await call(1, "save"), ownState = await call(1, "syncState");
+    await expect(call(1, "receive", { batch: error.recovery.batch })).rejects.toBeInstanceOf(SwiftMergeRecoveryError);
+    expect(await call(1, "save")).toEqual(ownSave); expect(await call(1, "syncState")).toEqual(ownState);
+    // Host storage retains transport recovery separately from its accepted draft.
+    await clients[1].call({ command: "close", session: "recovery-client" }); clients[1].close();
+    clients[1] = new NativeBridge(executable);
+    await call(1, "restore", { actorID: "author-1", snapshot: JSON.parse(JSON.stringify(ownSave)) });
+    await relay.close(); relay = await startRelay(options);
+    expect(await (await fetch(`${relay.url}/rooms/recovery`, { headers })).json()).toEqual(JSON.parse(saved));
+    await expect(call(1, "receive", { batch: JSON.parse(JSON.stringify(error.recovery.batch)) })).rejects.toBeInstanceOf(SwiftMergeRecoveryError);
+    await call(1, "repairMerge", { repairs: [{ move: { identity: ids[1], collection: { owner: destination, field: "children" } } }] });
+    expect(await call(1, "mergeRecovery")).toBeNull();
+    const repaired = await send(1); expect(repaired.status).toBe(200);
+    await call(1, "receive", { batch: (await repaired.json()).batch });
+    const response = await send(0); expect(response.status).toBe(200);
+    await call(0, "receive", { batch: (await response.json()).batch });
+    expect((await call(0, "document")).blocks).toEqual((await call(1, "document")).blocks);
+    expect(await call(1, "nodeAddress", { identity: ids[1] })).toEqual({ blockID: "destination", path: ["children", "same"] });
+    const repairedSave = await readFile(join(directory, "recovery.json"), "utf8");
+    expect(JSON.parse(repairedSave).changes).toHaveLength(3);
+    // Undo Alice's insertion; Bob's repaired content remains. Duplicate resend is safe.
+    await call(0, "undo"); expect((await send(0)).status).toBe(200);
+    const bobResponse = await send(1); expect(bobResponse.status).toBe(200);
+    await call(1, "receive", { batch: (await bobResponse.json()).batch });
+    expect(JSON.stringify((await call(1, "document")).blocks)).toContain("author 1 😀");
+    expect(JSON.stringify((await call(1, "document")).blocks)).not.toContain("author 0 😀");
+    expect((await send(1)).status).toBe(200);
+    const wrong = await fetch(`${relay.url}/rooms/recovery`, { method: "POST", headers,
+      body: JSON.stringify({ actorID: "bad", batch: { ...baseline, version: 99 }, state: { received: [] } }) });
+    expect(wrong.status).toBe(400); expect((await wrong.json()).recovery).toBeUndefined();
+  } finally { clients.forEach(client => client.close()); await relay.close(); await rm(directory, { recursive: true, force: true }); }
+}, 120_000);
 
 test("versioned nested moves recover offline through the central relay and preserve remote author text", async () => {
   const directory = await mkdtemp(join(tmpdir(), "editor-nested-relay-"));

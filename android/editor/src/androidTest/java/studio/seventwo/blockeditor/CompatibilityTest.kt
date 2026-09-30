@@ -9,6 +9,72 @@ import org.junit.Test
 
 /** Runs the same JSON commands and expected document as Swift and browser WASM. */
 class CompatibilityTest {
+    @Test fun sharedRecoveryFixture() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val fixture = JSONObject(context.assets.open("recovery.json").bufferedReader().use { it.readText() })
+        val captured = mutableMapOf<String, Any>()
+        val steps = fixture.getJSONArray("steps")
+        try {
+            for (index in 0 until steps.length()) {
+                val step = steps.getJSONObject(index)
+                val request = JSONObject(step.getJSONObject("request").toString())
+                val bindings = step.optJSONObject("bindings")
+                bindings?.keys()?.forEach { key ->
+                    val binding = bindings.get(key)
+                    val path = if (binding is JSONArray) (0 until binding.length()).map { binding.getString(it) } else listOf(binding as String)
+                    var value = checkNotNull(captured[path.first()])
+                    path.drop(1).forEach { value = (value as JSONObject).get(it) }
+                    request.put(key, value)
+                }
+                try {
+                    val value = NativeEngine.call(request).get("value")
+                    if (step.has("error")) fail("Expected a rejected merge")
+                    if (step.has("capture")) captured[step.getString("capture")] = value
+                } catch (error: MergeRecoveryException) {
+                    assertEquals("mergeRecoveryRequired", step.getString("error"))
+                    if (step.has("capture")) captured[step.getString("capture")] = error.recovery.export()
+                }
+            }
+            val pairs = fixture.getJSONArray("equal")
+            for (index in 0 until pairs.length()) {
+                val pair = pairs.getJSONArray(index)
+                assertEquals(normalize(captured[pair.getString(0)]), normalize(captured[pair.getString(1)]))
+            }
+            assertEquals(JSONObject.NULL, captured["cleared"])
+            assertEquals("identityConflict", (captured["proposalA"] as JSONObject).getString("reason"))
+            assertEquals(2, (captured["proposalA"] as JSONObject).getJSONObject("batch").getJSONArray("changes").length())
+            assertEquals(normalize(fixture.getJSONObject("expected")), normalize(captured["finalA"]))
+            assertEquals(normalize(fixture.getJSONObject("expectedAfterUndo")), normalize(captured["afterUndo"]))
+        } finally {
+            for (handle in listOf("a", "b")) {
+                try { NativeEngine.call(JSONObject().put("command", "close").put("session", handle)) } catch (_: Exception) { }
+            }
+        }
+    }
+    @Test fun typedRecoveryApiRestoresAndRepairsRejectedChanges() {
+        val a = EditorSession.create("typed-recovery", "a", collaborationVersion = 2)
+        val b = EditorSession.create("typed-recovery", "b", collaborationVersion = 2)
+        var restarted: EditorSession? = null
+        try {
+            a.insertNode(JSONObject("""{"id":"same","type":"paragraph","content":[{"type":"text","text":"Alice","marks":[]}]}"""), NodeCollection.ROOT)
+            val second = b.insertNode(JSONObject("""{"id":"same","type":"paragraph","content":[{"type":"text","text":"Bob","marks":[]}]}"""), NodeCollection.ROOT)
+            val saved = a.save()
+            try { a.receive(b.changes()); fail("Expected recovery") }
+            catch (error: MergeRecoveryException) { assertEquals(MergeRecoveryReason.IDENTITY_CONFLICT, error.recovery.reason) }
+            val retained = MergeRecovery.restore(checkNotNull(a.mergeRecovery()).export())
+            restarted = EditorSession.restore(saved, "a")
+            try { restarted.receive(retained.batch); fail("Expected restored recovery") } catch (_: MergeRecoveryException) { }
+            try { restarted.repairMerge(listOf(MergeRepair.Move(second, NodeCollection.ROOT))); fail("Invalid repair accepted") }
+            catch (_: IllegalStateException) { }
+            assertEquals(normalize(saved), normalize(restarted.save()))
+            restarted.repairMerge(listOf(MergeRepair.Wrap(second,
+                JSONObject("""{"id":"wrapper","type":"toggle","summary":[],"children":[]}"""), "children")))
+            assertEquals(null, restarted.mergeRecovery())
+            b.receive(restarted.changes())
+            assertEquals(normalize(b.snapshot.getJSONArray("blocks")), normalize(restarted.snapshot.getJSONArray("blocks")))
+            assertEquals(NodeAddress("wrapper", listOf("children", "same")), restarted.nodeAddress(second))
+        } finally { a.close(); b.close(); restarted?.close() }
+    }
     @Test fun stablePositionsFollowRemoteEditsAndUndo() {
         val blocks = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"A😀BC","marks":[]}]}]""")
         val a = EditorSession.create("positions", "a", blocks)

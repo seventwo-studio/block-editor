@@ -12,6 +12,7 @@ public final class EditorSession {
     public var onWillReceive: (() -> Void)?
     public var onPresence: (([String: Presence]) -> Void)?
     public private(set) var presence: [String: Presence] = [:]
+    public private(set) var mergeRecovery: MergeRecovery?
     private var preparingReceive = false
     private var remoteHolds = 0
     private var deferred: [ChangeBatch] = []
@@ -26,6 +27,10 @@ public final class EditorSession {
     public init(documentID: String, actorID: String, document: Document, collaborationVersion: Int = 1) throws {
         guard [1, 2].contains(collaborationVersion) else { throw EditorError.unsupportedVersion(collaborationVersion) }
         guard !documentID.isEmpty, validActor(actorID) else { throw EditorError.invalidChange }
+        let document = try Document(blocks: document.blocks)
+        if collaborationVersion == 2, try document.json().count > 32_000_000 {
+            throw EditorError.invalidDocument("Document exceeds 32 MB")
+        }
         self.documentID = documentID; self.actorID = actorID; self.baseline = document
         self.collaborationVersion = collaborationVersion
         self.state = .seed(document, version: collaborationVersion)
@@ -113,18 +118,156 @@ public final class EditorSession {
         guard batch.documentID == documentID, batch.baseline == baseline else { throw EditorError.differentDocument }
         guard batch.changes.count <= 100_000 else { throw EditorError.invalidChange }
         var candidate = log
+        for change in mergeRecovery?.batch.changes ?? [] { candidate[change.id] = change }
         for change in batch.changes {
             try validate(change, version: collaborationVersion)
             if let existing = candidate[change.id], existing != change { throw EditorError.conflictingChange }
             candidate[change.id] = change
         }
         guard candidate != log else { return }
+        if collaborationVersion == 2 { try checkRecoveryCapacity(candidate) }
         let next = try materialize(baseline, Array(candidate.values), version: collaborationVersion)
-        let document = try next.document()
+        let document = try admissionDocument(next, candidate: candidate)
         preparingReceive = true; onWillReceive?(); preparingReceive = false
+        reconcileRecoveredHistory(candidate)
         log = candidate; state = next; counter = max(counter, candidate.keys.map(\.counter).max() ?? 0)
-        currentDocument = document
+        currentDocument = document; mergeRecovery = nil
         onChange?(document, nil)
+    }
+
+    /// Repair the full rejected union atomically, keeping unapplied changes outside
+    /// save/receipts until every edit produces a valid document. One author undo action.
+    public func repairMerge(_ repairs: [MergeRepair]) throws {
+        guard !preparingReceive, remoteHolds == 0, collaborationVersion == 2,
+              let recovery = mergeRecovery, !repairs.isEmpty, repairs.count <= 64 else { throw EditorError.invalidChange }
+        var candidate = log
+        for change in recovery.batch.changes { candidate[change.id] = change }
+        let clock = max(counter, candidate.keys.map(\.counter).max() ?? 0)
+        guard clock < 9_007_199_254_740_991 else { throw EditorError.invalidChange }
+        let id = ChangeID(counter: clock + 1, actor: actorID)
+        var raw = try materialize(baseline, Array(candidate.values), version: 2)
+        var mutations: [Mutation] = []
+        for (index, repair) in repairs.enumerated() {
+            // Each repair has a separate atom/placement range, also on 32-bit WASM.
+            let base = index * 1_000_001
+            var edits: [Mutation] = []
+            switch repair {
+            case .move(let identity, let collection):
+                guard let structure = raw.structure, let node = structure.nodes[identity],
+                      try structure.kind(in: collection) == node.kind else { throw EditorError.invalidPath }
+                edits = [.moveNode(identity: identity, collection: collection,
+                    placement: ElementID(change: id, index: base), after: nil)]
+            case .wrap(let identity, let container, let field):
+                guard let structure = raw.structure, let node = structure.nodes[identity] else { throw EditorError.invalidPath }
+                try validateNode(.object(container.fields), kind: .block)
+                try validateAuthoredNode(.object(container.fields), kind: .block)
+                guard StructuralState.collectionFields(.block, container.fields)[field] == node.kind else { throw EditorError.invalidPath }
+                let creation = ElementID(change: id, index: base), wrapper = NodeID.inserted(creation: creation, path: [])
+                edits = [.insertNode(value: .object(container.fields), identity: wrapper, collection: .root,
+                    placement: creation, after: nil),
+                    .moveNode(identity: identity, collection: NodeCollection(owner: wrapper, field: field),
+                        placement: ElementID(change: id, index: base + 1), after: nil)]
+            case .text(let identity, let field, let text):
+                guard raw.structure?.nodes[identity] != nil,
+                      ["content", "summary", "caption", "code", "expression"].contains(field),
+                      text.utf16.count <= 100_000 else { throw EditorError.invalidPath }
+                let address = identity.textAddress(field)
+                guard let value = raw.textValue(address), value.array != nil || value.string != nil,
+                      (value.string ?? plainText(value.array ?? [])).utf16.count <= 100_000 else { throw EditorError.invalidPath }
+                raw.ensureText(address)
+                let atoms = raw.visibleAtoms(address), before = Array(plainText(atoms.map(\.node)).unicodeScalars), after = Array(text.unicodeScalars)
+                var prefix = 0, suffix = 0
+                while prefix < min(before.count, after.count), before[prefix] == after[prefix] { prefix += 1 }
+                while suffix < min(before.count, after.count) - prefix,
+                      before[before.count - 1 - suffix] == after[after.count - 1 - suffix] { suffix += 1 }
+                // Atomic references count as one atom but can span several scalars.
+                var scalarOffset = 0, selected: [ElementID] = [], anchor: ElementID?, marks: [JSONValue] = []
+                for atom in atoms {
+                    let end = scalarOffset + plainText([atom.node]).unicodeScalars.count
+                    if end <= prefix { anchor = atom.id; marks = atom.node["marks"]?.array ?? [] }
+                    else if scalarOffset < before.count - suffix {
+                        guard scalarOffset >= prefix, end <= before.count - suffix else { throw EditorError.invalidRange }
+                        selected.append(atom.id)
+                        if scalarOffset == prefix, prefix == 0 { marks = atom.node["marks"]?.array ?? [] }
+                    }
+                    scalarOffset = end
+                }
+                if !selected.isEmpty { edits.append(.deleteText(address: address, ids: selected)) }
+                var inserted: [TextAtom] = []
+                for scalar in after[prefix..<(after.count - suffix)] {
+                    let element = ElementID(change: id, index: base + inserted.count)
+                    inserted.append(TextAtom(id: element, after: anchor, node: textNode(String(scalar), marks: marks)))
+                    anchor = element
+                }
+                if !inserted.isEmpty { edits.append(.insertText(address: address, atoms: inserted)) }
+            }
+            try apply(edits, enabled: true, to: &raw)
+            mutations.append(contentsOf: edits)
+        }
+        guard !mutations.isEmpty else { throw EditorError.invalidChange }
+        let change = Change(id: id, body: .edit(mutations))
+        try validate(change, version: 2)
+        candidate[id] = change
+        try checkRecoveryCapacity(candidate)
+        let next = try materialize(baseline, Array(candidate.values), version: 2)
+        let document = try next.document() // Failed repair leaves the original proposal intact.
+        guard try document.json().count <= 32_000_000 else {
+            throw EditorError.invalidDocument("Document exceeds 32 MB")
+        }
+        preparingReceive = true; onWillReceive?(); preparingReceive = false
+        reconcileRecoveredHistory(candidate)
+        log = candidate; state = next; counter = clock + 1; currentDocument = document; mergeRecovery = nil
+        undoStack.append(id); redoStack.removeAll()
+        onChange?(document, change)
+    }
+
+    private func checkRecoveryCapacity(_ candidate: [ChangeID: Change]) throws {
+        guard candidate.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
+        let batch = ChangeBatch(documentID: documentID, baseline: baseline,
+            changes: candidate.values.sorted { $0.id < $1.id }, version: collaborationVersion)
+        let bytes = try canonicalEncoder().encode(batch).count
+        // Reserve a deterministic upper bound for any author's undo/redo IDs and
+        // JSON request/envelope overhead. An admitted snapshot must remain restorable.
+        let editIDs = candidate.values.filter { if case .edit = $0.body { return true }; return false }.map(\.id).sorted()
+        let historyBytes = try canonicalEncoder().encode(editIDs).count
+        guard bytes <= 64_000_000 - 1_024 - historyBytes else { throw EditorError.recoveryCapacityExceeded }
+    }
+    private func admissionDocument(_ next: Materialized, candidate: [ChangeID: Change]) throws -> Document {
+        do {
+            let document = try next.document()
+            if collaborationVersion == 2, try document.json().count > 32_000_000 {
+                throw EditorError.invalidDocument("Document exceeds 32 MB")
+            }
+            return document
+        }
+        catch {
+            guard collaborationVersion == 2, let error = error as? EditorError else { throw error }
+            let reason: MergeRecoveryReason
+            switch error {
+            case .structuralConflict: reason = .identityConflict
+            case .invalidDocument: reason = .schemaConstraint
+            default: throw error
+            }
+            try checkRecoveryCapacity(candidate)
+            let recovery = MergeRecovery(reason: reason, batch: ChangeBatch(documentID: documentID, baseline: baseline,
+                changes: candidate.values.sorted { $0.id < $1.id }, version: 2))
+            mergeRecovery = recovery
+            throw EditorError.mergeRecoveryRequired(recovery)
+        }
+    }
+    private func reconcileRecoveredHistory(_ candidate: [ChangeID: Change]) {
+        for change in candidate.values.sorted(by: { $0.id < $1.id }) where log[change.id] == nil && change.id.actor == actorID {
+            guard case .setActive(let target, let active) = change.body else { continue }
+            if !active, let index = undoStack.firstIndex(of: target) { undoStack.remove(at: index); redoStack.append(target) }
+            if active, let index = redoStack.firstIndex(of: target) { redoStack.remove(at: index); undoStack.append(target) }
+        }
+    }
+    private func validateAuthoredNode(_ value: JSONValue, kind: NodeKind) throws {
+        if kind == .block, let type = value["type"]?.string, let allowedBlockTypes,
+           type != "paragraph", !allowedBlockTypes.contains(type) { throw EditorError.restrictedBlock(type) }
+        for (field, childKind) in StructuralState.collectionFields(kind, value.object ?? [:]) {
+            for child in value[field]?.array ?? [] { try validateAuthoredNode(child, kind: childKind) }
+        }
     }
 
     public func receivePresence(_ value: Presence) {
@@ -204,14 +347,7 @@ public final class EditorSession {
         if let owner = collection.owner { _ = try structure.address(of: owner) }
         try validateNode(value, kind: kind)
         guard !(try nodes(in: collection)).contains(where: { structure.nodes[$0]?.label == value["id"]?.string }) else { throw EditorError.invalidDocument("Sibling ID already exists") }
-        func permitted(_ value: JSONValue, kind: NodeKind) throws {
-            if kind == .block, let type = value["type"]?.string, let allowedBlockTypes,
-               type != "paragraph", !allowedBlockTypes.contains(type) { throw EditorError.restrictedBlock(type) }
-            for (field, childKind) in StructuralState.collectionFields(kind, value.object ?? [:]) {
-                for child in value[field]?.array ?? [] { try permitted(child, kind: childKind) }
-            }
-        }
-        try permitted(value, kind: kind)
+        try validateAuthoredNode(value, kind: kind)
         let anchor = try nodePlacement(after, in: collection), id = try nextID()
         let placement = ElementID(change: id, index: 0), identity = NodeID.inserted(creation: placement, path: [])
         try commit(id, [.insertNode(value: value, identity: identity, collection: collection, placement: placement, after: anchor)])
@@ -464,8 +600,10 @@ public final class EditorSession {
     }
     private func append(_ change: Change) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
+        if let recovery = mergeRecovery { throw EditorError.mergeRecoveryRequired(recovery) }
         try validate(change, version: collaborationVersion)
         var candidate = log; candidate[change.id] = change
+        if collaborationVersion == 2 { try checkRecoveryCapacity(candidate) }
         var next: Materialized
         if case .edit(let mutations) = change.body {
             // Local IDs are newer than every received change. They can be applied
@@ -475,7 +613,14 @@ public final class EditorSession {
         } else {
             next = try materialize(baseline, Array(candidate.values), version: collaborationVersion)
         }
-        let document = try next.document()
+        let document: Document
+        if case .setActive = change.body { document = try admissionDocument(next, candidate: candidate) }
+        else {
+            document = try next.document()
+            if collaborationVersion == 2, try document.json().count > 32_000_000 {
+                throw EditorError.invalidDocument("Document exceeds 32 MB")
+            }
+        }
         log = candidate; state = next; counter = change.id.counter
         currentDocument = document
     }

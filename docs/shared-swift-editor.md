@@ -280,7 +280,9 @@ alone does not establish editor usability.
 
 - Full nested structural operations, Apple selection mapping across remote edits,
   wider convergence coverage and conflict-aware resource limits. Current
-  document size/shape rejection can prevent an over-limit union from merging;
+  v2 [merge recovery](merge-recovery.md) retains rejected unions separately from
+  accepted saves/receipts and exposes explicit repairs. Expanded resource/conflict
+  coverage and host recovery integration remain open;
   hosts must not treat this prototype as an unbounded collaboration service.
 - Log/receipt compaction, performance budgets and artifact-size reduction. The
   current release WASM is about 58 MB. Local edits apply incrementally; incoming
