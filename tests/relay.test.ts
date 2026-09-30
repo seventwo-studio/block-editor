@@ -17,6 +17,10 @@ test("independent Swift processes converge through a persistent local relay afte
     expect((await fetch(`${relay.url}/rooms/test`)).status).toBe(401);
     const result = await stressRelay({ url: relay.url, token: "test-token", executable, rounds: 12, replicas: 4, room: "test", seed: 42 });
     expect(result.converged).toBe(true);
+    expect(result.acknowledged).toBe(true);
+    expect(result.partialExchanges).toBeGreaterThan(0);
+    expect(result.restarts).toBe(8);
+    for (const count of Object.values(result.attemptedOperations)) expect(count).toBeGreaterThan(0);
     const saved = await readFile(join(directory, "test.json"), "utf8");
     expect(JSON.parse(saved).presence).toBeUndefined();
     await relay.close();
@@ -28,6 +32,28 @@ test("independent Swift processes converge through a persistent local relay afte
     expect(await readFile(join(directory, "test.json"), "utf8")).toBe(saved);
   } finally { await relay.close(); await rm(directory, { recursive: true, force: true }); }
 }, 120_000);
+
+test("generated overlapping edits recover through the central relay for independent seeds", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "editor-generated-"));
+  const executable = process.env.BLOCK_EDITOR_BRIDGE ?? "./.build/debug/editor-bridge";
+  const relay = await startRelay({ directory, executable, token: "test", port: 0 });
+  try {
+    for (const seed of [1, 65537, 20260930]) {
+      const result = await stressRelay({ url: relay.url, token: "test", executable, replicas: 4, rounds: 18, seed, room: `seed-${seed}` });
+      expect(result.converged, `seed ${seed}`).toBe(true);
+      expect(result.acknowledged, `seed ${seed}`).toBe(true);
+      expect(result.partialExchanges, `seed ${seed}`).toBeGreaterThan(0);
+      expect(result.restarts).toBe(12);
+      for (const count of Object.values(result.attemptedOperations)) expect(count).toBeGreaterThan(0);
+    }
+  } finally { await relay.close(); await rm(directory, { recursive: true, force: true }); }
+}, 120_000);
+
+test("stress configuration rejects invalid counts and seeds before connecting", async () => {
+  for (const invalid of [{ replicas: NaN }, { replicas: 2.5 }, { rounds: Infinity }, { rounds: 0 }, { seed: -1 }, { seed: NaN }, { seed: 2 ** 32 }]) {
+    await expect(stressRelay({ url: "invalid", token: "", executable: "unused", ...invalid })).rejects.toThrow();
+  }
+});
 
 test("presence expires, rejects stale revisions and leaves saved content unchanged", async () => {
   const directory = await mkdtemp(join(tmpdir(), "editor-presence-"));

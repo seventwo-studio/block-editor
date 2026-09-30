@@ -169,7 +169,8 @@ limits still apply.
 This is an **experimental foundation**, not completion of the approved plan.
 Local verification through 30 September 2026 established:
 
-- 25 Swift tests passed, including document migration, scoped nested identities,
+- 27 Swift tests passed (including eight cases in the generated collaboration test),
+  covering document migration, scoped nested identities,
   shared fixtures, Unicode boundaries, concurrent
   edits/formatting, all permutations of a small delivery set, duplicate delivery,
   local history across restore, structural conflicts and remote-preserving undo.
@@ -194,7 +195,7 @@ Local verification through 30 September 2026 established:
 Open acceptance work remains independently tracked in ST-39 through ST-48:
 
 - Full nested structural operations, stable selection mapping across remote edits,
-  larger generated convergence tests and conflict-aware resource limits. Current
+  wider convergence coverage and conflict-aware resource limits. Current
   document size/shape rejection can prevent an over-limit union from merging;
   hosts must not treat this prototype as an unbounded collaboration service.
 - Log/receipt compaction, performance budgets and artifact-size reduction. The
