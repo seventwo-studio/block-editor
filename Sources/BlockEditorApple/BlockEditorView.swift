@@ -24,41 +24,28 @@ import SwiftUI
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     ForEach(model.document.blocks) { block in
-                        VStack(alignment: .leading) {
-                            blockContent(block)
-                            HStack {
-                                Button("Move up", systemImage: "arrow.up") { moveUp(block) }
-                                    .disabled(model.document.blocks.first?.id == block.id)
-                                Button("Delete", systemImage: "trash", role: .destructive) { model.perform { try $0.delete(blockID: block.id) } }
-                            }.labelStyle(.iconOnly)
+                        #if os(macOS) || os(iOS) || os(visionOS)
+                        HStack(alignment: .top, spacing: 4) {
+                            Menu { blockActions(block) } label: {
+                                Image(systemName: "ellipsis").frame(width: 24, height: 32)
+                            }.accessibilityLabel("Block actions")
+                            NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
                         }.accessibilityElement(children: .contain)
+                        #else
+                        NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
+                            .contextMenu { blockActions(block) }
+                            .accessibilityElement(children: .contain)
+                        #endif
                     }
                 }.padding()
             }
         }.id(ObjectIdentifier(model))
     }
-    @ViewBuilder private func blockContent(_ block: Block) -> some View {
-        switch block.type {
-        case "paragraph", "heading", "quote", "callout":
-            InlineField(model: model, address: TextAddress(block.id), nodes: block.fields["content"]?.array ?? [])
-        case "list":
-            ForEach(block.fields["items"]?.array ?? [], id: \.selfID) { item in
-                HStack {
-                    if block.fields["style"]?.string == "todo" {
-                        Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: { checked in
-                            model.perform { try $0.setField(blockID: block.id, path: ["items", item.selfID, "checked"], value: .bool(checked)) }
-                        })).labelsHidden()
-                    }
-                    InlineField(model: model, address: TextAddress(block.id, path: ["items", item.selfID, "content"]), nodes: item["content"]?.array ?? [])
-                }
-            }
-        case "divider": Divider()
-        case "image": asset(block)
-        case "code": PlainField(model: model, address: TextAddress(block.id, path: ["code"]), text: block.fields["code"]?.string ?? "", label: "Code")
-        case "math": PlainField(model: model, address: TextAddress(block.id, path: ["expression"]), text: block.fields["expression"]?.string ?? "", label: "Math")
-        case "embed": Text(block.fields["title"]?.string ?? block.fields["url"]?.string ?? "Embedded content")
-        default:
-            Label("\(block.type.capitalized) content preserved", systemImage: "doc")
+    @ViewBuilder private func blockActions(_ block: Block) -> some View {
+        Button("Move up", systemImage: "arrow.up") { moveUp(block) }
+            .disabled(model.document.blocks.first?.id == block.id)
+        Button("Delete", systemImage: "trash", role: .destructive) {
+            model.perform { try $0.delete(blockID: block.id) }
         }
     }
     private func moveUp(_ block: Block) {
@@ -67,9 +54,9 @@ import SwiftUI
     }
 }
 
-private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
+extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
 
-@MainActor private struct PlainField: View {
+@MainActor struct PlainField: View {
     let model: EditorModel
     let address: TextAddress
     let text: String
@@ -77,34 +64,37 @@ private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
     @State private var selection = NSRange(location: 0, length: 0)
     var body: some View {
         #if os(macOS)
-        MacTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 64)
+        MacTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 32)
         #elseif os(iOS) || os(visionOS)
-        UIKitTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 64)
+        UIKitTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 32)
         #else
         Text(text)
         #endif
     }
 }
 
-@MainActor private struct InlineField: View {
+@MainActor struct InlineField: View {
     let model: EditorModel
     let address: TextAddress
     let nodes: [JSONValue]
+    var label = "Block text"
     @State private var nativeSelection = NSRange(location: 0, length: 0)
 
     var body: some View {
         #if os(macOS) || os(iOS) || os(visionOS)
         VStack(alignment: .leading) {
             #if os(macOS)
-            MacTextInput(model: model, address: address, selection: $nativeSelection).frame(minHeight: 64)
+            MacTextInput(model: model, address: address, label: label, selection: $nativeSelection).frame(minHeight: 32)
             #else
-            UIKitTextInput(model: model, address: address, selection: $nativeSelection).frame(minHeight: 64)
+            UIKitTextInput(model: model, address: address, label: label, selection: $nativeSelection).frame(minHeight: 32)
             #endif
-            HStack {
-                Button("Bold") { formatNative("bold") }
-                Button("Italic") { formatNative("italic") }
-                Button("Strikethrough") { formatNative("strikethrough") }
-                Button("Clear bold") { formatNative("bold", remove: true) }
+            if nativeSelection.length > 0 {
+                HStack {
+                    Button("Bold") { formatNative("bold") }
+                    Button("Italic") { formatNative("italic") }
+                    Button("Strikethrough") { formatNative("strikethrough") }
+                    Button("Clear bold") { formatNative("bold", remove: true) }
+                }
             }
         }
         #elseif os(watchOS) || os(tvOS)

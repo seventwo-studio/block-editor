@@ -81,3 +81,10 @@ contextual controls, cross-block selection, drag/nesting, full rich block author
 and structured paste parity. Existing collaboration and recovery tests do not
 close these gaps. Track platform completion in ST-45, ST-46 and ST-47, with shared
 structure in ST-42 and reference acceptance in ST-48.
+
+The Apple surface now renders editable table cells, toggle summaries/children and
+recursive lists using stable nested text addresses. Headings and table headers have
+native text styling; block actions use a menu and formatting controls appear for a
+selection. Text fields size to their content. This improves editing existing rich
+documents; creating or restructuring nested content still needs the shared commands
+above. watchOS/tvOS retain read-only table cells and their smaller editing scope.

@@ -88,7 +88,8 @@ never reported as successful saves. Browser data clearing removes these drafts.
 The application shell and WASM still need to be served locally when opening the
 page; this is document recovery with the relay unavailable, not offline web hosting.
 Android storage and real process-restart recovery are tested. Apple storage/process
-recovery is also tested; native UI relaunch interaction still needs platform acceptance.
+recovery is also tested, including native iPhone/iPad UI relaunch. Other Apple
+platforms' UI relaunch and real input-method/accessibility acceptance remain open.
 
 ### macOS window verification (2026-09-30)
 
@@ -219,6 +220,13 @@ verify one browser author's undo retains both other authors' edits.
 - macOS demo executable and reusable Apple demo views build. UIKit component tests
   verify marked text and selection on iPhone and iPad. visionOS builds, but its
   simulator runtime is not installed and server integration remains unverified.
+- Four native UI workflows pass on both iPhone and iPad: standalone restart and
+  restored undo/redo; offline collaboration, presence, acknowledgment and recovery;
+  table/toggle/nested-list editing and reopen; and wrapped paragraph sizing and
+  reopen. Retained rich-block screenshots were inspected in light and dark mode.
+  Ten macOS and ten iPhone input tests also verify that remote insertion updates
+  the selection used by formatting controls. Real IME and accessibility acceptance
+  remain open.
 - Native draft tests verify exclusive writer access, corrupt/mismatched file
   preservation and author-history restore. Separate Swift processes save offline,
   reopen while the relay is stopped, rejoin remote edits, and undo only local text.

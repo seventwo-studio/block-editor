@@ -15,12 +15,17 @@ import UIKit
         view.isEditable = true; view.isSelectable = true
         view.allowsEditingTextAttributes = false
         view.adjustsFontForContentSizeCategory = true
+        view.isScrollEnabled = false
         view.backgroundColor = .clear
         view.accessibilityLabel = label
         context.coordinator.connect(view)
         return view
     }
     func updateUIView(_ view: ComposingUIKitTextView, context: Context) { context.coordinator.render() }
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: ComposingUIKitTextView, context: Context) -> CGSize? {
+        guard let width = proposal.width, width.isFinite, width > 0 else { return nil }
+        return CGSize(width: width, height: ceil(uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height))
+    }
     static func dismantleUIView(_ view: ComposingUIKitTextView, coordinator: Coordinator) { coordinator.close() }
 
     @MainActor final class Coordinator: NSObject, UITextViewDelegate {
@@ -40,7 +45,11 @@ import UIKit
                 guard let self, let view = self.view else { return }
                 self.input.selection = view.selectedRange
             }
-            input.onUpdate = { [weak self] in self?.render() }
+            input.onUpdate = { [weak self] in
+                guard let self else { return }
+                self.render()
+                self.selection.wrappedValue = self.input.selection
+            }
             render()
         }
         func textViewDidChange(_ textView: UITextView) { changed() }
@@ -51,6 +60,7 @@ import UIKit
         private func changed() {
             guard !rendering, let view else { return }
             input.update(text: view.text, selection: view.selectedRange, composing: view.markedTextRange != nil)
+            view.invalidateIntrinsicContentSize()
         }
         func render() {
             guard let view, view.markedTextRange == nil, !input.composing else { return }
@@ -58,6 +68,7 @@ import UIKit
             let text = nativeAttributedText(input)
             if !view.attributedText.isEqual(to: text) { view.attributedText = text }
             view.selectedRange = input.selection
+            view.invalidateIntrinsicContentSize()
         }
         func close() {
             view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil

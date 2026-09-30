@@ -25,7 +25,7 @@ no relay. A debug-only UUID environment value selects the test file; release bui
 ignore it. Simulator UI automation does not replace real IME, VoiceOver, external
 keyboard, or device acceptance.
 
-Run both standalone and collaborative UI tests against an isolated relay:
+Run standalone, rich-block, layout and collaborative UI tests against an isolated relay:
 
 ```sh
 bun run test:apple:ui 'platform=iOS Simulator,name=iPhone 18 Pro'
@@ -36,8 +36,11 @@ temporary loopback server with a fresh token, and cleans it up after Xcode exits
 Pass additional destinations to run the suite on iPad too. The collaborative test
 types while disconnected, merges a separate native client's edit on reconnect,
 checks author-specific undo, then terminates and restores the saved draft without
-a token. It also checks server acknowledgment and the participant count. Both
-tests retain screenshots in their Xcode result bundles. The runner disables verbose
+a token. It also checks server acknowledgment and the participant count. A rich-block
+fixture verifies editing a table cell, a toggle child and a nested list item, collapsing
+and expanding the toggle, then restoring those edits after restart. The layout test
+verifies that a wrapped paragraph grows to fit its text and restores its height after
+restart. All tests retain screenshots in their Xcode result bundles. The runner disables verbose
 simulator diagnostic collection, which can stall after tests finish; assertion
 failures, test logs, result bundles, and screenshots are retained. Running
 `xcodebuild test` directly skips the collaborative case when relay configuration

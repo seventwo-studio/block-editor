@@ -21,11 +21,26 @@ import SwiftUI
         view.textContainer?.widthTracksTextView = true
         view.textContainerInset = NSSize(width: 4, height: 4)
         view.setAccessibilityLabel(label)
-        scroll.documentView = view; scroll.hasVerticalScroller = true
+        scroll.documentView = view; scroll.hasVerticalScroller = false
         context.coordinator.connect(view)
         return scroll
     }
     func updateNSView(_ view: NSScrollView, context: Context) { context.coordinator.render() }
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSScrollView, context: Context) -> CGSize? {
+        guard let width = proposal.width, width.isFinite, width > 0,
+              let view = nsView.documentView as? NSTextView else { return nil }
+        // Measure a separate layout so querying SwiftUI's proposed width cannot
+        // alter the active text view's selection or marked-text composition.
+        let storage = NSTextStorage(attributedString: view.attributedString())
+        let layout = NSLayoutManager()
+        let container = NSTextContainer(size: NSSize(width: max(1, width - 2 * view.textContainerInset.width), height: .greatestFiniteMagnitude))
+        container.lineFragmentPadding = view.textContainer?.lineFragmentPadding ?? 5
+        layout.addTextContainer(container); storage.addLayoutManager(layout)
+        layout.ensureLayout(for: container)
+        let lineHeight = layout.defaultLineHeight(for: view.font ?? NSFont.preferredFont(forTextStyle: .body))
+        let height = max(lineHeight, layout.usedRect(for: container).maxY, layout.extraLineFragmentRect.maxY)
+        return CGSize(width: width, height: ceil(height + 2 * view.textContainerInset.height))
+    }
     static func dismantleNSView(_ view: NSScrollView, coordinator: Coordinator) { coordinator.close() }
 
     @MainActor final class Coordinator: NSObject, NSTextViewDelegate {
@@ -45,7 +60,11 @@ import SwiftUI
                 guard let self, let view = self.view else { return }
                 self.input.selection = view.selectedRange()
             }
-            input.onUpdate = { [weak self] in self?.render() }
+            input.onUpdate = { [weak self] in
+                guard let self else { return }
+                self.render()
+                self.selection.wrappedValue = self.input.selection
+            }
             render()
         }
         func textDidChange(_ notification: Notification) { changed() }
@@ -56,6 +75,7 @@ import SwiftUI
         private func changed() {
             guard !rendering, let view else { return }
             input.update(text: view.string, selection: view.selectedRange(), composing: view.hasMarkedText())
+            view.enclosingScrollView?.invalidateIntrinsicContentSize()
         }
         func render() {
             guard let view, !view.hasMarkedText(), !input.composing else { return }
@@ -63,6 +83,7 @@ import SwiftUI
             let text = nativeAttributedText(input)
             if view.textStorage?.isEqual(to: text) != true { view.textStorage?.setAttributedString(text) }
             view.setSelectedRange(input.selection)
+            view.enclosingScrollView?.invalidateIntrinsicContentSize()
         }
         func close() {
             view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil

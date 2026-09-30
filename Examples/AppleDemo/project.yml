@@ -9,6 +9,8 @@ targetTemplates:
     type: application
     sources:
       - EditorLabApp.swift
+      - path: Fixtures
+        buildPhase: resources
     dependencies:
       - package: BlockEditor
         product: BlockEditorDemoApple

@@ -36,7 +36,8 @@ import Testing
     let a = try EditorSession(documentID: "appkit-selection", actorID: "a", document: document)
     let b = try EditorSession(documentID: "appkit-selection", actorID: "b", document: document)
     let model = try EditorModel(session: a)
-    let coordinator = MacTextInput.Coordinator(model: model, address: TextAddress("p"), selection: .constant(NSRange(location: 0, length: 0)))
+    var selected = NSRange(location: 0, length: 0)
+    let coordinator = MacTextInput.Coordinator(model: model, address: TextAddress("p"), selection: Binding(get: { selected }, set: { selected = $0 }))
     let view = ComposingTextView(frame: NSRect(x: 0, y: 0, width: 400, height: 200))
     coordinator.connect(view)
     defer { coordinator.close() }
@@ -44,6 +45,12 @@ import Testing
     try b.setText(at: TextAddress("p"), to: "RHello world")
     try a.receive(b.changes())
     #expect(view.selectedRange() == NSRange(location: 7, length: 5))
+    #expect(selected == view.selectedRange())
+    try a.format(at: TextAddress("p"), range: selected.location..<NSMaxRange(selected), markType: "bold", mark: .object(["type": .string("bold")]))
+    let nodes = try a.document.blocks[0].fields["content"]?.array ?? []
+    #expect(nodes.first?["text"] == .string("RHello "))
+    #expect(nodes.last?["text"] == .string("world"))
+    #expect(nodes.last?["marks"]?.array?.first?["type"] == .string("bold"))
     view.insertText("café 👩🏽‍💻", replacementRange: NSRange(location: NSNotFound, length: 0))
     #expect(try a.text(at: TextAddress("p")) == "RHello café 👩🏽‍💻")
     try a.undo()
