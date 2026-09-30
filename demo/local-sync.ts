@@ -16,6 +16,8 @@ export class LocalSync {
   private peerActors = new Set<string>();
   onStatus?: (status: RelayStatus) => void;
   constructor(readonly session: SwiftEditorSession, private endpoint: string, private token: string, private actorID: string) {}
+  get pendingChanges() { return this.session.changes(this.receipt).changes.length; }
+  setToken(token: string) { this.token = token; }
   connect() { this.online = true; }
   disconnect() {
     this.online = false;

@@ -45,8 +45,18 @@ Browser controls include a burst of 20 edits; the CLI stress runner performs lar
 repeatable scenarios. Clients poll every 500 ms, display pending changes and peers,
 and retry transient errors without dropping local edits. Disconnect ignores late
 responses. An already-sent request may have reached the relay; duplicate delivery
-is safe on rejoin. Local edits in the interactive lab are held in memory until
-acknowledged; offline client restart persistence remains a separate acceptance gate.
+is safe on rejoin.
+
+The browser lab saves each document change and its author undo history in IndexedDB.
+Wait for **Saved locally** before closing the tab. Reload resumes that tab's draft;
+after closing it, choose a **Saved local draft** for the room in a new tab. Restored
+drafts open disconnected and can be edited without contacting the relay. Re-enter
+the demo token before reconnecting; tokens are not stored. A browser Web Lock keeps
+two tabs from resuming the same writer concurrently. Storage errors are visible and
+never reported as successful saves. Browser data clearing removes these drafts.
+The application shell and WASM still need to be served locally when opening the
+page; this is document recovery with the relay unavailable, not offline web hosting.
+Apple and Android offline client restart persistence remains an acceptance gate.
 
 ## Wire contract
 
@@ -101,6 +111,9 @@ verify one browser author's undo retains both other authors' edits.
   107,553 ms on the development host. This exposes significant replay/transport
   overhead to improve; it is not an accepted latency target.
 - Chromium and WebKit: mixed WASM/native HTTP collaboration and undo tests pass.
+- Browser drafts survive reload with the relay blocked, preserve local undo/redo,
+  and merge remote edits after reconnect. Closing a tab and selecting its saved
+  draft retains author history; a duplicate tab cannot acquire the writer lock.
 - Presence lease expiry, stale revisions, explicit departure and relay restart
   preserve identical saved document bytes, including when cursor/selection data
   is exchanged. Browser tests verify visible transport errors, recovery and local
