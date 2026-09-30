@@ -13,7 +13,7 @@ import FoundationNetworking
     public private(set) var lastError: String?
     public var onStatus: (() -> Void)?
     private let endpoint: URL
-    private let token: String
+    private var token: String
     private var receipt = SyncState()
     private var generation = 0
     private var revision: UInt64 = 0
@@ -35,6 +35,7 @@ import FoundationNetworking
         if !connected { for peer in peers { session.removePresence(actor: peer.actor) }; peers = [] }
         onStatus?()
     }
+    public func setToken(_ token: String) { self.token = token }
     public func exchange() async throws {
         guard connected, !exchanging else { return }
         exchanging = true; onStatus?()

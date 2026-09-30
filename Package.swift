@@ -30,5 +30,6 @@ let package = Package(
         .executableTarget(name: "RelayClient", dependencies: ["BlockEditorLocalDemo"], path: "Examples/RelayClient"),
         .executableTarget(name: "LocalEditorApp", dependencies: ["BlockEditorDemoApple"], path: "Examples/LocalEditorApp"),
         .testTarget(name: "BlockEditorCoreTests", dependencies: ["BlockEditorCore"], path: "tests/BlockEditorCoreTests", resources: [.copy("Fixtures")]),
+        .testTarget(name: "BlockEditorLocalDemoTests", dependencies: ["BlockEditorLocalDemo"], path: "tests/BlockEditorLocalDemoTests"),
     ]
 )

@@ -30,6 +30,20 @@ The command-line native HTTP client is also useful for mixed-runtime tests:
 DEMO_TOKEN=choose-a-local-test-token swift run relay-client
 ```
 
+To retain a native client's local history across process restarts, set
+`DEMO_DRAFT=/path/to/draft.json`. `DEMO_OFFLINE=1` saves without exchanging changes;
+`DEMO_ACTION=inspect` restores without editing, `rejoin` exchanges without adding
+text, and `undo` reverses the last local action. `DEMO_TEXT` overrides the text
+appended by the default `edit` action. A saved draft can reopen with the relay
+stopped and without a token; reconnect requires the token again.
+
+The Apple demo saves automatically under Application Support/BlockEditorLocalLab,
+with one draft per endpoint. Restored drafts start disconnected. The host storage
+adapter uses atomic snapshots and a file lock held for the whole session so two
+writers cannot reuse its saved author identity. Corrupt, incompatible or
+endpoint-mismatched drafts fail explicitly without being replaced. Tokens and
+presence are excluded. Save failures are displayed separately from sync status.
+
 It loads the server snapshot, disconnects, edits through the Swift engine, rejoins
 and requires acknowledgement. Set `DEMO_ENDPOINT` to another room URL if needed.
 The Android `:demo` app includes a Compose editor, token/room inputs, pending and
@@ -56,7 +70,9 @@ two tabs from resuming the same writer concurrently. Storage errors are visible 
 never reported as successful saves. Browser data clearing removes these drafts.
 The application shell and WASM still need to be served locally when opening the
 page; this is document recovery with the relay unavailable, not offline web hosting.
-Apple and Android offline client restart persistence remains an acceptance gate.
+Android offline client restart persistence remains an acceptance gate. Apple
+storage/process recovery is tested; native app relaunch interaction still needs
+platform acceptance.
 
 ## Wire contract
 
@@ -121,6 +137,9 @@ verify one browser author's undo retains both other authors' edits.
   are cleared on disconnect.
 - macOS demo executable and reusable Apple demo view build; native UI interaction
   is not yet verified.
+- Native draft tests verify exclusive writer access, corrupt/mismatched file
+  preservation and author-history restore. Separate Swift processes save offline,
+  reopen while the relay is stopped, rejoin remote edits, and undo only local text.
 - Android API 35 arm64 emulator: shared JNI fixture and two-client offline/rejoin,
   convergence, acknowledgement and author-specific undo instrumentation pass.
   Both arm64 and x86_64 native libraries build; x86_64 execution and API 26 device
