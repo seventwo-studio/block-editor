@@ -1,6 +1,34 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+test("out-of-order concurrent formatting preserves independent marks and author undo", async ({ page }) => {
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const stages = await page.evaluate(async source => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const blocks = [{ id: "p", type: "paragraph", content: [{ type: "text", text: "ABC", marks: [] }] }];
+    const a = runtime.create({ documentID: "marks", actorID: "a", blocks });
+    const b = runtime.create({ documentID: "marks", actorID: "b", blocks });
+    const address = { blockID: "p", path: ["content"] };
+    try {
+      a.format(address, 0, 3, "bold", { type: "bold" });
+      b.replaceText(address, 1, 1, "😀"); b.format(address, 0, 5, "italic", { type: "italic" });
+      const batch = b.changes();
+      for (const change of [...batch.changes].reverse()) a.receive({ ...batch, changes: [change, change] });
+      b.receive(a.changes());
+      const stages = [b.getSnapshot().blocks[0].content];
+      a.undo(); b.receive(a.changes()); stages.push(b.getSnapshot().blocks[0].content);
+      a.redo(); b.receive(a.changes()); stages.push(b.getSnapshot().blocks[0].content);
+      b.undo(); a.receive(b.changes()); stages.push(a.getSnapshot().blocks[0].content);
+      return stages;
+    } finally { a.close(); b.close(); }
+  }, `/block-editor/@fs${process.cwd()}/src/swift.ts`);
+  const node = (text: string, ...marks: string[]) => ({ type: "text", text, marks: marks.map(type => ({ type })) });
+  const combined = [node("A", "bold", "italic"), node("😀", "italic"), node("BC", "bold", "italic")];
+  expect(stages).toEqual([combined, [node("A😀BC", "italic")], combined, [node("A", "bold"), node("😀"), node("BC", "bold")]]);
+});
+
 test("migration corpus preserves rich documents and rejects invalid known shapes in WASM", async ({ page }) => {
   const corpus = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/documents.json", "utf8"));
   await page.route("**/engine.wasm", route => route.fulfill({ path: "dist/block-editor.wasm", contentType: "application/wasm" }));

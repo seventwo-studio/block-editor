@@ -9,6 +9,33 @@ import org.junit.Test
 
 /** Runs the same JSON commands and expected document as Swift and browser WASM. */
 class CompatibilityTest {
+    @Test fun concurrentFormattingAndAuthorUndo() {
+        val blocks = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"ABC","marks":[]}]}]""")
+        val a = EditorSession.create("marks", "a", blocks)
+        val b = EditorSession.create("marks", "b", blocks)
+        fun range(start: Int, end: Int) = JSONObject().put("address", JSONObject().put("blockID", "p").put("path", JSONArray().put("content")))
+            .put("start", start).put("end", end)
+        fun assertContent(session: EditorSession, expected: String) = assertEquals(normalize(JSONArray(expected)),
+            normalize(session.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content")))
+        val combined = """[{"type":"text","text":"A","marks":[{"type":"bold"},{"type":"italic"}]},{"type":"text","text":"😀","marks":[{"type":"italic"}]},{"type":"text","text":"BC","marks":[{"type":"bold"},{"type":"italic"}]}]"""
+        try {
+            a.edit("format", range(0, 3).put("markType", "bold").put("mark", JSONObject().put("type", "bold")))
+            b.edit("replaceText", range(1, 1).put("text", "😀"))
+            b.edit("format", range(0, 5).put("markType", "italic").put("mark", JSONObject().put("type", "italic")))
+            val batch = b.changes()
+            val changes = batch.getJSONArray("changes")
+            for (index in changes.length() - 1 downTo 0) {
+                val change = changes.getJSONObject(index)
+                a.receive(JSONObject(batch.toString()).put("changes", JSONArray().put(change).put(change)))
+            }
+            b.receive(a.changes()); assertContent(b, combined)
+            a.undo(); b.receive(a.changes())
+            assertContent(b, """[{"type":"text","text":"A😀BC","marks":[{"type":"italic"}]}]""")
+            a.redo(); b.receive(a.changes()); assertContent(b, combined)
+            b.undo(); a.receive(b.changes())
+            assertContent(a, """[{"type":"text","text":"A","marks":[{"type":"bold"}]},{"type":"text","text":"😀","marks":[]},{"type":"text","text":"BC","marks":[{"type":"bold"}]}]""")
+        } finally { a.close(); b.close() }
+    }
     @Test fun documentMigrationCorpus() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val corpus = JSONObject(context.assets.open("documents.json").bufferedReader().use { it.readText() })

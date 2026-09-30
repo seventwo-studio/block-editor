@@ -101,6 +101,7 @@ recovery is also tested; native UI relaunch interaction still needs platform acc
 
 ```sh
 bun run typecheck:relay
+swift test --filter generatedOfflineTextAndFormattingConverge
 bun run test:relay
 bun run test:relay:browser --project chromium --project webkit
 gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidTest \
@@ -111,14 +112,30 @@ ANDROID_SERIAL=emulator-5556 DEMO_TOKEN=choose-a-local-test-token sh scripts/tes
 DEMO_TOKEN=choose-a-local-test-token STRESS_REPLICAS=8 STRESS_ROUNDS=40 STRESS_SEED=20260930 bun run demo:stress
 ```
 
-The stress runner uses independent native Swift processes, Unicode text edits,
-formatting, block insert/move/delete, undo/redo, a long offline period for one
-replica, seeded intermittent disconnections for the others, and duplicated/reversed
-operation delivery. It asserts all clients and a newly restored observer have the
-same document, and reports elapsed time and exchange counts. The relay test also
+The stress runner uses independent native Swift processes, overlapping Unicode
+inserts/replacements/deletions, formatting and mark removal, block insert/move/delete,
+undo/redo, a long offline period for one replica, and seeded intermittent outages
+for the others. It sends only part of a reversed change batch, duplicates operations,
+and later fills receipt gaps through delta synchronization. Every sixth round it
+terminates and restores each client process, checking document and undo/redo state.
+The final recovery flushes all changes, checks identical documents on every client
+and a fresh server-snapshot observer, and requires zero missing/unacknowledged
+changes in both directions. Results include the seed, elapsed time, UTF-8 document
+bytes, exchange/partial-delivery/restart counts and attempted operations by kind.
+An attempted edit can be a no-op, for example formatting an empty selection.
+Failures include seed, round and actor so the run can be repeated. The relay test also
 restarts the server and verifies incompatible protocol rejection without changing
 the saved file. These checks do not establish a performance budget or complete
 conflict coverage.
+
+The Swift generated suite uses eight fixed seeds, four replicas and eighteen rounds
+per seed. It covers paragraph and nested list text, emoji, combining marks, CJK,
+right-to-left text and atomic references. Each local replacement has an independent
+plain-text expectation; formatting preserves references and text; every action is
+checked against saved-history replay. It also verifies author-specific undo/redo
+after full recovery. A separate exact formatting scenario runs in Swift, Android
+JNI and Chromium/WebKit WASM: a formatting packet arrives before the Unicode
+insertion it references, and undo preserves the other author's insertion and marks.
 
 The mixed-runtime browser test opens two actual WASM editors plus a native Swift
 Foundation HTTP client. All edit offline, rejoin the same relay, converge, and then
@@ -128,6 +145,13 @@ verify one browser author's undo retains both other authors' edits.
 
 - Four native Swift clients, 12 rounds: convergence and server restart/rejection
   checks pass.
+- Expanded relay scenarios pass with four clients: seed 42 for 12 rounds, and seeds
+  1, 65537 and 20260930 for 18 rounds each. All exercise partial delivery and process
+  restart, then finish with matching documents and complete acknowledgements.
+- Expanded eight-client, 40-round scenario, seed 20260930: 186 exchanges, 170 partial
+  exchanges and 48 process restarts converged in 28,066 ms. This workload now includes
+  deletion/replacement and delta batches, so its timing is not comparable to the
+  earlier append-heavy runs below and is not an accepted performance budget.
 - Eight native Swift clients, 40 rounds, seed 20260930: 165 exchanges converged in
   107,553 ms on the development host. This exposes significant replay/transport
   overhead to improve; it is not an accepted latency target.
@@ -154,8 +178,9 @@ verify one browser author's undo retains both other authors' edits.
   Additional instrumentation rejects concurrent writers and preserves malformed,
   incompatible and endpoint-mismatched drafts. The restart script requires
   `ANDROID_HOME`; override `DEMO_URL` and `ANDROID_RELAY_URL` for a non-default port.
-- Twenty Swift tests pass, including incremental-edit equivalence with complete
-  history replay after each action. An additional eight-client stress run converged
+- Swift tests pass, including eight generated convergence scenarios, exact concurrent
+  formatting/undo expectations, and incremental-edit equivalence with complete
+  history replay after each action. An earlier eight-client stress run converged
   in 111,040 ms while other builds ran; no latency improvement is claimed.
 - Firefox was retried and still fails before test execution with “Could not find
   profile folder”. Other Apple runtime/device matrix rows remain open.
