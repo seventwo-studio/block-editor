@@ -1,0 +1,82 @@
+name: EditorLab
+options:
+  minimumXcodeGenVersion: 2.40.0
+packages:
+  BlockEditor:
+    path: ../..
+targetTemplates:
+  Demo:
+    type: application
+    sources:
+      - EditorLabApp.swift
+      - path: Fixtures
+        buildPhase: resources
+    dependencies:
+      - package: BlockEditor
+        product: BlockEditorDemoApple
+    settings:
+      base:
+        SWIFT_VERSION: 6.0
+        PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.lab.${target_name}
+        CODE_SIGN_STYLE: Automatic
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 1
+    info:
+      path: Generated/${target_name}-Info.plist
+      properties:
+        CFBundleDisplayName: Editor Lab
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+targets:
+  EditorLab-UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: '26.0'
+    sources: [UITests]
+    dependencies:
+      - target: EditorLab-iOS
+      - package: BlockEditor
+        product: BlockEditorLocalDemo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.lab.ui-tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: 6.0
+  EditorLab-iOS:
+    templates: [Demo]
+    platform: iOS
+    deploymentTarget: '26.0'
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: '1,2'
+    info:
+      properties:
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+  EditorLab-tvOS:
+    templates: [Demo]
+    platform: tvOS
+    deploymentTarget: '26.0'
+  EditorLab-watchOS:
+    templates: [Demo]
+    platform: watchOS
+    deploymentTarget: '26.0'
+    info:
+      properties:
+        WKApplication: true
+        WKWatchOnly: true
+  EditorLab-visionOS:
+    templates: [Demo]
+    platform: visionOS
+    deploymentTarget: '26.0'
+schemes:
+  EditorLab-iOS:
+    build:
+      targets:
+        EditorLab-iOS: all
+    test:
+      targets: [EditorLab-UITests]

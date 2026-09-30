@@ -14,7 +14,9 @@ import SwiftUI
     @State private var status = "Enter the local server address and token."
     @State private var saveStatus = ""
 
-    public init() {}
+    public init(endpoint: URL? = nil) {
+        if let endpoint { _endpoint = State(initialValue: endpoint.absoluteString) }
+    }
     public var body: some View {
         VStack(alignment: .leading) {
             SecureField("Local demo token", text: $token)

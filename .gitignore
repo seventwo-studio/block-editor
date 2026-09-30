@@ -20,3 +20,5 @@ android/.kotlin/
 android/**/build/
 android/editor/src/main/jniLibs/
 demo/public/block-editor.wasm
+Examples/AppleDemo/EditorLab.xcodeproj/
+Examples/AppleDemo/Generated/

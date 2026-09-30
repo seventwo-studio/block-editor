@@ -93,12 +93,42 @@ The queue is bounded to 64 batches/64 MB and asks the transport to retry on over
 Hosts must release holds or close the session when an input adapter is removed.
 
 Code/math textareas retain the browser composition buffer until committing the
-local edit and use session undo/redo for keyboard history. Apple UI composition
-and selection adapters still need integration and platform interaction checks.
+local edit and use session undo/redo for keyboard history. Native adapter behavior
+and remaining platform interaction checks are described below.
 Chromium IME protocol input covers inline and textarea adapters;
 Chromium/WebKit selection checks and inline composition-event tests provide
 additional coverage. WebKit system IME, Firefox and physical keyboard/input-method
 matrices remain unverified.
+
+The Swift session also exposes `deferRemoteChanges()` and a read-only
+`onWillReceive` preparation callback. The callback runs only after a batch validates;
+reentrant edits during preparation fail explicitly. Nested holds preserve receipt
+and saved-state gaps until release, cap pending input at 64 batches/64 MB, and drain
+valid messages even when another queued message fails.
+
+The macOS reference uses an AppKit text view, and iOS/iPadOS/visionOS use a UIKit
+text view, through SwiftUI representables that observe marked-text composition.
+Their coordinators capture selection before remote application, commit local
+composition first, map positions after merging, and release holds on disposal.
+Code/math fields use the same input path. Both bridges share attributed-text
+rendering that combines code, bold and italic marks. UIKit uses plain-text paste;
+host-controlled assets remain separate.
+
+Core and Apple coordinator tests cover the state transitions and rich-reference
+preservation. UIKit component tests on iPhone and iPad simulators also exercise
+marked text, remote delivery, typing, selection and undo. The visionOS library
+builds, but no visionOS runtime is installed for execution. Actual window, keyboard
+and input-method, paste and accessibility acceptance remains required, including
+macOS interaction. watchOS/tvOS text fields buffer their platform text-entry
+interaction, commit the draft when entry ends, then release queued remote changes.
+Their state-transition tests pass on both simulators; actual keyboard, dictation
+and remote-control interaction remains unverified.
+
+Input adapters detach callbacks on disposal and reject late input events, so an
+old text view cannot overwrite a document after its composition hold is released.
+Replacing the Apple `EditorModel` recreates its editor controls rather than retaining
+coordinators attached to the previous session. UIKit and Android regression tests
+exercise late callbacks after disposal.
 
 The Android Compose adapter uses `TextFieldValue` to retain selection and IME
 composition. Root text, code and math fields defer remote changes until composition
@@ -238,6 +268,11 @@ Local verification through 30 September 2026 established:
 
 Open acceptance work remains independently tracked in ST-39 through ST-48:
 
+The [Notion-like editing contract](notion-editing-behavior.md) defines the expected
+writing, block manipulation, selection, paste and keyboard workflows. These must
+work through the shared engine in local and collaborative modes; sync correctness
+alone does not establish editor usability.
+
 - Full nested structural operations, Apple selection mapping across remote edits,
   wider convergence coverage and conflict-aware resource limits. Current
   document size/shape rejection can prevent an over-limit union from merging;
@@ -260,3 +295,11 @@ Open acceptance work remains independently tracked in ST-39 through ST-48:
 
 Product decisions live in the [Notion record](https://app.notion.com/p/3e9bb04960098144848ed3667bfa01ea).
 Engineering acceptance lives in the [Linear project](https://linear.app/seventwo/project/block-editor-985a4bda82a5).
+
+Native Apple local commands commit active marked-text or platform-entry drafts before
+executing undo, formatting or block actions. Their input callbacks use a separate
+commit path to avoid recursion. The command stops on input-commit failure; pending
+remote changes remain subject to the existing receipt/save and hold rules. AppKit,
+UIKit and platform-draft tests verify command-triggered composition commit with
+remote insertion and local undo/redo. This does not establish real keyboard or
+accessibility acceptance.

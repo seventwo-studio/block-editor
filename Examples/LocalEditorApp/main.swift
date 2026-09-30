@@ -5,7 +5,7 @@ import SwiftUI
 @main struct LocalEditorDemoApp: App {
     var body: some Scene {
         WindowGroup("Local editor lab") {
-            LocalRelayDemoView().frame(minWidth: 480, minHeight: 400)
+            EditorDemoView().frame(minWidth: 480, minHeight: 400)
         }
     }
 }

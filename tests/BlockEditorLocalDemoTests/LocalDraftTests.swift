@@ -49,3 +49,43 @@ import Testing
     #expect(throws: (any Error).self) { try draft.restore(endpoint: URL(string: "http://localhost/room")!) }
     #expect(try Data(contentsOf: file) == corrupt)
 }
+
+@Test func standaloneDraftCreatesReopensAndUndoesWithoutTransport() throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let file = directory.appendingPathComponent("local.json")
+    var author = ""
+    do {
+        let draft = try LocalDraft(file: file)
+        let session = try draft.openLocalDocument()
+        author = session.actorID
+        #expect(try session.text(at: TextAddress("p")) == "")
+        try session.setText(at: TextAddress("p"), to: "Local café 👩🏽‍💻")
+        try draft.saveLocalDocument(session)
+    }
+    let draft = try LocalDraft(file: file)
+    let restored = try draft.openLocalDocument()
+    #expect(restored.actorID == author)
+    #expect(try restored.text(at: TextAddress("p")) == "Local café 👩🏽‍💻")
+    try restored.undo()
+    #expect(try restored.text(at: TextAddress("p")) == "")
+    try restored.redo()
+    #expect(try restored.text(at: TextAddress("p")) == "Local café 👩🏽‍💻")
+    let bytes = try Data(contentsOf: file)
+    #expect(throws: DraftError.differentEndpoint) {
+        try draft.restore(endpoint: URL(string: "http://localhost/rooms/other")!)
+    }
+    #expect(try Data(contentsOf: file) == bytes)
+}
+
+@Test func standaloneOpenDoesNotReplaceAnExistingRelayDraft() throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let file = directory.appendingPathComponent("draft.json")
+    let draft = try LocalDraft(file: file)
+    let session = try EditorSession(documentID: "relay", actorID: "author", document: Document(blocks: [.paragraph(id: "p", text: "Keep me")]))
+    try draft.save(session, endpoint: URL(string: "http://localhost/rooms/existing")!)
+    let bytes = try Data(contentsOf: file)
+    #expect(throws: DraftError.differentEndpoint) { try draft.openLocalDocument() }
+    #expect(try Data(contentsOf: file) == bytes)
+}

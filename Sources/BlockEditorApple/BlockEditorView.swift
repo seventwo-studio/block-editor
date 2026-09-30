@@ -24,41 +24,28 @@ import SwiftUI
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     ForEach(model.document.blocks) { block in
-                        VStack(alignment: .leading) {
-                            blockContent(block)
-                            HStack {
-                                Button("Move up", systemImage: "arrow.up") { moveUp(block) }
-                                    .disabled(model.document.blocks.first?.id == block.id)
-                                Button("Delete", systemImage: "trash", role: .destructive) { model.perform { try $0.delete(blockID: block.id) } }
-                            }.labelStyle(.iconOnly)
+                        #if os(macOS) || os(iOS) || os(visionOS)
+                        HStack(alignment: .top, spacing: 4) {
+                            Menu { blockActions(block) } label: {
+                                Image(systemName: "ellipsis").frame(width: 24, height: 32)
+                            }.accessibilityLabel("Block actions")
+                            NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
                         }.accessibilityElement(children: .contain)
+                        #else
+                        NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
+                            .contextMenu { blockActions(block) }
+                            .accessibilityElement(children: .contain)
+                        #endif
                     }
                 }.padding()
             }
-        }
+        }.id(ObjectIdentifier(model))
     }
-    @ViewBuilder private func blockContent(_ block: Block) -> some View {
-        switch block.type {
-        case "paragraph", "heading", "quote", "callout":
-            InlineField(model: model, address: TextAddress(block.id), nodes: block.fields["content"]?.array ?? [])
-        case "list":
-            ForEach(block.fields["items"]?.array ?? [], id: \.selfID) { item in
-                HStack {
-                    if block.fields["style"]?.string == "todo" {
-                        Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: { checked in
-                            model.perform { try $0.setField(blockID: block.id, path: ["items", item.selfID, "checked"], value: .bool(checked)) }
-                        })).labelsHidden()
-                    }
-                    InlineField(model: model, address: TextAddress(block.id, path: ["items", item.selfID, "content"]), nodes: item["content"]?.array ?? [])
-                }
-            }
-        case "divider": Divider()
-        case "image": asset(block)
-        case "code": Text(block.fields["code"]?.string ?? "").font(.system(.body, design: .monospaced))
-        case "math": Text(block.fields["expression"]?.string ?? "")
-        case "embed": Text(block.fields["title"]?.string ?? block.fields["url"]?.string ?? "Embedded content")
-        default:
-            Label("\(block.type.capitalized) content preserved", systemImage: "doc")
+    @ViewBuilder private func blockActions(_ block: Block) -> some View {
+        Button("Move up", systemImage: "arrow.up") { moveUp(block) }
+            .disabled(model.document.blocks.first?.id == block.id)
+        Button("Delete", systemImage: "trash", role: .destructive) {
+            model.perform { try $0.delete(blockID: block.id) }
         }
     }
     private func moveUp(_ block: Block) {
@@ -67,69 +54,55 @@ import SwiftUI
     }
 }
 
-private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
+extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
 
-@MainActor private struct InlineField: View {
+@MainActor struct PlainField: View {
+    let model: EditorModel
+    let address: TextAddress
+    let text: String
+    let label: String
+    @State private var selection = NSRange(location: 0, length: 0)
+    var body: some View {
+        #if os(macOS)
+        MacTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 32)
+        #elseif os(iOS) || os(visionOS)
+        UIKitTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 32)
+        #else
+        Text(text)
+        #endif
+    }
+}
+
+@MainActor struct InlineField: View {
     let model: EditorModel
     let address: TextAddress
     let nodes: [JSONValue]
-    @State private var draft = AttributedString()
-    @State private var selection = AttributedTextSelection()
+    var label = "Block text"
+    @State private var nativeSelection = NSRange(location: 0, length: 0)
 
     var body: some View {
-        #if os(watchOS) || os(tvOS)
-        TextField("Text", text: Binding(get: { plainText(nodes) }, set: { text in
-            model.perform { try $0.setText(at: address, to: text) }
-        }))
-        #else
+        #if os(macOS) || os(iOS) || os(visionOS)
         VStack(alignment: .leading) {
-            TextEditor(text: Binding(get: { draft }, set: { value in
-                draft = value
-                model.perform { try $0.setText(at: address, to: String(value.characters)) }
-            }), selection: $selection)
-            .frame(minHeight: 48)
-            .accessibilityLabel("Block text")
-            HStack {
-                Button("Bold") { format("bold") }
-                Button("Italic") { format("italic") }
-                Button("Strikethrough") { format("strikethrough") }
-                Button("Clear bold") { format("bold", remove: true) }
-            }
-        }
-        .onAppear { draft = attributed(nodes) }
-        .onChange(of: nodes) { _, value in
-            let next = attributed(value)
-            if draft != next { draft = next; selection = AttributedTextSelection() }
-        }
-        #endif
-    }
-    private func format(_ type: String, remove: Bool = false) {
-        guard case .ranges(let ranges) = selection.indices(in: draft) else { return }
-        let offsets = ranges.ranges.map { range in
-            String(draft[..<range.lowerBound].characters).utf16.count..<String(draft[..<range.upperBound].characters).utf16.count
-        }
-        for range in offsets {
-            model.perform { try $0.format(at: address, range: range, markType: type, mark: remove ? nil : .object(["type": .string(type)])) }
-        }
-    }
-    private func attributed(_ nodes: [JSONValue]) -> AttributedString {
-        var result = AttributedString()
-        for node in nodes {
-            var part = AttributedString(plainText([node]))
-            for mark in node["marks"]?.array ?? [] {
-                switch mark["type"]?.string {
-                case "bold": part.inlinePresentationIntent = (part.inlinePresentationIntent ?? []).union(.stronglyEmphasized)
-                case "italic": part.inlinePresentationIntent = (part.inlinePresentationIntent ?? []).union(.emphasized)
-                case "code": part.inlinePresentationIntent = (part.inlinePresentationIntent ?? []).union(.code)
-                case "strikethrough": part.strikethroughStyle = .single
-                case "link":
-                    if let url = mark["href"]?.string.flatMap(URL.init(string:)), ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") { part.link = url }
-                default: break
+            #if os(macOS)
+            MacTextInput(model: model, address: address, label: label, selection: $nativeSelection).frame(minHeight: 32)
+            #else
+            UIKitTextInput(model: model, address: address, label: label, selection: $nativeSelection).frame(minHeight: 32)
+            #endif
+            if nativeSelection.length > 0 {
+                HStack {
+                    Button("Bold") { formatNative("bold") }
+                    Button("Italic") { formatNative("italic") }
+                    Button("Strikethrough") { formatNative("strikethrough") }
+                    Button("Clear bold") { formatNative("bold", remove: true) }
                 }
             }
-            result.append(part)
         }
-        return result
+        #elseif os(watchOS) || os(tvOS)
+        PlatformTextField(model: model, address: address)
+        #endif
+    }
+    private func formatNative(_ type: String, remove: Bool = false) {
+        model.perform { try $0.format(at: address, range: nativeSelection.location..<NSMaxRange(nativeSelection), markType: type, mark: remove ? nil : .object(["type": .string(type)])) }
     }
 }
 #endif

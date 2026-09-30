@@ -69,6 +69,7 @@ class CollaborativeInputTest {
             input.update(TextFieldValue("漢Hello Mira", TextRange(1), TextRange(0, 1)))
             b.setText("p", "RHello Mira"); a.receive(b.changes())
             input.close()
+            input.update(TextFieldValue("late callback"))
             assertEquals(1, a.syncState().getJSONArray("received").length())
             assertEquals("RHello Mira", plainText(a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content")))
         } finally { input.close(); a.close(); b.close() }

@@ -1,0 +1,16 @@
+[
+  {"id":"table","type":"table","rows":[
+    {"id":"row","cells":[
+      {"id":"left","header":true,"content":[{"type":"text","text":"First cell"}]},
+      {"id":"right","content":[{"type":"text","text":"Second cell"}]}
+    ]}
+  ]},
+  {"id":"toggle","type":"toggle","summary":[{"type":"text","text":"Details"}],"children":[
+    {"id":"child","type":"paragraph","content":[{"type":"text","text":"Nested paragraph"}]}
+  ]},
+  {"id":"list","type":"list","style":"unordered","items":[
+    {"id":"parent","content":[{"type":"text","text":"Parent item"}],"children":[
+      {"id":"child","content":[{"type":"text","text":"Nested list item"}]}
+    ]}
+  ]}
+]

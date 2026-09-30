@@ -19,7 +19,16 @@ Build WASM using the toolchain instructions in [shared-swift-editor.md](shared-s
 before opening `http://127.0.0.1:5173/block-editor/local.html`. Enter the same room
 and token in each browser. Each opened client gets a unique writer identity.
 
-`swift run local-editor-app` opens the macOS demo. Use
+`./script/build_and_run.sh` builds and opens the macOS demo as a native app bundle.
+Use `--build-only` to stage it without launching, `--verify` for a process check,
+`--debug` for LLDB, or `--logs` for runtime logs. Use
+**Open local document** to create or reopen the standalone document without a
+server, token, account, or network client. It saves automatically to
+Application Support/BlockEditorLocalLab/local-only.json and retains author undo
+history across restarts. Hosts can embed `LocalEditorDemoView(file:)` with their
+own file URL. **Open collaborative lab** opens the relay configuration below.
+
+For the collaborative lab, use
 `http://127.0.0.1:4319/rooms/shared-demo` and the same token. Other Apple demo apps
 can embed `LocalRelayDemoView` from `BlockEditorDemoApple`; their app manifests,
 local networking permissions and real-device execution still need acceptance.
@@ -46,6 +55,10 @@ presence are excluded. Save failures are displayed separately from sync status.
 
 It loads the server snapshot, disconnects, edits through the Swift engine, rejoins
 and requires acknowledgement. Set `DEMO_ENDPOINT` to another room URL if needed.
+Runnable Apple simulator app targets and iPhone/iPad UI test commands are in
+[Examples/AppleDemo](../Examples/AppleDemo/README.md). They use the same shared
+demo views and OS 26 minimums.
+
 The Android `:demo` app includes a Compose editor, token/room inputs, pending and
 participant counts, and a disconnect switch. It saves per-endpoint drafts in app-private
 storage using `AtomicFile` and an exclusive writer lease. Restores start disconnected,
@@ -75,7 +88,30 @@ never reported as successful saves. Browser data clearing removes these drafts.
 The application shell and WASM still need to be served locally when opening the
 page; this is document recovery with the relay unavailable, not offline web hosting.
 Android storage and real process-restart recovery are tested. Apple storage/process
-recovery is also tested; native UI relaunch interaction still needs platform acceptance.
+recovery is also tested, including native iPhone/iPad UI relaunch. Other Apple
+platforms' UI relaunch and real input-method/accessibility acceptance remain open.
+
+### macOS window verification (2026-09-30)
+
+The native demo at commit `3295c8c` was exercised through Computer Use in an
+isolated room on a loopback relay. Its actual text view accepted Unicode plain-text
+paste (`café 👩🏽‍💻`), keyboard undo/redo, and selected-range replacement. After
+disconnecting, local typing and a separate CLI replica's append survived reconnect
+with zero unacknowledged changes. Keyboard undo removed a local character while
+preserving the remote append. After quitting the app and stopping the relay,
+reopening the same room with an empty token restored the document and undo/redo
+availability in disconnected mode.
+
+This verifies those macOS interactions only. Synthetic Unicode `typeText` initially
+produced incomplete text; Unicode paste succeeded. Real input-method composition,
+VoiceOver navigation, rich paste sanitization, and the other native platforms'
+window interactions remain acceptance work. Accessibility-tree visibility alone
+does not establish screen-reader usability.
+
+The standalone chooser was also exercised in the macOS window: create a new blank
+document, paste Unicode content, quit, reopen, and undo the restored edit. No relay
+address or token was entered. Standalone storage tests verify that opening an
+existing relay draft through the local API fails without overwriting it.
 
 ## Wire contract
 
@@ -104,6 +140,10 @@ bun run typecheck:relay
 swift test --filter generatedOfflineTextAndFormattingConverge
 bun run test:relay
 bun run test:relay:browser --project chromium --project webkit
+# Starts and removes its own isolated local relay; use installed Xcode destinations.
+bun run test:relay:apple \
+  "platform=iOS Simulator,name=iPhone 18 Pro" \
+  "platform=iOS Simulator,name=iPad Pro 13-inch (M5)"
 gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.relayUrl=http://10.0.2.2:4319 \
   -Pandroid.testInstrumentationRunnerArguments.relayToken=choose-a-local-test-token
@@ -111,6 +151,15 @@ gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidT
 ANDROID_SERIAL=emulator-5556 DEMO_TOKEN=choose-a-local-test-token sh scripts/test-android-restart.sh
 DEMO_TOKEN=choose-a-local-test-token STRESS_REPLICAS=8 STRESS_ROUNDS=40 STRESS_SEED=20260930 bun run demo:stress
 ```
+
+The Apple relay runner builds the native server bridge, starts an ephemeral
+loopback listener with a fresh test token, and passes that configuration to Xcode
+using `TEST_RUNNER_` environment variables. Each destination exercises presence,
+disconnected editing, local draft save/restore, concurrent rejoin, author-specific
+undo, composition receipt gaps, and authentication recovery. The runner closes the
+server and removes its temporary room data after testing. Ordinary Swift test runs
+skip the network case unless explicitly configured; the offline draft tests still
+run. Native window and input-method acceptance is a separate check.
 
 The stress runner uses independent native Swift processes, overlapping Unicode
 inserts/replacements/deletions, formatting and mark removal, block insert/move/delete,
@@ -164,15 +213,29 @@ verify one browser author's undo retains both other authors' edits.
   is exchanged. Browser tests verify visible transport errors, recovery and local
   presence cleanup on disconnect. Android instrumentation verifies peer counts
   are cleared on disconnect.
-- macOS demo executable and reusable Apple demo view build; native UI interaction
-  is not yet verified.
+- The native relay and offline-draft suite passes on macOS and iPhone, iPad, tvOS
+  and watchOS simulators against an isolated central server. This verifies each
+  runtime's HTTP adapter, storage and merge behavior; it does not establish native
+  window, keyboard, remote-control, watch-input or accessibility acceptance.
+- macOS demo executable and reusable Apple demo views build. UIKit component tests
+  verify marked text and selection on iPhone and iPad. visionOS builds, but its
+  simulator runtime is not installed and server integration remains unverified.
+- Four native UI workflows pass on both iPhone and iPad: standalone restart and
+  restored undo/redo; offline collaboration, presence, acknowledgment and recovery;
+  table/toggle/nested-list editing and reopen; and wrapped paragraph sizing and
+  reopen. Retained rich-block screenshots were inspected in light and dark mode.
+  Ten macOS and ten iPhone input tests also verify that remote insertion updates
+  the selection used by formatting controls. Real IME and accessibility acceptance
+  remain open.
 - Native draft tests verify exclusive writer access, corrupt/mismatched file
   preservation and author-history restore. Separate Swift processes save offline,
   reopen while the relay is stopped, rejoin remote edits, and undo only local text.
 - Android API 35 arm64 emulator: shared JNI fixture and two-client offline/rejoin,
   convergence, acknowledgement and author-specific undo instrumentation pass.
   Both arm64 and x86_64 native libraries build; x86_64 execution and API 26 device
-  acceptance remain open. Compose input and accessibility interaction are unverified.
+  acceptance remain open. Compose selection/typing and Android InputConnection
+  composition tests pass; third-party keyboard, paste and accessibility acceptance
+  remain open.
 - Android separate instrumentation processes save an offline draft, terminate,
   reopen without a token, merge an intervening native edit and undo only local text.
   Additional instrumentation rejects concurrent writers and preserves malformed,
