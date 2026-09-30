@@ -13,7 +13,14 @@ test("browser WASM and native Swift rejoin the same local server document", asyn
     await expect(client.getByRole("textbox", { name: "Write something…" })).toBeVisible();
     await expect(client.getByRole("status")).toContainText("connected");
   }
+  await expect(page.getByRole("status")).toContainText("1 other clients");
+  await page.route("**/relay/rooms/**", route => route.fulfill({ status: 503, body: "Temporarily unavailable" }));
+  await expect(page.getByRole("alert")).toContainText("Temporarily unavailable");
+  await page.unroute("**/relay/rooms/**");
+  await expect(page.getByRole("status")).toContainText("connected");
+  await expect(page.getByRole("alert")).toHaveCount(0);
   await page.getByLabel("Connected to local server").uncheck();
+  await expect(page.getByRole("status")).toContainText("0 other clients");
   await second.getByLabel("Connected to local server").uncheck();
   await page.getByRole("textbox", { name: "Write something…" }).fill("Alice offline 😀");
   await second.getByRole("textbox", { name: "Write something…" }).fill("Bob offline 世界");

@@ -28,6 +28,9 @@ class RelayTest {
                 val document = b.session.snapshot.getJSONArray("blocks").toString()
                 assertTrue(document.contains("Bob offline")); assertFalse(document.contains("Alice offline"))
                 assertEquals(0, a.pending); assertEquals(0, b.pending)
+                assertEquals(1, a.peerCount); assertEquals(1, b.peerCount)
+                a.connected = false
+                assertEquals(0, a.peerCount)
                 assertFalse(a.session.save().has("presence"))
             } finally { a.close(); b.close() }
         }

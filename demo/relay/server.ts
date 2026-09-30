@@ -18,7 +18,7 @@ async function body(request: IncomingMessage) {
 }
 
 /** Local testing service only. Loopback binding, explicit token, no CORS or cloud services. */
-export async function startRelay(options: { executable: string; directory: string; token: string; port?: number; presenceTTL?: number }) {
+export async function startRelay(options: { executable: string; directory: string; token: string; port?: number; presenceTTL?: number; now?: () => number }) {
   if (!options.token) throw new Error("A local demo token is required");
   await mkdir(options.directory, { recursive: true });
   const bridge = new NativeBridge(options.executable);
@@ -59,7 +59,7 @@ export async function startRelay(options: { executable: string; directory: strin
       const file = join(options.directory, `${id}.json`);
       await writeFile(file + ".tmp", JSON.stringify(snapshot));
       await rename(file + ".tmp", file);
-      const now = Date.now(), peers = presence.get(id) ?? new Map();
+      const now = (options.now ?? Date.now)(), peers = presence.get(id) ?? new Map();
       presence.set(id, peers);
       for (const [actor, entry] of peers) if (entry.expires <= now) peers.delete(actor);
       if (input.presence === null) peers.delete(input.actorID);
