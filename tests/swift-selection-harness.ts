@@ -11,7 +11,7 @@ export async function mount(bytes: ArrayBuffer) {
     { type: "text", text: "Hello ", marks: [{ type: "bold" }] },
     { type: "mention", entityId: "mira", entityType: "user", label: "Mira" },
     { type: "text", text: " world", marks: [{ type: "italic" }] },
-  ] }];
+  ] }, { id: "code", type: "code", language: "swift", code: "Hello world" }, { id: "math", type: "math", expression: "x + y" }];
   const a = runtime.create({ documentID: "selection", actorID: "a", blocks });
   const b = runtime.create({ documentID: "selection", actorID: "b", blocks });
   const host = document.createElement("div"); host.id = "selection-harness"; document.body.append(host);

@@ -115,3 +115,48 @@ test("remote updates do not steal focus from another input", async ({ page }) =>
   await expect(page.locator('#selection-harness [role="textbox"]')).toHaveText("RHello Mira world");
   await expect(page.locator("#other-input")).toBeFocused();
 });
+
+for (const field of [{ label: "Code", id: "code", path: "code", value: "Hello world" }, { label: "Math", id: "math", path: "expression", value: "x + y" }]) {
+  test(`${field.label} keeps backward selections through consecutive remote edits`, async ({ page }) => {
+    const input = page.locator("#selection-harness").getByRole("textbox", { name: field.label, exact: true });
+    await input.focus();
+    await input.evaluate((node: HTMLTextAreaElement) => node.setSelectionRange(0, 3, "backward"));
+    await page.evaluate(field => {
+      const { a, b } = (window as any).selectionHarness;
+      b.replaceText({ blockID: field.id, path: [field.path] }, 0, 0, "R", []);
+      a.receive(b.changes(a.syncState()));
+      b.replaceText({ blockID: field.id, path: [field.path] }, 0, 0, "S", []);
+      a.receive(b.changes(a.syncState()));
+    }, field);
+    await expect(input).toHaveValue(`SR${field.value}`);
+    expect(await input.evaluate((node: HTMLTextAreaElement) => [node.selectionStart, node.selectionEnd, node.selectionDirection])).toEqual([2, 5, "backward"]);
+  });
+
+  test(`${field.label} Chromium composition converges and undo preserves remote edits`, async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "The Chromium IME protocol is unavailable in WebKit");
+    const input = page.locator("#selection-harness").getByRole("textbox", { name: field.label, exact: true });
+    await input.focus();
+    await input.evaluate((node: HTMLTextAreaElement) => node.setSelectionRange(0, 0));
+    const ime = await page.context().newCDPSession(page);
+    await ime.send("Input.imeSetComposition", { text: "漢", selectionStart: 1, selectionEnd: 1 });
+    await page.evaluate(field => {
+      const { a, b } = (window as any).selectionHarness;
+      b.replaceText({ blockID: field.id, path: [field.path] }, 0, 0, "R", []);
+      a.receive(b.changes(a.syncState()));
+    }, field);
+    await expect(input).toHaveValue(`漢${field.value}`);
+    expect(await page.evaluate(() => (window as any).selectionHarness.a.syncState().received.length)).toBe(0);
+    await ime.send("Input.insertText", { text: "漢" });
+    await expect(input).toHaveValue(`R漢${field.value}`);
+    expect(await input.evaluate((node: HTMLTextAreaElement) => [node.selectionStart, node.selectionEnd])).toEqual([2, 2]);
+    await input.press("ControlOrMeta+z");
+    await expect(input).toHaveValue(`R${field.value}`);
+    const documents = await page.evaluate(() => {
+      const { a, b } = (window as any).selectionHarness;
+      b.receive(a.changes(b.syncState()));
+      return [a.getSnapshot().blocks, b.getSnapshot().blocks];
+    });
+    expect(documents[0]).toEqual(documents[1]);
+    await expect(page.locator('#selection-harness [role="alert"]')).toHaveCount(0);
+  });
+}
