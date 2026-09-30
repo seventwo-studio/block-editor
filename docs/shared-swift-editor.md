@@ -138,12 +138,39 @@ connected API-26-or-later device. No Gradle wrapper binary is committed yet.
 browser WASM tests and the Android instrumentation test. See
 [the local sync lab](local-sync-lab.md) for Android demo and relay test commands.
 
+## Document compatibility corpus
+
+`tests/BlockEditorCoreTests/Fixtures/documents.json` provides seven accepted and
+24 rejected document cases, exercised by native Swift, browser WASM and Android
+JNI. It covers every existing block and inline type, marks, references, nesting,
+omitted defaults, host metadata, unknown block extensions and invalid known shapes.
+Accepted content is compared field-for-field after save/restore; native tests also
+exercise edits and undo. These are synthetic regression fixtures, not a claim that
+every existing consumer archive or every URL accepted by the old schema was tested.
+
+Root block IDs must be unique. Nested list items, toggle children, table rows and
+cells need unique IDs within their containing array. Different containers can
+reuse IDs because editing addresses contain the complete stable path. Arbitrary
+metadata fields named `id` are retained without editor identity restrictions.
+The legacy schema allowed duplicate sibling IDs; migration rejects that ambiguity
+explicitly instead of choosing a child or silently rewriting IDs.
+
+`bun test src/compatibility.test.ts` checks the fixture against the legacy schema
+and runs the legacy-operation cutover script on each supported valid case. It
+verifies source preservation, refusal to overwrite a destination, and rejection
+of ambiguous nonzero operation clocks. Archive the original operation payload and
+start a new collaboration document ID; legacy operations cannot be mixed into the
+Swift protocol. Unknown future block types are retained by Swift but are outside
+the legacy operation script's accepted schema. Existing document size and nesting
+limits still apply.
+
 ## Evidence and remaining acceptance
 
 This is an **experimental foundation**, not completion of the approved plan.
 Local verification through 30 September 2026 established:
 
-- 20 Swift tests passed, including shared fixtures, Unicode boundaries, concurrent
+- 25 Swift tests passed, including document migration, scoped nested identities,
+  shared fixtures, Unicode boundaries, concurrent
   edits/formatting, all permutations of a small delivery set, duplicate delivery,
   local history across restore, structural conflicts and remote-preserving undo.
 - Both reference executables ran successfully, including filesystem save/reopen.
@@ -181,7 +208,7 @@ Open acceptance work remains independently tracked in ST-39 through ST-48:
 - Complete React behavior migration: shortcuts, structured paste, splitting,
   selection, host image upload and full block controls. The reference currently
   uses plain paste and its Enter inserts a paragraph rather than splitting text.
-- Comprehensive legacy corpus/schema parity, full Android runtime matrix, Firefox
+- Further consumer archive/schema coverage, full Android runtime matrix, Firefox
   verification, installable native package acceptance and CI for the new runtimes.
 - Separate consumer adoption and package visibility recovery. No consumer app was
   edited, package published, production backend added, or release blocker cleared.

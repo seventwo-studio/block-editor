@@ -122,6 +122,7 @@ private func sync(_ a: EditorSession, _ b: EditorSession) throws {
     #expect(throws: EditorError.unsupportedVersion(99)) {
         try b.receive(ChangeBatch(documentID: "doc", baseline: original.baseline, changes: [], version: 99))
     }
+    #expect(try b.save() == before)
 }
 
 @Test func authoringRestrictionsDoNotDestroySavedBlocks() throws {
