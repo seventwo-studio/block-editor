@@ -82,4 +82,29 @@ import Testing
         coordinator.close()
     }
 }
+@MainActor @Test func appKitToolbarUndoCommitsCompositionBeforeUndoAndRemoteReplay() throws {
+    let document = try Document(blocks: [.paragraph(id: "p", text: "Hello")])
+    let a = try EditorSession(documentID: "toolbar-composition", actorID: "a", document: document)
+    let b = try EditorSession(documentID: "toolbar-composition", actorID: "b", document: document)
+    try a.setText(at: TextAddress("p"), to: "HelloL")
+    let model = try EditorModel(session: a)
+    let coordinator = MacTextInput.Coordinator(model: model, address: TextAddress("p"), selection: .constant(NSRange(location: 0, length: 0)))
+    let view = ComposingTextView(frame: NSRect(x: 0, y: 0, width: 400, height: 200))
+    coordinator.connect(view)
+    defer { coordinator.close() }
+    view.setSelectedRange(NSRange(location: 6, length: 0))
+    view.setMarkedText("漢", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+    try b.setText(at: TextAddress("p"), to: "RHello")
+    try a.receive(b.changes())
+    model.perform { try $0.undo() }
+    #expect(!view.hasMarkedText())
+    #expect(view.string == "RHelloL")
+    #expect(try a.text(at: TextAddress("p")) == "RHelloL")
+    #expect(a.syncState.received.contains(ChangeID(counter: 1, actor: "b")))
+    #expect(model.error == nil)
+    model.perform { try $0.redo() }
+    #expect(view.string == "RHelloL漢")
+    view.unmarkText()
+    #expect(try a.text(at: TextAddress("p")) == "RHelloL漢")
+}
 #endif

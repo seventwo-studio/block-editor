@@ -60,4 +60,24 @@ import BlockEditorCore
     #expect(final.contains(mention))
     #expect(final.contains { $0["text"]?.string?.contains("Hello ") == true && ($0["marks"]?.array ?? []).contains(.object(["type": .string("bold")])) })
 }
+@MainActor @Test func failedCompositionCommitStopsLocalCommandWithoutDroppingRemoteHold() throws {
+    let document = try Document(blocks: [.paragraph(id: "p", text: "Hello")])
+    let a = try EditorSession(documentID: "command-failure", actorID: "a", document: document)
+    let b = try EditorSession(documentID: "command-failure", actorID: "b", document: document)
+    let model = try EditorModel(session: a)
+    let input = CollaborativeInput(model: model, address: TextAddress("p"))
+    defer { input.close() }
+    input.beginComposition()
+    input.onCommit = { throw EditorError.invalidRange }
+    try b.setText(at: TextAddress("p"), to: "RHello"); try a.receive(b.changes())
+    var ran = false
+    model.perform { session in ran = true; try session.delete(blockID: "p") }
+    #expect(!ran)
+    #expect(model.error != nil)
+    #expect(try a.text(at: TextAddress("p")) == "Hello")
+    #expect(a.syncState.received.isEmpty)
+    input.update(text: "Hello漢", selection: NSRange(location: 6, length: 0), composing: false)
+    #expect(try a.text(at: TextAddress("p")) == "RHello漢")
+    #expect(model.error == nil)
+}
 #endif

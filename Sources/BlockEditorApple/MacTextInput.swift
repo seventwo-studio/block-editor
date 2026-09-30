@@ -56,6 +56,14 @@ import SwiftUI
             view.beginComposition = { [weak self] in self?.input.beginComposition() }
             view.didEdit = { [weak self] in self?.changed() }
             view.history = { [weak self] redo in self?.input.model.perform { if redo { try $0.redo() } else { try $0.undo() } } }
+            input.onCommit = { [weak self] in
+                guard let self, let view = self.view else { throw EditorError.invalidChange }
+                // End native composition without recursively publishing its delegate callbacks.
+                self.rendering = true
+                view.unmarkText()
+                self.rendering = false
+                try self.input.commit(text: view.string, selection: view.selectedRange())
+            }
             input.onPrepare = { [weak self] in
                 guard let self, let view = self.view else { return }
                 self.input.selection = view.selectedRange()

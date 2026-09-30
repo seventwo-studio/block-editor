@@ -302,3 +302,11 @@ alone does not establish editor usability.
 
 Product decisions live in the [Notion record](https://app.notion.com/p/3e9bb04960098144848ed3667bfa01ea).
 Engineering acceptance lives in the [Linear project](https://linear.app/seventwo/project/block-editor-985a4bda82a5).
+
+Native Apple local commands commit active marked-text or platform-entry drafts before
+executing undo, formatting or block actions. Their input callbacks use a separate
+commit path to avoid recursion. The command stops on input-commit failure; pending
+remote changes remain subject to the existing receipt/save and hold rules. AppKit,
+UIKit and platform-draft tests verify command-triggered composition commit with
+remote insertion and local undo/redo. This does not establish real keyboard or
+accessibility acceptance.
