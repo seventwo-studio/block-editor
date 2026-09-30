@@ -64,7 +64,10 @@ import SwiftUI
             if view.textStorage?.isEqual(to: text) != true { view.textStorage?.setAttributedString(text) }
             view.setSelectedRange(input.selection)
         }
-        func close() { view?.delegate = nil; input.close() }
+        func close() {
+            view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil
+            input.close(); view = nil
+        }
     }
 }
 

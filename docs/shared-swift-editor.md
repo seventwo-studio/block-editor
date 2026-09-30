@@ -119,7 +119,16 @@ preservation. UIKit component tests on iPhone and iPad simulators also exercise
 marked text, remote delivery, typing, selection and undo. The visionOS library
 builds, but no visionOS runtime is installed for execution. Actual window, keyboard
 and input-method, paste and accessibility acceptance remains required, including
-macOS interaction. watchOS/tvOS composition integration remains separate.
+macOS interaction. watchOS/tvOS text fields buffer their platform text-entry
+interaction, commit the draft when entry ends, then release queued remote changes.
+Their state-transition tests pass on both simulators; actual keyboard, dictation
+and remote-control interaction remains unverified.
+
+Input adapters detach callbacks on disposal and reject late input events, so an
+old text view cannot overwrite a document after its composition hold is released.
+Replacing the Apple `EditorModel` recreates its editor controls rather than retaining
+coordinators attached to the previous session. UIKit and Android regression tests
+exercise late callbacks after disposal.
 
 The Android Compose adapter uses `TextFieldValue` to retain selection and IME
 composition. Root text, code and math fields defer remote changes until composition

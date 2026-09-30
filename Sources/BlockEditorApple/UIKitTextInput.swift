@@ -59,7 +59,10 @@ import UIKit
             if !view.attributedText.isEqual(to: text) { view.attributedText = text }
             view.selectedRange = input.selection
         }
-        func close() { view?.delegate = nil; input.close() }
+        func close() {
+            view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil
+            input.close(); view = nil
+        }
     }
 }
 

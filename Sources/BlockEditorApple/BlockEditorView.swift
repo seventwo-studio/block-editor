@@ -35,7 +35,7 @@ import SwiftUI
                     }
                 }.padding()
             }
-        }
+        }.id(ObjectIdentifier(model))
     }
     @ViewBuilder private func blockContent(_ block: Block) -> some View {
         switch block.type {
@@ -108,9 +108,7 @@ private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
             }
         }
         #elseif os(watchOS) || os(tvOS)
-        TextField("Text", text: Binding(get: { plainText(nodes) }, set: { text in
-            model.perform { try $0.setText(at: address, to: text) }
-        }))
+        PlatformTextField(model: model, address: address)
         #endif
     }
     private func formatNative(_ type: String, remove: Bool = false) {

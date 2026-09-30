@@ -18,6 +18,7 @@ internal class CollaborativeTextInput(
 ) : Closeable {
     var value by mutableStateOf(TextFieldValue(readText()))
         private set
+    private var closed = false
     private var release: (() -> Unit)? = null
     private var anchors: Pair<JSONObject, JSONObject>? = null
     private val unsubscribeBefore = session.subscribeBeforeReceive {
@@ -38,6 +39,7 @@ internal class CollaborativeTextInput(
         }
     }
     fun update(next: TextFieldValue) {
+        if (closed) return
         value = next
         if (next.composition != null) {
             if (release == null) release = session.deferRemoteChanges()
@@ -65,6 +67,8 @@ internal class CollaborativeTextInput(
         }
     }
     override fun close() {
+        if (closed) return
+        closed = true
         unsubscribeBefore(); unsubscribe()
         val finish = release; release = null
         try { finish?.invoke() } catch (error: Exception) { reportError(error) }

@@ -48,4 +48,21 @@ import UIKit
     #expect(view.text == "RHello world")
     #expect(model.error == nil)
 }
+@MainActor @Test func disposedUIKitInputCannotCommitALateCompositionCallback() throws {
+    let document = try Document(blocks: [.paragraph(id: "p", text: "Hello")])
+    let a = try EditorSession(documentID: "uikit-dispose", actorID: "a", document: document)
+    let b = try EditorSession(documentID: "uikit-dispose", actorID: "b", document: document)
+    let coordinator = UIKitTextInput.Coordinator(model: try EditorModel(session: a), address: TextAddress("p"), selection: .constant(NSRange(location: 0, length: 0)))
+    let view = ComposingUIKitTextView()
+    coordinator.connect(view)
+    view.selectedRange = NSRange(location: 0, length: 0)
+    view.setMarkedText("漢", selectedRange: NSRange(location: 1, length: 0))
+    try b.setText(at: TextAddress("p"), to: "RHello"); try a.receive(b.changes())
+    coordinator.close()
+    #expect(try a.text(at: TextAddress("p")) == "RHello")
+    view.unmarkText()
+    view.insertText("late")
+    #expect(try a.text(at: TextAddress("p")) == "RHello")
+    #expect(!a.canUndo)
+}
 #endif

@@ -9,6 +9,7 @@ import Foundation
     var selection = NSRange(location: 0, length: 0)
     var onPrepare: (() -> Void)?
     var onUpdate: (() -> Void)?
+    private var closed = false
     private var anchors: (TextPosition, TextPosition)?
     private var release: (() throws -> Void)?
     private var unsubscribe: (() -> Void)?
@@ -20,10 +21,12 @@ import Foundation
         unsubscribe = model.observeInput(before: { [weak self] in self?.prepare() }, after: { [weak self] in self?.refresh() })
     }
     func beginComposition() {
+        guard !closed else { return }
         composing = true
         if release == nil { release = model.session.deferRemoteChanges() }
     }
     func update(text: String, selection: NSRange, composing: Bool) {
+        guard !closed else { return }
         self.selection = selection
         if composing { beginComposition(); return }
         self.composing = false
@@ -53,6 +56,8 @@ import Foundation
         onUpdate?()
     }
     func close() {
+        guard !closed else { return }
+        closed = true
         unsubscribe?(); unsubscribe = nil
         onPrepare = nil; onUpdate = nil
         let finish = release; release = nil
