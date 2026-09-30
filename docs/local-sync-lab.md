@@ -47,7 +47,11 @@ presence are excluded. Save failures are displayed separately from sync status.
 It loads the server snapshot, disconnects, edits through the Swift engine, rejoins
 and requires acknowledgement. Set `DEMO_ENDPOINT` to another room URL if needed.
 The Android `:demo` app includes a Compose editor, token/room inputs, pending and
-participant counts, and a disconnect switch. Build the native libraries with
+participant counts, and a disconnect switch. It saves per-endpoint drafts in app-private
+storage using `AtomicFile` and an exclusive writer lease. Restores start disconnected,
+retain author undo history and require no token; enter the token before reconnecting.
+The last endpoint is remembered, but tokens and presence are not saved. Storage
+failures are displayed while the edited document remains in memory. Build the native libraries with
 `scripts/build-android.sh`, then build/install `:demo:assembleDebug` with Gradle.
 The script bundles the NDK C++ runtime alongside Swift and JNI libraries.
 The emulator reaches the host loopback server through `10.0.2.2`; cleartext HTTP
@@ -70,9 +74,8 @@ two tabs from resuming the same writer concurrently. Storage errors are visible 
 never reported as successful saves. Browser data clearing removes these drafts.
 The application shell and WASM still need to be served locally when opening the
 page; this is document recovery with the relay unavailable, not offline web hosting.
-Android offline client restart persistence remains an acceptance gate. Apple
-storage/process recovery is tested; native app relaunch interaction still needs
-platform acceptance.
+Android storage and real process-restart recovery are tested. Apple storage/process
+recovery is also tested; native UI relaunch interaction still needs platform acceptance.
 
 ## Wire contract
 
@@ -103,6 +106,8 @@ bun run test:relay:browser --project chromium --project webkit
 gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.relayUrl=http://10.0.2.2:4319 \
   -Pandroid.testInstrumentationRunnerArguments.relayToken=choose-a-local-test-token
+# Build both demo APKs and the native relay-client first; the relay must be running.
+ANDROID_SERIAL=emulator-5556 DEMO_TOKEN=choose-a-local-test-token sh scripts/test-android-restart.sh
 DEMO_TOKEN=choose-a-local-test-token STRESS_REPLICAS=8 STRESS_ROUNDS=40 STRESS_SEED=20260930 bun run demo:stress
 ```
 
@@ -144,6 +149,11 @@ verify one browser author's undo retains both other authors' edits.
   convergence, acknowledgement and author-specific undo instrumentation pass.
   Both arm64 and x86_64 native libraries build; x86_64 execution and API 26 device
   acceptance remain open. Compose input and accessibility interaction are unverified.
+- Android separate instrumentation processes save an offline draft, terminate,
+  reopen without a token, merge an intervening native edit and undo only local text.
+  Additional instrumentation rejects concurrent writers and preserves malformed,
+  incompatible and endpoint-mismatched drafts. The restart script requires
+  `ANDROID_HOME`; override `DEMO_URL` and `ANDROID_RELAY_URL` for a non-default port.
 - Twenty Swift tests pass, including incremental-edit equivalence with complete
   history replay after each action. An additional eight-client stress run converged
   in 111,040 ms while other builds ran; no latency improvement is claimed.

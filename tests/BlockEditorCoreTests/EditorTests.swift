@@ -25,6 +25,30 @@ private func sync(_ a: EditorSession, _ b: EditorSession) throws {
     #expect(try b.document.blocks[0].text == "Hello Bob Alice")
 }
 
+@Test func formattingAndStructureRedoPreserveUnrelatedRemoteChanges() throws {
+    let (a, b) = try pair()
+    try a.insert(.paragraph(id: "q", text: "Q"), after: "p")
+    try a.insert(.paragraph(id: "r", text: "R"), after: "q")
+    try sync(a, b)
+    try a.format(at: TextAddress("p"), range: 0..<5, markType: "bold", mark: .object(["type": .string("bold")]))
+    try b.format(at: TextAddress("p"), range: 0..<5, markType: "italic", mark: .object(["type": .string("italic")]))
+    try sync(a, b)
+    try a.undo(); try sync(a, b)
+    let afterUndo = try a.document.blocks[0].fields["content"]?.array?.first?["marks"]?.array ?? []
+    #expect(afterUndo.map { $0["type"]?.string } == ["italic"])
+    try a.redo(); try sync(a, b)
+    let afterRedo = try a.document.blocks[0].fields["content"]?.array?.first?["marks"]?.array ?? []
+    #expect(Set(afterRedo.compactMap { $0["type"]?.string }) == Set(["bold", "italic"]))
+    try a.move(blockID: "q", after: "r")
+    try b.setText(at: TextAddress("r"), to: "Remote R")
+    try sync(a, b); try a.undo(); try sync(a, b)
+    #expect(try a.document.blocks.map(\.id) == ["p", "q", "r"])
+    #expect(try a.text(at: TextAddress("r")) == "Remote R")
+    try a.redo(); try sync(a, b)
+    #expect(try a.document.blocks.map(\.id) == ["p", "r", "q"])
+    #expect(try a.text(at: TextAddress("r")) == "Remote R")
+}
+
 @Test func concurrentFormattingAndDeletion() throws {
     let (a, b) = try pair()
     try a.format(at: TextAddress("p"), range: 0..<5, markType: "bold", mark: .object(["type": .string("bold")]))
