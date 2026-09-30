@@ -111,15 +111,16 @@ public struct Document: Codable, Equatable, Sendable {
         func inspect(_ value: JSONValue, depth: Int) throws {
             guard depth <= 100 else { throw EditorError.invalidDocument("Document nesting exceeds 100") }
             if let fields = value.object {
-                if let id = fields["id"]?.string {
-                    guard !id.isEmpty, ids.insert(id).inserted else { throw EditorError.invalidDocument("Duplicate or empty ID") }
-                }
                 for child in fields.values { try inspect(child, depth: depth + 1) }
             } else if let elements = value.array {
                 for child in elements { try inspect(child, depth: depth + 1) }
             }
         }
-        for block in blocks { try Validation.block(block); try inspect(.object(block.fields), depth: 0) }
+        for block in blocks {
+            guard !block.id.isEmpty, ids.insert(block.id).inserted else { throw EditorError.invalidDocument("Duplicate or empty root block ID") }
+            try Validation.block(block)
+            try inspect(.object(block.fields), depth: 0)
+        }
         self.blocks = blocks
     }
     public init(json: Data) throws {

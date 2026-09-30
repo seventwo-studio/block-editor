@@ -1,6 +1,29 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+test("migration corpus preserves rich documents and rejects invalid known shapes in WASM", async ({ page }) => {
+  const corpus = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/documents.json", "utf8"));
+  await page.route("**/engine.wasm", route => route.fulfill({ path: "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async ({ source, corpus }) => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const documents = [], rejected = [];
+    for (const sample of corpus.valid) {
+      const editor = runtime.create({ documentID: sample.name, actorID: "local", blocks: sample.blocks });
+      const restored = runtime.restore(editor.save(), "local");
+      documents.push(restored.getSnapshot().blocks); editor.close(); restored.close();
+    }
+    for (const sample of corpus.invalid) {
+      try { const editor = runtime.create({ documentID: sample.name, actorID: "local", blocks: sample.blocks }); editor.close(); rejected.push(false); }
+      catch { rejected.push(true); }
+    }
+    return { documents, rejected };
+  }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, corpus });
+  expect(result.documents).toEqual(corpus.valid.map((sample: { blocks: unknown }) => sample.blocks));
+  expect(result.rejected).toEqual(corpus.invalid.map(() => true));
+});
+
 test("shared bridge compatibility fixture matches native Swift", async ({ page }) => {
   const fixture = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/bridge.json", "utf8"));
   await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));

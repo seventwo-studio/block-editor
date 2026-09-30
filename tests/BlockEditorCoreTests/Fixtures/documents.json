@@ -1,0 +1,864 @@
+{
+  "valid": [
+    {
+      "name": "all-blocks-inline-and-extensions",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "A😀é世界",
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "type": "link",
+                  "href": "https://example.com/ref"
+                }
+              ]
+            },
+            {
+              "type": "mention",
+              "entityType": "user",
+              "entityId": "user-1",
+              "label": "Person"
+            },
+            {
+              "type": "date",
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative"
+            },
+            {
+              "type": "entity-ref",
+              "entityType": "task",
+              "entityId": "task-1",
+              "label": "Task"
+            },
+            {
+              "type": "emoji",
+              "name": "rocket"
+            },
+            {
+              "type": "inline-math",
+              "expression": "x^2"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          }
+        },
+        {
+          "id": "h",
+          "type": "heading",
+          "level": 3,
+          "content": [
+            {
+              "type": "text",
+              "text": "Heading",
+              "marks": []
+            }
+          ]
+        },
+        {
+          "id": "l",
+          "type": "list",
+          "style": "todo",
+          "items": [
+            {
+              "id": "item",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Parent",
+                  "marks": []
+                }
+              ],
+              "checked": true,
+              "children": [
+                {
+                  "id": "child",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Child",
+                      "marks": []
+                    }
+                  ],
+                  "children": [],
+                  "extension": "keep"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "type": "code",
+          "language": "swift",
+          "code": "let value = \"😀\""
+        },
+        {
+          "id": "q",
+          "type": "quote",
+          "content": [
+            {
+              "type": "text",
+              "text": "Quote",
+              "marks": []
+            }
+          ]
+        },
+        {
+          "id": "a",
+          "type": "callout",
+          "variant": "warning",
+          "icon": "!",
+          "color": "#aBc123",
+          "content": [
+            {
+              "type": "text",
+              "text": "Callout",
+              "marks": []
+            }
+          ]
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "id": "i",
+          "type": "image",
+          "src": "asset:host-owned",
+          "alt": "Alt",
+          "caption": [
+            {
+              "type": "text",
+              "text": "Caption",
+              "marks": []
+            }
+          ],
+          "width": 800,
+          "height": 600
+        },
+        {
+          "id": "t",
+          "type": "table",
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "rows": [
+            {
+              "id": "row",
+              "cells": [
+                {
+                  "id": "cell",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Cell",
+                      "marks": []
+                    }
+                  ],
+                  "header": true,
+                  "extension": 42
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e",
+          "type": "embed",
+          "url": "https://example.com",
+          "title": "Embed",
+          "description": "Description",
+          "thumbnail": "host-thumbnail"
+        },
+        {
+          "id": "m",
+          "type": "math",
+          "expression": "x^2"
+        },
+        {
+          "id": "toggle",
+          "type": "toggle",
+          "summary": [
+            {
+              "type": "text",
+              "text": "Summary",
+              "marks": []
+            }
+          ],
+          "children": [
+            {
+              "id": "nested",
+              "type": "toggle",
+              "summary": [],
+              "children": [
+                {
+                  "id": "deep",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Nested",
+                      "marks": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "omitted-default-fields",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "id": "l",
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            {
+              "id": "item"
+            }
+          ]
+        },
+        {
+          "id": "t",
+          "type": "table",
+          "rows": [
+            {
+              "id": "r",
+              "cells": [
+                {
+                  "id": "c"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "e",
+          "type": "embed",
+          "url": "mailto:person@example.com"
+        },
+        {
+          "id": "i",
+          "type": "image",
+          "src": "asset-id"
+        },
+        {
+          "id": "toggle",
+          "type": "toggle"
+        }
+      ]
+    },
+    {
+      "name": "future-block-preservation",
+      "legacySchema": false,
+      "blocks": [
+        {
+          "id": "future",
+          "type": "future-widget",
+          "payload": {
+            "version": 2,
+            "items": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "date-0000-02-29T00:00Z",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "0000-02-29T00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2000-02-29T23:59:59Z",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2000-02-29T23:59:59Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2026-09-30T16:35Z",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2026-09-30T16:35Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoped child identities and opaque metadata",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "a",
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            {
+              "id": "shared",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Before"
+                }
+              ]
+            }
+          ],
+          "metadata": {
+            "id": "",
+            "source": {
+              "id": "a"
+            },
+            "other": {
+              "id": "a"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            {
+              "id": "shared",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Before"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "t",
+          "type": "table",
+          "rows": [
+            {
+              "id": "one",
+              "cells": [
+                {
+                  "id": "shared",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Before"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "two",
+              "cells": [
+                {
+                  "id": "shared",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Before"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "name": "callout-icon-True",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "callout",
+          "variant": "info",
+          "icon": true
+        }
+      ]
+    },
+    {
+      "name": "callout-color-42",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "callout",
+          "variant": "info",
+          "color": 42
+        }
+      ]
+    },
+    {
+      "name": "callout-color-#zzzzzz",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "callout",
+          "variant": "info",
+          "color": "#zzzzzz"
+        }
+      ]
+    },
+    {
+      "name": "table-width-type",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "table",
+          "rows": [],
+          "columnWidths": [
+            "100"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "table-header-type",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "table",
+          "rows": [
+            {
+              "id": "r",
+              "cells": [
+                {
+                  "id": "c",
+                  "header": "yes"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "embed-title",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "embed",
+          "url": "https://example.com",
+          "title": 1
+        }
+      ]
+    },
+    {
+      "name": "embed-description",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "embed",
+          "url": "https://example.com",
+          "description": []
+        }
+      ]
+    },
+    {
+      "name": "embed-thumbnail",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "embed",
+          "url": "https://example.com",
+          "thumbnail": null
+        }
+      ]
+    },
+    {
+      "name": "date-2023-02-29T12:00Z",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2023-02-29T12:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-1900-02-29T12:00Z",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "1900-02-29T12:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2024-04-31T12:00Z",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2024-04-31T12:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2024-01-01T24:00Z",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2024-01-01T24:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2024-01-01T12:60Z",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2024-01-01T12:60Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2024-01-01T12:00:60Z",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2024-01-01T12:00:60Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-2024-01-01T12:00+01:00",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2024-01-01T12:00+01:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-not-a-date",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "not-a-date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "date-format",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "date",
+              "date": "2024-01-01T12:00Z",
+              "format": "invalid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "null-content",
+      "blocks": [
+        {
+          "id": "bad",
+          "type": "paragraph",
+          "content": null
+        }
+      ]
+    },
+    {
+      "name": "duplicate root IDs",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Retained"
+            }
+          ]
+        },
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Retained"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate list siblings",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "l",
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            {
+              "id": "shared",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Before"
+                }
+              ]
+            },
+            {
+              "id": "shared",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Before"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate nested list siblings",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "l",
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            {
+              "id": "shared",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Before"
+                }
+              ],
+              "children": [
+                {
+                  "id": "shared",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Before"
+                    }
+                  ]
+                },
+                {
+                  "id": "shared",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Before"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate table rows",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "t",
+          "type": "table",
+          "rows": [
+            {
+              "id": "r",
+              "cells": []
+            },
+            {
+              "id": "r",
+              "cells": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate table cells",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "t",
+          "type": "table",
+          "rows": [
+            {
+              "id": "r",
+              "cells": [
+                {
+                  "id": "shared",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Before"
+                    }
+                  ]
+                },
+                {
+                  "id": "shared",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Before"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate toggle children",
+      "legacySchema": true,
+      "blocks": [
+        {
+          "id": "t",
+          "type": "toggle",
+          "children": [
+            {
+              "id": "p",
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Retained"
+                }
+              ]
+            },
+            {
+              "id": "p",
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Retained"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,44 @@ import BlockEditorCore
 import Foundation
 import Testing
 
+@Test func documentMigrationCorpusRetainsEveryFieldAndRejectsInvalidKnownShapes() throws {
+    let url = try #require(Bundle.module.url(forResource: "documents", withExtension: "json", subdirectory: "Fixtures"))
+    let corpus = try JSONDecoder().decode(JSONValue.self, from: Data(contentsOf: url))
+    for sample in try #require(corpus["valid"]?.array) {
+        let blocks = try #require(sample["blocks"])
+        let session = try LegacyMigration.importDocument(JSONEncoder().encode(blocks), newDocumentID: "migration", actorID: "local")
+        #expect(try JSONDecoder().decode(JSONValue.self, from: session.document.json()) == blocks)
+        try session.insert(.paragraph(id: "additional", text: "Temporary edit"))
+        try session.undo()
+        let restored = try EditorSession.restore(session.save(), actorID: "local")
+        #expect(try JSONDecoder().decode(JSONValue.self, from: restored.document.json()) == blocks)
+    }
+    for sample in try #require(corpus["invalid"]?.array) {
+        let data = try JSONEncoder().encode(try #require(sample["blocks"]))
+        #expect(throws: EditorError.self) { try LegacyMigration.importDocument(data, newDocumentID: "invalid", actorID: "local") }
+    }
+}
+
+@Test func reusedChildIDsRemainIndependentlyEditable() throws {
+    let url = try #require(Bundle.module.url(forResource: "documents", withExtension: "json", subdirectory: "Fixtures"))
+    let corpus = try JSONDecoder().decode(JSONValue.self, from: Data(contentsOf: url))
+    let sample = try #require(corpus["valid"]?.array?.first { $0["name"]?.string == "scoped child identities and opaque metadata" })
+    let session = try LegacyMigration.importDocument(JSONEncoder().encode(sample["blocks"]), newDocumentID: "scoped", actorID: "a")
+    let left = TextAddress("a", path: ["items", "shared", "content"])
+    let right = TextAddress("b", path: ["items", "shared", "content"])
+    let cell = TextAddress("t", path: ["rows", "one", "cells", "shared", "content"])
+    let otherCell = TextAddress("t", path: ["rows", "two", "cells", "shared", "content"])
+    try session.setText(at: left, to: "Edited list")
+    try session.setText(at: cell, to: "Edited cell")
+    let restored = try EditorSession.restore(session.save(), actorID: "a")
+    #expect(try restored.text(at: left) == "Edited list")
+    #expect(try restored.text(at: right) == "Before")
+    #expect(try restored.text(at: cell) == "Edited cell")
+    #expect(try restored.text(at: otherCell) == "Before")
+    try restored.undo(); try restored.undo()
+    #expect(try JSONDecoder().decode(JSONValue.self, from: restored.document.json()) == sample["blocks"])
+}
+
 @Test func sharedBridgeFixture() throws {
     let url = try #require(Bundle.module.url(forResource: "bridge", withExtension: "json", subdirectory: "Fixtures"))
     let fixture = try JSONDecoder().decode(JSONValue.self, from: Data(contentsOf: url))

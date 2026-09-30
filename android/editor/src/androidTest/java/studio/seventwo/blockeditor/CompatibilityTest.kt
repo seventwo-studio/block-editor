@@ -4,10 +4,33 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 
 /** Runs the same JSON commands and expected document as Swift and browser WASM. */
 class CompatibilityTest {
+    @Test fun documentMigrationCorpus() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val corpus = JSONObject(context.assets.open("documents.json").bufferedReader().use { it.readText() })
+        val valid = corpus.getJSONArray("valid")
+        for (index in 0 until valid.length()) {
+            val sample = valid.getJSONObject(index)
+            val editor = EditorSession.create(sample.getString("name"), "local", sample.getJSONArray("blocks"))
+            try {
+                val restored = EditorSession.restore(editor.save(), "local")
+                try { assertEquals(normalize(sample.getJSONArray("blocks")), normalize(restored.snapshot.getJSONArray("blocks"))) }
+                finally { restored.close() }
+            } finally { editor.close() }
+        }
+        val invalid = corpus.getJSONArray("invalid")
+        for (index in 0 until invalid.length()) {
+            val sample = invalid.getJSONObject(index)
+            try {
+                EditorSession.create(sample.getString("name"), "local", sample.getJSONArray("blocks")).close()
+                fail("Invalid document accepted: ${sample.getString("name")}")
+            } catch (_: IllegalStateException) { }
+        }
+    }
     @Test fun sharedBridgeFixture() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val fixture = JSONObject(context.assets.open("bridge.json").bufferedReader().use { it.readText() })
