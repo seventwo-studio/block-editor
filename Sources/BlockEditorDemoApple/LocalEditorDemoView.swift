@@ -55,10 +55,11 @@ import SwiftUI
 @MainActor public struct EditorDemoView: View {
     private enum Mode { case local, collaborative }
     @State private var mode: Mode?
-    public init() {}
+    private let localFile: URL?
+    public init(localFile: URL? = nil) { self.localFile = localFile }
     public var body: some View {
         switch mode {
-        case .local: LocalEditorDemoView()
+        case .local: LocalEditorDemoView(file: localFile)
         case .collaborative: LocalRelayDemoView()
         case nil:
             VStack(alignment: .leading, spacing: 16) {

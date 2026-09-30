@@ -55,6 +55,10 @@ presence are excluded. Save failures are displayed separately from sync status.
 
 It loads the server snapshot, disconnects, edits through the Swift engine, rejoins
 and requires acknowledgement. Set `DEMO_ENDPOINT` to another room URL if needed.
+Runnable Apple simulator app targets and iPhone/iPad UI test commands are in
+[Examples/AppleDemo](../Examples/AppleDemo/README.md). They use the same shared
+demo views and OS 26 minimums.
+
 The Android `:demo` app includes a Compose editor, token/room inputs, pending and
 participant counts, and a disconnect switch. It saves per-endpoint drafts in app-private
 storage using `AtomicFile` and an exclusive writer lease. Restores start disconnected,
