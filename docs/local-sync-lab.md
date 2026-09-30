@@ -101,6 +101,11 @@ verify one browser author's undo retains both other authors' edits.
   107,553 ms on the development host. This exposes significant replay/transport
   overhead to improve; it is not an accepted latency target.
 - Chromium and WebKit: mixed WASM/native HTTP collaboration and undo tests pass.
+- Presence lease expiry, stale revisions, explicit departure and relay restart
+  preserve identical saved document bytes, including when cursor/selection data
+  is exchanged. Browser tests verify visible transport errors, recovery and local
+  presence cleanup on disconnect. Android instrumentation verifies peer counts
+  are cleared on disconnect.
 - macOS demo executable and reusable Apple demo view build; native UI interaction
   is not yet verified.
 - Android API 35 arm64 emulator: shared JNI fixture and two-client offline/rejoin,

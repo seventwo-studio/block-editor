@@ -15,7 +15,7 @@ class LocalRelayConnection private constructor(
     val session: EditorSession, private val endpoint: String, private val token: String, private val actor: String
 ) : Closeable {
     var connected = true
-        set(value) { field = value; generation++ }
+        set(value) { field = value; generation++; if (!value) peerCount = 0 }
     private var generation = 0
     private var exchanging = false
     private var revision = 0L
