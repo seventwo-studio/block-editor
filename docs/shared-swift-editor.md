@@ -268,6 +268,11 @@ Local verification through 30 September 2026 established:
 
 Open acceptance work remains independently tracked in ST-39 through ST-48:
 
+The [Notion-like editing contract](notion-editing-behavior.md) defines the expected
+writing, block manipulation, selection, paste and keyboard workflows. These must
+work through the shared engine in local and collaborative modes; sync correctness
+alone does not establish editor usability.
+
 - Full nested structural operations, Apple selection mapping across remote edits,
   wider convergence coverage and conflict-aware resource limits. Current
   document size/shape rejection can prevent an over-limit union from merging;
