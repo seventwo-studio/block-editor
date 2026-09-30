@@ -5,6 +5,7 @@ export default defineConfig({
   base: "/block-editor/",
   plugins: [react()],
   optimizeDeps: { include: ["@bjorn3/browser_wasi_shim"] },
+  server: { proxy: { "/relay": { target: "http://127.0.0.1:4319", rewrite: path => path.replace(/^\/relay/, "") } } },
   resolve: {
     alias: [
       {

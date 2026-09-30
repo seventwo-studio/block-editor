@@ -54,6 +54,11 @@
     "build:wasm": "sh scripts/build-wasm.sh",
     "build:android": "sh scripts/build-android.sh",
     "test:swift": "swift test",
+    "demo:relay": "swift build --product editor-bridge && bun demo/relay/main.ts",
+    "demo:stress": "bun demo/relay/stress.ts",
+    "test:relay": "swift build --product editor-bridge && bun test tests/relay.test.ts",
+    "test:relay:browser": "swift build --product editor-bridge && swift build --product relay-client && playwright test --config playwright.relay.config.ts",
+    "typecheck:relay": "tsc -p tsconfig.relay.json",
     "test:wasm": "playwright test --config playwright.swift.config.ts"
   },
   "dependencies": {
@@ -67,6 +72,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
     "@playwright/test": "1.63.0",
+    "@types/bun": "^1.4.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.0",

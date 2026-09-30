@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-  testIgnore: "**/swift-wasm.spec.ts",
+  testIgnore: ["**/swift-wasm.spec.ts", "**/relay-browser.spec.ts", "**/relay.test.ts"],
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     { name: "webkit", use: { browserName: "webkit" } },

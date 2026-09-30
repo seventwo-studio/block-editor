@@ -6,5 +6,5 @@
     "types": ["vite/client"],
     "noEmit": true
   },
-  "include": ["demo/src", "vite.config.ts"]
+  "include": ["demo/src", "demo/*.tsx", "demo/local-sync.ts", "vite.config.ts"]
 }

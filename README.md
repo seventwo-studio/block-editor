@@ -23,6 +23,10 @@ The browser reference is at `/block-editor/swift.html` after `bun run build:wasm
 and `bun run demo:dev`. New npm entrypoints are `./swift` and `./swift/react`;
 hosts supply the WASM artifact. No package release is implied.
 
+The [local sync lab](docs/local-sync-lab.md) adds a persistent loopback server,
+native Swift HTTP client, browser clients, offline/rejoin controls and seeded stress
+tests. Start it with `DEMO_TOKEN=choose-a-local-test-token bun run demo:relay`.
+
 ## React UI
 
 ```tsx

@@ -22,6 +22,10 @@ are outside this work. The recorded package-visibility recovery blocker remains.
 
 ## Implemented foundation
 
+The [local sync lab](local-sync-lab.md) extends the reference work with a centralized
+loopback server, native and browser clients, and repeatable offline/rejoin stress
+tests. Its platform evidence is tracked separately from editor feature parity.
+
 `BlockEditorCore` provides `Document`, `Block`, `EditorSession`, `TextAddress`,
 `ChangeBatch`, `SyncState`, `Presence` and Markdown conversion. A session is confined
 to one executor. Keep actor IDs unique per writer; resuming a saved actor requires
