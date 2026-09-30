@@ -32,8 +32,12 @@ DEMO_TOKEN=choose-a-local-test-token swift run relay-client
 
 It loads the server snapshot, disconnects, edits through the Swift engine, rejoins
 and requires acknowledgement. Set `DEMO_ENDPOINT` to another room URL if needed.
-The Android emulator can reach a host loopback server through `10.0.2.2`; its native
-demo adapter and device test remain to be implemented. Physical devices require a
+The Android `:demo` app includes a Compose editor, token/room inputs, pending and
+participant counts, and a disconnect switch. Build the native libraries with
+`scripts/build-android.sh`, then build/install `:demo:assembleDebug` with Gradle.
+The script bundles the NDK C++ runtime alongside Swift and JNI libraries.
+The emulator reaches the host loopback server through `10.0.2.2`; cleartext HTTP
+is enabled only in the debug manifest. Physical devices require a
 deliberate local forwarding setup. The relay does not open a public/LAN listener.
 
 Uncheck **Connected to local server** to edit independently. Reconnect to merge.
@@ -70,6 +74,9 @@ acknowledged; offline client restart persistence remains a separate acceptance g
 bun run typecheck:relay
 bun run test:relay
 bun run test:relay:browser --project chromium --project webkit
+gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.relayUrl=http://10.0.2.2:4319 \
+  -Pandroid.testInstrumentationRunnerArguments.relayToken=choose-a-local-test-token
 DEMO_TOKEN=choose-a-local-test-token STRESS_REPLICAS=8 STRESS_ROUNDS=40 STRESS_SEED=20260930 bun run demo:stress
 ```
 
@@ -96,8 +103,15 @@ verify one browser author's undo retains both other authors' edits.
 - Chromium and WebKit: mixed WASM/native HTTP collaboration and undo tests pass.
 - macOS demo executable and reusable Apple demo view build; native UI interaction
   is not yet verified.
+- Android API 35 arm64 emulator: shared JNI fixture and two-client offline/rejoin,
+  convergence, acknowledgement and author-specific undo instrumentation pass.
+  Both arm64 and x86_64 native libraries build; x86_64 execution and API 26 device
+  acceptance remain open. Compose input and accessibility interaction are unverified.
+- Twenty Swift tests pass, including incremental-edit equivalence with complete
+  history replay after each action. An additional eight-client stress run converged
+  in 111,040 ms while other builds ran; no latency improvement is claimed.
 - Firefox was retried and still fails before test execution with “Could not find
-  profile folder”. Android and other Apple runtime/device matrix rows remain open.
+  profile folder”. Other Apple runtime/device matrix rows remain open.
 
 Run results are evidence for these precise scenarios, not permission to close the
 full platform, editor parity, release or consumer-integration issues.

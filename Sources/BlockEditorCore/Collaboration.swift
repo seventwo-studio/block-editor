@@ -196,51 +196,56 @@ func materialize(_ baseline: Document, _ changes: [Change]) throws -> Materializ
     for change in sorted {
         guard case .edit(let mutations) = change.body else { continue }
         let enabled = active[change.id] ?? true
-        for mutation in mutations {
-            switch mutation {
-            case .insertBlock(let block, let id, let after):
-                // Placements survive undo so remote insertions after them retain their position.
-                state.placements[id] = .init(id: id, after: after, blockID: block.id)
-                if enabled {
-                    state.blocks[block.id] = block; state.selectedPlacement[block.id] = id
-                }
-            case .moveBlock(let blockID, let id, let after):
-                state.placements[id] = .init(id: id, after: after, blockID: blockID)
-                if enabled { state.selectedPlacement[blockID] = id }
-            case .deleteBlock(let blockID):
-                if enabled { state.deletedBlocks.insert(blockID) }
-            case .setField(let blockID, let path, let value):
-                if enabled, var block = state.blocks[blockID] {
-                    block.fields = try JSONValue.object(block.fields).setting(path, to: value).object ?? block.fields
-                    state.blocks[blockID] = block
-                }
-            case .insertText(let address, let atoms):
-                state.ensureText(address)
-                for atom in atoms {
-                    state.texts[address, default: [:]][atom.id] = atom
-                    if !enabled { state.hiddenAtoms[address, default: []].insert(atom.id) }
-                }
-                state.dirtyText.insert(address)
-            case .deleteText(let address, let ids):
-                state.ensureText(address)
-                if enabled { state.deletedAtoms[address, default: []].formUnion(ids) }
-                state.dirtyText.insert(address)
-            case .formatText(let address, let ids, let markType, let mark):
-                state.ensureText(address)
-                if enabled {
-                    for id in ids {
-                        guard var atom = state.texts[address]?[id], var fields = atom.node.object,
-                              fields["type"]?.string == "text" else { continue }
-                        var marks = (fields["marks"]?.array ?? []).filter { $0["type"]?.string != markType }
-                        if let mark { marks.append(mark) }
-                        marks.sort { ($0["type"]?.string ?? "").utf8.lexicographicallyPrecedes(($1["type"]?.string ?? "").utf8) }
-                        fields["marks"] = .array(marks); atom.node = .object(fields)
-                        state.texts[address]?[id] = atom
-                    }
-                }
-                state.dirtyText.insert(address)
-            }
-        }
+        try apply(mutations, enabled: enabled, to: &state)
     }
     return state
+}
+
+// Shared by deterministic replay and the strictly-newest local edit path.
+func apply(_ mutations: [Mutation], enabled: Bool, to state: inout Materialized) throws {
+    for mutation in mutations {
+        switch mutation {
+        case .insertBlock(let block, let id, let after):
+            // Placements survive undo so remote insertions after them retain their position.
+            state.placements[id] = .init(id: id, after: after, blockID: block.id)
+            if enabled {
+                state.blocks[block.id] = block; state.selectedPlacement[block.id] = id
+            }
+        case .moveBlock(let blockID, let id, let after):
+            state.placements[id] = .init(id: id, after: after, blockID: blockID)
+            if enabled { state.selectedPlacement[blockID] = id }
+        case .deleteBlock(let blockID):
+            if enabled { state.deletedBlocks.insert(blockID) }
+        case .setField(let blockID, let path, let value):
+            if enabled, var block = state.blocks[blockID] {
+                block.fields = try JSONValue.object(block.fields).setting(path, to: value).object ?? block.fields
+                state.blocks[blockID] = block
+            }
+        case .insertText(let address, let atoms):
+            state.ensureText(address)
+            for atom in atoms {
+                state.texts[address, default: [:]][atom.id] = atom
+                if !enabled { state.hiddenAtoms[address, default: []].insert(atom.id) }
+            }
+            state.dirtyText.insert(address)
+        case .deleteText(let address, let ids):
+            state.ensureText(address)
+            if enabled { state.deletedAtoms[address, default: []].formUnion(ids) }
+            state.dirtyText.insert(address)
+        case .formatText(let address, let ids, let markType, let mark):
+            state.ensureText(address)
+            if enabled {
+                for id in ids {
+                    guard var atom = state.texts[address]?[id], var fields = atom.node.object,
+                          fields["type"]?.string == "text" else { continue }
+                    var marks = (fields["marks"]?.array ?? []).filter { $0["type"]?.string != markType }
+                    if let mark { marks.append(mark) }
+                    marks.sort { ($0["type"]?.string ?? "").utf8.lexicographicallyPrecedes(($1["type"]?.string ?? "").utf8) }
+                    fields["marks"] = .array(marks); atom.node = .object(fields)
+                    state.texts[address]?[id] = atom
+                }
+            }
+            state.dirtyText.insert(address)
+        }
+    }
 }

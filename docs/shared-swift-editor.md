@@ -130,28 +130,30 @@ The reference has two independent sessions, manual/automatic change exchange,
 disconnect/reconnect, presence, save and reopen. It is a development entry, not a
 published deployment. Presence demonstrates editing activity, not remote caret UI.
 
-Android sources are a library, not an application. After generating both JNI
+Android includes the reusable `:editor` library and a local relay `:demo` app. After generating both JNI
 architectures, a host with Android SDK 35 and Gradle 8.11.1 can run
 `gradle -p android :editor:assembleDebug :editor:connectedDebugAndroidTest` with a
 connected API-26-or-later device. No Gradle wrapper binary is committed yet.
 `tests/BlockEditorCoreTests/Fixtures/bridge.json` is shared by Swift tests, actual
-browser WASM tests and the Android instrumentation test. The Android test must run
-on a device before cross-runtime equivalence is accepted.
+browser WASM tests and the Android instrumentation test. See
+[the local sync lab](local-sync-lab.md) for Android demo and relay test commands.
 
 ## Evidence and remaining acceptance
 
 This is an **experimental foundation**, not completion of the approved plan.
-Local verification on 29 September 2026 established:
+Local verification through 30 September 2026 established:
 
-- 19 Swift tests passed, including shared fixtures, Unicode boundaries, concurrent
+- 20 Swift tests passed, including shared fixtures, Unicode boundaries, concurrent
   edits/formatting, all permutations of a small delivery set, duplicate delivery,
   local history across restore, structural conflicts and remote-preserving undo.
 - Both reference executables ran successfully, including filesystem save/reopen.
 - Swift core plus Apple view library compiled for macOS, iOS, tvOS, watchOS and
   visionOS. This is build evidence, not interaction or accessibility acceptance.
-- Android arm64 and x86_64 Swift/JNI shared libraries built for API 26. Kotlin/AAR
-  compilation and device execution remain unverified because this environment has
-  no Android SDK/Gradle/device setup.
+- Android arm64 and x86_64 Swift/JNI shared libraries built for API 26; Kotlin/AAR,
+  demo and test APK compilation passed. API 35 arm64 emulator instrumentation
+  passed the shared JNI fixture and two-client offline relay recovery/undo test.
+  The build script includes the required NDK C++ runtime. API 26 and x86_64 runtime
+  interaction acceptance remain open.
 - Actual WASM and React reference tests passed in Chromium and WebKit. Firefox
   could not launch its profile in this environment, including a retry with Node
   and a temporary profile path; Firefox behavior remains unverified.
@@ -162,14 +164,15 @@ Local verification on 29 September 2026 established:
 - Existing TypeScript tests and type checks passed. The existing React production
   entrypoint remains unchanged; `./swift` and `./swift/react` are opt-in references.
 
-Open acceptance work remains independently tracked in SVT-39 through SVT-48:
+Open acceptance work remains independently tracked in ST-39 through ST-48:
 
 - Full nested structural operations, stable selection mapping across remote edits,
   larger generated convergence tests and conflict-aware resource limits. Current
   document size/shape rejection can prevent an over-limit union from merging;
   hosts must not treat this prototype as an unbounded collaboration service.
 - Log/receipt compaction, performance budgets and artifact-size reduction. The
-  current release WASM is about 58 MB and replays the operation log on every edit.
+  current release WASM is about 58 MB. Local edits apply incrementally; incoming
+  changes and undo still replay the operation log.
 - Full native authoring/rendering, rich selection and IME handling, paste policies,
   accessibility and actual platform interaction. Apple toolbar formatting exists;
   platform-attributed text formatting is not yet fully reconciled into operations.
@@ -178,7 +181,7 @@ Open acceptance work remains independently tracked in SVT-39 through SVT-48:
 - Complete React behavior migration: shortcuts, structured paste, splitting,
   selection, host image upload and full block controls. The reference currently
   uses plain paste and its Enter inserts a paragraph rather than splitting text.
-- Comprehensive legacy corpus/schema parity, Android fixture execution, Firefox
+- Comprehensive legacy corpus/schema parity, full Android runtime matrix, Firefox
   verification, installable native package acceptance and CI for the new runtimes.
 - Separate consumer adoption and package visibility recovery. No consumer app was
   edited, package published, production backend added, or release blocker cleared.

@@ -14,14 +14,16 @@ public final class EditorSession {
     private var undoStack: [ChangeID] = []
     private var redoStack: [ChangeID] = []
     private var state: Materialized
+    private var currentDocument: Document
 
     public init(documentID: String, actorID: String, document: Document) throws {
         guard !documentID.isEmpty, validActor(actorID) else { throw EditorError.invalidChange }
         self.documentID = documentID; self.actorID = actorID; self.baseline = document
         self.state = .seed(document)
+        self.currentDocument = document
     }
 
-    public var document: Document { get throws { try state.document() } }
+    public var document: Document { get throws { currentDocument } }
     public var syncState: SyncState { SyncState(received: Set(log.keys)) }
     public var canUndo: Bool { !undoStack.isEmpty }
     public var canRedo: Bool { !redoStack.isEmpty }
@@ -80,6 +82,7 @@ public final class EditorSession {
         let next = try materialize(baseline, Array(candidate.values))
         let document = try next.document()
         log = candidate; state = next; counter = max(counter, candidate.keys.map(\.counter).max() ?? 0)
+        currentDocument = document
         onChange?(document, nil)
     }
 
@@ -258,8 +261,18 @@ public final class EditorSession {
     private func append(_ change: Change) throws {
         try validate(change)
         var candidate = log; candidate[change.id] = change
-        let next = try materialize(baseline, Array(candidate.values)); _ = try next.document()
+        var next: Materialized
+        if case .edit(let mutations) = change.body {
+            // Local IDs are newer than every received change. They can be applied
+            // to a copy of the current state without reinterpreting earlier history.
+            next = state
+            try apply(mutations, enabled: true, to: &next)
+        } else {
+            next = try materialize(baseline, Array(candidate.values))
+        }
+        let document = try next.document()
         log = candidate; state = next; counter = change.id.counter
+        currentDocument = document
     }
     private func selected(_ address: TextAddress, _ range: Range<Int>) throws
         -> (ids: [ElementID], after: ElementID?, inheritedMarks: [JSONValue]) {
