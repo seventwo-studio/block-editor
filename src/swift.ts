@@ -2,6 +2,13 @@ import { WASI, File, OpenFile, ConsoleStdout } from "@bjorn3/browser_wasi_shim";
 import type { Block, Mark, InlineNode } from "./schema.js";
 
 export interface TextAddress { blockID: string; path: string[] }
+export interface SwiftTextPosition {
+  documentID: string;
+  address: TextAddress;
+  anchor?: { change: { counter: number; actor: string }; index: number } | null;
+  affinity: "before" | "after";
+  intraAtomOffset?: number | null;
+}
 export interface SwiftSnapshot { blocks: Block[]; canUndo: boolean; canRedo: boolean }
 /** Opaque, versioned payloads: hosts transport them without interpreting merge operations. */
 export type SwiftChangeBatch = { version: number; documentID: string; baseline: unknown; changes: unknown[] };
@@ -64,10 +71,34 @@ export class SwiftEditorRuntime {
 
 export class SwiftEditorSession {
   private listeners = new Set<() => void>();
+  private beforeReceive = new Set<() => void | (() => void)>();
+  private remoteHolds = 0;
+  private deferred: string[] = [];
+  private deferredBytes = 0;
   private closed = false;
   constructor(private runtime: SwiftEditorRuntime, private handle: string, private snapshot: SwiftSnapshot) {}
   getSnapshot = (): SwiftSnapshot => this.snapshot;
   subscribe = (listener: () => void): (() => void) => { this.listeners.add(listener); return () => this.listeners.delete(listener); };
+  /** A pre-receive observer can return cleanup to discard preparation if validation fails. */
+  subscribeBeforeReceive = (listener: () => void | (() => void)): (() => void) => { this.beforeReceive.add(listener); return () => this.beforeReceive.delete(listener); };
+  /** An input adapter commits its composition before releasing queued remote edits.
+   * Receipt state excludes queued batches, so transports keep them pending. */
+  deferRemoteChanges(): () => void {
+    if (this.closed) throw new Error("Editor session is closed");
+    this.remoteHolds++;
+    let released = false;
+    return () => {
+      if (released || this.closed) return;
+      released = true;
+      if (--this.remoteHolds) return;
+      const batches = this.deferred; this.deferred = []; this.deferredBytes = 0;
+      let failure: unknown;
+      for (const batch of batches) {
+        try { this.receive(JSON.parse(batch)); } catch (error) { failure ??= error; }
+      }
+      if (failure) throw failure;
+    };
+  }
   private call<T>(command: string, args: Record<string, unknown> = {}): T {
     if (this.closed) throw new Error("Editor session is closed");
     return this.runtime.call({ command, session: this.handle, ...args });
@@ -77,6 +108,10 @@ export class SwiftEditorSession {
     for (const listener of this.listeners) listener();
   }
   setText(address: TextAddress, text: string): void { this.edit("setText", { address, text }); }
+  position(address: TextAddress, offset: number, affinity: SwiftTextPosition["affinity"] = "before"): SwiftTextPosition {
+    return this.call("position", { address, offset, affinity });
+  }
+  resolvePosition(position: SwiftTextPosition): number { return this.call("resolvePosition", { position }); }
   setInline(address: TextAddress, nodes: InlineNode[]): void { this.edit("setInline", { address, nodes }); }
   replaceText(address: TextAddress, start: number, end: number, text: string, marks?: Mark[]): void {
     this.edit("replaceText", { address, start, end, text, marks });
@@ -93,10 +128,27 @@ export class SwiftEditorSession {
   save(): SwiftChangeBatch { return this.call("save"); }
   syncState(): SwiftSyncState { return this.call("syncState"); }
   changes(since?: SwiftSyncState): SwiftChangeBatch { return this.call("changes", { since }); }
-  receive(batch: SwiftChangeBatch): void { this.edit("receive", { batch }); }
+  receive(batch: SwiftChangeBatch): void {
+    if (this.closed) throw new Error("Editor session is closed");
+    if (this.remoteHolds) {
+      const payload = JSON.stringify(batch), bytes = new TextEncoder().encode(payload).length;
+      if (this.deferred.length >= 64 || this.deferredBytes + bytes > 64_000_000) throw new Error("Pending remote changes exceed the composition buffer; retry after composition ends");
+      this.deferred.push(payload); this.deferredBytes += bytes;
+      return;
+    }
+    const rollback = [...this.beforeReceive].map(listener => listener());
+    let next: SwiftSnapshot;
+    try { next = this.call("receive", { batch }); }
+    catch (error) {
+      for (const cleanup of rollback) { try { cleanup?.(); } catch { /* Keep the engine error. */ } }
+      throw error;
+    }
+    this.snapshot = next;
+    for (const listener of this.listeners) listener();
+  }
   receivePresence(presence: SwiftPresence): Record<string, SwiftPresence> { return this.call("presence", { presence }); }
   removePresence(actorID: string): Record<string, SwiftPresence> { return this.call("removePresence", { actorID }); }
   setAllowedBlockTypes(types: string[] | null): void { this.edit("allowedBlockTypes", { types }); }
   markdown(): string { return this.call("markdown"); }
-  close(): void { if (!this.closed) { this.call("close"); this.closed = true; this.listeners.clear(); } }
+  close(): void { if (!this.closed) { this.call("close"); this.closed = true; this.listeners.clear(); this.beforeReceive.clear(); this.deferred = []; this.deferredBytes = 0; } }
 }

@@ -25,6 +25,24 @@ public struct TextAddress: Codable, Hashable, Sendable {
     public init(_ blockID: String, path: [String] = ["content"]) { self.blockID = blockID; self.path = path }
 }
 
+/// Which side of an adjacent atom a position follows when text is inserted there.
+public enum TextAffinity: String, Codable, Sendable { case before, after }
+
+/// An ephemeral position, resolved against the current document after remote edits.
+/// A nil anchor means the end for `before`, or the start for `after`.
+public struct TextPosition: Codable, Equatable, Sendable {
+    public let documentID: String
+    public let address: TextAddress
+    public let anchor: ElementID?
+    public let affinity: TextAffinity
+    /// A display selection may sit inside an atomic reference label without editing it.
+    public let intraAtomOffset: Int?
+    public init(documentID: String, address: TextAddress, anchor: ElementID?, affinity: TextAffinity, intraAtomOffset: Int? = nil) {
+        self.documentID = documentID; self.address = address; self.anchor = anchor; self.affinity = affinity
+        self.intraAtomOffset = intraAtomOffset
+    }
+}
+
 public struct TextAtom: Codable, Equatable, Sendable {
     public let id: ElementID
     public let after: ElementID?

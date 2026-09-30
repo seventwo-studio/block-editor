@@ -39,6 +39,11 @@ public final class EditorBridge {
         case "create", "restore", "document": break
         case "close": sessions.removeValue(forKey: handle); return .null
         case "save": return try JSONDecoder().decode(JSONValue.self, from: session.save())
+        case "position":
+            return try encode(session.position(at: decode(input["address"], as: TextAddress.self),
+                offset: decode(input["offset"], as: Int.self),
+                affinity: input["affinity"] == nil ? .before : decode(input["affinity"], as: TextAffinity.self)))
+        case "resolvePosition": return .number(Double(try session.offset(of: decode(input["position"], as: TextPosition.self))))
         case "syncState": return try encode(session.syncState)
         case "changes": return try encode(session.changes(since: input["since"] == nil ? SyncState() : decode(input["since"], as: SyncState.self)))
         case "receive": try session.receive(decode(input["batch"], as: ChangeBatch.self))

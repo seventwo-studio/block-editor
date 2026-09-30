@@ -9,6 +9,23 @@ import org.junit.Test
 
 /** Runs the same JSON commands and expected document as Swift and browser WASM. */
 class CompatibilityTest {
+    @Test fun stablePositionsFollowRemoteEditsAndUndo() {
+        val blocks = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"A😀BC","marks":[]}]}]""")
+        val a = EditorSession.create("positions", "a", blocks)
+        val b = EditorSession.create("positions", "b", blocks)
+        try {
+            val position = a.position("p", 3)
+            b.setText("p", "!A😀BC"); a.receive(b.changes())
+            assertEquals(4, a.resolvePosition(position))
+            b.setText("p", "!ABC"); a.receive(b.changes())
+            assertEquals(2, a.resolvePosition(position))
+            val restored = EditorSession.restore(a.save(), "a")
+            try { assertEquals(2, restored.resolvePosition(JSONObject(position.toString()))) }
+            finally { restored.close() }
+            b.undo(); a.receive(b.changes())
+            assertEquals(4, a.resolvePosition(position))
+        } finally { a.close(); b.close() }
+    }
     @Test fun concurrentFormattingAndAuthorUndo() {
         val blocks = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"ABC","marks":[]}]}]""")
         val a = EditorSession.create("marks", "a", blocks)
