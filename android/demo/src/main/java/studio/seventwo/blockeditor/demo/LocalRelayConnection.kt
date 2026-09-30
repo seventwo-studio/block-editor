@@ -6,14 +6,22 @@ import org.json.JSONArray
 import org.json.JSONObject
 import studio.seventwo.blockeditor.EditorSession
 import java.io.Closeable
+import java.io.File
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
 
 /** Main-thread session adapter; only HTTP I/O runs in the background. Local demo only. */
 class LocalRelayConnection private constructor(
-    val session: EditorSession, private val endpoint: String, private val token: String, private val actor: String
+    val session: EditorSession, private val endpoint: String, private var token: String, private val actor: String,
+    private val draft: LocalDraft? = null
 ) : Closeable {
+    var saveStatus by mutableStateOf(if (draft == null) "Memory-only session" else "Saved locally")
+        private set
+    fun setToken(value: String) { token = value }
     var connected = true
         set(value) { field = value; generation++; if (!value) peerCount = 0 }
     private var generation = 0
@@ -25,10 +33,25 @@ class LocalRelayConnection private constructor(
     val pending: Int get() = session.changes(receipt).getJSONArray("changes").length()
 
     companion object {
-        suspend fun open(endpoint: String, token: String): LocalRelayConnection {
-            val snapshot = request(endpoint, token, null)
-            val actor = UUID.randomUUID().toString()
-            return LocalRelayConnection(EditorSession.restore(snapshot, actor), endpoint, token, actor)
+        suspend fun open(endpoint: String, token: String, file: File? = null): LocalRelayConnection {
+            val draft = file?.let { LocalDraft(it) }
+            var session: EditorSession? = null
+            try {
+                val saved = draft?.read(endpoint)
+                val snapshot = saved?.getJSONObject("snapshot") ?: request(endpoint, token, null)
+                val actor = saved?.getString("actor") ?: UUID.randomUUID().toString()
+                val editor = EditorSession.restore(snapshot, actor); session = editor
+                draft?.save(endpoint, actor, editor)
+                val connection = LocalRelayConnection(editor, endpoint, token, actor, draft)
+                connection.connected = saved == null
+                editor.onChange = {
+                    if (draft != null) {
+                        try { draft.save(endpoint, actor, editor); connection.saveStatus = "Saved locally" }
+                        catch (error: Exception) { connection.saveStatus = "Local save failed: ${error.message}" }
+                    }
+                }
+                return connection
+            } catch (error: Exception) { session?.close(); draft?.close(); throw error }
         }
         private suspend fun request(endpoint: String, token: String, body: String?): JSONObject = withContext(Dispatchers.IO) {
             val connection = URL(endpoint).openConnection() as HttpURLConnection
@@ -61,5 +84,5 @@ class LocalRelayConnection private constructor(
             peerCount = (0 until peers.length()).count { peers.getJSONObject(it).getString("actor") != actor }
         } finally { exchanging = false }
     }
-    override fun close() { connected = false; session.close() }
+    override fun close() { connected = false; try { session.close() } finally { draft?.close() } }
 }
