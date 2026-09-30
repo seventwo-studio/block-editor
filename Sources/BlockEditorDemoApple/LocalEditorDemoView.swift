@@ -56,11 +56,14 @@ import SwiftUI
     private enum Mode { case local, collaborative }
     @State private var mode: Mode?
     private let localFile: URL?
-    public init(localFile: URL? = nil) { self.localFile = localFile }
+    private let relayEndpoint: URL?
+    public init(localFile: URL? = nil, relayEndpoint: URL? = nil) {
+        self.localFile = localFile; self.relayEndpoint = relayEndpoint
+    }
     public var body: some View {
         switch mode {
         case .local: LocalEditorDemoView(file: localFile)
-        case .collaborative: LocalRelayDemoView()
+        case .collaborative: LocalRelayDemoView(endpoint: relayEndpoint)
         case nil:
             VStack(alignment: .leading, spacing: 16) {
                 Button("Open local document") { mode = .local }

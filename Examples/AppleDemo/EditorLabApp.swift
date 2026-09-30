@@ -11,7 +11,16 @@ import SwiftUI
         #endif
         return nil
     }
+    private var relayEndpoint: URL? {
+        #if DEBUG
+        if let value = ProcessInfo.processInfo.environment["EDITOR_LAB_RELAY_ENDPOINT"],
+           let url = URL(string: value), ["localhost", "127.0.0.1"].contains(url.host ?? "") {
+            return url
+        }
+        #endif
+        return nil
+    }
     var body: some Scene {
-        WindowGroup { EditorDemoView(localFile: localFile) }
+        WindowGroup { EditorDemoView(localFile: localFile, relayEndpoint: relayEndpoint) }
     }
 }

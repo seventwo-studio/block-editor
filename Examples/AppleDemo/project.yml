@@ -33,6 +33,8 @@ targets:
     sources: [UITests]
     dependencies:
       - target: EditorLab-iOS
+      - package: BlockEditor
+        product: BlockEditorLocalDemo
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.lab.ui-tests

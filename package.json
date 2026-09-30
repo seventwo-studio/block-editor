@@ -60,7 +60,8 @@
     "test:relay:browser": "swift build --product editor-bridge && swift build --product relay-client && playwright test --config playwright.relay.config.ts",
     "typecheck:relay": "tsc -p tsconfig.relay.json",
     "test:wasm": "playwright test --config playwright.swift.config.ts",
-    "test:relay:apple": "bun scripts/test-apple-relay.ts"
+    "test:relay:apple": "bun scripts/test-apple-relay.ts",
+    "test:apple:ui": "bun scripts/test-apple-ui.ts"
   },
   "dependencies": {
     "@bjorn3/browser_wasi_shim": "0.4.2",
