@@ -16,6 +16,7 @@ playwright-report/
 .swiftpm/
 .local-demo/
 android/.gradle/
+android/.kotlin/
 android/**/build/
 android/editor/src/main/jniLibs/
 demo/public/block-editor.wasm
