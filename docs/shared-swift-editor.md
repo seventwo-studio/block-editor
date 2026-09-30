@@ -93,9 +93,9 @@ The queue is bounded to 64 batches/64 MB and asks the transport to retry on over
 Hosts must release holds or close the session when an input adapter is removed.
 
 Code/math textareas retain the browser composition buffer until committing the
-local edit and use session undo/redo for keyboard history. Apple/Android UI
-composition/selection adapters still need integration and platform interaction
-checks. Chromium IME protocol input covers inline and textarea adapters;
+local edit and use session undo/redo for keyboard history. Native adapter behavior
+and remaining platform interaction checks are described below.
+Chromium IME protocol input covers inline and textarea adapters;
 Chromium/WebKit selection checks and inline composition-event tests provide
 additional coverage. WebKit system IME, Firefox and physical keyboard/input-method
 matrices remain unverified.
@@ -120,6 +120,16 @@ marked text, remote delivery, typing, selection and undo. The visionOS library
 builds, but no visionOS runtime is installed for execution. Actual window, keyboard
 and input-method, paste and accessibility acceptance remains required, including
 macOS interaction. watchOS/tvOS composition integration remains separate.
+
+The Android Compose adapter uses `TextFieldValue` to retain selection and IME
+composition. Root text, code and math fields defer remote changes until composition
+commits, resolve stable selection anchors after receive, and release pending changes
+when disposed. Kotlin session holds have the same 64-batch/64-MB limit and receipt
+semantics as the browser wrapper. Tests exercise Android's `InputConnection` on an
+API 35 arm64 emulator, alongside rendered selection/typing and controller checks
+for reference preservation, rejected delivery, nested holds and disposal. This does
+not establish API 26, x86_64, third-party keyboard, accessibility, or rich attributed
+text acceptance.
 
 Nested fields use stable IDs, for example `items/<item-id>/content` and
 `children/<child-id>/content`. Structural insert/move/delete currently operate at
@@ -233,6 +243,8 @@ Local verification through 30 September 2026 established:
 - Android arm64 and x86_64 Swift/JNI shared libraries built for API 26; Kotlin/AAR,
   demo and test APK compilation passed. API 35 arm64 emulator instrumentation
   passed the shared JNI fixture and two-client offline relay recovery/undo test.
+  Ten editor instrumentation tests also pass, including rendered Compose input and
+  an Android input-connection composition with a concurrent remote edit.
   The build script includes the required NDK C++ runtime. API 26 and x86_64 runtime
   interaction acceptance remain open.
 - Actual WASM and React reference tests passed in Chromium and WebKit. Firefox
@@ -247,7 +259,7 @@ Local verification through 30 September 2026 established:
 
 Open acceptance work remains independently tracked in ST-39 through ST-48:
 
-- Full nested structural operations, native selection mapping across remote edits,
+- Full nested structural operations, Apple selection mapping across remote edits,
   wider convergence coverage and conflict-aware resource limits. Current
   document size/shape rejection can prevent an over-limit union from merging;
   hosts must not treat this prototype as an unbounded collaboration service.
