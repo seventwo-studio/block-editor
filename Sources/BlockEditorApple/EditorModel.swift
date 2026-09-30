@@ -12,7 +12,7 @@ import SwiftUI
     @ObservationIgnored public let session: EditorSession
     @ObservationIgnored public var onChange: ((BlockEditorCore.Document, Change?) -> Void)?
 
-    @ObservationIgnored private var inputs: [UUID: (before: () -> Void, after: () -> Void)] = [:]
+    @ObservationIgnored private var inputs: [UUID: (before: () -> Void, after: () -> Void, commit: () throws -> Void)] = [:]
 
     public init(session: EditorSession) throws {
         self.session = session; self.document = try session.document
@@ -25,11 +25,20 @@ import SwiftUI
             self.onChange?(document, change)
         }
     }
-    func observeInput(before: @escaping () -> Void, after: @escaping () -> Void) -> () -> Void {
-        let id = UUID(); inputs[id] = (before, after)
+    func observeInput(before: @escaping () -> Void, after: @escaping () -> Void,
+                      commit: @escaping () throws -> Void) -> () -> Void {
+        let id = UUID(); inputs[id] = (before, after, commit)
         return { [weak self] in self?.inputs.removeValue(forKey: id) }
     }
+    /// Local commands commit every active input before editing or releasing remote holds.
     public func perform(_ operation: (EditorSession) throws -> Void) {
+        performInput { session in
+            for input in Array(inputs.values) { try input.commit() }
+            try operation(session)
+        }
+    }
+    /// Native input callbacks already contain committed text; avoid recursively committing them.
+    func performInput(_ operation: (EditorSession) throws -> Void) {
         do { try operation(session); error = nil }
         catch { self.error = String(describing: error) }
     }

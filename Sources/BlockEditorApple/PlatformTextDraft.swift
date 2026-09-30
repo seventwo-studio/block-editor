@@ -12,6 +12,12 @@ import Observation
     init(model: EditorModel, address: TextAddress) {
         input = CollaborativeInput(model: model, address: address)
         draft = input.text
+        input.onCommit = { [weak self] in
+            guard let self else { throw EditorError.invalidChange }
+            self.editing = false
+            try self.input.commit(text: self.draft, selection: NSRange(location: self.draft.utf16.count, length: 0))
+            self.draft = self.input.text
+        }
         input.onUpdate = { [weak self] in
             guard let self, !self.editing else { return }
             self.draft = self.input.text

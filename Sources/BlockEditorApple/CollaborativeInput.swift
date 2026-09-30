@@ -9,6 +9,7 @@ import Foundation
     var selection = NSRange(location: 0, length: 0)
     var onPrepare: (() -> Void)?
     var onUpdate: (() -> Void)?
+    var onCommit: (() throws -> Void)?
     private var closed = false
     private var anchors: (TextPosition, TextPosition)?
     private var release: (() throws -> Void)?
@@ -18,7 +19,11 @@ import Foundation
 
     init(model: EditorModel, address: TextAddress) {
         self.model = model; self.address = address
-        unsubscribe = model.observeInput(before: { [weak self] in self?.prepare() }, after: { [weak self] in self?.refresh() })
+        unsubscribe = model.observeInput(before: { [weak self] in self?.prepare() }, after: { [weak self] in self?.refresh() }, commit: { [weak self] in
+            guard let self, self.composing else { return }
+            guard let commit = self.onCommit else { throw EditorError.invalidChange }
+            try commit()
+        })
     }
     func beginComposition() {
         guard !closed else { return }
@@ -29,15 +34,18 @@ import Foundation
         guard !closed else { return }
         self.selection = selection
         if composing { beginComposition(); return }
-        self.composing = false
+        model.performInput { _ in try commit(text: text, selection: selection) }
+    }
+    /// Called only after the platform has ended its marked-text interaction.
+    func commit(text: String, selection: NSRange) throws {
+        guard !closed else { return }
+        self.selection = selection; composing = false
         let finish = release; release = nil
-        model.perform { session in
-            var failure: Error?
-            do { if try session.text(at: address) != text { try session.setText(at: address, to: text) } }
-            catch { failure = error }
-            do { try finish?() } catch { if failure == nil { failure = error } }
-            if let failure { throw failure }
-        }
+        var failure: Error?
+        do { if try model.session.text(at: address) != text { try model.session.setText(at: address, to: text) } }
+        catch { failure = error }
+        do { try finish?() } catch { if failure == nil { failure = error } }
+        if let failure { throw failure }
     }
     private func prepare() {
         onPrepare?()
@@ -59,9 +67,9 @@ import Foundation
         guard !closed else { return }
         closed = true
         unsubscribe?(); unsubscribe = nil
-        onPrepare = nil; onUpdate = nil
+        onPrepare = nil; onUpdate = nil; onCommit = nil
         let finish = release; release = nil
-        if let finish { model.perform { _ in try finish() } }
+        if let finish { model.performInput { _ in try finish() } }
     }
 }
 #endif

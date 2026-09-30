@@ -53,4 +53,23 @@ import Testing
     #expect(nodes.contains(mention))
     #expect(nodes.contains { $0["text"]?.string?.contains("Hello ") == true && ($0["marks"]?.array ?? []).contains(bold) })
 }
+@MainActor @Test func platformCommandCommitsEntryBeforeUndoAndRemoteReplay() throws {
+    let document = try Document(blocks: [.paragraph(id: "p", text: "Hello")])
+    let a = try EditorSession(documentID: "platform-command", actorID: "a", document: document)
+    let b = try EditorSession(documentID: "platform-command", actorID: "b", document: document)
+    try a.setText(at: TextAddress("p"), to: "HelloL")
+    let model = try EditorModel(session: a)
+    let input = PlatformTextDraft(model: model, address: TextAddress("p"))
+    defer { input.close() }
+    input.begin(); input.change(to: "HelloL漢")
+    try b.setText(at: TextAddress("p"), to: "RHello"); try a.receive(b.changes())
+    model.perform { try $0.undo() }
+    #expect(!input.editing)
+    #expect(input.draft == "RHelloL")
+    #expect(try a.text(at: TextAddress("p")) == input.draft)
+    #expect(a.syncState.received.contains(ChangeID(counter: 1, actor: "b")))
+    model.perform { try $0.redo() }
+    #expect(input.draft == "RHelloL漢")
+    #expect(model.error == nil)
+}
 #endif
