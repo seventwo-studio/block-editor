@@ -66,6 +66,49 @@ test("shared bridge compatibility fixture matches native Swift", async ({ page }
   expect(result).toEqual(fixture.expected);
 });
 
+test("versioned nested structure fixture matches Swift through actual WASM", async ({ page }) => {
+  const fixture = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/structure.json", "utf8"));
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const captured = await page.evaluate(async ({ source, steps }) => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const captured: Record<string, unknown> = {};
+    for (const step of steps) {
+      const request = { ...step.request };
+      for (const [key, name] of Object.entries(step.bindings ?? {})) request[key] = captured[name as string];
+      const value = runtime.call(request);
+      if (step.capture) captured[step.capture] = value;
+    }
+    return { final: captured.final, position: captured.resolvedPosition, cutover: captured.cutover,
+      cutoverVersion: (captured.cutoverChanges as { version: number }).version };
+  }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, steps: fixture.steps });
+  expect(captured).toEqual({ final: fixture.expected, position: fixture.expectedPosition, cutover: fixture.expectedCutover, cutoverVersion: 2 });
+});
+
+test("typed WASM node APIs retain remote content through undo and reopen", async ({ page }) => {
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async source => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const a = runtime.create({ documentID: "typed-nodes", actorID: "a", blocks: [], collaborationVersion: 2 });
+    const b = runtime.create({ documentID: "typed-nodes", actorID: "b", blocks: [], collaborationVersion: 2 });
+    try {
+      const node = a.insertNode({ id: "p", type: "paragraph", content: [{ type: "text", text: "local", marks: [] }] }, { field: "blocks" });
+      b.receive(a.changes());
+      b.replaceText(b.textAddress(node), 5, 5, "REMOTE");
+      a.undo(); a.receive(b.changes()); b.receive(a.changes());
+      const restored = runtime.restore(a.save(), "observer");
+      try {
+        return { blocks: restored.getSnapshot().blocks, address: restored.nodeAddress(node), count: restored.nodes({ field: "blocks" }).length,
+          converged: JSON.stringify(a.getSnapshot().blocks) === JSON.stringify(b.getSnapshot().blocks) };
+      } finally { restored.close(); }
+    } finally { a.close(); b.close(); }
+  }, `/block-editor/@fs${process.cwd()}/src/swift.ts`);
+  expect(result).toEqual({ blocks: [{ id: "p", type: "paragraph", content: [{ type: "text", text: "REMOTE", marks: [] }] }], address: { blockID: "p", path: [] }, count: 1, converged: true });
+});
+
 test("real Swift WASM converges, preserves remote edits during undo, and saves offline", async ({ page }) => {
   const artifact = process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm";
   await page.route("**/engine.wasm", route => route.fulfill({ path: artifact, contentType: "application/wasm" }));

@@ -87,6 +87,46 @@ class CompatibilityTest {
             NativeEngine.call(JSONObject().put("command", "close").put("session", "fixture"))
         }
     }
+    @Test fun sharedStructureFixture() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val fixture = JSONObject(context.assets.open("structure.json").bufferedReader().use { it.readText() })
+        val steps = fixture.getJSONArray("steps")
+        val captured = mutableMapOf<String, Any>()
+        try {
+            for (index in 0 until steps.length()) {
+                val step = steps.getJSONObject(index)
+                val request = JSONObject(step.getJSONObject("request").toString())
+                val bindings = step.optJSONObject("bindings")
+                bindings?.keys()?.forEach { key -> request.put(key, checkNotNull(captured[bindings.getString(key)])) }
+                val value = NativeEngine.call(request).get("value")
+                if (step.has("capture")) captured[step.getString("capture")] = value
+            }
+            assertEquals(normalize(fixture.getJSONObject("expected")), normalize(captured["final"]))
+            assertEquals(fixture.getInt("expectedPosition"), (captured["resolvedPosition"] as Number).toInt())
+            assertEquals(normalize(fixture.getJSONObject("expectedCutover")), normalize(captured["cutover"]))
+            assertEquals(2, (captured["cutoverChanges"] as JSONObject).getInt("version"))
+        } finally {
+            for (handle in listOf("a", "b", "c", "legacy", "upgraded")) {
+                try { NativeEngine.call(JSONObject().put("command", "close").put("session", handle)) } catch (_: Exception) { }
+            }
+        }
+    }
+    @Test fun typedNodeApiPreservesRemoteTextThroughUndoAndRestart() {
+        val a = EditorSession.create("typed-nodes", "a", collaborationVersion = 2)
+        val b = EditorSession.create("typed-nodes", "b", collaborationVersion = 2)
+        try {
+            val node = a.insertNode(JSONObject("""{"id":"p","type":"paragraph","content":[{"type":"text","text":"local","marks":[]}]}"""), NodeCollection.ROOT)
+            b.receive(a.changes()); b.setText(node, "localREMOTE")
+            a.undo(); a.receive(b.changes()); b.receive(a.changes())
+            val restored = EditorSession.restore(a.save(), "observer")
+            try {
+                assertEquals(NodeAddress("p"), restored.nodeAddress(node))
+                assertEquals(1, restored.nodes(NodeCollection.ROOT).size)
+                assertEquals("REMOTE", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content").getJSONObject(0).getString("text"))
+                assertEquals(normalize(a.snapshot.getJSONArray("blocks")), normalize(b.snapshot.getJSONArray("blocks")))
+            } finally { restored.close() }
+        } finally { a.close(); b.close() }
+    }
     private fun normalize(value: Any?): Any? = when (value) {
         is JSONObject -> value.keys().asSequence().associateWith { normalize(value.get(it)) }
         is JSONArray -> (0 until value.length()).map { normalize(value.get(it)) }

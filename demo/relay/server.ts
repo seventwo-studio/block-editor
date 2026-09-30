@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage } from "node:http";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { NativeBridge } from "./bridge.ts";
+import type { Block } from "../../src/schema.ts";
 
 const initialBlocks = [{ id: "p", type: "paragraph", content: [{ type: "text", text: "Shared local document", marks: [] }] }];
 const MAX_BODY = 8_000_000;
@@ -18,7 +19,7 @@ async function body(request: IncomingMessage) {
 }
 
 /** Local testing service only. Loopback binding, explicit token, no CORS or cloud services. */
-export async function startRelay(options: { executable: string; directory: string; token: string; port?: number; presenceTTL?: number; now?: () => number }) {
+export async function startRelay(options: { executable: string; directory: string; token: string; port?: number; presenceTTL?: number; now?: () => number; blocks?: Block[]; collaborationVersion?: 1 | 2 }) {
   if (!options.token) throw new Error("A local demo token is required");
   await mkdir(options.directory, { recursive: true });
   const bridge = new NativeBridge(options.executable);
@@ -31,8 +32,11 @@ export async function startRelay(options: { executable: string; directory: strin
     let snapshot;
     try { snapshot = JSON.parse(await readFile(join(options.directory, `${id}.json`), "utf8")); }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-    if (snapshot) await bridge.call({ command: "restore", session: id, actorID: "relay", snapshot });
-    else await bridge.call({ command: "create", session: id, actorID: "relay", documentID: id, blocks: initialBlocks });
+    if (snapshot) {
+      if (options.collaborationVersion !== undefined && snapshot.version !== options.collaborationVersion) throw new Error("Relay protocol differs from its saved room; use an explicit cutover");
+      await bridge.call({ command: "restore", session: id, actorID: "relay", snapshot });
+    } else await bridge.call({ command: "create", session: id, actorID: "relay", documentID: id,
+      blocks: options.blocks ?? initialBlocks, collaborationVersion: options.collaborationVersion ?? 1 });
     opened.add(id);
   }
   const server = createServer((request, response) => {

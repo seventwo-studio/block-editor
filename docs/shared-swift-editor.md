@@ -1,5 +1,10 @@
 # Shared Swift editor
 
+An explicit experimental v2 session adds stable nested structural identities and
+commands. See [the nested collaboration contract](nested-collaboration.md) for
+conflict rules, coordinated v1 cutover, runtime evidence and remaining admission
+limits. Default sessions remain v1; production React migration is still pending.
+
 ## Accepted direction
 
 One platform-independent Swift engine serves Therein, Foliostrate, Parqeet and an

@@ -60,6 +60,7 @@ public enum JSONValue: Codable, Equatable, Sendable {
 public enum EditorError: Error, Equatable, Sendable {
     case invalidDocument(String), invalidPath, invalidRange, unsupportedVersion(Int)
     case differentDocument, conflictingChange, invalidChange, restrictedBlock(String)
+    case structuralConflict
 }
 
 public struct Block: Codable, Equatable, Sendable, Identifiable {

@@ -8,6 +8,55 @@ import { NativeBridge } from "../demo/relay/bridge.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
+test("versioned nested moves recover offline through the central relay and preserve remote author text", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "editor-nested-relay-"));
+  const executable = process.env.BLOCK_EDITOR_BRIDGE ?? "./.build/debug/editor-bridge";
+  const text = (text: string) => ({ type: "text" as const, text, marks: [] });
+  const blocks = [
+    { id: "left", type: "toggle" as const, summary: [text("Left")], children: [{ id: "p", type: "paragraph" as const, content: [text("base 😀")] }] },
+    { id: "right", type: "toggle" as const, summary: [text("Right")], children: [] },
+  ];
+  const options = { directory, executable, token: "test", port: 0, blocks, collaborationVersion: 2 as const };
+  let relay = await startRelay(options);
+  const headers = { "x-local-token": "test", "content-type": "application/json" };
+  const clients = [new NativeBridge(executable), new NativeBridge(executable)];
+  const call = (index: number, command: string, args: Record<string, unknown> = {}) => clients[index].call({ command, session: "s", ...args });
+  async function exchange(index: number) {
+    const response = await fetch(`${relay.url}/rooms/nested`, { method: "POST", headers, body: JSON.stringify({
+      actorID: `author-${index}`, batch: await call(index, "changes"), state: await call(index, "syncState"),
+      presence: { actor: `author-${index}`, revision: 1 },
+    }) });
+    expect(response.status).toBe(200);
+    const result = await response.json();
+    await call(index, "receive", { batch: result.batch });
+    return result;
+  }
+  try {
+    const snapshot = await (await fetch(`${relay.url}/rooms/nested`, { headers })).json();
+    for (const index of [0, 1]) await call(index, "restore", { actorID: `author-${index}`, snapshot });
+    const identity = await call(0, "node", { address: { blockID: "left", path: ["children", "p"] } });
+    const right = await call(0, "node", { address: { blockID: "right", path: [] } });
+    const address = await call(0, "textAddress", { identity });
+    // Both processes edit without exchanging or contacting the relay.
+    await call(0, "moveNode", { identity, collection: { owner: right, field: "children" } });
+    await call(0, "replaceText", { address, start: 0, end: 0, text: "LOCAL " });
+    await call(1, "replaceText", { address, start: 7, end: 7, text: " REMOTE" });
+    await exchange(0); await exchange(1); await exchange(0);
+    expect((await call(0, "document")).blocks).toEqual((await call(1, "document")).blocks);
+    expect(await call(0, "nodeAddress", { identity })).toEqual({ blockID: "right", path: ["children", "p"] });
+    const saved = await readFile(join(directory, "nested.json"), "utf8");
+    expect(JSON.parse(saved).version).toBe(2); expect(JSON.parse(saved).presence).toBeUndefined();
+    await relay.close(); relay = await startRelay(options);
+    await call(0, "undo"); await call(0, "undo");
+    await exchange(0); await exchange(1);
+    expect(await call(0, "nodeAddress", { identity })).toEqual({ blockID: "left", path: ["children", "p"] });
+    const content = await call(0, "document");
+    expect(JSON.stringify(content)).toContain("base 😀 REMOTE"); expect(JSON.stringify(content)).not.toContain("LOCAL");
+    expect(content.blocks).toEqual((await call(1, "document")).blocks);
+    expect((await call(0, "changes", { since: await call(1, "syncState") })).changes).toEqual([]);
+  } finally { clients.forEach(client => client.close()); await relay.close(); await rm(directory, { recursive: true, force: true }); }
+}, 120_000);
+
 test("independent Swift processes converge through a persistent local relay after offline edits", async () => {
   const directory = await mkdtemp(join(tmpdir(), "editor-relay-"));
   const executable = process.env.BLOCK_EDITOR_BRIDGE ?? "./.build/debug/editor-bridge";

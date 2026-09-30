@@ -17,7 +17,9 @@ import Foundation
     var text: String { (try? model.session.text(at: address)) ?? "" }
 
     init(model: EditorModel, address: TextAddress) {
-        self.model = model; self.address = address
+        self.model = model
+        // Capture the origin before a remote move can reuse this live document path.
+        self.address = (try? model.session.position(at: address, offset: 0).address) ?? address
         unsubscribe = model.observeInput(before: { [weak self] in self?.prepare() }, after: { [weak self] in self?.refresh() })
     }
     func beginComposition() {

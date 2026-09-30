@@ -5,6 +5,7 @@ public final class EditorSession {
     public let documentID: String
     public let actorID: String
     public let baseline: Document
+    public let collaborationVersion: Int
     public var allowedBlockTypes: Set<String>?
     public var onChange: ((Document, Change?) -> Void)?
     /// Read-only preparation after remote validation, before materialized state changes.
@@ -22,15 +23,20 @@ public final class EditorSession {
     private var state: Materialized
     private var currentDocument: Document
 
-    public init(documentID: String, actorID: String, document: Document) throws {
+    public init(documentID: String, actorID: String, document: Document, collaborationVersion: Int = 1) throws {
+        guard [1, 2].contains(collaborationVersion) else { throw EditorError.unsupportedVersion(collaborationVersion) }
         guard !documentID.isEmpty, validActor(actorID) else { throw EditorError.invalidChange }
         self.documentID = documentID; self.actorID = actorID; self.baseline = document
-        self.state = .seed(document)
+        self.collaborationVersion = collaborationVersion
+        self.state = .seed(document, version: collaborationVersion)
         self.currentDocument = document
     }
 
     public var document: Document { get throws { currentDocument } }
-    public var syncState: SyncState { SyncState(received: Set(log.keys)) }
+    public var syncState: SyncState {
+        SyncState(received: Set(log.keys), documentID: collaborationVersion == 2 ? documentID : nil,
+                  version: collaborationVersion == 2 ? 2 : nil)
+    }
     public var canUndo: Bool { !undoStack.isEmpty }
     public var canRedo: Bool { !redoStack.isEmpty }
 
@@ -39,9 +45,8 @@ public final class EditorSession {
     public static func restore(_ data: Data, actorID: String) throws -> EditorSession {
         guard data.count <= 64_000_000 else { throw EditorError.invalidChange }
         let batch = try JSONDecoder().decode(ChangeBatch.self, from: data)
-        guard batch.version == 1 else { throw EditorError.unsupportedVersion(batch.version) }
         let session = try EditorSession(documentID: batch.documentID, actorID: actorID,
-                                        document: Document(blocks: batch.baseline.blocks))
+                                        document: Document(blocks: batch.baseline.blocks), collaborationVersion: batch.version)
         try session.receive(batch)
         if let saved = try JSONDecoder().decode(JSONValue.self, from: data)["localHistory"],
            saved["actorID"]?.string == actorID {
@@ -69,8 +74,10 @@ public final class EditorSession {
         return try canonicalEncoder().encode(JSONValue.object(fields))
     }
     public func changes(since peer: SyncState = SyncState()) -> ChangeBatch {
-        ChangeBatch(documentID: documentID, baseline: baseline,
-                    changes: log.values.filter { !peer.received.contains($0.id) }.sorted { $0.id < $1.id })
+        // Unbound/old-epoch receipts cannot suppress new operations after cutover.
+        let received = collaborationVersion == 1 || (peer.documentID == documentID && peer.version == 2) ? peer.received : []
+        return ChangeBatch(documentID: documentID, baseline: baseline,
+                    changes: log.values.filter { !received.contains($0.id) }.sorted { $0.id < $1.id }, version: collaborationVersion)
     }
 
     /// An input adapter commits composition before releasing its receive hold.
@@ -102,17 +109,17 @@ public final class EditorSession {
             deferred.append(batch); deferredBytes += bytes
             return
         }
-        guard batch.version == 1 else { throw EditorError.unsupportedVersion(batch.version) }
+        guard batch.version == collaborationVersion else { throw EditorError.unsupportedVersion(batch.version) }
         guard batch.documentID == documentID, batch.baseline == baseline else { throw EditorError.differentDocument }
         guard batch.changes.count <= 100_000 else { throw EditorError.invalidChange }
         var candidate = log
         for change in batch.changes {
-            try validate(change)
+            try validate(change, version: collaborationVersion)
             if let existing = candidate[change.id], existing != change { throw EditorError.conflictingChange }
             candidate[change.id] = change
         }
         guard candidate != log else { return }
-        let next = try materialize(baseline, Array(candidate.values))
+        let next = try materialize(baseline, Array(candidate.values), version: collaborationVersion)
         let document = try next.document()
         preparingReceive = true; onWillReceive?(); preparingReceive = false
         log = candidate; state = next; counter = max(counter, candidate.keys.map(\.counter).max() ?? 0)
@@ -127,6 +134,10 @@ public final class EditorSession {
     public func removePresence(actor: String) { presence.removeValue(forKey: actor); onPresence?(presence) }
 
     public func insert(_ block: Block, after blockID: String? = nil) throws {
+        if collaborationVersion == 2 {
+            let after = try blockID.map { try node(at: NodeAddress($0)) }
+            _ = try insertNode(.object(block.fields), into: .root, after: after); return
+        }
         guard state.blocks[block.id] == nil else { throw EditorError.invalidDocument("Block ID already exists") }
         if let allowedBlockTypes, block.type != "paragraph", !allowedBlockTypes.contains(block.type) {
             throw EditorError.restrictedBlock(block.type)
@@ -137,11 +148,15 @@ public final class EditorSession {
     }
 
     public func move(blockID: String, after otherID: String?) throws {
+        if collaborationVersion == 2 {
+            try moveNode(node(at: NodeAddress(blockID)), into: .root, after: otherID.map { try node(at: NodeAddress($0)) }); return
+        }
         guard blockID != otherID, state.blockOrder().contains(blockID) else { throw EditorError.invalidPath }
         let after = try placement(for: otherID); let id = try nextID()
         try commit(id, [.moveBlock(blockID: blockID, placement: ElementID(change: id, index: 0), after: after)])
     }
     public func delete(blockID: String) throws {
+        if collaborationVersion == 2 { try deleteNode(node(at: NodeAddress(blockID))); return }
         guard state.blockOrder().contains(blockID) else { throw EditorError.invalidPath }
         try commit(nextID(), [.deleteBlock(blockID: blockID)])
     }
@@ -149,12 +164,113 @@ public final class EditorSession {
     /// Set scalar metadata, e.g. image alt text or a nested checklist's checked value.
     /// Rich text and structure must use their dedicated operations.
     public func setField(blockID: String, path: [String], value: JSONValue) throws {
+        if let structure = state.structure {
+            var identity = try node(at: NodeAddress(blockID)), remaining = path
+            while remaining.count >= 2, let parent = structure.nodes[identity],
+                  StructuralState.collectionFields(parent.kind, parent.fields)[remaining[0]] != nil {
+                let live = try address(of: identity)
+                identity = try node(at: NodeAddress(live.blockID, path: live.path + Array(remaining.prefix(2))))
+                remaining.removeFirst(2)
+            }
+            try setNodeField(identity, path: remaining, value: value); return
+        }
         guard state.blocks[blockID] != nil else { throw EditorError.invalidPath }
         try commit(nextID(), [.setField(blockID: blockID, path: path, value: value)])
     }
 
+    public func node(at address: NodeAddress) throws -> NodeID {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        return try structure.node(at: address)
+    }
+    public func address(of identity: NodeID) throws -> NodeAddress {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        return try structure.address(of: identity)
+    }
+    public func nodes(in collection: NodeCollection) throws -> [NodeID] {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        _ = try structure.kind(in: collection)
+        return try structure.visibleOrder(in: collection)
+    }
+    public func textAddress(of identity: NodeID, field: String = "content") throws -> TextAddress {
+        let address = try state.canonicalAddress(identity.textAddress(field))
+        _ = try text(at: address)
+        return address
+    }
+
+    @discardableResult
+    public func insertNode(_ value: JSONValue, into collection: NodeCollection, after: NodeID? = nil) throws -> NodeID {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        let kind = try structure.kind(in: collection)
+        if let owner = collection.owner { _ = try structure.address(of: owner) }
+        try validateNode(value, kind: kind)
+        guard !(try nodes(in: collection)).contains(where: { structure.nodes[$0]?.label == value["id"]?.string }) else { throw EditorError.invalidDocument("Sibling ID already exists") }
+        func permitted(_ value: JSONValue, kind: NodeKind) throws {
+            if kind == .block, let type = value["type"]?.string, let allowedBlockTypes,
+               type != "paragraph", !allowedBlockTypes.contains(type) { throw EditorError.restrictedBlock(type) }
+            for (field, childKind) in StructuralState.collectionFields(kind, value.object ?? [:]) {
+                for child in value[field]?.array ?? [] { try permitted(child, kind: childKind) }
+            }
+        }
+        try permitted(value, kind: kind)
+        let anchor = try nodePlacement(after, in: collection), id = try nextID()
+        let placement = ElementID(change: id, index: 0), identity = NodeID.inserted(creation: placement, path: [])
+        try commit(id, [.insertNode(value: value, identity: identity, collection: collection, placement: placement, after: anchor)])
+        return identity
+    }
+
+    public func moveNode(_ identity: NodeID, into collection: NodeCollection, after: NodeID? = nil) throws {
+        guard let structure = state.structure, let node = structure.nodes[identity] else { throw EditorError.invalidPath }
+        _ = try structure.address(of: identity)
+        guard try structure.kind(in: collection) == node.kind, identity != after else { throw EditorError.invalidPath }
+        if let owner = collection.owner {
+            _ = try structure.address(of: owner)
+            guard !(try structure.descendants(of: identity)).contains(owner) else { throw EditorError.invalidPath }
+        }
+        guard !(try nodes(in: collection)).contains(where: { $0 != identity && structure.nodes[$0]?.label == node.label }) else { throw EditorError.invalidDocument("Sibling ID already exists") }
+        let anchor = try nodePlacement(after, in: collection), id = try nextID()
+        try commit(id, [.moveNode(identity: identity, collection: collection, placement: ElementID(change: id, index: 0), after: anchor)])
+    }
+
+    public func deleteNode(_ identity: NodeID) throws {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        _ = try structure.address(of: identity)
+        try commit(nextID(), [.deleteNodes(identities: structure.descendants(of: identity))])
+    }
+
+    public func setNodeField(_ identity: NodeID, path: [String], value: JSONValue) throws {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        _ = try structure.address(of: identity)
+        try commit(nextID(), [.setNodeField(identity: identity, path: path, value: value)])
+    }
+
+    /// Indent a list item under its preceding sibling, preserving its identity.
+    public func indent(_ identity: NodeID) throws {
+        guard let structure = state.structure, structure.nodes[identity]?.kind == .item,
+              let placement = try structure.effectivePlacements()[identity] else { throw EditorError.invalidPath }
+        let siblings = try nodes(in: placement.collection)
+        guard let index = siblings.firstIndex(of: identity), index > 0 else { throw EditorError.invalidPath }
+        let target = NodeCollection(owner: siblings[index - 1], field: "children")
+        try moveNode(identity, into: target, after: nodes(in: target).last)
+    }
+
+    public func outdent(_ identity: NodeID) throws {
+        guard let structure = state.structure, structure.nodes[identity]?.kind == .item else { throw EditorError.invalidPath }
+        let placements = try structure.effectivePlacements()
+        guard let owner = placements[identity]?.collection.owner, structure.nodes[owner]?.kind == .item,
+              let parent = placements[owner] else { throw EditorError.invalidPath }
+        try moveNode(identity, into: parent.collection, after: owner)
+    }
+
+    private func nodePlacement(_ identity: NodeID?, in collection: NodeCollection) throws -> NodePlacementID? {
+        guard let identity else { return nil }
+        guard let structure = state.structure, try nodes(in: collection).contains(identity),
+              let placement = try structure.effectivePlacements()[identity], placement.collection == collection else { throw EditorError.invalidPath }
+        return placement.id
+    }
+
     public func text(at address: TextAddress) throws -> String {
-        let value = state.blocks[address.blockID]?.value(at: address.path)
+        let address = try state.canonicalAddress(address)
+        let value = state.textValue(address)
         guard value?.array != nil || value?.string != nil else { throw EditorError.invalidPath }
         state.ensureText(address); return plainText(state.visibleAtoms(address).map(\.node))
     }
@@ -162,7 +278,8 @@ public final class EditorSession {
     /// Capture a UTF-16 scalar boundary as a stable atom anchor. Display selections
     /// can sit inside reference labels; editing still treats references atomically.
     public func position(at address: TextAddress, offset: Int, affinity: TextAffinity = .before) throws -> TextPosition {
-        guard state.blockOrder().contains(address.blockID) else { throw EditorError.invalidPath }
+        let address = try state.canonicalAddress(address)
+        guard state.structure != nil || state.blockOrder().contains(address.blockID) else { throw EditorError.invalidPath }
         let text = try text(at: address)
         guard validUTF16Offset(offset, in: text) else { throw EditorError.invalidRange }
         var current = 0, left: ElementID?
@@ -184,8 +301,8 @@ public final class EditorSession {
     /// have not arrived yet fails explicitly; the host can retry after synchronization.
     public func offset(of position: TextPosition) throws -> Int {
         guard position.documentID == documentID else { throw EditorError.differentDocument }
-        let address = position.address
-        guard state.blockOrder().contains(address.blockID) else { throw EditorError.invalidPath }
+        let address = try state.canonicalAddress(position.address)
+        guard state.structure != nil || state.blockOrder().contains(address.blockID) else { throw EditorError.invalidPath }
         _ = try text(at: address)
         let visible = state.visibleAtoms(address)
         guard let anchor = position.anchor else {
@@ -211,6 +328,7 @@ public final class EditorSession {
     /// Range uses UTF-16 offsets. Rejects a split scalar or atomic reference.
     public func replaceText(at address: TextAddress, range: Range<Int>, with text: String,
                             marks: [JSONValue]? = nil) throws {
+        let address = try state.canonicalAddress(address)
         let selection = try selected(address, range)
         let id = try nextID()
         var mutations: [Mutation] = []
@@ -228,6 +346,7 @@ public final class EditorSession {
     }
 
     public func format(at address: TextAddress, range: Range<Int>, markType: String, mark: JSONValue?) throws {
+        let address = try state.canonicalAddress(address)
         let selection = try selected(address, range)
         guard !selection.ids.isEmpty else { return }
         try commit(nextID(), [.formatText(address: address, ids: selection.ids, markType: markType, mark: mark)])
@@ -236,6 +355,7 @@ public final class EditorSession {
     /// Reconcile a renderer's inline value as one user action. Surviving characters
     /// retain their identities; formatting emits mark operations, never text replacement.
     public func setInline(at address: TextAddress, nodes: [JSONValue]) throws {
+        let address = try state.canonicalAddress(address)
         try Validation.inline(.array(nodes))
         _ = try text(at: address)
         let old = state.visibleAtoms(address)
@@ -281,6 +401,7 @@ public final class EditorSession {
 
     /// Plain native inputs use a minimal scalar diff so remote/unchanged spans retain identity.
     public func setText(at address: TextAddress, to text: String) throws {
+        let address = try state.canonicalAddress(address)
         let before = try self.text(at: address)
         if before == text { return }
         let old = Array(before.unicodeScalars), new = Array(text.unicodeScalars)
@@ -343,7 +464,7 @@ public final class EditorSession {
     }
     private func append(_ change: Change) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
-        try validate(change)
+        try validate(change, version: collaborationVersion)
         var candidate = log; candidate[change.id] = change
         var next: Materialized
         if case .edit(let mutations) = change.body {
@@ -352,7 +473,7 @@ public final class EditorSession {
             next = state
             try apply(mutations, enabled: true, to: &next)
         } else {
-            next = try materialize(baseline, Array(candidate.values))
+            next = try materialize(baseline, Array(candidate.values), version: collaborationVersion)
         }
         let document = try next.document()
         log = candidate; state = next; counter = change.id.counter
@@ -392,7 +513,7 @@ private func validUTF16Offset(_ offset: Int, in text: String) -> Bool {
     return false
 }
 
-private func validate(_ change: Change) throws {
+private func validate(_ change: Change, version: Int) throws {
     guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991,
           validActor(change.id.actor) else { throw EditorError.invalidChange }
     func reference(_ id: ElementID?) throws {
@@ -402,6 +523,35 @@ private func validate(_ change: Change) throws {
     func address(_ address: TextAddress) throws {
         guard !address.blockID.isEmpty, let field = address.path.last,
               ["content", "summary", "caption", "code", "expression"].contains(field), address.path.count <= 100 else { throw EditorError.invalidPath }
+        guard (version == 2) == (address.identity != nil) else { throw EditorError.invalidChange }
+        if let identity = address.identity {
+            try nodeReference(identity)
+            guard address == identity.textAddress(field) else { throw EditorError.invalidPath }
+        }
+    }
+    func nodeReference(_ identity: NodeID) throws {
+        switch identity {
+        case .baseline(let blockID, let path):
+            guard !blockID.isEmpty, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
+        case .inserted(let creation, let path):
+            try reference(creation)
+            guard creation.change.counter > 0, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
+        }
+    }
+    func nodeCollection(_ collection: NodeCollection) throws {
+        guard version == 2 else { throw EditorError.unsupportedVersion(2) }
+        if let owner = collection.owner {
+            try nodeReference(owner)
+            guard ["children", "items", "rows", "cells"].contains(collection.field) else { throw EditorError.invalidPath }
+        } else { guard collection == .root else { throw EditorError.invalidPath } }
+    }
+    func nodePlacement(_ id: NodePlacementID?) throws {
+        guard let id else { return }
+        switch id { case .initial(let node): try nodeReference(node); case .edit(let element): try reference(element) }
+    }
+    func scalarPath(_ path: [String], _ value: JSONValue) throws {
+        guard let last = path.last, !["id", "type", "content", "summary", "caption", "code", "expression", "children", "items", "rows", "cells"].contains(last),
+              value.array == nil, value.object == nil, path.count <= 100 else { throw EditorError.invalidPath }
     }
     switch change.body {
     case .setActive(let target, _):
@@ -412,16 +562,32 @@ private func validate(_ change: Change) throws {
         for mutation in mutations {
             switch mutation {
             case .insertBlock(let block, let id, let after):
+                guard version == 1 else { throw EditorError.invalidChange }
                 _ = try Document(blocks: [block]); try reference(after)
                 guard id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != id else { throw EditorError.invalidChange }
             case .moveBlock(let blockID, let id, let after):
+                guard version == 1 else { throw EditorError.invalidChange }
                 try reference(after)
                 guard !blockID.isEmpty, id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != id else { throw EditorError.invalidChange }
             case .deleteBlock(let blockID):
+                guard version == 1 else { throw EditorError.invalidChange }
                 guard !blockID.isEmpty else { throw EditorError.invalidChange }
             case .setField(_, let path, let value):
-                guard let last = path.last, !["id", "type", "content", "summary", "caption", "code", "expression", "children", "items", "rows", "cells"].contains(last),
-                      value.array == nil, value.object == nil, path.count <= 100 else { throw EditorError.invalidPath }
+                guard version == 1 else { throw EditorError.invalidChange }
+                try scalarPath(path, value)
+            case .insertNode(let value, let identity, let collection, let id, let after):
+                try nodeCollection(collection); try nodePlacement(after)
+                guard value.object != nil, identity == .inserted(creation: id, path: []), id.change == change.id,
+                      id.index >= 0, introduced.insert(id).inserted, after != .edit(id) else { throw EditorError.invalidChange }
+            case .moveNode(let identity, let collection, let id, let after):
+                try nodeReference(identity); try nodeCollection(collection); try nodePlacement(after)
+                guard id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != .edit(id) else { throw EditorError.invalidChange }
+            case .deleteNodes(let identities):
+                guard version == 2, !identities.isEmpty, identities.count <= 100_000, Set(identities).count == identities.count else { throw EditorError.invalidChange }
+                for identity in identities { try nodeReference(identity) }
+            case .setNodeField(let identity, let path, let value):
+                guard version == 2 else { throw EditorError.unsupportedVersion(2) }
+                try nodeReference(identity); try scalarPath(path, value)
             case .insertText(let target, let atoms):
                 try address(target)
                 for atom in atoms {

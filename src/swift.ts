@@ -1,7 +1,12 @@
 import { WASI, File, OpenFile, ConsoleStdout } from "@bjorn3/browser_wasi_shim";
 import type { Block, Mark, InlineNode } from "./schema.js";
 
-export interface TextAddress { blockID: string; path: string[] }
+export interface SwiftElementID { change: { counter: number; actor: string }; index: number }
+/** Origin identities are immutable. Hosts should obtain them from session.node(). */
+export type SwiftNodeID = { baseline: { blockID: string; path: string[] } } | { inserted: { creation: SwiftElementID; path: string[] } };
+export interface SwiftNodeAddress { blockID: string; path: string[] }
+export type SwiftNodeCollection = { owner?: null; field: "blocks" } | { owner: SwiftNodeID; field: "children" | "items" | "rows" | "cells" };
+export interface TextAddress { blockID: string; path: string[]; identity?: SwiftNodeID | null }
 export interface SwiftTextPosition {
   documentID: string;
   address: TextAddress;
@@ -12,7 +17,7 @@ export interface SwiftTextPosition {
 export interface SwiftSnapshot { blocks: Block[]; canUndo: boolean; canRedo: boolean }
 /** Opaque, versioned payloads: hosts transport them without interpreting merge operations. */
 export type SwiftChangeBatch = { version: number; documentID: string; baseline: unknown; changes: unknown[] };
-export type SwiftSyncState = { received: unknown[] };
+export type SwiftSyncState = { received: unknown[]; documentID?: string; version?: number };
 export type SwiftPresence = { actor: string; revision: number; address?: TextAddress; anchor?: unknown; focus?: unknown };
 
 type Exports = WebAssembly.Exports & {
@@ -59,13 +64,18 @@ export class SwiftEditorRuntime {
       this.exports.block_editor_free(input);
     }
   }
-  create(options: { documentID: string; actorID: string; blocks: Block[] }): SwiftEditorSession {
+  create(options: { documentID: string; actorID: string; blocks: Block[]; collaborationVersion?: 1 | 2 }): SwiftEditorSession {
     const handle = crypto.randomUUID();
     return new SwiftEditorSession(this, handle, this.call({ command: "create", session: handle, ...options }));
   }
   restore(snapshot: SwiftChangeBatch, actorID: string): SwiftEditorSession {
     const handle = crypto.randomUUID();
     return new SwiftEditorSession(this, handle, this.call({ command: "restore", session: handle, snapshot, actorID }));
+  }
+  /** Stop old writers and archive their snapshot first. Cutover starts fresh undo history. */
+  cutoverToV2(snapshot: SwiftChangeBatch, options: { documentID: string; actorID: string }): SwiftEditorSession {
+    const handle = crypto.randomUUID();
+    return new SwiftEditorSession(this, handle, this.call({ command: "cutoverToV2", session: handle, snapshot, ...options }));
   }
 }
 
@@ -108,6 +118,21 @@ export class SwiftEditorSession {
     for (const listener of this.listeners) listener();
   }
   setText(address: TextAddress, text: string): void { this.edit("setText", { address, text }); }
+  node(address: SwiftNodeAddress): SwiftNodeID { return this.call("node", { address }); }
+  nodeAddress(identity: SwiftNodeID): SwiftNodeAddress { return this.call("nodeAddress", { identity }); }
+  nodes(collection: SwiftNodeCollection): SwiftNodeID[] { return this.call("nodes", { collection }); }
+  textAddress(identity: SwiftNodeID, field = "content"): TextAddress { return this.call("textAddress", { identity, field }); }
+  insertNode(value: unknown, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftNodeID {
+    const result = this.call<{ identity: SwiftNodeID; snapshot: SwiftSnapshot }>("insertNode", { value, collection, after });
+    this.snapshot = result.snapshot;
+    for (const listener of this.listeners) listener();
+    return result.identity;
+  }
+  moveNode(identity: SwiftNodeID, collection: SwiftNodeCollection, after?: SwiftNodeID): void { this.edit("moveNode", { identity, collection, after }); }
+  deleteNode(identity: SwiftNodeID): void { this.edit("deleteNode", { identity }); }
+  indent(identity: SwiftNodeID): void { this.edit("indent", { identity }); }
+  outdent(identity: SwiftNodeID): void { this.edit("outdent", { identity }); }
+  setNodeField(identity: SwiftNodeID, path: string[], value: unknown): void { this.edit("setNodeField", { identity, path, value }); }
   position(address: TextAddress, offset: number, affinity: SwiftTextPosition["affinity"] = "before"): SwiftTextPosition {
     return this.call("position", { address, offset, affinity });
   }

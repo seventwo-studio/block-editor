@@ -28,6 +28,7 @@
     "src/react.css",
     "README.md",
     "docs/shared-swift-editor.md",
+    "docs/nested-collaboration.md",
     "LICENSE"
   ],
   "keywords": [

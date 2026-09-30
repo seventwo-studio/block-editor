@@ -21,6 +21,22 @@ internal object NativeEngine {
 
 enum class PositionAffinity(val wireValue: String) { BEFORE("before"), AFTER("after") }
 
+/** An opaque origin identity, obtained from a session rather than a document label. */
+class NodeIdentity internal constructor(internal val wire: JSONObject)
+data class NodeAddress(val blockID: String, val path: List<String> = emptyList()) {
+    internal fun wire() = JSONObject().put("blockID", blockID).put("path", JSONArray(path))
+}
+class NodeCollection private constructor(internal val wire: JSONObject) {
+    companion object {
+        val ROOT = NodeCollection(JSONObject().put("field", "blocks"))
+        fun children(owner: NodeIdentity) = of(owner, "children")
+        fun items(owner: NodeIdentity) = of(owner, "items")
+        fun rows(owner: NodeIdentity) = of(owner, "rows")
+        fun cells(owner: NodeIdentity) = of(owner, "cells")
+        private fun of(owner: NodeIdentity, field: String) = NodeCollection(JSONObject().put("owner", owner.wire).put("field", field))
+    }
+}
+
 /** Use on the UI thread. Storage, transport and presence expiry belong to the host. */
 class EditorSession private constructor(private val handle: String, initial: JSONObject) : Closeable {
     var snapshot: JSONObject by mutableStateOf(initial)
@@ -67,16 +83,24 @@ class EditorSession private constructor(private val handle: String, initial: JSO
     }
 
     companion object {
-        fun create(documentID: String, actorID: String, blocks: JSONArray = JSONArray()): EditorSession {
+        fun create(documentID: String, actorID: String, blocks: JSONArray = JSONArray(), collaborationVersion: Int = 1): EditorSession {
             val handle = UUID.randomUUID().toString()
             val value = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
-                .put("documentID", documentID).put("actorID", actorID).put("blocks", blocks)).getJSONObject("value")
+                .put("documentID", documentID).put("actorID", actorID).put("blocks", blocks)
+                .put("collaborationVersion", collaborationVersion)).getJSONObject("value")
             return EditorSession(handle, value)
         }
         fun restore(snapshot: JSONObject, actorID: String): EditorSession {
             val handle = UUID.randomUUID().toString()
             val value = NativeEngine.call(JSONObject().put("command", "restore").put("session", handle)
                 .put("actorID", actorID).put("snapshot", snapshot)).getJSONObject("value")
+            return EditorSession(handle, value)
+        }
+        /** Stop old writers and archive their snapshot first; undo starts fresh. */
+        fun cutoverToV2(snapshot: JSONObject, newDocumentID: String, actorID: String): EditorSession {
+            val handle = UUID.randomUUID().toString()
+            val value = NativeEngine.call(JSONObject().put("command", "cutoverToV2").put("session", handle)
+                .put("documentID", newDocumentID).put("actorID", actorID).put("snapshot", snapshot)).getJSONObject("value")
             return EditorSession(handle, value)
         }
     }
@@ -89,6 +113,31 @@ class EditorSession private constructor(private val handle: String, initial: JSO
     }
     fun setText(blockID: String, text: String, path: List<String> = listOf("content")) = edit("setText",
         JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path))).put("text", text))
+    fun node(address: NodeAddress): NodeIdentity = NodeIdentity(call("node", JSONObject().put("address", address.wire())) as JSONObject)
+    fun nodeAddress(identity: NodeIdentity): NodeAddress {
+        val value = call("nodeAddress", JSONObject().put("identity", identity.wire)) as JSONObject
+        val path = value.getJSONArray("path")
+        return NodeAddress(value.getString("blockID"), (0 until path.length()).map { path.getString(it) })
+    }
+    fun nodes(collection: NodeCollection): List<NodeIdentity> {
+        val values = call("nodes", JSONObject().put("collection", collection.wire)) as JSONArray
+        return (0 until values.length()).map { NodeIdentity(values.getJSONObject(it)) }
+    }
+    fun insertNode(value: JSONObject, collection: NodeCollection, after: NodeIdentity? = null): NodeIdentity {
+        val result = call("insertNode", JSONObject().put("value", value).put("collection", collection.wire)
+            .put("after", after?.wire ?: JSONObject.NULL)) as JSONObject
+        publish(result.getJSONObject("snapshot"))
+        return NodeIdentity(result.getJSONObject("identity"))
+    }
+    fun moveNode(identity: NodeIdentity, collection: NodeCollection, after: NodeIdentity? = null) = edit("moveNode",
+        JSONObject().put("identity", identity.wire).put("collection", collection.wire).put("after", after?.wire ?: JSONObject.NULL))
+    fun deleteNode(identity: NodeIdentity) = edit("deleteNode", JSONObject().put("identity", identity.wire))
+    fun indent(identity: NodeIdentity) = edit("indent", JSONObject().put("identity", identity.wire))
+    fun outdent(identity: NodeIdentity) = edit("outdent", JSONObject().put("identity", identity.wire))
+    fun setNodeField(identity: NodeIdentity, path: List<String>, value: Any?) = edit("setNodeField",
+        JSONObject().put("identity", identity.wire).put("path", JSONArray(path)).put("value", value ?: JSONObject.NULL))
+    fun setText(identity: NodeIdentity, text: String, field: String = "content") = edit("setText",
+        JSONObject().put("address", call("textAddress", JSONObject().put("identity", identity.wire).put("field", field))).put("text", text))
     fun save(): JSONObject = call("save") as JSONObject
     fun position(blockID: String, offset: Int, path: List<String> = listOf("content"), affinity: PositionAffinity = PositionAffinity.BEFORE): JSONObject =
         call("position", JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path)))
