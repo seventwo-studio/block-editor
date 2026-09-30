@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
 import { InlineEditor, inlineSelection } from "./inline-react.js";
 import type { Block, InlineNode } from "./schema.js";
 import { SwiftEditorRuntime, type SwiftEditorSession, type SwiftChangeBatch, type SwiftTextPosition, type TextAddress } from "./swift.js";
@@ -38,6 +38,64 @@ function SwiftInlineEditor({ session, address, reportError, ...props }: Componen
       else {
         const finish = release.current; release.current = null;
         try { finish?.(); } catch (error) { reportError(error); }
+      }
+    }} />;
+}
+
+/** Keep the browser's composition buffer intact until it becomes a local edit. */
+function SwiftTextEditor({ session, address, value, label, reportError }: {
+  session: SwiftEditorSession; address: TextAddress; value: string; label: string;
+  reportError: (error: unknown) => void;
+}) {
+  const element = useRef<HTMLTextAreaElement | null>(null);
+  const composing = useRef(false);
+  const release = useRef<(() => void) | null>(null);
+  const anchored = useRef<{ start: SwiftTextPosition; end: SwiftTextPosition; direction: "forward" | "backward" | "none" } | null>(null);
+  const addressKey = JSON.stringify(address);
+  useEffect(() => session.subscribeBeforeReceive(() => {
+    const input = element.current;
+    if (!input || input.ownerDocument.activeElement !== input) { anchored.current = null; return; }
+    if (anchored.current) return;
+    try {
+      anchored.current = { start: session.position(address, input.selectionStart), end: session.position(address, input.selectionEnd), direction: input.selectionDirection };
+      return () => { anchored.current = null; };
+    } catch { anchored.current = null; }
+  }), [session, addressKey]);
+  useLayoutEffect(() => {
+    const input = element.current;
+    if (!input || composing.current) return;
+    const positions = anchored.current; anchored.current = null;
+    const focused = input.ownerDocument.activeElement === input;
+    let start = input.selectionStart, end = input.selectionEnd, direction = input.selectionDirection;
+    if (focused && positions) {
+      try { start = session.resolvePosition(positions.start); end = session.resolvePosition(positions.end); direction = positions.direction; }
+      catch { /* A removed field no longer has resolvable positions. */ }
+    }
+    if (input.value !== value) input.value = value;
+    if (focused) input.setSelectionRange(start, end, direction);
+  });
+  useEffect(() => () => {
+    const finish = release.current; release.current = null;
+    try { finish?.(); } catch (error) { reportError(error); }
+  }, [session]);
+  function commit(input: HTMLTextAreaElement) {
+    try { session.setText(address, input.value); }
+    catch (error) { reportError(error); }
+  }
+  return <textarea ref={element} aria-label={label} defaultValue={value}
+    onChange={event => { if (!composing.current) commit(event.currentTarget); }}
+    onCompositionStart={() => { composing.current = true; release.current ??= session.deferRemoteChanges(); }}
+    onCompositionEnd={event => {
+      composing.current = false;
+      commit(event.currentTarget);
+      const finish = release.current; release.current = null;
+      try { finish?.(); } catch (error) { reportError(error); }
+    }}
+    onKeyDown={event => {
+      if (composing.current || event.nativeEvent.isComposing) return;
+      if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        try { event.shiftKey ? session.redo() : session.undo(); } catch (error) { reportError(error); }
       }
     }} />;
 }
@@ -120,8 +178,8 @@ export function SwiftEditorSurface({ session, onChange, renderImage }: {
       </div>)}</div>;
       case "divider": return <hr />;
       case "image": return renderImage?.(block) ?? <span>{block.alt || "Image"}</span>;
-      case "code": return <textarea aria-label="Code" value={block.code} onChange={event => perform(() => session.setText(address("code"), event.target.value))} />;
-      case "math": return <textarea aria-label="Math" value={block.expression} onChange={event => perform(() => session.setText(address("expression"), event.target.value))} />;
+      case "code": return <SwiftTextEditor session={session} address={address("code")} value={block.code} label="Code" reportError={error => setError(String(error))} />;
+      case "math": return <SwiftTextEditor session={session} address={address("expression")} value={block.expression} label="Math" reportError={error => setError(String(error))} />;
       case "embed": return <span>{block.title || block.url}</span>;
       case "toggle": return <details><summary>{inline(address("summary"), block.summary)}</summary>{block.children.map(child => <div key={child.id}>{render(child, rootID, [...path, "children", child.id])}</div>)}</details>;
       case "table": return <table><tbody>{block.rows.map(row => <tr key={row.id}>{row.cells.map(cell => <td key={cell.id}>{inline({ blockID: rootID, path: [...path, "rows", row.id, "cells", cell.id, "content"] }, cell.content)}</td>)}</tr>)}</tbody></table>;

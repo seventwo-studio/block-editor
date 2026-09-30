@@ -82,20 +82,23 @@ Missing causal anchors and deleted blocks fail explicitly, allowing the host to
 retry after synchronization or move focus. No history compaction is implemented.
 
 The TypeScript session exposes `position`/`resolvePosition`; Kotlin exposes the same
-bridge operations with `PositionAffinity`. The Swift React inline adapter captures
-positions before receive and restores forward/backward selections after rendering,
-including several receives before one React commit. It defers remote application
-during IME composition, commits the local composition first, then drains remote
+bridge operations with `PositionAffinity`. The Swift React inline and code/math
+textarea adapters capture positions before receive and restore forward/backward
+selections after rendering, including several receives before one React commit.
+They defer remote application during IME composition, commit the local composition
+first, then drain remote
 batches. Queued batches are excluded from receipt state. Holds can nest and release
 idempotently; invalid queued batches report errors while valid batches still drain.
 The queue is bounded to 64 batches/64 MB and asks the transport to retry on overflow.
 Hosts must release holds or close the session when an input adapter is removed.
 
-This is inline browser integration, not full native input acceptance. Code/math
-textareas and Apple/Android UI composition/selection adapters still need equivalent
-integration and platform interaction checks. Chromium IME protocol input and
-Chromium/WebKit composition-event tests cover the current inline adapter; WebKit
-system IME, Firefox and physical keyboard/input-method matrices remain unverified.
+Code/math textareas retain the browser composition buffer until committing the
+local edit and use session undo/redo for keyboard history. Apple/Android UI
+composition/selection adapters still need integration and platform interaction
+checks. Chromium IME protocol input covers inline and textarea adapters;
+Chromium/WebKit selection checks and inline composition-event tests provide
+additional coverage. WebKit system IME, Firefox and physical keyboard/input-method
+matrices remain unverified.
 
 Nested fields use stable IDs, for example `items/<item-id>/content` and
 `children/<child-id>/content`. Structural insert/move/delete currently operate at
