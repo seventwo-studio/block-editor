@@ -54,8 +54,8 @@ import SwiftUI
             }
         case "divider": Divider()
         case "image": asset(block)
-        case "code": Text(block.fields["code"]?.string ?? "").font(.system(.body, design: .monospaced))
-        case "math": Text(block.fields["expression"]?.string ?? "")
+        case "code": PlainField(model: model, address: TextAddress(block.id, path: ["code"]), text: block.fields["code"]?.string ?? "", label: "Code")
+        case "math": PlainField(model: model, address: TextAddress(block.id, path: ["expression"]), text: block.fields["expression"]?.string ?? "", label: "Math")
         case "embed": Text(block.fields["title"]?.string ?? block.fields["url"]?.string ?? "Embedded content")
         default:
             Label("\(block.type.capitalized) content preserved", systemImage: "doc")
@@ -69,15 +69,41 @@ import SwiftUI
 
 private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
 
+@MainActor private struct PlainField: View {
+    let model: EditorModel
+    let address: TextAddress
+    let text: String
+    let label: String
+    @State private var selection = NSRange(location: 0, length: 0)
+    var body: some View {
+        #if os(macOS)
+        MacTextInput(model: model, address: address, label: label, selection: $selection).frame(minHeight: 64)
+        #else
+        Text(text)
+        #endif
+    }
+}
+
 @MainActor private struct InlineField: View {
     let model: EditorModel
     let address: TextAddress
     let nodes: [JSONValue]
     @State private var draft = AttributedString()
     @State private var selection = AttributedTextSelection()
+    @State private var nativeSelection = NSRange(location: 0, length: 0)
 
     var body: some View {
-        #if os(watchOS) || os(tvOS)
+        #if os(macOS)
+        VStack(alignment: .leading) {
+            MacTextInput(model: model, address: address, selection: $nativeSelection).frame(minHeight: 64)
+            HStack {
+                Button("Bold") { formatNative("bold") }
+                Button("Italic") { formatNative("italic") }
+                Button("Strikethrough") { formatNative("strikethrough") }
+                Button("Clear bold") { formatNative("bold", remove: true) }
+            }
+        }
+        #elseif os(watchOS) || os(tvOS)
         TextField("Text", text: Binding(get: { plainText(nodes) }, set: { text in
             model.perform { try $0.setText(at: address, to: text) }
         }))
@@ -102,6 +128,9 @@ private extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
             if draft != next { draft = next; selection = AttributedTextSelection() }
         }
         #endif
+    }
+    private func formatNative(_ type: String, remove: Bool = false) {
+        model.perform { try $0.format(at: address, range: nativeSelection.location..<NSMaxRange(nativeSelection), markType: type, mark: remove ? nil : .object(["type": .string(type)])) }
     }
     private func format(_ type: String, remove: Bool = false) {
         guard case .ranges(let ranges) = selection.indices(in: draft) else { return }

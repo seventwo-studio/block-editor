@@ -100,6 +100,20 @@ Chromium/WebKit selection checks and inline composition-event tests provide
 additional coverage. WebKit system IME, Firefox and physical keyboard/input-method
 matrices remain unverified.
 
+The Swift session also exposes `deferRemoteChanges()` and a read-only
+`onWillReceive` preparation callback. The callback runs only after a batch validates;
+reentrant edits during preparation fail explicitly. Nested holds preserve receipt
+and saved-state gaps until release, cap pending input at 64 batches/64 MB, and drain
+valid messages even when another queued message fails.
+
+The macOS reference uses an AppKit text view through a SwiftUI representable to
+observe marked-text composition. Its coordinator captures selection before remote
+application, commits local composition first, maps positions after merging, and
+releases holds on disposal. Code/math fields use the same input path. Core and Apple
+coordinator tests cover these state transitions and rich-reference preservation;
+actual macOS window, input-method, paste and accessibility acceptance is still
+required. iOS/iPadOS/visionOS and watchOS/tvOS input integration remains separate.
+
 Nested fields use stable IDs, for example `items/<item-id>/content` and
 `children/<child-id>/content`. Structural insert/move/delete currently operate at
 the document root. Unknown block fields are retained. Validation checks known

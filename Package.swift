@@ -29,6 +29,7 @@ let package = Package(
         .executableTarget(name: "EditorBridgeCLI", dependencies: ["BlockEditorCore"], path: "Examples/EditorBridgeCLI"),
         .executableTarget(name: "RelayClient", dependencies: ["BlockEditorLocalDemo"], path: "Examples/RelayClient"),
         .executableTarget(name: "LocalEditorApp", dependencies: ["BlockEditorDemoApple"], path: "Examples/LocalEditorApp"),
+        .testTarget(name: "BlockEditorAppleTests", dependencies: ["BlockEditorApple", "BlockEditorCore"], path: "tests/BlockEditorAppleTests"),
         .testTarget(name: "BlockEditorCoreTests", dependencies: ["BlockEditorCore"], path: "tests/BlockEditorCoreTests", resources: [.copy("Fixtures")]),
         .testTarget(name: "BlockEditorLocalDemoTests", dependencies: ["BlockEditorLocalDemo"], path: "tests/BlockEditorLocalDemoTests"),
     ]

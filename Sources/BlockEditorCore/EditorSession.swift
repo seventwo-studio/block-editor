@@ -7,8 +7,14 @@ public final class EditorSession {
     public let baseline: Document
     public var allowedBlockTypes: Set<String>?
     public var onChange: ((Document, Change?) -> Void)?
+    /// Read-only preparation after remote validation, before materialized state changes.
+    public var onWillReceive: (() -> Void)?
     public var onPresence: (([String: Presence]) -> Void)?
     public private(set) var presence: [String: Presence] = [:]
+    private var preparingReceive = false
+    private var remoteHolds = 0
+    private var deferred: [ChangeBatch] = []
+    private var deferredBytes = 0
     private var log: [ChangeID: Change] = [:]
     private var counter: UInt64 = 0
     private var undoStack: [ChangeID] = []
@@ -67,8 +73,35 @@ public final class EditorSession {
                     changes: log.values.filter { !peer.received.contains($0.id) }.sorted { $0.id < $1.id })
     }
 
+    /// An input adapter commits composition before releasing its receive hold.
+    /// Pending changes are absent from receipts and saves; transports must retain them.
+    public func deferRemoteChanges() -> () throws -> Void {
+        remoteHolds += 1
+        var released = false
+        return { [weak self] in
+            guard !released, let self else { return }
+            released = true; self.remoteHolds -= 1
+            guard self.remoteHolds == 0 else { return }
+            let pending = self.deferred
+            self.deferred = []; self.deferredBytes = 0
+            var failure: Error?
+            for batch in pending {
+                do { try self.receive(batch) } catch { if failure == nil { failure = error } }
+            }
+            if let failure { throw failure }
+        }
+    }
+
     /// Atomic receive: malformed or conflicting batches never partially modify the session.
     public func receive(_ batch: ChangeBatch) throws {
+        guard !preparingReceive else { throw EditorError.invalidChange }
+        if remoteHolds > 0 {
+            guard deferred.count < 64 else { throw EditorError.invalidChange }
+            let bytes = try canonicalEncoder().encode(batch).count
+            guard bytes <= 64_000_000 - deferredBytes else { throw EditorError.invalidChange }
+            deferred.append(batch); deferredBytes += bytes
+            return
+        }
         guard batch.version == 1 else { throw EditorError.unsupportedVersion(batch.version) }
         guard batch.documentID == documentID, batch.baseline == baseline else { throw EditorError.differentDocument }
         guard batch.changes.count <= 100_000 else { throw EditorError.invalidChange }
@@ -81,6 +114,7 @@ public final class EditorSession {
         guard candidate != log else { return }
         let next = try materialize(baseline, Array(candidate.values))
         let document = try next.document()
+        preparingReceive = true; onWillReceive?(); preparingReceive = false
         log = candidate; state = next; counter = max(counter, candidate.keys.map(\.counter).max() ?? 0)
         currentDocument = document
         onChange?(document, nil)
@@ -308,6 +342,7 @@ public final class EditorSession {
         onChange?(try document, change)
     }
     private func append(_ change: Change) throws {
+        guard !preparingReceive else { throw EditorError.invalidChange }
         try validate(change)
         var candidate = log; candidate[change.id] = change
         var next: Materialized
