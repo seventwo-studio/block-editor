@@ -1,7 +1,46 @@
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
-import { InlineEditor } from "./inline-react.js";
+import { useEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from "react";
+import { InlineEditor, inlineSelection } from "./inline-react.js";
 import type { Block, InlineNode } from "./schema.js";
-import { SwiftEditorRuntime, type SwiftEditorSession, type SwiftChangeBatch, type TextAddress } from "./swift.js";
+import { SwiftEditorRuntime, type SwiftEditorSession, type SwiftChangeBatch, type SwiftTextPosition, type TextAddress } from "./swift.js";
+
+function SwiftInlineEditor({ session, address, reportError, ...props }: ComponentProps<typeof InlineEditor> & {
+  session: SwiftEditorSession; address: TextAddress; reportError: (error: unknown) => void;
+}) {
+  const element = useRef<HTMLDivElement | null>(null);
+  const anchored = useRef<{ start: SwiftTextPosition; end: SwiftTextPosition; backward?: boolean } | null>(null);
+  const release = useRef<(() => void) | null>(null);
+  const addressKey = JSON.stringify(address);
+  useEffect(() => session.subscribeBeforeReceive(() => {
+    // Several receives can precede one React commit; keep the original DOM anchors.
+    if (!element.current) return;
+    if (element.current.ownerDocument.activeElement !== element.current) { anchored.current = null; return; }
+    if (anchored.current) return;
+    const selection = inlineSelection(element.current);
+    if (!selection) return;
+    try {
+      anchored.current = { start: session.position(address, selection.start), end: session.position(address, selection.end), backward: selection.backward };
+      return () => { anchored.current = null; };
+    } catch { anchored.current = null; }
+  }), [session, addressKey]);
+  useEffect(() => () => {
+    try { release.current?.(); } catch (error) { reportError(error); }
+    release.current = null;
+  }, [session]);
+  return <InlineEditor {...props} inputRef={node => { element.current = node; props.inputRef(node); }}
+    mapSelection={fallback => {
+      const positions = anchored.current; anchored.current = null;
+      if (!positions || !fallback) return fallback;
+      try { return { start: session.resolvePosition(positions.start), end: session.resolvePosition(positions.end), backward: positions.backward }; }
+      catch { return fallback; }
+    }}
+    onCompositionChange={active => {
+      if (active) { release.current ??= session.deferRemoteChanges(); }
+      else {
+        const finish = release.current; release.current = null;
+        try { finish?.(); } catch (error) { reportError(error); }
+      }
+    }} />;
+}
 
 export interface SwiftBlockEditorProps {
   /** Keep this function stable; changing it intentionally replaces the editing session. */
@@ -54,7 +93,7 @@ export function SwiftEditorSurface({ session, onChange, renderImage }: {
   function insert(after?: string) { session.insert({ id: crypto.randomUUID(), type: "paragraph", content: [] }, after); }
   function inline(address: TextAddress, nodes: InlineNode[]) {
     const key = JSON.stringify(address);
-    return <InlineEditor content={nodes} placeholder="Write something…" autoFocus={false}
+    return <SwiftInlineEditor session={session} address={address} reportError={error => setError(String(error))} content={nodes} placeholder="Write something…" autoFocus={false}
       focused={focused === key} inputRef={() => {}} onFocus={() => setFocused(key)} onKeyDown={() => {}}
       onPaste={event => {
         // Browser HTML access stays in the adapter. The current surface deliberately

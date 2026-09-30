@@ -15,7 +15,7 @@ import {
 } from "./inline.js";
 import type { InlineNode, Mark } from "./schema.js";
 
-export type TextSelection = { start: number; end: number };
+export type TextSelection = { start: number; end: number; backward?: boolean };
 
 export function inlineSelection(root: HTMLElement): TextSelection | null {
   const selection = root.ownerDocument.getSelection();
@@ -30,10 +30,11 @@ export function inlineSelection(root: HTMLElement): TextSelection | null {
   prefix.selectNodeContents(root);
   prefix.setEnd(range.startContainer, range.startOffset);
   const start = prefix.toString().length;
-  return { start, end: start + range.toString().length };
+  return { start, end: start + range.toString().length,
+    backward: !range.collapsed && selection.anchorNode === range.endContainer && selection.anchorOffset === range.endOffset };
 }
 
-export function selectInline(root: HTMLElement, start: number, end = start) {
+export function selectInline(root: HTMLElement, start: number, end = start, backward = false) {
   const doc = root.ownerDocument;
   const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const points: { node: Node; from: number; to: number }[] = [];
@@ -59,6 +60,10 @@ export function selectInline(root: HTMLElement, start: number, end = start) {
   range.setStart(a.node, a.offset);
   range.setEnd(b.node, b.offset);
   const selection = doc.getSelection();
+  if (backward && selection) {
+    selection.setBaseAndExtent(b.node, b.offset, a.node, a.offset);
+    return;
+  }
   selection?.removeAllRanges();
   selection?.addRange(range);
 }
@@ -108,6 +113,8 @@ export function InlineEditor({
   onChange,
   onEnter,
   onHistory,
+  mapSelection,
+  onCompositionChange,
 }: {
   content: InlineNode[];
   placeholder: string;
@@ -120,6 +127,8 @@ export function InlineEditor({
   onChange: (content: InlineNode[]) => void;
   onEnter: (target: HTMLElement) => void;
   onHistory: (direction: "undo" | "redo") => void;
+  mapSelection?: (selection: TextSelection | null) => TextSelection | null;
+  onCompositionChange?: (active: boolean) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const composing = useRef(false);
@@ -162,9 +171,10 @@ export function InlineEditor({
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root || composing.current) return;
-    const selection = restore.current ?? inlineSelection(root);
+    const candidate = root.ownerDocument.activeElement === root ? restore.current ?? inlineSelection(root) : null;
+    const selection = mapSelection ? mapSelection(candidate) : candidate;
     renderInline(root, content);
-    if (selection) selectInline(root, selection.start, selection.end);
+    if (selection) selectInline(root, selection.start, selection.end, selection.backward);
     restore.current = null;
   }, [content]);
 
@@ -491,24 +501,27 @@ export function InlineEditor({
         onCompositionStart={(event) => {
           composing.current = true;
           compositionRange.current = inlineSelection(event.currentTarget);
+          onCompositionChange?.(true);
         }}
         onCompositionEnd={(event) => {
           composing.current = false;
-          const range = compositionRange.current;
-          if (typingMarks.current && range && event.data) {
-            restore.current = {
-              start: range.start + event.data.length,
-              end: range.start + event.data.length,
-            };
-            onChange(
-              replaceInlineRange(content, range.start, range.end, [
-                { type: "text", text: event.data, marks: typingMarks.current },
-              ]),
-            );
-          } else
-            onChange(
-              updateInlineText(content, event.currentTarget.textContent ?? ""),
-            );
+          try {
+            const range = compositionRange.current;
+            if (typingMarks.current && range && event.data) {
+              restore.current = {
+                start: range.start + event.data.length,
+                end: range.start + event.data.length,
+              };
+              onChange(
+                replaceInlineRange(content, range.start, range.end, [
+                  { type: "text", text: event.data, marks: typingMarks.current },
+                ]),
+              );
+            } else
+              onChange(
+                updateInlineText(content, event.currentTarget.textContent ?? ""),
+              );
+          } finally { onCompositionChange?.(false); }
         }}
         onInput={(event) => {
           if (composing.current) return;

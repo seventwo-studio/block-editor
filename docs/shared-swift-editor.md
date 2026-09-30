@@ -68,6 +68,35 @@ binding an actor to a permitted author belong to the receiving host/service.
 Presence revisions, expiration, disconnect cleanup and authorization are host-owned.
 The current receipt set and operation log have no compaction protocol.
 
+### Stable positions and browser composition
+
+`EditorSession.position(at:offset:affinity:)` captures a UTF-16 scalar boundary as
+a `TextPosition`; `offset(of:)` resolves it after remote edits. The position includes
+its document ID, field address and an atom anchor. `before` follows the next atom
+(or document-field end), while `after` follows the previous atom (or field start).
+Deleted and undone atoms remain usable anchors. Display selections inside reference
+labels retain an interior offset without changing reference identity. Edit ranges
+still treat those references atomically. Positions are ephemeral and are not added
+to saved document state; hosts may exchange them through their presence adapter.
+Missing causal anchors and deleted blocks fail explicitly, allowing the host to
+retry after synchronization or move focus. No history compaction is implemented.
+
+The TypeScript session exposes `position`/`resolvePosition`; Kotlin exposes the same
+bridge operations with `PositionAffinity`. The Swift React inline adapter captures
+positions before receive and restores forward/backward selections after rendering,
+including several receives before one React commit. It defers remote application
+during IME composition, commits the local composition first, then drains remote
+batches. Queued batches are excluded from receipt state. Holds can nest and release
+idempotently; invalid queued batches report errors while valid batches still drain.
+The queue is bounded to 64 batches/64 MB and asks the transport to retry on overflow.
+Hosts must release holds or close the session when an input adapter is removed.
+
+This is inline browser integration, not full native input acceptance. Code/math
+textareas and Apple/Android UI composition/selection adapters still need equivalent
+integration and platform interaction checks. Chromium IME protocol input and
+Chromium/WebKit composition-event tests cover the current inline adapter; WebKit
+system IME, Firefox and physical keyboard/input-method matrices remain unverified.
+
 Nested fields use stable IDs, for example `items/<item-id>/content` and
 `children/<child-id>/content`. Structural insert/move/delete currently operate at
 the document root. Unknown block fields are retained. Validation checks known
@@ -169,7 +198,7 @@ limits still apply.
 This is an **experimental foundation**, not completion of the approved plan.
 Local verification through 30 September 2026 established:
 
-- 27 Swift tests passed (including eight cases in the generated collaboration test),
+- 30 Swift tests passed (including eight cases in the generated collaboration test),
   covering document migration, scoped nested identities,
   shared fixtures, Unicode boundaries, concurrent
   edits/formatting, all permutations of a small delivery set, duplicate delivery,
@@ -194,7 +223,7 @@ Local verification through 30 September 2026 established:
 
 Open acceptance work remains independently tracked in ST-39 through ST-48:
 
-- Full nested structural operations, stable selection mapping across remote edits,
+- Full nested structural operations, native selection mapping across remote edits,
   wider convergence coverage and conflict-aware resource limits. Current
   document size/shape rejection can prevent an over-limit union from merging;
   hosts must not treat this prototype as an unbounded collaboration service.

@@ -19,6 +19,8 @@ internal object NativeEngine {
     }
 }
 
+enum class PositionAffinity(val wireValue: String) { BEFORE("before"), AFTER("after") }
+
 /** Use on the UI thread. Storage, transport and presence expiry belong to the host. */
 class EditorSession private constructor(private val handle: String, initial: JSONObject) : Closeable {
     var snapshot: JSONObject by mutableStateOf(initial)
@@ -51,6 +53,10 @@ class EditorSession private constructor(private val handle: String, initial: JSO
     fun setText(blockID: String, text: String, path: List<String> = listOf("content")) = edit("setText",
         JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path))).put("text", text))
     fun save(): JSONObject = call("save") as JSONObject
+    fun position(blockID: String, offset: Int, path: List<String> = listOf("content"), affinity: PositionAffinity = PositionAffinity.BEFORE): JSONObject =
+        call("position", JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path)))
+            .put("offset", offset).put("affinity", affinity.wireValue)) as JSONObject
+    fun resolvePosition(position: JSONObject): Int = (call("resolvePosition", JSONObject().put("position", position)) as Number).toInt()
     fun syncState(): JSONObject = call("syncState") as JSONObject
     fun changes(since: JSONObject = JSONObject().put("received", JSONArray())): JSONObject = call("changes", JSONObject().put("since", since)) as JSONObject
     fun receive(batch: JSONObject) = edit("receive", JSONObject().put("batch", batch))

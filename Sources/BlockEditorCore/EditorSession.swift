@@ -125,6 +125,55 @@ public final class EditorSession {
         state.ensureText(address); return plainText(state.visibleAtoms(address).map(\.node))
     }
 
+    /// Capture a UTF-16 scalar boundary as a stable atom anchor. Display selections
+    /// can sit inside reference labels; editing still treats references atomically.
+    public func position(at address: TextAddress, offset: Int, affinity: TextAffinity = .before) throws -> TextPosition {
+        guard state.blockOrder().contains(address.blockID) else { throw EditorError.invalidPath }
+        let text = try text(at: address)
+        guard validUTF16Offset(offset, in: text) else { throw EditorError.invalidRange }
+        var current = 0, left: ElementID?
+        for atom in state.visibleAtoms(address) {
+            if current == offset {
+                return TextPosition(documentID: documentID, address: address, anchor: affinity == .before ? atom.id : left, affinity: affinity)
+            }
+            let length = plainText([atom.node]).utf16.count
+            if offset > current, offset < current + length {
+                return TextPosition(documentID: documentID, address: address, anchor: atom.id, affinity: affinity, intraAtomOffset: offset - current)
+            }
+            current += length
+            left = atom.id
+        }
+        return TextPosition(documentID: documentID, address: address, anchor: affinity == .before ? nil : left, affinity: affinity)
+    }
+
+    /// Deleted/undone atoms remain anchors. An anchor whose causal predecessors
+    /// have not arrived yet fails explicitly; the host can retry after synchronization.
+    public func offset(of position: TextPosition) throws -> Int {
+        guard position.documentID == documentID else { throw EditorError.differentDocument }
+        let address = position.address
+        guard state.blockOrder().contains(address.blockID) else { throw EditorError.invalidPath }
+        _ = try text(at: address)
+        let visible = state.visibleAtoms(address)
+        guard let anchor = position.anchor else {
+            guard position.intraAtomOffset == nil else { throw EditorError.invalidRange }
+            return position.affinity == .before ? visible.reduce(0) { $0 + plainText([$1.node]).utf16.count } : 0
+        }
+        let visibleIDs = Set(visible.map(\.id)), atoms = state.texts[address] ?? [:]
+        var offset = 0
+        for id in Materialized.order(atoms, after: { $0.after }) {
+            if id == anchor, let interior = position.intraAtomOffset {
+                guard let atom = atoms[id], atom.node["type"]?.string != "text" else { throw EditorError.invalidRange }
+                let label = plainText([atom.node])
+                guard interior > 0, interior < label.utf16.count, validUTF16Offset(interior, in: label) else { throw EditorError.invalidRange }
+                return offset + (visibleIDs.contains(id) ? interior : 0)
+            }
+            if id == anchor, position.affinity == .before { return offset }
+            if visibleIDs.contains(id), let atom = atoms[id] { offset += plainText([atom.node]).utf16.count }
+            if id == anchor { return offset }
+        }
+        throw EditorError.invalidRange
+    }
+
     /// Range uses UTF-16 offsets. Rejects a split scalar or atomic reference.
     public func replaceText(at address: TextAddress, range: Range<Int>, with text: String,
                             marks: [JSONValue]? = nil) throws {
@@ -295,6 +344,17 @@ public final class EditorSession {
 
 private func validActor(_ actor: String) -> Bool {
     !actor.isEmpty && actor.utf8.count <= 256 && actor.utf8.allSatisfy { (33...126).contains($0) }
+}
+
+private func validUTF16Offset(_ offset: Int, in text: String) -> Bool {
+    if offset == 0 { return true }
+    var current = 0
+    for scalar in text.unicodeScalars {
+        current += scalar.value > 0xffff ? 2 : 1
+        if current == offset { return true }
+        if current > offset { return false }
+    }
+    return false
 }
 
 private func validate(_ change: Change) throws {
