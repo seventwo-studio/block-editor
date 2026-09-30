@@ -19,7 +19,9 @@ Build WASM using the toolchain instructions in [shared-swift-editor.md](shared-s
 before opening `http://127.0.0.1:5173/block-editor/local.html`. Enter the same room
 and token in each browser. Each opened client gets a unique writer identity.
 
-`swift run local-editor-app` opens the macOS demo. Use
+`./script/build_and_run.sh` builds and opens the macOS demo as a native app bundle.
+Use `--build-only` to stage it without launching, `--verify` for a process check,
+`--debug` for LLDB, or `--logs` for runtime logs. Use
 `http://127.0.0.1:4319/rooms/shared-demo` and the same token. Other Apple demo apps
 can embed `LocalRelayDemoView` from `BlockEditorDemoApple`; their app manifests,
 local networking permissions and real-device execution still need acceptance.
@@ -76,6 +78,23 @@ The application shell and WASM still need to be served locally when opening the
 page; this is document recovery with the relay unavailable, not offline web hosting.
 Android storage and real process-restart recovery are tested. Apple storage/process
 recovery is also tested; native UI relaunch interaction still needs platform acceptance.
+
+### macOS window verification (2026-09-30)
+
+The native demo at commit `3295c8c` was exercised through Computer Use in an
+isolated room on a loopback relay. Its actual text view accepted Unicode plain-text
+paste (`café 👩🏽‍💻`), keyboard undo/redo, and selected-range replacement. After
+disconnecting, local typing and a separate CLI replica's append survived reconnect
+with zero unacknowledged changes. Keyboard undo removed a local character while
+preserving the remote append. After quitting the app and stopping the relay,
+reopening the same room with an empty token restored the document and undo/redo
+availability in disconnected mode.
+
+This verifies those macOS interactions only. Synthetic Unicode `typeText` initially
+produced incomplete text; Unicode paste succeeded. Real input-method composition,
+VoiceOver navigation, rich paste sanitization, and the other native platforms'
+window interactions remain acceptance work. Accessibility-tree visibility alone
+does not establish screen-reader usability.
 
 ## Wire contract
 
