@@ -1,0 +1,91 @@
+{
+  "scope": "OS27 iPhone18Pro simulator capacity workflow only; ST96 remains In Progress",
+  "testedSourceTree": "da3610067f6cb6569ac6a6868cfaeebbbe4fd3b7",
+  "integrationBaseTree": "c7ed34c5adae5b472f4395201527f193b96e4e5f",
+  "sourceParents": [
+    "f97db3023e2ce79cca534e6ac6e3b869eec37224",
+    "734a80bf0aa74471f7a880dd572a4fd0a9afea20"
+  ],
+  "compiledAppSHA256": "2b4027239d3f4c3420c101f50ed485adadce47fb23dede48267303d378c16cac",
+  "bridgeSHA256": "940bd855388de3a035a5ddb204eebdb39a16feec1136e93dd721cc2680917c91",
+  "harnessSHA256": "0849eaab2d6db52dcd26f741f543dcf96e8f4dadfd7a1205dea78d7015f3ae7a",
+  "uiTestSHA256": "31800c54b19fb76d5638dba124dfeb9cad0ffa62fb3b27747993286c8f49447f",
+  "exampleAppSHA256": "1ba2d7a7be473a3744c56873517526cdf9d4425a8c422d8a48c1fe43f1a82162",
+  "independentAudit": {
+    "campaignReceiptSHA256": "1f2866dcdb960cbbb8bb75b2f840cc9aaa478bf0126dab56c86bfa129acaeffd",
+    "tests": [
+      {
+        "phase": "prepare",
+        "passed": true,
+        "seconds": 19.136
+      },
+      {
+        "phase": "offline",
+        "passed": true,
+        "seconds": 8.775
+      },
+      {
+        "phase": "failed-save",
+        "passed": true,
+        "seconds": 15.064
+      },
+      {
+        "phase": "retry",
+        "passed": true,
+        "seconds": 18.207
+      }
+    ],
+    "archives": [
+      {
+        "phase": "prepare",
+        "bytes": 10667900,
+        "sha256": "b033f7aa153d74b8fd954574158bae174a7ed927bf0d2848a30e084cb925542e",
+        "acceptedChanges": 1,
+        "sourceAssertedFreshActorRestore": true
+      },
+      {
+        "phase": "failed-save",
+        "bytes": 10679160,
+        "sha256": "c68619dde0acf66662ae2cb26afad1a94ca86f3eb898e6d3f072c2ae566cdde7",
+        "acceptedChanges": 18,
+        "sourceAssertedFreshActorRestore": true
+      },
+      {
+        "phase": "retry",
+        "bytes": 10679160,
+        "sha256": "96e2ed755ba41d90bc4826c9922a03a809d7f9831702a64471e6f1d62c6d53c2",
+        "acceptedChanges": 18,
+        "sourceAssertedFreshActorRestore": true
+      }
+    ],
+    "archiveFullBlobIndependentlyVerified": true,
+    "failedSaveAndRetryArchivesSameFullHistory": true,
+    "serverBytesUnchangedAllPhases": true,
+    "zeroOfflineAndFailedSaveRequestStarts": true,
+    "explicitRetries": [
+      {
+        "phase": "prepare",
+        "after": 9,
+        "completion": 10,
+        "typed413": true
+      },
+      {
+        "phase": "retry",
+        "after": 21,
+        "completion": 22,
+        "typed413": true
+      }
+    ],
+    "sourceHashesMatchReviewedHarness": true,
+    "qualification": "Four native XCTest phases; OS27 iPhone reference workflow only. Source-asserted fresh-actor archive restore and failed-save edit; visual layout/accessibility/completed system share not accepted. Prior failed receipts preserved."
+  },
+  "totalPostStarts": 24,
+  "remaining": [
+    "Raw NSError filesystem path overwhelms failed-save status",
+    "Final macOS app/relay restart workflow",
+    "Minimum Apple runtimes and other Apple families",
+    "Accessibility, physical-device input and completed system share",
+    "Current-head hosted CI and review",
+    "Consumer/private-distribution acceptance"
+  ]
+}
