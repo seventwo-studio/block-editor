@@ -178,6 +178,10 @@ preserve all IDs, marks, assets or custom metadata. Use JSON for lossless storag
 
 ## Toolchains and verification
 
+Pinned cross-runtime CI, shared response comparison and diagnostic artifacts are
+specified in [runtime verification](runtime-ci.md). CI execution evidence is
+separate from the platform interaction and package acceptance gates below.
+
 Use Swift **6.4.0** and matching official SDKs from
 [Swift downloads](https://www.swift.org/install/). The open-source toolchain is
 required for cross-compilation; Xcode's compiler and a similarly numbered SDK are

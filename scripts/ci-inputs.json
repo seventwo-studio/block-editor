@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "sources": [
+    "https://www.swift.org/install/",
+    "https://dl.google.com/android/repository/repository2-3.xml",
+    "https://dl.google.com/android/repository/sys-img/google_apis/sys-img2-3.xml",
+    "https://services.gradle.org/distributions/gradle-8.11.1-bin.zip.sha256"
+  ],
+  "artifacts": {
+    "android-platform": {
+      "url": "https://dl.google.com/android/repository/platform-35_r02.zip",
+      "sha256": "0988cacad01b38a18a47bac14a0695f246bc76c1b06c0eeb8eb0dc825ab0c8e0",
+      "size": 64273788,
+      "version": "35 revision 2",
+      "sdkPath": "platforms/android-35"
+    },
+    "android-ndk": {
+      "url": "https://dl.google.com/android/repository/android-ndk-r30-linux.zip",
+      "sha256": "753611f410d002cfcd3f3dc2ef49aad532089d3180b436c060a90bf0fcb64df2",
+      "size": 738633529,
+      "version": "30.0.16248370",
+      "sdkPath": "ndk/30.0.16248370"
+    },
+    "android-build-tools": {
+      "url": "https://dl.google.com/android/repository/build-tools_r35_linux.zip",
+      "sha256": "bd3a4966912eb8b30ed0d00b0cda6b6543b949d5ffe00bea54c04c81e1561d88",
+      "size": 61958799,
+      "version": "35.0.0",
+      "sdkPath": "build-tools/35.0.0"
+    },
+    "android-command-tools": {
+      "url": "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip",
+      "sha256": "7ec965280a073311c339e571cd5de778b9975026cfcbe79f2b1cdcb1e15317ee",
+      "size": 164760899,
+      "version": "19.0 (13114758)",
+      "sdkPath": "cmdline-tools/19.0"
+    },
+    "android-platform-tools": {
+      "url": "https://dl.google.com/android/repository/platform-tools_r37.0.1-linux.zip",
+      "sha256": "d230f13842f60f782a8645f9c813f8f845bf36089ea7289f28c48f17979313f1",
+      "size": 9054187,
+      "version": "37.0.1",
+      "sdkPath": "platform-tools"
+    },
+    "android-emulator": {
+      "url": "https://dl.google.com/android/repository/emulator-linux_x64-15917651.zip",
+      "sha256": "95771e0ae431897b2a4bd2d97fa095f29a8b0624a7b216baf529f9306161c266",
+      "size": 334378080,
+      "version": "37.1.11 (15917651)",
+      "sdkPath": "emulator"
+    },
+    "android-image-26": {
+      "url": "https://dl.google.com/android/repository/sys-img/google_apis/x86_64-26_r16.zip",
+      "sha256": "cd19a220610518b107ba8bca5da16088bb07d5ffedb53106ca9caf9adda06a4d",
+      "size": 980740438,
+      "version": "26 Google APIs x86_64 revision 16",
+      "sdkPath": "system-images/android-26/google_apis/x86_64"
+    },
+    "android-image-35": {
+      "url": "https://dl.google.com/android/repository/sys-img/google_apis/x86_64-35_r09.zip",
+      "sha256": "c67b9ba0ff5bc0eb6d046871bfa228af14d4d47b02f0cdae94f048e511b7566e",
+      "size": 1738815903,
+      "version": "35 Google APIs x86_64 revision 9",
+      "sdkPath": "system-images/android-35/google_apis/x86_64"
+    },
+    "swift-linux": {
+      "url": "https://download.swift.org/swift-6.4.0-release/ubuntu2404/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE-ubuntu24.04.tar.gz",
+      "sha256": "69f7b2b4dbce6090b6c92194b71149a057e16269093b5a9dded38afc4a05094e",
+      "size": 1124757497,
+      "version": "6.4.0-RELEASE Ubuntu 24.04 x86_64"
+    },
+    "swift-macos": {
+      "url": "https://download.swift.org/swift-6.4.0-release/xcode/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE-osx.pkg",
+      "sha256": "8fd03185b98fe27f54a54631c2449decf75d5b466ce8e34abbd414141063c6aa",
+      "version": "6.4.0-RELEASE macOS"
+    },
+    "swift-android": {
+      "url": "https://download.swift.org/swift-6.4.0-release/android-sdk/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE_android.artifactbundle.tar.gz",
+      "sha256": "21fb555122a3d801ad943d48df7ebffdd8824de61c25c180bb792d3edaee0b43",
+      "version": "6.4.0-RELEASE_android"
+    },
+    "swift-wasm": {
+      "url": "https://download.swift.org/swift-6.4.0-release/wasm-sdk/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE_wasm.artifactbundle.tar.gz",
+      "sha256": "f07b7be3c586d92d7a07051fc6d303b87ebea67eadc40640ba59d5a8b79aa86d",
+      "version": "6.4.0-RELEASE_wasm"
+    },
+    "gradle": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11.1-bin.zip",
+      "sha256": "f397b287023acdba1e9f6fc5ea72d22dd63669d59ed4a289a29b1a76eee151c6",
+      "version": "8.11.1"
+    }
+  }
+}
