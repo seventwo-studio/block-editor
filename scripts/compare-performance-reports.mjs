@@ -55,14 +55,14 @@ export function comparePerformanceReports(root, expected, requiredProfile, sourc
   const hash = createHash('sha256').update(source).digest('hex');
   const revision = sourceRevision ?? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   if (!/^[a-f0-9]{40}$/.test(revision)) throw new Error('Invalid expected source revision');
-  const candidates = files(root).filter(path => path.endsWith('.json')).flatMap(path => {
-    const value = JSON.parse(readFileSync(path, 'utf8'));
-    return value.workloadHash ? [{ path, value }] : [];
-  });
+  // Playwright also retains renamed diagnostic attachment copies. Only the
+  // canonical runner outputs are inputs to parity, as with compatibility reports.
+  const paths = files(root);
   const reports = expected.map(name => {
-    const matching = candidates.filter(x => x.value.runtime?.name === name);
+    const matching = paths.filter(path => path.endsWith(`/performance-${name}.json`));
     if (matching.length !== 1) throw new Error(`Expected exactly one ${name} performance report, found ${matching.length}`);
-    const { value } = matching[0];
+    const value = JSON.parse(readFileSync(matching[0], 'utf8'));
+    if (value.runtime?.name !== name) throw new Error(`${name}: incorrect report runtime`);
     validatePerformanceReport(value, config);
     if (value.workloadHash !== hash || value.sourceCommit !== revision) throw new Error(`${name}: stale workload/source`);
     if (requiredProfile && !isDeepStrictEqual(canonical(value.options), canonical(performanceOptions(config, { profile: requiredProfile })))) throw new Error(`${name}: incomplete required ${requiredProfile} profile`);

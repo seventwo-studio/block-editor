@@ -1,7 +1,9 @@
 import { test, expect } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 // @ts-expect-error The shared measurement verifier is plain ESM.
-import { validatePerformanceReport } from '../scripts/compare-performance-reports.mjs';
+import { validatePerformanceReport, comparePerformanceReports } from '../scripts/compare-performance-reports.mjs';
 
 // Use an actual engine report, not synthetic timings or a simulated editor.
 const report = JSON.parse(readFileSync(process.env.PERFORMANCE_REPORT ?? 'test-results/performance/performance-native.json', 'utf8'));
@@ -9,6 +11,25 @@ const config = JSON.parse(readFileSync('benchmarks/workloads.json', 'utf8'));
 
 test('accepts the complete measured engine report', () => {
   expect(() => validatePerformanceReport(report, config)).not.toThrow();
+});
+
+test('compares canonical reports beside Playwright attachments but rejects duplicate outputs', () => {
+  const root = mkdtempSync(join(tmpdir(), 'editor-measurement-artifacts-'));
+  try {
+    const canonical = join(root, `performance-${report.runtime.name}.json`);
+    writeFileSync(canonical, JSON.stringify(report));
+    const attachments = join(root, 'playwright', 'attachments');
+    mkdirSync(attachments, { recursive: true });
+    writeFileSync(join(attachments, 'performance-diagnostic-copy.json'), JSON.stringify(report));
+    expect(comparePerformanceReports(root, [report.runtime.name], undefined, report.sourceCommit)).toHaveLength(1);
+    const duplicate = join(root, 'duplicate-run');
+    mkdirSync(duplicate);
+    writeFileSync(join(duplicate, `performance-${report.runtime.name}.json`), JSON.stringify(report));
+    expect(() => comparePerformanceReports(root, [report.runtime.name], undefined, report.sourceCommit)).toThrow('found 2');
+    rmSync(duplicate, { recursive: true });
+    writeFileSync(canonical, JSON.stringify({ ...report, runtime: { ...report.runtime, name: 'wrong-runtime' } }));
+    expect(() => comparePerformanceReports(root, [report.runtime.name], undefined, report.sourceCommit)).toThrow('incorrect report runtime');
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test('rejects missing samples even when the report claims completion', () => {

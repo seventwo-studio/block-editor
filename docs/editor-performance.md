@@ -117,7 +117,10 @@ x86_64 JNI, API 35 x86_64/translated ARM64 JNI and Chromium/WebKit/Firefox WASM.
 It additionally compares measurement reports, requiring the exact workload hash,
 source revision, expected cases/repetitions, call counts, finite consistent timings,
 retained history/receipts and matching final documents. Missing, stale, failed or
-partial measurements fail. Actual-report negative tests cover incomplete samples,
+partial measurements fail. Canonical `performance-<runtime>.json` runner outputs
+are the parity inputs; renamed Playwright diagnostic attachments remain available
+without counting as additional runs. Duplicate canonical outputs still fail.
+Actual-report negative tests cover incomplete samples,
 missing calls, shortened workloads, invalid clocks, fabricated aggregates and lost
 receipts. Numeric timing thresholds are deliberately absent until budgets are agreed.
 
