@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("api", choices=["26", "35"])
     parser.add_argument("abi", choices=["x86_64", "arm64-v8a"])
+    parser.add_argument("--performance-profile", choices=["smoke", "baseline"], help="Also measure verified editing/history workloads")
     args = parser.parse_args()
     sdk = Path(os.environ["ANDROID_HOME"])
     output = Path("test-results/compatibility")
@@ -35,10 +36,10 @@ def main():
     def device(*command, **kwargs):
         return run(adb, "-s", serial, *command, **kwargs)
 
-    def instrument(class_name, filename, expected_tests):
+    def instrument(class_name, filename, expected_tests, extra_args=(), timeout=300):
         result = device("shell", "am", "instrument", "-w", "-r", "-e", "class", class_name,
-                        "-e", "expectedAbi", args.abi, "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner",
-                        capture_output=True, text=True, timeout=300)
+                        "-e", "expectedAbi", args.abi, *extra_args, "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner",
+                        capture_output=True, text=True, timeout=timeout)
         (output / filename).write_text(result.stdout + result.stderr)
         print(result.stdout, flush=True)
         # `am instrument` can exit zero even when its test process fails.
@@ -94,12 +95,27 @@ def main():
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
+        if args.performance_profile:
+            performance_output = Path("test-results/performance")
+            performance_output.mkdir(parents=True, exist_ok=True)
+            revision = run("git", "rev-parse", "HEAD", capture_output=True, text=True).stdout.strip()
+            instrument("studio.seventwo.blockeditor.PerformanceTest", "performance-instrumentation.txt", 1,
+                       extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision), timeout=1800)
+            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android.json",
+                   stdout=(performance_output / f"performance-{label}.json").open("w"))
     finally:
         try:
             diagnostics = [("logcat.txt", ["logcat", "-d"])]
             # Partial fixture output remains useful when an assertion fails.
             if not (output / f"{label}.json").exists():
                 diagnostics.append((f"{label}.json", ["exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/android.json"]))
+            if args.performance_profile:
+                # Retain incomplete measurement evidence if the test fails.
+                performance_output = Path("test-results/performance")
+                performance_output.mkdir(parents=True, exist_ok=True)
+                performance_file = performance_output / f"performance-{label}.json"
+                if not performance_file.exists():
+                    diagnostics.append((str(performance_file.resolve()), ["exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android.json"]))
             for filename, command in diagnostics:
                 with (output / filename).open("w") as log:
                     try:

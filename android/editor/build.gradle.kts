@@ -17,6 +17,7 @@ android {
         }
     }
     sourceSets.getByName("androidTest").assets.srcDir("../../tests/BlockEditorCoreTests/Fixtures")
+    sourceSets.getByName("androidTest").assets.srcDir("../../benchmarks")
     buildFeatures { compose = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }

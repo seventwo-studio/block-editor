@@ -57,12 +57,18 @@ jobs:
           bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
           "$SWIFT_BIN" build --product relay-client
           bun test tests/relay.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
+      - name: Verify optimized measurement harness
+        run: |
+          "$SWIFT_BIN" build -c release --product editor-bridge
+          PERFORMANCE_PROFILE=smoke bun scripts/run-native-performance.mjs
+          bun test tests/performance-report.test.ts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: runtime-swift
           path: |
             test-results/compatibility
+            test-results/performance
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
           if-no-files-found: error
           retention-days: 7
@@ -88,6 +94,11 @@ jobs:
           "$SWIFT_BIN" sdk list > "$COMPATIBILITY_OUTPUT/swift-sdks.txt"
           bun run build:wasm 2>&1 | tee "$COMPATIBILITY_OUTPUT/wasm-build.txt"
           bunx playwright test --config playwright.swift.config.ts --reporter=line,json > "$COMPATIBILITY_OUTPUT/playwright.txt" 2>&1
+      - name: Verify WASM measurement harness in three engines
+        env:
+          PERFORMANCE_PROFILE: smoke
+          PERFORMANCE_OUTPUT: ${{ runner.temp }}/wasm-reports
+        run: bunx playwright test --config playwright.performance.config.ts --reporter=line,json > "$PERFORMANCE_OUTPUT/performance-playwright.txt" 2>&1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -132,13 +143,14 @@ jobs:
         run: |
           test -e /dev/kvm
           sudo chown "$USER" /dev/kvm
-          python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' 2>&1 | tee test-results/compatibility/android-run.txt
+          python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' --performance-profile smoke 2>&1 | tee test-results/compatibility/android-run.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: runtime-android-api${{ matrix.api }}-${{ matrix.abi }}
           path: |
             test-results/compatibility
+            test-results/performance
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             android/editor/build/reports/androidTests
           if-no-files-found: error
@@ -168,3 +180,4 @@ jobs:
           test "$WASM_RESULT" = success
           test "$ANDROID_RESULT" = success
       - run: bun scripts/compare-runtime-reports.mjs test-results/runtime-reports
+      - run: bun scripts/compare-performance-reports.mjs test-results/runtime-reports native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox smoke
