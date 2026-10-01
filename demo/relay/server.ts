@@ -7,13 +7,14 @@ import { SwiftMergeRecoveryError } from "../../src/swift.ts";
 
 const initialBlocks = [{ id: "p", type: "paragraph", content: [{ type: "text", text: "Shared local document", marks: [] }] }];
 const MAX_BODY = 8_000_000;
+class TransportCapacityError extends Error {}
 
 async function body(request: IncomingMessage) {
   const chunks: Buffer[] = [];
   let count = 0;
   for await (const chunk of request) {
     count += chunk.length;
-    if (count > MAX_BODY) throw new Error("Request exceeds 8 MB");
+    if (count > MAX_BODY) throw new TransportCapacityError("Request exceeds 8 MB");
     chunks.push(Buffer.from(chunk));
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
@@ -82,7 +83,10 @@ export async function startRelay(options: { executable: string; directory: strin
     };
     // Serializes each complete receive/save/ack transaction, not merely individual bridge calls.
     tail = tail.then(execute).catch(error => {
-      if (error instanceof SwiftMergeRecoveryError) {
+      if (error instanceof TransportCapacityError) {
+        if (!response.headersSent) response.writeHead(413);
+        response.end(JSON.stringify({ error: "transportCapacityExceeded", maxBytes: MAX_BODY }));
+      } else if (error instanceof SwiftMergeRecoveryError) {
         if (!response.headersSent) response.writeHead(409);
         // The caller retains this proposal separately from accepted room history,
         // repairs it with its own author identity, then resubmits ordinary changes.

@@ -1,42 +1,30 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 
-test("recovery fixture retains rejected histories and converges after repair and restart in WASM", async ({ page }) => {
+test("recovery fixture retains rejected histories and converges after repair and restart in WASM", async ({ page }, testInfo) => {
   const fixture = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/recovery.json", "utf8"));
   await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");
-  const captured = await page.evaluate(async ({ source, fixture }) => {
-    const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ source);
+  const report = await page.evaluate(async ({ root, fixture }) => {
+    const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const { runFixture } = await import(/* @vite-ignore */ `${root}/scripts/compatibility.mjs`);
     const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
-    const captured: Record<string, any> = {};
-    for (const step of fixture.steps) {
-      const request = { ...step.request };
-      for (const [key, binding] of Object.entries(step.bindings ?? {})) {
-        const path = Array.isArray(binding) ? binding : [binding];
-        request[key] = path.reduce((value, part) => value[part], captured);
+    return runFixture("recovery", fixture, async (request: unknown) => {
+      try { return { ok: true, value: runtime.call(request) }; }
+      catch (error) {
+        if (error instanceof SwiftMergeRecoveryError) return { ok: false, error: "mergeRecoveryRequired", recovery: error.recovery };
+        if (!(error instanceof Error)) throw error;
+        return { ok: false, error: error.message };
       }
-      try {
-        const value = runtime.call(request);
-        if (step.error) throw new Error("Expected a rejected merge");
-        if (step.capture) captured[step.capture] = value;
-      } catch (error) {
-        if (step.error === "mergeRecoveryRequired") {
-          if (!(error instanceof SwiftMergeRecoveryError)) throw error;
-          if (step.capture) captured[step.capture] = error.recovery;
-        } else {
-          if (!step.error || !(error instanceof Error) || error.message !== step.error) throw error;
-          if (step.capture) throw new Error("Only merge recovery errors expose a capture value");
-        }
-      }
-    }
-    return captured;
-  }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, fixture });
-  for (const [left, right] of fixture.equal) expect(captured[left]).toEqual(captured[right]);
-  expect(captured.cleared).toBeNull();
-  expect(captured.proposalA.reason).toBe("identityConflict");
-  expect(captured.proposalA.batch.changes).toHaveLength(2);
-  expect(captured.finalA).toEqual(fixture.expected);
-  expect(captured.afterUndo).toEqual(fixture.expectedAfterUndo);
+    });
+  }, { root: `/block-editor/@fs${process.cwd()}`, fixture });
+  // Retain the complete transcript for independent comparison, including rejection.
+  await testInfo.attach("recovery-responses", { body: JSON.stringify(report), contentType: "application/json" });
+  const output = process.env.RECOVERY_COMPATIBILITY_OUTPUT;
+  if (output) {
+    mkdirSync(output, { recursive: true });
+    writeFileSync(`${output}/wasm-${testInfo.project.name}.json`, JSON.stringify(report));
+  }
 });
 
 test("typed WASM recovery APIs expose failed repairs and survive a host-retained proposal", async ({ page }) => {

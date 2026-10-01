@@ -79,7 +79,17 @@ proposal. It does not save or acknowledge rejected changes or update presence fo
 that exchange. The client retains the proposal, repairs it under its own author
 identity and submits ordinary changes. The relay can restart from accepted room
 history and admit that full repaired batch. Malformed/protocol errors return 400.
-The relay's existing 8 MB request limit remains separate from engine capacity.
+The relay's 8 MB request limit remains separate from engine capacity. An oversized
+exchange returns HTTP 413 with `error: "transportCapacityExceeded"` and
+`maxBytes: 8000000`. It returns no batch, receipts or presence, and does not change
+accepted room history. The author retains the complete unacknowledged input and
+local snapshot; retrying the same oversized request cannot advance admission.
+Export both before an explicitly authorized partition/cutover or transport change.
+Do not truncate the batch to get under the request limit. A relay test exports the
+author's exact history, restarts both processes, restores it and verifies that
+resubmission remains an explicit capacity failure with server history unchanged.
+The exact boundary test admits an 8,000,000-byte valid exchange and rejects an
+8,000,001-byte exchange without changing receipts or stored history.
 
 The engine retains proposals only within 100,000 changes and 64 MB of encoded batch
 data, reserving a deterministic allowance for author history and JSON envelopes so
@@ -204,6 +214,33 @@ separate proposal restoration, repair, synchronization, reopening and remote aut
 undo through native Swift, Android JNI and actual WASM in all three browser engines
 under the [runtime CI contract](runtime-ci.md). The typed
 Kotlin and TypeScript APIs have additional runtime checks.
+
+The generated recovery campaign is reproducible with
+`python3 scripts/generate-recovery-history.py`; CI checks `--check`. It retains
+all original 261 recovery commands and their expectations, then appends 404
+commands across nine histories, with 80 independently constructed expected
+documents. Four fixed seeds exercise marked Unicode and atomic references through
+concurrent repairs, duplicate delivery, undo/redo of both winning and losing repairs,
+and accepted-state restart.
+Three depth cases (17, 20 and 22 toggle levels per original chain) begin with valid
+offline histories, reject their over-deep union, and preserve both authors through
+concurrent repairs. Two math-expression cases begin with 9,998 or 9,999 UTF-16
+units: simultaneous one-unit insertions respectively meet or exceed the actual
+10,000-unit field limit. The valid case preserves the other author's insertion
+through undo; the rejected case keeps accepted receipts and snapshots unchanged
+and recreates the exact proposal after separate restore/resubmission. An over-limit
+field is retained for explicit recovery rather than automatically trimmed.
+
+`GeneratedRecoveryTests` adds 20 native cases across four seeds and all five
+collection kinds (root, toggle children, list items, table rows and table cells).
+Each imports third-author metadata edits while recovery is pending, retains a
+failed repair, exports/restores the proposal, resolves competing repairs with
+duplicate/reordered delivery, checks exact document content against an independent
+oracle, then checks undo/redo of the winning and losing repairs and accepted-state
+reopening. The existing direct
+32 MB document, 64 MB retained-history and 10,000-root checks remain separate from
+the smaller shared fixture; passing the generated cases does not replace those
+actual resource boundaries or accept full reference-host interaction.
 
 Swift tests independently exercise concurrent repairs, duplicate/reordered additional
 histories, invalid repairs and protocol failures, read-only preparation/reentry,

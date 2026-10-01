@@ -114,6 +114,9 @@ import Testing
     #expect(captured["proposalA"]?["batch"]?["changes"]?.array?.count == 2)
     #expect(captured["finalA"] == fixture["expected"])
     #expect(captured["afterUndo"] == fixture["expectedAfterUndo"])
+    for (name, blocks) in fixture["expectedBlocks"]?.object ?? [:] {
+        #expect(try #require(captured[name]?["blocks"]) == blocks, "\(name) recovered document")
+    }
 }
 
 @Test func v2StructuralReplayPreservesTheMigrationCorpus() throws {
