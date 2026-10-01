@@ -55,10 +55,33 @@ later within that complete transaction; text anchors must belong to the exact
 field, and baseline nodes must exist in the original document. The full candidate
 history is checked before admission, including reversed batches and creations
 whose own causal parent is still absent. Truly missing earlier transactions remain
-deferred. The 120-step shared recovery fixture verifies prior-payload, kind and
+deferred. The 202-step shared recovery fixture verifies prior-payload, kind and
 field rejection alongside valid text anchors across Swift, JNI and WASM. Failed
 validation preserves accepted state, receipts, pending recovery and preparation
 callbacks.
+
+Counter-zero text IDs use the reserved empty actor and a field-local seed index.
+Unicode scalars each occupy one atom; an atomic reference occupies one atom
+regardless of its displayed label length. Seed anchors, deletion and formatting
+targets must exist in the addressed baseline or immutable creation payload.
+Known creations are checked even while their own causal parent is missing.
+Deleted seed atoms remain valid anchors. V1 root placement seeds must exist;
+v2 uses initial node placements and cannot reference counter-zero edit placements.
+Positive-clock references require a valid actor. Known undo/redo targets must be
+edit transactions, never another history-control change; a genuinely missing
+earlier edit can still arrive later. Exact receipt IDs encode in clock/actor order
+without changing their set semantics or legacy decoding.
+
+The seed-reference regression reproduced 51 failed native assertions before the
+fix. Shared fixture cases verify both protocol versions, invalid actors and
+indices, recovery preservation, valid Unicode/reference/tombstone anchors,
+reordered undo/redo and rejection of history-control targets. Native positive
+cases also cover creation seeds in one transaction and a creation whose parent
+arrives later. The original 120 fixture steps and expected results are retained.
+V1 replacement tests also distinguish an initialized text namespace from the
+current block's not-yet-initialized seeds. An older, longer insertion cannot make
+an absent seed atom valid after replacement; initialized/tombstoned atoms remain
+anchors. This narrower regression reproduced three failing native assertions.
 
 Deleting a node records the descendants the author observed. Concurrently inserted
 descendants survive and retain their ancestors as containers. Undoing an insertion

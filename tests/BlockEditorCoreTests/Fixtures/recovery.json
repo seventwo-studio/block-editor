@@ -769,6 +769,98 @@
     },
     {
       "request": {
+        "command": "receive",
+        "session": "a",
+        "batch": {
+          "version": 2,
+          "documentID": "recovery-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "parent",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "parent",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              },
+              {
+                "id": "destination",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "destination",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "parent",
+                          "path": [
+                            "summary"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "parent",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 99
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
         "command": "mergeRecovery",
         "session": "a"
       },
@@ -6340,6 +6432,3136 @@
         "session": "prior-types-expected"
       },
       "capture": "validPriorAtomExpected"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v1",
+        "documentID": "seed-v1-doc",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 3
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": "forged"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 1,
+                                "actor": ""
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 3
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 3
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertBlock": {
+                        "block": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Invisible",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "remote"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "change": {
+                            "counter": 0,
+                            "actor": ""
+                          },
+                          "index": 99
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-after-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          },
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 1
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "Y",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1"
+      },
+      "capture": "seed-v1-valid"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v1-expected",
+        "documentID": "expected-seed-v1-doc",
+        "actorID": "expected",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": "X",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              },
+              {
+                "type": "text",
+                "text": "Y",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1-expected"
+      },
+      "capture": "seed-v1-expected"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v1-delayed",
+        "documentID": "seed-v1-doc",
+        "actorID": "delayed",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1-delayed",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1-delayed",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          },
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 1
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "Y",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1-delayed",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-delayed-valid"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-undo-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-undo-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-undo-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1-delayed",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 4,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-undo-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-undo-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v1-delayed"
+      },
+      "capture": "seed-v1-undo-after-document"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v1-reversed",
+        "documentID": "seed-v1-doc",
+        "actorID": "reversed",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v1-reversed"
+      },
+      "capture": "seed-v1-reversed-before"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v1-reversed",
+        "batch": {
+          "version": 1,
+          "documentID": "seed-v1-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 4,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 3,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          },
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 1
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "Y",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v1-reversed"
+      },
+      "capture": "seed-v1-reversed-after"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v2",
+        "documentID": "seed-v2-doc",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 3
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": "forged"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 1,
+                                "actor": ""
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 3
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 3
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Invisible",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "remote"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-after-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          },
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 1
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "Y",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2"
+      },
+      "capture": "seed-v2-valid"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v2-expected",
+        "documentID": "expected-seed-v2-doc",
+        "actorID": "expected",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": "X",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              },
+              {
+                "type": "text",
+                "text": "Y",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2-expected"
+      },
+      "capture": "seed-v2-expected"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v2-delayed",
+        "documentID": "seed-v2-doc",
+        "actorID": "delayed",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2-delayed",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2-delayed",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          },
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 1
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "Y",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2-delayed",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-delayed-valid"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-undo-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-undo-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-undo-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2-delayed",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 4,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-undo-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-undo-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "seed-v2-delayed"
+      },
+      "capture": "seed-v2-undo-after-document"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "seed-v2-reversed",
+        "documentID": "seed-v2-doc",
+        "actorID": "reversed",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "P😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "e",
+                "entityType": "note",
+                "label": "Long reference"
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v2-reversed"
+      },
+      "capture": "seed-v2-reversed-before"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "seed-v2-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "seed-v2-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "p",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "P😀",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "e",
+                    "entityType": "note",
+                    "label": "Long reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 4,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 3,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": true
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "remote"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "remote"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          },
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "remote"
+                              },
+                              "index": 1
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "Y",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "p",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "seed-v2-reversed"
+      },
+      "capture": "seed-v2-reversed-after"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "legacy-seed-false",
+        "documentID": "legacy-seed-false",
+        "actorID": "local",
+        "blocks": [],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "legacy-seed-false",
+        "batch": {
+          "version": 1,
+          "documentID": "legacy-seed-false",
+          "baseline": {
+            "blocks": []
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertBlock": {
+                        "block": {
+                          "id": "p",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "ABC",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "remote"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertBlock": {
+                        "block": {
+                          "id": "p",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Q",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "remote"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "legacy-seed-false"
+      },
+      "capture": "legacy-seed-false-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "legacy-seed-false"
+      },
+      "capture": "legacy-seed-false-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "legacy-seed-false"
+      },
+      "capture": "legacy-seed-false-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "legacy-seed-false",
+        "batch": {
+          "version": 1,
+          "documentID": "legacy-seed-false",
+          "baseline": {
+            "blocks": []
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 3,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "legacy-seed-false"
+      },
+      "capture": "legacy-seed-false-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "legacy-seed-false"
+      },
+      "capture": "legacy-seed-false-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "legacy-seed-false"
+      },
+      "capture": "legacy-seed-false-after-document"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "legacy-seed-true",
+        "documentID": "legacy-seed-true",
+        "actorID": "local",
+        "blocks": [],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "legacy-seed-true",
+        "batch": {
+          "version": 1,
+          "documentID": "legacy-seed-true",
+          "baseline": {
+            "blocks": []
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertBlock": {
+                        "block": {
+                          "id": "p",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "ABC",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "remote"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 0,
+                              "actor": ""
+                            },
+                            "index": 0
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertBlock": {
+                        "block": {
+                          "id": "p",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Q",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "remote"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "legacy-seed-true",
+        "batch": {
+          "version": 1,
+          "documentID": "legacy-seed-true",
+          "baseline": {
+            "blocks": []
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "remote"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "p",
+                          "path": [
+                            "content"
+                          ]
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 3,
+                                "actor": "remote"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 0,
+                                "actor": ""
+                              },
+                              "index": 2
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "legacy-seed-true"
+      },
+      "capture": "legacy-seed-true-actual"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "legacy-seed-true-expected",
+        "documentID": "legacy-seed-true-expected",
+        "actorID": "expected",
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": "BCX",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 1
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "legacy-seed-true-expected"
+      },
+      "capture": "legacy-seed-true-expected"
     }
   ],
   "equal": [
@@ -6434,6 +9656,94 @@
     [
       "validPriorAtomActual",
       "validPriorAtomExpected"
+    ],
+    [
+      "seed-v1-before-save",
+      "seed-v1-after-save"
+    ],
+    [
+      "seed-v1-before-syncState",
+      "seed-v1-after-syncState"
+    ],
+    [
+      "seed-v1-before-document",
+      "seed-v1-after-document"
+    ],
+    [
+      "seed-v1-valid",
+      "seed-v1-expected"
+    ],
+    [
+      "seed-v1-valid",
+      "seed-v1-delayed-valid"
+    ],
+    [
+      "seed-v1-undo-before-save",
+      "seed-v1-undo-after-save"
+    ],
+    [
+      "seed-v1-undo-before-syncState",
+      "seed-v1-undo-after-syncState"
+    ],
+    [
+      "seed-v1-undo-before-document",
+      "seed-v1-undo-after-document"
+    ],
+    [
+      "seed-v1-reversed-before",
+      "seed-v1-reversed-after"
+    ],
+    [
+      "seed-v2-before-save",
+      "seed-v2-after-save"
+    ],
+    [
+      "seed-v2-before-syncState",
+      "seed-v2-after-syncState"
+    ],
+    [
+      "seed-v2-before-document",
+      "seed-v2-after-document"
+    ],
+    [
+      "seed-v2-valid",
+      "seed-v2-expected"
+    ],
+    [
+      "seed-v2-valid",
+      "seed-v2-delayed-valid"
+    ],
+    [
+      "seed-v2-undo-before-save",
+      "seed-v2-undo-after-save"
+    ],
+    [
+      "seed-v2-undo-before-syncState",
+      "seed-v2-undo-after-syncState"
+    ],
+    [
+      "seed-v2-undo-before-document",
+      "seed-v2-undo-after-document"
+    ],
+    [
+      "seed-v2-reversed-before",
+      "seed-v2-reversed-after"
+    ],
+    [
+      "legacy-seed-false-before-save",
+      "legacy-seed-false-after-save"
+    ],
+    [
+      "legacy-seed-false-before-syncState",
+      "legacy-seed-false-after-syncState"
+    ],
+    [
+      "legacy-seed-false-before-document",
+      "legacy-seed-false-after-document"
+    ],
+    [
+      "legacy-seed-true-actual",
+      "legacy-seed-true-expected"
     ]
   ],
   "expected": {

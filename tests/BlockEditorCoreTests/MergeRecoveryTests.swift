@@ -121,6 +121,14 @@ private func collision() throws -> (EditorSession, EditorSession, NodeID, NodeID
         }
         #expect(!malformedPrepared)
     }
+    let summary = try a.textAddress(of: a.node(at: NodeAddress("parent")), field: "summary")
+    #expect(throws: EditorError.invalidChange) {
+        try a.receive(ChangeBatch(documentID: a.documentID, baseline: a.baseline,
+            changes: [Change(id: id, body: .edit([.insertText(address: summary, atoms: [
+                TextAtom(id: placement, after: ElementID(change: ChangeID(counter: 0, actor: ""), index: 99), node: textNode("X")),
+            ])]))], version: 2))
+    }
+    #expect(!malformedPrepared)
     #expect(a.mergeRecovery == proposal)
     #expect(try a.save() == saved)
     #expect(a.syncState == receipt)

@@ -206,7 +206,7 @@ public final class EditorSession {
         }
         guard !mutations.isEmpty else { throw EditorError.invalidChange }
         let change = Change(id: id, body: .edit(mutations))
-        try validate(change, version: 2, structure: raw.structure, history: candidate)
+        try validate(change, version: 2, structure: raw.structure, history: candidate, seedState: raw)
         candidate[id] = change
         try checkRecoveryCapacity(candidate)
         let next = try materialize(baseline, Array(candidate.values), version: 2)
@@ -601,7 +601,7 @@ public final class EditorSession {
     private func append(_ change: Change) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         if let recovery = mergeRecovery { throw EditorError.mergeRecoveryRequired(recovery) }
-        try validate(change, version: collaborationVersion, structure: state.structure, history: log)
+        try validate(change, version: collaborationVersion, structure: state.structure, history: log, seedState: state)
         var candidate = log; candidate[change.id] = change
         if collaborationVersion == 2 { try checkRecoveryCapacity(candidate) }
         var next: Materialized
@@ -664,7 +664,7 @@ private enum ValidationElement {
     case text(TextAddress)
 }
 
-func validate(_ change: Change, version: Int, structure: StructuralState? = nil, history: [ChangeID: Change] = [:]) throws {
+func validate(_ change: Change, version: Int, structure: StructuralState? = nil, history: [ChangeID: Change] = [:], seedState: Materialized? = nil) throws {
     guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991,
           validActor(change.id.actor) else { throw EditorError.invalidChange }
     var introduced = Set<ElementID>()
@@ -677,6 +677,55 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
     var possiblePlacements = Set<NodePlacementID>()
     var knownElements: [ChangeID: [ElementID: ValidationElement]] = [:]
     var knownNodes: [ElementID: Set<NodeID>] = [:]
+    var introducedPayloads: [ElementID: JSONValue] = [:]
+    var introducedBlocks: [String: Block] = [:]
+    var seedCounts: [TextAddress: Int] = [:]
+    func atomCount(_ value: JSONValue?) -> Int {
+        if let text = value?.string { return text.unicodeScalars.count }
+        return (value?.array ?? []).reduce(0) { count, node in
+            count + (node["type"]?.string == "text" ? (node["text"]?.string ?? "").unicodeScalars.count : 1)
+        }
+    }
+    func seedCount(at address: TextAddress) throws -> Int? {
+        if let count = seedCounts[address] { return count }
+        let count: Int
+        if let identity = address.identity, let field = address.path.last {
+            switch identity {
+            case .baseline:
+                guard let node = introducedStructure.nodes[identity] else { return nil }
+                count = atomCount(node.fields[field])
+            case .inserted(let creation, let path):
+                if let value = introducedPayloads[creation] { count = atomCount(value.value(at: path + [field])) }
+                else if let element = try knownElement(creation), case .node(let value, _) = element {
+                    count = atomCount(value.value(at: path + [field]))
+                } else { return nil } // An earlier creation can still arrive later.
+            }
+        } else {
+            if let atoms = seedState?.texts[address] {
+                let count = atoms.keys.filter { $0.change.counter == 0 }.count
+                seedCounts[address] = count
+                return count
+            }
+            if let block = introducedBlocks[address.blockID] ?? seedState?.blocks[address.blockID] {
+                count = atomCount(block.value(at: address.path))
+            } else {
+                // V1 labels cannot identify an insertion. While a block is absent,
+                // retain known creation seeds for delayed/undone causal owners.
+                var values: [Block] = []
+                for prior in history.values where prior.id < change.id {
+                    if case .edit(let edits) = prior.body {
+                        for edit in edits {
+                            if case .insertBlock(let block, _, _) = edit, block.id == address.blockID { values.append(block) }
+                        }
+                    }
+                }
+                guard !values.isEmpty else { return nil }
+                count = values.map { atomCount($0.value(at: address.path)) }.max() ?? 0
+            }
+        }
+        seedCounts[address] = count
+        return count
+    }
     func knownElement(_ id: ElementID) throws -> ValidationElement? {
         guard let prior = history[id.change] else { return nil }
         if knownElements[id.change] == nil {
@@ -730,12 +779,17 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
     func reference(_ id: ElementID?) throws {
         guard let id else { return }
         guard id.index >= 0, id.change < change.id || id.change == change.id else { throw EditorError.invalidChange }
+        guard id.change.counter == 0 ? id.change.actor.isEmpty : validActor(id.change.actor) else { throw EditorError.invalidChange }
         // A complete change cannot gain missing predecessors later. Its references
         // must resolve to an element already introduced earlier in this transaction.
         if id.change == change.id, !introduced.contains(id) { throw EditorError.invalidChange }
     }
     func placementElement(_ id: ElementID?) throws {
         try reference(id)
+        if let id, id.change.counter == 0 {
+            guard version == 1 else { throw EditorError.invalidChange }
+            if let seedState, seedState.placements[id] == nil { throw EditorError.invalidChange }
+        }
         if let id, id.change == change.id, !introducedPlacements.contains(id) { throw EditorError.invalidChange }
         if let id, id.change != change.id, let element = try knownElement(id) {
             if case .text = element { throw EditorError.invalidChange }
@@ -743,6 +797,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
     }
     func textElement(_ id: ElementID?, at target: TextAddress) throws {
         try reference(id)
+        if let id, id.change.counter == 0, let count = try seedCount(at: target), id.index >= count { throw EditorError.invalidChange }
         if let id, id.change == change.id, introducedText[id] != target { throw EditorError.invalidChange }
         if let id, id.change != change.id, let element = try knownElement(id) {
             guard case .text(let address) = element, address == target else { throw EditorError.invalidChange }
@@ -804,6 +859,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
     switch change.body {
     case .setActive(let target, _):
         guard target.actor == change.id.actor, target < change.id, target.counter > 0 else { throw EditorError.invalidChange }
+        if let prior = history[target], case .setActive = prior.body { throw EditorError.invalidChange }
     case .edit(let mutations):
         guard !mutations.isEmpty, mutations.count <= 10_000 else { throw EditorError.invalidChange }
         for mutation in mutations {
@@ -813,6 +869,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
                 _ = try Document(blocks: [block]); try placementElement(after)
                 guard id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != id else { throw EditorError.invalidChange }
                 introducedPlacements.insert(id)
+                introducedBlocks[block.id] = block
             case .moveBlock(let blockID, let id, let after):
                 guard version == 1 else { throw EditorError.invalidChange }
                 try placementElement(after)
@@ -865,6 +922,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
                 } else { try validateNode(value, kind: kind) }
                 introducedStructure.register(value, identity: identity, kind: kind, active: true)
                 introducedPlacements.insert(id); introducedNodes.insert(id)
+                introducedPayloads[id] = value
             case .moveNode(let identity, let collection, let id, let after):
                 try nodeReference(identity); try nodeCollection(collection); try nodePlacement(after)
                 guard id.change == change.id, id.index >= 0, introduced.insert(id).inserted, after != .edit(id) else { throw EditorError.invalidChange }

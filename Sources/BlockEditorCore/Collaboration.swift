@@ -88,6 +88,13 @@ public struct SyncState: Codable, Equatable, Sendable {
     public init(received: Set<ChangeID> = [], documentID: String? = nil, version: Int? = nil) {
         self.received = received; self.documentID = documentID; self.version = version
     }
+    private enum CodingKeys: String, CodingKey { case received, documentID, version }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(received.sorted(), forKey: .received)
+        try container.encodeIfPresent(documentID, forKey: .documentID)
+        try container.encodeIfPresent(version, forKey: .version)
+    }
 }
 
 public struct ChangeBatch: Codable, Equatable, Sendable {
@@ -264,7 +271,7 @@ func materialize(_ baseline: Document, _ changes: [Change], version: Int = 1) th
     for change in sorted {
         // Validate creation paths against their containing collection, including
         // histories whose causal parents arrived after an earlier receive.
-        try validate(change, version: version, structure: state.structure, history: history)
+        try validate(change, version: version, structure: state.structure, history: history, seedState: state)
         guard case .edit(let mutations) = change.body else { continue }
         let enabled = active[change.id] ?? true
         try apply(mutations, enabled: enabled, to: &state)
