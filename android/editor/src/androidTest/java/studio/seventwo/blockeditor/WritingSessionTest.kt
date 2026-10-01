@@ -22,6 +22,30 @@ class WritingSessionTest {
         catch (failure: IllegalStateException) { assertEquals(message, failure.message) }
     }
 
+    @Test fun typedV4RetainedPeerParagraphSupportsEnterAndReopenedUndo() {
+        val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"abcd","marks":[]}]}]""")
+        val a = WritingSession.createV4("typed-roles", "a", "role-v4", seed)
+        val b = WritingSession.createV4("typed-roles", "b", "role-v4", seed)
+        var reopened: WritingSession? = null
+        try {
+            a.convertBlock(WritingAddress("p"), 0, WritingBlockTarget("list", style = "todo"))
+            b.receive(a.changes())
+            b.enterListItem(WritingAddress("p", listOf("items", "p-item", "content")), 2, 2, "peer")
+            val peer = normalize(b.node(NodeAddress("p", listOf("items", "peer"))).wire)
+            a.receive(b.changes()); a.undo(); b.receive(a.changes())
+            assertEquals(peer, normalize(b.node(NodeAddress("peer")).wire))
+            val caret = b.splitParagraph(WritingAddress("peer"), 1, 1, "tail")
+            assertEquals(0, b.resolvePosition(caret).offset)
+            assertEquals(peer, normalize(b.node(NodeAddress("peer")).wire))
+            a.receive(b.changes()); assertEquals(blocks(a), blocks(b))
+            val restored = WritingSession.restore(b.save(), "b"); reopened = restored
+            assertEquals(blocks(b), blocks(restored))
+            restored.undo()
+            assertEquals(normalize(JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"ab","marks":[]}]},{"id":"peer","type":"paragraph","content":[{"type":"text","text":"cd","marks":[]}],"checked":false}]""")), blocks(restored))
+            restored.redo(); assertEquals(blocks(b), blocks(restored))
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+    }
+
     @Test fun typedV4ConversionKeepsRootAndRetainsBothRemoteOriginsAcrossUndo() {
         val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"café😀","marks":[]}],"extension":"keep"}]""")
         val a = WritingSession.createV4("typed-schema", "a", "schema-v4", seed)

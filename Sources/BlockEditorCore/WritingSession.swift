@@ -37,6 +37,7 @@ public enum WritingOperation: Codable, Equatable, Sendable {
     case text(WritingMutation)
     case convertBlock(node: NodeID, type: String, attributes: [String: JSONValue])
     case schemaConvert(WritingSchemaConversion)
+    case retainParagraphRole(WritingParagraphRole)
 }
 public enum WritingChangeBody: Codable, Equatable, Sendable {
     case edit([WritingOperation])
@@ -45,7 +46,12 @@ public enum WritingChangeBody: Codable, Equatable, Sendable {
 public struct WritingChange: Codable, Equatable, Sendable {
     public let id: ChangeID
     public let body: WritingChangeBody
-    public init(id: ChangeID, body: WritingChangeBody) { self.id = id; self.body = body }
+    /// Protocol 4 records the maximal observed change for each actor. Recursive
+    /// predecessor closure identifies exact observed history despite clock holes.
+    public let observed: [ChangeID]?
+    public init(id: ChangeID, body: WritingChangeBody, observed: [ChangeID]? = nil) {
+        self.id = id; self.body = body; self.observed = observed
+    }
 }
 public struct WritingBatch: Codable, Equatable, Sendable {
     public let version: Int
@@ -136,7 +142,7 @@ public final class WritingSession {
         for change in recovery.batch.changes { candidate[change.id] = change }
         let clock = candidate.keys.map(\.counter).max() ?? counter
         guard clock < 9_007_199_254_740_991 else { throw EditorError.invalidChange }
-        let change = WritingChange(id: ChangeID(counter: clock + 1, actor: actorID), body: .setActive(target: target, active: false))
+        let change = WritingChange(id: ChangeID(counter: clock + 1, actor: actorID), body: .setActive(target: target, active: false), observed: protocolVersion == 4 ? observedFrontier(candidate) : nil)
         candidate[change.id] = change
         try capacity(candidate)
         let result = try replay(candidate)
@@ -326,7 +332,8 @@ public final class WritingSession {
         let id = try nextID(), creation = ElementID(change: id, index: 0), node = NodeID.inserted(creation: creation, path: [])
         let destination = WritingField(node: node, name: "content")
         let value: JSONValue = .object(["id": .string(newBlockID), "type": .string("paragraph"), "content": .array([])])
-        var operations: [WritingOperation] = [.structure(.insertNode(value: value, identity: node, collection: parent.collection, placement: creation, after: parent.id))]
+        var operations = try retainedRoleOperations(for: [source])
+        operations.append(.structure(.insertNode(value: value, identity: node, collection: parent.collection, placement: creation, after: parent.id)))
         operations.append(.text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: nextSibling)))
         if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
@@ -344,7 +351,7 @@ public final class WritingSession {
         guard let index = siblings.firstIndex(of: left), index + 1 < siblings.count, siblings[index + 1] == right else { throw EditorError.invalidPath }
         let destination = WritingField(node: left, name: "content"), source = WritingField(node: right, name: "content")
         let anchor = projection.visibleKeys(in: destination).last
-        try perform(nextID(), [.text(.join(source: source, destination: destination, edge: anchor.map(WritingEdge.after) ?? .start))])
+        try perform(nextID(), retainedRoleOperations(for: [left, right]) + [.text(.join(source: source, destination: destination, edge: anchor.map(WritingEdge.after) ?? .start))])
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: anchor, affinity: .after)
     }
     public func selectedText(at address: TextAddress, range: Range<Int>) throws -> WritingTextRange {
@@ -426,7 +433,7 @@ public final class WritingSession {
         var labels = Set(siblings.filter { !selected.nodes.contains($0) }.compactMap { structure.nodes[$0]?.label })
         var edge = try selectionPlacement(after, in: collection)
         let id = try nextID()
-        var operations: [WritingOperation] = []
+        var operations = try retainedRoleOperations(for: selected.nodes + [after].compactMap { $0 })
         for (index, identity) in selected.nodes.enumerated() {
             guard let node = structure.nodes[identity], node.kind == kind, placements[identity] != nil,
                   labels.insert(node.label).inserted else { throw EditorError.invalidPath }
@@ -467,7 +474,8 @@ public final class WritingSession {
             }
             return .object(fields)
         }
-        var identities: [NodeID] = [], operations: [WritingOperation] = []
+        var identities: [NodeID] = []
+        var operations = try retainedRoleOperations(for: [after].compactMap { $0 })
         for (index, value) in values.enumerated() {
             guard structure.nodes[selected.nodes[index]]?.kind == kind else { throw EditorError.invalidPath }
             let value = try fresh(value, kind: kind)
@@ -526,14 +534,14 @@ public final class WritingSession {
     private func perform(_ id: ChangeID, _ operations: [WritingOperation]) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         guard mergeRecovery == nil else { throw WritingSessionError.recoveryRequired(mergeRecovery!) }
-        let change = WritingChange(id: id, body: .edit(operations)); var candidate = log; candidate[id] = change
+        let change = WritingChange(id: id, body: .edit(operations), observed: protocolVersion == 4 ? observedFrontier(log) : nil); var candidate = log; candidate[id] = change
         try capacity(candidate); let result = try replay(candidate)
         undoStack.append(id); redoStack.removeAll(); accept(candidate, result, change: change)
     }
     private func toggle(_ target: ChangeID, _ active: Bool) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         guard mergeRecovery == nil else { throw WritingSessionError.recoveryRequired(mergeRecovery!) }
-        let change = WritingChange(id: try nextID(), body: .setActive(target: target, active: active)); var candidate = log; candidate[change.id] = change
+        let change = WritingChange(id: try nextID(), body: .setActive(target: target, active: active), observed: protocolVersion == 4 ? observedFrontier(log) : nil); var candidate = log; candidate[change.id] = change
         try capacity(candidate); let result = try replay(candidate)
         if active { redoStack.removeLast(); undoStack.append(target) }
         else { undoStack.removeLast(); redoStack.append(target) }
@@ -599,12 +607,17 @@ public final class WritingSession {
         }
         return (operations, last.map { WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: $0, affinity: .after) })
     }
-    private func replay(_ candidate: [ChangeID: WritingChange]) throws -> (StructuralState, WritingProjection, Document) {
+    private func replay(_ candidate: [ChangeID: WritingChange], trustedRoleChanges: Set<ChangeID> = []) throws -> (StructuralState, WritingProjection, Document) {
         let changes = candidate.values.sorted { $0.id < $1.id }
         var active: [ChangeID: Bool] = [:]
         var history: [ChangeID: Change] = [:]
         for change in changes {
             guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991, validToken(change.id.actor) else { throw EditorError.invalidChange }
+            if protocolVersion == 4 {
+                guard let observed = change.observed else { throw EditorError.invalidChange }
+                try validateObservedFrontier(observed, before: change.id)
+                for dependency in observed where candidate[dependency] == nil { throw WritingProjectionError.missingAtom }
+            } else { guard change.observed == nil else { throw EditorError.invalidChange } }
             switch change.body {
             case .edit(let operations):
                 guard !operations.isEmpty, operations.count <= 100_000 else { throw EditorError.invalidChange }
@@ -637,7 +650,7 @@ public final class WritingSession {
                 }
             }
         }
-        func validationShape(_ original: Materialized, mutations: [Mutation]) -> Materialized {
+        func validationShape(_ original: Materialized, mutations: [Mutation], retainedRoles: Set<NodeID> = [], inactive: Bool = false) -> Materialized {
             var copy = original
             guard protocolVersion == 4 else { return copy }
             for mutation in mutations {
@@ -645,6 +658,10 @@ public final class WritingSession {
                 switch mutation {
                 case .insertNode(_, _, let destination, _, _), .moveNode(_, let destination, _, _): collection = destination
                 default: continue
+                }
+                if inactive, case .moveNode(let identity, _, _, _) = mutation, retainedRoles.contains(identity),
+                   (try? copy.structure?.kind(in: collection)) == .block, var value = copy.structure?.nodes[identity], value.kind == .item {
+                    value.kind = .block; value.fields["type"] = .string("paragraph"); copy.structure?.nodes[identity] = value
                 }
                 if (try? copy.structure?.kind(in: collection)) == nil,
                    collectionBirths[collection] == .item, collection.field == "items",
@@ -654,6 +671,98 @@ public final class WritingSession {
                 }
             }
             return copy
+        }
+        var validatedRoleChanges = trustedRoleChanges
+        var exposures: [[ChangeID]: StructuralState] = [:]
+        func roleNode(_ identity: NodeID, before change: ChangeID) throws -> StructuralState.Node {
+            switch identity {
+            case .baseline(let label, let path):
+                guard !label.isEmpty, path.count <= 100, path.count % 2 == 0, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidChange }
+            case .inserted(let creation, let path):
+                guard creation.change.counter > 0, creation.change.counter <= 9_007_199_254_740_991,
+                      validToken(creation.change.actor), creation.change < change, creation.index >= 0, creation.index <= 2_147_483_647,
+                      path.count <= 100, path.count % 2 == 0, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidChange }
+            }
+            guard let value = raw.structure?.nodes[identity] else {
+                if case .inserted(let creation, _) = identity, candidate[creation.change] == nil { throw WritingProjectionError.missingAtom }
+                throw EditorError.invalidChange
+            }
+            return value
+        }
+        func retainRole(_ role: WritingParagraphRole, change: WritingChange) throws {
+            guard protocolVersion == 4, role.retirement.counter > 0, role.retirement.counter <= 9_007_199_254_740_991,
+                  validToken(role.retirement.actor), role.retirement < change.id,
+                  !role.exposure.isEmpty, role.exposure.count <= 100_000 else { throw EditorError.invalidChange }
+            let owner = try roleNode(role.owner, before: change.id)
+            var value = try roleNode(role.node, before: change.id)
+            switch role.after {
+            case .initial(let identity): _ = try roleNode(identity, before: change.id)
+            case .role(let owner, let node): _ = try roleNode(owner, before: change.id); _ = try roleNode(node, before: change.id)
+            case .edit(let element):
+                guard element.change.counter > 0, element.change.counter <= 9_007_199_254_740_991, validToken(element.change.actor),
+                      element.change < change.id, element.index >= 0, element.index <= 2_147_483_647 else { throw EditorError.invalidChange }
+            }
+            let cohort = try observedClosure(role.exposure, before: change.id, in: candidate)
+            guard cohort.contains(role.retirement) else { throw EditorError.invalidChange }
+            if case .inserted(let creation, _) = role.node, !cohort.contains(creation.change) { throw EditorError.invalidChange }
+            guard let proof = candidate[role.retirement] else { throw WritingProjectionError.missingAtom }
+            guard owner.kind == .block, value.birthKind == .item, births[WritingField(node: role.node, name: "content")] != nil,
+                  value.kind == .item || (value.kind == .block && raw.structure?.placements[.role(owner: role.owner, node: role.node)] != nil) else { throw EditorError.invalidChange }
+            if !trustedRoleChanges.contains(change.id) {
+                let exposure: StructuralState
+                if let cached = exposures[role.exposure] { exposure = cached }
+                else {
+                    let prefix = candidate.filter { cohort.contains($0.key) }
+                    exposure = try replay(prefix, trustedRoleChanges: validatedRoleChanges).0
+                    exposures[role.exposure] = exposure
+                }
+                let selected = try exposure.effectivePlacements()
+                guard exposure.visibleNodes(selected).contains(role.node), exposure.nodes[role.node]?.kind == .block,
+                      exposure.nodes[role.node]?.fields["type"] == .string("paragraph"),
+                      selected[role.node]?.id == .role(owner: role.owner, node: role.node) else { throw EditorError.invalidChange }
+            }
+            guard retirement(proof, belongsTo: role.owner, in: candidate) else { throw EditorError.invalidChange }
+            var itemOwners: Set<NodeID> = []
+            for prior in changes where prior.id < change.id {
+                guard case .edit(let operations) = prior.body else { continue }
+                for operation in operations {
+                    if case .schemaConvert(let conversion) = operation {
+                        if conversion.node == role.owner && conversion.type == "list" { itemOwners.insert(conversion.destination.node) }
+                        if conversion.node == role.owner && conversion.source.node != conversion.node { itemOwners.insert(conversion.source.node) }
+                    }
+                }
+            }
+            guard raw.structure!.placements.values.contains(where: {
+                $0.node == role.node && ($0.collection == NodeCollection(owner: role.owner, field: "items") ||
+                    ($0.collection.field == "children" && $0.collection.owner.map { itemOwners.contains($0) } == true) ||
+                    $0.id == .role(owner: role.owner, node: role.node))
+            }) else { throw EditorError.invalidChange }
+            guard value.kind != .item || value.fields["type"] == nil || value.fields["type"] == .string("paragraph") else {
+                throw EditorError.invalidDocument("Peer item role metadata collision")
+            }
+            let selected = try raw.structure!.effectivePlacements()
+            guard let root = selected[role.owner] else { throw EditorError.invalidDocument("Retired role owner is unavailable") }
+            let id = NodePlacementID.role(owner: role.owner, node: role.node)
+            guard role.after != id else { throw EditorError.invalidChange }
+            guard let anchor = raw.structure?.placements[role.after] else { throw WritingProjectionError.missingAtom }
+            guard anchor.collection == root.collection else { throw EditorError.invalidDocument("Retained role anchor moved between collections") }
+            if let existing = raw.structure?.placements[id], existing.collection != root.collection {
+                throw EditorError.invalidDocument("Retired role owner moved between collections")
+            }
+            let enabled = active[change.id] ?? true
+            if value.kind == .item { value.kind = .block; value.fields["type"] = .string("paragraph") }
+            raw.structure?.nodes[role.node] = value
+            if enabled {
+                raw.structure?.touched.insert(role.node)
+                for (key, old) in raw.structure!.placements where old.node == role.node && old.active {
+                    raw.structure?.placements[key] = StructuralState.Placement(id: old.id, after: old.after,
+                        node: old.node, collection: old.collection, active: false)
+                }
+            }
+            if enabled || raw.structure?.placements[id] == nil {
+                raw.structure?.placements[id] = StructuralState.Placement(id: id, after: role.after,
+                    node: role.node, collection: root.collection, active: enabled)
+            }
         }
         var available = Set<WritingAtomKey>()
         func seededKeys(_ shape: StructuralState) -> Set<WritingAtomKey> {
@@ -673,11 +782,25 @@ public final class WritingSession {
         available.formUnion(seededKeys(raw.structure!))
         for change in changes {
             guard case .edit(let operations) = change.body else { continue }
+            let beforeRoleNodes = raw.structure?.nodes ?? [:]
+            var passedRolePrefix = false
+            for operation in operations {
+                if case .retainParagraphRole(let role) = operation {
+                    guard !passedRolePrefix else { throw EditorError.invalidChange }
+                    try retainRole(role, change: change)
+                } else { passedRolePrefix = true }
+            }
+            if operations.contains(where: { if case .retainParagraphRole = $0 { return true }; return false }) {
+                validatedRoleChanges.insert(change.id)
+            }
+            let retainedRoles = Set(operations.compactMap { operation -> NodeID? in
+                if case .retainParagraphRole(let role) = operation { return role.node }; return nil
+            })
             let structural = Change(id: change.id, body: .edit(operations.compactMap {
                 if case .structure(let mutation) = $0 { return mutation }; return nil
             }))
             if case .edit(let mutations) = structural.body, !mutations.isEmpty {
-                let validating = validationShape(raw, mutations: mutations)
+                let validating = validationShape(raw, mutations: mutations, retainedRoles: retainedRoles, inactive: !(active[change.id] ?? true))
                 do { try validate(structural, version: 2, structure: validating.structure, history: history, seedState: validating) }
                 catch EditorError.invalidDocument { throw EditorError.invalidChange }
             }
@@ -719,6 +842,7 @@ public final class WritingSession {
             }
             for operation in operations {
                 switch operation {
+                case .retainParagraphRole: break // Validated/materialized before structural validation.
                 case .schemaConvert(let conversion):
                     guard protocolVersion == 4 else { throw EditorError.invalidChange }
                     try node(conversion.node); try field(conversion.source)
@@ -821,9 +945,9 @@ public final class WritingSession {
                     default: throw EditorError.invalidChange
                     }
                     if protocolVersion == 4 {
-                        let validating = validationShape(raw, mutations: [mutation])
+                        let validating = validationShape(raw, mutations: [mutation], retainedRoles: retainedRoles, inactive: !(active[change.id] ?? true))
                         let originalNodes = raw.structure?.nodes ?? [:]
-                        let adjusted = validating.structure?.nodes.filter { originalNodes[$0.key]?.fields != $0.value.fields } ?? [:]
+                        let adjusted = validating.structure?.nodes.filter { originalNodes[$0.key]?.fields != $0.value.fields || originalNodes[$0.key]?.kind != $0.value.kind } ?? [:]
                         raw.structure = validating.structure
                         try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
                         for owner in adjusted.keys { raw.structure?.nodes[owner] = originalNodes[owner] }
@@ -890,6 +1014,9 @@ public final class WritingSession {
                               creation.change == change.id, path.isEmpty else { throw EditorError.invalidChange }
                     }
                 }
+            }
+            if !(active[change.id] ?? true) {
+                for identity in retainedRoles { raw.structure?.nodes[identity] = beforeRoleNodes[identity] }
             }
         }
         return try Self.project(raw: raw, changes: changes, births: protocolVersion == 4 ? births : nil)
@@ -995,8 +1122,10 @@ public final class WritingSession {
                 guard let root, structure.nodes[root]?.fields["type"] != .string("list"),
                       let rootPlacement = selected[root], var value = structure.nodes[placement.node],
                       value.birthActive, value.kind == .item, !structure.deleted.contains(placement.node) else { continue }
-                let fallback = NodePlacementID.initial(placement.node)
-                guard structure.placements[fallback] == nil else { throw EditorError.invalidDocument("Peer item fallback identity collision") }
+                let fallback = NodePlacementID.role(owner: root, node: placement.node)
+                if let existing = structure.placements[fallback], existing.collection != rootPlacement.collection {
+                    throw EditorError.invalidDocument("Peer item role owner moved between collections")
+                }
                 guard value.fields["type"] == nil || value.fields["type"] == .string("paragraph") else {
                     throw EditorError.invalidDocument("Peer item role metadata collision")
                 }
@@ -1105,7 +1234,9 @@ public final class WritingSession {
             for cut in ordered {
                 guard case .inserted(let creation, _) = cut.destination.node,
                       let placement = selected[cut.destination.node],
-                      placement.id == .edit(creation) || (retained != nil && placement.id == .initial(cut.destination.node)),
+                      placement.id == .edit(creation) || (retained != nil && {
+                          if case .role(_, let node) = placement.id { return node == cut.destination.node }; return false
+                      }()),
                       placement.collection == parent.collection else { continue }
                 structure.placements[placement.id] = StructuralState.Placement(id: placement.id, after: previous,
                     node: placement.node, collection: placement.collection, active: placement.active)
@@ -1238,11 +1369,11 @@ extension WritingSession {
            (structure.nodes[source.node]?.fields["type"] == .string("code")) ||
            (structure.nodes[source.node]?.kind == .item && target.type != "list") {
             let id = try nextID(), operation = try schemaConversion(at: address, target: target, id: id)
-            try perform(id, [.schemaConvert(operation)])
+            try perform(id, retainedRoleOperations(for: [source.node]) + [.schemaConvert(operation)])
             return caret
         }
         let operation = try conversion(at: address, target: target)
-        try perform(nextID(), [operation])
+        try perform(nextID(), retainedRoleOperations(for: [source.node]) + [operation])
         return caret
     }
     /// Apply a recognized prefix in one author transaction. Unsupported list and
@@ -1271,7 +1402,7 @@ extension WritingSession {
         let operation: WritingOperation = protocolVersion == 4 && ["list", "code"].contains(target.type)
             ? .schemaConvert(try schemaConversion(at: address, target: target, id: id))
             : try conversion(at: address, target: target)
-        try perform(id, [operation, .text(.delete(keys: prefix.keys))])
+        try perform(id, retainedRoleOperations(for: [prefix.field.node]) + [operation, .text(.delete(keys: prefix.keys))])
         return caret
     }
     /// Return moves an empty nested item outward; otherwise it splits the item.
@@ -1419,4 +1550,83 @@ extension WritingSession {
         return WritingSchemaConversion(node: root, type: target.type, attributes: attributes, source: source,
             destination: WritingField(node: root, name: name), itemID: nil, creation: nil, preservedItemFields: preserved)
     }
+}
+
+/// A later structural command explicitly retains a paragraph role exposed by a
+/// known schema retirement. Its anchor is distinct from the node birth anchor.
+public struct WritingParagraphRole: Codable, Equatable, Sendable {
+    public let node: NodeID
+    public let owner: NodeID
+    public let retirement: ChangeID
+    public let exposure: [ChangeID]
+    public let after: NodePlacementID
+    public init(node: NodeID, owner: NodeID, retirement: ChangeID, exposure: [ChangeID], after: NodePlacementID) {
+        self.node = node; self.owner = owner; self.retirement = retirement; self.exposure = exposure; self.after = after
+    }
+}
+private func retirement(_ change: WritingChange, belongsTo owner: NodeID, in changes: [ChangeID: WritingChange]) -> Bool {
+    switch change.body {
+    case .edit(let operations):
+        return operations.contains { operation in
+            if case .schemaConvert(let conversion) = operation { return conversion.node == owner && conversion.type != "list" && conversion.source.node != owner }
+            return false
+        }
+    case .setActive(let target, let enabled):
+        guard !enabled, let original = changes[target], case .edit(let operations) = original.body else { return false }
+        return operations.contains { operation in
+            if case .schemaConvert(let conversion) = operation { return conversion.node == owner && conversion.type == "list" }
+            return false
+        }
+    }
+}
+extension WritingSession {
+    private func retainedRoleOperations(for identities: [NodeID]) throws -> [WritingOperation] {
+        guard protocolVersion == 4 else { return [] }
+        let selected = try structure.effectivePlacements()
+        var visiting = Set<NodeID>(), done = Set<NodeID>(), result: [WritingOperation] = []
+        func visit(_ identity: NodeID) throws {
+            guard !done.contains(identity), let placement = selected[identity], case .role(let owner, let node) = placement.id else { return }
+            guard visiting.insert(identity).inserted else { throw EditorError.invalidChange }
+            guard node == identity, let after = placement.after,
+                  let proof = log.values.sorted(by: { $1.id < $0.id }).first(where: {
+                      retirement($0, belongsTo: owner, in: log)
+                  }) else { throw EditorError.invalidChange }
+            if case .role(_, let predecessor) = after, selected[predecessor]?.id == after { try visit(predecessor) }
+            let prior = log.values.sorted(by: { $1.id < $0.id }).compactMap { change -> WritingParagraphRole? in
+                guard case .edit(let operations) = change.body else { return nil }
+                return operations.compactMap { operation -> WritingParagraphRole? in
+                    if case .retainParagraphRole(let role) = operation, role.node == identity, role.owner == owner { return role }
+                    return nil
+                }.first
+            }.first
+            result.append(.retainParagraphRole(WritingParagraphRole(node: identity, owner: owner,
+                retirement: prior?.retirement ?? proof.id, exposure: prior?.exposure ?? observedFrontier(log), after: after)))
+            visiting.remove(identity); done.insert(identity)
+        }
+        for identity in Set(identities).sorted(by: { $0.key < $1.key }) { try visit(identity) }
+        return result
+    }
+}
+
+private func observedFrontier(_ changes: [ChangeID: WritingChange]) -> [ChangeID] {
+    var tips: [String: ChangeID] = [:]
+    for id in changes.keys where tips[id.actor].map({ $0 < id }) ?? true { tips[id.actor] = id }
+    return tips.values.sorted()
+}
+private func observedClosure(_ frontier: [ChangeID], before current: ChangeID, in changes: [ChangeID: WritingChange]) throws -> Set<ChangeID> {
+    var found = Set<ChangeID>(), pending = frontier
+    try validateObservedFrontier(frontier, before: current)
+    while let id = pending.popLast() {
+        guard found.insert(id).inserted else { continue }
+        guard let predecessor = changes[id] else { throw WritingProjectionError.missingAtom }
+        guard let observed = predecessor.observed else { throw EditorError.invalidChange }
+        try validateObservedFrontier(observed, before: id)
+        pending.append(contentsOf: observed)
+    }
+    return found
+}
+
+private func validateObservedFrontier(_ ids: [ChangeID], before bound: ChangeID) throws {
+    guard ids.count <= 100_000, ids == ids.sorted(), Set(ids.map(\.actor)).count == ids.count,
+          ids.allSatisfy({ $0.counter > 0 && $0.counter <= 9_007_199_254_740_991 && validToken($0.actor) && $0 < bound }) else { throw EditorError.invalidChange }
 }

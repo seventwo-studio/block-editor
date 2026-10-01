@@ -33,12 +33,16 @@ public struct NodeCollection: Codable, Hashable, Sendable {
 
 public enum NodePlacementID: Codable, Hashable, Comparable, Sendable {
     case initial(NodeID)
+    /// A protocol-4 derived paragraph placement, distinct from birth placement.
+    case role(owner: NodeID, node: NodeID)
     case edit(ElementID)
     public static func < (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
         case (.initial(let a), .initial(let b)): return a.key.utf8.lexicographicallyPrecedes(b.key.utf8)
-        case (.initial, .edit): return true
-        case (.edit, .initial): return false
+        case (.initial, .role), (.initial, .edit), (.role, .edit): return true
+        case (.role, .initial), (.edit, .initial), (.edit, .role): return false
+        case (.role(let ownerA, let nodeA), .role(let ownerB, let nodeB)):
+            return ownerA.key == ownerB.key ? nodeA.key.utf8.lexicographicallyPrecedes(nodeB.key.utf8) : ownerA.key.utf8.lexicographicallyPrecedes(ownerB.key.utf8)
         case (.edit(let a), .edit(let b)): return a < b
         }
     }
@@ -50,6 +54,7 @@ struct StructuralState {
     struct Node {
         let identity: NodeID
         var kind: NodeKind
+        let birthKind: NodeKind
         var fields: [String: JSONValue]
         var collections: Set<String>
         let birthActive: Bool
@@ -100,7 +105,7 @@ struct StructuralState {
         let present = Set(collections.keys.filter { fields[$0] != nil })
         let arrays = collections.reduce(into: [String: [JSONValue]]()) { $0[$1.key] = fields[$1.key]?.array ?? [] }
         for field in present { fields.removeValue(forKey: field) }
-        nodes[identity] = Node(identity: identity, kind: kind, fields: fields, collections: present, birthActive: active)
+        nodes[identity] = Node(identity: identity, kind: kind, birthKind: kind, fields: fields, collections: present, birthActive: active)
         for (field, childKind) in collections {
             var after: NodePlacementID?
             for child in arrays[field] ?? [] {

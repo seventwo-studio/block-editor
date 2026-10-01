@@ -240,7 +240,7 @@ private let schemaReference: JSONValue = .object(["type": .string("entity-ref"),
     #expect(try reopened.text(at: TextAddress("p", path: ["items", "p-item", "content"])) == "keep")
 }
 
-@Test func schemaBaselineItemMoveUndoGapPreservesAcceptedSaveAndSubtree() throws {
+@Test func schemaBaselineItemMoveUndoAndRedoKeepIdentityAndSubtree() throws {
     let item: JSONValue = .object(["id": .string("peer"), "content": .array([textNode("keep😀"), schemaReference]), "host": .string("item"), "children": .array([.object(["id": .string("child"), "content": .array([textNode("child")])])])])
     let foreign = try Block(fields: ["id": .string("foreign"), "type": .string("list"), "style": .string("ordered"), "items": .array([item])])
     let block = try Block.paragraph(id: "p", text: "root")
@@ -250,12 +250,17 @@ private let schemaReference: JSONValue = .object(["type": .string("entity-ref"),
     let root = try b.node(at: NodeAddress("p")), peer = try b.node(at: NodeAddress("foreign", path: ["items", "peer"]))
     try b.move(WritingSelection(nodes: [peer]), into: NodeCollection(owner: root, field: "items"))
     try a.receive(b.changes())
-    let before = try a.save(), document = a.document
-    #expect(throws: EditorError.self) { try a.undo() }
-    #expect(try a.save() == before && a.document == document)
-    #expect(try a.node(at: NodeAddress("p", path: ["items", "peer"])) == peer)
-    #expect(a.document.blocks[0].fields["items"]?.array?.first(where: { $0["id"] == .string("peer") }) == item)
-    #expect(try WritingSession.restore(before, actorID: "a").document == document)
+    let document = a.document
+    try a.undo(); try b.receive(a.changes())
+    #expect(a.document == b.document)
+    #expect(try a.node(at: NodeAddress("peer")) == peer)
+    var expected = try #require(item.object); expected["type"] = .string("paragraph")
+    #expect(a.document.blocks.first(where: { $0.id == "peer" })?.fields == expected)
+    let reopened = try WritingSession.restore(a.save(), actorID: "a")
+    #expect(reopened.document == a.document)
+    try reopened.redo()
+    #expect(reopened.document == document)
+    #expect(try reopened.node(at: NodeAddress("p", path: ["items", "peer"])) == peer)
 }
 
 @Test(arguments: [3, 4], ["level", "variant"]) func schemaInlineConversionDoesNotOverwriteUnknownReservedMetadata(version: Int, key: String) throws {
@@ -285,7 +290,7 @@ private let schemaReference: JSONValue = .object(["type": .string("entity-ref"),
     try b.convertBlock(at: TextAddress("p", path: ["items", "p-item", "content"]), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
     try a.receive(b.changes()); try a.undo()
     let before = try a.save(), node = try a.node(at: NodeAddress("p"))
-    let forged = WritingChange(id: ChangeID(counter: 10, actor: "bad"), body: .edit([.convertBlock(node: node, type: "list", attributes: ["style": .object(["bad": .bool(true)])])]))
+    let forged = WritingChange(id: ChangeID(counter: 10, actor: "bad"), body: .edit([.convertBlock(node: node, type: "list", attributes: ["style": .object(["bad": .bool(true)])])]), observed: [])
     let batch = WritingBatch(documentID: a.documentID, epoch: a.epoch, baseline: a.baseline, changes: a.changes().changes + [forged], version: 4)
     #expect(throws: EditorError.invalidChange) { try a.receive(batch) }
     #expect(try a.save() == before && a.mergeRecovery == nil)
@@ -297,7 +302,7 @@ private let schemaReference: JSONValue = .object(["type": .string("entity-ref"),
     var b = try schemaSession([block], actor: "a")
     let node = try a.node(at: NodeAddress("p"))
     try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "heading", level: 2))
-    let metadata = WritingChange(id: ChangeID(counter: 1, actor: "a"), body: .edit([.structure(.setNodeField(identity: node, path: ["level"], value: .string("host-level")))]))
+    let metadata = WritingChange(id: ChangeID(counter: 1, actor: "a"), body: .edit([.structure(.setNodeField(identity: node, path: ["level"], value: .string("host-level")))]), observed: [])
     // Model a retained author snapshot: receive alone does not mark a remote
     // change as local undo history, even when its actor matches the writer.
     var authored = try #require(JSONDecoder().decode(JSONValue.self, from: JSONEncoder().encode(WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: [metadata], version: 4))).object)
@@ -402,4 +407,257 @@ private let schemaReference: JSONValue = .object(["type": .string("entity-ref"),
     let reopened = try WritingSession.restore(a.save(), actorID: "a")
     try reopened.undo(); try b.receive(reopened.changes()); try b.undo()
     #expect(b.document.blocks == blocks)
+}
+
+@Test(arguments: [false, true]) func schemaProjectedPeerParagraphSupportsEnterMoveUndoAndReopen(baseline: Bool) throws {
+    let original = try Block.paragraph(id: "p", text: baseline ? "root" : "abcd")
+    let foreignItem: JSONValue = .object(["id": .string("peer"), "content": .array([textNode("cd")]), "host": .string("keep")])
+    let foreign = try Block(fields: ["id": .string("foreign"), "type": .string("list"), "style": .string("ordered"), "items": .array([foreignItem])])
+    let blocks = baseline ? [original, foreign] : [original]
+    let a = try schemaSession(blocks), b = try schemaSession(blocks, actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "todo"))
+    try b.receive(a.changes())
+    let peer: NodeID
+    if baseline {
+        peer = try b.node(at: NodeAddress("foreign", path: ["items", "peer"]))
+        try b.move(WritingSelection(nodes: [peer]), into: NodeCollection(owner: b.node(at: NodeAddress("p")), field: "items"))
+    } else {
+        try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer")
+        peer = try b.node(at: NodeAddress("p", path: ["items", "peer"]))
+    }
+    try a.receive(b.changes()); try a.undo(); try b.receive(a.changes())
+    #expect(try b.node(at: NodeAddress("peer")) == peer)
+    let before = b.document
+    let caret = try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+    #expect(try b.text(at: TextAddress("peer")) == "c")
+    #expect(try b.text(at: TextAddress("tail")) == "d")
+    #expect(try b.resolve(caret).offset == 0)
+    try a.receive(b.changes()); #expect(a.document == b.document)
+    let reopened = try WritingSession.restore(b.save(), actorID: "b")
+    #expect(reopened.document == b.document)
+    let root = try reopened.node(at: NodeAddress("p"))
+    try reopened.move(WritingSelection(nodes: [peer]), into: .root, after: root)
+    try a.receive(reopened.changes()); #expect(a.document == reopened.document)
+    #expect(try reopened.node(at: NodeAddress("peer")) == peer)
+    try reopened.undo(); try reopened.undo()
+    #expect(reopened.document == before)
+    try reopened.redo(); #expect(try reopened.text(at: TextAddress("tail")) == "d")
+}
+
+@Test func schemaRetainedRoleAnchorsKeepMultiplePeerParagraphOrderAndWrapperRedo() throws {
+    let block = try Block.paragraph(id: "p", text: "abcdef")
+    let a = try schemaSession([block]), b = try schemaSession([block], actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
+    try b.receive(a.changes())
+    try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer1")
+    try b.enterListItem(at: TextAddress("p", path: ["items", "peer1", "content"]), range: 2..<2, newItemID: "peer2")
+    try a.receive(b.changes()); try a.undo(); try b.receive(a.changes())
+    #expect(b.document.blocks.map(\.id) == ["p", "peer1", "peer2"])
+    try b.splitParagraph(at: TextAddress("peer2"), range: 1..<1, newBlockID: "tail")
+    #expect(b.document.blocks.map(\.id) == ["p", "peer1", "peer2", "tail"])
+    #expect(b.document.blocks.map(\.text) == ["ab", "cd", "e", "f"])
+    try a.receive(b.changes()); try a.redo(); try b.receive(a.changes())
+    #expect(a.document == b.document)
+    #expect(a.document.blocks.map(\.id) == ["p", "peer1", "peer2", "tail"])
+    #expect(a.document.blocks[0].type == "list")
+    #expect(try a.text(at: TextAddress("p", path: ["items", "p-item", "content"])) == "ab")
+    let reopened = try WritingSession.restore(b.save(), actorID: "b")
+    try reopened.undo()
+    #expect(reopened.document.blocks.count == 1)
+    #expect(reopened.document.blocks[0].fields["items"]?.array?.map { $0["id"]?.string } == ["p-item", "peer1", "peer2"])
+    #expect(try reopened.text(at: TextAddress("p", path: ["items", "peer2", "content"])) == "ef")
+}
+
+@Test(arguments: ["retirement", "owner", "anchor"]) func schemaMalformedRetainedRoleDoesNotChangeAcceptedSaveOrReachV3(fault: String) throws {
+    let block = try Block.paragraph(id: "p", text: "abcd")
+    let a = try schemaSession([block]), b = try schemaSession([block], actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
+    try b.receive(a.changes())
+    try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer")
+    try a.receive(b.changes()); try a.undo(); try b.receive(a.changes())
+    try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+    let latest = try #require(b.changes().changes.last)
+    guard case .edit(let operations) = latest.body,
+          case .retainParagraphRole(let role) = try #require(operations.first) else { Issue.record("Missing retained role"); return }
+    let forgedRole = WritingParagraphRole(node: role.node,
+        owner: fault == "owner" ? .baseline(blockID: "missing", path: []) : role.owner,
+        retirement: fault == "retirement" ? ChangeID(counter: 0, actor: "missing") : role.retirement,
+        exposure: role.exposure,
+        after: fault == "anchor" ? .role(owner: role.owner, node: role.node) : role.after)
+    let forged = WritingChange(id: ChangeID(counter: 99, actor: "bad"), body: .edit([.retainParagraphRole(forgedRole)]), observed: b.changes().changes.map(\.id).reduce(into: [String: ChangeID]()) { $0[$1.actor] = $1 }.values.sorted())
+    let batch = WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: b.changes().changes + [forged], version: 4)
+    let before = try b.save()
+    #expect(throws: EditorError.invalidChange) { try b.receive(batch) }
+    #expect(try b.save() == before)
+    let old = try WritingSession(documentID: b.documentID, actorID: "old", epoch: b.epoch, document: Document(blocks: [block]))
+    let spoof = WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: b.changes().changes, version: 3)
+    #expect(throws: EditorError.invalidChange) { try old.receive(spoof) }
+}
+
+private func schemaRetiredPeer(text: String = "abcd") throws -> (WritingSession, WritingSession, NodeID) {
+    let block = try Block.paragraph(id: "p", text: text)
+    let a = try schemaSession([block]), b = try schemaSession([block], actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
+    try b.receive(a.changes())
+    try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer")
+    let peer = try b.node(at: NodeAddress("p", path: ["items", "peer"]))
+    try a.receive(b.changes()); try a.undo(); try b.receive(a.changes())
+    return (a, b, peer)
+}
+
+@Test(arguments: ["heading", "code", "list", "shortcut", "mergeLeft", "mergeRight"])
+func schemaRetainedPeerSupportsConversionShortcutAndMerge(command: String) throws {
+    let (a, b, peer) = try schemaRetiredPeer(text: command == "shortcut" ? "ab# cd" : "abcd")
+    let before = b.document
+    if command == "shortcut" {
+        try b.markdownShortcut(at: TextAddress("peer"), offset: 2)
+        #expect(b.document.blocks[1].type == "heading")
+    } else if command == "mergeLeft" || command == "mergeRight" {
+        let root = try b.node(at: NodeAddress("p"))
+        if command == "mergeLeft" {
+            try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+            let tail = try b.node(at: NodeAddress("tail"))
+            try b.mergeParagraphs(left: peer, right: tail)
+            try b.undo(); try b.undo()
+            #expect(b.document == before)
+            try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail2")
+            try b.mergeParagraphs(left: peer, right: b.node(at: NodeAddress("tail2")))
+        } else { try b.mergeParagraphs(left: command == "mergeLeft" ? peer : root, right: command == "mergeLeft" ? root : peer) }
+        #expect(command == "mergeLeft" ? b.document.blocks.count == 2 : b.document.blocks.count == 1)
+    } else {
+        try b.convertBlock(at: TextAddress("peer"), offset: 1, to: WritingBlockTarget(type: command, level: command == "heading" ? 2 : nil, style: command == "list" ? "todo" : nil))
+        #expect(try b.node(at: NodeAddress("peer")) == peer)
+        try b.move(WritingSelection(nodes: [peer]), into: .root, after: b.node(at: NodeAddress("p")))
+        #expect(b.document.blocks[1].type == command)
+        try b.undo()
+    }
+    try a.receive(b.changes()); #expect(a.document == b.document)
+    let reopened = try WritingSession.restore(b.save(), actorID: "b")
+    #expect(reopened.document == b.document)
+    try reopened.undo()
+    if command == "mergeLeft" { try reopened.undo() }
+    #expect(reopened.document == before)
+    try reopened.redo()
+    if command == "mergeLeft" { try reopened.redo() }
+    #expect(reopened.document == b.document)
+}
+
+@Test(arguments: ["a", "z"]) func schemaConcurrentUnobservedPeerAndRetirementCanRetainRole(undoActor: String) throws {
+    let block = try Block.paragraph(id: "p", text: "abcd")
+    let a = try schemaSession([block], actor: undoActor), b = try schemaSession([block], actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
+    try b.receive(a.changes())
+    try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer")
+    try a.undo(); let retired = a.changes(); try a.receive(b.changes()); try b.receive(retired)
+    #expect(a.document == b.document && b.document.blocks.map(\.id) == ["p", "peer"])
+    try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+    try a.receive(b.changes()); #expect(a.document == b.document)
+    #expect(try WritingSession.restore(b.save(), actorID: "b").document == b.document)
+}
+
+@Test func schemaRetirementBeforePeerBirthCannotForgeExposure() throws {
+    let block = try Block.paragraph(id: "p", text: "abcd")
+    let a = try schemaSession([block]), b = try schemaSession([block], actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
+    try a.undo(); let retirementID = try #require(a.changes().changes.last?.id)
+    try a.redo(); try b.receive(a.changes())
+    try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer")
+    let node = try b.node(at: NodeAddress("p", path: ["items", "peer"]))
+    let owner = try b.node(at: NodeAddress("p")), exposure = try #require(b.changes().changes.last?.id)
+    let role = WritingParagraphRole(node: node, owner: owner, retirement: retirementID, exposure: [exposure], after: .initial(owner))
+    let forged = WritingChange(id: ChangeID(counter: 9, actor: "bad"), body: .edit([.retainParagraphRole(role)]), observed: b.changes().changes.map(\.id).reduce(into: [String: ChangeID]()) { $0[$1.actor] = $1 }.values.sorted())
+    let before = try b.save()
+    #expect(throws: EditorError.invalidChange) { try b.receive(WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: b.changes().changes + [forged], version: 4)) }
+    #expect(try b.save() == before && b.mergeRecovery == nil)
+}
+
+@Test func schemaRoleDeltaBeforeDependenciesRetainsRecoveryAndReopens() throws {
+    let (_, b, _) = try schemaRetiredPeer()
+    let previous = b.syncState
+    try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+    let fresh = try schemaSession([Block.paragraph(id: "p", text: "abcd")], actor: "fresh")
+    let before = try fresh.save()
+    do { try fresh.receive(b.changes(since: previous)); Issue.record("Expected missing predecessor") }
+    catch { #expect(fresh.mergeRecovery?.reason == .schemaConstraint) }
+    #expect(try fresh.save() == before)
+    let recovery = try #require(try fresh.exportRecovery())
+    let reopened = try WritingSession.restore(before, actorID: "fresh")
+    do { try reopened.restoreRecovery(recovery); Issue.record("Expected missing predecessor") } catch { #expect(reopened.mergeRecovery?.reason == .schemaConstraint) }
+    try fresh.receive(b.changes()); try reopened.receive(b.changes())
+    #expect(fresh.document == b.document && reopened.document == b.document)
+    #expect(fresh.mergeRecovery == nil && reopened.mergeRecovery == nil)
+}
+
+@Test(arguments: ["negative", "zero", "future", "actor", "firstItem"])
+func schemaMalformedRoleAnchorAndHiddenFirstItemRejectAtomically(fault: String) throws {
+    let (_, b, peer) = try schemaRetiredPeer()
+    let owner = try b.node(at: NodeAddress("p"))
+    let changes = b.changes().changes
+    let retirementID = try #require(changes.last?.id)
+    guard case .edit(let original) = changes[0].body, case .schemaConvert(let conversion) = original[0] else { Issue.record("Missing conversion"); return }
+    let badChange = ChangeID(counter: fault == "zero" ? 0 : fault == "future" ? 99 : 1, actor: fault == "actor" ? "" : "a")
+    let anchor: NodePlacementID = fault == "firstItem" ? .initial(owner) : .edit(ElementID(change: badChange, index: fault == "negative" ? -1 : 0))
+    let role = WritingParagraphRole(node: fault == "firstItem" ? conversion.destination.node : peer, owner: owner,
+        retirement: retirementID, exposure: [retirementID], after: anchor)
+    let forged = WritingChange(id: ChangeID(counter: 9, actor: "bad"), body: .edit([.retainParagraphRole(role)]), observed: b.changes().changes.map(\.id).reduce(into: [String: ChangeID]()) { $0[$1.actor] = $1 }.values.sorted())
+    let before = try b.save()
+    #expect(throws: EditorError.invalidChange) { try b.receive(WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: changes + [forged], version: 4)) }
+    #expect(try b.save() == before && b.mergeRecovery == nil)
+}
+
+@Test func schemaInactiveRoleRestoresExactItemAndSupportsLaterListCommands() throws {
+    let (a, b, _) = try schemaRetiredPeer()
+    try a.redo(); try b.receive(a.changes())
+    let originalList = b.document
+    try a.undo(); try b.receive(a.changes())
+    try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+    try a.receive(b.changes()); try a.redo(); try b.receive(a.changes())
+    try b.undo()
+    #expect(b.document == originalList)
+    let peer = try b.node(at: NodeAddress("p", path: ["items", "peer"]))
+    let first = try b.node(at: NodeAddress("p", path: ["items", "p-item"]))
+    try b.move(WritingSelection(nodes: [peer]), into: NodeCollection(owner: b.node(at: NodeAddress("p")), field: "items"), after: first)
+    #expect(b.document == originalList)
+    try b.enterListItem(at: TextAddress("p", path: ["items", "peer", "content"]), range: 1..<1, newItemID: "next")
+    #expect(try b.text(at: TextAddress("p", path: ["items", "next", "content"])) == "d")
+    #expect(try WritingSession.restore(b.save(), actorID: "b").document == b.document)
+}
+
+@Test(arguments: ["a", "z"]) func schemaRoleCohortExcludesUnobservedConcurrentRedo(redoActor: String) throws {
+    let block = try Block.paragraph(id: "p", text: "abcd")
+    let a = try schemaSession([block], actor: redoActor), b = try schemaSession([block], actor: "b")
+    try a.convertBlock(at: TextAddress("p"), offset: 0, to: WritingBlockTarget(type: "list", style: "ordered"))
+    try b.receive(a.changes())
+    try b.enterListItem(at: TextAddress("p", path: ["items", "p-item", "content"]), range: 2..<2, newItemID: "peer")
+    try a.receive(b.changes()); try a.undo(); try b.receive(a.changes())
+    try b.replaceText(at: TextAddress("p"), range: 0..<0, with: "X")
+    try a.redo()
+    try b.splitParagraph(at: TextAddress("peer"), range: 1..<1, newBlockID: "tail")
+    let aa = a.changes(), bb = b.changes()
+    try a.receive(bb); try b.receive(aa)
+    #expect(a.document == b.document && a.document.blocks.map(\.id) == ["p", "peer", "tail"])
+    #expect(a.document.blocks[0].type == "list")
+    #expect(try a.text(at: TextAddress("p", path: ["items", "p-item", "content"])) == "Xab")
+    #expect(try a.text(at: TextAddress("peer")) == "c" && a.text(at: TextAddress("tail")) == "d")
+    #expect(try WritingSession.restore(a.save(), actorID: redoActor).document == a.document)
+    try b.undo(); #expect(b.document.blocks.count == 1)
+}
+
+@Test(arguments: ["absent", "duplicateActor", "unsorted", "future", "zero"])
+func schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault: String) throws {
+    let (_, b, _) = try schemaRetiredPeer()
+    let latest = try #require(b.changes().changes.last)
+    let a = latest.id, earlier = ChangeID(counter: 2, actor: "b")
+    let observed: [ChangeID]?
+    switch fault {
+    case "absent": observed = nil
+    case "duplicateActor": observed = [ChangeID(counter: 1, actor: a.actor), a]
+    case "unsorted": observed = [a, earlier]
+    case "future": observed = [ChangeID(counter: 99, actor: "future")]
+    default: observed = [ChangeID(counter: 0, actor: "zero")]
+    }
+    let forged = WritingChange(id: ChangeID(counter: 9, actor: "bad"), body: .edit([.convertBlock(node: try b.node(at: NodeAddress("p")), type: "heading", attributes: ["level": .number(2)])]), observed: observed)
+    let before = try b.save()
+    #expect(throws: EditorError.invalidChange) { try b.receive(WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: b.changes().changes + [forged], version: 4)) }
+    #expect(try b.save() == before && b.mergeRecovery == nil)
 }

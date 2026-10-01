@@ -84,11 +84,38 @@ This overlapping-owner case does not claim automatic author-undo repair. Unknown
 host fields that collide with newly required `style`, `items` or `code` fields
 are rejected atomically rather than overwritten.
 
-Moving an existing baseline item into the converted wrapper is currently an open
-undo gap: its original placement cannot also act as the projected paragraph's
-placement, so undo rejects without modifying the accepted save. Structural Enter
-and move after peer paragraph projection also need a retained projected-placement
-contract; only preserved text/metadata and the covered undo/redo paths are claimed
-here. Reserved `level` and `variant` metadata collisions are rejected for the
-same-content family too; normal changes to an existing heading/callout attribute
-remain supported. These qualifications keep ST-98 open.
+Protocol 4 uses a derived `.role(owner:node:)` placement, separate from baseline
+and inserted birth placements. This preserves existing baseline items moved into
+a converted wrapper when its author undoes the conversion. A later structural or
+schema command on the exposed peer paragraph prefixes `retainParagraphRole` with
+the original item/owner identities, a known retirement, an exact exposure cohort,
+and a placement anchor. Every protocol-4 change records a sorted `observed`
+frontier containing its latest observed change for each actor. Recursive predecessor
+closure identifies the exact cohort, including clock holes; an unobserved concurrent
+redo does not enter solely because its ID sorts below a local change. Cohort IDs
+must precede the new command and identify retained history in which this exact
+peer identity was publicly exposed as a paragraph. The retirement need not sort
+after an unobserved concurrent peer birth; the cohort covers both. An old retirement before wrapper redo
+and a later item birth cannot prove exposure, and the conversion's first item is
+never exposed as a separate peer paragraph.
+
+Missing proof, node or predecessor history retains the entire rejected union as
+schema recovery for dependency delivery and restart. Invalid proof/anchor tokens
+are rejected as malformed without changing the accepted save. Role materialization
+preserves immutable item birth validation; disabled author commands cast the role
+for validation only, then restore the original raw node. Paragraph Enter, move,
+duplication anchors, conversion, Markdown shortcuts and merge preserve the exposed
+identity. Subsequent commands reuse its valid exposure proof and preserve later
+heading/code/list conversion rather than resetting the node to a paragraph.
+The frontier is required on every version-4 change and absent on version-3 changes;
+missing predecessor packets retain recovery, and malformed or unsorted frontiers
+are rejected atomically. Payload size and proof replay costs need version-4
+measurements: the recorded version-3 performance campaign does not qualify them.
+These additions form the initial version-4 wire contract before its first supported
+default delivery; an earlier draft candidate is not a separately supported runtime.
+
+Reserved `level` and `variant` metadata collisions are rejected for the same-content
+family too; normal changes to an existing heading/callout attribute remain supported.
+Non-final empty root-item exit, multi-item collapse, overlapping-owner repair,
+matching WASM/JNI execution and real platform acceptance remain open. These
+qualifications keep ST-98 open.

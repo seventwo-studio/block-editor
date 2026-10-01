@@ -754,7 +754,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
         if let nodes = knownNodes[creation] { return nodes }
         let root = NodeID.inserted(creation: creation, path: [])
         let kinds: [NodeKind]
-        if let node = introducedStructure.nodes[root] { kinds = [node.kind] }
+        if let node = introducedStructure.nodes[root] { kinds = [node.birthKind] }
         else {
             switch collection.field {
             case "blocks": kinds = [.block]
@@ -853,6 +853,11 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
                 guard !path.isEmpty else { throw EditorError.invalidChange }
                 if creation.change == change.id, !possiblePlacements.contains(id), introducedStructure.placements[id] == nil { throw EditorError.invalidChange }
             }
+        case .role(let owner, let node):
+            // Such placements can only be supplied by an explicitly validated
+            // protocol-4 writing projection, never inferred from birth labels.
+            guard version == 2, introducedStructure.placements[id] != nil else { throw EditorError.invalidChange }
+            try nodeReference(owner); try nodeReference(node)
         case .edit(let element): try placementElement(element)
         }
     }
