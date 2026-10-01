@@ -113,6 +113,14 @@ private func collision() throws -> (EditorSession, EditorSession, NodeID, NodeID
         #expect(a.syncState == receipt)
         #expect(!malformedPrepared)
     }
+    if case .inserted(let creation, _) = second {
+        let absentPrior = NodeID.inserted(creation: creation, path: ["children", "missing"])
+        #expect(throws: EditorError.invalidChange) {
+            try a.receive(ChangeBatch(documentID: a.documentID, baseline: a.baseline,
+                changes: [Change(id: id, body: .edit([.deleteNodes(identities: [absentPrior])]))], version: 2))
+        }
+        #expect(!malformedPrepared)
+    }
     #expect(a.mergeRecovery == proposal)
     #expect(try a.save() == saved)
     #expect(a.syncState == receipt)

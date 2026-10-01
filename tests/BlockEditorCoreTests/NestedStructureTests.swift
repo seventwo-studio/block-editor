@@ -392,6 +392,82 @@ private extension NodeID {
     }
 }
 
+@Test(arguments: [0, 1, 2])
+func impossiblePriorCreationPathsRejectAtomically(delivery: Int) throws {
+    let baseline = try Document(blocks: [.paragraph(id: "p", text: "Keep me")])
+    let prior = ChangeID(counter: 2, actor: "remote"), later = ChangeID(counter: 3, actor: "remote")
+    let creation = ElementID(change: prior, index: 0), next = ElementID(change: later, index: 0)
+    let missing = NodeID.inserted(creation: creation, path: ["children", "missing"])
+    let owner = NodeID.inserted(creation: ElementID(change: ChangeID(counter: 1, actor: "remote"), index: 0), path: [])
+    let prefix = Change(id: prior, body: .edit([
+        .insertNode(value: .object(try toggle("new", [paragraph("child", "Original")]).fields),
+            identity: .inserted(creation: creation, path: []), collection: delivery == 2 ? NodeCollection(owner: owner, field: "children") : .root,
+            placement: creation, after: nil),
+    ]))
+    let invalid: [Mutation] = [
+        .insertNode(value: paragraph("lost", "Must not disappear"), identity: .inserted(creation: next, path: []),
+            collection: NodeCollection(owner: missing, field: "children"), placement: next, after: nil),
+        .moveNode(identity: .baseline(blockID: "p", path: []), collection: NodeCollection(owner: missing, field: "children"), placement: next, after: nil),
+        .insertText(address: missing.textAddressForTest(), atoms: [TextAtom(id: next, after: nil, node: textNode("X"))]),
+        .deleteNodes(identities: [missing]),
+        .setNodeField(identity: missing, path: ["hostFlag"], value: .bool(true)),
+        .insertNode(value: paragraph("lost", "Must not disappear"), identity: .inserted(creation: next, path: []),
+            collection: .root, placement: next, after: .initial(missing)),
+    ]
+    for mutation in invalid {
+        let session = try EditorSession(documentID: "prior-created-paths", actorID: "local", document: baseline, collaborationVersion: 2)
+        if delivery != 1 { try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline, changes: [prefix], version: 2)) }
+        let saved = try session.save(), receipts = session.syncState, accepted = try session.document
+        var prepared = false
+        session.onWillReceive = { prepared = true }
+        let bad = Change(id: later, body: .edit([mutation]))
+        #expect(throws: EditorError.invalidChange) {
+            try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+                changes: delivery == 1 ? [bad, prefix] : [bad], version: 2))
+        }
+        #expect(try session.save() == saved)
+        #expect(try session.document == accepted)
+        #expect(session.syncState == receipts)
+        #expect(session.mergeRecovery == nil)
+        #expect(!prepared)
+    }
+}
+
+@Test func knownPriorElementsMustHaveTheReferencedKindAndField() throws {
+    let baseline = try Document(blocks: [.paragraph(id: "p", text: "P"), .paragraph(id: "q", text: "Q")])
+    let p = NodeID.baseline(blockID: "p", path: []), q = NodeID.baseline(blockID: "q", path: [])
+    let prior = ChangeID(counter: 1, actor: "remote"), later = ChangeID(counter: 2, actor: "remote")
+    let textP = ElementID(change: prior, index: 0), textQ = ElementID(change: prior, index: 1)
+    let missing = ElementID(change: prior, index: 99), next = ElementID(change: later, index: 0)
+    let prefix = Change(id: prior, body: .edit([
+        .insertText(address: p.textAddressForTest(), atoms: [TextAtom(id: textP, after: nil, node: textNode("A"))]),
+        .insertText(address: q.textAddressForTest(), atoms: [TextAtom(id: textQ, after: nil, node: textNode("B"))]),
+    ]))
+    let invalid: [Mutation] = [
+        .moveNode(identity: p, collection: .root, placement: next, after: .edit(textP)),
+        .deleteNodes(identities: [.inserted(creation: textP, path: [])]),
+        .insertText(address: p.textAddressForTest(), atoms: [TextAtom(id: next, after: textQ, node: textNode("X"))]),
+        .deleteText(address: p.textAddressForTest(), ids: [textQ]),
+        .formatText(address: p.textAddressForTest(), ids: [textQ], markType: "bold", mark: .object(["type": .string("bold")])),
+        .insertText(address: p.textAddressForTest(), atoms: [TextAtom(id: next, after: missing, node: textNode("X"))]),
+        .deleteNodes(identities: [.baseline(blockID: "p", path: ["children", "missing"])]),
+    ]
+    for mutation in invalid {
+        let session = try EditorSession(documentID: "prior-element-types", actorID: "local", document: baseline, collaborationVersion: 2)
+        try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline, changes: [prefix], version: 2))
+        let saved = try session.save(), receipts = session.syncState
+        var prepared = false
+        session.onWillReceive = { prepared = true }
+        #expect(throws: EditorError.invalidChange) {
+            try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+                changes: [Change(id: later, body: .edit([mutation]))], version: 2))
+        }
+        #expect(try session.save() == saved)
+        #expect(session.syncState == receipts)
+        #expect(!prepared)
+    }
+}
+
 @Test func insertedDescendantInitialPlacementsAndCausalReorderingRemainValid() throws {
     let baseline = try Document(blocks: [])
     let source = try EditorSession(documentID: "valid-created-paths", actorID: "remote", document: baseline, collaborationVersion: 2)

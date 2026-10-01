@@ -49,6 +49,17 @@ blocks or items; replay checks the actual kind after the parent arrives. Shared
 fixtures verify both atomic rejection during pending recovery and valid reversed
 delivery with list-item metadata and descendant text edits.
 
+References into a known earlier transaction also validate against its immutable
+creation payload and element kinds. A missing descendant or element cannot arrive
+later within that complete transaction; text anchors must belong to the exact
+field, and baseline nodes must exist in the original document. The full candidate
+history is checked before admission, including reversed batches and creations
+whose own causal parent is still absent. Truly missing earlier transactions remain
+deferred. The 120-step shared recovery fixture verifies prior-payload, kind and
+field rejection alongside valid text anchors across Swift, JNI and WASM. Failed
+validation preserves accepted state, receipts, pending recovery and preparation
+callbacks.
+
 Deleting a node records the descendants the author observed. Concurrently inserted
 descendants survive and retain their ancestors as containers. Undoing an insertion
 also retains containers required by another active author's descendants or edits,

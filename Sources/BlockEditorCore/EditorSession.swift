@@ -206,7 +206,7 @@ public final class EditorSession {
         }
         guard !mutations.isEmpty else { throw EditorError.invalidChange }
         let change = Change(id: id, body: .edit(mutations))
-        try validate(change, version: 2, structure: raw.structure)
+        try validate(change, version: 2, structure: raw.structure, history: candidate)
         candidate[id] = change
         try checkRecoveryCapacity(candidate)
         let next = try materialize(baseline, Array(candidate.values), version: 2)
@@ -601,7 +601,7 @@ public final class EditorSession {
     private func append(_ change: Change) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         if let recovery = mergeRecovery { throw EditorError.mergeRecoveryRequired(recovery) }
-        try validate(change, version: collaborationVersion, structure: state.structure)
+        try validate(change, version: collaborationVersion, structure: state.structure, history: log)
         var candidate = log; candidate[change.id] = change
         if collaborationVersion == 2 { try checkRecoveryCapacity(candidate) }
         var next: Materialized
@@ -658,7 +658,13 @@ private func validUTF16Offset(_ offset: Int, in text: String) -> Bool {
     return false
 }
 
-func validate(_ change: Change, version: Int, structure: StructuralState? = nil) throws {
+private enum ValidationElement {
+    case node(JSONValue, NodeCollection)
+    case placement
+    case text(TextAddress)
+}
+
+func validate(_ change: Change, version: Int, structure: StructuralState? = nil, history: [ChangeID: Change] = [:]) throws {
     guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991,
           validActor(change.id.actor) else { throw EditorError.invalidChange }
     var introduced = Set<ElementID>()
@@ -669,6 +675,54 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil)
     var uncertainCreations = Set<ElementID>()
     var possibleNodes = Set<NodeID>()
     var possiblePlacements = Set<NodePlacementID>()
+    var knownElements: [ChangeID: [ElementID: ValidationElement]] = [:]
+    var knownNodes: [ElementID: Set<NodeID>] = [:]
+    func knownElement(_ id: ElementID) throws -> ValidationElement? {
+        guard let prior = history[id.change] else { return nil }
+        if knownElements[id.change] == nil {
+            var elements: [ElementID: ValidationElement] = [:]
+            if case .edit(let mutations) = prior.body {
+                for mutation in mutations {
+                    switch mutation {
+                    case .insertNode(let value, _, let collection, let placement, _): elements[placement] = .node(value, collection)
+                    case .moveNode(_, _, let placement, _), .insertBlock(_, let placement, _), .moveBlock(_, let placement, _): elements[placement] = .placement
+                    case .insertText(let address, let atoms): for atom in atoms { elements[atom.id] = .text(address) }
+                    default: break
+                    }
+                }
+            }
+            knownElements[id.change] = elements
+        }
+        // A known complete transaction cannot introduce this element later.
+        guard let element = knownElements[id.change]?[id] else { throw EditorError.invalidChange }
+        return element
+    }
+    func creationNodes(_ creation: ElementID, value: JSONValue, collection: NodeCollection) throws -> Set<NodeID> {
+        if let nodes = knownNodes[creation] { return nodes }
+        let root = NodeID.inserted(creation: creation, path: [])
+        let kinds: [NodeKind]
+        if let node = introducedStructure.nodes[root] { kinds = [node.kind] }
+        else {
+            switch collection.field {
+            case "blocks": kinds = [.block]
+            case "items": kinds = [.item]
+            case "rows": kinds = [.row]
+            case "cells": kinds = [.cell]
+            case "children": kinds = [.item, .block]
+            default: throw EditorError.invalidChange
+            }
+        }
+        var nodes = Set<NodeID>()
+        for kind in kinds {
+            do { try validateNode(value, kind: kind) } catch { continue }
+            var shape = StructuralState()
+            shape.register(value, identity: root, kind: kind, active: true)
+            nodes.formUnion(shape.nodes.keys)
+        }
+        guard !nodes.isEmpty else { throw EditorError.invalidChange }
+        knownNodes[creation] = nodes
+        return nodes
+    }
     func uncertain(_ identity: NodeID) -> Bool {
         if case .inserted(let creation, _) = identity { return uncertainCreations.contains(creation) }
         return false
@@ -683,10 +737,16 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil)
     func placementElement(_ id: ElementID?) throws {
         try reference(id)
         if let id, id.change == change.id, !introducedPlacements.contains(id) { throw EditorError.invalidChange }
+        if let id, id.change != change.id, let element = try knownElement(id) {
+            if case .text = element { throw EditorError.invalidChange }
+        }
     }
     func textElement(_ id: ElementID?, at target: TextAddress) throws {
         try reference(id)
         if let id, id.change == change.id, introducedText[id] != target { throw EditorError.invalidChange }
+        if let id, id.change != change.id, let element = try knownElement(id) {
+            guard case .text(let address) = element, address == target else { throw EditorError.invalidChange }
+        }
     }
     func address(_ address: TextAddress) throws {
         guard !address.blockID.isEmpty, let field = address.path.last,
@@ -701,10 +761,14 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil)
         switch identity {
         case .baseline(let blockID, let path):
             guard !blockID.isEmpty, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
+            if structure != nil, introducedStructure.nodes[identity] == nil { throw EditorError.invalidChange }
         case .inserted(let creation, let path):
             try reference(creation)
             if creation.change == change.id {
                 guard introducedNodes.contains(creation), possibleNodes.contains(identity) || introducedStructure.nodes[identity] != nil else { throw EditorError.invalidChange }
+            } else if let element = try knownElement(creation) {
+                guard case .node(let value, let collection) = element,
+                      try creationNodes(creation, value: value, collection: collection).contains(identity) else { throw EditorError.invalidChange }
             }
             guard creation.change.counter > 0, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
         }

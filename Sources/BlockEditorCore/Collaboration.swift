@@ -255,14 +255,16 @@ struct Materialized {
 func materialize(_ baseline: Document, _ changes: [Change], version: Int = 1) throws -> Materialized {
     let sorted = changes.sorted { $0.id < $1.id }
     var active: [ChangeID: Bool] = [:]
+    var history: [ChangeID: Change] = [:]
     for change in sorted {
+        history[change.id] = change
         if case .setActive(let target, let value) = change.body { active[target] = value }
     }
     var state = Materialized.seed(baseline, version: version)
     for change in sorted {
         // Validate creation paths against their containing collection, including
         // histories whose causal parents arrived after an earlier receive.
-        try validate(change, version: version, structure: state.structure)
+        try validate(change, version: version, structure: state.structure, history: history)
         guard case .edit(let mutations) = change.body else { continue }
         let enabled = active[change.id] ?? true
         try apply(mutations, enabled: enabled, to: &state)

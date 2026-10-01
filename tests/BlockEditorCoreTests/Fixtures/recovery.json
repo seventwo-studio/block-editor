@@ -3149,6 +3149,3197 @@
         "session": "metadataExpected"
       },
       "capture": "metadataExpected"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "prior-known",
+        "documentID": "prior-known-doc",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "kept",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Keep me",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "other",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Other field",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-known"
+      },
+      "capture": "prior-known-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-known"
+      },
+      "capture": "prior-known-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-known"
+      },
+      "capture": "prior-known-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@prior/1/0",
+                          "path": [
+                            "children",
+                            "missing",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteNodes": {
+                        "identities": [
+                          {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "setNodeField": {
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": [
+                              "children",
+                              "missing"
+                            ]
+                          }
+                        },
+                        "path": [
+                          "hostFlag"
+                        ],
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-known",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-known-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "counter": 1,
+                                    "actor": "prior"
+                                  },
+                                  "index": 0
+                                },
+                                "path": [
+                                  "children",
+                                  "missing"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-known"
+      },
+      "capture": "prior-known-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-known"
+      },
+      "capture": "prior-known-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-known"
+      },
+      "capture": "prior-known-after-document"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "prior-reversed",
+        "documentID": "prior-reversed-doc",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "kept",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Keep me",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "other",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Other field",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-reversed"
+      },
+      "capture": "prior-reversed-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-reversed"
+      },
+      "capture": "prior-reversed-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-reversed"
+      },
+      "capture": "prior-reversed-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-reversed-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-reversed-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-reversed-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@prior/1/0",
+                          "path": [
+                            "children",
+                            "missing",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-reversed-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteNodes": {
+                        "identities": [
+                          {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-reversed-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "setNodeField": {
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": [
+                              "children",
+                              "missing"
+                            ]
+                          }
+                        },
+                        "path": [
+                          "hostFlag"
+                        ],
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-reversed",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-reversed-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "counter": 1,
+                                    "actor": "prior"
+                                  },
+                                  "index": 0
+                                },
+                                "path": [
+                                  "children",
+                                  "missing"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-reversed"
+      },
+      "capture": "prior-reversed-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-reversed"
+      },
+      "capture": "prior-reversed-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-reversed"
+      },
+      "capture": "prior-reversed-after-document"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "prior-deferred",
+        "documentID": "prior-deferred-doc",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "kept",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Keep me",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "other",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Other field",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "bad-0",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "retained-0",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-deferred"
+      },
+      "capture": "prior-deferred-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-deferred"
+      },
+      "capture": "prior-deferred-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-deferred"
+      },
+      "capture": "prior-deferred-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 3,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 2,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 3,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 2,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 3,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@prior/2/0",
+                          "path": [
+                            "children",
+                            "missing",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 2,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 3,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteNodes": {
+                        "identities": [
+                          {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 2,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "setNodeField": {
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": [
+                              "children",
+                              "missing"
+                            ]
+                          }
+                        },
+                        "path": [
+                          "hostFlag"
+                        ],
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-deferred",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-deferred-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 3,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 3,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "counter": 2,
+                                    "actor": "prior"
+                                  },
+                                  "index": 0
+                                },
+                                "path": [
+                                  "children",
+                                  "missing"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-deferred"
+      },
+      "capture": "prior-deferred-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-deferred"
+      },
+      "capture": "prior-deferred-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-deferred"
+      },
+      "capture": "prior-deferred-after-document"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "prior-types",
+        "documentID": "prior-types-doc",
+        "actorID": "local",
+        "blocks": [
+          {
+            "id": "kept",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Keep me",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "other",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Other field",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "A",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "other",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "other",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "B",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-types"
+      },
+      "capture": "prior-types-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-types"
+      },
+      "capture": "prior-types-before-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-types"
+      },
+      "capture": "prior-types-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "prior"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteNodes": {
+                        "identities": [
+                          {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "prior"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 1,
+                              "actor": "prior"
+                            },
+                            "index": 1
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "formatText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "ids": [
+                          {
+                            "change": {
+                              "counter": 1,
+                              "actor": "prior"
+                            },
+                            "index": 1
+                          }
+                        ],
+                        "markType": "bold",
+                        "mark": {
+                          "type": "bold"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 99
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "deleteNodes": {
+                        "identities": [
+                          {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "prior-types"
+      },
+      "capture": "prior-types-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "prior-types"
+      },
+      "capture": "prior-types-after-syncState"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-types"
+      },
+      "capture": "prior-types-after-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "prior-types",
+        "batch": {
+          "version": 2,
+          "documentID": "prior-types-doc",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "prior"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "kept",
+                          "path": [
+                            "content"
+                          ],
+                          "identity": {
+                            "baseline": {
+                              "blockID": "kept",
+                              "path": []
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "after": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "prior"
+                              },
+                              "index": 0
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "prior-types-expected",
+        "documentID": "prior-types-expected",
+        "actorID": "expected",
+        "blocks": [
+          {
+            "id": "kept",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AXKeep me",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "other",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "BOther field",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-types"
+      },
+      "capture": "validPriorAtomActual"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "prior-types-expected"
+      },
+      "capture": "validPriorAtomExpected"
     }
   ],
   "equal": [
@@ -3191,6 +6382,58 @@
     [
       "metadataActual",
       "metadataExpected"
+    ],
+    [
+      "prior-known-before-save",
+      "prior-known-after-save"
+    ],
+    [
+      "prior-known-before-syncState",
+      "prior-known-after-syncState"
+    ],
+    [
+      "prior-known-before-document",
+      "prior-known-after-document"
+    ],
+    [
+      "prior-reversed-before-save",
+      "prior-reversed-after-save"
+    ],
+    [
+      "prior-reversed-before-syncState",
+      "prior-reversed-after-syncState"
+    ],
+    [
+      "prior-reversed-before-document",
+      "prior-reversed-after-document"
+    ],
+    [
+      "prior-deferred-before-save",
+      "prior-deferred-after-save"
+    ],
+    [
+      "prior-deferred-before-syncState",
+      "prior-deferred-after-syncState"
+    ],
+    [
+      "prior-deferred-before-document",
+      "prior-deferred-after-document"
+    ],
+    [
+      "prior-types-before-save",
+      "prior-types-after-save"
+    ],
+    [
+      "prior-types-before-syncState",
+      "prior-types-after-syncState"
+    ],
+    [
+      "prior-types-before-document",
+      "prior-types-after-document"
+    ],
+    [
+      "validPriorAtomActual",
+      "validPriorAtomExpected"
     ]
   ],
   "expected": {
