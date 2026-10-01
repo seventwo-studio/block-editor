@@ -22,6 +22,65 @@ class WritingSessionTest {
         catch (failure: IllegalStateException) { assertEquals(message, failure.message) }
     }
 
+    @Test fun typedV4ConversionKeepsRootAndRetainsBothRemoteOriginsAcrossUndo() {
+        val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"café😀","marks":[]}],"extension":"keep"}]""")
+        val a = WritingSession.createV4("typed-schema", "a", "schema-v4", seed)
+        val b = WritingSession.createV4("typed-schema", "b", "schema-v4", seed)
+        var reopened: WritingSession? = null
+        try {
+            val original = normalize(a.node(NodeAddress("p")).wire)
+            val caret = a.convertBlock(WritingAddress("p"), 1, WritingBlockTarget("list", style = "todo"))
+            assertEquals(original, normalize(a.node(NodeAddress("p")).wire))
+            assertEquals(4, a.changes().export().getInt("version"))
+            b.replaceText(WritingAddress("p"), 0, 0, "R")
+            a.receive(b.changes()); b.receive(a.changes())
+            assertEquals(blocks(a), blocks(b))
+            val item = WritingAddress("p", listOf("items", "p-item", "content"))
+            b.replaceText(item, 0, 0, "X")
+            a.receive(b.changes())
+            assertEquals(3, a.resolvePosition(caret).offset)
+            val restored = WritingSession.restore(a.save(), "a"); reopened = restored
+            restored.undo()
+            assertEquals(original, normalize(restored.node(NodeAddress("p")).wire))
+            assertEquals("paragraph", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getString("type"))
+            assertEquals(normalize(JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"XRcafé😀","marks":[]}],"extension":"keep"}]""")), blocks(restored))
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+    }
+
+    @Test fun typedBlockConversionShortcutAndListContinuationKeepIdentityAndUndo() {
+        val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"## café","marks":[]}],"extension":"keep"}]""")
+        val a = WritingSession.createV4("typed-commands", "a", "commands-v4", seed)
+        var reopened: WritingSession? = null
+        val list = WritingSession.createV4("typed-list-commands", "a", "commands-v4", JSONArray("""[
+            {"id":"list","type":"list","style":"todo","items":[{"id":"i","content":[{"type":"text","text":"A😀","marks":[]}],"checked":true,"extension":"keep"}]}
+        ]"""))
+        try {
+            val field = WritingAddress("p")
+            val original = normalize(a.node(NodeAddress("p")).wire)
+            a.setAllowedBlockTypes(setOf("paragraph"))
+            val accepted = normalize(a.save().export())
+            error("restrictedBlock(\"heading\")") { a.markdownShortcut(field, 3) }
+            assertEquals(accepted, normalize(a.save().export()))
+            a.setAllowedBlockTypes(null)
+            val caret = a.markdownShortcut(field, 3)
+            assertEquals(original, normalize(a.node(NodeAddress("p")).wire))
+            assertEquals(0, a.resolvePosition(caret).offset)
+            assertEquals(2, a.snapshot.getJSONArray("blocks").getJSONObject(0).getInt("level"))
+            a.convertBlock(field, 1, WritingBlockTarget("quote"))
+            assertEquals("quote", a.snapshot.getJSONArray("blocks").getJSONObject(0).getString("type"))
+            val restored = WritingSession.restore(a.save(), "a"); reopened = restored
+            restored.undo(); restored.undo()
+            assertEquals(normalize(seed), blocks(restored))
+            val position = list.enterListItem(WritingAddress("list", listOf("items", "i", "content")), 1, 1, "next")
+            assertEquals(0, list.resolvePosition(position).offset)
+            val items = list.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("items")
+            assertEquals("i", items.getJSONObject(0).getString("id"))
+            assertEquals("next", items.getJSONObject(1).getString("id"))
+            assertFalse(items.getJSONObject(1).getBoolean("checked"))
+            assertEquals("keep", items.getJSONObject(1).getString("extension"))
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); list.close(pendingStateRetained = true) }
+    }
+
     @Test fun splitRemoteFormattingStablePositionAndReopenedAuthorUndo() {
         val seed = JSONArray("""[{"id":"left","type":"paragraph","content":[{"type":"text","text":"abcd","marks":[]}]}]""")
         val a = WritingSession.create("typed-kotlin", "a", "v3", seed)

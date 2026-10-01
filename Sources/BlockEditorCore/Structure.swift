@@ -49,7 +49,7 @@ enum NodeKind: String { case block, item, row, cell }
 struct StructuralState {
     struct Node {
         let identity: NodeID
-        let kind: NodeKind
+        var kind: NodeKind
         var fields: [String: JSONValue]
         var collections: Set<String>
         let birthActive: Bool

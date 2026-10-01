@@ -61,11 +61,12 @@ struct WritingProjection {
     private var nodes: [WritingAtomKey: JSONValue] = [:]
     private var placements: [WritingAtomKey: Placement] = [:]
     private var hidden = Set<WritingAtomKey>()
+    private var redirectSources = Set<WritingField>()
     private var joins: [WritingField: (destination: WritingField, edge: WritingEdge)] = [:]
     private var fields: [WritingAtomKey: WritingField] = [:]
     private var order: [WritingAtomKey] = []
 
-    init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = []) throws {
+    init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:]) throws {
         hidden = hiddenSeeds
         let sorted = edits.sorted { $0.id < $1.id }
         var births: [WritingAtomKey: WritingAtomSeed] = [:]
@@ -138,6 +139,9 @@ struct WritingProjection {
                 }
             }
         }
+        for (source, destination) in redirects where source != destination && joins[source] == nil {
+            joins[source] = (destination, .start); redirectSources.insert(source)
+        }
         try resolveFields()
         try resolveOrder()
     }
@@ -145,7 +149,7 @@ struct WritingProjection {
     private static func head(_ field: WritingField) -> WritingAtomKey {
         WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: -1))
     }
-    var joinedSources: Set<WritingField> { Set(joins.keys) }
+    var joinedSources: Set<WritingField> { Set(joins.keys).subtracting(redirectSources) }
     var retainedKeys: Set<WritingAtomKey> { Set(nodes.keys.filter { $0.element.index >= 0 }) }
     func visibleKeys(in field: WritingField) -> [WritingAtomKey] {
         order.filter { fields[$0] == field && !hidden.contains($0) && $0.element.index >= 0 }

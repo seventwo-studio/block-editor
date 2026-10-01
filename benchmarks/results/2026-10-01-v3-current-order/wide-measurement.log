@@ -1,0 +1,6 @@
+history-v3-512 repeat 0: edits p95 29.21 ms; rejoin 626.79 ms; snapshot 663727 bytes
+history-v3-512 repeat 1: edits p95 30.39 ms; rejoin 659.03 ms; snapshot 663727 bytes
+history-v3-512 repeat 2: edits p95 28.46 ms; rejoin 618.44 ms; snapshot 663727 bytes
+history-v3-2048 repeat 0: edits p95 75.49 ms; rejoin 2472.96 ms; snapshot 2651538 bytes
+history-v3-2048 repeat 1: edits p95 76.92 ms; rejoin 2507.90 ms; snapshot 2651538 bytes
+history-v3-2048 repeat 2: edits p95 77.68 ms; rejoin 2464.98 ms; snapshot 2651538 bytes

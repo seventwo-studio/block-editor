@@ -34,8 +34,8 @@ public final class EditorBridge {
     private func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
-        if (command == "create" && input["collaborationVersion"] == .number(3)) ||
-           (command == "restore" && input["snapshot"]?["version"] == .number(3)) || command == "cutoverToV3" {
+        if (command == "create" && [.number(3), .number(4)].contains(input["collaborationVersion"])) ||
+           (command == "restore" && [.number(3), .number(4)].contains(input["snapshot"]?["version"])) || command == "cutoverToV3" {
             guard !handle.isEmpty, sessions[handle] == nil, writingSessions[handle] == nil,
                   let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             let writing: WritingSession
@@ -49,7 +49,8 @@ public final class EditorBridge {
             } else {
                 guard let documentID = input["documentID"]?.string, let epoch = input["epoch"]?.string else { throw EditorError.invalidChange }
                 writing = try WritingSession(documentID: documentID, actorID: actor, epoch: epoch,
-                    document: Document(json: canonicalEncoder().encode(input["blocks"] ?? .array([]))))
+                    document: Document(json: canonicalEncoder().encode(input["blocks"] ?? .array([]))),
+                    protocolVersion: input["collaborationVersion"] == .number(4) ? 4 : 3)
             }
             writingSessions[handle] = writing
             return try writingSnapshot(writing)
@@ -185,6 +186,25 @@ public final class EditorBridge {
             let after = input["after"] == nil || input["after"] == .null ? nil : try decode(input["after"], as: NodeID.self)
             let result = command == "moveSelection" ? try session.move(selected, into: collection, after: after) : try session.duplicate(selected, into: collection, after: after)
             return .object(["snapshot": try writingSnapshot(session), "selection": try encode(result)])
+        case "allowedBlockTypes":
+            if input["types"] == .null { session.allowedBlockTypes = nil }
+            else {
+                guard let values = input["types"]?.array, values.allSatisfy({ $0.string != nil }) else { throw EditorError.invalidChange }
+                session.allowedBlockTypes = Set(values.compactMap(\.string))
+            }
+        case "convertBlock", "markdownShortcut", "enterListItem":
+            let address = try decode(input["address"], as: TextAddress.self)
+            let position: WritingPosition
+            if command == "convertBlock" {
+                position = try session.convertBlock(at: address, offset: decode(input["offset"], as: Int.self), to: decode(input["target"], as: WritingBlockTarget.self))
+            } else if command == "markdownShortcut" {
+                position = try session.markdownShortcut(at: address, offset: decode(input["offset"], as: Int.self))
+            } else {
+                let start = try decode(input["start"], as: Int.self), end = try decode(input["end"], as: Int.self)
+                guard start >= 0, end >= start else { throw EditorError.invalidRange }
+                position = try session.enterListItem(at: address, range: start..<end, newItemID: decode(input["newItemID"], as: String.self))
+            }
+            return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
         case "mergeParagraphs":
             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
