@@ -143,6 +143,20 @@ class PerformanceTest {
             assertTrue(prefix.all { it == 'a' || it == 'b' })
             assertEquals(aCount, prefix.count { it == 'a' }); assertEquals(bCount, prefix.count { it == 'b' })
         }
+        fun assertFormatting(snapshot: JSONObject, boldCount: Int, italicCount: Int) {
+            val counts = mutableMapOf("bold" to 0, "italic" to 0)
+            val content = blocks(snapshot).getJSONObject(0).getJSONArray("content")
+            for (index in 0 until content.length()) {
+                val node = content.getJSONObject(index)
+                val marks = node.optJSONArray("marks") ?: continue
+                for ((type, text) in listOf("bold" to "a", "italic" to "b")) {
+                    if (!(0 until marks.length()).any { marks.getJSONObject(it).getString("type") == type }) continue
+                    assertEquals("Formatting escaped its author's character", text, node.getString("text"))
+                    counts[type] = counts.getValue(type) + 1
+                }
+            }
+            assertEquals(mapOf("bold" to boldCount, "italic" to italicCount), counts)
+        }
         try {
             assertEquals(normalize(baseline), normalize(blocks(create(a, "a"))))
             create(b, "b")
@@ -161,6 +175,7 @@ class PerformanceTest {
             val finalA = receive(a, withChanges(batchB, reversedB + reversedB))
             val finalB = receive(b, withChanges(batchA, changes(batchA).reversed()))
             assertEquals(normalize(blocks(finalA)), normalize(blocks(finalB))); assertContent(finalA, n, n)
+            assertFormatting(finalA, 1, 1)
             assertEquals(normalize(blocks(finalA)), normalize(blocks(receive(a, batchB, "duplicateReceive"))))
             create(peer, "peer")
             val combined = withChanges(batchA, (changes(batchA) + changes(batchB)).reversed())
@@ -173,12 +188,10 @@ class PerformanceTest {
             assertEquals(normalize(blocks(finalA)), normalize(blocks(restored)))
             assertEquals(normalize(receipts), normalize(request("receipts", "syncState", reopened)))
             val afterFormatUndo = request("undo", "undo", reopened) as JSONObject
-            val content = blocks(afterFormatUndo).getJSONObject(0).getJSONArray("content")
-            assertTrue((0 until content.length()).any { index ->
-                val marks = content.getJSONObject(index).optJSONArray("marks")
-                marks != null && (0 until marks.length()).any { marks.getJSONObject(it).getString("type") == "italic" }
-            })
-            assertContent(request("undo", "undo", reopened) as JSONObject, n - 1, n)
+            assertFormatting(afterFormatUndo, 0, 1)
+            val afterUndo = request("undo", "undo", reopened) as JSONObject
+            assertContent(afterUndo, n - 1, n)
+            assertFormatting(afterUndo, 0, 1)
             request("redo", "redo", reopened)
             assertEquals(normalize(blocks(finalA)), normalize(blocks(request("redo", "redo", reopened) as JSONObject)))
             return obj("case" to name, "repetition" to repetition, "version" to version, "editsPerAuthor" to n,

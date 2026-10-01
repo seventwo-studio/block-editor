@@ -57,6 +57,17 @@ export async function runPerformanceCase(config, workload, repetition, call, now
     const prefix = text.slice(0, text.length - config.initialText.length);
     if (prefix.replace(/[ab]/g, '').length || [...prefix].filter(x => x === 'a').length !== aCount || [...prefix].filter(x => x === 'b').length !== bCount) throw new Error('Concurrent author text was lost');
   };
+  const assertFormatting = (snapshot, boldCount, italicCount) => {
+    const counts = { bold: 0, italic: 0 };
+    for (const node of snapshot.blocks[0].content) {
+      for (const [type, text] of [['bold', 'a'], ['italic', 'b']]) {
+        if (!node.marks?.some(mark => mark.type === type)) continue;
+        if (node.text !== text) throw new Error(`Performance correctness failure: ${type} escaped its author's character`);
+        counts[type]++;
+      }
+    }
+    equal(counts, { bold: boldCount, italic: italicCount }, 'author formatting and undo');
+  };
   try {
     equal((await create(a, 'a')).blocks, config.baseline, 'initial document');
     await create(b, 'b');
@@ -78,6 +89,7 @@ export async function runPerformanceCase(config, workload, repetition, call, now
     const finalB = await receive(b, reverse(batchA));
     equal(finalA.blocks, finalB.blocks, 'offline rejoin convergence');
     assertContent(finalA, workload.editsPerAuthor, workload.editsPerAuthor);
+    assertFormatting(finalA, 1, 1);
     equal((await receive(a, batchB, 'duplicateReceive')).blocks, finalA.blocks, 'already acknowledged duplicate');
     await create(peer, 'peer');
     const combined = { ...batchA, changes: [...batchA.changes, ...batchB.changes].reverse() };
@@ -89,9 +101,10 @@ export async function runPerformanceCase(config, workload, repetition, call, now
     equal((await request('restore', { command: 'restore', session: reopened, actorID: 'a', snapshot: saved })).blocks, finalA.blocks, 'save/reopen');
     equal(await request('receipts', { command: 'syncState', session: reopened }), receipts, 'reopened receipts');
     const afterFormatUndo = await request('undo', { command: 'undo', session: reopened });
-    if (!afterFormatUndo.blocks[0].content.some(x => x.marks?.some(m => m.type === 'italic'))) throw new Error('Local undo reverted remote formatting');
+    assertFormatting(afterFormatUndo, 0, 1);
     const afterUndo = await request('undo', { command: 'undo', session: reopened });
     assertContent(afterUndo, workload.editsPerAuthor - 1, workload.editsPerAuthor);
+    assertFormatting(afterUndo, 0, 1);
     await request('redo', { command: 'redo', session: reopened });
     equal((await request('redo', { command: 'redo', session: reopened })).blocks, finalA.blocks, 'redo retains remote content');
     return {

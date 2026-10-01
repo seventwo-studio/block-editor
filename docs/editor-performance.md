@@ -18,6 +18,9 @@ their own content, then exchange reversed and duplicated batches. Each run check
 
 - Both replicas converge without losing either author's text, original Unicode,
   unrelated blocks, formatting, references or metadata.
+- Independent mark expectations require exactly one local bold character and one
+  remote italic character after rejoin. Local undo removes the bold mark and then
+  one local character while retaining the remote italic character.
 - An already received batch is harmless, and a fresh replica replays the full
   history to the same document.
 - Saves and exact receipts retain all `2 * editsPerAuthor + 2` transactions.
