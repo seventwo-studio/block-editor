@@ -81,6 +81,10 @@ COMPATIBILITY_OUTPUT=/tmp/editor-wasm-reports bunx playwright test --config play
 bun scripts/compare-runtime-reports.mjs /path/to/downloaded/runtime-artifacts
 ```
 
+The runtime jobs also exercise the short [measurement harness](editor-performance.md)
+smoke profile. Its reports verify workload execution and preserved content;
+numeric performance thresholds remain separate ST-94 acceptance.
+
 This CI gate does not complete native menus/rich authoring, system IME or
 accessibility, all Apple-family/minimum/current interaction, physical Android
 devices, the full reference relay matrix, browser-process offline asset loading,
