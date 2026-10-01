@@ -128,8 +128,14 @@ retains the original authored history, while the new session follows the engine'
 fresh-actor undo policy. Exports refuse to overwrite an existing destination.
 
 The reference stores archives locally and offers platform sharing on iOS, macOS
-and visionOS. A failed draft save is visible and directs the author to export before
-closing. Browser recovery uses its own storage adapter described below. No
+and visionOS. A failed draft save is visible and offers an explicit local-save retry.
+HTTP 413 exposes `RelayError.transportCapacityExceeded(maxBytes:)` and
+`LocalRelayClient.transportCapacityBytes`. The host displays the limit and an
+export/share/retry path even when no schema proposal is pending. Archive export
+retains all local history and any separate pending union; it also supports valid
+local history that the server has never admitted. It refuses destination overwrite.
+Disconnecting or failing a retry leaves the history, receipts and capacity state
+intact; a successful admitted exchange clears the capacity state. Browser recovery uses its own storage adapter described below. No
 automatic destructive repair or protocol cutover is
 implied by opening the Apple panel.
 
@@ -174,8 +180,8 @@ proposal changes separately from document notifications, including a failed rece
 and delayed composition-buffer draining. Hosts can use `getRecoverySnapshot` as a
 stable external-store value. Repairs clear the proposal only after engine admission.
 
-The reference offers original root/toggle block wrapping, archive download and
-synchronization retry. Accepted rich text remains focusable and selectable with
+The reference offers original root/toggle block wrapping, archive download/import
+and synchronization retry. Accepted rich text remains focusable and selectable with
 `contentEditable=false`; code/math fields use native read-only textareas. Ordinary
 typing, formatting, block actions, stress edits and undo/redo wait for repair.
 Unsupported repairs retain both histories and display the failure. The block
@@ -193,21 +199,63 @@ Persistence also runs when rejection changes only the pending proposal. Quota or
 transaction failure remains visible; retry saves the current accepted/pending
 envelope, and an archive download can retain both histories before closing. Archive
 downloads are versioned host records separate from the collaboration protocol.
-Browser archive-file import and full network-disabled asset loading remain open.
+The file picker imports version-1 browser recovery archives as new drafts with fresh
+actors. It retains original authored changes and the separate proposal, validates
+both through the engine before creating storage, and never overwrites an existing
+draft. The original writer can stay open. Imports start offline, use the selected
+room only for an explicit subsequent connection, and do not request relay receipts.
+Failed decoding, protocol validation or local persistence leaves the source file
+and existing drafts intact. FileReader supports WebKit file-picker reads. Files
+over 130 MB are refused before reading; preserve larger archives for a supported
+transport or explicit cutover. This host read bound allows two 64 MB histories plus
+an envelope; it does not raise engine admission limits.
 
-Fourteen Chromium/WebKit host checks pass. A real v2 relay workflow exercises
+HTTP 413 has a visible transport-capacity panel showing the relay's byte limit,
+retention/export guidance and retry. Neither that response nor retries advance
+receipts or presence. The complete valid local history remains in the accepted
+snapshot even when it is not accepted by the server; exports include it with any
+separate pending proposal. The panel remains available after disconnecting. A new
+connection can recreate the capacity failure after offline reopen. Ordinary local
+edits remain available when there is no schema-recovery proposal.
+
+Full network-disabled UI/WASM asset loading remains open.
+
+`tests/relay-browser.spec.ts` exercises the actual host against a v2 relay, including
 HTTP 409, failed local storage and retry, accepted text selection, blocked actions,
 failed repair preservation, archive download, legacy upgrade and rejection of old
 database writers. It closes and reopens the tab with the relay stopped, restores
 pending recovery without a token or relay request, repairs offline, closes/reopens
-the repaired draft and reconnects to a restarted server. A fresh Swift peer has
-the same document with both authors' content. Four incompatible/malformed draft
-cases preserve the stored input. These are tab-restart checks with locally served
+the repaired draft and reconnects to a restarted server. A fresh Swift peer is compared against the document containing both authors.
+Invalid stored drafts and archive-file imports retain their exact input. The file
+import checks keep the original writer open, restore a separate fresh author,
+repair the imported proposal offline and verify the original draft is unchanged.
+A valid 8 MB extension/history fixture exercises actual HTTP 413, export, offline
+reopen and repeated rejection without advancing server receipts or presence. These are tab-restart checks with locally served
 UI/WASM assets, not full browser-process restart or airplane-mode acceptance.
-Firefox host recovery, system input/accessibility and production React migration stay
-open.
+Run the host suite in Chromium, WebKit and Firefox with
+`bunx playwright test --config playwright.relay.config.ts`. Tests can use
+`BLOCK_EDITOR_BRIDGE` and `BLOCK_EDITOR_RELAY_CLIENT` to select frozen native
+artifacts; their engine inputs must match the supplied WASM. Three-browser
+execution now passes locally for all 42 host cases with no skips. The shared
+persistent-profile process campaign also passes all nine scenarios in Chromium,
+WebKit and Firefox, including separate accepted/proposal persistence, archive
+import, failed repair, original-writer resubmission and capacity export/retry. The
+three capacity cases were rerun after correcting a bridge fixture to restore the
+archive into a distinct session handle; the six v1/v2 cases remain preserved in
+the preceding report. Process evidence records source hashes, native/WASM hashes,
+launcher IDs, process exits and offline request counts. Fresh hosted CI of the
+combined delivery, system input/accessibility and production React migration remain
+independent gates.
 
 ## Evidence
+
+`TransportCapacityTests` independently verifies the Apple HTTP adapter's typed
+413 state, unchanged accepted history/receipts, archive export without a pending
+schema proposal, fresh-actor restoration, repeated failure and destination
+preservation. The scoped native host build runs seven LocalDemo checks; the live
+relay integration check is separately gated on its endpoint/token environment.
+This test does not replace actual Apple recovery/capacity interaction.
+
 
 `Fixtures/recovery.json` executes the same rejected union, receipt/save invariants,
 separate proposal restoration, repair, synchronization, reopening and remote author
@@ -283,6 +331,6 @@ broader platform requirements or browser recovery.
 
 ST-96 remains open for full recovery integration, expanded generated conflict/resource
 coverage and the complete cross-runtime threshold matrix. Remaining platform recovery UI,
-minimum/current runtime interaction, Firefox host recovery, post-merge runtime CI,
+minimum/current runtime interaction, post-merge runtime CI,
 measured budgets and clean
 private consumer installation remain separate gates.

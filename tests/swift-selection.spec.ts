@@ -1,13 +1,53 @@
-import { test, expect } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
 
-test.beforeEach(async ({ page }) => {
+const test = base.extend<{ mountRemote: "reference" | "Code" | "Math" | null }>({
+  mountRemote: [null, { option: true }],
+});
+
+test.beforeEach(async ({ page, mountRemote }) => {
   await page.route("**/engine.wasm", route => route.fulfill({ path: "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");
-  await page.evaluate(async source => {
+  await page.evaluate(async ({ source, mountRemote, inlineSource }) => {
     const { mount } = await import(/* @vite-ignore */ source);
-    (window as any).selectionHarness = await mount(await (await fetch("engine.wasm")).arrayBuffer());
-  }, `/block-editor/@fs${process.cwd()}/tests/swift-selection-harness.ts`);
+    const { selectInline } = await import(/* @vite-ignore */ inlineSource);
+    (window as any).selectionHarness = await mount(await (await fetch("engine.wasm")).arrayBuffer(), mountRemote ? (a: any, b: any, host: HTMLElement) => {
+      if (mountRemote === "reference") {
+        const editor = host.querySelector<HTMLElement>('[role="textbox"]')!;
+        editor.focus(); selectInline(editor, 8);
+        b.replaceText({ blockID: "p", path: ["content"] }, 0, 0, "R", []);
+      } else {
+        const input = host.querySelector<HTMLTextAreaElement>(`textarea[aria-label="${mountRemote}"]`)!;
+        input.focus(); input.setSelectionRange(0, 3, "backward");
+        b.replaceText({ blockID: mountRemote === "Code" ? "code" : "math", path: [mountRemote === "Code" ? "code" : "expression"] }, 0, 0, "R", []);
+      }
+      a.receive(b.changes(a.syncState()));
+    } : undefined);
+  }, { source: `/block-editor/@fs${process.cwd()}/tests/swift-selection-harness.ts`, inlineSource: `/block-editor/@fs${process.cwd()}/src/inline-react.tsx`, mountRemote });
   await expect(page.locator('#selection-harness [role="textbox"]')).toBeVisible();
+});
+
+test.describe("remote receive during mounting", () => {
+  test.describe("reference interior", () => {
+    test.use({ mountRemote: "reference" });
+    test("maps the caret before the first passive effects", async ({ page }) => {
+      await expect(page.locator('#selection-harness [role="textbox"]')).toHaveText("RHello Mira world");
+      expect(await page.evaluate(() => (window as any).selectionHarness.selection())).toEqual({ start: 9, end: 9, backward: false });
+      expect(await page.evaluate(() => (window as any).selectionHarness.a.getSnapshot().blocks[0].content))
+        .toContainEqual({ type: "mention", entityId: "mira", entityType: "user", label: "Mira" });
+    });
+  });
+  for (const field of [{ label: "Code" as const, value: "Hello world" }, { label: "Math" as const, value: "x + y" }]) {
+    test.describe(field.label, () => {
+      test.use({ mountRemote: field.label });
+      test("maps the backward selection before the first passive effects", async ({ page }) => {
+        const input = page.locator("#selection-harness").getByRole("textbox", { name: field.label, exact: true });
+        await expect(input).toHaveValue(`R${field.value}`);
+        expect(await input.evaluate((node: HTMLTextAreaElement) => [node.selectionStart, node.selectionEnd, node.selectionDirection]))
+          .toEqual([1, 4, "backward"]);
+        await expect(input).toBeFocused();
+      });
+    });
+  }
 });
 
 test("remote insertion preserves a backward selection of an atomic reference", async ({ page }) => {

@@ -61,9 +61,8 @@ public final class LocalDraft {
         let record = try record(session, endpoint: endpoint)
         try JSONEncoder().encode(record).write(to: file, options: .atomic)
     }
-    /// A recovery archive includes accepted history and the separate unacknowledged union.
+    /// Retain all local history, including a transport-rejected draft without a schema proposal.
     public func exportRecovery(_ session: EditorSession, endpoint: URL, to destination: URL) throws {
-        guard session.mergeRecovery != nil else { throw DraftError.noRecovery }
         guard !FileManager.default.fileExists(atPath: destination.path) else { throw DraftError.archiveExists }
         try JSONEncoder().encode(record(session, endpoint: endpoint, purpose: .recoveryArchive)).write(to: destination, options: .atomic)
     }
