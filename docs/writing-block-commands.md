@@ -13,14 +13,20 @@ remain intact. Markdown `# `, `## `, `### ` and `> ` consume the actual text
 prefix in that same transaction; reference labels do not count as typed syntax.
 
 List Enter splits the current item and continues a todo item unchecked. Empty
-nested items outdent one level with the same item identity. An empty final root
-item exits into a paragraph when earlier items remain. Its origin is joined to
-the new paragraph so concurrent input follows it and author undo restores the
-original list item. Unknown metadata and existing children remain preserved.
+nested items outdent one level with the same item identity and child subtree.
+An empty first, middle or last root item becomes a paragraph with that item's
+original NodeID and public ID. First-item exit keeps the original list owner as
+the remaining tail; middle-item exit keeps the original owner as the head and
+creates a new tail owner using `newItemID`; last-item exit keeps the owner intact.
+The tail copies the original list style and unknown owner metadata. Every remaining
+item retains its identity, content, checked state, metadata and child subtree.
+All moves and the promoted item form one author transaction with a stable caret.
+Author undo restores the original collection and retains remote text/child edits.
+Colliding retained root labels, reserved metadata and host-disabled authored types
+reject the local command before mutation.
 
 The explicit v4 schema commands below add paragraph-to-list/checklist/code
-conversion and sole-empty-list exit. A non-final empty root-item exit remains
-unsupported and leaves accepted state untouched.
+conversion and sole-empty-list exit.
 
 A concurrent split or merge into a converted content field remains valid.
 Converting the source of a concurrent paragraph merge needs explicit
@@ -73,14 +79,19 @@ original NodeID and public ID. Its content, checked state, unknown properties
 and child arrays remain preserved; children become opaque paragraph extensions.
 Unsupported fallback identity/metadata collisions are rejected before mutation.
 Real platform command/input acceptance and matching JNI/WASM execution remain
-required. Non-final empty root-item exit and multi-item collapse are still
-unsupported and leave accepted state untouched.
+required. Whole-list collapse with multiple items remains unsupported and leaves
+accepted state untouched.
 
 Competing conversions to separate list wrappers keep the full union as schema
 recovery; disabling either author's conflicting wrapper allows the other to
 remain. Conversions that claim one retained item origin for different roots also
 require recovery, with deterministic conflict detection before head routing.
-This overlapping-owner case does not claim automatic author-undo repair. Unknown
+Either author can disable its conflicting conversion with `repairUndo`. The
+retained field groups form connected components: one remaining active head receives
+all historical source and destination fields, including the retired root head. If
+all conversions are inactive, rollback edges must resolve to one unique source.
+Multiple active heads, conflicting rollback sinks or cycles retain explicit schema
+recovery; no dictionary iteration chooses ownership. Unknown
 host fields that collide with newly required `style`, `items` or `code` fields
 are rejected atomically rather than overwritten.
 
@@ -89,7 +100,7 @@ and inserted birth placements. This preserves existing baseline items moved into
 a converted wrapper when its author undoes the conversion. A later structural or
 schema command on the exposed peer paragraph prefixes `retainParagraphRole` with
 the original item/owner identities, a known retirement, an exact exposure cohort,
-and a placement anchor. Every protocol-4 change records a sorted `observed`
+and an optional placement anchor (nil is the start of the collection). Every protocol-4 change records a sorted `observed`
 frontier containing its latest observed change for each actor. Recursive predecessor
 closure identifies the exact cohort, including clock holes; an unobserved concurrent
 redo does not enter solely because its ID sorts below a local change. Cohort IDs
@@ -116,6 +127,27 @@ default delivery; an earlier draft candidate is not a separately supported runti
 
 Reserved `level` and `variant` metadata collisions are rejected for the same-content
 family too; normal changes to an existing heading/callout attribute remain supported.
-Non-final empty root-item exit, multi-item collapse, overlapping-owner repair,
-matching WASM/JNI execution and real platform acceptance remain open. These
-qualifications keep ST-98 open.
+The initial version-4 contract also includes `exitListItem(node:owner:source:after:)`.
+It proves the exact existing item and retained source placement, promotes that item
+into a `.role` placement and prefixes the first/middle partition's structural moves.
+Exit roles retain their source ordinal and a derived edit priority, so inserted
+owners, following roots, concurrent first/last exits and later retained-role commands
+preserve ordering. Ordering uses one complete tuple for ranked exits and unranked
+fallback roles. Missing predecessor history retains recovery; malformed tokens
+reject atomically. Concurrent partitions that exhaust an owner retain both accepted
+views and a full schema-recovery union; either author can disable its own partition.
+
+A sole empty item collapses into the original root identity rather than exposing
+the item as another root. Its old text origin remains writable and undoable. Existing
+and concurrently added item children remain under the paragraph as an opaque
+extension with their original identities and edits. Paragraph child collections
+can be read and their retained origins edited; the generic collection authoring API
+does not introduce a paragraph-children schema. Undo restores the original item
+and child collection. Incompatible root/item attribute namespaces and whole-list
+collapse with multiple items reject before mutation.
+
+The hand-authored `exitCommands.json` fixture covers all three root exit positions,
+identity, reordered/duplicate receive, remote edits, reopen/undo/redo, and both
+ownership-repair authors. Matching current WASM/JNI execution, current version-4
+performance measurements and platform input acceptance remain required. Historical
+version-3 timing evidence does not establish version-4 budgets.

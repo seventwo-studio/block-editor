@@ -22,6 +22,53 @@ class WritingSessionTest {
         catch (failure: IllegalStateException) { assertEquals(message, failure.message) }
     }
 
+    @Test fun typedV4MiddleEmptyExitPreservesItemOwnerAndRemoteUndo() {
+        val seed = JSONArray("""[{"id":"list","type":"list","style":"todo","host":"root","items":[{"id":"first","content":[{"type":"text","text":"before","marks":[]}]},{"id":"empty","content":[],"checked":true,"host":"item"},{"id":"last","content":[{"type":"text","text":"after","marks":[]}]}]}]""")
+        val a = WritingSession.createV4("typed-exit", "a", "exit-v4", seed)
+        val b = WritingSession.createV4("typed-exit", "b", "exit-v4", seed)
+        var reopened: WritingSession? = null
+        try {
+            val root = normalize(a.node(NodeAddress("list")).wire)
+            val item = normalize(a.node(NodeAddress("list", listOf("items", "empty"))).wire)
+            val field = WritingAddress("list", listOf("items", "empty", "content"))
+            val caret = a.enterListItem(field, 0, 0, "tail")
+            assertEquals(item, normalize(a.node(NodeAddress("empty")).wire))
+            assertEquals(root, normalize(a.node(NodeAddress("list")).wire))
+            assertEquals(0, a.resolvePosition(caret).offset)
+            assertEquals(listOf("list", "empty", "tail"), (0 until a.snapshot.getJSONArray("blocks").length()).map { a.snapshot.getJSONArray("blocks").getJSONObject(it).getString("id") })
+            b.replaceText(field, 0, 0, "peer")
+            a.receive(b.changes()); b.receive(a.changes()); b.receive(a.changes())
+            assertEquals(blocks(a), blocks(b))
+            val restored = WritingSession.restore(a.save(), "a"); reopened = restored
+            restored.undo()
+            assertEquals(item, normalize(restored.node(NodeAddress("list", listOf("items", "empty"))).wire))
+            assertEquals("peer", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("items").getJSONObject(1).getJSONArray("content").getJSONObject(0).getString("text"))
+            restored.redo(); assertEquals(blocks(a), blocks(restored))
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+    }
+
+    @Test fun typedV4OverlappingOwnerRepairRetainsBothHistoricalHeadWrites() {
+        val seed = JSONArray("""[{"id":"left","type":"list","style":"todo","items":[{"id":"i","content":[{"type":"text","text":"keep😀","marks":[]}],"host":"item"}]},{"id":"right","type":"list","style":"ordered","items":[]}]""")
+        val a = WritingSession.createV4("typed-owner", "a", "exit-v4", seed)
+        val b = WritingSession.createV4("typed-owner", "b", "exit-v4", seed)
+        var reopened: WritingSession? = null
+        try {
+            val item = b.node(NodeAddress("left", listOf("items", "i")))
+            a.convertBlock(WritingAddress("left", listOf("items", "i", "content")), 0, WritingBlockTarget("paragraph"))
+            b.moveSelection(WritingSelection(nodes = listOf(item)), NodeCollection.items(b.node(NodeAddress("right"))))
+            b.convertBlock(WritingAddress("right", listOf("items", "i", "content")), 0, WritingBlockTarget("paragraph"))
+            a.replaceText(WritingAddress("left"), 0, 0, "A"); b.replaceText(WritingAddress("right"), 0, 0, "B")
+            val aa = a.changes(); val bb = b.changes(); val before = normalize(a.save().export())
+            error("writingRecoveryRequired") { a.receive(bb) }
+            error("writingRecoveryRequired") { b.receive(aa) }
+            assertEquals(before, normalize(a.save().export()))
+            a.repairUndo(1, "a"); b.receive(a.changes()); assertEquals(blocks(a), blocks(b))
+            assertEquals("BAkeep😀", a.snapshot.getJSONArray("blocks").getJSONObject(1).getJSONArray("content").getJSONObject(0).getString("text"))
+            val restored = WritingSession.restore(a.save(), "a"); reopened = restored
+            assertEquals(blocks(a), blocks(restored))
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+    }
+
     @Test fun typedV4RetainedPeerParagraphSupportsEnterAndReopenedUndo() {
         val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"abcd","marks":[]}]}]""")
         val a = WritingSession.createV4("typed-roles", "a", "role-v4", seed)

@@ -11,6 +11,35 @@ private func collectionCell(_ id: String) -> JSONValue {
 }
 private func collectionRow(_ id: String) -> JSONValue { .object(["id": .string(id), "cells": .array([collectionCell("same-cell")]), "extension": .string("row")]) }
 
+@Test func collectionInsertAfterMiddleExitKeepsRoleAnchorAcrossRemoteUndo() throws {
+    let list = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("todo"), "host": .string("owner"), "items": .array([
+        .object(["id": .string("first"), "content": .array([textNode("before")])]),
+        .object(["id": .string("empty"), "content": .array([]), "checked": .bool(true), "host": .string("item")]),
+        .object(["id": .string("last"), "content": .array([textNode("after")])])
+    ])])
+    let a = try collectionSession("a", [list]), b = try collectionSession("b", [list])
+    let item = try a.node(at: NodeAddress("list", path: ["items", "empty"]))
+    let field = TextAddress("list", path: ["items", "empty", "content"])
+    _ = try a.enterListItem(at: field, range: 0..<0, newItemID: "tail")
+    let inserted = try a.insertCollectionNodes([.object(["id": .string("pasted"), "type": .string("paragraph"), "content": .array([collectionReference]), "host": .string("paste")])], into: .root, after: item)
+    try b.replaceText(at: field, range: 0..<0, with: "R")
+    try a.receive(b.changes()); try b.receive(a.changes()); try b.receive(a.changes())
+    #expect(a.document == b.document)
+    #expect(a.document.blocks.map(\.id) == ["list", "empty", "pasted", "tail"])
+    #expect(try a.node(at: NodeAddress("empty")) == item)
+    let accepted = a.document, reopened = try WritingSession.restore(a.save(), actorID: "a")
+    try reopened.undo()
+    #expect(reopened.document.blocks.map(\.id) == ["list", "empty", "tail"])
+    #expect(try reopened.text(at: reopened.textAddress(of: item)) == "R")
+    try reopened.undo()
+    #expect(reopened.document.blocks.map(\.id) == ["list"])
+    #expect(try reopened.node(at: NodeAddress("list", path: ["items", "empty"])) == item)
+    #expect(try reopened.text(at: field) == "R")
+    try reopened.redo(); try reopened.redo()
+    #expect(reopened.document == accepted)
+    #expect(try reopened.node(at: NodeAddress("pasted")) == inserted.nodes[0])
+}
+
 @Test func collectionTableConcurrentRowsCellsReorderRemoveAndReopenedUndo() throws {
     let table = try Block(fields: ["id": .string("t"), "type": .string("table"), "columnWidths": .array([.number(120)]), "rows": .array([collectionRow("base")]), "extension": .string("table")])
     let a = try collectionSession("a", [table]), b = try collectionSession("b", [table])

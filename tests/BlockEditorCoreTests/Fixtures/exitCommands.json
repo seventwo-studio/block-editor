@@ -1,0 +1,1964 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "exit0a",
+        "documentID": "exit0",
+        "actorID": "a",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i0",
+                "content": [],
+                "checked": true,
+                "host": "item-0"
+              },
+              {
+                "id": "i1",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item1",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-1"
+              },
+              {
+                "id": "i2",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item2",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-2"
+              }
+            ],
+            "host": "root"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "exit0b",
+        "documentID": "exit0",
+        "actorID": "b",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i0",
+                "content": [],
+                "checked": true,
+                "host": "item-0"
+              },
+              {
+                "id": "i1",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item1",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-1"
+              },
+              {
+                "id": "i2",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item2",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-2"
+              }
+            ],
+            "host": "root"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit0a",
+        "address": {
+          "blockID": "list",
+          "path": []
+        }
+      },
+      "capture": "exit0root"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit0a",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i0"
+          ]
+        }
+      },
+      "capture": "exit0item"
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "exit0a",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i0",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "newItemID": "tail"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit0a"
+      },
+      "capture": "exit0local"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit0a",
+        "address": {
+          "blockID": "list",
+          "path": []
+        }
+      },
+      "capture": "exit0rootAfter"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit0a",
+        "address": {
+          "blockID": "i0",
+          "path": []
+        }
+      },
+      "capture": "exit0itemAfter"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "exit0b",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i0",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "exit0a"
+      },
+      "capture": "exit0aa"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "exit0b"
+      },
+      "capture": "exit0bb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit0a"
+      },
+      "bindings": {
+        "batch": "exit0bb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit0b"
+      },
+      "bindings": {
+        "batch": "exit0aa"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit0a"
+      },
+      "bindings": {
+        "batch": "exit0bb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit0b"
+      },
+      "bindings": {
+        "batch": "exit0aa"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit0a"
+      },
+      "capture": "exit0merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit0b"
+      },
+      "capture": "exit0peer"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "exit0a"
+      },
+      "capture": "exit0save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "exit0reopen",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "exit0save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "exit0reopen"
+      },
+      "capture": "exit0undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "exit0reopen"
+      },
+      "capture": "exit0redo"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit0reopen"
+      },
+      "capture": "exit0reopened"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit0reopen",
+        "address": {
+          "blockID": "i0",
+          "path": []
+        }
+      },
+      "capture": "exit0itemReopened"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "exit1a",
+        "documentID": "exit1",
+        "actorID": "a",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i0",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item0",
+                    "marks": []
+                  }
+                ],
+                "checked": true,
+                "host": "item-0"
+              },
+              {
+                "id": "i1",
+                "content": [],
+                "checked": false,
+                "host": "item-1"
+              },
+              {
+                "id": "i2",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item2",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-2"
+              }
+            ],
+            "host": "root"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "exit1b",
+        "documentID": "exit1",
+        "actorID": "b",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i0",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item0",
+                    "marks": []
+                  }
+                ],
+                "checked": true,
+                "host": "item-0"
+              },
+              {
+                "id": "i1",
+                "content": [],
+                "checked": false,
+                "host": "item-1"
+              },
+              {
+                "id": "i2",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item2",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-2"
+              }
+            ],
+            "host": "root"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit1a",
+        "address": {
+          "blockID": "list",
+          "path": []
+        }
+      },
+      "capture": "exit1root"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit1a",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i1"
+          ]
+        }
+      },
+      "capture": "exit1item"
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "exit1a",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i1",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "newItemID": "tail"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit1a"
+      },
+      "capture": "exit1local"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit1a",
+        "address": {
+          "blockID": "list",
+          "path": []
+        }
+      },
+      "capture": "exit1rootAfter"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit1a",
+        "address": {
+          "blockID": "i1",
+          "path": []
+        }
+      },
+      "capture": "exit1itemAfter"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "exit1b",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i1",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "exit1a"
+      },
+      "capture": "exit1aa"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "exit1b"
+      },
+      "capture": "exit1bb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit1a"
+      },
+      "bindings": {
+        "batch": "exit1bb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit1b"
+      },
+      "bindings": {
+        "batch": "exit1aa"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit1a"
+      },
+      "bindings": {
+        "batch": "exit1bb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit1b"
+      },
+      "bindings": {
+        "batch": "exit1aa"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit1a"
+      },
+      "capture": "exit1merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit1b"
+      },
+      "capture": "exit1peer"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "exit1a"
+      },
+      "capture": "exit1save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "exit1reopen",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "exit1save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "exit1reopen"
+      },
+      "capture": "exit1undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "exit1reopen"
+      },
+      "capture": "exit1redo"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit1reopen"
+      },
+      "capture": "exit1reopened"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit1reopen",
+        "address": {
+          "blockID": "i1",
+          "path": []
+        }
+      },
+      "capture": "exit1itemReopened"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "exit2a",
+        "documentID": "exit2",
+        "actorID": "a",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i0",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item0",
+                    "marks": []
+                  }
+                ],
+                "checked": true,
+                "host": "item-0"
+              },
+              {
+                "id": "i1",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item1",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-1"
+              },
+              {
+                "id": "i2",
+                "content": [],
+                "checked": false,
+                "host": "item-2"
+              }
+            ],
+            "host": "root"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "exit2b",
+        "documentID": "exit2",
+        "actorID": "b",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i0",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item0",
+                    "marks": []
+                  }
+                ],
+                "checked": true,
+                "host": "item-0"
+              },
+              {
+                "id": "i1",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "item1",
+                    "marks": []
+                  }
+                ],
+                "checked": false,
+                "host": "item-1"
+              },
+              {
+                "id": "i2",
+                "content": [],
+                "checked": false,
+                "host": "item-2"
+              }
+            ],
+            "host": "root"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit2a",
+        "address": {
+          "blockID": "list",
+          "path": []
+        }
+      },
+      "capture": "exit2root"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit2a",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i2"
+          ]
+        }
+      },
+      "capture": "exit2item"
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "exit2a",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i2",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "newItemID": "tail"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit2a"
+      },
+      "capture": "exit2local"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit2a",
+        "address": {
+          "blockID": "list",
+          "path": []
+        }
+      },
+      "capture": "exit2rootAfter"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit2a",
+        "address": {
+          "blockID": "i2",
+          "path": []
+        }
+      },
+      "capture": "exit2itemAfter"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "exit2b",
+        "address": {
+          "blockID": "list",
+          "path": [
+            "items",
+            "i2",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "exit2a"
+      },
+      "capture": "exit2aa"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "exit2b"
+      },
+      "capture": "exit2bb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit2a"
+      },
+      "bindings": {
+        "batch": "exit2bb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit2b"
+      },
+      "bindings": {
+        "batch": "exit2aa"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit2a"
+      },
+      "bindings": {
+        "batch": "exit2bb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "exit2b"
+      },
+      "bindings": {
+        "batch": "exit2aa"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit2a"
+      },
+      "capture": "exit2merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit2b"
+      },
+      "capture": "exit2peer"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "exit2a"
+      },
+      "capture": "exit2save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "exit2reopen",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "exit2save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "exit2reopen"
+      },
+      "capture": "exit2undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "exit2reopen"
+      },
+      "capture": "exit2redo"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "exit2reopen"
+      },
+      "capture": "exit2reopened"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "exit2reopen",
+        "address": {
+          "blockID": "i2",
+          "path": []
+        }
+      },
+      "capture": "exit2itemReopened"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "ownershipaa",
+        "documentID": "ownershipa",
+        "actorID": "a",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "keep😀",
+                    "marks": []
+                  }
+                ],
+                "host": "item"
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "list",
+            "style": "ordered",
+            "items": []
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "ownershipab",
+        "documentID": "ownershipa",
+        "actorID": "b",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "keep😀",
+                    "marks": []
+                  }
+                ],
+                "host": "item"
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "list",
+            "style": "ordered",
+            "items": []
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "ownershipaa",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "items",
+            "i"
+          ]
+        }
+      },
+      "capture": "ownershipaorigin"
+    },
+    {
+      "request": {
+        "command": "convertBlock",
+        "session": "ownershipaa",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "offset": 0,
+        "target": {
+          "type": "paragraph"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "moveSelection",
+        "session": "ownershipab",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "left",
+                "path": [
+                  "items",
+                  "i"
+                ]
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "right",
+              "path": []
+            }
+          },
+          "field": "items"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "convertBlock",
+        "session": "ownershipab",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "offset": 0,
+        "target": {
+          "type": "paragraph"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "ownershipaa",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "A"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "ownershipab",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "B"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "ownershipaa"
+      },
+      "capture": "ownershipaaa"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "ownershipab"
+      },
+      "capture": "ownershipabb"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipaa"
+      },
+      "capture": "ownershipabeforeA"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipab"
+      },
+      "capture": "ownershipabeforeB"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "ownershipaa"
+      },
+      "bindings": {
+        "batch": "ownershipabb"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "ownershipab"
+      },
+      "bindings": {
+        "batch": "ownershipaaa"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipaa"
+      },
+      "capture": "ownershipaafterA"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipab"
+      },
+      "capture": "ownershipaafterB"
+    },
+    {
+      "request": {
+        "command": "repairWritingUndo",
+        "session": "ownershipaa",
+        "target": {
+          "counter": 1,
+          "actor": "a"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "ownershipaa"
+      },
+      "capture": "ownershipafixed"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "ownershipab"
+      },
+      "bindings": {
+        "batch": "ownershipafixed"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "ownershipaa"
+      },
+      "capture": "ownershipafinal"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "ownershipab"
+      },
+      "capture": "ownershipapeer"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipaa"
+      },
+      "capture": "ownershipasave"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "ownershipareopen",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "ownershipasave"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "ownershipareopen"
+      },
+      "capture": "ownershipareopen"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "ownershipba",
+        "documentID": "ownershipb",
+        "actorID": "a",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "keep😀",
+                    "marks": []
+                  }
+                ],
+                "host": "item"
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "list",
+            "style": "ordered",
+            "items": []
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "ownershipbb",
+        "documentID": "ownershipb",
+        "actorID": "b",
+        "epoch": "exit-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "keep😀",
+                    "marks": []
+                  }
+                ],
+                "host": "item"
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "list",
+            "style": "ordered",
+            "items": []
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "ownershipba",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "items",
+            "i"
+          ]
+        }
+      },
+      "capture": "ownershipborigin"
+    },
+    {
+      "request": {
+        "command": "convertBlock",
+        "session": "ownershipba",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "offset": 0,
+        "target": {
+          "type": "paragraph"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "moveSelection",
+        "session": "ownershipbb",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "left",
+                "path": [
+                  "items",
+                  "i"
+                ]
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "right",
+              "path": []
+            }
+          },
+          "field": "items"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "convertBlock",
+        "session": "ownershipbb",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "offset": 0,
+        "target": {
+          "type": "paragraph"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "ownershipba",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "A"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "ownershipbb",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "B"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "ownershipba"
+      },
+      "capture": "ownershipbaa"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "ownershipbb"
+      },
+      "capture": "ownershipbbb"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipba"
+      },
+      "capture": "ownershipbbeforeA"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipbb"
+      },
+      "capture": "ownershipbbeforeB"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "ownershipba"
+      },
+      "bindings": {
+        "batch": "ownershipbbb"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "ownershipbb"
+      },
+      "bindings": {
+        "batch": "ownershipbaa"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipba"
+      },
+      "capture": "ownershipbafterA"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipbb"
+      },
+      "capture": "ownershipbafterB"
+    },
+    {
+      "request": {
+        "command": "repairWritingUndo",
+        "session": "ownershipbb",
+        "target": {
+          "counter": 2,
+          "actor": "b"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "ownershipbb"
+      },
+      "capture": "ownershipbfixed"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "ownershipba"
+      },
+      "bindings": {
+        "batch": "ownershipbfixed"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "ownershipbb"
+      },
+      "capture": "ownershipbfinal"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "ownershipba"
+      },
+      "capture": "ownershipbpeer"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "ownershipbb"
+      },
+      "capture": "ownershipbsave"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "ownershipbreopen",
+        "actorID": "b"
+      },
+      "bindings": {
+        "snapshot": "ownershipbsave"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "ownershipbreopen"
+      },
+      "capture": "ownershipbreopen"
+    }
+  ],
+  "equal": [
+    [
+      "exit0root",
+      "exit0rootAfter"
+    ],
+    [
+      "exit0item",
+      "exit0itemAfter"
+    ],
+    [
+      "exit0merged",
+      "exit0peer"
+    ],
+    [
+      "exit0merged",
+      "exit0reopened"
+    ],
+    [
+      "exit0item",
+      "exit0itemReopened"
+    ],
+    [
+      "exit1root",
+      "exit1rootAfter"
+    ],
+    [
+      "exit1item",
+      "exit1itemAfter"
+    ],
+    [
+      "exit1merged",
+      "exit1peer"
+    ],
+    [
+      "exit1merged",
+      "exit1reopened"
+    ],
+    [
+      "exit1item",
+      "exit1itemReopened"
+    ],
+    [
+      "exit2root",
+      "exit2rootAfter"
+    ],
+    [
+      "exit2item",
+      "exit2itemAfter"
+    ],
+    [
+      "exit2merged",
+      "exit2peer"
+    ],
+    [
+      "exit2merged",
+      "exit2reopened"
+    ],
+    [
+      "exit2item",
+      "exit2itemReopened"
+    ],
+    [
+      "ownershipabeforeA",
+      "ownershipaafterA"
+    ],
+    [
+      "ownershipabeforeB",
+      "ownershipaafterB"
+    ],
+    [
+      "ownershipafinal",
+      "ownershipareopen"
+    ],
+    [
+      "ownershipbbeforeA",
+      "ownershipbafterA"
+    ],
+    [
+      "ownershipbbeforeB",
+      "ownershipbafterB"
+    ],
+    [
+      "ownershipbfinal",
+      "ownershipbreopen"
+    ]
+  ],
+  "expectedBlocks": {
+    "exit0local": [
+      {
+        "id": "i0",
+        "content": [],
+        "checked": true,
+        "host": "item-0",
+        "type": "paragraph"
+      },
+      {
+        "id": "list",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i1",
+            "content": [
+              {
+                "type": "text",
+                "text": "item1",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-1"
+          },
+          {
+            "id": "i2",
+            "content": [
+              {
+                "type": "text",
+                "text": "item2",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-2"
+          }
+        ],
+        "host": "root"
+      }
+    ],
+    "exit0undo": [
+      {
+        "id": "list",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i0",
+            "content": [
+              {
+                "type": "text",
+                "text": "peer",
+                "marks": []
+              }
+            ],
+            "checked": true,
+            "host": "item-0"
+          },
+          {
+            "id": "i1",
+            "content": [
+              {
+                "type": "text",
+                "text": "item1",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-1"
+          },
+          {
+            "id": "i2",
+            "content": [
+              {
+                "type": "text",
+                "text": "item2",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-2"
+          }
+        ],
+        "host": "root"
+      }
+    ],
+    "exit1local": [
+      {
+        "id": "list",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i0",
+            "content": [
+              {
+                "type": "text",
+                "text": "item0",
+                "marks": []
+              }
+            ],
+            "checked": true,
+            "host": "item-0"
+          }
+        ],
+        "host": "root"
+      },
+      {
+        "id": "i1",
+        "content": [],
+        "checked": false,
+        "host": "item-1",
+        "type": "paragraph"
+      },
+      {
+        "id": "tail",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i2",
+            "content": [
+              {
+                "type": "text",
+                "text": "item2",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-2"
+          }
+        ],
+        "host": "root"
+      }
+    ],
+    "exit1undo": [
+      {
+        "id": "list",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i0",
+            "content": [
+              {
+                "type": "text",
+                "text": "item0",
+                "marks": []
+              }
+            ],
+            "checked": true,
+            "host": "item-0"
+          },
+          {
+            "id": "i1",
+            "content": [
+              {
+                "type": "text",
+                "text": "peer",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-1"
+          },
+          {
+            "id": "i2",
+            "content": [
+              {
+                "type": "text",
+                "text": "item2",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-2"
+          }
+        ],
+        "host": "root"
+      }
+    ],
+    "exit2local": [
+      {
+        "id": "list",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i0",
+            "content": [
+              {
+                "type": "text",
+                "text": "item0",
+                "marks": []
+              }
+            ],
+            "checked": true,
+            "host": "item-0"
+          },
+          {
+            "id": "i1",
+            "content": [
+              {
+                "type": "text",
+                "text": "item1",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-1"
+          }
+        ],
+        "host": "root"
+      },
+      {
+        "id": "i2",
+        "content": [],
+        "checked": false,
+        "host": "item-2",
+        "type": "paragraph"
+      }
+    ],
+    "exit2undo": [
+      {
+        "id": "list",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "i0",
+            "content": [
+              {
+                "type": "text",
+                "text": "item0",
+                "marks": []
+              }
+            ],
+            "checked": true,
+            "host": "item-0"
+          },
+          {
+            "id": "i1",
+            "content": [
+              {
+                "type": "text",
+                "text": "item1",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-1"
+          },
+          {
+            "id": "i2",
+            "content": [
+              {
+                "type": "text",
+                "text": "peer",
+                "marks": []
+              }
+            ],
+            "checked": false,
+            "host": "item-2"
+          }
+        ],
+        "host": "root"
+      }
+    ],
+    "ownershipafinal": [
+      {
+        "id": "left",
+        "type": "list",
+        "style": "todo",
+        "items": []
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "style": "ordered",
+        "content": [
+          {
+            "type": "text",
+            "text": "BAkeep😀",
+            "marks": []
+          }
+        ],
+        "host": "item"
+      }
+    ],
+    "ownershipbfinal": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "style": "todo",
+        "content": [
+          {
+            "type": "text",
+            "text": "BAkeep😀",
+            "marks": []
+          }
+        ],
+        "host": "item"
+      },
+      {
+        "id": "right",
+        "type": "list",
+        "style": "ordered",
+        "items": []
+      }
+    ],
+    "ownershipapeer": [
+      {
+        "id": "left",
+        "type": "list",
+        "style": "todo",
+        "items": []
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "style": "ordered",
+        "content": [
+          {
+            "type": "text",
+            "text": "BAkeep😀",
+            "marks": []
+          }
+        ],
+        "host": "item"
+      }
+    ],
+    "ownershipbpeer": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "style": "todo",
+        "content": [
+          {
+            "type": "text",
+            "text": "BAkeep😀",
+            "marks": []
+          }
+        ],
+        "host": "item"
+      },
+      {
+        "id": "right",
+        "type": "list",
+        "style": "ordered",
+        "items": []
+      }
+    ]
+  },
+  "expectedValues": {}
+}

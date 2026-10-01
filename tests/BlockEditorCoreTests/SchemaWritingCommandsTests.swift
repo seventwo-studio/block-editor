@@ -398,7 +398,8 @@ private let schemaReference: JSONValue = .object(["type": .string("entity-ref"),
     let left = try b.node(at: NodeAddress("left")), right = try b.node(at: NodeAddress("right"))
     try a.convertBlock(at: TextAddress("left"), offset: 0, to: WritingBlockTarget(type: type, style: "ordered"))
     try b.mergeParagraphs(left: left, right: right)
-    let aa = a.changes(), bb = b.changes(); try a.receive(bb); try b.receive(aa)
+    let aa = a.changes(), bb = b.changes()
+    try a.receive(bb); try b.receive(aa)
     #expect(a.document == b.document && a.document.blocks.count == 1)
     #expect(a.document.blocks[0].type == type)
     #expect(try a.node(at: NodeAddress("left")) == left)
@@ -660,4 +661,189 @@ func schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault: String)
     let before = try b.save()
     #expect(throws: EditorError.invalidChange) { try b.receive(WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: b.baseline, changes: b.changes().changes + [forged], version: 4)) }
     #expect(try b.save() == before && b.mergeRecovery == nil)
+}
+
+@Test(arguments: [0, 1, 2], ["a", "z"])
+func schemaEmptyRootItemExitPreservesBothIdentitiesAndRemoteHistory(index: Int, actor: String) throws {
+    let child: JSONValue = .object(["id": .string("kid"), "content": .array([textNode("child", marks: [.object(["type": .string("bold")])]), schemaReference]), "host": .string("child-keep")])
+    let items: [JSONValue] = (0..<3).map { i in .object(["id": .string("i\(i)"), "content": .array([textNode(i == index ? "" : "item\(i)")]), "checked": .bool(i == 0), "host": .string("item-\(i)"), "children": i == index ? .array([child]) : .array([])]) }
+    let block = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("todo"), "items": .array(items), "host": .object(["preserve": .bool(true)])])
+    let a = try schemaSession([block], actor: actor), b = try schemaSession([block], actor: "m")
+    let root = try a.node(at: NodeAddress("list")), item = try a.node(at: NodeAddress("list", path: ["items", "i\(index)"]))
+    let itemField = TextAddress("list", path: ["items", "i\(index)", "content"])
+    let caret = try a.enterListItem(at: itemField, range: 0..<0, newItemID: "tail")
+    #expect(try a.node(at: NodeAddress("i\(index)")) == item)
+    #expect(try a.node(at: NodeAddress("list")) == root)
+    #expect(a.document.blocks.map(\.id) == (index == 0 ? ["i0", "list"] : index == 1 ? ["list", "i1", "tail"] : ["list", "i2"]))
+    let paragraph = try #require(a.document.blocks.first { $0.id == "i\(index)" })
+    #expect(paragraph.fields["host"] == .string("item-\(index)") && paragraph.fields["checked"] == .bool(index == 0))
+    #expect(paragraph.fields["children"] == .array([child]))
+    #expect(try a.resolve(caret).address.identity == item && a.resolve(caret).offset == 0)
+    try b.replaceText(at: itemField, range: 0..<0, with: "peer")
+    for i in 0..<3 where i != index { try b.replaceText(at: TextAddress("list", path: ["items", "i\(i)", "content"]), range: 0..<0, with: "X") }
+    try b.replaceText(at: TextAddress("list", path: ["items", "i\(index)", "children", "kid", "content"]), range: 0..<0, with: "Y")
+    let aa = a.changes(), bb = b.changes(); try a.receive(bb); try b.receive(aa); try a.receive(bb); try b.receive(aa)
+    #expect(a.document == b.document)
+    #expect(try a.text(at: TextAddress("i\(index)")) == "peer")
+    #expect(try a.text(at: a.textAddress(of: a.node(at: NodeAddress("i\(index)", path: ["children", "kid"])))) == "YchildTASK")
+    let reopened = try WritingSession.restore(a.save(), actorID: actor)
+    #expect(reopened.document == a.document)
+    try reopened.undo()
+    #expect(reopened.document.blocks.count == 1 && reopened.document.blocks[0].id == "list")
+    #expect(try reopened.node(at: NodeAddress("list", path: ["items", "i\(index)"])) == item)
+    #expect(try reopened.text(at: itemField) == "peer")
+    try reopened.redo(); #expect(reopened.document == a.document)
+    try reopened.splitParagraph(at: TextAddress("i\(index)"), range: 2..<2, newBlockID: "split")
+    try b.receive(reopened.changes()); #expect(reopened.document == b.document)
+}
+
+@Test func schemaFirstExitKeepsInsertedOwnerAndFollowingInsertedRootOrdinal() throws {
+    let list = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("ordered"), "items": .array([.object(["id": .string("empty"), "content": .array([textNode("")])]), .object(["id": .string("tail"), "content": .array([textNode("keep")])])])])
+    let a = try schemaSession([list, Block.paragraph(id: "after", text: "after")])
+    let root = try #require(a.duplicate(WritingSelection(nodes: [a.node(at: NodeAddress("list"))]), into: .root).nodes.first)
+    try a.duplicate(WritingSelection(nodes: [a.node(at: NodeAddress("after"))]), into: .root, after: root)
+    let before = a.document.blocks.map(\.id)
+    let label = try a.address(of: root).blockID
+    let copy = try #require(a.document.blocks.first { $0.id == label })
+    let empty = try #require(copy.fields["items"]?.array?.first?["id"]?.string)
+    try a.enterListItem(at: TextAddress(copy.id, path: ["items", empty, "content"]), range: 0..<0, newItemID: "unused")
+    #expect(a.document.blocks.map(\.id) == [empty] + before)
+    try a.undo(); #expect(a.document.blocks.map(\.id) == before)
+}
+
+@Test(arguments: ["a", "z"], [false, true])
+func schemaConcurrentFirstAndLastExitsConvergeAndKeepSourceOrdinal(actor: String, inserted: Bool) throws {
+    let list = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("ordered"), "items": .array([.object(["id": .string("i0"), "content": .array([])]), .object(["id": .string("i1"), "content": .array([textNode("keep")])]), .object(["id": .string("i2"), "content": .array([])])])])
+    let a = try schemaSession([list, Block.paragraph(id: "after", text: "after")], actor: actor)
+    let b = try schemaSession([list, Block.paragraph(id: "after", text: "after")], actor: "m")
+    let owner: NodeID
+    if inserted {
+        owner = try #require(a.duplicate(WritingSelection(nodes: [a.node(at: NodeAddress("list"))]), into: .root).nodes.first)
+        try a.duplicate(WritingSelection(nodes: [a.node(at: NodeAddress("after"))]), into: .root, after: owner)
+        try b.receive(a.changes())
+    } else { owner = try a.node(at: NodeAddress("list")) }
+    let label = try a.address(of: owner).blockID
+    let originalOrder = a.document.blocks.map(\.id)
+    let block = try #require(a.document.blocks.first { $0.id == label })
+    let items = try #require(block.fields["items"]?.array)
+    let first = try #require(items[0]["id"]?.string), last = try #require(items[2]["id"]?.string)
+    try a.enterListItem(at: TextAddress(label, path: ["items", first, "content"]), range: 0..<0, newItemID: "unused-a")
+    try b.enterListItem(at: TextAddress(label, path: ["items", last, "content"]), range: 0..<0, newItemID: "unused-b")
+    let aa = a.changes(), bb = b.changes(); try a.receive(bb); try b.receive(aa); try b.receive(aa)
+    #expect(a.document == b.document)
+    #expect(a.document.blocks.map(\.id) == [first, label, last] + originalOrder.filter { $0 != label })
+    #expect(try a.node(at: NodeAddress(label)) == owner)
+    let reopened = try WritingSession.restore(a.save(), actorID: actor)
+    try reopened.undo(); #expect(reopened.document.blocks.map(\.id) == [label, last] + originalOrder.filter { $0 != label })
+    try reopened.redo(); #expect(reopened.document == a.document)
+}
+
+@Test(arguments: ["a", "z"], [false, true])
+func schemaConcurrentPartitionsThatExhaustAnOwnerRetainRecoveryAndEitherAuthorCanRepair(actor: String, repairOther: Bool) throws {
+    let items: [JSONValue] = [.object(["id": .string("i0"), "content": .array([])]), .object(["id": .string("i1"), "content": .array([])]), .object(["id": .string("i2"), "content": .array([textNode("keep")])])]
+    let list = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("ordered"), "items": .array(items), "host": .string("retained-owner")])
+    let a = try schemaSession([list], actor: actor), b = try schemaSession([list], actor: "m")
+    try a.enterListItem(at: TextAddress("list", path: ["items", "i0", "content"]), range: 0..<0, newItemID: "unused")
+    try b.enterListItem(at: TextAddress("list", path: ["items", "i1", "content"]), range: 0..<0, newItemID: "tail")
+    let aa = a.changes(), bb = b.changes(), beforeA = try a.save(), beforeB = try b.save()
+    do { try a.receive(bb); Issue.record("Expected partition recovery") } catch { #expect(a.mergeRecovery?.reason == .schemaConstraint) }
+    do { try b.receive(aa); Issue.record("Expected partition recovery") } catch { #expect(b.mergeRecovery?.reason == .schemaConstraint) }
+    #expect(try a.save() == beforeA && b.save() == beforeB)
+    let repairing = repairOther ? b : a, peer = repairOther ? a : b
+    try repairing.repairUndo(repairOther ? bb.changes.last!.id : aa.changes.last!.id)
+    try peer.receive(repairing.changes())
+    #expect(repairing.document == peer.document)
+    #expect(repairing.document.blocks.first { $0.id == "list" }?.fields["host"] == .string("retained-owner"))
+    #expect(try WritingSession.restore(repairing.save(), actorID: repairing.actorID).document == repairing.document)
+}
+
+@Test(arguments: ["a", "z"], [false, true])
+func schemaOverlappingOwnerRepairRoutesBothHistoricalHeadsAndOriginalAtomOrigin(actor: String, repairOther: Bool) throws {
+    let item: JSONValue = .object(["id": .string("i"), "content": .array([textNode("keep😀", marks: [.object(["type": .string("bold")])]), schemaReference]), "host": .string("item")])
+    let left = try Block(fields: ["id": .string("left"), "type": .string("list"), "style": .string("todo"), "items": .array([item])])
+    let right = try Block(fields: ["id": .string("right"), "type": .string("list"), "style": .string("ordered"), "items": .array([])])
+    let a = try schemaSession([left, right], actor: actor), b = try schemaSession([left, right], actor: "m")
+    let origin = try b.node(at: NodeAddress("left", path: ["items", "i"]))
+    try a.convertBlock(at: TextAddress("left", path: ["items", "i", "content"]), offset: 0, to: WritingBlockTarget(type: "paragraph"))
+    try b.move(WritingSelection(nodes: [origin]), into: NodeCollection(owner: b.node(at: NodeAddress("right")), field: "items"))
+    try b.convertBlock(at: TextAddress("right", path: ["items", "i", "content"]), offset: 0, to: WritingBlockTarget(type: "paragraph"))
+    try a.replaceText(at: TextAddress("left"), range: 0..<0, with: "A")
+    try b.replaceText(at: TextAddress("right"), range: 0..<0, with: "B")
+    let aa = a.changes(), bb = b.changes(), beforeA = try a.save(), beforeB = try b.save()
+    do { try a.receive(bb); Issue.record("Expected ownership recovery") } catch { #expect(a.mergeRecovery?.reason == .schemaConstraint) }
+    do { try b.receive(aa); Issue.record("Expected ownership recovery") } catch { #expect(b.mergeRecovery?.reason == .schemaConstraint) }
+    #expect(try a.save() == beforeA && b.save() == beforeB)
+    let repairing = repairOther ? b : a, peer = repairOther ? a : b
+    let target = (repairOther ? bb : aa).changes.first { if case .edit(let ops) = $0.body { return ops.contains { if case .schemaConvert = $0 { return true }; return false } }; return false }!.id
+    try repairing.repairUndo(target); try peer.receive(repairing.changes())
+    #expect(repairing.document == peer.document)
+    let head = repairOther ? TextAddress("left") : TextAddress("right")
+    let content = try repairing.text(at: head)
+    #expect(content.contains("A") && content.contains("B") && content.contains("keep😀TASK"))
+    let reopened = try WritingSession.restore(repairing.save(), actorID: repairing.actorID)
+    #expect(reopened.document == repairing.document)
+    try reopened.replaceText(at: head, range: 0..<0, with: "C")
+    try peer.receive(reopened.changes()); #expect(peer.document == reopened.document)
+    let active = repairOther ? a : b
+    try active.undo() // remove its A/B text edit
+    try active.undo() // retire the surviving owner conversion too
+    try reopened.receive(active.changes())
+    #expect(try reopened.text(at: reopened.textAddress(of: origin)).contains("keep😀TASK"))
+    #expect(try reopened.text(at: reopened.textAddress(of: origin)).contains("C"))
+}
+
+@Test(arguments: [false, true], ["a", "z"]) func schemaSoleEmptyItemExitRetainsChildrenAndReorderedPeerChildEdits(existing: Bool, actor: String) throws {
+    let child: JSONValue = .object(["id": .string("child"), "content": .array([textNode("kid", marks: [.object(["type": .string("bold")])]), schemaReference])])
+    var item: [String: JSONValue] = ["id": .string("i"), "content": .array([]), "checked": .bool(true), "host": .string("keep")]
+    if existing { item["children"] = .array([child]) }
+    let list = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("todo"), "items": .array([.object(item)])])
+    let a = try schemaSession([list], actor: actor), b = try schemaSession([list], actor: "m")
+    let root = try a.node(at: NodeAddress("list")), originalItem = try a.node(at: NodeAddress("list", path: ["items", "i"]))
+    try a.enterListItem(at: TextAddress("list", path: ["items", "i", "content"]), range: 0..<0, newItemID: "unused")
+    if existing { try b.replaceText(at: TextAddress("list", path: ["items", "i", "children", "child", "content"]), range: 0..<0, with: "R") }
+    else {
+        // Duplicate a retained sibling item into the formerly absent collection.
+        try b.duplicate(WritingSelection(nodes: [originalItem]), into: NodeCollection(owner: originalItem, field: "children"))
+    }
+    let childOrigin = try b.node(at: NodeAddress("list", path: ["items", "i", "children", existing ? "child" : "copy-m-1-1"]))
+    let aa = a.changes(), bb = b.changes()
+    try a.receive(bb); try b.receive(aa)
+    #expect(a.document == b.document && a.document.blocks.count == 1 && a.document.blocks[0].id == "list")
+    #expect(a.document.blocks[0].type == "paragraph" && a.document.blocks[0].fields["host"] == .string("keep"))
+    #expect(try a.node(at: NodeAddress("list")) == root)
+    #expect(try a.node(at: NodeAddress("list", path: ["children", existing ? "child" : "copy-m-1-1"])) == childOrigin)
+    let reopened = try WritingSession.restore(a.save(), actorID: actor)
+    try reopened.undo()
+    #expect(reopened.document.blocks[0].type == "list")
+    #expect(try reopened.node(at: NodeAddress("list", path: ["items", "i"])) == originalItem)
+    #expect(try reopened.node(at: NodeAddress("list", path: ["items", "i", "children", existing ? "child" : "copy-m-1-1"])) == childOrigin)
+    try reopened.redo(); #expect(reopened.document == a.document)
+}
+
+@Test(arguments: [false, true]) func schemaEmptyExitRejectsVisibleAndRetainedRootLabelCollisionAtomically(retired: Bool) throws {
+    let list = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("todo"), "items": .array([.object(["id": .string("empty"), "content": .array([])]), .object(["id": .string("keep"), "content": .array([textNode("keep")])])])])
+    let a = try schemaSession([list, Block.paragraph(id: "empty", text: "another origin")])
+    if retired { try a.delete(WritingSelection(nodes: [a.node(at: NodeAddress("empty"))])) }
+    let before = try a.save()
+    #expect(throws: EditorError.invalidChange) { try a.enterListItem(at: TextAddress("list", path: ["items", "empty", "content"]), range: 0..<0, newItemID: "unused") }
+    #expect(try a.save() == before)
+}
+
+@Test func schemaEmptyNestedOutdentKeepsChildrenAndUndo() throws {
+    let grandchild: JSONValue = .object(["id": .string("grandchild"), "content": .array([textNode("rich", marks: [.object(["type": .string("bold")])]), schemaReference])])
+    let nested: JSONValue = .object(["id": .string("nested"), "content": .array([]), "checked": .bool(true), "children": .array([grandchild]), "host": .string("keep")])
+    let parent: JSONValue = .object(["id": .string("parent"), "content": .array([textNode("parent")]), "children": .array([nested])])
+    let block = try Block(fields: ["id": .string("list"), "type": .string("list"), "style": .string("todo"), "items": .array([parent])])
+    let a = try schemaSession([block]), b = try schemaSession([block], actor: "b")
+    let identity = try a.node(at: NodeAddress("list", path: ["items", "parent", "children", "nested"]))
+    let child = try b.node(at: NodeAddress("list", path: ["items", "parent", "children", "nested", "children", "grandchild"]))
+    try a.enterListItem(at: TextAddress("list", path: ["items", "parent", "children", "nested", "content"]), range: 0..<0, newItemID: "unused")
+    try b.replaceText(at: b.textAddress(of: child), range: 0..<0, with: "R")
+    let aa = a.changes(), bb = b.changes(); try a.receive(bb); try b.receive(aa)
+    #expect(a.document == b.document)
+    #expect(try a.node(at: NodeAddress("list", path: ["items", "nested"])) == identity)
+    #expect(try a.node(at: NodeAddress("list", path: ["items", "nested", "children", "grandchild"])) == child)
+    let reopened = try WritingSession.restore(a.save(), actorID: "a"); try reopened.undo()
+    #expect(try reopened.node(at: NodeAddress("list", path: ["items", "parent", "children", "nested"])) == identity)
+    #expect(try reopened.text(at: reopened.textAddress(of: child)) == "RrichTASK")
 }
