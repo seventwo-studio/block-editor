@@ -115,6 +115,7 @@ export function InlineEditor({
   onHistory,
   mapSelection,
   onCompositionChange,
+  readOnly = false,
 }: {
   content: InlineNode[];
   placeholder: string;
@@ -129,6 +130,7 @@ export function InlineEditor({
   onHistory: (direction: "undo" | "redo") => void;
   mapSelection?: (selection: TextSelection | null) => TextSelection | null;
   onCompositionChange?: (active: boolean) => void;
+  readOnly?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const composing = useRef(false);
@@ -136,8 +138,8 @@ export function InlineEditor({
   const restore = useRef<TextSelection | null>(null);
   const typingMarks = useRef<Mark[] | null>(null);
   const compositionRange = useRef<TextSelection | null>(null);
-  const latest = useRef({ content, onChange, onEnter, onHistory });
-  latest.current = { content, onChange, onEnter, onHistory };
+  const latest = useRef({ content, onChange, onEnter, onHistory, readOnly });
+  latest.current = { content, onChange, onEnter, onHistory, readOnly };
   const [linkOpen, setLinkOpen] = useState(false);
   const [href, setHref] = useState("");
   const [error, setError] = useState("");
@@ -190,6 +192,7 @@ export function InlineEditor({
     const selectionChanged = () => remember();
     root.ownerDocument.addEventListener("selectionchange", selectionChanged);
     const beforeInput = (event: InputEvent) => {
+      if (latest.current.readOnly) { event.preventDefault(); return; }
       if (event.isComposing || composing.current) return;
       if (event.inputType === "insertParagraph") {
         event.preventDefault();
@@ -341,7 +344,7 @@ export function InlineEditor({
 
   return (
     <div className="s2be-inline">
-      {focused && (
+      {focused && !readOnly && (
         <div
           className="s2be-inline-toolbar"
           role="toolbar"
@@ -382,7 +385,7 @@ export function InlineEditor({
           </button>
         </div>
       )}
-      {focused && linkOpen && (
+      {focused && !readOnly && linkOpen && (
         <form
           className="s2be-link-form"
           onSubmit={(event) => {
@@ -456,7 +459,8 @@ export function InlineEditor({
         aria-label={placeholder || "Block text"}
         aria-multiline="true"
         data-placeholder={placeholder}
-        contentEditable
+        contentEditable={!readOnly}
+        aria-readonly={readOnly}
         suppressContentEditableWarning
         onFocus={onFocus}
         onClick={(event) => {
@@ -473,6 +477,7 @@ export function InlineEditor({
             remember(true);
         }}
         onKeyDown={(event) => {
+          if (readOnly) return;
           if (event.nativeEvent.isComposing || composing.current) return;
           const key = event.key.toLowerCase();
           if (
@@ -496,9 +501,10 @@ export function InlineEditor({
           }
           onKeyDown(event);
         }}
-        onPaste={onPaste}
+        onPaste={event => { if (readOnly) event.preventDefault(); else onPaste(event); }}
         onDrop={(event) => event.preventDefault()}
         onCompositionStart={(event) => {
+          if (readOnly) return;
           composing.current = true;
           compositionRange.current = inlineSelection(event.currentTarget);
           onCompositionChange?.(true);
@@ -506,6 +512,7 @@ export function InlineEditor({
         onCompositionEnd={(event) => {
           composing.current = false;
           try {
+            if (readOnly) return;
             const range = compositionRange.current;
             if (typingMarks.current && range && event.data) {
               restore.current = {
@@ -524,7 +531,7 @@ export function InlineEditor({
           } finally { onCompositionChange?.(false); }
         }}
         onInput={(event) => {
-          if (composing.current) return;
+          if (readOnly || composing.current) return;
           onChange(
             updateInlineText(content, event.currentTarget.textContent ?? ""),
           );

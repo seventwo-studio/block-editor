@@ -119,8 +119,8 @@ fresh-actor undo policy. Exports refuse to overwrite an existing destination.
 
 The reference stores archives locally and offers platform sharing on iOS, macOS
 and visionOS. A failed draft save is visible and directs the author to export before
-closing. The browser reference host still requires equivalent recovery persistence
-and controls. No automatic destructive repair or protocol cutover is
+closing. Browser recovery uses its own storage adapter described below. No
+automatic destructive repair or protocol cutover is
 implied by opening the Apple panel.
 
 ## Android reference recovery controls
@@ -155,6 +155,47 @@ pending proposal without a token. A third process reopens the repaired draft,
 reconnects to the restarted server and compares the accepted document with a fresh
 peer. The saved author identity, accepted snapshot and proposal are checked across
 the first restart; the repaired snapshot survives the second restart.
+
+## Browser reference recovery controls
+
+The local browser relay adapter imports HTTP 409 proposals through the WASM session
+without advancing accepted receipts or presence. `subscribeRecovery` observes
+proposal changes separately from document notifications, including a failed receive
+and delayed composition-buffer draining. Hosts can use `getRecoverySnapshot` as a
+stable external-store value. Repairs clear the proposal only after engine admission.
+
+The reference offers original root/toggle block wrapping, archive download and
+synchronization retry. Accepted rich text remains focusable and selectable with
+`contentEditable=false`; code/math fields use native read-only textareas. Ordinary
+typing, formatting, block actions, stress edits and undo/redo wait for repair.
+Unsupported repairs retain both histories and display the failure. The block
+catalogue uses original creation payloads and stable origin identities rather than
+an invalid merged preview. Broader table/list repair controls remain separate work.
+
+IndexedDB database version 2 stores an atomic envelope with separate accepted
+snapshot and pending proposal fields. Legacy unversioned browser drafts retain
+their actor and history and upgrade on save. Old bundles requesting database
+version 1 fail explicitly, preventing them from overwriting a retained proposal.
+Malformed histories, incompatible versions and proposals for another document
+fail before writing; stored input stays intact. The exclusive writer lock remains.
+
+Persistence also runs when rejection changes only the pending proposal. Quota or
+transaction failure remains visible; retry saves the current accepted/pending
+envelope, and an archive download can retain both histories before closing. Archive
+downloads are versioned host records separate from the collaboration protocol.
+Browser archive-file import and full network-disabled asset loading remain open.
+
+Fourteen Chromium/WebKit host checks pass. A real v2 relay workflow exercises
+HTTP 409, failed local storage and retry, accepted text selection, blocked actions,
+failed repair preservation, archive download, legacy upgrade and rejection of old
+database writers. It closes and reopens the tab with the relay stopped, restores
+pending recovery without a token or relay request, repairs offline, closes/reopens
+the repaired draft and reconnects to a restarted server. A fresh Swift peer has
+the same document with both authors' content. Four incompatible/malformed draft
+cases preserve the stored input. These are tab-restart checks with locally served
+UI/WASM assets, not full browser-process restart or airplane-mode acceptance.
+Firefox execution, system input/accessibility and production React migration stay
+open.
 
 ## Evidence
 

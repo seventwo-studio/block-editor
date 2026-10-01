@@ -95,6 +95,8 @@ export class SwiftEditorRuntime {
 
 export class SwiftEditorSession {
   private listeners = new Set<() => void>();
+  private recoveryListeners = new Set<() => void>();
+  private recovery: SwiftMergeRecovery | null = null;
   private beforeReceive = new Set<() => void | (() => void)>();
   private remoteHolds = 0;
   private deferred: string[] = [];
@@ -103,6 +105,9 @@ export class SwiftEditorSession {
   constructor(private runtime: SwiftEditorRuntime, private handle: string, private snapshot: SwiftSnapshot) {}
   getSnapshot = (): SwiftSnapshot => this.snapshot;
   subscribe = (listener: () => void): (() => void) => { this.listeners.add(listener); return () => this.listeners.delete(listener); };
+  /** Recovery can change on a rejected receive without a document change. */
+  getRecoverySnapshot = (): SwiftMergeRecovery | null => this.recovery;
+  subscribeRecovery = (listener: () => void): (() => void) => { this.recoveryListeners.add(listener); return () => this.recoveryListeners.delete(listener); };
   /** A pre-receive observer can return cleanup to discard preparation if validation fails. */
   subscribeBeforeReceive = (listener: () => void | (() => void)): (() => void) => { this.beforeReceive.add(listener); return () => this.beforeReceive.delete(listener); };
   /** An input adapter commits its composition before releasing queued remote edits.
@@ -125,7 +130,21 @@ export class SwiftEditorSession {
   }
   private call<T>(command: string, args: Record<string, unknown> = {}): T {
     if (this.closed) throw new Error("Editor session is closed");
-    return this.runtime.call({ command, session: this.handle, ...args });
+    try {
+      const value = this.runtime.call<T>({ command, session: this.handle, ...args });
+      if (["receive", "repairMerge", "undo", "redo"].includes(command)) {
+        this.setRecovery(this.runtime.call({ command: "mergeRecovery", session: this.handle }));
+      }
+      return value;
+    } catch (error) {
+      if (error instanceof SwiftMergeRecoveryError) this.setRecovery(error.recovery);
+      throw error;
+    }
+  }
+  private setRecovery(value: SwiftMergeRecovery | null) {
+    if (JSON.stringify(value) === JSON.stringify(this.recovery)) return;
+    this.recovery = value;
+    for (const listener of this.recoveryListeners) listener();
   }
   private edit(command: string, args: Record<string, unknown> = {}): void {
     this.snapshot = this.call(command, args);
@@ -197,5 +216,5 @@ export class SwiftEditorSession {
   removePresence(actorID: string): Record<string, SwiftPresence> { return this.call("removePresence", { actorID }); }
   setAllowedBlockTypes(types: string[] | null): void { this.edit("allowedBlockTypes", { types }); }
   markdown(): string { return this.call("markdown"); }
-  close(): void { if (!this.closed) { this.call("close"); this.closed = true; this.listeners.clear(); this.beforeReceive.clear(); this.deferred = []; this.deferredBytes = 0; } }
+  close(): void { if (!this.closed) { this.call("close"); this.closed = true; this.listeners.clear(); this.recoveryListeners.clear(); this.beforeReceive.clear(); this.deferred = []; this.deferredBytes = 0; } }
 }

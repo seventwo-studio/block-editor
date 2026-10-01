@@ -43,9 +43,10 @@ function SwiftInlineEditor({ session, address, reportError, ...props }: Componen
 }
 
 /** Keep the browser's composition buffer intact until it becomes a local edit. */
-function SwiftTextEditor({ session, address, value, label, reportError }: {
+function SwiftTextEditor({ session, address, value, label, reportError, readOnly = false }: {
   session: SwiftEditorSession; address: TextAddress; value: string; label: string;
   reportError: (error: unknown) => void;
+  readOnly?: boolean;
 }) {
   const element = useRef<HTMLTextAreaElement | null>(null);
   const composing = useRef(false);
@@ -79,12 +80,13 @@ function SwiftTextEditor({ session, address, value, label, reportError }: {
     try { finish?.(); } catch (error) { reportError(error); }
   }, [session]);
   function commit(input: HTMLTextAreaElement) {
+    if (readOnly) return;
     try { session.setText(address, input.value); }
     catch (error) { reportError(error); }
   }
-  return <textarea ref={element} aria-label={label} defaultValue={value}
+  return <textarea ref={element} aria-label={label} defaultValue={value} readOnly={readOnly}
     onChange={event => { if (!composing.current) commit(event.currentTarget); }}
-    onCompositionStart={() => { composing.current = true; release.current ??= session.deferRemoteChanges(); }}
+    onCompositionStart={() => { if (!readOnly) { composing.current = true; release.current ??= session.deferRemoteChanges(); } }}
     onCompositionEnd={event => {
       composing.current = false;
       commit(event.currentTarget);
@@ -92,6 +94,7 @@ function SwiftTextEditor({ session, address, value, label, reportError }: {
       try { finish?.(); } catch (error) { reportError(error); }
     }}
     onKeyDown={event => {
+      if (readOnly) return;
       if (composing.current || event.nativeEvent.isComposing) return;
       if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === "z") {
         event.preventDefault();
@@ -138,20 +141,21 @@ export function SwiftBlockEditor({ loadModule, documentID, actorID, initialBlock
   return <SwiftEditorSurface session={session} {...props} />;
 }
 
-export function SwiftEditorSurface({ session, onChange, renderImage }: {
+export function SwiftEditorSurface({ session, onChange, renderImage, readOnly = false }: {
   session: SwiftEditorSession;
   onChange?: (blocks: Block[]) => void;
   renderImage?: SwiftBlockEditorProps["renderImage"];
+  readOnly?: boolean;
 }) {
   const snapshot = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
   const [focused, setFocused] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => { onChange?.(snapshot.blocks); }, [snapshot, onChange]);
-  function perform(action: () => void) { try { action(); setError(null); } catch (error) { setError(String(error)); } }
+  function perform(action: () => void) { if (readOnly) return; try { action(); setError(null); } catch (error) { setError(String(error)); } }
   function insert(after?: string) { session.insert({ id: crypto.randomUUID(), type: "paragraph", content: [] }, after); }
   function inline(address: TextAddress, nodes: InlineNode[]) {
     const key = JSON.stringify(address);
-    return <SwiftInlineEditor session={session} address={address} reportError={error => setError(String(error))} content={nodes} placeholder="Write something…" autoFocus={false}
+    return <SwiftInlineEditor session={session} address={address} reportError={error => setError(String(error))} content={nodes} placeholder="Write something…" autoFocus={false} readOnly={readOnly}
       focused={focused === key} inputRef={() => {}} onFocus={() => setFocused(key)} onKeyDown={() => {}}
       onPaste={event => {
         // Browser HTML access stays in the adapter. The current surface deliberately
@@ -173,13 +177,13 @@ export function SwiftEditorSurface({ session, onChange, renderImage }: {
     switch (block.type) {
       case "paragraph": case "heading": case "quote": case "callout": return inline(address("content"), block.content);
       case "list": return <div>{block.items.map(item => <div key={item.id}>
-        {block.style === "todo" && <input type="checkbox" aria-label="Completed" checked={!!item.checked} onChange={event => perform(() => session.setField(rootID, [...path, "items", item.id, "checked"], event.target.checked))} />}
+        {block.style === "todo" && <input type="checkbox" aria-label="Completed" checked={!!item.checked} disabled={readOnly} onChange={event => perform(() => session.setField(rootID, [...path, "items", item.id, "checked"], event.target.checked))} />}
         {inline({ blockID: rootID, path: [...path, "items", item.id, "content"] }, item.content)}
       </div>)}</div>;
       case "divider": return <hr />;
       case "image": return renderImage?.(block) ?? <span>{block.alt || "Image"}</span>;
-      case "code": return <SwiftTextEditor session={session} address={address("code")} value={block.code} label="Code" reportError={error => setError(String(error))} />;
-      case "math": return <SwiftTextEditor session={session} address={address("expression")} value={block.expression} label="Math" reportError={error => setError(String(error))} />;
+      case "code": return <SwiftTextEditor session={session} address={address("code")} value={block.code} label="Code" readOnly={readOnly} reportError={error => setError(String(error))} />;
+      case "math": return <SwiftTextEditor session={session} address={address("expression")} value={block.expression} label="Math" readOnly={readOnly} reportError={error => setError(String(error))} />;
       case "embed": return <span>{block.title || block.url}</span>;
       case "toggle": return <details><summary>{inline(address("summary"), block.summary)}</summary>{block.children.map(child => <div key={child.id}>{render(child, rootID, [...path, "children", child.id])}</div>)}</details>;
       case "table": return <table><tbody>{block.rows.map(row => <tr key={row.id}>{row.cells.map(cell => <td key={cell.id}>{inline({ blockID: rootID, path: [...path, "rows", row.id, "cells", cell.id, "content"] }, cell.content)}</td>)}</tr>)}</tbody></table>;
@@ -187,15 +191,15 @@ export function SwiftEditorSurface({ session, onChange, renderImage }: {
   }
   return <div className="s2be" aria-label="Block editor">
     <div>
-      <button disabled={!snapshot.canUndo} onClick={() => perform(() => session.undo())}>Undo</button>
-      <button disabled={!snapshot.canRedo} onClick={() => perform(() => session.redo())}>Redo</button>
-      <button onClick={() => perform(() => insert(snapshot.blocks.at(-1)?.id))}>Add paragraph</button>
+      <button disabled={readOnly || !snapshot.canUndo} onClick={() => perform(() => session.undo())}>Undo</button>
+      <button disabled={readOnly || !snapshot.canRedo} onClick={() => perform(() => session.redo())}>Redo</button>
+      <button disabled={readOnly} onClick={() => perform(() => insert(snapshot.blocks.at(-1)?.id))}>Add paragraph</button>
     </div>
     {error && <div role="alert">{error}</div>}
     {snapshot.blocks.map((block, index) => <div key={block.id}>
       {render(block)}
-      <button disabled={index === 0} onClick={() => perform(() => session.move(block.id, index > 1 ? snapshot.blocks[index - 2].id : undefined))}>Move up</button>
-      <button onClick={() => perform(() => session.delete(block.id))}>Delete</button>
+      <button disabled={readOnly || index === 0} onClick={() => perform(() => session.move(block.id, index > 1 ? snapshot.blocks[index - 2].id : undefined))}>Move up</button>
+      <button disabled={readOnly} onClick={() => perform(() => session.delete(block.id))}>Delete</button>
     </div>)}
   </div>;
 }
