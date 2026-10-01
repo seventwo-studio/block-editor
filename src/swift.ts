@@ -181,6 +181,11 @@ export class SwiftWritingSession {
     this.publish(result.snapshot); return result.selection;
   }
   mergeParagraphs(left: SwiftNodeID, right: SwiftNodeID): SwiftWritingPosition { return this.command("mergeParagraphs", { left, right }); }
+  collectionNodes(collection: SwiftNodeCollection): SwiftNodeID[] { return this.call("collectionNodes", { collection }); }
+  insertCollectionNodes(values: Record<string, unknown>[], collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection {
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>("insertCollectionNodes", { values, collection, after });
+    this.publish(result.snapshot); return result.selection;
+  }
   setAllowedBlockTypes(types: string[] | null): void { this.publish(this.call("allowedBlockTypes", { types })); }
   convertBlock(address: TextAddress, offset: number, target: SwiftWritingBlockTarget): SwiftWritingPosition { return this.command("convertBlock", { address, offset, target }); }
   markdownShortcut(address: TextAddress, offset: number): SwiftWritingPosition { return this.command("markdownShortcut", { address, offset }); }

@@ -241,7 +241,7 @@ private func exchange(_ a: WritingSession, _ b: WritingSession) throws {
     #expect(merge.document.blocks.map(\.text) == (side == "left" ? ["a", "b", "cd"] : ["ab", "c", "d"]))
 }
 
-@Test(arguments: ["writing", "blockCommands", "schemaCommands", "roleCommands"]) func writingSharedBridgeFixture(name: String) throws {
+@Test(arguments: ["writing", "blockCommands", "schemaCommands", "roleCommands", "collectionCommands"]) func writingSharedBridgeFixture(name: String) throws {
     let url = try #require(Bundle.module.url(forResource: name, withExtension: "json", subdirectory: "Fixtures"))
     let fixture = try JSONDecoder().decode(JSONValue.self, from: Data(contentsOf: url)), bridge = EditorBridge()
     var captured: [String: JSONValue] = [:]

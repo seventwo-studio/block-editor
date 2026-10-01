@@ -186,6 +186,13 @@ public final class EditorBridge {
             let after = input["after"] == nil || input["after"] == .null ? nil : try decode(input["after"], as: NodeID.self)
             let result = command == "moveSelection" ? try session.move(selected, into: collection, after: after) : try session.duplicate(selected, into: collection, after: after)
             return .object(["snapshot": try writingSnapshot(session), "selection": try encode(result)])
+        case "collectionNodes": return try encode(session.collectionNodes(in: decode(input["collection"], as: NodeCollection.self)))
+        case "insertCollectionNodes":
+            guard let values = input["values"]?.array else { throw EditorError.invalidChange }
+            let collection = try decode(input["collection"], as: NodeCollection.self)
+            let after = input["after"] == nil || input["after"] == .null ? nil : try decode(input["after"], as: NodeID.self)
+            let result = try session.insertCollectionNodes(values, into: collection, after: after)
+            return .object(["snapshot": try writingSnapshot(session), "selection": try encode(result)])
         case "allowedBlockTypes":
             if input["types"] == .null { session.allowedBlockTypes = nil }
             else {

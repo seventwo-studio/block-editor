@@ -1,5 +1,39 @@
 import { test, expect } from "@playwright/test";
 
+test("typed v4 collection commands keep scoped IDs and remote work across author undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const blocks = [{ id: "table", type: "table", rows: [], columnWidths: [120], extension: "keep" }];
+    const a = runtime.createWritingV4({ documentID: "typed-collections", actorID: "a", epoch: "collections-v4", blocks });
+    const b = runtime.createWritingV4({ documentID: "typed-collections", actorID: "b", epoch: "collections-v4", blocks });
+    const rows = { owner: a.node({ blockID: "table", path: [] }), field: "rows" };
+    const values = ["one", "two"].map(id => ({ id, cells: [{ id: "same", content: [{ type: "text", text: id, marks: [] }], extension: { id: "consumer" } }] }));
+    const created = a.insertCollectionNodes(values, rows);
+    const initialIdentities = a.collectionNodes(rows);
+    b.receive(a.changes());
+    b.replaceText({ blockID: "table", path: ["rows", "one", "cells", "same", "content"] }, 0, 0, "R");
+    a.receive(b.changes());
+    a.moveSelection({ nodes: [created.nodes[0]], text: [] }, rows, created.nodes[1]);
+    const reordered = a.getSnapshot().blocks;
+    const reopened = runtime.restoreWriting(a.save(), "a");
+    reopened.undo(); const moveUndo = reopened.getSnapshot().blocks;
+    reopened.undo(); const creationUndo = reopened.getSnapshot().blocks;
+    reopened.redo(); const redo = reopened.getSnapshot().blocks;
+    const restoredIdentities = reopened.collectionNodes(rows);
+    a.close(); b.close(); reopened.close();
+    return { created: created.nodes, initialIdentities, reordered, moveUndo, creationUndo, redo, restoredIdentities };
+  }, `/block-editor/@fs${process.cwd()}`);
+  expect(result.initialIdentities).toEqual(result.created);
+  expect(result.restoredIdentities).toEqual(result.created);
+  expect(result.reordered[0].rows.map((row: { id: string }) => row.id)).toEqual(["two", "one"]);
+  expect(result.moveUndo[0].rows[0].cells[0]).toEqual({ id: "same", content: [{ type: "text", text: "Rone", marks: [] }], extension: { id: "consumer" } });
+  expect(result.creationUndo).toEqual([{ id: "table", type: "table", rows: [{ id: "one", cells: [{ id: "same", content: [{ type: "text", text: "R", marks: [] }], extension: { id: "consumer" } }] }], columnWidths: [120], extension: "keep" }]);
+  expect(result.redo).toEqual(result.moveUndo);
+});
+
 test("typed v3 writing commands and composition queues preserve accepted history", async ({ page }) => {
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");

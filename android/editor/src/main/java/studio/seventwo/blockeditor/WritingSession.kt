@@ -154,6 +154,15 @@ class WritingSession private constructor(private val handle: String, initial: JS
         publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
     }
     fun mergeParagraphs(left: NodeIdentity, right: NodeIdentity): WritingPosition = command("mergeParagraphs", JSONObject().put("left", left.wire).put("right", right.wire))
+    fun collectionNodes(collection: NodeCollection): List<NodeIdentity> {
+        val result = call("collectionNodes", JSONObject().put("collection", collection.wire)) as JSONArray
+        return (0 until result.length()).map { NodeIdentity(result.getJSONObject(it)) }
+    }
+    fun insertCollectionNodes(values: JSONArray, collection: NodeCollection, after: NodeIdentity? = null): WritingSelection {
+        val result = call("insertCollectionNodes", JSONObject().put("values", values).put("collection", collection.wire)
+            .put("after", after?.wire ?: JSONObject.NULL)) as JSONObject
+        publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
+    }
     fun setAllowedBlockTypes(types: Set<String>?) { publish(call("allowedBlockTypes", JSONObject().put("types", types?.let { JSONArray(it.toList()) } ?: JSONObject.NULL)) as JSONObject) }
     fun convertBlock(address: WritingAddress, offset: Int, target: WritingBlockTarget): WritingPosition = command("convertBlock", JSONObject().put("address", address.wire).put("offset", offset).put("target", target.wire()))
     fun markdownShortcut(address: WritingAddress, offset: Int): WritingPosition = command("markdownShortcut", JSONObject().put("address", address.wire).put("offset", offset))

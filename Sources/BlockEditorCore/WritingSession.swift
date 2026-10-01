@@ -488,6 +488,55 @@ public final class WritingSession {
         try perform(id, operations)
         return WritingSelection(nodes: identities)
     }
+    /// Read stable identities from a schema-defined collection. Paths are used
+    /// only for lookup; consumers keep these identities across later moves.
+    public func collectionNodes(in collection: NodeCollection) throws -> [NodeID] {
+        _ = try structure.kind(in: collection)
+        if let owner = collection.owner { _ = try structure.address(of: owner) }
+        return try structure.visibleOrder(in: collection)
+    }
+    /// Create rows, cells, toggle children or list items as one author transaction.
+    /// Collection values are inserted individually; existing arrays are never
+    /// replaced. Schema IDs remain scoped and unknown payload stays untouched.
+    @discardableResult public func insertCollectionNodes(_ values: [JSONValue], into collection: NodeCollection, after: NodeID? = nil) throws -> WritingSelection {
+        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        guard !values.isEmpty, values.count <= 100_000 else { throw EditorError.invalidRange }
+        let kind = try structure.kind(in: collection)
+        let siblings = try collectionNodes(in: collection)
+        var labels = Set(siblings.compactMap { structure.nodes[$0]?.label })
+        func authored(_ value: JSONValue, kind: NodeKind) throws {
+            guard let fields = value.object else { throw EditorError.invalidPath }
+            switch kind {
+            case .block:
+                guard let type = fields["type"]?.string else { throw EditorError.invalidPath }
+                try requireAuthoredType(type)
+            case .item: try requireAuthoredType("list")
+            case .row, .cell: try requireAuthoredType("table")
+            }
+            for (name, childKind) in StructuralState.collectionFields(kind, fields) {
+                for child in fields[name]?.array ?? [] { try authored(child, kind: childKind) }
+            }
+        }
+        for value in values {
+            try validateNode(value, kind: kind)
+            try authored(value, kind: kind)
+            guard let label = value["id"]?.string, labels.insert(label).inserted else { throw EditorError.invalidPath }
+        }
+        var edge = try selectionPlacement(after, in: collection)
+        let id = try nextID()
+        var identities: [NodeID] = []
+        var operations = try retainedRoleOperations(for: [after].compactMap { $0 })
+        for (index, value) in values.enumerated() {
+            let placement = ElementID(change: id, index: index)
+            let identity = NodeID.inserted(creation: placement, path: [])
+            identities.append(identity)
+            operations.append(.structure(.insertNode(value: value, identity: identity, collection: collection, placement: placement, after: edge)))
+            edge = .edit(placement)
+        }
+        try perform(id, operations)
+        return WritingSelection(nodes: identities)
+    }
     private func selectionPlacement(_ node: NodeID?, in collection: NodeCollection) throws -> NodePlacementID? {
         guard let node else { return nil }
         guard try structure.visibleOrder(in: collection).contains(node), let placement = try structure.effectivePlacements()[node], placement.collection == collection else { throw EditorError.invalidPath }

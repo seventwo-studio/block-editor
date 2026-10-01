@@ -46,6 +46,39 @@ class WritingSessionTest {
         } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
     }
 
+    @Test fun typedCollectionCreationReorderAndRemoteDescendantUndoUseStableIdentities() {
+        val seed = JSONArray("""[{"id":"t","type":"table","rows":[],"columnWidths":[120],"extension":"keep"}]""")
+        val a = WritingSession.createV4("typed-collections", "a", "collections-v4", seed)
+        val b = WritingSession.createV4("typed-collections", "b", "collections-v4", seed)
+        var reopened: WritingSession? = null
+        try {
+            val root = a.node(NodeAddress("t"))
+            val rows = NodeCollection.rows(root)
+            val values = JSONArray("""[
+                {"id":"r1","cells":[{"id":"same","content":[{"type":"text","text":"one😀","marks":[]}]}]},
+                {"id":"r2","cells":[{"id":"same","content":[{"type":"text","text":"two","marks":[]}]}]}
+            ]""")
+            val created = a.insertCollectionNodes(values, rows)
+            assertEquals(2, created.nodes.size)
+            assertEquals(created.nodes.map { normalize(it.wire) }, a.collectionNodes(rows).map { normalize(it.wire) })
+            b.receive(a.changes())
+            b.replaceText(WritingAddress("t", listOf("rows", "r1", "cells", "same", "content")), 0, 0, "R")
+            a.receive(b.changes())
+            a.moveSelection(WritingSelection(nodes = listOf(created.nodes[0])), rows, created.nodes[1])
+            assertEquals(listOf("r2", "r1"), (0 until 2).map { a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("rows").getJSONObject(it).getString("id") })
+            val restored = WritingSession.restore(a.save(), "a"); reopened = restored
+            restored.undo()
+            assertEquals("Rone😀", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("rows").getJSONObject(0).getJSONArray("cells").getJSONObject(0).getJSONArray("content").getJSONObject(0).getString("text"))
+            restored.undo()
+            assertEquals(listOf(normalize(created.nodes[0].wire)), restored.collectionNodes(rows).map { normalize(it.wire) })
+            assertEquals("R", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("rows").getJSONObject(0).getJSONArray("cells").getJSONObject(0).getJSONArray("content").getJSONObject(0).getString("text"))
+            restored.redo()
+            assertEquals(created.nodes.map { normalize(it.wire) }, restored.collectionNodes(rows).map { normalize(it.wire) })
+            assertEquals("keep", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getString("extension"))
+            assertEquals(normalize(JSONArray("[120]")), normalize(restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("columnWidths")))
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+    }
+
     @Test fun typedV4ConversionKeepsRootAndRetainsBothRemoteOriginsAcrossUndo() {
         val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"café😀","marks":[]}],"extension":"keep"}]""")
         val a = WritingSession.createV4("typed-schema", "a", "schema-v4", seed)
