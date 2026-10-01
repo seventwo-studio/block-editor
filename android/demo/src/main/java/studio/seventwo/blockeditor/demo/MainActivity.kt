@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
-import studio.seventwo.blockeditor.BlockEditor
 import studio.seventwo.blockeditor.MergeRepair
 import org.json.JSONArray
 import org.json.JSONObject
@@ -83,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     File(context.filesDir, "recovery-archives/recovery-${UUID.randomUUID()}.json").also { current.exportRecovery(it) }
                 }, retry = { online = true; current.connected = true })
             }
-            BlockEditor(current.session, Modifier.weight(1f), readOnly = current.recovery != null,
+            HostAssetEditor(current.session, Modifier.weight(1f), readOnly = current.recovery != null,
                 onError = { current.refreshRecovery() })
         }
     }
