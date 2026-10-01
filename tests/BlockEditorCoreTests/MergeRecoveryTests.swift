@@ -88,6 +88,31 @@ private func collision() throws -> (EditorSession, EditorSession, NodeID, NodeID
             changes: [Change(id: id, body: .edit([.moveNode(identity: second, collection: target,
                 placement: placement, after: .edit(missing))]))], version: 2))
     }
+    let root = NodeID.inserted(creation: placement, path: [])
+    let absent = NodeID.inserted(creation: placement, path: ["children", "absent"])
+    let prefix = Mutation.insertNode(value: .object(try recoveryToggle("new", children: [recoveryParagraph("Original")]).fields),
+        identity: root, collection: .root, placement: placement, after: nil)
+    let impossible: [Mutation] = [
+        .insertNode(value: try recoveryParagraph("Invisible"), identity: .inserted(creation: missing, path: []),
+            collection: .root, placement: missing, after: .initial(root)),
+        .insertNode(value: try recoveryParagraph("Invisible"), identity: .inserted(creation: missing, path: []),
+            collection: NodeCollection(owner: absent, field: "children"), placement: missing, after: nil),
+        .moveNode(identity: second, collection: NodeCollection(owner: absent, field: "children"), placement: missing, after: nil),
+        .insertText(address: TextAddress("@bad/99/0", path: ["children", "absent", "content"], identity: absent),
+            atoms: [TextAtom(id: missing, after: nil, node: textNode("X"))]),
+    ]
+    var malformedPrepared = false
+    a.onWillReceive = { malformedPrepared = true }
+    for suffix in impossible {
+        #expect(throws: EditorError.invalidChange) {
+            try a.receive(ChangeBatch(documentID: a.documentID, baseline: a.baseline,
+                changes: [Change(id: id, body: .edit([prefix, suffix]))], version: 2))
+        }
+        #expect(a.mergeRecovery == proposal)
+        #expect(try a.save() == saved)
+        #expect(a.syncState == receipt)
+        #expect(!malformedPrepared)
+    }
     #expect(a.mergeRecovery == proposal)
     #expect(try a.save() == saved)
     #expect(a.syncState == receipt)

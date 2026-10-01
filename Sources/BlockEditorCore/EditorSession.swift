@@ -206,7 +206,7 @@ public final class EditorSession {
         }
         guard !mutations.isEmpty else { throw EditorError.invalidChange }
         let change = Change(id: id, body: .edit(mutations))
-        try validate(change, version: 2)
+        try validate(change, version: 2, structure: raw.structure)
         candidate[id] = change
         try checkRecoveryCapacity(candidate)
         let next = try materialize(baseline, Array(candidate.values), version: 2)
@@ -601,7 +601,7 @@ public final class EditorSession {
     private func append(_ change: Change) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         if let recovery = mergeRecovery { throw EditorError.mergeRecoveryRequired(recovery) }
-        try validate(change, version: collaborationVersion)
+        try validate(change, version: collaborationVersion, structure: state.structure)
         var candidate = log; candidate[change.id] = change
         if collaborationVersion == 2 { try checkRecoveryCapacity(candidate) }
         var next: Materialized
@@ -658,13 +658,21 @@ private func validUTF16Offset(_ offset: Int, in text: String) -> Bool {
     return false
 }
 
-private func validate(_ change: Change, version: Int) throws {
+func validate(_ change: Change, version: Int, structure: StructuralState? = nil) throws {
     guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991,
           validActor(change.id.actor) else { throw EditorError.invalidChange }
     var introduced = Set<ElementID>()
     var introducedPlacements = Set<ElementID>()
     var introducedNodes = Set<ElementID>()
     var introducedText: [ElementID: TextAddress] = [:]
+    var introducedStructure = structure ?? StructuralState()
+    var uncertainCreations = Set<ElementID>()
+    var possibleNodes = Set<NodeID>()
+    var possiblePlacements = Set<NodePlacementID>()
+    func uncertain(_ identity: NodeID) -> Bool {
+        if case .inserted(let creation, _) = identity { return uncertainCreations.contains(creation) }
+        return false
+    }
     func reference(_ id: ElementID?) throws {
         guard let id else { return }
         guard id.index >= 0, id.change < change.id || id.change == change.id else { throw EditorError.invalidChange }
@@ -695,7 +703,9 @@ private func validate(_ change: Change, version: Int) throws {
             guard !blockID.isEmpty, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
         case .inserted(let creation, let path):
             try reference(creation)
-            if creation.change == change.id, !introducedNodes.contains(creation) { throw EditorError.invalidChange }
+            if creation.change == change.id {
+                guard introducedNodes.contains(creation), possibleNodes.contains(identity) || introducedStructure.nodes[identity] != nil else { throw EditorError.invalidChange }
+            }
             guard creation.change.counter > 0, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
         }
     }
@@ -704,11 +714,24 @@ private func validate(_ change: Change, version: Int) throws {
         if let owner = collection.owner {
             try nodeReference(owner)
             guard ["children", "items", "rows", "cells"].contains(collection.field) else { throw EditorError.invalidPath }
+            if !uncertain(owner), introducedStructure.nodes[owner] != nil {
+                _ = try introducedStructure.kind(in: collection)
+            }
         } else { guard collection == .root else { throw EditorError.invalidPath } }
     }
     func nodePlacement(_ id: NodePlacementID?) throws {
         guard let id else { return }
-        switch id { case .initial(let node): try nodeReference(node); case .edit(let element): try placementElement(element) }
+        switch id {
+        case .initial(let node):
+            try nodeReference(node)
+            if case .inserted(let creation, let path) = node {
+                // Only embedded descendants have initial placements. The root
+                // of every creation uses its edit placement, even when nested.
+                guard !path.isEmpty else { throw EditorError.invalidChange }
+                if creation.change == change.id, !possiblePlacements.contains(id), introducedStructure.placements[id] == nil { throw EditorError.invalidChange }
+            }
+        case .edit(let element): try placementElement(element)
+        }
     }
     func scalarPath(_ path: [String], _ value: JSONValue) throws {
         guard let last = path.last, !["id", "type", "content", "summary", "caption", "code", "expression", "children", "items", "rows", "cells"].contains(last),
@@ -741,6 +764,42 @@ private func validate(_ change: Change, version: Int) throws {
                 try nodeCollection(collection); try nodePlacement(after)
                 guard value.object != nil, identity == .inserted(creation: id, path: []), id.change == change.id,
                       id.index >= 0, introduced.insert(id).inserted, after != .edit(id) else { throw EditorError.invalidChange }
+                var kind: NodeKind
+                if let owner = collection.owner, !uncertain(owner), introducedStructure.nodes[owner] != nil {
+                    kind = try introducedStructure.kind(in: collection)
+                } else {
+                    // Earlier causal owners can arrive later. The collection and
+                    // payload determine the creation's intrinsic descendant shape.
+                    switch collection.field {
+                    case "blocks": kind = .block
+                    case "items": kind = .item
+                    case "rows": kind = .row
+                    case "cells": kind = .cell
+                    case "children":
+                        // Children can be blocks or list items. An item's opaque
+                        // type metadata cannot identify its structural kind. Keep
+                        // this shape tentative until the causal owner is available.
+                        kind = value["type"]?.string == nil ? .item : .block
+                        uncertainCreations.insert(id)
+                    default: throw EditorError.invalidPath
+                    }
+                }
+                if uncertainCreations.contains(id) {
+                    var shapes: [NodeKind] = [], failure: Error = EditorError.invalidChange
+                    for possible in [NodeKind.item, .block] {
+                        do { try validateNode(value, kind: possible); shapes.append(possible) }
+                        catch { failure = error }
+                    }
+                    guard !shapes.isEmpty else { throw failure }
+                    if !shapes.contains(kind) { kind = shapes[0] }
+                    for possible in shapes {
+                        var shape = StructuralState()
+                        shape.register(value, identity: identity, kind: possible, active: true)
+                        possibleNodes.formUnion(shape.nodes.keys)
+                        possiblePlacements.formUnion(shape.placements.keys)
+                    }
+                } else { try validateNode(value, kind: kind) }
+                introducedStructure.register(value, identity: identity, kind: kind, active: true)
                 introducedPlacements.insert(id); introducedNodes.insert(id)
             case .moveNode(let identity, let collection, let id, let after):
                 try nodeReference(identity); try nodeCollection(collection); try nodePlacement(after)

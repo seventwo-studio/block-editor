@@ -174,6 +174,608 @@
     },
     {
       "request": {
+        "command": "receive",
+        "session": "a",
+        "batch": {
+          "version": 2,
+          "documentID": "recovery-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "parent",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "parent",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              },
+              {
+                "id": "destination",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "destination",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "counter": 99,
+                                    "actor": "malformed"
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a",
+        "batch": {
+          "version": 2,
+          "documentID": "recovery-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "parent",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "parent",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              },
+              {
+                "id": "destination",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "destination",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a",
+        "batch": {
+          "version": 2,
+          "documentID": "recovery-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "parent",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "parent",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              },
+              {
+                "id": "destination",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "destination",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "parent",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a",
+        "batch": {
+          "version": 2,
+          "documentID": "recovery-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "parent",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "parent",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              },
+              {
+                "id": "destination",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "destination",
+                    "marks": []
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@malformed/99/0",
+                          "path": [
+                            "children",
+                            "missing",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "a"
+      },
+      "capture": "pendingAfterMalformed"
+    },
+    {
+      "request": {
         "command": "save",
         "session": "a"
       },
@@ -1025,6 +1627,1228 @@
     },
     {
       "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "counter": 99,
+                                    "actor": "malformed"
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@malformed/99/0",
+                          "path": [
+                            "children",
+                            "missing",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 98,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "counter": 99,
+                                    "actor": "malformed"
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 98,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "lost",
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Must not disappear",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 98,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "kept",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "admission",
+        "batch": {
+          "version": 2,
+          "documentID": "admission-fixture",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "kept",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Keep me",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "other",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Other field",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 99,
+                "actor": "malformed"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "toggle",
+                          "summary": [
+                            {
+                              "type": "text",
+                              "text": "new",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "child",
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Original child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 98,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 99,
+                            "actor": "malformed"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@malformed/99/0",
+                          "path": [
+                            "children",
+                            "missing",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 99,
+                                  "actor": "malformed"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "missing"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 99,
+                                "actor": "malformed"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
         "command": "save",
         "session": "admission"
       },
@@ -1043,6 +2867,288 @@
         "session": "admission"
       },
       "capture": "admissionAfterDocument"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "metadata",
+        "documentID": "metadata-fixture",
+        "actorID": "local",
+        "blocks": [],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "metadataExpected",
+        "documentID": "expected-metadata",
+        "actorID": "expected",
+        "blocks": [
+          {
+            "id": "list",
+            "type": "list",
+            "style": "unordered",
+            "items": [
+              {
+                "id": "parent",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Parent",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "new",
+                    "type": "math",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "New",
+                        "marks": []
+                      }
+                    ],
+                    "children": [
+                      {
+                        "id": "embedded",
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "XChild",
+                            "marks": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "metadata",
+        "batch": {
+          "version": 2,
+          "documentID": "metadata-fixture",
+          "baseline": {
+            "blocks": []
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "metadata"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "new",
+                          "type": "math",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "New",
+                              "marks": []
+                            }
+                          ],
+                          "children": [
+                            {
+                              "id": "embedded",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Child",
+                                  "marks": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "metadata"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 1,
+                                  "actor": "metadata"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "items",
+                                "parent"
+                              ]
+                            }
+                          },
+                          "field": "children"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "metadata"
+                          },
+                          "index": 0
+                        }
+                      }
+                    },
+                    {
+                      "insertText": {
+                        "address": {
+                          "blockID": "@metadata/2/0",
+                          "path": [
+                            "children",
+                            "embedded",
+                            "content"
+                          ],
+                          "identity": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "counter": 2,
+                                  "actor": "metadata"
+                                },
+                                "index": 0
+                              },
+                              "path": [
+                                "children",
+                                "embedded"
+                              ]
+                            }
+                          }
+                        },
+                        "atoms": [
+                          {
+                            "id": {
+                              "change": {
+                                "counter": 2,
+                                "actor": "metadata"
+                              },
+                              "index": 1
+                            },
+                            "node": {
+                              "type": "text",
+                              "text": "X",
+                              "marks": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "metadata",
+        "batch": {
+          "version": 2,
+          "documentID": "metadata-fixture",
+          "baseline": {
+            "blocks": []
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 1,
+                "actor": "metadata"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "value": {
+                          "id": "list",
+                          "type": "list",
+                          "style": "unordered",
+                          "items": [
+                            {
+                              "id": "parent",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Parent",
+                                  "marks": []
+                                }
+                              ],
+                              "children": []
+                            }
+                          ]
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "metadata"
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "metadata"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "metadata"
+      },
+      "capture": "metadataActual"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "metadataExpected"
+      },
+      "capture": "metadataExpected"
     }
   ],
   "equal": [
@@ -1077,6 +3183,14 @@
     [
       "admissionBeforeDocument",
       "admissionAfterDocument"
+    ],
+    [
+      "proposalA",
+      "pendingAfterMalformed"
+    ],
+    [
+      "metadataActual",
+      "metadataExpected"
     ]
   ],
   "expected": {

@@ -344,3 +344,121 @@ private extension EditorSession {
         return try textAddress(of: node(at: NodeAddress(blockID)))
     }
 }
+
+@Test(arguments: [false, true])
+func impossibleSameChangeNodePathsAndInitialAnchorsRejectAtomically(deferredParent: Bool) throws {
+    let baseline = try Document(blocks: [.paragraph(id: "p", text: "Keep me")])
+    let id = ChangeID(counter: 2, actor: "remote")
+    let creation = ElementID(change: id, index: 0), next = ElementID(change: id, index: 1)
+    let root = NodeID.inserted(creation: creation, path: [])
+    let missing = NodeID.inserted(creation: creation, path: ["children", "missing"])
+    let collection = deferredParent ? NodeCollection(owner: .inserted(creation: ElementID(change: ChangeID(counter: 1, actor: "remote"), index: 0), path: []), field: "children") : .root
+    let prefix = Mutation.insertNode(value: .object(try toggle("new", [paragraph("child", "Existing child")]).fields),
+        identity: root, collection: collection, placement: creation, after: nil)
+    let suffixes: [Mutation] = [
+        // Inserted roots only have edit placements; this initial anchor never exists.
+        .insertNode(value: paragraph("lost", "Must not disappear"), identity: .inserted(creation: next, path: []),
+            collection: .root, placement: next, after: .initial(root)),
+        // The complete creation payload never introduced this descendant.
+        .insertNode(value: paragraph("lost", "Must not disappear"), identity: .inserted(creation: next, path: []),
+            collection: NodeCollection(owner: missing, field: "children"), placement: next, after: nil),
+        .moveNode(identity: .baseline(blockID: "p", path: []), collection: NodeCollection(owner: missing, field: "children"),
+            placement: next, after: nil),
+        .insertText(address: missing.textAddressForTest(), atoms: [TextAtom(id: next, after: nil, node: textNode("X"))]),
+    ]
+    for suffix in suffixes {
+        let session = try EditorSession(documentID: "impossible-reference", actorID: "local", document: baseline, collaborationVersion: 2)
+        let saved = try session.save(), receipts = session.syncState
+        var prepared = false
+        session.onWillReceive = { prepared = true }
+        #expect(throws: EditorError.self) {
+            try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline,
+                changes: [Change(id: id, body: .edit([prefix, suffix]))], version: 2))
+        }
+        #expect(try session.save() == saved)
+        #expect(try session.document == baseline)
+        #expect(session.syncState == receipts)
+        #expect(session.mergeRecovery == nil)
+        #expect(!prepared)
+    }
+}
+
+private extension NodeID {
+    func textAddressForTest() -> TextAddress {
+        switch self {
+        case .baseline(let blockID, let path): return TextAddress(blockID, path: path + ["content"], identity: self)
+        case .inserted(let creation, let path): return TextAddress("@\(creation.change.actor)/\(creation.change.counter)/\(creation.index)", path: path + ["content"], identity: self)
+        }
+    }
+}
+
+@Test func insertedDescendantInitialPlacementsAndCausalReorderingRemainValid() throws {
+    let baseline = try Document(blocks: [])
+    let source = try EditorSession(documentID: "valid-created-paths", actorID: "remote", document: baseline, collaborationVersion: 2)
+    let root = try source.insertNode(.object(try toggle("root", [paragraph("embedded", "Original")]).fields), into: .root)
+    let child = try source.node(at: NodeAddress("root", path: ["children", "embedded"]))
+    _ = try source.insertNode(paragraph("later", "Later"), into: NodeCollection(owner: root, field: "children"), after: child)
+    let changes = source.changes().changes
+    let peer = try EditorSession(documentID: source.documentID, actorID: "peer", document: baseline, collaborationVersion: 2)
+    try peer.receive(ChangeBatch(documentID: source.documentID, baseline: baseline, changes: [changes[1]], version: 2))
+    #expect(try peer.document.blocks.isEmpty)
+    try peer.receive(ChangeBatch(documentID: source.documentID, baseline: baseline, changes: [changes[0]], version: 2))
+    #expect(try peer.document == source.document)
+
+    let id = ChangeID(counter: 1, actor: "transaction")
+    let creation = ElementID(change: id, index: 0), next = ElementID(change: id, index: 1)
+    let owner = NodeID.inserted(creation: creation, path: [])
+    let embedded = NodeID.inserted(creation: creation, path: ["children", "embedded"])
+    let mutations: [Mutation] = [
+        .insertNode(value: .object(try toggle("root", [paragraph("embedded", "Original")]).fields), identity: owner,
+            collection: .root, placement: creation, after: nil),
+        .insertNode(value: paragraph("later", "Later"), identity: .inserted(creation: next, path: []),
+            collection: NodeCollection(owner: owner, field: "children"), placement: next, after: .initial(embedded)),
+    ]
+    let together = try EditorSession(documentID: source.documentID, actorID: "together", document: baseline, collaborationVersion: 2)
+    try together.receive(ChangeBatch(documentID: source.documentID, baseline: baseline, changes: [Change(id: id, body: .edit(mutations))], version: 2))
+    #expect(try together.document == source.document)
+    #expect(try EditorSession.restore(together.save(), actorID: "together").document == source.document)
+}
+
+@Test(arguments: ["host-metadata", "math", "toggle"])
+func createdListDescendantsRetainOpaqueTypeMetadata(metadataType: String) throws {
+    let item: JSONValue = .object(["id": .string("parent"), "content": .array([textNode("Parent")]), "children": .array([])])
+    let baseline = try Document(blocks: [Block(fields: ["id": .string("list"), "type": .string("list"),
+        "style": .string("unordered"), "items": .array([item])])])
+    let id = ChangeID(counter: 1, actor: "remote")
+    let creation = ElementID(change: id, index: 0), text = ElementID(change: id, index: 1)
+    let root = NodeID.inserted(creation: creation, path: [])
+    let descendant = NodeID.inserted(creation: creation, path: ["children", "embedded"])
+    let payload: JSONValue = .object(["id": .string("new"), "type": .string(metadataType),
+        "content": .array([textNode("New")]), "children": .array([
+            .object(["id": .string("embedded"), "content": .array([textNode("Child")])])])])
+    let session = try EditorSession(documentID: "metadata-list", actorID: "local", document: baseline, collaborationVersion: 2)
+    try session.receive(ChangeBatch(documentID: session.documentID, baseline: baseline, changes: [Change(id: id, body: .edit([
+        .insertNode(value: payload, identity: root,
+            collection: NodeCollection(owner: .baseline(blockID: "list", path: ["items", "parent"]), field: "children"),
+            placement: creation, after: nil),
+        .insertText(address: descendant.textAddressForTest(), atoms: [TextAtom(id: text, after: nil, node: textNode("X"))]),
+    ]))], version: 2))
+    #expect(try session.text(at: session.textAddress(of: descendant)) == "XChild")
+    #expect(try session.document.blocks[0].fields["items"]?.array?[0]["children"]?.array?[0]["type"] == .string(metadataType))
+
+    let prior = ChangeID(counter: 1, actor: "parent"), later = ChangeID(counter: 2, actor: "remote")
+    let parentCreation = ElementID(change: prior, index: 0), childCreation = ElementID(change: later, index: 0)
+    let empty = try Document(blocks: [])
+    let deferred = try EditorSession(documentID: "metadata-deferred", actorID: "local", document: empty, collaborationVersion: 2)
+    let nested = NodeID.inserted(creation: childCreation, path: ["children", "embedded"])
+    let parentID = NodeID.inserted(creation: parentCreation, path: ["items", "parent"])
+    try deferred.receive(ChangeBatch(documentID: deferred.documentID, baseline: empty, changes: [Change(id: later, body: .edit([
+        .insertNode(value: payload, identity: .inserted(creation: childCreation, path: []),
+            collection: NodeCollection(owner: parentID, field: "children"), placement: childCreation, after: nil),
+        .insertText(address: nested.textAddressForTest(), atoms: [TextAtom(id: ElementID(change: later, index: 1), after: nil, node: textNode("X"))]),
+    ]))], version: 2))
+    #expect(try deferred.document.blocks.isEmpty)
+    try deferred.receive(ChangeBatch(documentID: deferred.documentID, baseline: empty, changes: [Change(id: prior, body: .edit([
+        .insertNode(value: .object(baseline.blocks[0].fields), identity: .inserted(creation: parentCreation, path: []),
+            collection: .root, placement: parentCreation, after: nil),
+    ]))], version: 2))
+    #expect(try deferred.document == session.document)
+    #expect(try EditorSession.restore(deferred.save(), actorID: "local").document == session.document)
+}

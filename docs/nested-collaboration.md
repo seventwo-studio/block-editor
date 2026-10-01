@@ -39,6 +39,16 @@ content, saved history, receipts and pending recovery unchanged and does not run
 receive-preparation callbacks. References to earlier changes can still await their
 causal predecessors; this rule does not turn reordered delivery into an error.
 
+Same-change descendant identities must exist in their creation payload. An inserted
+creation root has an edit placement, so an initial-placement anchor for that root
+always fails. Embedded descendants retain their legitimate initial placements.
+Validation uses the containing collection's structural kind: an opaque `type`
+field on a list item remains metadata and cannot turn the item into a block. When
+an earlier causal parent is absent, its `children` collection can still be either
+blocks or items; replay checks the actual kind after the parent arrives. Shared
+fixtures verify both atomic rejection during pending recovery and valid reversed
+delivery with list-item metadata and descendant text edits.
+
 Deleting a node records the descendants the author observed. Concurrently inserted
 descendants survive and retain their ancestors as containers. Undoing an insertion
 also retains containers required by another active author's descendants or edits,
