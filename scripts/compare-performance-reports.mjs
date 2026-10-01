@@ -49,11 +49,12 @@ function files(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)]);
 }
 
-export function comparePerformanceReports(root, expected, requiredProfile) {
+export function comparePerformanceReports(root, expected, requiredProfile, sourceRevision) {
   const source = readFileSync('benchmarks/workloads.json');
   const config = JSON.parse(source);
   const hash = createHash('sha256').update(source).digest('hex');
-  const revision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const revision = sourceRevision ?? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  if (!/^[a-f0-9]{40}$/.test(revision)) throw new Error('Invalid expected source revision');
   const candidates = files(root).filter(path => path.endsWith('.json')).flatMap(path => {
     const value = JSON.parse(readFileSync(path, 'utf8'));
     return value.workloadHash ? [{ path, value }] : [];
@@ -76,7 +77,13 @@ export function comparePerformanceReports(root, expected, requiredProfile) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const expected = (process.argv[3] ?? 'native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox').split(',');
-  const reports = comparePerformanceReports(resolve(process.argv[2] ?? 'test-results/performance'), expected, process.argv[4]);
+  const arguments_ = process.argv.slice(2);
+  const source = arguments_.find(x => x.startsWith('--source='))?.slice('--source='.length);
+  if (arguments_.filter(x => x.startsWith('--')).some(x => !x.startsWith('--source=')) || arguments_.filter(x => x.startsWith('--source=')).length > 1) throw new Error('Unknown/duplicated verifier option');
+  const positional = arguments_.filter(x => !x.startsWith('--'));
+  const expected = (positional[1] ?? 'native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox').split(',');
+  if (new Set(expected).size !== expected.length || expected.some(x => !x)) throw new Error('Empty/duplicated expected runtimes');
+  const reports = comparePerformanceReports(resolve(positional[0] ?? 'test-results/performance'), expected, positional[2], source);
   console.log(`Verified ${reports.length} complete measurement reports with matching workloads and preserved documents; no numeric performance budget is asserted.`);
+  if (source) console.log(`Explicit archived source: ${source}; this does not verify measurements of the current checkout.`);
 }

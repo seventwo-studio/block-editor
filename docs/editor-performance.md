@@ -129,8 +129,10 @@ bun scripts/compare-performance-reports.mjs test-results/runtime-reports \
 Local comparisons can name only the runtimes actually executed. Omitting the final
 profile argument permits explicitly recorded overrides; all selected runtimes must
 still have identical options and complete results. The verifier checks the current
-checkout revision and workload, so historical reports must be examined at their
-recorded revision rather than relabeled as current evidence.
+checkout revision and workload by default. An archive comparison can explicitly
+pass `--source=<recorded-40-character-revision>`; it reports that this verifies
+historical data, not measurements of the current checkout. Historical reports
+must not be relabeled as current evidence.
 
 Larger minimum/current-device baselines, sustained editing, peak memory, rendered
 input latency, resource thresholds, compaction and numerical budget agreement remain
