@@ -2,6 +2,7 @@ package studio.seventwo.blockeditor
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.Rect
 import android.os.Build
 import android.os.ParcelFileDescriptor
@@ -38,6 +39,7 @@ class BuiltinImeTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val automation get() = instrumentation.uiAutomation
     private val keyTouches = JSONArray()
+    private lateinit var keyboardPackage: String
 
     private fun shell(command: String): String = ParcelFileDescriptor.AutoCloseInputStream(
         automation.executeShellCommand(command)).bufferedReader().use { it.readText() }
@@ -67,7 +69,7 @@ class BuiltinImeTest {
                     val bounds = Rect().also(node::getBoundsInScreen)
                     observed.put(JSONObject().put("description", description).put("bounds", bounds.toShortString())
                         .put("package", node.packageName?.toString()).put("visible", node.isVisibleToUser))
-                    if (node.packageName?.toString() == "com.android.inputmethod.latin" && node.isVisibleToUser &&
+                    if (node.packageName?.toString() == keyboardPackage && node.isVisibleToUser &&
                         description.equals(label, ignoreCase = true) && !bounds.isEmpty) candidates.add(Rect(bounds))
                 } } finally { root.recycle() }
             }
@@ -99,7 +101,11 @@ class BuiltinImeTest {
         assertEquals("This reviewed smoke row is the API26 minimum", 26, Build.VERSION.SDK_INT)
         val ime = Settings.Secure.getString(instrumentation.targetContext.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
         assertTrue("Use the built-in LatinIME; never install or substitute an IME", ime in listOf(
-            "com.android.inputmethod.latin/.LatinIME", "com.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"))
+            "com.android.inputmethod.latin/.LatinIME", "com.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+            "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"))
+        keyboardPackage = ime.substringBefore('/')
+        val keyboard = instrumentation.targetContext.packageManager.getApplicationInfo(keyboardPackage, 0)
+        assertTrue("Accept only a keyboard preinstalled in the pinned image", keyboard.flags and ApplicationInfo.FLAG_SYSTEM != 0)
         val manager = instrumentation.targetContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         assertTrue("Existing English keyboard subtype required", manager.currentInputMethodSubtype?.locale?.startsWith("en") == true)
         automation.serviceInfo = automation.serviceInfo.apply {

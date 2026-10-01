@@ -85,9 +85,11 @@ def main():
         if report["api"] != "26" or report["abi"] != "x86_64":
             raise RuntimeError("This CI acceptance row requires API26 x86_64")
         if report["settingsBefore"]["default_input_method"] not in (
-                "com.android.inputmethod.latin/.LatinIME", "com.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"):
-            raise RuntimeError("Existing AOSP LatinIME required; never switch or download keyboards")
-        (args.output / "keyboard-package.txt").write_text(shell("dumpsys", "package", "com.android.inputmethod.latin"))
+                "com.android.inputmethod.latin/.LatinIME", "com.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+                "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"):
+            raise RuntimeError("Existing preinstalled LatinIME required; never switch or download keyboards")
+        report["keyboardPackage"] = report["settingsBefore"]["default_input_method"].split("/", 1)[0]
+        (args.output / "keyboard-package.txt").write_text(shell("dumpsys", "package", report["keyboardPackage"]))
         report["installedTarget"] = shell("dumpsys", "package", "studio.seventwo.blockeditor.test")
         package_paths = shell("pm", "path", "studio.seventwo.blockeditor.test").splitlines()
         if len(package_paths) != 1 or not re.fullmatch(r"package:/data/app/[A-Za-z0-9_./=+~-]+\.apk", package_paths[0]):

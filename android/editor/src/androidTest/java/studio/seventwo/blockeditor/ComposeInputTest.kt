@@ -46,16 +46,25 @@ class ComposeInputTest {
         } finally { compose.runOnUiThread { session.close() } }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test fun renderedFieldPreservesSelectionAndLocalTypingAcrossRemoteEdits() {
         lateinit var a: EditorSession
         lateinit var b: EditorSession
+        // This component test drives selection/text through Compose semantics.
+        // Own the input session so the installed keyboard cannot introduce an
+        // unrelated composing range between those actions and direct engine Undo.
+        // Real keyboard composition/Undo is exercised by the opt-in IME tests.
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            val connection = request.createInputConnection(EditorInfo())
+            try { awaitCancellation() } finally { connection.closeConnection() }
+        }
         compose.runOnUiThread {
             val blocks = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"Hello world","marks":[]}]}]""")
             a = EditorSession.create("compose-selection", "a", blocks)
             b = EditorSession.create("compose-selection", "b", blocks)
         }
         try {
-            compose.setContent { MaterialTheme { BlockEditor(a) } }
+            compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { BlockEditor(a) } } }
             val field = compose.onNode(hasSetTextAction())
             field.performClick().performTextInputSelection(TextRange(11, 6))
             // The semantics selection action may normalize direction; preserve the actual UI range.
@@ -67,6 +76,8 @@ class ComposeInputTest {
             compose.runOnIdle {
                 assertEquals("RHello there", plainText(a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content")))
                 a.undo()
+                assertEquals("Engine Undo must preserve the remote prefix", "RHello world",
+                    plainText(a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content")))
             }
             field.assertTextContains("RHello world")
         } finally { compose.runOnIdle { a.close(); b.close() } }
