@@ -156,9 +156,12 @@ incompatible configured version. No production backend or public release is impl
 `Fixtures/structure.json` exercises the same command transcript in native Swift,
 Android JNI and actual browser WASM: scoped labels, cross-parent text/selection
 mapping, table-cell moves, list indentation, concurrent edits, duplicate delivery,
-save/reopen, author undo/redo and explicit v1 cutover. Generated Swift histories
-exercise eight seeds, three replicas, disconnected editing, partial/reordered
-delivery and restart. A local HTTP relay test additionally verifies independent
+save/reopen, author undo/redo and explicit v1 cutover. The
+[structural test campaign](structural-test-campaign.md) adds 40 shared histories
+with 320 independent document checks across all five collection kinds. Generated
+Swift histories exercise the same five kinds with eight seeds, three replicas,
+disconnected editing, partial/reordered delivery and restart. A local HTTP relay
+test additionally verifies independent
 Swift processes, server restart, acknowledgement and remote-preserving undo.
 
 The structure transcript preserves its original 44 commands and adds 168 commands
@@ -182,7 +185,8 @@ The [runtime CI contract](runtime-ci.md) executes Swift, packaged API 26 x86_64
 JNI, API 35 x86_64/translated ARM64 JNI and WASM in Chromium, WebKit and Firefox,
 comparing complete fixture responses. ARM translation proves execution of the
 ARM64 libraries; physical-device input, minimum/current runtime interaction,
-complete native/browser authoring and post-merge CI remain separate acceptance.
+complete native/browser authoring remain separate acceptance. Each new delivery
+also requires a verified default-branch run after merge.
 
 Valid histories can exceed document/depth limits or insert the same sibling label
 without a prior placement to fall back to. V2 now exposes a canonical pending union

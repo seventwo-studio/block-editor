@@ -75,6 +75,9 @@ import Testing
     #expect(captured["resolvedPosition"] == fixture["expectedPosition"])
     #expect(captured["cutover"] == fixture["expectedCutover"])
     #expect(captured["cutoverChanges"]?["version"] == .number(2))
+    for (name, blocks) in fixture["expectedBlocks"]?.object ?? [:] {
+        #expect(try #require(captured[name]?["blocks"]) == blocks, "\(name) preserved document")
+    }
 }
 
 @Test func sharedRecoveryBridgeFixture() throws {
