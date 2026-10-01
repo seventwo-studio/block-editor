@@ -24,7 +24,20 @@ class RuntimeCompatibilityTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.context
         val output = File(context.filesDir, "compatibility").apply { mkdirs() }
-        val report = JSONObject().put("version", 1).put("fixtureHashes", JSONObject()).put("fixtures", JSONObject())
+        val fixtureHashes = JSONObject()
+        val responseFiles = linkedMapOf<String, File>()
+        fun writeReport() {
+            File(output, "android.json").bufferedWriter().use { writer ->
+                writer.append("{\"version\":1,\"fixtureHashes\":").append(fixtureHashes.toString()).append(",\"fixtures\":{")
+                responseFiles.entries.forEachIndexed { index, (name, file) ->
+                    if (index > 0) writer.append(',')
+                    writer.append(JSONObject.quote(name)).append(":{\"responses\":")
+                    file.bufferedReader().use { it.copyTo(writer) }
+                    writer.append('}')
+                }
+                writer.append("}}")
+            }
+        }
         val sessions = mutableSetOf<String>()
         fun call(input: JSONObject): JSONObject {
             val handle = input.optString("session")
@@ -40,14 +53,22 @@ class RuntimeCompatibilityTest {
         }
         for (name in listOf("bridge", "structure", "recovery", "documents")) {
             val bytes = context.assets.open("$name.json").use { it.readBytes() }
-            report.getJSONObject("fixtureHashes").put(name, MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) })
+            fixtureHashes.put(name, MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) })
             val fixture = JSONObject(bytes.toString(Charsets.UTF_8))
-            val responses = JSONArray()
+            val responseFile = File(output, "$name-responses.json")
+            val responseWriter = responseFile.bufferedWriter().apply { append('[') }
+            var responseCount = 0
+            var lastResponse: JSONObject? = null
+            fun record(response: JSONObject) {
+                if (responseCount++ > 0) responseWriter.append(',')
+                responseWriter.append(response.toString())
+                lastResponse = response
+            }
             val captured = mutableMapOf<String, Any>()
             fun request(input: JSONObject, expectedError: String? = null): JSONObject {
                 val response = call(input)
-                responses.put(response)
-                assertEquals("$name response ${responses.length() - 1}", expectedError == null, response.getBoolean("ok"))
+                record(response)
+                assertEquals("$name response ${responseCount - 1}", expectedError == null, response.getBoolean("ok"))
                 if (expectedError != null) assertEquals(expectedError, response.getString("error"))
                 return response
             }
@@ -72,7 +93,7 @@ class RuntimeCompatibilityTest {
                             val sample = invalid.getJSONObject(index)
                             val response = call(JSONObject().put("command", "create").put("session", "invalid-$index")
                                 .put("documentID", sample.getString("name")).put("actorID", "local").put("blocks", sample.getJSONArray("blocks")))
-                            responses.put(response)
+                            record(response)
                             assertEquals(false, response.getBoolean("ok"))
                             assertTrue(response.getString("error").isNotEmpty())
                         }
@@ -80,7 +101,7 @@ class RuntimeCompatibilityTest {
                     "bridge" -> {
                         val inputs = fixture.getJSONArray("requests")
                         for (index in 0 until inputs.length()) request(inputs.getJSONObject(index))
-                        assertEquals(normalize(fixture.get("expected")), normalize(responses.getJSONObject(responses.length() - 1).get("value")))
+                        assertEquals(normalize(fixture.get("expected")), normalize(checkNotNull(lastResponse).get("value")))
                     }
                     else -> {
                         val steps = fixture.getJSONArray("steps")
@@ -103,6 +124,11 @@ class RuntimeCompatibilityTest {
                             val pair = pairs.getJSONArray(index)
                             assertEquals(normalize(checkNotNull(captured[pair.getString(0)])), normalize(checkNotNull(captured[pair.getString(1)])))
                         }
+                        val expectedBlocks = fixture.optJSONObject("expectedBlocks")
+                        expectedBlocks?.keys()?.forEach { capture ->
+                            val actual = checkNotNull(captured[capture]) as JSONObject
+                            assertEquals("$name $capture preserved document", normalize(expectedBlocks.get(capture)), normalize(actual.getJSONArray("blocks")))
+                        }
                         if (name == "structure") {
                             assertEquals(normalize(fixture.get("expected")), normalize(captured["final"]))
                             assertEquals(fixture.getInt("expectedPosition"), (captured["resolvedPosition"] as Number).toInt())
@@ -118,9 +144,14 @@ class RuntimeCompatibilityTest {
                     }
                 }
             } finally {
-                report.getJSONObject("fixtures").put(name, JSONObject().put("responses", responses))
-                File(output, "android.json").writeText(report.toString(2))
-                for (handle in sessions.toList()) call(JSONObject().put("command", "close").put("session", handle))
+                try {
+                    responseWriter.append(']')
+                    responseWriter.close()
+                    responseFiles[name] = responseFile
+                    writeReport()
+                } finally {
+                    for (handle in sessions.toList()) call(JSONObject().put("command", "close").put("session", handle))
+                }
             }
         }
         val application = instrumentation.targetContext.applicationInfo

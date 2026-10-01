@@ -62,6 +62,10 @@ export async function runFixture(name, fixture, call) {
       if (captured[left] === undefined || captured[right] === undefined) throw new Error(`${name}: missing comparison capture ${left}/${right}`);
       equal(captured[left], captured[right], `${name} ${left}/${right}`);
     }
+    for (const [capture, blocks] of Object.entries(fixture.expectedBlocks ?? {})) {
+      if (captured[capture]?.blocks === undefined) throw new Error(`${name}: missing document capture ${capture}`);
+      equal(captured[capture].blocks, blocks, `${name} ${capture} preserved document`);
+    }
     if (name === 'structure') {
       equal(captured.final, fixture.expected, `${name} final document`);
       equal(captured.resolvedPosition, fixture.expectedPosition, `${name} selection`);

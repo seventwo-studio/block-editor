@@ -51,6 +51,14 @@ transcripts and differing responses. Object keys are canonicalized; array order,
 text, IDs, marks and errors remain significant. A compile-only or skipped job does
 not pass this gate.
 
+Reruns can retain several artifacts with the same runtime name. The parity job
+selects the newest creation timestamp for each of the five expected artifact
+names and downloads those exact IDs. Metadata must belong to this workflow run
+and source revision; missing, expired, empty or ambiguous latest artifacts fail.
+It never falls back to an older report when newer evidence is invalid. The
+complete-input, transcript and measurement verifiers still apply to selected
+artifacts. Earlier failed-attempt diagnostics remain available.
+
 Diagnostic artifacts retain reports, toolchain inputs, build/test output, Android
 device properties/logcat and Playwright failure evidence for seven days, including
 failed runs. Built native libraries and WASM binaries are not published as packages
