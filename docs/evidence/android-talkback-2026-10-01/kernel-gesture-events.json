@@ -1,0 +1,430 @@
+[
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:2",
+      "EV_ABS:ABS_MT_POSITION_X:9839",
+      "EV_ABS:ABS_MT_POSITION_Y:16390",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:12026",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:14212",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:16398",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:18585",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:20772",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:22958",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 1,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:4",
+      "EV_ABS:ABS_MT_POSITION_X:9839",
+      "EV_ABS:ABS_MT_POSITION_Y:16390",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:12026",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:14212",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:16398",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:18585",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:20772",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:22958",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 2,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:6",
+      "EV_ABS:ABS_MT_POSITION_X:9839",
+      "EV_ABS:ABS_MT_POSITION_Y:16390",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:12026",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:14212",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:16398",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:18585",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:20772",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:22958",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 3,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:8",
+      "EV_ABS:ABS_MT_POSITION_X:9839",
+      "EV_ABS:ABS_MT_POSITION_Y:16390",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:12026",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:14212",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:16398",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:18585",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:20772",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:22958",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 4,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:10",
+      "EV_ABS:ABS_MT_POSITION_X:9839",
+      "EV_ABS:ABS_MT_POSITION_Y:16390",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:12026",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:14212",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:16398",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:18585",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:20772",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:22958",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 5,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:12",
+      "EV_ABS:ABS_MT_POSITION_X:9839",
+      "EV_ABS:ABS_MT_POSITION_Y:16390",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:12026",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:14212",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:16398",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:18585",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:20772",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_POSITION_X:22958",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 6,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 7,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:14",
+      "EV_ABS:ABS_MT_POSITION_X:2308",
+      "EV_ABS:ABS_MT_POSITION_Y:867",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 7,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 7,
+    "events": [
+      "EV_ABS:ABS_MT_SLOT:0",
+      "EV_ABS:ABS_MT_TRACKING_ID:15",
+      "EV_ABS:ABS_MT_POSITION_X:2308",
+      "EV_ABS:ABS_MT_POSITION_Y:867",
+      "EV_ABS:ABS_MT_PRESSURE:50",
+      "EV_ABS:ABS_MT_TOOL_TYPE:0",
+      "EV_KEY:BTN_TOUCH:1",
+      "EV_SYN:0:0"
+    ]
+  },
+  {
+    "sequence": 7,
+    "events": [
+      "EV_ABS:ABS_MT_TRACKING_ID:-1",
+      "EV_ABS:ABS_MT_PRESSURE:0",
+      "EV_KEY:BTN_TOUCH:0",
+      "EV_SYN:0:0"
+    ]
+  }
+]

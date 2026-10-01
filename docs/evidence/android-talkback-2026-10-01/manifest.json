@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-01",
+  "qualification": {
+    "api": 35,
+    "abi": "arm64-v8a",
+    "targetSDK": 35,
+    "uiFeatureTree": "1e81262e5c9f5c8b23c25f5e4ba0cf8d46a1e621",
+    "engineSourceHEAD": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+    "apkSHA256": "d07bf3cb85001bcac98eb1706dc84a3085bfe6af5299085119eb69edae4cf637",
+    "durationSeconds": 9.473,
+    "passed": true,
+    "newDefaultExecution": false,
+    "spokenAudioAccepted": false,
+    "fullAccessibilityAccepted": false,
+    "physicalDeviceAccepted": false
+  },
+  "files": {
+    "android/editor/src/androidTest/java/studio/seventwo/blockeditor/TalkBackInputTest.kt": "921a3ac4078fa7d9549211be41aab89648809bca8a0c341f8cf8b97cf58de617",
+    "scripts/test-android-talkback.py": "9bb1e24dbcb3bc4ec39faa9b586514c05849ab929d1172ecc9a49b0f3060b9b1",
+    "docs/evidence/android-talkback-2026-10-01/input-proof.json": "f38412725053b7e8574d7db496562662ae5d404a9be83abface0ca998d56660e",
+    "docs/evidence/android-talkback-2026-10-01/instrumentation.log": "e65ca103bbfa079fc584745d5109d2534f4cfa88d0306eb607780556c471f8d7",
+    "docs/evidence/android-talkback-2026-10-01/kernel-gesture-events.json": "f66e4d90541313e9110773798b3330455a510aba32a930898543f7592821dbd2",
+    "docs/evidence/android-talkback-2026-10-01/environment.json": "72da52c0dc443450be030c419f18bce3b7ce74bc24b33af6f5319517c7547361"
+  }
+}
