@@ -63,7 +63,7 @@ jobs:
         run: |
           "$SWIFT_BIN" build -c release --product editor-bridge
           PERFORMANCE_PROFILE=smoke bun scripts/run-native-performance.mjs
-          bun test tests/performance-report.test.ts
+          bun test tests/performance-report.test.ts tests/wasm-size.test.ts
       - name: Record exact native build provenance
         run: |
           python3 scripts/runtime-provenance.py record swift "$RUNNER_TEMP/editor-toolchains/installed-inputs.json" test-results/compatibility \
