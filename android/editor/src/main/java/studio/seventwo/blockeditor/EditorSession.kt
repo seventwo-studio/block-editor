@@ -14,12 +14,58 @@ internal object NativeEngine {
     @Synchronized fun call(request: JSONObject): JSONObject {
         val bytes = checkNotNull(callNative(request.toString().toByteArray(Charsets.UTF_8))) { "Swift engine returned no response" }
         val response = JSONObject(bytes.toString(Charsets.UTF_8))
-        check(response.getBoolean("ok")) { response.optString("error", "Editor operation failed") }
+        if (!response.getBoolean("ok")) {
+            if (response.optString("error") == "mergeRecoveryRequired" && response.has("recovery"))
+                throw MergeRecoveryException(MergeRecovery(response.getJSONObject("recovery")))
+            throw IllegalStateException(response.optString("error", "Editor operation failed"))
+        }
         return response
     }
 }
 
 enum class PositionAffinity(val wireValue: String) { BEFORE("before"), AFTER("after") }
+
+enum class MergeRecoveryReason { IDENTITY_CONFLICT, SCHEMA_CONSTRAINT }
+/** Store separately from save(); this union is not applied history or acknowledged changes. */
+class MergeRecovery internal constructor(private val wire: JSONObject) {
+    val reason: MergeRecoveryReason = when (wire.getString("reason")) {
+        "identityConflict" -> MergeRecoveryReason.IDENTITY_CONFLICT
+        "schemaConstraint" -> MergeRecoveryReason.SCHEMA_CONSTRAINT
+        else -> throw IllegalStateException("Unsupported recovery reason")
+    }
+    val batch: JSONObject get() = JSONObject(wire.getJSONObject("batch").toString())
+    fun export(): JSONObject = JSONObject(wire.toString())
+    companion object { fun restore(value: JSONObject) = MergeRecovery(JSONObject(value.toString())) }
+}
+class MergeRecoveryException(val recovery: MergeRecovery) : IllegalStateException("Merge recovery required")
+sealed class MergeRepair {
+    internal abstract fun wire(): JSONObject
+    data class Move(val identity: NodeIdentity, val collection: NodeCollection) : MergeRepair() {
+        override fun wire() = JSONObject().put("move", JSONObject().put("identity", identity.wire).put("collection", collection.wire))
+    }
+    data class Wrap(val identity: NodeIdentity, val container: JSONObject, val field: String) : MergeRepair() {
+        override fun wire() = JSONObject().put("wrap", JSONObject().put("identity", identity.wire).put("container", container).put("field", field))
+    }
+    data class Text(val identity: NodeIdentity, val field: String, val text: String) : MergeRepair() {
+        override fun wire() = JSONObject().put("text", JSONObject().put("identity", identity.wire).put("field", field).put("text", text))
+    }
+}
+
+/** An opaque origin identity, obtained from a session rather than a document label. */
+class NodeIdentity internal constructor(internal val wire: JSONObject)
+data class NodeAddress(val blockID: String, val path: List<String> = emptyList()) {
+    internal fun wire() = JSONObject().put("blockID", blockID).put("path", JSONArray(path))
+}
+class NodeCollection private constructor(internal val wire: JSONObject) {
+    companion object {
+        val ROOT = NodeCollection(JSONObject().put("field", "blocks"))
+        fun children(owner: NodeIdentity) = of(owner, "children")
+        fun items(owner: NodeIdentity) = of(owner, "items")
+        fun rows(owner: NodeIdentity) = of(owner, "rows")
+        fun cells(owner: NodeIdentity) = of(owner, "cells")
+        private fun of(owner: NodeIdentity, field: String) = NodeCollection(JSONObject().put("owner", owner.wire).put("field", field))
+    }
+}
 
 /** Use on the UI thread. Storage, transport and presence expiry belong to the host. */
 class EditorSession private constructor(private val handle: String, initial: JSONObject) : Closeable {
@@ -67,16 +113,24 @@ class EditorSession private constructor(private val handle: String, initial: JSO
     }
 
     companion object {
-        fun create(documentID: String, actorID: String, blocks: JSONArray = JSONArray()): EditorSession {
+        fun create(documentID: String, actorID: String, blocks: JSONArray = JSONArray(), collaborationVersion: Int = 1): EditorSession {
             val handle = UUID.randomUUID().toString()
             val value = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
-                .put("documentID", documentID).put("actorID", actorID).put("blocks", blocks)).getJSONObject("value")
+                .put("documentID", documentID).put("actorID", actorID).put("blocks", blocks)
+                .put("collaborationVersion", collaborationVersion)).getJSONObject("value")
             return EditorSession(handle, value)
         }
         fun restore(snapshot: JSONObject, actorID: String): EditorSession {
             val handle = UUID.randomUUID().toString()
             val value = NativeEngine.call(JSONObject().put("command", "restore").put("session", handle)
                 .put("actorID", actorID).put("snapshot", snapshot)).getJSONObject("value")
+            return EditorSession(handle, value)
+        }
+        /** Stop old writers and archive their snapshot first; undo starts fresh. */
+        fun cutoverToV2(snapshot: JSONObject, newDocumentID: String, actorID: String): EditorSession {
+            val handle = UUID.randomUUID().toString()
+            val value = NativeEngine.call(JSONObject().put("command", "cutoverToV2").put("session", handle)
+                .put("documentID", newDocumentID).put("actorID", actorID).put("snapshot", snapshot)).getJSONObject("value")
             return EditorSession(handle, value)
         }
     }
@@ -89,7 +143,40 @@ class EditorSession private constructor(private val handle: String, initial: JSO
     }
     fun setText(blockID: String, text: String, path: List<String> = listOf("content")) = edit("setText",
         JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path))).put("text", text))
+    fun node(address: NodeAddress): NodeIdentity = NodeIdentity(call("node", JSONObject().put("address", address.wire())) as JSONObject)
+    fun nodeAddress(identity: NodeIdentity): NodeAddress {
+        val value = call("nodeAddress", JSONObject().put("identity", identity.wire)) as JSONObject
+        val path = value.getJSONArray("path")
+        return NodeAddress(value.getString("blockID"), (0 until path.length()).map { path.getString(it) })
+    }
+    fun nodes(collection: NodeCollection): List<NodeIdentity> {
+        val values = call("nodes", JSONObject().put("collection", collection.wire)) as JSONArray
+        return (0 until values.length()).map { NodeIdentity(values.getJSONObject(it)) }
+    }
+    fun insertNode(value: JSONObject, collection: NodeCollection, after: NodeIdentity? = null): NodeIdentity {
+        val result = call("insertNode", JSONObject().put("value", value).put("collection", collection.wire)
+            .put("after", after?.wire ?: JSONObject.NULL)) as JSONObject
+        publish(result.getJSONObject("snapshot"))
+        return NodeIdentity(result.getJSONObject("identity"))
+    }
+    fun moveNode(identity: NodeIdentity, collection: NodeCollection, after: NodeIdentity? = null) = edit("moveNode",
+        JSONObject().put("identity", identity.wire).put("collection", collection.wire).put("after", after?.wire ?: JSONObject.NULL))
+    fun deleteNode(identity: NodeIdentity) = edit("deleteNode", JSONObject().put("identity", identity.wire))
+    fun indent(identity: NodeIdentity) = edit("indent", JSONObject().put("identity", identity.wire))
+    fun outdent(identity: NodeIdentity) = edit("outdent", JSONObject().put("identity", identity.wire))
+    fun setNodeField(identity: NodeIdentity, path: List<String>, value: Any?) = edit("setNodeField",
+        JSONObject().put("identity", identity.wire).put("path", JSONArray(path)).put("value", value ?: JSONObject.NULL))
+    fun setText(identity: NodeIdentity, text: String, field: String = "content") = edit("setText",
+        JSONObject().put("address", call("textAddress", JSONObject().put("identity", identity.wire).put("field", field))).put("text", text))
     fun save(): JSONObject = call("save") as JSONObject
+    fun mergeRecovery(): MergeRecovery? = (call("mergeRecovery") as? JSONObject)?.let { MergeRecovery(it) }
+    /** Commit composition first. Restore pending transport state by receiving recovery.batch. */
+    fun repairMerge(repairs: List<MergeRepair>) {
+        check(remoteHolds == 0) { "Commit composition before repairing a merge" }
+        val rollback = beforeReceive.toList().map { it() }
+        try { edit("repairMerge", JSONObject().put("repairs", JSONArray(repairs.map { it.wire() }))) }
+        catch (error: Exception) { rollback.forEach { try { it?.invoke() } catch (_: Exception) { } }; throw error }
+    }
     fun position(blockID: String, offset: Int, path: List<String> = listOf("content"), affinity: PositionAffinity = PositionAffinity.BEFORE): JSONObject =
         call("position", JSONObject().put("address", JSONObject().put("blockID", blockID).put("path", JSONArray(path)))
             .put("offset", offset).put("affinity", affinity.wireValue)) as JSONObject

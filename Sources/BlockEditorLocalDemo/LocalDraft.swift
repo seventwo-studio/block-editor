@@ -8,11 +8,14 @@ import Glibc
 
 /// Host-owned local storage. Retain the lease for the entire editing session.
 public final class LocalDraft {
+    private enum Purpose: String, Codable { case draft, recoveryArchive }
     private struct Record: Codable {
         let version: Int
         let endpoint: String
         let actorID: String
         let snapshot: Data
+        let recovery: MergeRecovery?
+        let purpose: Purpose?
     }
     private let file: URL
     private var descriptor: Int32
@@ -42,16 +45,34 @@ public final class LocalDraft {
     public func restore(endpoint: URL) throws -> EditorSession? {
         guard FileManager.default.fileExists(atPath: file.path) else { return nil }
         let record = try JSONDecoder().decode(Record.self, from: Data(contentsOf: file))
-        guard record.version == 1 else { throw DraftError.unsupportedVersion }
+        guard [1, 2].contains(record.version), record.version != 1 || (record.recovery == nil && record.purpose == nil) else { throw DraftError.unsupportedVersion }
         guard record.endpoint == endpoint.absoluteString else { throw DraftError.differentEndpoint }
-        return try EditorSession.restore(record.snapshot, actorID: record.actorID)
+        // An exported archive can be opened alongside the original draft without
+        // reusing its writer identity. The original history remains in the archive.
+        let actor = record.purpose == .recoveryArchive ? UUID().uuidString : record.actorID
+        let session = try EditorSession.restore(record.snapshot, actorID: actor)
+        if let recovery = record.recovery {
+            do { try session.receive(recovery.batch) }
+            catch EditorError.mergeRecoveryRequired { /* Retain unapplied transport state separately. */ }
+        }
+        return session
     }
     public func save(_ session: EditorSession, endpoint: URL) throws {
-        let record = Record(version: 1, endpoint: endpoint.absoluteString, actorID: session.actorID, snapshot: try session.save())
+        let record = try record(session, endpoint: endpoint)
         try JSONEncoder().encode(record).write(to: file, options: .atomic)
+    }
+    /// A recovery archive includes accepted history and the separate unacknowledged union.
+    public func exportRecovery(_ session: EditorSession, endpoint: URL, to destination: URL) throws {
+        guard session.mergeRecovery != nil else { throw DraftError.noRecovery }
+        guard !FileManager.default.fileExists(atPath: destination.path) else { throw DraftError.archiveExists }
+        try JSONEncoder().encode(record(session, endpoint: endpoint, purpose: .recoveryArchive)).write(to: destination, options: .atomic)
+    }
+    private func record(_ session: EditorSession, endpoint: URL, purpose: Purpose = .draft) throws -> Record {
+        Record(version: 2, endpoint: endpoint.absoluteString, actorID: session.actorID,
+               snapshot: try session.save(), recovery: session.mergeRecovery, purpose: purpose)
     }
 }
 
 public enum DraftError: Error {
-    case alreadyOpen, storageUnavailable, unsupportedVersion, differentEndpoint
+    case alreadyOpen, storageUnavailable, unsupportedVersion, differentEndpoint, noRecovery, archiveExists
 }

@@ -22,7 +22,11 @@ public struct ElementID: Codable, Hashable, Comparable, Sendable {
 public struct TextAddress: Codable, Hashable, Sendable {
     public let blockID: String
     public let path: [String]
-    public init(_ blockID: String, path: [String] = ["content"]) { self.blockID = blockID; self.path = path }
+    /// Protocol v2 positions and mutations follow this identity across moves.
+    public let identity: NodeID?
+    public init(_ blockID: String, path: [String] = ["content"], identity: NodeID? = nil) {
+        self.blockID = blockID; self.path = path; self.identity = identity
+    }
 }
 
 /// Which side of an adjacent atom a position follows when text is inserted there.
@@ -58,6 +62,11 @@ public enum Mutation: Codable, Equatable, Sendable {
     case insertText(address: TextAddress, atoms: [TextAtom])
     case deleteText(address: TextAddress, ids: [ElementID])
     case formatText(address: TextAddress, ids: [ElementID], markType: String, mark: JSONValue?)
+    case insertNode(value: JSONValue, identity: NodeID, collection: NodeCollection, placement: ElementID, after: NodePlacementID?)
+    case moveNode(identity: NodeID, collection: NodeCollection, placement: ElementID, after: NodePlacementID?)
+    /// Observed removal retains concurrent descendants that the author never saw.
+    case deleteNodes(identities: [NodeID])
+    case setNodeField(identity: NodeID, path: [String], value: JSONValue)
 }
 
 public enum ChangeBody: Codable, Equatable, Sendable {
@@ -74,7 +83,18 @@ public struct Change: Codable, Equatable, Sendable {
 /// Exact receipt IDs deliberately avoid falsely acknowledging gaps in reordered delivery.
 public struct SyncState: Codable, Equatable, Sendable {
     public let received: Set<ChangeID>
-    public init(received: Set<ChangeID> = []) { self.received = received }
+    public let documentID: String?
+    public let version: Int?
+    public init(received: Set<ChangeID> = [], documentID: String? = nil, version: Int? = nil) {
+        self.received = received; self.documentID = documentID; self.version = version
+    }
+    private enum CodingKeys: String, CodingKey { case received, documentID, version }
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(received.sorted(), forKey: .received)
+        try container.encodeIfPresent(documentID, forKey: .documentID)
+        try container.encodeIfPresent(version, forKey: .version)
+    }
 }
 
 public struct ChangeBatch: Codable, Equatable, Sendable {
@@ -109,9 +129,11 @@ struct Materialized {
     var deletedAtoms: [TextAddress: Set<ElementID>] = [:]
     var hiddenAtoms: [TextAddress: Set<ElementID>] = [:]
     var dirtyText = Set<TextAddress>()
+    var structure: StructuralState?
 
-    static func seed(_ baseline: Document) -> Self {
+    static func seed(_ baseline: Document, version: Int = 1) -> Self {
         var result = Self()
+        if version == 2 { result.structure = .seed(baseline) }
         var previous: ElementID?
         for (index, block) in baseline.blocks.enumerated() {
             let id = ElementID(change: ChangeID(counter: 0, actor: ""), index: index)
@@ -125,7 +147,7 @@ struct Materialized {
 
     mutating func ensureText(_ address: TextAddress) {
         guard texts[address] == nil else { return }
-        let value = blocks[address.blockID]?.value(at: address.path)
+        let value = textValue(address)
         let nodes = value?.array ?? value?.string.map { [textNode($0)] } ?? []
         var atoms: [ElementID: TextAtom] = [:]
         var previous: ElementID?
@@ -143,6 +165,26 @@ struct Materialized {
             }
         }
         texts[address] = atoms
+        if let identity = address.identity, structure?.nodes[identity]?.birthActive == false {
+            hiddenAtoms[address, default: []].formUnion(atoms.keys)
+        }
+    }
+
+    func textValue(_ address: TextAddress) -> JSONValue? {
+        if let structure, let identity = address.identity, let field = address.path.last {
+            return structure.nodes[identity]?.fields[field]
+        }
+        return blocks[address.blockID]?.value(at: address.path)
+    }
+
+    func canonicalAddress(_ address: TextAddress) throws -> TextAddress {
+        guard let structure else {
+            guard address.identity == nil else { throw EditorError.invalidPath }; return address
+        }
+        guard let field = address.path.last else { throw EditorError.invalidPath }
+        let identity = try address.identity ?? structure.node(at: NodeAddress(address.blockID, path: Array(address.path.dropLast())))
+        guard structure.visibleNodes(try structure.effectivePlacements()).contains(identity) else { throw EditorError.invalidPath }
+        return identity.textAddress(field)
     }
 
     /// Iterative RGA traversal. Tombstones remain anchors, including undone insertions.
@@ -171,7 +213,10 @@ struct Materialized {
     }
 
     func blockOrder() -> [String] {
-        Self.order(placements, after: { $0.after }).compactMap { id in
+        if let structure {
+            return ((try? structure.visibleOrder(in: .root)) ?? []).compactMap { structure.nodes[$0]?.label }
+        }
+        return Self.order(placements, after: { $0.after }).compactMap { id in
             guard let p = placements[id], selectedPlacement[p.blockID] == id,
                   !deletedBlocks.contains(p.blockID), blocks[p.blockID] != nil else { return nil }
             return p.blockID
@@ -179,39 +224,54 @@ struct Materialized {
     }
 
     func document() throws -> Document {
+        if let structure {
+            var values: [NodeID: [String: JSONValue]] = [:]
+            for address in dirtyText {
+                guard let identity = address.identity, let field = address.path.last else { throw EditorError.invalidPath }
+                values[identity, default: [:]][field] = inlineValue(address)
+            }
+            return try structure.document(text: values)
+        }
         var values = blocks
         for address in dirtyText {
             guard var block = values[address.blockID] else { continue }
-            var nodes: [JSONValue] = []
-            for atom in visibleAtoms(address) {
-                let node = atom.node
-                if node["type"]?.string == "text", var last = nodes.last?.object,
-                   last["type"]?.string == "text" {
-                    var lhs = last, rhs = node.object ?? [:]
-                    lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")
-                    if lhs == rhs {
-                        last["text"] = .string((last["text"]?.string ?? "") + (node["text"]?.string ?? ""))
-                        nodes[nodes.count - 1] = .object(last); continue
-                    }
-                }
-                nodes.append(node)
-            }
-            let value: JSONValue = block.value(at: address.path)?.string != nil ? .string(plainText(nodes)) : .array(nodes)
-            block.fields = try JSONValue.object(block.fields).setting(address.path, to: value).object ?? block.fields
+            block.fields = try JSONValue.object(block.fields).setting(address.path, to: inlineValue(address)).object ?? block.fields
             values[address.blockID] = block
         }
         return try Document(blocks: blockOrder().compactMap { values[$0] })
     }
+
+    private func inlineValue(_ address: TextAddress) -> JSONValue {
+        var nodes: [JSONValue] = []
+        for atom in visibleAtoms(address) {
+            let node = atom.node
+            if node["type"]?.string == "text", var last = nodes.last?.object, last["type"]?.string == "text" {
+                var lhs = last, rhs = node.object ?? [:]
+                lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")
+                if lhs == rhs {
+                    last["text"] = .string((last["text"]?.string ?? "") + (node["text"]?.string ?? ""))
+                    nodes[nodes.count - 1] = .object(last); continue
+                }
+            }
+            nodes.append(node)
+        }
+        return textValue(address)?.string != nil ? .string(plainText(nodes)) : .array(nodes)
+    }
 }
 
-func materialize(_ baseline: Document, _ changes: [Change]) throws -> Materialized {
+func materialize(_ baseline: Document, _ changes: [Change], version: Int = 1) throws -> Materialized {
     let sorted = changes.sorted { $0.id < $1.id }
     var active: [ChangeID: Bool] = [:]
+    var history: [ChangeID: Change] = [:]
     for change in sorted {
+        history[change.id] = change
         if case .setActive(let target, let value) = change.body { active[target] = value }
     }
-    var state = Materialized.seed(baseline)
+    var state = Materialized.seed(baseline, version: version)
     for change in sorted {
+        // Validate creation paths against their containing collection, including
+        // histories whose causal parents arrived after an earlier receive.
+        try validate(change, version: version, structure: state.structure, history: history, seedState: state)
         guard case .edit(let mutations) = change.body else { continue }
         let enabled = active[change.id] ?? true
         try apply(mutations, enabled: enabled, to: &state)
@@ -246,10 +306,12 @@ func apply(_ mutations: [Mutation], enabled: Bool, to state: inout Materialized)
                 if !enabled { state.hiddenAtoms[address, default: []].insert(atom.id) }
             }
             state.dirtyText.insert(address)
+            if enabled, let identity = address.identity, !atoms.isEmpty { state.structure?.touched.insert(identity) }
         case .deleteText(let address, let ids):
             state.ensureText(address)
             if enabled { state.deletedAtoms[address, default: []].formUnion(ids) }
             state.dirtyText.insert(address)
+            if enabled, let identity = address.identity, !ids.isEmpty { state.structure?.touched.insert(identity) }
         case .formatText(let address, let ids, let markType, let mark):
             state.ensureText(address)
             if enabled {
@@ -264,6 +326,37 @@ func apply(_ mutations: [Mutation], enabled: Bool, to state: inout Materialized)
                 }
             }
             state.dirtyText.insert(address)
+            if enabled, let identity = address.identity, !ids.isEmpty { state.structure?.touched.insert(identity) }
+        case .insertNode(let value, let identity, let collection, let id, let after):
+            guard var structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+            // Missing causal owners remain unapplied until their insertion arrives.
+            let kind: NodeKind
+            if collection.owner != nil, structure.nodes[collection.owner!] == nil { continue }
+            kind = try structure.kind(in: collection)
+            try validateNode(value, kind: kind)
+            structure.register(value, identity: identity, kind: kind, active: enabled)
+            let placement = NodePlacementID.edit(id)
+            structure.placements[placement] = .init(id: placement, after: after, node: identity, collection: collection, active: true)
+            state.structure = structure
+        case .moveNode(let identity, let collection, let id, let after):
+            guard var structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+            if let node = structure.nodes[identity], collection.owner == nil || structure.nodes[collection.owner!] != nil {
+                guard try structure.kind(in: collection) == node.kind else { throw EditorError.invalidPath }
+            }
+            let placement = NodePlacementID.edit(id)
+            structure.placements[placement] = .init(id: placement, after: after, node: identity, collection: collection, active: enabled)
+            if enabled { structure.touched.insert(identity) }
+            state.structure = structure
+        case .deleteNodes(let identities):
+            guard state.structure != nil else { throw EditorError.unsupportedVersion(2) }
+            if enabled { state.structure?.deleted.formUnion(identities) }
+        case .setNodeField(let identity, let path, let value):
+            guard var structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+            if enabled, var node = structure.nodes[identity] {
+                node.fields = try JSONValue.object(node.fields).setting(path, to: value).object ?? node.fields
+                structure.nodes[identity] = node; structure.touched.insert(identity)
+            }
+            state.structure = structure
         }
     }
 }

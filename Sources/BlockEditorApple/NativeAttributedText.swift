@@ -8,9 +8,16 @@ import UIKit
 #endif
 
 @MainActor func nativeAttributedText(_ input: CollaborativeInput) -> NSAttributedString {
-    let block = input.model.document.blocks.first { $0.id == input.address.blockID }
-    let value = block.flatMap { JSONValue.object($0.fields).value(at: input.address.path) }
-    let container = block.flatMap { JSONValue.object($0.fields).value(at: Array(input.address.path.dropLast())) }
+    var address = input.address
+    if let identity = address.identity {
+        guard let live = try? input.model.session.address(of: identity), let field = address.path.last else {
+            return NSAttributedString(string: "")
+        }
+        address = TextAddress(live.blockID, path: live.path + [field], identity: identity)
+    }
+    let block = input.model.document.blocks.first { $0.id == address.blockID }
+    let value = block.flatMap { JSONValue.object($0.fields).value(at: address.path) }
+    let container = block.flatMap { JSONValue.object($0.fields).value(at: Array(address.path.dropLast())) }
     let heading = container?["type"]?.string == "heading"
     let level = container?["level"]
     let nodes = value?.array ?? [.object(["type": .string("text"), "text": .string(input.text)])]

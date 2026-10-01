@@ -1,7 +1,12 @@
 import { WASI, File, OpenFile, ConsoleStdout } from "@bjorn3/browser_wasi_shim";
 import type { Block, Mark, InlineNode } from "./schema.js";
 
-export interface TextAddress { blockID: string; path: string[] }
+export interface SwiftElementID { change: { counter: number; actor: string }; index: number }
+/** Origin identities are immutable. Hosts should obtain them from session.node(). */
+export type SwiftNodeID = { baseline: { blockID: string; path: string[] } } | { inserted: { creation: SwiftElementID; path: string[] } };
+export interface SwiftNodeAddress { blockID: string; path: string[] }
+export type SwiftNodeCollection = { owner?: null; field: "blocks" } | { owner: SwiftNodeID; field: "children" | "items" | "rows" | "cells" };
+export interface TextAddress { blockID: string; path: string[]; identity?: SwiftNodeID | null }
 export interface SwiftTextPosition {
   documentID: string;
   address: TextAddress;
@@ -12,7 +17,18 @@ export interface SwiftTextPosition {
 export interface SwiftSnapshot { blocks: Block[]; canUndo: boolean; canRedo: boolean }
 /** Opaque, versioned payloads: hosts transport them without interpreting merge operations. */
 export type SwiftChangeBatch = { version: number; documentID: string; baseline: unknown; changes: unknown[] };
-export type SwiftSyncState = { received: unknown[] };
+/** Persist separately from save(); its changes have not been acknowledged or applied. */
+export interface SwiftMergeRecovery { reason: "identityConflict" | "schemaConstraint"; batch: SwiftChangeBatch }
+export type SwiftMergeRepair =
+  | { move: { identity: SwiftNodeID; collection: SwiftNodeCollection } }
+  | { wrap: { identity: SwiftNodeID; container: Block; field: "children" | "items" | "rows" } }
+  | { text: { identity: SwiftNodeID; field: string; text: string } };
+export class SwiftMergeRecoveryError extends Error {
+  constructor(readonly recovery: SwiftMergeRecovery) {
+    super("Merge recovery required"); this.name = "SwiftMergeRecoveryError";
+  }
+}
+export type SwiftSyncState = { received: unknown[]; documentID?: string; version?: number };
 export type SwiftPresence = { actor: string; revision: number; address?: TextAddress; anchor?: unknown; focus?: unknown };
 
 type Exports = WebAssembly.Exports & {
@@ -51,15 +67,18 @@ export class SwiftEditorRuntime {
       const memory = new Uint8Array(this.exports.memory.buffer);
       const end = memory.indexOf(0, output);
       if (end === -1) throw new Error("Invalid Swift response buffer");
-      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string };
-      if (!response.ok) throw new Error(response.error ?? "Swift editor operation failed");
+      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery };
+      if (!response.ok) {
+        if (response.error === "mergeRecoveryRequired" && response.recovery) throw new SwiftMergeRecoveryError(response.recovery);
+        throw new Error(response.error ?? "Swift editor operation failed");
+      }
       return response.value as T;
     } finally {
       if (output) this.exports.block_editor_free(output);
       this.exports.block_editor_free(input);
     }
   }
-  create(options: { documentID: string; actorID: string; blocks: Block[] }): SwiftEditorSession {
+  create(options: { documentID: string; actorID: string; blocks: Block[]; collaborationVersion?: 1 | 2 }): SwiftEditorSession {
     const handle = crypto.randomUUID();
     return new SwiftEditorSession(this, handle, this.call({ command: "create", session: handle, ...options }));
   }
@@ -67,10 +86,17 @@ export class SwiftEditorRuntime {
     const handle = crypto.randomUUID();
     return new SwiftEditorSession(this, handle, this.call({ command: "restore", session: handle, snapshot, actorID }));
   }
+  /** Stop old writers and archive their snapshot first. Cutover starts fresh undo history. */
+  cutoverToV2(snapshot: SwiftChangeBatch, options: { documentID: string; actorID: string }): SwiftEditorSession {
+    const handle = crypto.randomUUID();
+    return new SwiftEditorSession(this, handle, this.call({ command: "cutoverToV2", session: handle, snapshot, ...options }));
+  }
 }
 
 export class SwiftEditorSession {
   private listeners = new Set<() => void>();
+  private recoveryListeners = new Set<() => void>();
+  private recovery: SwiftMergeRecovery | null = null;
   private beforeReceive = new Set<() => void | (() => void)>();
   private remoteHolds = 0;
   private deferred: string[] = [];
@@ -79,6 +105,9 @@ export class SwiftEditorSession {
   constructor(private runtime: SwiftEditorRuntime, private handle: string, private snapshot: SwiftSnapshot) {}
   getSnapshot = (): SwiftSnapshot => this.snapshot;
   subscribe = (listener: () => void): (() => void) => { this.listeners.add(listener); return () => this.listeners.delete(listener); };
+  /** Recovery can change on a rejected receive without a document change. */
+  getRecoverySnapshot = (): SwiftMergeRecovery | null => this.recovery;
+  subscribeRecovery = (listener: () => void): (() => void) => { this.recoveryListeners.add(listener); return () => this.recoveryListeners.delete(listener); };
   /** A pre-receive observer can return cleanup to discard preparation if validation fails. */
   subscribeBeforeReceive = (listener: () => void | (() => void)): (() => void) => { this.beforeReceive.add(listener); return () => this.beforeReceive.delete(listener); };
   /** An input adapter commits its composition before releasing queued remote edits.
@@ -101,13 +130,50 @@ export class SwiftEditorSession {
   }
   private call<T>(command: string, args: Record<string, unknown> = {}): T {
     if (this.closed) throw new Error("Editor session is closed");
-    return this.runtime.call({ command, session: this.handle, ...args });
+    try {
+      const value = this.runtime.call<T>({ command, session: this.handle, ...args });
+      if (["receive", "repairMerge", "undo", "redo"].includes(command)) {
+        this.setRecovery(this.runtime.call({ command: "mergeRecovery", session: this.handle }));
+      }
+      return value;
+    } catch (error) {
+      if (error instanceof SwiftMergeRecoveryError) this.setRecovery(error.recovery);
+      throw error;
+    }
+  }
+  private setRecovery(value: SwiftMergeRecovery | null) {
+    if (JSON.stringify(value) === JSON.stringify(this.recovery)) return;
+    this.recovery = value;
+    for (const listener of this.recoveryListeners) listener();
   }
   private edit(command: string, args: Record<string, unknown> = {}): void {
     this.snapshot = this.call(command, args);
     for (const listener of this.listeners) listener();
   }
   setText(address: TextAddress, text: string): void { this.edit("setText", { address, text }); }
+  mergeRecovery(): SwiftMergeRecovery | null { return this.call("mergeRecovery"); }
+  /** Re-submit a retained recovery.batch with receive() after restoring accepted history. */
+  repairMerge(repairs: SwiftMergeRepair[]): void {
+    if (this.remoteHolds) throw new Error("Commit composition before repairing a merge");
+    const rollback = [...this.beforeReceive].map(listener => listener());
+    try { this.edit("repairMerge", { repairs }); }
+    catch (error) { for (const cleanup of rollback) { try { cleanup?.(); } catch { /* Keep the engine error. */ } } throw error; }
+  }
+  node(address: SwiftNodeAddress): SwiftNodeID { return this.call("node", { address }); }
+  nodeAddress(identity: SwiftNodeID): SwiftNodeAddress { return this.call("nodeAddress", { identity }); }
+  nodes(collection: SwiftNodeCollection): SwiftNodeID[] { return this.call("nodes", { collection }); }
+  textAddress(identity: SwiftNodeID, field = "content"): TextAddress { return this.call("textAddress", { identity, field }); }
+  insertNode(value: unknown, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftNodeID {
+    const result = this.call<{ identity: SwiftNodeID; snapshot: SwiftSnapshot }>("insertNode", { value, collection, after });
+    this.snapshot = result.snapshot;
+    for (const listener of this.listeners) listener();
+    return result.identity;
+  }
+  moveNode(identity: SwiftNodeID, collection: SwiftNodeCollection, after?: SwiftNodeID): void { this.edit("moveNode", { identity, collection, after }); }
+  deleteNode(identity: SwiftNodeID): void { this.edit("deleteNode", { identity }); }
+  indent(identity: SwiftNodeID): void { this.edit("indent", { identity }); }
+  outdent(identity: SwiftNodeID): void { this.edit("outdent", { identity }); }
+  setNodeField(identity: SwiftNodeID, path: string[], value: unknown): void { this.edit("setNodeField", { identity, path, value }); }
   position(address: TextAddress, offset: number, affinity: SwiftTextPosition["affinity"] = "before"): SwiftTextPosition {
     return this.call("position", { address, offset, affinity });
   }
@@ -150,5 +216,5 @@ export class SwiftEditorSession {
   removePresence(actorID: string): Record<string, SwiftPresence> { return this.call("removePresence", { actorID }); }
   setAllowedBlockTypes(types: string[] | null): void { this.edit("allowedBlockTypes", { types }); }
   markdown(): string { return this.call("markdown"); }
-  close(): void { if (!this.closed) { this.call("close"); this.closed = true; this.listeners.clear(); this.beforeReceive.clear(); this.deferred = []; this.deferredBytes = 0; } }
+  close(): void { if (!this.closed) { this.call("close"); this.closed = true; this.listeners.clear(); this.recoveryListeners.clear(); this.beforeReceive.clear(); this.deferred = []; this.deferredBytes = 0; } }
 }

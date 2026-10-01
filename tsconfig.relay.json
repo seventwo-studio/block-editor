@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "module": "ESNext", "moduleResolution": "Bundler", "allowImportingTsExtensions": true, "types": ["bun"] },
-  "include": ["demo/relay", "scripts/test-apple-relay.ts", "scripts/test-apple-ui.ts"],
+  "include": ["demo/relay", "scripts/test-apple-relay.ts", "scripts/test-apple-ui.ts", "scripts/test-android-recovery.ts"],
   "exclude": []
 }

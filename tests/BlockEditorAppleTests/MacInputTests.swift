@@ -5,6 +5,32 @@ import SwiftUI
 import Testing
 @testable import BlockEditorApple
 
+@MainActor @Test func appKitDisabledHostKeepsAcceptedTextSelectable() async throws {
+    let session = try EditorSession(documentID: "appkit-readonly", actorID: "a",
+                                    document: Document(blocks: [.paragraph(id: "p", text: "Accepted café 👩🏽‍💻")]))
+    let model = try EditorModel(session: session)
+    let input = MacTextInput(model: model, address: TextAddress("p"), selection: .constant(NSRange(location: 0, length: 0)))
+    let host = NSHostingView(rootView: input.disabled(true))
+    host.frame = NSRect(x: 0, y: 0, width: 400, height: 200)
+    host.layoutSubtreeIfNeeded()
+    func textView(in view: NSView) -> NSTextView? {
+        if let text = view as? NSTextView { return text }
+        return view.subviews.lazy.compactMap { textView(in: $0) }.first
+    }
+    let text = try #require(textView(in: host))
+    #expect(!text.isEditable)
+    #expect(text.isSelectable)
+    text.setSelectedRange(NSRange(location: 0, length: 8))
+    #expect(text.selectedRange().length == 8)
+    #expect(text.string == "Accepted café 👩🏽‍💻")
+    host.rootView = input.disabled(false)
+    host.layoutSubtreeIfNeeded()
+    for _ in 0..<20 where !text.isEditable { try await Task.sleep(for: .milliseconds(10)) }
+    #expect(text.isEditable)
+    #expect(text.string == "Accepted café 👩🏽‍💻")
+    #expect(session.syncState.received.isEmpty)
+}
+
 @MainActor @Test func appKitCompositionCommitsUnicodeBeforeRemoteReplay() throws {
     let document = try Document(blocks: [.paragraph(id: "p", text: "Hello")])
     let a = try EditorSession(documentID: "appkit-ime", actorID: "a", document: document)

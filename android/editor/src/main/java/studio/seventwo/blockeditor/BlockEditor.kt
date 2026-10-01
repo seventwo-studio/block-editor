@@ -14,15 +14,23 @@ import java.util.UUID
 /** Basic native session surface; the host supplies asset rendering and handles storage. */
 @Composable fun BlockEditor(session: EditorSession, modifier: Modifier = Modifier,
                             asset: @Composable (JSONObject) -> Unit = { Text(it.optString("alt", "Image")) }) {
+    BlockEditor(session, modifier, readOnly = false, asset = asset)
+}
+
+/** Read-only content remains selectable; hosts can surface recovery after failed edits. */
+@Composable fun BlockEditor(session: EditorSession, modifier: Modifier = Modifier, readOnly: Boolean,
+                            onError: (Exception) -> Unit = {},
+                            asset: @Composable (JSONObject) -> Unit = { Text(it.optString("alt", "Image")) }) {
     var error by remember(session) { mutableStateOf<String?>(null) }
-    fun perform(action: () -> Unit) { try { action(); error = null } catch (e: Exception) { error = e.message } }
+    fun report(e: Exception) { error = e.message; onError(e) }
+    fun perform(action: () -> Unit) { try { action(); error = null } catch (e: Exception) { report(e) } }
     val array = session.snapshot.getJSONArray("blocks")
     val blocks = (0 until array.length()).map { array.getJSONObject(it) }
     Column(modifier) {
         Row {
-            TextButton(enabled = session.snapshot.getBoolean("canUndo"), onClick = { perform { session.undo() } }) { Text("Undo") }
-            TextButton(enabled = session.snapshot.getBoolean("canRedo"), onClick = { perform { session.redo() } }) { Text("Redo") }
-            TextButton(onClick = { perform {
+            TextButton(enabled = !readOnly && session.snapshot.getBoolean("canUndo"), onClick = { perform { session.undo() } }) { Text("Undo") }
+            TextButton(enabled = !readOnly && session.snapshot.getBoolean("canRedo"), onClick = { perform { session.redo() } }) { Text("Redo") }
+            TextButton(enabled = !readOnly, onClick = { perform {
                 session.edit("insert", JSONObject().put("after", blocks.lastOrNull()?.getString("id"))
                     .put("block", JSONObject().put("id", UUID.randomUUID().toString()).put("type", "paragraph").put("content", JSONArray())))
             } }) { Text("Paragraph") }
@@ -33,19 +41,20 @@ import java.util.UUID
                 Column(Modifier.fillMaxWidth().padding(8.dp)) {
                     val id = block.getString("id")
                     when (block.getString("type")) {
-                        "paragraph", "heading", "quote", "callout" -> SessionTextField(session, id, "content", "Block text") { error = it.message }
+                        "paragraph", "heading", "quote", "callout" -> SessionTextField(session, id, "content", "Block text", readOnly, ::report)
                         "image" -> asset(block)
                         "divider" -> HorizontalDivider()
-                        "code" -> SessionTextField(session, id, "code", "Code") { error = it.message }
-                        "math" -> SessionTextField(session, id, "expression", "Math") { error = it.message }
+                        "code" -> SessionTextField(session, id, "code", "Code", readOnly, ::report)
+                        "math" -> SessionTextField(session, id, "expression", "Math", readOnly, ::report)
+                        "toggle", "table", "list" -> ReadOnlyBlockPreview(block, asset)
                         else -> Text("${block.getString("type")} content preserved")
                     }
                     Row {
                         val index = blocks.indexOf(block)
-                        TextButton(enabled = index > 0, onClick = { perform {
+                        TextButton(enabled = !readOnly && index > 0, onClick = { perform {
                             session.edit("move", JSONObject().put("blockID", id).put("after", if (index > 1) blocks[index - 2].getString("id") else JSONObject.NULL))
                         } }) { Text("Move up") }
-                        TextButton(onClick = { perform { session.edit("delete", JSONObject().put("blockID", id)) } }) { Text("Delete") }
+                        TextButton(enabled = !readOnly, onClick = { perform { session.edit("delete", JSONObject().put("blockID", id)) } }) { Text("Delete") }
                     }
                 }
             }
@@ -65,10 +74,10 @@ internal fun plainText(nodes: JSONArray?): String = if (nodes == null) "" else (
     }
 }
 
-@Composable private fun SessionTextField(session: EditorSession, blockID: String, field: String, label: String, reportError: (Exception) -> Unit) {
+@Composable private fun SessionTextField(session: EditorSession, blockID: String, field: String, label: String, readOnly: Boolean, reportError: (Exception) -> Unit) {
     val currentError by rememberUpdatedState(reportError)
     val input = remember(session, blockID, field) { CollaborativeTextInput(session, blockID, listOf(field)) { currentError(it) } }
     DisposableEffect(input) { onDispose { input.close() } }
-    OutlinedTextField(value = input.value, onValueChange = input::update,
+    OutlinedTextField(value = input.value, onValueChange = input::update, readOnly = readOnly,
         modifier = Modifier.fillMaxWidth(), label = { Text(label) })
 }

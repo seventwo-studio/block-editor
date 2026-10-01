@@ -1,5 +1,6 @@
 #if canImport(SwiftUI)
 import BlockEditorApple
+import BlockEditorCore
 import BlockEditorLocalDemo
 import SwiftUI
 
@@ -13,6 +14,8 @@ import SwiftUI
     @State private var client: LocalRelayClient?
     @State private var status = "Enter the local server address and token."
     @State private var saveStatus = ""
+    @State private var recovery: MergeRecovery?
+    @State private var exportRecovery: (() throws -> URL)?
 
     public init(endpoint: URL? = nil) {
         if let endpoint { _endpoint = State(initialValue: endpoint.absoluteString) }
@@ -26,7 +29,26 @@ import SwiftUI
                     .onChange(of: online) { _, value in client?.setConnected(value) }
                 Text(status).accessibilityLabel("Synchronization: \(status)")
                 Text(saveStatus)
+                if let recovery {
+                    ScrollView {
+                        MergeRecoveryView(recovery: recovery,
+                        canWrap: model.session.allowedBlockTypes.map { $0.contains("toggle") } ?? true,
+                        repair: { identity in
+                            model.perform { session in
+                                let container = try Block(fields: ["id": .string(UUID().uuidString), "type": .string("toggle"),
+                                    "summary": .array([.object(["type": .string("text"), "text": .string("Recovered block"), "marks": .array([])])]),
+                                    "children": .array([])])
+                                try session.repairMerge([.wrap(identity: identity, container: container, field: "children")])
+                            }
+                            self.recovery = model.session.mergeRecovery
+                        }, export: {
+                            guard let exportRecovery else { throw DraftError.storageUnavailable }
+                            return try exportRecovery()
+                        }, retry: { online = true; client?.setConnected(true) })
+                    }.frame(maxHeight: 360)
+                }
                 BlockEditorView(model: model)
+                    .disabled(recovery != nil)
             } else {
                 TextField("Server room URL", text: $endpoint)
                 Button("Open editor") { attempt += 1 }
@@ -57,17 +79,33 @@ import SwiftUI
                 try Task.checkCancellation()
                 try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally"
                 client = opened; model = try EditorModel(session: opened.session)
+                recovery = opened.session.mergeRecovery
+                exportRecovery = {
+                    let archive = root.appendingPathComponent("recovery-\(UUID().uuidString).json")
+                    try draft.exportRecovery(opened.session, endpoint: url, to: archive)
+                    return archive
+                }
+                opened.onStatus = {
+                    guard recovery != opened.session.mergeRecovery else { return }
+                    recovery = opened.session.mergeRecovery
+                    do { try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally" }
+                    catch { saveStatus = "Pending recovery save failed: \(error). Export it before closing." }
+                }
                 model?.onChange = { _, _ in
+                    recovery = opened.session.mergeRecovery
                     do { try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally" }
                     catch { saveStatus = "Local save failed: \(error)" }
                 }
-                defer { opened.setConnected(false); client = nil; model = nil }
+                defer { opened.onStatus = nil; opened.setConnected(false); client = nil; model = nil; recovery = nil; exportRecovery = nil }
                 while !Task.isCancelled {
                     if online {
                         do {
                             try await opened.exchange()
                             status = "Connected; \(opened.pendingChanges) unacknowledged changes; \(opened.peers.count) other clients"
-                        } catch { status = "Retrying: \(error)" }
+                        } catch {
+                            status = opened.session.mergeRecovery != nil ? "Synchronization paused for recovery"
+                                : "Retrying: \(opened.lastError ?? String(describing: error))"
+                        }
                     } else { status = "Offline; local draft recovery is available" }
                     try await Task.sleep(for: .milliseconds(500))
                 }

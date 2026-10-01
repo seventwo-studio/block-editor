@@ -60,6 +60,8 @@ public enum JSONValue: Codable, Equatable, Sendable {
 public enum EditorError: Error, Equatable, Sendable {
     case invalidDocument(String), invalidPath, invalidRange, unsupportedVersion(Int)
     case differentDocument, conflictingChange, invalidChange, restrictedBlock(String)
+    case structuralConflict
+    case mergeRecoveryRequired(MergeRecovery), recoveryCapacityExceeded
 }
 
 public struct Block: Codable, Equatable, Sendable, Identifiable {
@@ -108,18 +110,18 @@ public struct Document: Codable, Equatable, Sendable {
     public init(blocks: [Block]) throws {
         guard blocks.count <= 10_000 else { throw EditorError.invalidDocument("Too many blocks") }
         var ids = Set<String>()
-        func inspect(_ value: JSONValue, depth: Int) throws {
-            guard depth <= 100 else { throw EditorError.invalidDocument("Document nesting exceeds 100") }
-            if let fields = value.object {
-                for child in fields.values { try inspect(child, depth: depth + 1) }
-            } else if let elements = value.array {
-                for child in elements { try inspect(child, depth: depth + 1) }
+        func inspect(_ value: JSONValue) throws {
+            var pending = [(value, 0)]
+            while let (next, depth) = pending.popLast() {
+                guard depth <= 100 else { throw EditorError.invalidDocument("Document nesting exceeds 100") }
+                if let fields = next.object { pending.append(contentsOf: fields.values.map { ($0, depth + 1) }) }
+                else if let elements = next.array { pending.append(contentsOf: elements.map { ($0, depth + 1) }) }
             }
         }
         for block in blocks {
             guard !block.id.isEmpty, ids.insert(block.id).inserted else { throw EditorError.invalidDocument("Duplicate or empty root block ID") }
+            try inspect(.object(block.fields))
             try Validation.block(block)
-            try inspect(.object(block.fields), depth: 0)
         }
         self.blocks = blocks
     }

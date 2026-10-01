@@ -1,5 +1,10 @@
 # Shared Swift editor
 
+An explicit experimental v2 session adds stable nested structural identities and
+commands. See [the nested collaboration contract](nested-collaboration.md) for
+conflict rules, coordinated v1 cutover, runtime evidence and remaining admission
+limits. Default sessions remain v1; production React migration is still pending.
+
 ## Accepted direction
 
 One platform-independent Swift engine serves Therein, Foliostrate, Parqeet and an
@@ -173,6 +178,10 @@ preserve all IDs, marks, assets or custom metadata. Use JSON for lossless storag
 
 ## Toolchains and verification
 
+Pinned cross-runtime CI, shared response comparison and diagnostic artifacts are
+specified in [runtime verification](runtime-ci.md). CI execution evidence is
+separate from the platform interaction and package acceptance gates below.
+
 Use Swift **6.4.0** and matching official SDKs from
 [Swift downloads](https://www.swift.org/install/). The open-source toolchain is
 required for cross-compilation; Xcode's compiler and a similarly numbered SDK are
@@ -275,7 +284,9 @@ alone does not establish editor usability.
 
 - Full nested structural operations, Apple selection mapping across remote edits,
   wider convergence coverage and conflict-aware resource limits. Current
-  document size/shape rejection can prevent an over-limit union from merging;
+  v2 [merge recovery](merge-recovery.md) retains rejected unions separately from
+  accepted saves/receipts and exposes explicit repairs. Expanded resource/conflict
+  coverage and host recovery integration remain open;
   hosts must not treat this prototype as an unbounded collaboration service.
 - Log/receipt compaction, performance budgets and artifact-size reduction. The
   current release WASM is about 58 MB. Local edits apply incrementally; incoming

@@ -12,7 +12,7 @@ import UIKit
     func makeCoordinator() -> Coordinator { Coordinator(model: model, address: address, selection: $selection) }
     func makeUIView(context: Context) -> ComposingUIKitTextView {
         let view = ComposingUIKitTextView()
-        view.isEditable = true; view.isSelectable = true
+        view.isEditable = context.environment.isEnabled; view.isSelectable = true
         view.allowsEditingTextAttributes = false
         view.adjustsFontForContentSizeCategory = true
         view.isScrollEnabled = false
@@ -21,7 +21,11 @@ import UIKit
         context.coordinator.connect(view)
         return view
     }
-    func updateUIView(_ view: ComposingUIKitTextView, context: Context) { context.coordinator.render() }
+    func updateUIView(_ view: ComposingUIKitTextView, context: Context) {
+        view.isEditable = context.environment.isEnabled
+        if !view.isEditable { view.resignFirstResponder() }
+        context.coordinator.render()
+    }
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: ComposingUIKitTextView, context: Context) -> CGSize? {
         guard let width = proposal.width, width.isFinite, width > 0 else { return nil }
         return CGSize(width: width, height: ceil(uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height))

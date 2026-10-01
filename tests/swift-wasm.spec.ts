@@ -1,6 +1,74 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+test("recovery fixture retains rejected histories and converges after repair and restart in WASM", async ({ page }) => {
+  const fixture = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/recovery.json", "utf8"));
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const captured = await page.evaluate(async ({ source, fixture }) => {
+    const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const captured: Record<string, any> = {};
+    for (const step of fixture.steps) {
+      const request = { ...step.request };
+      for (const [key, binding] of Object.entries(step.bindings ?? {})) {
+        const path = Array.isArray(binding) ? binding : [binding];
+        request[key] = path.reduce((value, part) => value[part], captured);
+      }
+      try {
+        const value = runtime.call(request);
+        if (step.error) throw new Error("Expected a rejected merge");
+        if (step.capture) captured[step.capture] = value;
+      } catch (error) {
+        if (step.error === "mergeRecoveryRequired") {
+          if (!(error instanceof SwiftMergeRecoveryError)) throw error;
+          if (step.capture) captured[step.capture] = error.recovery;
+        } else {
+          if (!step.error || !(error instanceof Error) || error.message !== step.error) throw error;
+          if (step.capture) throw new Error("Only merge recovery errors expose a capture value");
+        }
+      }
+    }
+    return captured;
+  }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, fixture });
+  for (const [left, right] of fixture.equal) expect(captured[left]).toEqual(captured[right]);
+  expect(captured.cleared).toBeNull();
+  expect(captured.proposalA.reason).toBe("identityConflict");
+  expect(captured.proposalA.batch.changes).toHaveLength(2);
+  expect(captured.finalA).toEqual(fixture.expected);
+  expect(captured.afterUndo).toEqual(fixture.expectedAfterUndo);
+});
+
+test("typed WASM recovery APIs expose failed repairs and survive a host-retained proposal", async ({ page }) => {
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async source => {
+    const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const a = runtime.create({ documentID: "typed-recovery", actorID: "a", blocks: [], collaborationVersion: 2 });
+    const b = runtime.create({ documentID: "typed-recovery", actorID: "b", blocks: [], collaborationVersion: 2 });
+    let restarted;
+    try {
+      a.insertNode({ id: "same", type: "paragraph", content: [{ type: "text", text: "Alice", marks: [] }] }, { field: "blocks" });
+      const second = b.insertNode({ id: "same", type: "paragraph", content: [{ type: "text", text: "Bob", marks: [] }] }, { field: "blocks" });
+      const saved = a.save(); let reason;
+      try { a.receive(b.changes()); } catch (error) { if (!(error instanceof SwiftMergeRecoveryError)) throw error; reason = error.recovery.reason; }
+      const retained = JSON.parse(JSON.stringify(a.mergeRecovery()));
+      restarted = runtime.restore(saved, "a");
+      try { restarted.receive(retained.batch); } catch (error) { if (!(error instanceof SwiftMergeRecoveryError)) throw error; }
+      let failed = false;
+      try { restarted.repairMerge([{ move: { identity: second, collection: { field: "blocks" } } }]); } catch { failed = true; }
+      const preserved = JSON.stringify(restarted.save()) === JSON.stringify(saved);
+      restarted.repairMerge([{ wrap: { identity: second, container: { id: "wrapper", type: "toggle", summary: [], children: [] }, field: "children" } }]);
+      b.receive(restarted.changes());
+      return { reason, failed, preserved, cleared: restarted.mergeRecovery(), converged: JSON.stringify(b.getSnapshot().blocks) === JSON.stringify(restarted.getSnapshot().blocks),
+        address: restarted.nodeAddress(second), texts: JSON.stringify(restarted.getSnapshot().blocks) };
+    } finally { a.close(); b.close(); restarted?.close(); }
+  }, `/block-editor/@fs${process.cwd()}/src/swift.ts`);
+  expect(result).toMatchObject({ reason: "identityConflict", failed: true, preserved: true, cleared: null, converged: true, address: { blockID: "wrapper", path: ["children", "same"] } });
+  expect(result.texts).toContain("Alice"); expect(result.texts).toContain("Bob");
+});
+
 test("out-of-order concurrent formatting preserves independent marks and author undo", async ({ page }) => {
   await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");
@@ -64,6 +132,55 @@ test("shared bridge compatibility fixture matches native Swift", async ({ page }
     return result;
   }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, requests: fixture.requests });
   expect(result).toEqual(fixture.expected);
+});
+
+test("versioned nested structure fixture matches Swift through actual WASM", async ({ page }) => {
+  const fixture = JSON.parse(readFileSync("tests/BlockEditorCoreTests/Fixtures/structure.json", "utf8"));
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const captured = await page.evaluate(async ({ source, steps }) => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const captured: Record<string, unknown> = {};
+    for (const step of steps) {
+      const request = { ...step.request };
+      for (const [key, name] of Object.entries(step.bindings ?? {})) request[key] = captured[name as string];
+      const value = runtime.call(request);
+      if (step.capture) captured[step.capture] = value;
+    }
+    return captured;
+  }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, steps: fixture.steps });
+  for (const [left, right] of fixture.equal ?? []) {
+    expect(captured[left], left).toBeDefined(); expect(captured[right], right).toBeDefined();
+    expect(captured[left], `${left}/${right}`).toEqual(captured[right]);
+  }
+  expect(captured.final).toEqual(fixture.expected);
+  expect(captured.resolvedPosition).toBe(fixture.expectedPosition);
+  expect(captured.cutover).toEqual(fixture.expectedCutover);
+  expect(captured.cutoverChanges).toMatchObject({ version: 2 });
+});
+
+test("typed WASM node APIs retain remote content through undo and reopen", async ({ page }) => {
+  await page.route("**/engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async source => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ source);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("engine.wasm")).arrayBuffer());
+    const a = runtime.create({ documentID: "typed-nodes", actorID: "a", blocks: [], collaborationVersion: 2 });
+    const b = runtime.create({ documentID: "typed-nodes", actorID: "b", blocks: [], collaborationVersion: 2 });
+    try {
+      const node = a.insertNode({ id: "p", type: "paragraph", content: [{ type: "text", text: "local", marks: [] }] }, { field: "blocks" });
+      b.receive(a.changes());
+      b.replaceText(b.textAddress(node), 5, 5, "REMOTE");
+      a.undo(); a.receive(b.changes()); b.receive(a.changes());
+      const restored = runtime.restore(a.save(), "observer");
+      try {
+        return { blocks: restored.getSnapshot().blocks, address: restored.nodeAddress(node), count: restored.nodes({ field: "blocks" }).length,
+          converged: JSON.stringify(a.getSnapshot().blocks) === JSON.stringify(b.getSnapshot().blocks) };
+      } finally { restored.close(); }
+    } finally { a.close(); b.close(); }
+  }, `/block-editor/@fs${process.cwd()}/src/swift.ts`);
+  expect(result).toEqual({ blocks: [{ id: "p", type: "paragraph", content: [{ type: "text", text: "REMOTE", marks: [] }] }], address: { blockID: "p", path: [] }, count: 1, converged: true });
 });
 
 test("real Swift WASM converges, preserves remote edits during undo, and saves offline", async ({ page }) => {

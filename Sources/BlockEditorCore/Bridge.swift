@@ -11,6 +11,11 @@ public final class EditorBridge {
             let result = try dispatch(input)
             return try canonicalEncoder().encode(JSONValue.object(["ok": .bool(true), "value": result]))
         } catch {
+            if case EditorError.mergeRecoveryRequired(let recovery) = error,
+               let value = try? encode(recovery) {
+                return (try? canonicalEncoder().encode(JSONValue.object([
+                    "ok": .bool(false), "error": .string("mergeRecoveryRequired"), "recovery": value]))) ?? Data()
+            }
             return (try? canonicalEncoder().encode(JSONValue.object(["ok": .bool(false), "error": .string(String(describing: error))]))) ?? Data()
         }
     }
@@ -24,21 +29,43 @@ public final class EditorBridge {
     private func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
-        if command == "create" || command == "restore" {
+        if command == "create" || command == "restore" || command == "cutoverToV2" {
             guard !handle.isEmpty, sessions[handle] == nil, let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
-            if command == "restore" {
+            if command == "cutoverToV2" {
+                guard let documentID = input["documentID"]?.string else { throw EditorError.invalidChange }
+                sessions[handle] = try ProtocolMigration.cutoverToV2(canonicalEncoder().encode(input["snapshot"] ?? .null), newDocumentID: documentID, actorID: actor)
+            } else if command == "restore" {
                 sessions[handle] = try EditorSession.restore(canonicalEncoder().encode(input["snapshot"] ?? .null), actorID: actor)
             } else {
                 guard let documentID = input["documentID"]?.string else { throw EditorError.invalidChange }
                 let document = try Document(json: canonicalEncoder().encode(input["blocks"] ?? .array([])))
-                sessions[handle] = try EditorSession(documentID: documentID, actorID: actor, document: document)
+                sessions[handle] = try EditorSession(documentID: documentID, actorID: actor, document: document,
+                    collaborationVersion: input["collaborationVersion"] == nil ? 1 : decode(input["collaborationVersion"], as: Int.self))
             }
         }
         guard let session = sessions[handle] else { throw EditorError.invalidChange }
         switch command {
-        case "create", "restore", "document": break
+        case "create", "restore", "cutoverToV2", "document": break
         case "close": sessions.removeValue(forKey: handle); return .null
         case "save": return try JSONDecoder().decode(JSONValue.self, from: session.save())
+        case "mergeRecovery": return try session.mergeRecovery.map { try encode($0) } ?? .null
+        case "repairMerge": try session.repairMerge(decode(input["repairs"], as: [MergeRepair].self))
+        case "node": return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
+        case "nodeAddress": return try encode(session.address(of: decode(input["identity"], as: NodeID.self)))
+        case "nodes": return try encode(session.nodes(in: decode(input["collection"], as: NodeCollection.self)))
+        case "textAddress": return try encode(session.textAddress(of: decode(input["identity"], as: NodeID.self), field: input["field"]?.string ?? "content"))
+        case "insertNode":
+            let identity = try session.insertNode(input["value"] ?? .null, into: decode(input["collection"], as: NodeCollection.self),
+                after: input["after"] == nil || input["after"] == .null ? nil : decode(input["after"], as: NodeID.self))
+            return .object(["identity": try encode(identity), "snapshot": try snapshot(session)])
+        case "moveNode":
+            try session.moveNode(decode(input["identity"], as: NodeID.self), into: decode(input["collection"], as: NodeCollection.self),
+                after: input["after"] == nil || input["after"] == .null ? nil : decode(input["after"], as: NodeID.self))
+        case "deleteNode": try session.deleteNode(decode(input["identity"], as: NodeID.self))
+        case "indent": try session.indent(decode(input["identity"], as: NodeID.self))
+        case "outdent": try session.outdent(decode(input["identity"], as: NodeID.self))
+        case "setNodeField":
+            try session.setNodeField(decode(input["identity"], as: NodeID.self), path: decode(input["path"], as: [String].self), value: input["value"] ?? .null)
         case "position":
             return try encode(session.position(at: decode(input["address"], as: TextAddress.self),
                 offset: decode(input["offset"], as: Int.self),
@@ -74,6 +101,9 @@ public final class EditorBridge {
         case "markdown": return .string(try Markdown.serialize(session.document))
         default: throw EditorError.invalidChange
         }
-        return .object(["blocks": try encode(session.document.blocks), "canUndo": .bool(session.canUndo), "canRedo": .bool(session.canRedo)])
+        return try snapshot(session)
+    }
+    private func snapshot(_ session: EditorSession) throws -> JSONValue {
+        .object(["blocks": try encode(session.document.blocks), "canUndo": .bool(session.canUndo), "canRedo": .bool(session.canRedo)])
     }
 }

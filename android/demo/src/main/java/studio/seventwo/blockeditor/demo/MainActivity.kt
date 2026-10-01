@@ -14,7 +14,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
 import studio.seventwo.blockeditor.BlockEditor
+import studio.seventwo.blockeditor.MergeRepair
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
+import java.util.UUID
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +45,7 @@ class MainActivity : ComponentActivity() {
         while (online) {
             try { current.exchange(); status = "Connected; ${current.pending} unacknowledged changes; ${current.peerCount} other clients" }
             catch (error: CancellationException) { throw error }
-            catch (error: Exception) { status = "Retrying: ${error.message}" }
+            catch (error: Exception) { status = if (current.recovery != null) "Synchronization paused for recovery" else "Retrying: ${error.message}" }
             delay(500)
         }
         status = "Offline; edits remain on this client"
@@ -67,7 +71,20 @@ class MainActivity : ComponentActivity() {
         } else {
             Text(current.saveStatus)
             Row { Switch(checked = online, onCheckedChange = { online = it }); Text("Connected to local server") }
-            BlockEditor(current.session, Modifier.weight(1f))
+            current.recovery?.let { recovery ->
+                RecoveryPanel(recovery, repair = { identity ->
+                    try {
+                        val wrapper = JSONObject().put("id", UUID.randomUUID().toString()).put("type", "toggle")
+                            .put("summary", JSONArray().put(JSONObject().put("type", "text").put("text", "Recovered block").put("marks", JSONArray())))
+                            .put("children", JSONArray())
+                        current.session.repairMerge(listOf(MergeRepair.Wrap(identity, wrapper, "children")))
+                    } finally { current.refreshRecovery() }
+                }, export = {
+                    File(context.filesDir, "recovery-archives/recovery-${UUID.randomUUID()}.json").also { current.exportRecovery(it) }
+                }, retry = { online = true; current.connected = true })
+            }
+            BlockEditor(current.session, Modifier.weight(1f), readOnly = current.recovery != null,
+                onError = { current.refreshRecovery() })
         }
     }
 }

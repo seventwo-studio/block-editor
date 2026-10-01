@@ -8,8 +8,13 @@ android {
     compileSdk = 35
     defaultConfig {
         minSdk = 26
+        targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+        ndk {
+            val testAbi = providers.gradleProperty("blockEditorTestAbi").orNull
+            require(testAbi == null || testAbi in listOf("arm64-v8a", "x86_64")) { "Unsupported blockEditorTestAbi" }
+            abiFilters += testAbi?.let { listOf(it) } ?: listOf("arm64-v8a", "x86_64")
+        }
     }
     sourceSets.getByName("androidTest").assets.srcDir("../../tests/BlockEditorCoreTests/Fixtures")
     buildFeatures { compose = true }

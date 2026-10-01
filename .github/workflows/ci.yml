@@ -4,11 +4,22 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - codex/initial-extract
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: editor-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
@@ -22,3 +33,138 @@ jobs:
       - run: bun run test:browser
       - run: bun run check:package
       - run: bun run demo:build
+
+  swift-runtime:
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - run: python3 scripts/install-ci-toolchains.py apple "$RUNNER_TEMP/editor-toolchains"
+      - run: bun install --frozen-lockfile
+      - name: Execute Swift tests and shared fixture transcript
+        run: |
+          mkdir -p test-results/compatibility
+          "$SWIFT_BIN" --version > test-results/compatibility/swift-version.txt
+          xcodebuild -version > test-results/compatibility/xcode-version.txt
+          xcrun --sdk macosx --show-sdk-version > test-results/compatibility/apple-sdk-version.txt
+          "$SWIFT_BIN" test 2>&1 | tee test-results/compatibility/swift-tests.txt
+          "$SWIFT_BIN" build --product editor-bridge
+          bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
+          "$SWIFT_BIN" build --product relay-client
+          bun test tests/relay.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: runtime-swift
+          path: |
+            test-results/compatibility
+            ${{ runner.temp }}/editor-toolchains/installed-inputs.json
+          if-no-files-found: error
+          retention-days: 7
+
+  wasm-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libsqlite3-dev libncurses-dev libzstd-dev
+      - run: python3 scripts/install-ci-toolchains.py wasm "$RUNNER_TEMP/editor-toolchains"
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium webkit firefox
+      - name: Build and execute actual WASM in three browser engines
+        env:
+          COMPATIBILITY_OUTPUT: ${{ runner.temp }}/wasm-reports
+        run: |
+          mkdir -p "$COMPATIBILITY_OUTPUT"
+          "$SWIFT_BIN" --version > "$COMPATIBILITY_OUTPUT/swift-version.txt"
+          "$SWIFT_BIN" sdk list > "$COMPATIBILITY_OUTPUT/swift-sdks.txt"
+          bun run build:wasm 2>&1 | tee "$COMPATIBILITY_OUTPUT/wasm-build.txt"
+          bunx playwright test --config playwright.swift.config.ts --reporter=line,json > "$COMPATIBILITY_OUTPUT/playwright.txt" 2>&1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: runtime-wasm
+          path: |
+            ${{ runner.temp }}/wasm-reports
+            ${{ runner.temp }}/editor-toolchains/installed-inputs.json
+            test-results
+          if-no-files-found: error
+          retention-days: 7
+
+  android-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - api: '26'
+            abi: x86_64
+          - api: '35'
+            abi: x86_64
+          - api: '35'
+            abi: arm64-v8a
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17.0.16+8'
+      - run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libsqlite3-dev libncurses-dev libzstd-dev libpulse0 libxkbcommon0 libnss3 libxcomposite1 libxcursor1 libxi6 libxtst6 libasound2t64
+      - run: python3 scripts/install-ci-toolchains.py android "$RUNNER_TEMP/editor-toolchains" --api '${{ matrix.api }}'
+      - name: Build the selected packaged JNI architecture
+        env:
+          ANDROID_ABIS: ${{ matrix.abi }}
+        run: |
+          mkdir -p test-results/compatibility
+          "$SWIFT_BIN" --version > test-results/compatibility/swift-version.txt
+          java -version 2> test-results/compatibility/java-version.txt
+          sh scripts/build-android.sh 2>&1 | tee test-results/compatibility/jni-build.txt
+      - name: Execute JNI fixtures on Android
+        run: |
+          test -e /dev/kvm
+          sudo chown "$USER" /dev/kvm
+          python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' 2>&1 | tee test-results/compatibility/android-run.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: runtime-android-api${{ matrix.api }}-${{ matrix.abi }}
+          path: |
+            test-results/compatibility
+            ${{ runner.temp }}/editor-toolchains/installed-inputs.json
+            android/editor/build/reports/androidTests
+          if-no-files-found: error
+          retention-days: 7
+
+  runtime-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: [swift-runtime, wasm-runtime, android-runtime]
+    if: always()
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: runtime-*
+          path: test-results/runtime-reports
+      - name: Require successful execution in every runtime
+        env:
+          SWIFT_RESULT: ${{ needs.swift-runtime.result }}
+          WASM_RESULT: ${{ needs.wasm-runtime.result }}
+          ANDROID_RESULT: ${{ needs.android-runtime.result }}
+        run: |
+          test "$SWIFT_RESULT" = success
+          test "$WASM_RESULT" = success
+          test "$ANDROID_RESULT" = success
+      - run: bun scripts/compare-runtime-reports.mjs test-results/runtime-reports

@@ -1,4 +1,4 @@
-import type { SwiftChangeBatch, SwiftEditorSession, SwiftPresence, SwiftSyncState } from "../src/swift.js";
+import { SwiftMergeRecoveryError, type SwiftChangeBatch, type SwiftEditorSession, type SwiftMergeRecovery, type SwiftPresence, type SwiftSyncState } from "../src/swift.js";
 
 export interface RelayStatus {
   connection: "offline" | "syncing" | "connected" | "error";
@@ -40,6 +40,15 @@ export class LocalSync {
         body: JSON.stringify({ actorID: this.actorID, batch: this.session.changes(this.receipt), state: this.session.syncState(),
           presence: { actor: this.actorID, revision: ++this.revision, address: { blockID: "p", path: ["content"] } } }),
       });
+      if (!this.online || controller.signal.aborted) return;
+      if (response.status === 409) {
+        const value = await response.json() as { error: string; recovery?: SwiftMergeRecovery };
+        if (!this.online || controller.signal.aborted) return;
+        if (value.error !== "mergeRecoveryRequired" || !value.recovery) throw new Error("Invalid relay recovery response");
+        // Import through the engine; its proposal stays separate from accepted receipts.
+        this.session.receive(value.recovery.batch);
+        throw new SwiftMergeRecoveryError(value.recovery);
+      }
       if (!response.ok) throw new Error(await response.text());
       const value = await response.json() as { batch: SwiftChangeBatch; state: SwiftSyncState; presence: SwiftPresence[] };
       if (!this.online || controller.signal.aborted) return;
