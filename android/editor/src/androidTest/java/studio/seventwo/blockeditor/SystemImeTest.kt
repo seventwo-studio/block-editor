@@ -270,7 +270,7 @@ class SystemImeTest {
             File(instrumentation.targetContext.filesDir, "system-ime-paste-menu-nodes.json").writeText(
                 JSONObject().put("windows", observedWindows).put("PasteQuery", describeNodes(nodes))
                     .put("PASTEQuery", describeNodes(uppercaseNodes)).toString())
-            val paste = nodes.single { it.text?.toString() == "Paste" }
+            val paste = nodes.single { it.text?.toString()?.equals("Paste", ignoreCase = true) == true }
             val bounds = Rect(); paste.getBoundsInScreen(bounds)
             assertFalse("Native paste menu must have visible touch bounds", bounds.isEmpty)
             tap(bounds.exactCenterX(), bounds.exactCenterY())
