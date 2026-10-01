@@ -10,7 +10,7 @@ function SwiftInlineEditor({ session, address, reportError, ...props }: Componen
   const anchored = useRef<{ start: SwiftTextPosition; end: SwiftTextPosition; backward?: boolean } | null>(null);
   const release = useRef<(() => void) | null>(null);
   const addressKey = JSON.stringify(address);
-  useEffect(() => session.subscribeBeforeReceive(() => {
+  useLayoutEffect(() => session.subscribeBeforeReceive(() => {
     // Several receives can precede one React commit; keep the original DOM anchors.
     if (!element.current) return;
     if (element.current.ownerDocument.activeElement !== element.current) { anchored.current = null; return; }
@@ -53,7 +53,7 @@ function SwiftTextEditor({ session, address, value, label, reportError, readOnly
   const release = useRef<(() => void) | null>(null);
   const anchored = useRef<{ start: SwiftTextPosition; end: SwiftTextPosition; direction: "forward" | "backward" | "none" } | null>(null);
   const addressKey = JSON.stringify(address);
-  useEffect(() => session.subscribeBeforeReceive(() => {
+  useLayoutEffect(() => session.subscribeBeforeReceive(() => {
     const input = element.current;
     if (!input || input.ownerDocument.activeElement !== input) { anchored.current = null; return; }
     if (anchored.current) return;

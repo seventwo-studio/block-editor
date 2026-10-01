@@ -16,6 +16,11 @@ import SwiftUI
     @State private var saveStatus = ""
     @State private var recovery: MergeRecovery?
     @State private var exportRecovery: (() throws -> URL)?
+    @State private var retryLocalSave: (() -> Void)?
+    @State private var saveFailed = false
+    @State private var capacityBytes: Int?
+    @State private var capacityArchive: URL?
+    @State private var capacityExportError: String?
 
     public init(endpoint: URL? = nil) {
         if let endpoint { _endpoint = State(initialValue: endpoint.absoluteString) }
@@ -29,6 +34,36 @@ import SwiftUI
                     .onChange(of: online) { _, value in client?.setConnected(value) }
                 Text(status).accessibilityLabel("Synchronization: \(status)")
                 Text(saveStatus)
+                if saveFailed {
+                    Button("Retry local save") { retryLocalSave?() }
+                        .accessibilityIdentifier("retry-local-save")
+                }
+                if capacityBytes != nil || saveFailed {
+                    VStack(alignment: .leading, spacing: 8) {
+                        if let capacityBytes {
+                            Text("Synchronization needs a larger transport").font(.headline)
+                                .accessibilityIdentifier("transport-capacity")
+                            Text("The relay limit is \(capacityBytes) bytes. Your complete local history remains unacknowledged. Export before changing transport or arranging a cutover.")
+                        }
+                        Button("Export retained history") {
+                            do {
+                                guard let exportRecovery else { throw DraftError.storageUnavailable }
+                                capacityArchive = try exportRecovery(); capacityExportError = nil
+                            }
+                            catch { capacityExportError = String(describing: error) }
+                        }.accessibilityIdentifier("export-retained-history")
+                        if capacityBytes != nil {
+                            Button("Retry synchronization") { online = true; client?.setConnected(true) }
+                        }
+                        if let capacityArchive {
+                            Text("Retained history saved locally").accessibilityIdentifier("retained-history-exported")
+                            #if os(iOS) || os(macOS) || os(visionOS)
+                            ShareLink("Share retained history", item: capacityArchive)
+                            #endif
+                        }
+                        if let capacityExportError { Text("Export failed: \(capacityExportError)").foregroundStyle(.red) }
+                    }
+                }
                 if let recovery {
                     ScrollView {
                         MergeRecoveryView(recovery: recovery,
@@ -77,7 +112,7 @@ import SwiftUI
                     online = true
                 }
                 try Task.checkCancellation()
-                try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally"
+                try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally"; saveFailed = false
                 client = opened; model = try EditorModel(session: opened.session)
                 recovery = opened.session.mergeRecovery
                 exportRecovery = {
@@ -85,18 +120,32 @@ import SwiftUI
                     try draft.exportRecovery(opened.session, endpoint: url, to: archive)
                     return archive
                 }
+                let persist = {
+                    do {
+                        try draft.save(opened.session, endpoint: url)
+                        saveStatus = "Saved locally"; saveFailed = false
+                    } catch {
+                        saveStatus = "Local save failed: \(error). Retry or export before closing."
+                        saveFailed = true
+                    }
+                }
+                retryLocalSave = persist
                 opened.onStatus = {
+                    capacityBytes = opened.transportCapacityBytes
                     guard recovery != opened.session.mergeRecovery else { return }
                     recovery = opened.session.mergeRecovery
-                    do { try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally" }
-                    catch { saveStatus = "Pending recovery save failed: \(error). Export it before closing." }
+                    persist()
                 }
                 model?.onChange = { _, _ in
+                    capacityArchive = nil
                     recovery = opened.session.mergeRecovery
-                    do { try draft.save(opened.session, endpoint: url); saveStatus = "Saved locally" }
-                    catch { saveStatus = "Local save failed: \(error)" }
+                    persist()
                 }
-                defer { opened.onStatus = nil; opened.setConnected(false); client = nil; model = nil; recovery = nil; exportRecovery = nil }
+                defer {
+                    opened.onStatus = nil; opened.setConnected(false); client = nil; model = nil
+                    recovery = nil; exportRecovery = nil; retryLocalSave = nil; saveFailed = false
+                    capacityBytes = nil; capacityArchive = nil; capacityExportError = nil
+                }
                 while !Task.isCancelled {
                     if online {
                         do {

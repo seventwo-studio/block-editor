@@ -16,7 +16,10 @@ def main():
     parser.add_argument("api", choices=["26", "35"])
     parser.add_argument("abi", choices=["x86_64", "arm64-v8a"])
     parser.add_argument("--performance-profile", choices=["smoke", "baseline"], help="Also measure verified editing/history workloads")
+    parser.add_argument("--system-ime", action="store_true", help="Also exercise the installed API26 LatinIME, history reopen and native plain paste")
     args = parser.parse_args()
+    if args.system_ime and (args.api, args.abi) != ("26", "x86_64"):
+        parser.error("--system-ime is limited to the reviewed API26 x86_64 row")
     sdk = Path(os.environ["ANDROID_HOME"])
     output = Path("test-results/compatibility")
     output.mkdir(parents=True, exist_ok=True)
@@ -44,7 +47,8 @@ def main():
         print(result.stdout, flush=True)
         # `am instrument` can exit zero even when its test process fails.
         match = re.search(r"OK \((\d+) tests?\)", result.stdout)
-        if not match or int(match.group(1)) != expected_tests or "FAILURES!!!" in result.stdout:
+        if not match or int(match.group(1)) != expected_tests or re.search(
+                r"FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed|INSTRUMENTATION_STATUS_CODE: -[234]", result.stdout):
             raise RuntimeError(f"Instrumentation did not execute {expected_tests} passing tests: {class_name}")
 
     run(os.environ["GRADLE_BIN"], "-p", "android", ":editor:assembleDebugAndroidTest", "--no-daemon", "--stacktrace",
@@ -95,6 +99,27 @@ def main():
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
+        instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 3)
+        instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 4)
+        for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),
+                                        ("RetainedAuthoringActionsTest", "retained-authoring-actions")):
+            authoring_source = Path(f"android/editor/src/androidTest/java/studio/seventwo/blockeditor/{class_name}.kt")
+            authoring = {"included": authoring_source.is_file(), "passed": False,
+                         "scope": "Rendered component/semantics input; separate from installed IME, TalkBack and full authoring acceptance"}
+            if not authoring["included"]:
+                authoring["reason"] = f"{class_name} is absent from this exact source snapshot; controls acceptance is omitted"
+            coverage_file = output / f"{report_name}-coverage.json"
+            coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
+            if authoring["included"]:
+                expected_authoring_tests = len(re.findall(r"^\s*@Test\b", authoring_source.read_text(), flags=re.MULTILINE))
+                if expected_authoring_tests < 1:
+                    raise RuntimeError(f"Present {class_name} has no declared test methods")
+                instrument(f"studio.seventwo.blockeditor.{class_name}", f"{report_name}-instrumentation.txt", expected_authoring_tests)
+                authoring.update(passed=True, executedTests=expected_authoring_tests)
+                coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
+        if args.system_ime:
+            run("python3", "scripts/test-android-builtin-ime.py", "--sdk", sdk, "--serial", serial,
+                "--apk", apk, "--output", "test-results/system-input", timeout=600)
         if args.performance_profile:
             performance_output = Path("test-results/performance")
             performance_output.mkdir(parents=True, exist_ok=True)

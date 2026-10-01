@@ -14,6 +14,9 @@ import SwiftUI
         didSet { session.allowedBlockTypes = allowedBlockTypes }
     }
     @ObservationIgnored public let session: EditorSession
+    #if os(macOS)
+    @ObservationIgnored let macFocus = MacInputFocus()
+    #endif
     @ObservationIgnored public var onChange: ((BlockEditorCore.Document, Change?) -> Void)?
 
     @ObservationIgnored private var inputs: [UUID: (before: () -> Void, after: () -> Void, commit: () throws -> Void)] = [:]

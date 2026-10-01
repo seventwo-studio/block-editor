@@ -60,6 +60,8 @@ import SwiftUI
         }
         func connect(_ view: ComposingTextView) {
             self.view = view; view.delegate = self
+            input.model.macFocus.register(view, input: input)
+            view.didMove = { [weak self] in self?.input.model.macFocus.restoreAfterLayout() }
             view.beginComposition = { [weak self] in self?.input.beginComposition() }
             view.didEdit = { [weak self] in self?.changed() }
             view.history = { [weak self] redo in self?.input.model.perform { if redo { try $0.redo() } else { try $0.undo() } } }
@@ -75,10 +77,12 @@ import SwiftUI
             input.onPrepare = { [weak self] in
                 guard let self, let view = self.view else { return }
                 self.input.selection = view.selectedRange()
+                self.input.model.macFocus.capture(view, input: self.input)
             }
             input.onUpdate = { [weak self] in
                 guard let self else { return }
                 self.render()
+                self.input.model.macFocus.update(view: self.view, input: self.input)
                 self.selection.wrappedValue = self.input.selection
             }
             render()
@@ -102,13 +106,94 @@ import SwiftUI
             view.enclosingScrollView?.invalidateIntrinsicContentSize()
         }
         func close() {
+            if let view { input.model.macFocus.unregister(view) }
+            view?.didMove = nil
             view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil; view?.formatSelection = nil
             input.close(); view = nil
         }
     }
 }
 
+/// SwiftUI replaces a nested representable when its origin moves to another parent.
+/// Capture the focused origin before replay, then hand its rebased selection to
+/// that origin's new view only in the same window and without overriding a user focus change.
+@MainActor final class MacInputFocus {
+    @MainActor private final class Entry {
+        weak var view: ComposingTextView?
+        weak var input: CollaborativeInput?
+        init(_ view: ComposingTextView, _ input: CollaborativeInput) { self.view = view; self.input = input }
+    }
+    @MainActor private final class Pending {
+        weak var source: ComposingTextView?
+        weak var window: NSWindow?
+        let address: TextAddress
+        let location: NodeAddress?
+        var selection: NSRange
+        init(_ view: ComposingTextView, _ input: CollaborativeInput) {
+            source = view; window = view.window; address = input.address; selection = input.selection
+            location = input.address.identity.flatMap { try? input.model.session.address(of: $0) }
+        }
+    }
+    private var entries: [ObjectIdentifier: Entry] = [:]
+    private var pending: Pending?
+    private var scheduled = false
+
+    func register(_ view: ComposingTextView, input: CollaborativeInput) {
+        entries[ObjectIdentifier(view)] = Entry(view, input)
+    }
+    func unregister(_ view: ComposingTextView) {
+        entries.removeValue(forKey: ObjectIdentifier(view))
+        restoreAfterLayout()
+    }
+    func capture(_ view: ComposingTextView, input: CollaborativeInput) {
+        guard view.window?.firstResponder === view else { return }
+        // Several receives may finish before SwiftUI lays out the first move.
+        // Retain that move's starting location while refreshing the same source.
+        if pending?.source === view { return }
+        pending = Pending(view, input)
+    }
+    func update(view: ComposingTextView?, input: CollaborativeInput) {
+        if let pending, pending.source === view {
+            guard (try? input.model.session.text(at: pending.address)) != nil else { self.pending = nil; return }
+            // A text-only replay cannot require a structural view handoff. Expire
+            // its capture now so a later blur/reparent cannot revive old focus.
+            guard let identity = pending.address.identity, let location = pending.location,
+                  (try? input.model.session.address(of: identity)) != location else { self.pending = nil; return }
+            pending.selection = input.selection
+        }
+        restoreAfterLayout()
+    }
+    func restoreAfterLayout() {
+        guard pending != nil, !scheduled else { return }
+        scheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.scheduled = false
+            self.restore()
+        }
+    }
+    private func restore() {
+        guard let pending, let window = pending.window else { self.pending = nil; return }
+        // A still-attached origin needs no handoff. Keep the capture until SwiftUI
+        // dismantles it or its replacement joins the window.
+        if let source = pending.source, source.window === window, window.firstResponder === source { return }
+        guard window.firstResponder == nil || window.firstResponder === window else {
+            self.pending = nil; return
+        }
+        for entry in entries.values {
+            guard let view = entry.view, let input = entry.input, view !== pending.source,
+                  view.window === window, view.isEditable, input.address == pending.address else { continue }
+            input.selection = pending.selection
+            view.setSelectedRange(pending.selection)
+            if window.makeFirstResponder(view) { self.pending = nil }
+            return
+        }
+    }
+}
+
 @MainActor final class ComposingTextView: NSTextView {
+    var didMove: (() -> Void)?
+    override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); didMove?() }
     var beginComposition: (() -> Void)?
     var didEdit: (() -> Void)?
     var history: ((Bool) -> Void)?

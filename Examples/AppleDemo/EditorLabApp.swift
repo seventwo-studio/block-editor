@@ -29,6 +29,12 @@ import SwiftUI
         #if DEBUG
         if let value = ProcessInfo.processInfo.environment["EDITOR_LAB_RELAY_ENDPOINT"],
            let url = URL(string: value), ["localhost", "127.0.0.1"].contains(url.host ?? "") {
+            // A reserved UI campaign resumes only its seeded draft, without
+            // replacing other writers or relying on external preference caches.
+            if let value = ProcessInfo.processInfo.environment["EDITOR_LAB_RESUME_DRAFT"],
+               let identifier = UUID(uuidString: value) {
+                UserDefaults.standard.set(identifier.uuidString, forKey: "BlockEditorLocalDraft:\(url.absoluteString)")
+            }
             return url
         }
         #endif

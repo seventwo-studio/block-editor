@@ -5,6 +5,7 @@ export interface RelayStatus {
   pending: number;
   peers: SwiftPresence[];
   error?: string;
+  capacity?: { maxBytes: number };
 }
 
 /** Optional demo transport. Editing continues in the session when this is disconnected. */
@@ -14,6 +15,7 @@ export class LocalSync {
   private online = false;
   private revision = 0;
   private peerActors = new Set<string>();
+  private capacity?: RelayStatus["capacity"];
   onStatus?: (status: RelayStatus) => void;
   constructor(readonly session: SwiftEditorSession, private endpoint: string, private token: string, private actorID: string) {}
   get pendingChanges() { return this.session.changes(this.receipt).changes.length; }
@@ -26,8 +28,8 @@ export class LocalSync {
     this.peerActors.clear();
     this.emit("offline", []);
   }
-  private emit(connection: RelayStatus["connection"], peers: SwiftPresence[], error?: string) {
-    this.onStatus?.({ connection, peers, pending: this.session.changes(this.receipt).changes.length, error });
+  private emit(connection: RelayStatus["connection"], peers: SwiftPresence[], error?: string, capacity = this.capacity) {
+    this.onStatus?.({ connection, peers, pending: this.session.changes(this.receipt).changes.length, error, capacity });
   }
   async exchange() {
     if (!this.online || this.controller) return;
@@ -41,6 +43,15 @@ export class LocalSync {
           presence: { actor: this.actorID, revision: ++this.revision, address: { blockID: "p", path: ["content"] } } }),
       });
       if (!this.online || controller.signal.aborted) return;
+      if (response.status === 413) {
+        const value = await response.json() as { error?: string; maxBytes?: number };
+        if (!this.online || controller.signal.aborted) return;
+        if (value.error !== "transportCapacityExceeded" || !Number.isSafeInteger(value.maxBytes) || value.maxBytes! <= 0)
+          throw new Error("Invalid relay capacity response");
+        this.capacity = { maxBytes: value.maxBytes! };
+        this.emit("error", [], "The relay cannot admit this draft within its transport limit.");
+        return;
+      }
       if (response.status === 409) {
         const value = await response.json() as { error: string; recovery?: SwiftMergeRecovery };
         if (!this.online || controller.signal.aborted) return;
@@ -53,6 +64,7 @@ export class LocalSync {
       const value = await response.json() as { batch: SwiftChangeBatch; state: SwiftSyncState; presence: SwiftPresence[] };
       if (!this.online || controller.signal.aborted) return;
       this.session.receive(value.batch); this.receipt = value.state;
+      this.capacity = undefined;
       const peers = value.presence.filter(peer => peer.actor !== this.actorID);
       const actors = new Set(peers.map(peer => peer.actor));
       for (const actor of this.peerActors) if (!actors.has(actor)) this.session.removePresence(actor);
