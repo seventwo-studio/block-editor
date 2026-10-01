@@ -17,12 +17,13 @@ test('publishes shared fixture responses from actual browser WASM', async ({ pag
     report.fixtureHashes[name] = createHash('sha256').update(source).digest('hex');
     try {
       report.fixtures[name] = await page.evaluate(async ({ name, fixture, root }) => {
-        const { SwiftEditorRuntime, SwiftMergeRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+        const { SwiftEditorRuntime, SwiftMergeRecoveryError, SwiftWritingRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
         const { runFixture } = await import(/* @vite-ignore */ `${root}/scripts/compatibility.mjs`);
         const runtime = await SwiftEditorRuntime.initialize(await (await fetch('engine.wasm')).arrayBuffer());
         return runFixture(name, fixture, async (request: unknown) => {
           try { return { ok: true, value: runtime.call(request) }; }
           catch (error) {
+            if (error instanceof SwiftWritingRecoveryError) return { ok: false, error: 'writingRecoveryRequired', recovery: error.recovery };
             if (error instanceof SwiftMergeRecoveryError) return { ok: false, error: 'mergeRecoveryRequired', recovery: error.recovery };
             if (!(error instanceof Error)) throw error;
             return { ok: false, error: error.message };

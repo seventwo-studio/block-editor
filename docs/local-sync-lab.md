@@ -140,6 +140,9 @@ bun run typecheck:relay
 swift test --filter generatedOfflineTextAndFormattingConverge
 bun run test:relay
 bun run test:relay:browser --project chromium --project webkit
+# Requires an existing editor-bridge and built demo/public/block-editor.wasm.
+# Runs each browser in persistent profiles across actual process termination.
+BLOCK_EDITOR_BRIDGE=/path/to/editor-bridge bun run test:relay:restart
 # Starts and removes its own isolated local relay; use installed Xcode destinations.
 bun run test:relay:apple \
   "platform=iOS Simulator,name=iPhone 18 Pro" \
@@ -205,7 +208,52 @@ The mixed-runtime browser test opens two actual WASM editors plus a native Swift
 Foundation HTTP client. All edit offline, rejoin the same relay, converge, and then
 verify one browser author's undo retains both other authors' edits.
 
-## Current evidence (30 September 2026)
+The separate `test:relay:restart` suite uses a fresh persistent browser profile per
+scenario, closes the entire browser, and relaunches it against the same profile.
+The relay runs in a separate subprocess, which terminates and restarts from its
+saved directory. Default-v1 checks cover presence expiry, unchanged saved content,
+offline author history, remote editing, rejoin and local undo. The v2 scenario
+retains accepted content and the rejected proposal separately, exports while the
+relay is stopped, preserves a failed repair, and repairs through visible controls
+before resubmission. Closing a tab remains a separate regression check.
+
+Each completed scenario attaches JSON with browser versions and launcher process
+IDs, relay process IDs and exit phases, actual source revision and source-file
+hashes, and native/WASM executable hashes. Set `EVIDENCE_RUNTIME_MANIFEST` to a
+qualified reused-build manifest when using preserved binaries; a hash alone does
+not establish that a binary was compiled from the recorded source. CI builds both
+engines from its checkout. This suite does not replace native platform interaction
+or the separate transport-capacity host workflow.
+
+## Browser candidate evidence (1 October 2026)
+
+On macOS 27.0.1 arm64, Chromium 153.0.8010.12, WebKit 26.6 and Firefox 155.0
+passed 42 host regressions, six default-v1/v2 process workflows, and three
+transport-capacity process workflows. These are three completed batches, not a
+single 51-case invocation. The host batch took 49.5 seconds; the process run took
+62.9 seconds and its three capacity fixture failures were superseded by a separate
+16.5-second capacity run after using a distinct archive observer session. Earlier
+import assertions and a disk-full attempt are retained as failed attempts.
+
+The browser workflows exercise the actual WASM reference editor, saved author
+undo, pending recovery, offline export/import, visible repair, restarted relay
+resubmission, and unchanged persisted content during presence updates/expiry.
+Capacity checks retain a valid 8,000,559-byte local history after actual HTTP 413,
+without advancing server receipts or changing saved server bytes, across separate
+browser and relay process restarts. Retrying remains explicit; no chunking or
+compaction is supplied. Archive imports preserve shared content and proposals
+with a fresh author and empty local undo stack; saved draft reopen retains the
+original writer and undo history.
+
+This is local candidate evidence on base `e7d616a` with reviewed host/harness
+changes. The native bridge was built from unchanged engine inputs plus separately
+recorded LocalDemo host changes; WASM is a qualified reused build with equivalent
+production inputs. Reports record source-file and executable hashes. Signed
+delivery and fresh hosted CI remain separate gates. The native platform interaction,
+minimum-runtime, hardware and accessibility rows remain open in the
+[reference acceptance record](reference-integration-acceptance.md).
+
+## Preserved evidence (30 September 2026)
 
 - Four native Swift clients, 12 rounds: convergence and server restart/rejection
   checks pass.

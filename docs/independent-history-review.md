@@ -13,6 +13,8 @@ python3 scripts/verify-retained-toggle-order.py /absolute/path/to/editor-bridge 
 
 The executable must support all three versions to run the full oracle. A current legacy-only build is insufficient for its v3 cases. The script records the executable's SHA-256 and full requests/responses; `--expect-fixed` exits unsuccessfully if any case fails. The output destination must already have a parent directory. Keep generated transcripts outside tracked source.
 
+The current oracle requires every bridge response, including reordered and duplicate packet delivery, to succeed and checks the complete resumed document against the literal `aX` paragraph. The historical script hash and execution receipts below retain their original qualification; they are not relabeled as execution of this stricter oracle.
+
 ## Recorded evidence and limits
 
 [`independent-history-review.json`](independent-history-review.json) retains compact, source-qualified review receipts from 2026-10-01. Raw reports and binaries remain in the private orchestration evidence archive; this record does not package those binaries or replace fresh delivery checks.

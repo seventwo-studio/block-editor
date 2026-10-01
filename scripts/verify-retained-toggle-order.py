@@ -38,7 +38,10 @@ for version in (1, 2, 3):
             reopened = call("restore", "reopened", actorID="a", snapshot=saved["value"])
             undone = call("undo", "reopened") if reopened.get("ok") else None
             value = current.get("value", {})
-            good = value.get("canUndo") is True and value.get("canRedo") is False
+            expected_blocks = [{"id":"left", "type":"paragraph", "content":[{"type":"text", "text":"aX", "marks":[]}]}]
+            good = all(step["response"].get("ok") is True for step in transcript)
+            good = good and value.get("blocks") == expected_blocks
+            good = good and value.get("canUndo") is True and value.get("canRedo") is False
             good = good and reopened.get("ok") and reopened["value"] == value
             good = good and undone.get("ok") and undone["value"]["blocks"][0]["content"][0]["text"] == "a"
             results.append(dict(version=version, delivery="redo-before-undo" if reversed_order else "undo-before-redo",
