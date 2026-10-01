@@ -1,0 +1,149 @@
+{
+  "inputPath": "/Users/luca/.codex/worktrees/performance-investigation/block-editor/dist/block-editor.wasm",
+  "version": 1,
+  "boundary": "Section framing and exact bytes; full module validation and execution require separate checks. Gzip level 9 is computed, not deployed compression.",
+  "original": {
+    "rawBytes": 61435676,
+    "gzipLevel9Bytes": 20370961,
+    "sha256": "d659fd2f1212d8242e3c18397f69a540cf76d23c63cd2e073eba15a669518457"
+  },
+  "sections": [
+    {
+      "id": 1,
+      "name": "type",
+      "start": 8,
+      "payloadStart": 11,
+      "end": 5931,
+      "payloadBytes": 5920,
+      "totalBytes": 5923
+    },
+    {
+      "id": 2,
+      "name": "import",
+      "start": 5931,
+      "payloadStart": 5934,
+      "end": 7266,
+      "payloadBytes": 1332,
+      "totalBytes": 1335
+    },
+    {
+      "id": 3,
+      "name": "function",
+      "start": 7266,
+      "payloadStart": 7270,
+      "end": 92600,
+      "payloadBytes": 85330,
+      "totalBytes": 85334
+    },
+    {
+      "id": 4,
+      "name": "table",
+      "start": 92600,
+      "payloadStart": 92602,
+      "end": 92611,
+      "payloadBytes": 9,
+      "totalBytes": 11
+    },
+    {
+      "id": 5,
+      "name": "memory",
+      "start": 92611,
+      "payloadStart": 92613,
+      "end": 92617,
+      "payloadBytes": 4,
+      "totalBytes": 6
+    },
+    {
+      "id": 6,
+      "name": "global",
+      "start": 92617,
+      "payloadStart": 92621,
+      "end": 133603,
+      "payloadBytes": 40982,
+      "totalBytes": 40986
+    },
+    {
+      "id": 7,
+      "name": "export",
+      "start": 133603,
+      "payloadStart": 133605,
+      "end": 133688,
+      "payloadBytes": 83,
+      "totalBytes": 85
+    },
+    {
+      "id": 9,
+      "name": "element",
+      "start": 133688,
+      "payloadStart": 133692,
+      "end": 260618,
+      "payloadBytes": 126926,
+      "totalBytes": 126930
+    },
+    {
+      "id": 10,
+      "name": "code",
+      "start": 260618,
+      "payloadStart": 260623,
+      "end": 16879983,
+      "payloadBytes": 16619360,
+      "totalBytes": 16619365
+    },
+    {
+      "id": 11,
+      "name": "data",
+      "start": 16879983,
+      "payloadStart": 16879988,
+      "end": 54537070,
+      "payloadBytes": 37657082,
+      "totalBytes": 37657087
+    },
+    {
+      "id": 0,
+      "name": ".swift1_autolink_entries",
+      "start": 54537070,
+      "payloadStart": 54537074,
+      "end": 54629958,
+      "payloadBytes": 92884,
+      "totalBytes": 92888
+    },
+    {
+      "id": 0,
+      "name": "name",
+      "start": 54629958,
+      "payloadStart": 54629963,
+      "end": 61435368,
+      "payloadBytes": 6805405,
+      "totalBytes": 6805410
+    },
+    {
+      "id": 0,
+      "name": "producers",
+      "start": 61435368,
+      "payloadStart": 61435371,
+      "end": 61435525,
+      "payloadBytes": 154,
+      "totalBytes": 157
+    },
+    {
+      "id": 0,
+      "name": "target_features",
+      "start": 61435525,
+      "payloadStart": 61435528,
+      "end": 61435676,
+      "payloadBytes": 148,
+      "totalBytes": 151
+    }
+  ],
+  "nameStrippedCandidate": {
+    "rawBytes": 54630266,
+    "gzipLevel9Bytes": 19307383,
+    "sha256": "f7162960ab5f34f57ee23c3279c27408d54e39f3a966486d43740d2f0bf919f7",
+    "removedSections": 1,
+    "savedRawBytes": 6805410,
+    "savedGzipLevel9Bytes": 1063578
+  },
+  "executableSectionsSHA256": "dd93e3d3de49955b58c5978d1d7de1078c310386c90d70668fae3c00dfcff250",
+  "candidateExecutableSectionsSHA256": "dd93e3d3de49955b58c5978d1d7de1078c310386c90d70668fae3c00dfcff250",
+  "outputPath": "/tmp/st94-wasm-names-20261001/block-editor.wasm"
+}
