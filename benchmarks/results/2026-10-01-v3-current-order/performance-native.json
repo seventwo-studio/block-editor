@@ -1,0 +1,3812 @@
+{
+  "version": 1,
+  "workloadHash": "2938e44e1d34c5df7779fb1a1666bf89b738878be1fe7ee866e41cfca8e631be",
+  "options": {
+    "profile": "baseline",
+    "cases": [
+      {
+        "name": "ordinary-v3",
+        "version": 3,
+        "editsPerAuthor": 32
+      },
+      {
+        "name": "history-v3-128",
+        "version": 3,
+        "editsPerAuthor": 128
+      }
+    ],
+    "repetitions": 3,
+    "warmups": 1
+  },
+  "sourceCommit": "c3ffbf16ccb461864be8f9e36d6eed86250f51cd",
+  "sourceMetadata": {
+    "sourceCommit": "c3ffbf16ccb461864be8f9e36d6eed86250f51cd",
+    "sourceDirty": true,
+    "sourceBoundary": "Default c3ff plus byte-exact cached origin sorting and lazy retained-boundary ancestry projection; immutable per-input hashes identify this uncommitted candidate. Nested writing fixture, ordering regression and PR51 preserved historical runner accompany the engine.",
+    "artifactSHA256": "5cdd3f6f09bb98fcf148fa34297cc8d8d3873f784b634f9f9fc966014c69e681",
+    "inputsSHA256": {
+      "Sources/BlockEditorCore/EditorSession.swift": "8d1761a72b237496002f8fe4c1c8a566f9ae6b355ddb671a94153a22503ac444",
+      "Sources/BlockEditorCore/Bridge.swift": "fc4cd0fc6731b7f3480b1c1cbfd2580b73de644b725877a641c6ecf77b9972ce",
+      "Sources/BlockEditorCore/Collaboration.swift": "fabb79d595e0818115c1f28a0321f4d70b4bfd7cb5c8ba77630355c34c6e45fa",
+      "Sources/BlockEditorCore/MergeRecovery.swift": "18303e6f4c68493c888b3eb1eb04dc072d1cfc4eb6bfacde3aeff3262e03dcd3",
+      "Sources/BlockEditorCore/Structure.swift": "698cb986f21c64f25502ae8dbf98d5c2cbec0caaa6d8a6da954ad945187ef8b3",
+      "Sources/BlockEditorCore/ProtocolMigration.swift": "99ec7a92097ef284e83adc42338c4e3ae10801294f3e502300afe30c29ed21e5",
+      "Sources/BlockEditorCore/Validation.swift": "9fcfc864d5addb571834227faaba90577c5db4f327db2510a25995b52a37d4d5",
+      "Sources/BlockEditorCore/WritingProjection.swift": "e69b1e1ab04032d622692c77719bee96d0cf3edcbeb1655bd206b07f0aceaa50",
+      "Sources/BlockEditorCore/LegacyMigration.swift": "426f26cc32b940d1edd3290fe2dce6c4acc9d61665e14f3cc10578cf19929ac2",
+      "Sources/BlockEditorCore/WritingSession.swift": "9a34890e0b3682ee25b8954946eb03754b26cd3133e1e00cfbc37eed7cee9fc7",
+      "Sources/BlockEditorCore/Document.swift": "f3b1ffe9af30c2aae48287dc103120e21a7399bbbd05a7d7749708d423f48684",
+      "Sources/BlockEditorCore/Markdown.swift": "0e819bf163672170d5e41661f6078e62bfb4ddcb9a1b795d50db4a1f8d9b5320",
+      "Sources/BlockEditorCore/WritingMigration.swift": "038b4872567596e6208439487d6f08412988ad07f0d7b93509d9a572e66409bf",
+      "Examples/EditorBridgeCLI/main.swift": "aaa72bf57143e2b39084990235721ef49b0f0cd103a73c9308500f83c4c026ef",
+      "Package.swift": "801cfd78cc232e10489572f0622cab91929aad6ea89d2fd6674ae94101bb7504"
+    }
+  },
+  "sourceDirty": true,
+  "sourceBoundary": "Default c3ff plus byte-exact cached origin sorting and lazy retained-boundary ancestry projection; immutable per-input hashes identify this uncommitted candidate. Nested writing fixture, ordering regression and PR51 preserved historical runner accompany the engine.",
+  "numericBudgets": "unagreed",
+  "runtime": {
+    "name": "native",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "osRelease": "27.0.0",
+    "cpu": "Apple M4 Max",
+    "memoryBytes": 38654705664,
+    "hostRuntime": "v24.19.0",
+    "binary": "/private/tmp/block-editor-v3-sort-performance/.build/order-release/out/Products/Release/editor-bridge",
+    "boundary": "editor-bridge process; JSON serialization, pipes, response parsing and export identity assertions included; rendering/network excluded"
+  },
+  "artifacts": [
+    {
+      "name": "editor-bridge",
+      "rawBytes": 2425296,
+      "sha256": "5cdd3f6f09bb98fcf148fa34297cc8d8d3873f784b634f9f9fc966014c69e681",
+      "configuration": "caller-supplied binary; use release build for baseline measurements"
+    }
+  ],
+  "samples": [
+    {
+      "case": "ordinary-v3",
+      "repetition": 0,
+      "version": 3,
+      "editsPerAuthor": 32,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 39.23591600000009,
+          "minMs": 12.393125000000055,
+          "p50Ms": 12.792915999999877,
+          "p95Ms": 14.049875000000156,
+          "maxMs": 14.049875000000156,
+          "samplesMs": [
+            12.792915999999877,
+            14.049875000000156,
+            12.393125000000055
+          ]
+        },
+        "offlineEdit": {
+          "count": 64,
+          "totalMs": 938.6326700000002,
+          "minMs": 14.020333000000164,
+          "p50Ms": 14.551958999999897,
+          "p95Ms": 15.395833000000039,
+          "maxMs": 16.122584000000188,
+          "samplesMs": [
+            14.254042000000027,
+            14.411000000000058,
+            14.06987499999991,
+            14.256875000000036,
+            14.413583000000017,
+            14.020333000000164,
+            14.602750000000015,
+            14.345041999999921,
+            14.073750000000018,
+            14.336874999999964,
+            14.833541999999852,
+            14.364291999999978,
+            14.098457999999937,
+            14.437040999999908,
+            14.37675000000013,
+            14.383291999999983,
+            14.42837499999996,
+            14.316250000000082,
+            14.060333000000128,
+            14.316665999999941,
+            14.329750000000104,
+            14.4693749999999,
+            14.62454200000002,
+            14.158750000000282,
+            14.381415999999717,
+            14.369459000000006,
+            14.482750000000124,
+            14.223707999999988,
+            14.19766699999991,
+            14.84729200000038,
+            14.571792000000187,
+            14.43029099999967,
+            14.385874999999942,
+            14.55975000000035,
+            16.122584000000188,
+            14.65433400000029,
+            15.146999999999935,
+            15.525124999999662,
+            15.296084000000064,
+            14.647500000000036,
+            14.985000000000127,
+            14.991958000000068,
+            14.988292000000001,
+            14.477874999999585,
+            14.551958999999897,
+            14.744583000000148,
+            15.009042000000136,
+            14.653042000000369,
+            14.990749999999935,
+            14.918583000000126,
+            15.206916999999976,
+            14.871583999999984,
+            14.909666000000016,
+            14.90124999999989,
+            14.543333000000075,
+            15.084583999999722,
+            14.731708000000253,
+            15.287166999999954,
+            15.515791999999692,
+            14.846749999999702,
+            14.511791999999787,
+            15.363084000000072,
+            15.395833000000039,
+            15.327957999999853
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 30.452999999999975,
+          "minMs": 15.120249999999942,
+          "p50Ms": 15.120249999999942,
+          "p95Ms": 15.332750000000033,
+          "maxMs": 15.332750000000033,
+          "samplesMs": [
+            15.120249999999942,
+            15.332750000000033
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 22.133916999999656,
+          "minMs": 11.030874999999924,
+          "p50Ms": 11.030874999999924,
+          "p95Ms": 11.103041999999732,
+          "maxMs": 11.103041999999732,
+          "samplesMs": [
+            11.030874999999924,
+            11.103041999999732
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 66.78470799999968,
+          "minMs": 27.604249999999865,
+          "p50Ms": 27.604249999999865,
+          "p95Ms": 39.18045799999982,
+          "maxMs": 39.18045799999982,
+          "samplesMs": [
+            39.18045799999982,
+            27.604249999999865
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 12.971209000000272,
+          "minMs": 12.971209000000272,
+          "p50Ms": 12.971209000000272,
+          "p95Ms": 12.971209000000272,
+          "maxMs": 12.971209000000272,
+          "samplesMs": [
+            12.971209000000272
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 38.50020799999993,
+          "minMs": 38.50020799999993,
+          "p50Ms": 38.50020799999993,
+          "p95Ms": 38.50020799999993,
+          "maxMs": 38.50020799999993,
+          "samplesMs": [
+            38.50020799999993
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 42.21320800000012,
+          "minMs": 42.21320800000012,
+          "p50Ms": 42.21320800000012,
+          "p95Ms": 42.21320800000012,
+          "maxMs": 42.21320800000012,
+          "samplesMs": [
+            42.21320800000012
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 0.9037500000004002,
+          "minMs": 0.4329590000002099,
+          "p50Ms": 0.4329590000002099,
+          "p95Ms": 0.47079100000019025,
+          "maxMs": 0.47079100000019025,
+          "samplesMs": [
+            0.4329590000002099,
+            0.47079100000019025
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 68.77383400000008,
+          "minMs": 68.77383400000008,
+          "p50Ms": 68.77383400000008,
+          "p95Ms": 68.77383400000008,
+          "maxMs": 68.77383400000008,
+          "samplesMs": [
+            68.77383400000008
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 30.158958999999868,
+          "minMs": 15.052541999999903,
+          "p50Ms": 15.052541999999903,
+          "p95Ms": 15.106416999999965,
+          "maxMs": 15.106416999999965,
+          "samplesMs": [
+            15.106416999999965,
+            15.052541999999903
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 30.234875999999986,
+          "minMs": 15.082292000000052,
+          "p50Ms": 15.082292000000052,
+          "p95Ms": 15.152583999999933,
+          "maxMs": 15.152583999999933,
+          "samplesMs": [
+            15.082292000000052,
+            15.152583999999933
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 46086,
+        "exchangeBytes": 45154,
+        "changes": 66,
+        "receipts": 66
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "case": "ordinary-v3",
+      "repetition": 1,
+      "version": 3,
+      "editsPerAuthor": 32,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 38.11337599999979,
+          "minMs": 12.518708999999944,
+          "p50Ms": 12.740499999999884,
+          "p95Ms": 12.854166999999961,
+          "maxMs": 12.854166999999961,
+          "samplesMs": [
+            12.854166999999961,
+            12.518708999999944,
+            12.740499999999884
+          ]
+        },
+        "offlineEdit": {
+          "count": 64,
+          "totalMs": 935.2079610000033,
+          "minMs": 13.826750000000175,
+          "p50Ms": 14.559958000000279,
+          "p95Ms": 15.229583000000275,
+          "maxMs": 15.535624999999982,
+          "samplesMs": [
+            14.62979200000018,
+            14.123125000000073,
+            13.826750000000175,
+            14.403667000000041,
+            14.559958000000279,
+            14.208875000000262,
+            13.935500000000047,
+            14.29729099999986,
+            14.387041999999838,
+            14.225083000000268,
+            14.703750000000127,
+            13.964958000000024,
+            14.145250000000033,
+            14.365583000000242,
+            14.114415999999892,
+            14.256125000000338,
+            14.5131250000004,
+            14.248666999999841,
+            14.419750000000022,
+            14.692042000000129,
+            14.228541999999834,
+            14.389291999999841,
+            14.525874999999814,
+            14.498875000000226,
+            14.44116699999995,
+            14.501291000000037,
+            14.41924999999992,
+            14.726624999999785,
+            14.760000000000218,
+            14.492041999999856,
+            14.52350000000024,
+            14.91754200000014,
+            14.374749999999949,
+            14.450458000000253,
+            14.304165999999896,
+            14.678083000000242,
+            14.26279199999999,
+            14.874833000000308,
+            14.60391699999991,
+            14.83566699999983,
+            14.665541999999732,
+            14.518417000000227,
+            14.710708000000068,
+            15.069458999999824,
+            14.548917000000074,
+            14.625584000000345,
+            14.92916699999978,
+            14.611207999999806,
+            14.749125000000276,
+            15.187124999999924,
+            14.578499999999622,
+            14.972375000000284,
+            14.832458999999744,
+            15.535624999999982,
+            14.766250000000127,
+            15.483625000000302,
+            14.998666999999841,
+            14.919124999999894,
+            15.229583000000275,
+            15.140625,
+            15.390375000000404,
+            14.979709000000184,
+            14.81775000000016,
+            15.118625000000065
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 30.800124999999753,
+          "minMs": 15.296499999999924,
+          "p50Ms": 15.296499999999924,
+          "p95Ms": 15.503624999999829,
+          "maxMs": 15.503624999999829,
+          "samplesMs": [
+            15.503624999999829,
+            15.296499999999924
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 22.14508399999977,
+          "minMs": 10.841042000000016,
+          "p50Ms": 10.841042000000016,
+          "p95Ms": 11.304041999999754,
+          "maxMs": 11.304041999999754,
+          "samplesMs": [
+            11.304041999999754,
+            10.841042000000016
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 65.96145799999977,
+          "minMs": 27.10358300000007,
+          "p50Ms": 27.10358300000007,
+          "p95Ms": 38.857874999999694,
+          "maxMs": 38.857874999999694,
+          "samplesMs": [
+            38.857874999999694,
+            27.10358300000007
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 13.421790999999757,
+          "minMs": 13.421790999999757,
+          "p50Ms": 13.421790999999757,
+          "p95Ms": 13.421790999999757,
+          "maxMs": 13.421790999999757,
+          "samplesMs": [
+            13.421790999999757
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 39.06770800000049,
+          "minMs": 39.06770800000049,
+          "p50Ms": 39.06770800000049,
+          "p95Ms": 39.06770800000049,
+          "maxMs": 39.06770800000049,
+          "samplesMs": [
+            39.06770800000049
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 41.500583000000006,
+          "minMs": 41.500583000000006,
+          "p50Ms": 41.500583000000006,
+          "p95Ms": 41.500583000000006,
+          "maxMs": 41.500583000000006,
+          "samplesMs": [
+            41.500583000000006
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 1.0142920000016602,
+          "minMs": 0.506042000000889,
+          "p50Ms": 0.506042000000889,
+          "p95Ms": 0.5082500000007713,
+          "maxMs": 0.5082500000007713,
+          "samplesMs": [
+            0.506042000000889,
+            0.5082500000007713
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 67.54345900000044,
+          "minMs": 67.54345900000044,
+          "p50Ms": 67.54345900000044,
+          "p95Ms": 67.54345900000044,
+          "maxMs": 67.54345900000044,
+          "samplesMs": [
+            67.54345900000044
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 30.385166000000936,
+          "minMs": 14.826458000000457,
+          "p50Ms": 14.826458000000457,
+          "p95Ms": 15.558708000000479,
+          "maxMs": 15.558708000000479,
+          "samplesMs": [
+            15.558708000000479,
+            14.826458000000457
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 29.93591599999945,
+          "minMs": 14.931625000000167,
+          "p50Ms": 14.931625000000167,
+          "p95Ms": 15.004290999999284,
+          "maxMs": 15.004290999999284,
+          "samplesMs": [
+            15.004290999999284,
+            14.931625000000167
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 46086,
+        "exchangeBytes": 45154,
+        "changes": 66,
+        "receipts": 66
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "case": "ordinary-v3",
+      "repetition": 2,
+      "version": 3,
+      "editsPerAuthor": 32,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 38.88183300000037,
+          "minMs": 12.785665999999765,
+          "p50Ms": 12.854917000000569,
+          "p95Ms": 13.241250000000036,
+          "maxMs": 13.241250000000036,
+          "samplesMs": [
+            12.854917000000569,
+            12.785665999999765,
+            13.241250000000036
+          ]
+        },
+        "offlineEdit": {
+          "count": 64,
+          "totalMs": 947.7434190000031,
+          "minMs": 13.82366599999932,
+          "p50Ms": 14.882375000000138,
+          "p95Ms": 15.646999999999935,
+          "maxMs": 16.232750000000124,
+          "samplesMs": [
+            13.82366599999932,
+            14.060333999999784,
+            14.384415999999874,
+            14.039208000000144,
+            14.350625000000036,
+            13.912207999999737,
+            13.89391699999942,
+            14.361957999999504,
+            14.037459000000126,
+            13.987165999999888,
+            14.476832999999715,
+            14.294084000000112,
+            13.888458000000355,
+            14.318124999999782,
+            14.393332999999984,
+            14.060707999999977,
+            14.438833999999588,
+            14.633375000000342,
+            14.283957999999984,
+            14.414709000000585,
+            14.26050000000032,
+            14.847875000000386,
+            15.072916000000077,
+            14.097125000000233,
+            15.271249999999782,
+            14.99591700000019,
+            14.86566700000003,
+            14.760750000000371,
+            14.63524999999936,
+            14.763624999999593,
+            14.685625000000073,
+            15.411000000000058,
+            15.179458999999952,
+            14.468333000000712,
+            14.949125000000095,
+            14.986249999999927,
+            14.97583300000042,
+            15.180499999999483,
+            14.891125000000102,
+            14.963708999999653,
+            15.399000000000342,
+            15.03070900000057,
+            14.803334000000177,
+            15.106082999999671,
+            15.31366700000035,
+            15.646999999999935,
+            15.220792000000074,
+            14.960541000000376,
+            14.706208999999944,
+            15.277084000000286,
+            15.007708000000093,
+            16.232750000000124,
+            16.080582999999933,
+            15.982332999999926,
+            15.02258299999994,
+            15.570792000000438,
+            15.534999999999854,
+            14.93645800000013,
+            15.26550000000043,
+            15.285791999999674,
+            15.116292000000612,
+            14.968709000000672,
+            14.882375000000138,
+            15.076917000000321
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 30.19708400000036,
+          "minMs": 15.050792000000001,
+          "p50Ms": 15.050792000000001,
+          "p95Ms": 15.146292000000358,
+          "maxMs": 15.146292000000358,
+          "samplesMs": [
+            15.146292000000358,
+            15.050792000000001
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 22.725749999999607,
+          "minMs": 10.986750000000029,
+          "p50Ms": 10.986750000000029,
+          "p95Ms": 11.738999999999578,
+          "maxMs": 11.738999999999578,
+          "samplesMs": [
+            11.738999999999578,
+            10.986750000000029
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 68.93016700000044,
+          "minMs": 28.78662499999973,
+          "p50Ms": 28.78662499999973,
+          "p95Ms": 40.14354200000071,
+          "maxMs": 40.14354200000071,
+          "samplesMs": [
+            40.14354200000071,
+            28.78662499999973
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 15.00566600000002,
+          "minMs": 15.00566600000002,
+          "p50Ms": 15.00566600000002,
+          "p95Ms": 15.00566600000002,
+          "maxMs": 15.00566600000002,
+          "samplesMs": [
+            15.00566600000002
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 39.765166000000136,
+          "minMs": 39.765166000000136,
+          "p50Ms": 39.765166000000136,
+          "p95Ms": 39.765166000000136,
+          "maxMs": 39.765166000000136,
+          "samplesMs": [
+            39.765166000000136
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 41.92937499999971,
+          "minMs": 41.92937499999971,
+          "p50Ms": 41.92937499999971,
+          "p95Ms": 41.92937499999971,
+          "maxMs": 41.92937499999971,
+          "samplesMs": [
+            41.92937499999971
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 0.9984580000000278,
+          "minMs": 0.4615830000002461,
+          "p50Ms": 0.4615830000002461,
+          "p95Ms": 0.5368749999997817,
+          "maxMs": 0.5368749999997817,
+          "samplesMs": [
+            0.4615830000002461,
+            0.5368749999997817
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 69.88270899999952,
+          "minMs": 69.88270899999952,
+          "p50Ms": 69.88270899999952,
+          "p95Ms": 69.88270899999952,
+          "maxMs": 69.88270899999952,
+          "samplesMs": [
+            69.88270899999952
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 30.22795799999949,
+          "minMs": 15.061082999999599,
+          "p50Ms": 15.061082999999599,
+          "p95Ms": 15.16687499999989,
+          "maxMs": 15.16687499999989,
+          "samplesMs": [
+            15.16687499999989,
+            15.061082999999599
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 30.306123999999727,
+          "minMs": 15.095957999999882,
+          "p50Ms": 15.095957999999882,
+          "p95Ms": 15.210165999999845,
+          "maxMs": 15.210165999999845,
+          "samplesMs": [
+            15.095957999999882,
+            15.210165999999845
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 46086,
+        "exchangeBytes": 45154,
+        "changes": 66,
+        "receipts": 66
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "case": "history-v3-128",
+      "repetition": 0,
+      "version": 3,
+      "editsPerAuthor": 128,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 38.32387600000038,
+          "minMs": 12.516542000001209,
+          "p50Ms": 12.70141700000022,
+          "p95Ms": 13.105916999998954,
+          "maxMs": 13.105916999998954,
+          "samplesMs": [
+            13.105916999998954,
+            12.70141700000022,
+            12.516542000001209
+          ]
+        },
+        "offlineEdit": {
+          "count": 256,
+          "totalMs": 4179.666254999995,
+          "minMs": 14.219999999999345,
+          "p50Ms": 16.36108299999978,
+          "p95Ms": 18.253500000000713,
+          "maxMs": 18.965792000000874,
+          "samplesMs": [
+            14.591624999999112,
+            15.52545900000041,
+            14.969583999998576,
+            14.872957999999926,
+            16.303083000000697,
+            14.645249999999578,
+            14.468249999999898,
+            14.937125000000378,
+            14.705375000001368,
+            14.219999999999345,
+            14.96612499999901,
+            14.835666999999376,
+            14.493957999999111,
+            15.412500000000364,
+            14.598292000000583,
+            14.933415999999852,
+            14.987042000000656,
+            15.52716700000019,
+            14.333291000000827,
+            14.795374999999694,
+            14.736915999999837,
+            15.044334000000163,
+            14.493916999999783,
+            14.724832999998398,
+            14.968249999999898,
+            15.129917000000205,
+            14.227582999999868,
+            14.685417000000598,
+            15.233167000000321,
+            14.884749999999258,
+            14.816917000000103,
+            14.557333999999173,
+            15.231832999999824,
+            14.522416999998313,
+            15.16504200000054,
+            14.48791700000038,
+            14.64704200000051,
+            15.084917000000132,
+            14.494000000000597,
+            14.606458000000202,
+            15.26691700000083,
+            14.637624999999389,
+            14.522916999998415,
+            14.930459000001065,
+            14.576624999999694,
+            14.522375000000466,
+            15.046500000000378,
+            14.795708000001468,
+            14.632540999999037,
+            15.102875000000495,
+            14.719332999999097,
+            15.076583000000028,
+            15.14179200000035,
+            14.823542000000089,
+            14.368333000000348,
+            14.880624999999782,
+            14.691917000000103,
+            14.733833000000232,
+            15.082916999999725,
+            14.642499999999927,
+            14.944374999999127,
+            15.105750000000626,
+            14.876459000000978,
+            14.869542000000365,
+            15.395957999999155,
+            14.81658299999981,
+            14.868291999999201,
+            14.978124999999636,
+            15.044667000000118,
+            15.10924999999952,
+            15.229332999999315,
+            15.403249999999389,
+            15.046207999999751,
+            15.317332999999053,
+            15.619999999998981,
+            14.86120800000026,
+            15.534582999998747,
+            15.61133399999926,
+            15.385291999999026,
+            15.621791000001394,
+            15.271624999999403,
+            15.89441700000134,
+            15.659374999999272,
+            16.506665999999313,
+            15.33270900000025,
+            15.683250000000044,
+            15.617500000000291,
+            15.393791999998939,
+            15.459457999999358,
+            15.874417000000903,
+            15.393041999999696,
+            15.343000000000757,
+            15.672124999999141,
+            15.540624999999636,
+            15.530749999999898,
+            15.392625000000407,
+            15.818874999999025,
+            15.969708000000537,
+            15.967542000000321,
+            15.750624999998763,
+            16.165665999998964,
+            15.97504200000003,
+            15.276709000001574,
+            16.50604200000089,
+            15.801292000000103,
+            16.077624999999898,
+            16.17437500000051,
+            16.121290999999474,
+            15.749041999999463,
+            16.36595800000032,
+            15.876416000000972,
+            15.711041999998997,
+            16.37641700000131,
+            15.855749999998807,
+            16.686416999998983,
+            16.36437500000102,
+            15.760583999999653,
+            15.947791000000507,
+            16.171000000000276,
+            16.36108299999978,
+            15.958416000001307,
+            16.445458000000144,
+            15.643332999999984,
+            15.669667000000118,
+            17.004832999999053,
+            16.51524999999856,
+            16.827542000000903,
+            16.553792000000612,
+            16.22845799999959,
+            16.297624999999243,
+            16.637291999999434,
+            16.871417000000292,
+            16.14104099999895,
+            16.97479100000055,
+            16.304959000000963,
+            16.29570800000147,
+            16.705792000000656,
+            16.05408400000124,
+            16.372332999999344,
+            17.344375000000582,
+            16.211457999999766,
+            16.12249999999949,
+            16.958458000000974,
+            16.31395800000064,
+            16.40350000000035,
+            17.04516700000022,
+            16.42791700000089,
+            16.364458000000013,
+            16.758458999998766,
+            16.311416000000463,
+            16.53204199999891,
+            16.637166000000434,
+            16.78533299999981,
+            16.43195899999955,
+            16.89300000000003,
+            17.140166999999565,
+            16.21679099999892,
+            16.659834000000046,
+            16.68433300000106,
+            17.15845900000022,
+            17.750583000000915,
+            16.910500000001775,
+            16.616374999999607,
+            16.76379199999974,
+            17.200208999998722,
+            16.662500000000364,
+            16.40533300000061,
+            16.890041999999085,
+            16.760291999999026,
+            17.666665999999168,
+            17.204750000000786,
+            17.288625000001048,
+            17.38354199999958,
+            16.763417000000118,
+            16.698834000000716,
+            16.858874999999898,
+            16.811000000001513,
+            16.86058299999968,
+            17.43683299999975,
+            17.340125000000626,
+            17.82049999999981,
+            17.96295800000007,
+            17.464332999999897,
+            17.436499999999796,
+            17.97637500000019,
+            17.664833000000726,
+            17.14641599999959,
+            18.499292000000423,
+            17.60541699999885,
+            17.92604200000096,
+            17.533792000000176,
+            16.554791000000478,
+            16.79149999999936,
+            16.760874999999942,
+            17.63379200000054,
+            17.126084000001356,
+            18.168084000000817,
+            16.46229200000016,
+            17.315749999999753,
+            17.010874999999942,
+            16.902917000001253,
+            16.666042000000743,
+            18.031166000000667,
+            17.261875000000146,
+            17.090707999999722,
+            17.701999999999316,
+            17.325166999999055,
+            17.553416999999172,
+            17.78454199999942,
+            17.473500000000058,
+            17.811791000000085,
+            18.201583000000028,
+            17.630584000000454,
+            17.35962500000096,
+            17.67712500000016,
+            17.78570799999943,
+            17.38458299999911,
+            17.744249999999738,
+            17.76354199999878,
+            17.65337499999987,
+            18.965792000000874,
+            17.947292000000743,
+            17.66899999999987,
+            18.359957999999097,
+            17.55987500000083,
+            17.771167000000787,
+            18.80724999999984,
+            17.684916000000158,
+            17.79650000000038,
+            18.253500000000713,
+            17.989166999999725,
+            17.855416000000332,
+            18.125624999998763,
+            17.250707999999577,
+            17.836333999999624,
+            17.95445799999834,
+            17.8665830000009,
+            18.226874999998472,
+            18.218000000000757,
+            18.642125000000306,
+            18.12554099999943,
+            18.0289159999993,
+            17.785916999999245,
+            17.616833000000042,
+            18.52558300000055,
+            17.598833000000013,
+            18.3354589999999,
+            18.206124999998792,
+            17.83179199999904,
+            18.37512500000048,
+            18.423375000000306,
+            17.994666999999026,
+            18.286708999999973,
+            18.428125000000364,
+            18.132541999999376,
+            18.254958000001352
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 35.693334000001414,
+          "minMs": 17.652709000001778,
+          "p50Ms": 17.652709000001778,
+          "p95Ms": 18.040624999999636,
+          "maxMs": 18.040624999999636,
+          "samplesMs": [
+            18.040624999999636,
+            17.652709000001778
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 84.63129099999969,
+          "minMs": 41.98649999999907,
+          "p50Ms": 41.98649999999907,
+          "p95Ms": 42.64479100000062,
+          "maxMs": 42.64479100000062,
+          "samplesMs": [
+            42.64479100000062,
+            41.98649999999907
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 180.3579580000005,
+          "minMs": 68.30983299999934,
+          "p50Ms": 68.30983299999934,
+          "p95Ms": 112.04812500000116,
+          "maxMs": 112.04812500000116,
+          "samplesMs": [
+            112.04812500000116,
+            68.30983299999934
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 47.49904200000128,
+          "minMs": 47.49904200000128,
+          "p50Ms": 47.49904200000128,
+          "p95Ms": 47.49904200000128,
+          "maxMs": 47.49904200000128,
+          "samplesMs": [
+            47.49904200000128
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 114.30049999999937,
+          "minMs": 114.30049999999937,
+          "p50Ms": 114.30049999999937,
+          "p95Ms": 114.30049999999937,
+          "maxMs": 114.30049999999937,
+          "samplesMs": [
+            114.30049999999937
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 161.800874999999,
+          "minMs": 161.800874999999,
+          "p50Ms": 161.800874999999,
+          "p95Ms": 161.800874999999,
+          "maxMs": 161.800874999999,
+          "samplesMs": [
+            161.800874999999
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 3.2249590000010357,
+          "minMs": 1.5333339999997406,
+          "p50Ms": 1.5333339999997406,
+          "p95Ms": 1.6916250000012951,
+          "maxMs": 1.6916250000012951,
+          "samplesMs": [
+            1.5333339999997406,
+            1.6916250000012951
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 195.13916699999936,
+          "minMs": 195.13916699999936,
+          "p50Ms": 195.13916699999936,
+          "p95Ms": 195.13916699999936,
+          "maxMs": 195.13916699999936,
+          "samplesMs": [
+            195.13916699999936
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 41.865083999999115,
+          "minMs": 20.904333999998926,
+          "p50Ms": 20.904333999998926,
+          "p95Ms": 20.96075000000019,
+          "maxMs": 20.96075000000019,
+          "samplesMs": [
+            20.96075000000019,
+            20.904333999998926
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 42.94599999999991,
+          "minMs": 21.405917000000045,
+          "p50Ms": 21.405917000000045,
+          "p95Ms": 21.540082999999868,
+          "maxMs": 21.540082999999868,
+          "samplesMs": [
+            21.405917000000045,
+            21.540082999999868
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 169135,
+        "exchangeBytes": 165581,
+        "changes": 258,
+        "receipts": 258
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "case": "history-v3-128",
+      "repetition": 1,
+      "version": 3,
+      "editsPerAuthor": 128,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 38.70445700000164,
+          "minMs": 12.625208000001294,
+          "p50Ms": 12.980457999999999,
+          "p95Ms": 13.098791000000347,
+          "maxMs": 13.098791000000347,
+          "samplesMs": [
+            12.980457999999999,
+            13.098791000000347,
+            12.625208000001294
+          ]
+        },
+        "offlineEdit": {
+          "count": 256,
+          "totalMs": 4188.607887000035,
+          "minMs": 13.871499999999287,
+          "p50Ms": 16.401750000000902,
+          "p95Ms": 18.433000000000902,
+          "maxMs": 19.543791000000056,
+          "samplesMs": [
+            14.385540999999648,
+            14.539291999999477,
+            14.444208000000799,
+            13.871499999999287,
+            14.354624999999942,
+            14.44549999999981,
+            14.746417000000292,
+            14.707707999999911,
+            14.39587500000016,
+            13.928625000000466,
+            14.629209000000628,
+            14.76287500000035,
+            14.316250000001673,
+            14.535707999999431,
+            14.00525000000016,
+            14.725417000001471,
+            14.68683400000009,
+            13.896083999999973,
+            14.728542000000743,
+            14.663833000000523,
+            14.257832999999664,
+            14.340625000000728,
+            14.618375000000015,
+            14.429667000000336,
+            14.313791000000492,
+            14.806582999999591,
+            14.348125000000437,
+            14.56291599999895,
+            14.777708999999959,
+            14.326709000000847,
+            15.158916999998837,
+            15.601582999999664,
+            14.733000000000175,
+            15.131750000000466,
+            16.12079199999789,
+            15.126040999999532,
+            15.158584000000701,
+            15.39600000000064,
+            15.2689160000009,
+            15.513124999997672,
+            15.716083999999682,
+            14.857916999997542,
+            14.979542000000947,
+            14.797583999999915,
+            14.868500000000495,
+            14.870459000001574,
+            15.046291999999085,
+            14.624667000000045,
+            15.218708000000333,
+            15.525207999999111,
+            14.850041999998211,
+            14.538040999999794,
+            15.192917000000307,
+            14.784417000002577,
+            15.204792000000452,
+            15.430749999999534,
+            15.282167000001209,
+            14.68212499999936,
+            15.2243750000016,
+            14.826207999998587,
+            14.82916699999987,
+            14.757541999999376,
+            14.659959000000526,
+            15.59283399999913,
+            15.117707999997947,
+            15.414249999997992,
+            15.0157500000023,
+            15.57587500000227,
+            15.726208000000042,
+            15.100957999999082,
+            16.28083400000105,
+            14.978375000002416,
+            15.545000000001892,
+            15.33404199999859,
+            15.0123330000024,
+            15.311791999996785,
+            16.10504100000253,
+            15.359833000002254,
+            15.650292000002082,
+            15.539749999999913,
+            15.516166000001249,
+            15.775582999998733,
+            16.930208000001585,
+            16.134249999999156,
+            16.51100000000224,
+            16.025958000001992,
+            16.259791000000405,
+            16.007332999997743,
+            16.63808400000198,
+            16.138207999996666,
+            15.414582999997947,
+            15.940333999998984,
+            15.429041999999754,
+            15.424917000000278,
+            15.711083999998664,
+            16.296916999999667,
+            16.0534579999985,
+            15.941374999998516,
+            15.870542000000569,
+            15.835917000000336,
+            16.911041999999725,
+            16.221667000001617,
+            16.453125,
+            15.934792000000016,
+            16.423249999999825,
+            15.940000000002328,
+            16.851458999997703,
+            15.701540999998542,
+            16.651750000000902,
+            16.158957999999984,
+            15.94237499999872,
+            16.1129170000022,
+            17.023459000000003,
+            16.043375000001106,
+            16.298166000000492,
+            16.346792000000278,
+            16.366416999997455,
+            15.861124999999447,
+            16.64891600000192,
+            15.923083000001498,
+            16.20270800000071,
+            16.53691600000093,
+            15.760666999998648,
+            15.929167000002053,
+            16.386625000002823,
+            15.757708000001003,
+            16.52824999999939,
+            16.858916999997746,
+            16.20125000000189,
+            15.9375,
+            16.614125000000058,
+            16.194041999999172,
+            16.041457999999693,
+            16.430833000002167,
+            15.988000000001193,
+            15.88983300000109,
+            16.658166000001074,
+            16.58745899999849,
+            16.558124999999563,
+            16.920916999999463,
+            16.713208000001032,
+            17.09904099999767,
+            17.726707999998325,
+            16.277665999998135,
+            16.652250000002823,
+            16.5479579999992,
+            16.73487500000192,
+            16.14154200000121,
+            17.185167000003275,
+            16.33520900000076,
+            16.51825000000099,
+            17.019333000000188,
+            16.01954100000148,
+            16.619291000002704,
+            16.802332999999635,
+            16.401750000000902,
+            16.069625000000087,
+            16.817583000000013,
+            16.06891700000051,
+            17.074416999999812,
+            16.434124999999767,
+            17.06604199999856,
+            16.79383400000006,
+            17.28900000000067,
+            17.5067080000008,
+            16.602582999999868,
+            16.84120900000198,
+            16.763833000000886,
+            16.757667000001675,
+            17.44920899999852,
+            16.660625000000437,
+            17.260458000000654,
+            17.48016699999789,
+            17.55316699999821,
+            17.6642090000023,
+            16.94104199999856,
+            16.61583299999984,
+            16.96837500000038,
+            17.357624999996915,
+            16.871416999998473,
+            17.113666999997804,
+            17.241415999997116,
+            17.09204199999658,
+            16.80066699999952,
+            17.307166999999026,
+            16.999958000000333,
+            16.493458000000828,
+            17.29320899999948,
+            17.474167000000307,
+            16.930333999996947,
+            17.569625000000087,
+            17.438042000001587,
+            17.63762499999939,
+            17.76116700000057,
+            17.619167000000743,
+            17.366916000002675,
+            17.654207999999926,
+            16.817458000001352,
+            17.617165999999997,
+            17.680124999998952,
+            18.02979200000118,
+            17.25300000000061,
+            17.79241700000057,
+            18.070208000001003,
+            17.241500000000087,
+            17.499917000001005,
+            17.235959000001458,
+            17.908791999998357,
+            16.990750000000844,
+            17.288291000000754,
+            17.169167000000016,
+            17.77058400000169,
+            17.273999999997613,
+            17.104833000001236,
+            17.62658300000112,
+            17.156709000002593,
+            17.372332999999344,
+            17.444917000000714,
+            17.25695800000176,
+            17.358749999999418,
+            17.490292000002228,
+            17.599500000000262,
+            17.439750000001368,
+            17.502583999998024,
+            17.44120799999655,
+            17.326708000000508,
+            17.737249999998312,
+            17.458542000000307,
+            17.449416999999812,
+            17.970499999999447,
+            17.64233400000012,
+            17.29345900000044,
+            18.16895900000236,
+            17.679250000001048,
+            17.647415999999794,
+            18.433000000000902,
+            17.984458000002633,
+            18.003625000001193,
+            19.47491699999955,
+            18.62945899999977,
+            17.990499999999884,
+            19.1787089999998,
+            18.846957999998267,
+            18.22808399999849,
+            18.947291000000405,
+            18.68108299999949,
+            18.564500000000407,
+            19.00366700000086,
+            18.098707999997714,
+            18.44379200000185,
+            19.543791000000056,
+            18.35766700000022,
+            18.754542000002402,
+            18.91283399999884,
+            18.1563750000023,
+            18.23162500000035
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 37.46625000000131,
+          "minMs": 18.651750000000902,
+          "p50Ms": 18.651750000000902,
+          "p95Ms": 18.814500000000407,
+          "maxMs": 18.814500000000407,
+          "samplesMs": [
+            18.814500000000407,
+            18.651750000000902
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 86.32124999999724,
+          "minMs": 43.00908399999753,
+          "p50Ms": 43.00908399999753,
+          "p95Ms": 43.312165999999706,
+          "maxMs": 43.312165999999706,
+          "samplesMs": [
+            43.00908399999753,
+            43.312165999999706
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 183.44108399999823,
+          "minMs": 68.9050419999985,
+          "p50Ms": 68.9050419999985,
+          "p95Ms": 114.53604199999972,
+          "maxMs": 114.53604199999972,
+          "samplesMs": [
+            114.53604199999972,
+            68.9050419999985
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 47.72858300000007,
+          "minMs": 47.72858300000007,
+          "p50Ms": 47.72858300000007,
+          "p95Ms": 47.72858300000007,
+          "maxMs": 47.72858300000007,
+          "samplesMs": [
+            47.72858300000007
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 115.10629100000006,
+          "minMs": 115.10629100000006,
+          "p50Ms": 115.10629100000006,
+          "p95Ms": 115.10629100000006,
+          "maxMs": 115.10629100000006,
+          "samplesMs": [
+            115.10629100000006
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 162.82345800000257,
+          "minMs": 162.82345800000257,
+          "p50Ms": 162.82345800000257,
+          "p95Ms": 162.82345800000257,
+          "maxMs": 162.82345800000257,
+          "samplesMs": [
+            162.82345800000257
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 3.1844579999997222,
+          "minMs": 1.5197919999991427,
+          "p50Ms": 1.5197919999991427,
+          "p95Ms": 1.6646660000005795,
+          "maxMs": 1.6646660000005795,
+          "samplesMs": [
+            1.5197919999991427,
+            1.6646660000005795
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 196.85945899999933,
+          "minMs": 196.85945899999933,
+          "p50Ms": 196.85945899999933,
+          "p95Ms": 196.85945899999933,
+          "maxMs": 196.85945899999933,
+          "samplesMs": [
+            196.85945899999933
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 42.705792000004294,
+          "minMs": 21.262417000001733,
+          "p50Ms": 21.262417000001733,
+          "p95Ms": 21.44337500000256,
+          "maxMs": 21.44337500000256,
+          "samplesMs": [
+            21.262417000001733,
+            21.44337500000256
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 41.85150099999737,
+          "minMs": 20.640458999998373,
+          "p50Ms": 20.640458999998373,
+          "p95Ms": 21.211041999998997,
+          "maxMs": 21.211041999998997,
+          "samplesMs": [
+            21.211041999998997,
+            20.640458999998373
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 169135,
+        "exchangeBytes": 165581,
+        "changes": 258,
+        "receipts": 258
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "case": "history-v3-128",
+      "repetition": 2,
+      "version": 3,
+      "editsPerAuthor": 128,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 38.68883300000016,
+          "minMs": 12.543624999998428,
+          "p50Ms": 12.988416000000143,
+          "p95Ms": 13.156792000001587,
+          "maxMs": 13.156792000001587,
+          "samplesMs": [
+            13.156792000001587,
+            12.988416000000143,
+            12.543624999998428
+          ]
+        },
+        "offlineEdit": {
+          "count": 256,
+          "totalMs": 4177.127660000002,
+          "minMs": 14.021749999999884,
+          "p50Ms": 16.36083399999916,
+          "p95Ms": 18.01024999999936,
+          "maxMs": 19.30779199999961,
+          "samplesMs": [
+            14.059124999999767,
+            14.803415999998833,
+            14.44354100000055,
+            14.021749999999884,
+            14.650958999998693,
+            14.262125000001106,
+            14.265292000000045,
+            14.235042000000249,
+            14.496624999999767,
+            14.255999999997584,
+            14.468166999999085,
+            14.050041999998939,
+            14.050875000000815,
+            14.899292000001878,
+            14.229125000001659,
+            14.26458300000013,
+            14.685750000000553,
+            14.20679200000086,
+            14.606250000000728,
+            14.914165999998659,
+            14.070083999999042,
+            14.13037500000064,
+            14.905957999999373,
+            14.303250000000844,
+            14.295416000000841,
+            14.581458000000566,
+            15.016707999999198,
+            14.808000000000902,
+            14.991416000000754,
+            14.481665999999677,
+            14.297957999999198,
+            15.164249999997992,
+            14.961166999997658,
+            14.896542000002228,
+            15.48333300000013,
+            15.664541000001918,
+            15.169416000000638,
+            15.260540999999648,
+            14.673584000000119,
+            15.581582999999227,
+            15.76116600000023,
+            14.943916000000172,
+            15.157791999998153,
+            15.199790999999095,
+            15.3537499999984,
+            14.766374999999243,
+            15.557874999998603,
+            14.880417000000307,
+            14.565083000001323,
+            15.51612500000192,
+            15.155209000000468,
+            15.198334000000614,
+            14.843415999999706,
+            15.197792000002664,
+            15.181666000000405,
+            15.604833000001236,
+            15.367874999999913,
+            16.287916999997833,
+            15.688374999997905,
+            15.718833000002633,
+            15.745500000000902,
+            15.799083000001701,
+            15.581958999999188,
+            15.277249999999185,
+            16.35608400000274,
+            15.447541999998066,
+            15.347709000001487,
+            15.775582999998733,
+            15.409792000002199,
+            15.78387500000099,
+            16.330667000001995,
+            15.434291999998095,
+            15.529041999998299,
+            15.574000000000524,
+            15.756790999999794,
+            14.671915999999328,
+            16.402500000000146,
+            15.500291000000288,
+            16.501500000002125,
+            16.081708999998227,
+            16.314750000001368,
+            15.717000000000553,
+            15.603290999999444,
+            15.492624999998952,
+            15.504291999997804,
+            15.629958999998053,
+            15.489833999999973,
+            15.222209000003204,
+            16.30583299999853,
+            15.230625000000146,
+            15.866500000000087,
+            15.909790999998222,
+            15.847959000002447,
+            15.6092499999977,
+            15.567375000002357,
+            15.318624999999884,
+            15.54779100000087,
+            15.537417000003188,
+            15.632958000001963,
+            15.357374999999593,
+            16.255583000001934,
+            17.03058400000009,
+            16.76091599999927,
+            16.990958000002138,
+            16.32549999999901,
+            16.306499999998778,
+            16.879541999998764,
+            16.311541000002762,
+            16.079083000000537,
+            16.37250000000131,
+            15.920125000000553,
+            15.333208000000013,
+            16.256499999999505,
+            15.586957999999868,
+            15.800833999997849,
+            16.710665999999037,
+            15.871166000000812,
+            16.00025000000096,
+            15.9474999999984,
+            16.23583399999916,
+            15.97783299999719,
+            16.43616699999984,
+            15.513792000001558,
+            15.76512499999808,
+            16.61187500000233,
+            16.580417000001034,
+            16.141250000000582,
+            17.101125000001048,
+            16.813624999998865,
+            16.526042000001326,
+            16.36083399999916,
+            16.39824999999837,
+            16.273958000001585,
+            16.650832999999693,
+            16.551625000000058,
+            15.947542000001704,
+            16.716499999998632,
+            16.28283300000112,
+            16.194790999998077,
+            16.4898749999993,
+            16.245124999997643,
+            16.292083000000275,
+            16.72412500000064,
+            16.71479100000215,
+            16.64262499999677,
+            16.556749999999738,
+            16.520167000002402,
+            16.41754199999923,
+            16.362750000000233,
+            16.574000000000524,
+            16.347125000000233,
+            16.305458999999246,
+            16.535917000001064,
+            16.49358299999949,
+            16.69579199999862,
+            17.128999999997177,
+            16.272832999999082,
+            17.141374999999243,
+            16.34545799999978,
+            15.985875000002125,
+            16.670458000000508,
+            16.46391600000061,
+            16.629499999999098,
+            16.91516700000284,
+            16.541832999999315,
+            16.439916999999696,
+            16.90504200000214,
+            16.830957999998645,
+            16.58875000000262,
+            16.988790999999765,
+            16.53229199999987,
+            17.189375000001746,
+            16.868250000003172,
+            16.760167000000365,
+            16.66925000000265,
+            17.53991600000154,
+            17.214749999999185,
+            17.23858299999847,
+            17.44879100000253,
+            16.43145899999945,
+            16.84412499999962,
+            17.326624999997875,
+            17.248083000002225,
+            16.851666999998997,
+            18.030125000001135,
+            17.019415999999183,
+            17.318458000001556,
+            17.271375000000262,
+            17.154708000001847,
+            16.94908299999952,
+            17.14274999999907,
+            17.400958000001992,
+            17.100416999997833,
+            17.588917000000947,
+            17.43779199999699,
+            16.750958000000537,
+            17.797167000000627,
+            17.101167000000714,
+            17.21912499999962,
+            17.71125000000029,
+            17.593540999998368,
+            17.162000000000262,
+            17.543540999999095,
+            17.423374999998487,
+            16.858124999998836,
+            17.797583999999915,
+            17.859457999998995,
+            17.154708999998547,
+            17.956458000000566,
+            17.83112500000061,
+            17.889541999997164,
+            17.63579099999697,
+            17.196875000001455,
+            17.122874999997293,
+            17.808375000000524,
+            17.622833000001265,
+            17.3851250000007,
+            17.977374999998574,
+            17.293582999998762,
+            17.58458299999984,
+            18.01024999999936,
+            17.269749999999476,
+            17.549125000001368,
+            17.81433299999844,
+            18.046291999999085,
+            17.710958000003302,
+            18.368207999999868,
+            17.535667000000103,
+            17.682792000003246,
+            17.32025000000067,
+            17.585541999997076,
+            17.426583999997092,
+            18.057082999999693,
+            17.461417000002257,
+            16.994291999999405,
+            17.583209000000352,
+            17.54241600000023,
+            17.932957999997598,
+            18.01220900000044,
+            17.526499999999942,
+            17.89758399999846,
+            18.006750000000466,
+            17.465250000001106,
+            17.931166999998823,
+            18.034583000000566,
+            18.18475000000035,
+            17.945292000000336,
+            17.905666000002384,
+            17.886124999997264,
+            17.69487499999741,
+            18.136125000000902,
+            17.99554200000057,
+            18.47599999999875,
+            19.30779199999961,
+            19.040082999999868,
+            18.784374999999272
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 36.4387080000015,
+          "minMs": 17.98541699999987,
+          "p50Ms": 17.98541699999987,
+          "p95Ms": 18.453291000001627,
+          "maxMs": 18.453291000001627,
+          "samplesMs": [
+            18.453291000001627,
+            17.98541699999987
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 87.74404100000174,
+          "minMs": 43.658000000003085,
+          "p50Ms": 43.658000000003085,
+          "p95Ms": 44.08604099999866,
+          "maxMs": 44.08604099999866,
+          "samplesMs": [
+            43.658000000003085,
+            44.08604099999866
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 182.84674899999663,
+          "minMs": 68.10954099999799,
+          "p50Ms": 68.10954099999799,
+          "p95Ms": 114.73720799999865,
+          "maxMs": 114.73720799999865,
+          "samplesMs": [
+            114.73720799999865,
+            68.10954099999799
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 47.781834000001254,
+          "minMs": 47.781834000001254,
+          "p50Ms": 47.781834000001254,
+          "p95Ms": 47.781834000001254,
+          "maxMs": 47.781834000001254,
+          "samplesMs": [
+            47.781834000001254
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 114.83004199999777,
+          "minMs": 114.83004199999777,
+          "p50Ms": 114.83004199999777,
+          "p95Ms": 114.83004199999777,
+          "maxMs": 114.83004199999777,
+          "samplesMs": [
+            114.83004199999777
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 168.44654100000116,
+          "minMs": 168.44654100000116,
+          "p50Ms": 168.44654100000116,
+          "p95Ms": 168.44654100000116,
+          "maxMs": 168.44654100000116,
+          "samplesMs": [
+            168.44654100000116
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 3.1336259999989124,
+          "minMs": 1.4929169999995793,
+          "p50Ms": 1.4929169999995793,
+          "p95Ms": 1.6407089999993332,
+          "maxMs": 1.6407089999993332,
+          "samplesMs": [
+            1.6407089999993332,
+            1.4929169999995793
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 199.06104199999754,
+          "minMs": 199.06104199999754,
+          "p50Ms": 199.06104199999754,
+          "p95Ms": 199.06104199999754,
+          "maxMs": 199.06104199999754,
+          "samplesMs": [
+            199.06104199999754
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 42.27754199999981,
+          "minMs": 20.74829200000022,
+          "p50Ms": 20.74829200000022,
+          "p95Ms": 21.529249999999593,
+          "maxMs": 21.529249999999593,
+          "samplesMs": [
+            20.74829200000022,
+            21.529249999999593
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 42.77258299999812,
+          "minMs": 21.15745799999786,
+          "p50Ms": 21.15745799999786,
+          "p95Ms": 21.615125000000262,
+          "maxMs": 21.615125000000262,
+          "samplesMs": [
+            21.615125000000262,
+            21.15745799999786
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 169135,
+        "exchangeBytes": 165581,
+        "changes": 258,
+        "receipts": 258
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "initialization": {
+    "freshProcessToFirstEmptySessionMs": 245.818666,
+    "diskCaches": "uncontrolled; not disk-cold startup"
+  }
+}
