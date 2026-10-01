@@ -15,6 +15,8 @@ internal object NativeEngine {
         val bytes = checkNotNull(callNative(request.toString().toByteArray(Charsets.UTF_8))) { "Swift engine returned no response" }
         val response = JSONObject(bytes.toString(Charsets.UTF_8))
         if (!response.getBoolean("ok")) {
+            if (response.optString("error") == "writingRecoveryRequired" && response.has("recovery"))
+                throw WritingRecoveryException(WritingRecovery(response.getJSONObject("recovery")))
             if (response.optString("error") == "mergeRecoveryRequired" && response.has("recovery"))
                 throw MergeRecoveryException(MergeRecovery(response.getJSONObject("recovery")))
             throw IllegalStateException(response.optString("error", "Editor operation failed"))
