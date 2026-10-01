@@ -11,16 +11,18 @@ import FoundationNetworking
     public private(set) var exchanging = false
     public private(set) var peers: [Presence] = []
     public private(set) var lastError: String?
+    public private(set) var transportCapacityBytes: Int?
     public var onStatus: (() -> Void)?
     private let endpoint: URL
     private var token: String
+    private let transport: URLSession
     private var receipt = SyncState()
     private var generation = 0
     private var revision: UInt64 = 0
     public var pendingChanges: Int { session.changes(since: receipt).changes.count }
 
-    public init(session: EditorSession, endpoint: URL, token: String) {
-        self.session = session; self.endpoint = endpoint; self.token = token
+    public init(session: EditorSession, endpoint: URL, token: String, transport: URLSession = .shared) {
+        self.session = session; self.endpoint = endpoint; self.token = token; self.transport = transport
     }
     public static func open(endpoint: URL, token: String, actorID: String = UUID().uuidString) async throws -> LocalRelayClient {
         var request = URLRequest(url: endpoint)
@@ -52,8 +54,17 @@ import FoundationNetworking
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(Request(actorID: session.actorID, batch: session.changes(since: receipt), state: session.syncState, presence: Presence(actor: session.actorID, revision: revision)))
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await transport.data(for: request)
             guard connected, generation == started else { return }
+            if let http = response as? HTTPURLResponse, http.statusCode == 413 {
+                struct CapacityFailure: Decodable { let error: String; let maxBytes: Int }
+                let failure = try JSONDecoder().decode(CapacityFailure.self, from: data)
+                guard failure.error == "transportCapacityExceeded", failure.maxBytes > 0 else {
+                    throw RelayError.rejected("Invalid relay capacity response")
+                }
+                transportCapacityBytes = failure.maxBytes
+                throw RelayError.transportCapacityExceeded(maxBytes: failure.maxBytes)
+            }
             if let http = response as? HTTPURLResponse, http.statusCode == 409 {
                 struct RejectedMerge: Decodable { let error: String; let recovery: MergeRecovery }
                 let rejected = try JSONDecoder().decode(RejectedMerge.self, from: data)
@@ -66,6 +77,7 @@ import FoundationNetworking
             try Self.check(response, data)
             let reply = try JSONDecoder().decode(Reply.self, from: data)
             try session.receive(reply.batch); receipt = reply.state
+            transportCapacityBytes = nil
             let nextPeers = reply.presence.filter { $0.actor != session.actorID }
             for peer in peers where !nextPeers.contains(where: { $0.actor == peer.actor }) { session.removePresence(actor: peer.actor) }
             peers = nextPeers
@@ -75,6 +87,8 @@ import FoundationNetworking
             guard connected, generation == started else { return }
             if case EditorError.mergeRecoveryRequired = error {
                 lastError = "Some edits conflict. Review the recovery actions."
+            } else if case RelayError.transportCapacityExceeded(let limit) = error {
+                lastError = "The relay limit is \(limit) bytes. Export the complete local history before changing transport or arranging a cutover."
             } else { lastError = String(describing: error) }
             throw error
         }
@@ -86,4 +100,7 @@ import FoundationNetworking
     }
 }
 
-public enum RelayError: Error { case rejected(String) }
+public enum RelayError: Error, Equatable {
+    case rejected(String)
+    case transportCapacityExceeded(maxBytes: Int)
+}

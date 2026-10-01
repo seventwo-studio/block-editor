@@ -14,4 +14,7 @@ export default defineConfig({
     url: "http://127.0.0.1:4174/block-editor/",
     reuseExistingServer: false,
   },
+}, {
+  // Keep the dedicated relay process suite out of the general browser run.
+  testMatch: /^(?!.*relay-process-restart\.spec\.ts$).*\.spec\.ts$/,
 });

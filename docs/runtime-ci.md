@@ -9,10 +9,10 @@ TypeScript, React browser, package smoke and demo checks remain separate.
 | Job | Host and runtime | Actual execution |
 | --- | --- | --- |
 | Swift | `macos-26`, Xcode 26.6/macOS SDK 26.5, official Swift 6.4.0 | Native Swift core/Apple/demo tests, shared bridge transcripts and independent-process relay stress |
-| Android minimum | `ubuntu-24.04`, Google APIs API 26 x86_64 revision 16 | Single-ABI x86_64 APK, Kotlin/JNI fixture transcripts and compatibility tests |
+| Android minimum | `ubuntu-24.04`, Google APIs API 26 x86_64 revision 16 | Single-ABI x86_64 APK, Kotlin/JNI fixture transcripts, compatibility tests and opt-in built-in IME host interaction |
 | Android reference | `ubuntu-24.04`, Google APIs API 35 x86_64 revision 9 | Single-ABI x86_64 APK, Kotlin/JNI fixture transcripts and compatibility tests |
 | Android ARM64 | Same pinned API 35 image, Google's ARM translation | Single-ABI ARM64 APK; execute the ARM64 JNI and Swift libraries through Android's native bridge |
-| Browser | `ubuntu-24.04`, Playwright versions from `bun.lock` | Freshly built Swift WASM, fixtures and reference input tests in Chromium, WebKit and Firefox |
+| Browser | `ubuntu-24.04`, Playwright versions from `bun.lock` | Freshly built Swift WASM, fixtures, reference input and relay recovery tests in Chromium, WebKit and Firefox; native Linux relay engine built from the same checkout |
 
 ARM translation executes the packaged ARM64 code; it is not a physical ARM device,
 an ARM64 system image, or a performance baseline. Android tests verify the chosen
@@ -50,6 +50,42 @@ each matrix entry. It rejects stale input hashes, missing fixtures, partial
 transcripts and differing responses. Object keys are canonicalized; array order,
 text, IDs, marks and errors remain significant. A compile-only or skipped job does
 not pass this gate.
+
+Each runtime artifact also contains `runtime-provenance-<runtime>.json`. The
+manifest records the actual checked-out Git commit and tree, workflow run and
+attempt, fixture/build-input hashes, locked installed toolchains, host identity
+and the size/SHA-256 of the built native, WASM or JNI/APK binaries. Recording
+rejects tracked edits and untracked source; ignored build outputs are permitted.
+Parity requires exactly one manifest per artifact bundle, the same checkout/tree
+as the parity job, and exact fixture, workload, lockfile and installed-toolchain
+inputs. PR checkout merge commits remain distinct from the PR head recorded in
+GitHub artifact metadata. Both checks apply; neither source is relabeled.
+
+The existing WASM job builds WASM and the native Linux `editor-bridge` and
+`relay-client` with the already installed Swift compiler, then records their
+provenance before browser execution. The actual WASM binary is retained with the
+runtime artifact even when a later browser assertion fails. Browser relay
+recovery runs after the runtime fixtures and measurements and reuses the same
+browser binaries. JSON, JUnit, console output and failure traces are retained.
+These host workflows supplement shared engine transcript parity; build provenance
+alone does not prove they executed successfully.
+The dedicated process-restart suite stops and relaunches full browser and relay
+processes. It verifies v1 offline history/presence, v2 recovery proposals and the
+relay transport limit with separate accepted/pending state. Its attachments pin
+the actual source files and include the same WASM/native build manifest.
+
+The API 26 x86_64 job also enables `run-android-ci.py --system-ime` after installing
+its fixture APK. This reuses the same emulator, SDK and built JNI libraries.
+`test-results/system-input` retains the system keyboard interaction/reopen proof
+and source/APK/JNI provenance. Other Android entries retain their existing runtime
+fixtures and measurement checks. A passing build alone does not validate this
+input workflow; the opt-in runner must execute its actual instrumentation checks.
+Every Android entry also runs the existing Compose and collaboration input
+adapter tests. Authoring-control and retained authoring-action tests run when their
+classes exist in the exact checkout, using the declared method count and the same
+no-skip instrumentation checks. Each coverage report explicitly records an absent
+class as omitted, not passed. These component tests remain separate from
+installed-keyboard and accessibility evidence.
 
 Reruns can retain several artifacts with the same runtime name. The parity job
 selects the newest creation timestamp for each of the five expected artifact
