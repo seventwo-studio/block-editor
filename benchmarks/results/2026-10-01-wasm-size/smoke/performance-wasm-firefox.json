@@ -1,0 +1,1005 @@
+{
+  "version": 1,
+  "workloadHash": "e20860e9f7bc8cf85ab34146132b551e4e5a4185225c567d3d49ecadbfffa1be",
+  "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+  "sourceDirty": true,
+  "runtime": {
+    "name": "wasm-firefox",
+    "browser": "155.0",
+    "host": {
+      "platform": "darwin",
+      "architecture": "arm64",
+      "osRelease": "27.0.0",
+      "cpu": "Apple M4 Max",
+      "memoryBytes": 38654705664
+    },
+    "boundary": "SwiftEditorRuntime.call; UTF-8/JSON and WASM copies included; rendering/network excluded"
+  },
+  "artifacts": [
+    {
+      "name": "block-editor.wasm",
+      "rawBytes": 54630266,
+      "gzipBytes": 20242584,
+      "sha256": "f7162960ab5f34f57ee23c3279c27408d54e39f3a966486d43740d2f0bf919f7",
+      "configuration": "release, stripped debug; gzip level 9 is computed, not a delivery claim"
+    }
+  ],
+  "samples": [
+    {
+      "case": "ordinary-v1",
+      "repetition": 0,
+      "version": 1,
+      "editsPerAuthor": 8,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 18,
+          "minMs": 4,
+          "p50Ms": 5,
+          "p95Ms": 9,
+          "maxMs": 9,
+          "samplesMs": [
+            9,
+            5,
+            4
+          ]
+        },
+        "offlineEdit": {
+          "count": 16,
+          "totalMs": 32,
+          "minMs": 1,
+          "p50Ms": 2,
+          "p95Ms": 3,
+          "maxMs": 3,
+          "samplesMs": [
+            2,
+            3,
+            3,
+            1,
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            1,
+            1,
+            2
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 4,
+          "minMs": 2,
+          "p50Ms": 2,
+          "p95Ms": 2,
+          "maxMs": 2,
+          "samplesMs": [
+            2,
+            2
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 7,
+          "minMs": 3,
+          "p50Ms": 3,
+          "p95Ms": 4,
+          "maxMs": 4,
+          "samplesMs": [
+            4,
+            3
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 14,
+          "minMs": 5,
+          "p50Ms": 5,
+          "p95Ms": 9,
+          "maxMs": 9,
+          "samplesMs": [
+            9,
+            5
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 6,
+          "minMs": 6,
+          "p50Ms": 6,
+          "p95Ms": 6,
+          "maxMs": 6,
+          "samplesMs": [
+            6
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 7,
+          "minMs": 7,
+          "p50Ms": 7,
+          "p95Ms": 7,
+          "maxMs": 7,
+          "samplesMs": [
+            7
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 9,
+          "minMs": 9,
+          "p50Ms": 9,
+          "p95Ms": 9,
+          "maxMs": 9,
+          "samplesMs": [
+            9
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 1,
+          "minMs": 0,
+          "p50Ms": 0,
+          "p95Ms": 1,
+          "maxMs": 1,
+          "samplesMs": [
+            1,
+            0
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 10,
+          "minMs": 10,
+          "p50Ms": 10,
+          "p95Ms": 10,
+          "maxMs": 10,
+          "samplesMs": [
+            10
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 3,
+          "minMs": 1,
+          "p50Ms": 1,
+          "p95Ms": 2,
+          "maxMs": 2,
+          "samplesMs": [
+            2,
+            1
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 3,
+          "minMs": 1,
+          "p50Ms": 1,
+          "p95Ms": 2,
+          "maxMs": 2,
+          "samplesMs": [
+            2,
+            1
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 9126,
+        "exchangeBytes": 8842,
+        "changes": 18,
+        "receipts": 18
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bababababababaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "case": "ordinary-v2",
+      "repetition": 0,
+      "version": 2,
+      "editsPerAuthor": 8,
+      "metrics": {
+        "create": {
+          "count": 3,
+          "totalMs": 8,
+          "minMs": 2,
+          "p50Ms": 3,
+          "p95Ms": 3,
+          "maxMs": 3,
+          "samplesMs": [
+            3,
+            3,
+            2
+          ]
+        },
+        "offlineEdit": {
+          "count": 16,
+          "totalMs": 101,
+          "minMs": 5,
+          "p50Ms": 6,
+          "p95Ms": 8,
+          "maxMs": 8,
+          "samplesMs": [
+            7,
+            7,
+            8,
+            6,
+            7,
+            8,
+            6,
+            7,
+            6,
+            6,
+            5,
+            5,
+            6,
+            6,
+            5,
+            6
+          ]
+        },
+        "format": {
+          "count": 2,
+          "totalMs": 10,
+          "minMs": 4,
+          "p50Ms": 4,
+          "p95Ms": 6,
+          "maxMs": 6,
+          "samplesMs": [
+            4,
+            6
+          ]
+        },
+        "exchangeExport": {
+          "count": 2,
+          "totalMs": 6,
+          "minMs": 3,
+          "p50Ms": 3,
+          "p95Ms": 3,
+          "maxMs": 3,
+          "samplesMs": [
+            3,
+            3
+          ]
+        },
+        "rejoin": {
+          "count": 2,
+          "totalMs": 16,
+          "minMs": 7,
+          "p50Ms": 7,
+          "p95Ms": 9,
+          "maxMs": 9,
+          "samplesMs": [
+            9,
+            7
+          ]
+        },
+        "duplicateReceive": {
+          "count": 1,
+          "totalMs": 4,
+          "minMs": 4,
+          "p50Ms": 4,
+          "p95Ms": 4,
+          "maxMs": 4,
+          "samplesMs": [
+            4
+          ]
+        },
+        "fullHistoryReceive": {
+          "count": 1,
+          "totalMs": 9,
+          "minMs": 9,
+          "p50Ms": 9,
+          "p95Ms": 9,
+          "maxMs": 9,
+          "samplesMs": [
+            9
+          ]
+        },
+        "save": {
+          "count": 1,
+          "totalMs": 8,
+          "minMs": 8,
+          "p50Ms": 8,
+          "p95Ms": 8,
+          "maxMs": 8,
+          "samplesMs": [
+            8
+          ]
+        },
+        "receipts": {
+          "count": 2,
+          "totalMs": 0,
+          "minMs": 0,
+          "p50Ms": 0,
+          "p95Ms": 0,
+          "maxMs": 0,
+          "samplesMs": [
+            0,
+            0
+          ]
+        },
+        "restore": {
+          "count": 1,
+          "totalMs": 13,
+          "minMs": 13,
+          "p50Ms": 13,
+          "p95Ms": 13,
+          "maxMs": 13,
+          "samplesMs": [
+            13
+          ]
+        },
+        "undo": {
+          "count": 2,
+          "totalMs": 7,
+          "minMs": 3,
+          "p50Ms": 3,
+          "p95Ms": 4,
+          "maxMs": 4,
+          "samplesMs": [
+            3,
+            4
+          ]
+        },
+        "redo": {
+          "count": 2,
+          "totalMs": 7,
+          "minMs": 3,
+          "p50Ms": 3,
+          "p95Ms": 4,
+          "maxMs": 4,
+          "samplesMs": [
+            4,
+            3
+          ]
+        }
+      },
+      "sizes": {
+        "baselineBytes": 4493,
+        "snapshotBytes": 10188,
+        "exchangeBytes": 9904,
+        "changes": 18,
+        "receipts": 18
+      },
+      "finalBlocks": [
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "b",
+              "type": "text"
+            },
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "a",
+              "type": "text"
+            },
+            {
+              "marks": [],
+              "text": "bababababababaHello 👩🏽‍💻 é 日本語",
+              "type": "text"
+            }
+          ],
+          "extension": {
+            "keep": true
+          },
+          "id": "bench-text",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                },
+                {
+                  "type": "strikethrough"
+                },
+                {
+                  "type": "code"
+                },
+                {
+                  "href": "https://example.com/ref",
+                  "type": "link"
+                }
+              ],
+              "text": "A😀é世界",
+              "type": "text"
+            },
+            {
+              "entityId": "user-1",
+              "entityType": "user",
+              "label": "Person",
+              "type": "mention"
+            },
+            {
+              "date": "2024-02-29T12:30:00.125Z",
+              "format": "relative",
+              "type": "date"
+            },
+            {
+              "entityId": "task-1",
+              "entityType": "task",
+              "label": "Task",
+              "type": "entity-ref"
+            },
+            {
+              "name": "rocket",
+              "type": "emoji"
+            },
+            {
+              "expression": "x^2",
+              "type": "inline-math"
+            }
+          ],
+          "extension": {
+            "nested": [
+              1,
+              true,
+              null,
+              "keep"
+            ]
+          },
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Heading",
+              "type": "text"
+            }
+          ],
+          "id": "h",
+          "level": 3,
+          "type": "heading"
+        },
+        {
+          "id": "l",
+          "items": [
+            {
+              "checked": true,
+              "children": [
+                {
+                  "children": [],
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Child",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": "keep",
+                  "id": "child"
+                }
+              ],
+              "content": [
+                {
+                  "marks": [],
+                  "text": "Parent",
+                  "type": "text"
+                }
+              ],
+              "id": "item"
+            }
+          ],
+          "style": "todo",
+          "type": "list"
+        },
+        {
+          "code": "let value = \"😀\"",
+          "id": "c",
+          "language": "swift",
+          "type": "code"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Quote",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "quote"
+        },
+        {
+          "color": "#aBc123",
+          "content": [
+            {
+              "marks": [],
+              "text": "Callout",
+              "type": "text"
+            }
+          ],
+          "icon": "!",
+          "id": "a",
+          "type": "callout",
+          "variant": "warning"
+        },
+        {
+          "id": "d",
+          "type": "divider"
+        },
+        {
+          "alt": "Alt",
+          "caption": [
+            {
+              "marks": [],
+              "text": "Caption",
+              "type": "text"
+            }
+          ],
+          "height": 600,
+          "id": "i",
+          "src": "asset:host-owned",
+          "type": "image",
+          "width": 800
+        },
+        {
+          "columnWidths": [
+            120,
+            200.5
+          ],
+          "id": "t",
+          "rows": [
+            {
+              "cells": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Cell",
+                      "type": "text"
+                    }
+                  ],
+                  "extension": 42,
+                  "header": true,
+                  "id": "cell"
+                }
+              ],
+              "id": "row"
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "description": "Description",
+          "id": "e",
+          "thumbnail": "host-thumbnail",
+          "title": "Embed",
+          "type": "embed",
+          "url": "https://example.com"
+        },
+        {
+          "expression": "x^2",
+          "id": "m",
+          "type": "math"
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "content": [
+                    {
+                      "marks": [],
+                      "text": "Nested",
+                      "type": "text"
+                    }
+                  ],
+                  "id": "deep",
+                  "type": "paragraph"
+                }
+              ],
+              "id": "nested",
+              "summary": [],
+              "type": "toggle"
+            }
+          ],
+          "id": "toggle",
+          "summary": [
+            {
+              "marks": [],
+              "text": "Summary",
+              "type": "text"
+            }
+          ],
+          "type": "toggle"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-0",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-1",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-2",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "marks": [],
+              "text": "Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. Reading and writing. ",
+              "type": "text"
+            }
+          ],
+          "id": "bench-filler-3",
+          "type": "paragraph"
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "options": {
+    "profile": "smoke",
+    "cases": [
+      {
+        "name": "ordinary-v1",
+        "version": 1,
+        "editsPerAuthor": 8
+      },
+      {
+        "name": "ordinary-v2",
+        "version": 2,
+        "editsPerAuthor": 8
+      }
+    ],
+    "repetitions": 1,
+    "warmups": 0
+  },
+  "initialization": {
+    "compileMs": 87,
+    "compiledModuleInstanceMs": 8,
+    "firstEmptySessionMs": 0,
+    "diskCaches": "uncontrolled; fetched local bytes before timing; not disk-cold startup"
+  },
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+    "hardwareConcurrency": 14
+  }
+}

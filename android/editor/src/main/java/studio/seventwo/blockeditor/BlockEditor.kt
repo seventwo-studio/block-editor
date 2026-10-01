@@ -3,6 +3,7 @@ package studio.seventwo.blockeditor
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -46,35 +47,48 @@ import java.util.UUID
     var error by remember(session) { mutableStateOf<String?>(null) }
     val composing = remember(session) { mutableStateMapOf<String, Boolean>() }
     fun report(e: Exception) { error = e.message; onError(e) }
-    fun perform(action: () -> Unit) { try { action(); error = null } catch (e: Exception) { report(e) } }
+    val currentReport by rememberUpdatedState<(Exception) -> Unit>(::report)
+    val scope = rememberCoroutineScope()
+    val inputs = remember(session) { EditorInputs(session, scope) { currentReport(it) } }
+    DisposableEffect(inputs) { onDispose { inputs.close() } }
+    fun perform(action: () -> Unit) { try { inputs.perform(action); error = null } catch (e: Exception) { report(e) } }
     val array = session.snapshot.getJSONArray("blocks")
     val blocks = (0 until array.length()).map { array.getJSONObject(it) }
     val canAct = !readOnly && composing.isEmpty()
-    Column(modifier) {
-        Row {
-            TextButton(enabled = canAct && session.snapshot.getBoolean("canUndo"), onClick = { perform { session.undo() } }) { Text("Undo") }
-            TextButton(enabled = canAct && session.snapshot.getBoolean("canRedo"), onClick = { perform { session.redo() } }) { Text("Redo") }
-            TextButton(enabled = canAct, onClick = { perform {
-                session.edit("insert", JSONObject().put("after", blocks.lastOrNull()?.getString("id") ?: JSONObject.NULL)
-                    .put("block", JSONObject().put("id", UUID.randomUUID().toString()).put("type", "paragraph").put("content", JSONArray())))
-            } }) { Text("Paragraph") }
-            onAssetInsertRequest?.let { request ->
-                TextButton(enabled = canAct, onClick = { perform(request) }) { Text("Image") }
+    val listState = rememberLazyListState()
+    LaunchedEffect(readOnly) { if (readOnly) inputs.cancelFocusRestoration() }
+    LaunchedEffect(inputs.focusRequest) {
+        val address = inputs.requestedAddress() ?: return@LaunchedEffect
+        val index = blocks.indexOfFirst { it.optString("id") == address.blockID }
+        if (index >= 0) listState.scrollToItem(index)
+    }
+    CompositionLocalProvider(LocalEditorInputs provides inputs) {
+        Column(modifier) {
+            Row {
+                TextButton(enabled = canAct && session.snapshot.getBoolean("canUndo"), onClick = { perform { session.undo() } }) { Text("Undo") }
+                TextButton(enabled = canAct && session.snapshot.getBoolean("canRedo"), onClick = { perform { session.redo() } }) { Text("Redo") }
+                TextButton(enabled = canAct, onClick = { perform {
+                    session.edit("insert", JSONObject().put("after", blocks.lastOrNull()?.getString("id") ?: JSONObject.NULL)
+                        .put("block", JSONObject().put("id", UUID.randomUUID().toString()).put("type", "paragraph").put("content", JSONArray())))
+                } }) { Text("Paragraph") }
+                onAssetInsertRequest?.let { request ->
+                    TextButton(enabled = canAct, onClick = { perform(request) }) { Text("Image") }
+                }
             }
-        }
-        error?.let { Text(it, color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
-        LazyColumn(Modifier.weight(1f)) {
-            items(blocks, key = { it.getString("id") }) { block ->
-                val id = block.getString("id")
-                Column(Modifier.fillMaxWidth().padding(8.dp)) {
-                    EditableBlockContent(session, id, block, emptyList(), readOnly, canAct,
-                        ::report, { key, active -> if (active) composing[key] = true else composing.remove(key) }, onAssetRequest, asset)
-                    BlockActions(id, emptyList(), canAct, blocks.indexOf(block), blocks.size, ::report,
-                        move = { destination ->
-                            val after = if (destination == 0) JSONObject.NULL else blocks[if (destination > blocks.indexOf(block)) destination else destination - 1].getString("id")
-                            session.edit("move", JSONObject().put("blockID", id).put("after", after))
-                        }, delete = { session.edit("delete", JSONObject().put("blockID", id)) })
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
+            LazyColumn(Modifier.weight(1f), state = listState) {
+                items(blocks, key = { it.getString("id") }) { block ->
+                    val id = block.getString("id")
+                    Column(Modifier.fillMaxWidth().padding(8.dp)) {
+                        EditableBlockContent(session, id, block, emptyList(), readOnly, canAct,
+                            ::report, { key, active -> if (active) composing[key] = true else composing.remove(key) }, onAssetRequest, asset)
+                        BlockActions(id, emptyList(), canAct, blocks.indexOf(block), blocks.size, ::report,
+                            move = { destination ->
+                                val after = if (destination == 0) JSONObject.NULL else blocks[if (destination > blocks.indexOf(block)) destination else destination - 1].getString("id")
+                                session.edit("move", JSONObject().put("blockID", id).put("after", after))
+                            }, delete = { session.edit("delete", JSONObject().put("blockID", id)) })
+                    }
                 }
             }
         }
@@ -88,7 +102,8 @@ import java.util.UUID
                                      indent: (() -> Unit)? = null, outdent: (() -> Unit)? = null) {
     var expanded by remember(blockID, path) { mutableStateOf(false) }
     LaunchedEffect(enabled) { if (!enabled) expanded = false }
-    fun perform(action: () -> Unit) { expanded = false; try { action() } catch (error: Exception) { report(error) } }
+    val inputs = LocalEditorInputs.current
+    fun perform(action: () -> Unit) { expanded = false; try { inputs.perform(action) } catch (error: Exception) { report(error) } }
     Box {
         TextButton(enabled = enabled, onClick = { expanded = true },
             modifier = Modifier.testTag("editor-actions:$blockID:${path.joinToString("/")}")

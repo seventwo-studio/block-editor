@@ -9,6 +9,10 @@ import SwiftUI
     public private(set) var canUndo = false
     public private(set) var canRedo = false
     public private(set) var error: String?
+    /// Use this property for live native menu updates as the host changes policy.
+    public var allowedBlockTypes: Set<String>? {
+        didSet { session.allowedBlockTypes = allowedBlockTypes }
+    }
     @ObservationIgnored public let session: EditorSession
     @ObservationIgnored public var onChange: ((BlockEditorCore.Document, Change?) -> Void)?
 
@@ -16,6 +20,7 @@ import SwiftUI
 
     public init(session: EditorSession) throws {
         self.session = session; self.document = try session.document
+        allowedBlockTypes = session.allowedBlockTypes
         canUndo = session.canUndo; canRedo = session.canRedo
         session.onWillReceive = { [weak self] in self?.inputs.values.forEach { $0.before() } }
         session.onChange = { [weak self] document, change in

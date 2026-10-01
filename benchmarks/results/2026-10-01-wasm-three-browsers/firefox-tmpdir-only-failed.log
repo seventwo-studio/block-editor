@@ -1,0 +1,38 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:70576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+  ✘  1 [firefox] › tests/performance.spec.ts:9:0 › measures verified editing and offline-history workloads through WASM (0ms)
+
+
+  1) [firefox] › tests/performance.spec.ts:9:0 › measures verified editing and offline-history workloads through WASM 
+
+    Error: launch: Failed to launch the browser process.
+    Browser logs:
+
+    <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /tmp/playwright_firefoxdev_profile-dDSioW -juggler-pipe -silent
+    <launched> pid=70598
+    [pid=70598][err] *** You are running in headless mode.
+    [pid=70598][err] Could not find profile folder.
+    [pid=70598] <process did exit: exitCode=1, signal=null>
+    [pid=70598] starting temporary directories cleanup
+    Call log:
+      - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /tmp/playwright_firefoxdev_profile-dDSioW -juggler-pipe -silent
+      - <launched> pid=70598
+      - [pid=70598][err] *** You are running in headless mode.
+      - [pid=70598][err] Could not find profile folder.
+      - [pid=70598] <process did exit: exitCode=1, signal=null>
+      - [pid=70598] starting temporary directories cleanup
+      - [pid=70598] <gracefully close start>
+      - [pid=70598] <kill>
+      - [pid=70598] <skipped force kill spawnedProcess.killed=false processClosed=true>
+      - [pid=70598] finished temporary directories cleanup
+      - [pid=70598] <gracefully close end>
+
+
+    Error Context: test-results/performance-measures-verif-47984-tory-workloads-through-WASM-firefox/error-context.md
+
+  1 failed
+    [firefox] › tests/performance.spec.ts:9:0 › measures verified editing and offline-history workloads through WASM 

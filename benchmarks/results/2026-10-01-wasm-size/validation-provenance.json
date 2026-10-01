@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "artifactSource": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+  "originalBuildProvenance": "../2026-10-01-wasm-three-browsers/provenance.json",
+  "original": {
+    "rawBytes": 61435676,
+    "gzipLevel9Bytes": 20370961,
+    "sha256": "d659fd2f1212d8242e3c18397f69a540cf76d23c63cd2e073eba15a669518457"
+  },
+  "candidate": {
+    "rawBytes": 54630266,
+    "gzipLevel9Bytes": 19307383,
+    "sha256": "f7162960ab5f34f57ee23c3279c27408d54e39f3a966486d43740d2f0bf919f7",
+    "removedSections": 1,
+    "savedRawBytes": 6805410,
+    "savedGzipLevel9Bytes": 1063578
+  },
+  "transformation": "Only custom name sections removed; all other framed bytes unchanged",
+  "tool": "../../../scripts/wasm-size.mjs",
+  "toolSHA256": "e4df4e98572bf005426ff820b08a408c05660876e83a44eb22226afcb50e9b90",
+  "trackedProductionInputChanges": [],
+  "command": [
+    "node",
+    "node_modules/playwright/cli.js",
+    "test",
+    "--config",
+    ".codex/st94/playwright.config.ts"
+  ],
+  "profile": "smoke",
+  "workers": 1,
+  "viteCacheDir": "/tmp/st94-wasm-validation-20261001/vite-cache",
+  "separateCandidatePath": "/tmp/st94-wasm-names-20261001/block-editor.wasm",
+  "configSHA256": "a345b76ec20f2e3b6bae5810385eccac2141579ff172482835ba66d7cfb11aae",
+  "compatibility": [
+    {
+      "file": "compatibility/transcript.json.gz",
+      "responses": 2297,
+      "fixtureHashes": {
+        "bridge": "55f305d7c87a31db876048e01d21f8080c96ea541edd5009734d57a73c8d3d66",
+        "documents": "28a0306a05eeaea035dfff9d1e9694c4b9eb89cf8ff39bddbf7f76a42c6671e2",
+        "recovery": "0e6ae9c850609f5f2bf874e1edc063332526c2a48c98e4d36fe37df20b3a4254",
+        "structure": "7a82baf6c079de837089c6c1a7043a2cef3bc302a19517fec1bfa4e389d724a2"
+      },
+      "encoding": "gzip JSON",
+      "uncompressedSHA256": "d011ddfc05be39d26d66e20e924617ae9988f52f4d2bf6594b55e6f61ca8fd26",
+      "gzipSHA256": "f1c6509945e0f0c62b92f7243e520d9ed155266ffdc1d50f84e83d67408f5ad4",
+      "uncompressedBytes": 27752905,
+      "gzipBytes": 509004,
+      "runtime": "wasm-chromium",
+      "originalOutputPath": "/tmp/st94-wasm-validation-20261001/compatibility/wasm-chromium.json"
+    },
+    {
+      "file": "compatibility/transcript.json.gz",
+      "responses": 2297,
+      "fixtureHashes": {
+        "bridge": "55f305d7c87a31db876048e01d21f8080c96ea541edd5009734d57a73c8d3d66",
+        "documents": "28a0306a05eeaea035dfff9d1e9694c4b9eb89cf8ff39bddbf7f76a42c6671e2",
+        "recovery": "0e6ae9c850609f5f2bf874e1edc063332526c2a48c98e4d36fe37df20b3a4254",
+        "structure": "7a82baf6c079de837089c6c1a7043a2cef3bc302a19517fec1bfa4e389d724a2"
+      },
+      "encoding": "gzip JSON",
+      "uncompressedSHA256": "d011ddfc05be39d26d66e20e924617ae9988f52f4d2bf6594b55e6f61ca8fd26",
+      "gzipSHA256": "f1c6509945e0f0c62b92f7243e520d9ed155266ffdc1d50f84e83d67408f5ad4",
+      "uncompressedBytes": 27752905,
+      "gzipBytes": 509004,
+      "runtime": "wasm-firefox",
+      "originalOutputPath": "/tmp/st94-wasm-validation-20261001/compatibility/wasm-firefox.json"
+    },
+    {
+      "file": "compatibility/transcript.json.gz",
+      "responses": 2297,
+      "fixtureHashes": {
+        "bridge": "55f305d7c87a31db876048e01d21f8080c96ea541edd5009734d57a73c8d3d66",
+        "documents": "28a0306a05eeaea035dfff9d1e9694c4b9eb89cf8ff39bddbf7f76a42c6671e2",
+        "recovery": "0e6ae9c850609f5f2bf874e1edc063332526c2a48c98e4d36fe37df20b3a4254",
+        "structure": "7a82baf6c079de837089c6c1a7043a2cef3bc302a19517fec1bfa4e389d724a2"
+      },
+      "encoding": "gzip JSON",
+      "uncompressedSHA256": "d011ddfc05be39d26d66e20e924617ae9988f52f4d2bf6594b55e6f61ca8fd26",
+      "gzipSHA256": "f1c6509945e0f0c62b92f7243e520d9ed155266ffdc1d50f84e83d67408f5ad4",
+      "uncompressedBytes": 27752905,
+      "gzipBytes": 509004,
+      "runtime": "wasm-webkit",
+      "originalOutputPath": "/tmp/st94-wasm-validation-20261001/compatibility/wasm-webkit.json"
+    }
+  ],
+  "smoke": [
+    {
+      "file": "smoke/performance-wasm-chromium.json",
+      "sha256": "56b2cd6f046aceacf3fcc7e407de6761d66386d31ec57ac4d5b031f34c6fcebf",
+      "runtime": {
+        "name": "wasm-chromium",
+        "browser": "153.0.8010.12",
+        "host": {
+          "platform": "darwin",
+          "architecture": "arm64",
+          "osRelease": "27.0.0",
+          "cpu": "Apple M4 Max",
+          "memoryBytes": 38654705664
+        },
+        "boundary": "SwiftEditorRuntime.call; UTF-8/JSON and WASM copies included; rendering/network excluded"
+      },
+      "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+      "sourceDirty": true,
+      "samples": 2,
+      "complete": true
+    },
+    {
+      "file": "smoke/performance-wasm-firefox.json",
+      "sha256": "40989bb92ef98a699e32825e4ea756b9420b1f21d55075a92f9d79f820ab49e5",
+      "runtime": {
+        "name": "wasm-firefox",
+        "browser": "155.0",
+        "host": {
+          "platform": "darwin",
+          "architecture": "arm64",
+          "osRelease": "27.0.0",
+          "cpu": "Apple M4 Max",
+          "memoryBytes": 38654705664
+        },
+        "boundary": "SwiftEditorRuntime.call; UTF-8/JSON and WASM copies included; rendering/network excluded"
+      },
+      "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+      "sourceDirty": true,
+      "samples": 2,
+      "complete": true
+    },
+    {
+      "file": "smoke/performance-wasm-webkit.json",
+      "sha256": "4e57b6a9fc46f8b6e52a87b250db87113e7c3fd115005ca3c31b0afec8aafdd9",
+      "runtime": {
+        "name": "wasm-webkit",
+        "browser": "26.6",
+        "host": {
+          "platform": "darwin",
+          "architecture": "arm64",
+          "osRelease": "27.0.0",
+          "cpu": "Apple M4 Max",
+          "memoryBytes": 38654705664
+        },
+        "boundary": "SwiftEditorRuntime.call; UTF-8/JSON and WASM copies included; rendering/network excluded"
+      },
+      "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+      "sourceDirty": true,
+      "samples": 2,
+      "complete": true
+    }
+  ],
+  "numericBudgetsAgreed": false,
+  "defaultBuildChanged": false,
+  "transcriptStorage": "Three independently captured byte-identical transcripts retained once; per-runtime original paths and hashes preserved"
+}

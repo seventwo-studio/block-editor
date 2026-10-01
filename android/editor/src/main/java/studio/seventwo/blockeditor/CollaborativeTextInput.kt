@@ -14,6 +14,7 @@ internal class CollaborativeTextInput(
     private val session: EditorSession,
     private val blockID: String,
     private val path: List<String> = listOf("content"),
+    private val origin: NodeIdentity? = null,
     private val reportError: (Exception) -> Unit,
 ) : Closeable {
     var value by mutableStateOf(TextFieldValue(readText()))
@@ -23,7 +24,8 @@ internal class CollaborativeTextInput(
     private var anchors: Pair<JSONObject, JSONObject>? = null
     private val unsubscribeBefore = session.subscribeBeforeReceive {
         try {
-            anchors = session.position(blockID, value.selection.start, path) to session.position(blockID, value.selection.end, path)
+            val address = checkNotNull(liveAddress())
+            anchors = session.position(address.blockID, value.selection.start, address.path) to session.position(address.blockID, value.selection.end, address.path)
         } catch (_: Exception) { anchors = null }
         val rollback: () -> Unit = { anchors = null }
         rollback
@@ -45,21 +47,24 @@ internal class CollaborativeTextInput(
             if (release == null) release = session.deferRemoteChanges()
             return
         }
-        try { if (next.text != readText()) session.setText(blockID, next.text, path) }
+        try {
+            if (next.text != readText()) {
+                if (origin == null) session.setText(blockID, next.text, path)
+                else session.setText(origin, next.text, path.last())
+            }
+        }
         catch (error: Exception) { value = TextFieldValue(readText()); reportError(error) }
         finally {
             val finish = release; release = null
             try { finish?.invoke() } catch (error: Exception) { reportError(error) }
         }
     }
+    internal fun liveAddress(): NodeAddress? = if (origin == null) NodeAddress(blockID, path) else try {
+        session.nodeAddress(origin).let { NodeAddress(it.blockID, it.path + path.last()) }
+    } catch (_: IllegalStateException) { null }
     private fun readText(): String {
-        val blocks = session.snapshot.getJSONArray("blocks")
-        var field: Any? = (0 until blocks.length()).map { blocks.getJSONObject(it) }.find { it.optString("id") == blockID }
-        for (part in path) field = when (val parent = field) {
-            is JSONObject -> parent.opt(part)
-            is JSONArray -> (0 until parent.length()).mapNotNull { parent.optJSONObject(it) }.find { it.optString("id") == part }
-            else -> null
-        }
+        val address = liveAddress() ?: return ""
+        val field = fieldValue(session.snapshot, address.blockID, address.path)
         return when (field) {
             is String -> field
             is JSONArray -> plainText(field)

@@ -1,0 +1,9 @@
+{
+  "processScopedAppdata": {
+    "MOZ_APP_DATA": "/private/tmp/st94-firefox-appdata-ur882z5c/app",
+    "MOZ_LOCAL_APP_DATA": "/private/tmp/st94-firefox-appdata-ur882z5c/local"
+  },
+  "exitCode": 0,
+  "binaryOrUserProfileModified": false,
+  "temporaryOwnedAppdataRemoved": true
+}

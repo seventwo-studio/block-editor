@@ -125,14 +125,30 @@ export function SwiftBlockEditor({ loadModule, documentID, actorID, initialBlock
     let canceled = false;
     let current: SwiftEditorSession | undefined;
     let disconnect: void | (() => void);
+    function dispose() {
+      const cleanup = disconnect, opened = current;
+      disconnect = undefined; current = undefined;
+      try { cleanup?.(); } finally { opened?.close(); }
+    }
+    function disposeSafely() {
+      try { dispose(); } catch (reason) { console.error("Unable to close the editor session", reason); }
+    }
     setSession(null); setError(null);
-    void loadModule().then(source => SwiftEditorRuntime.initialize(source)).then(runtime => {
-      if (canceled) return;
+    // Hosts can throw before returning a Promise. Treat that as a retryable load
+    // failure, and avoid starting a runtime for a document already replaced.
+    void Promise.resolve().then(() => canceled ? undefined : loadModule()).then(source => {
+      if (canceled || source === undefined) return;
+      return SwiftEditorRuntime.initialize(source);
+    }).then(runtime => {
+      if (canceled || !runtime) return;
       current = initialSnapshot ? runtime.restore(initialSnapshot, actorID) : runtime.create({ documentID, actorID, blocks: initialBlocks });
       disconnect = onReady?.(current);
-      setSession(current);
-    }).catch(reason => { if (!canceled) setError(String(reason)); });
-    return () => { canceled = true; disconnect?.(); current?.close(); };
+      if (canceled) disposeSafely(); else setSession(current);
+    }).catch(reason => {
+      disposeSafely();
+      if (!canceled) setError(String(reason));
+    });
+    return () => { canceled = true; disposeSafely(); };
     // Initial content is captured when document/actor/loader identity changes. Subsequent
     // updates use the session API, so host re-renders do not overwrite collaborative state.
   }, [loadModule, documentID, actorID, retry]);

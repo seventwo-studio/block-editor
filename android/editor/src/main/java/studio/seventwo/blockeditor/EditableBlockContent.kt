@@ -59,6 +59,11 @@ import org.json.JSONObject
         }
         "toggle" -> {
             var expanded by remember(session, rootID, path) { mutableStateOf(true) }
+            val inputs = LocalEditorInputs.current
+            LaunchedEffect(inputs.focusRequest) {
+                val address = inputs.requestedAddress()
+                if (address?.blockID == rootID && address.path.take(path.size + 1) == path + "children") expanded = true
+            }
             Column {
                 Row {
                     TextButton(enabled = canAct || readOnly, onClick = { expanded = !expanded }) {

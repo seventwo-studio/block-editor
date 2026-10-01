@@ -256,10 +256,14 @@ public final class EditorSession {
         }
     }
     private func reconcileRecoveredHistory(_ candidate: [ChangeID: Change]) {
-        for change in candidate.values.sorted(by: { $0.id < $1.id }) where log[change.id] == nil && change.id.actor == actorID {
-            guard case .setActive(let target, let active) = change.body else { continue }
-            if !active, let index = undoStack.firstIndex(of: target) { undoStack.remove(at: index); redoStack.append(target) }
-            if active, let index = redoStack.firstIndex(of: target) { redoStack.remove(at: index); undoStack.append(target) }
+        var winning: [ChangeID: (id: ChangeID, active: Bool)] = [:]
+        for change in candidate.values where change.id.actor == actorID {
+            if case .setActive(let target, let active) = change.body,
+               winning[target].map({ $0.id < change.id }) ?? true { winning[target] = (change.id, active) }
+        }
+        for (target, toggle) in winning.sorted(by: { $0.value.id < $1.value.id }) {
+            if !toggle.active, let index = undoStack.firstIndex(of: target) { undoStack.remove(at: index); redoStack.append(target) }
+            if toggle.active, let index = redoStack.firstIndex(of: target) { redoStack.remove(at: index); undoStack.append(target) }
         }
     }
     private func validateAuthoredNode(_ value: JSONValue, kind: NodeKind) throws {
