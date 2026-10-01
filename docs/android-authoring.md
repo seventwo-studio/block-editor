@@ -56,3 +56,16 @@ split/merge, conversion/typing shortcuts, multi-block operations, structured pas
 and collection creation/restructuring still require ST-97 through ST-101. These
 adapters do not copy arrays or emulate those shared semantics. Private package
 publication and clean consumer installation require ST-34/ST-106 evidence.
+
+
+Retained rendered actions are also guarded by the current host permission and
+composition state. In structural v2 epochs, root/nested menus, checklist changes
+and image requests capture opaque origin identities before remote replay; owner
+and move-anchor checks reject a reused address. Rendered action lifetimes follow
+those origins. Legacy v1 keeps its existing label-based semantics.
+
+The initial integration repair adds nine real Compose retained-action regressions
+for read-only Paragraph/Undo/Delete, root/scoped label reuse, image callbacks and
+checklist callbacks, disabled first-item movement and obsolete sibling order, checking accepted document and complete history before and
+after source-view disposal. These new cases require current-source instrumentation;
+prior 19-case evidence retains its original source/APK qualification.

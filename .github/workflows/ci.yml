@@ -63,7 +63,11 @@ jobs:
         run: |
           "$SWIFT_BIN" build -c release --product editor-bridge
           PERFORMANCE_PROFILE=smoke bun scripts/run-native-performance.mjs
-          bun test tests/performance-report.test.ts
+          bun test tests/performance-report.test.ts tests/wasm-size.test.ts
+      - name: Record exact native build provenance
+        run: |
+          python3 scripts/runtime-provenance.py record swift "$RUNNER_TEMP/editor-toolchains/installed-inputs.json" test-results/compatibility \
+            debug-bridge=.build/debug/editor-bridge release-bridge=.build/release/editor-bridge relay-client=.build/debug/relay-client
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -87,7 +91,7 @@ jobs:
       - run: python3 scripts/install-ci-toolchains.py wasm "$RUNNER_TEMP/editor-toolchains"
       - run: bun install --frozen-lockfile
       - run: bunx playwright install --with-deps chromium webkit firefox
-      - name: Build and execute actual WASM in three browser engines
+      - name: Build actual WASM and preserve compiler inputs
         env:
           COMPATIBILITY_OUTPUT: ${{ runner.temp }}/wasm-reports
         run: |
@@ -95,12 +99,38 @@ jobs:
           "$SWIFT_BIN" --version > "$COMPATIBILITY_OUTPUT/swift-version.txt"
           "$SWIFT_BIN" sdk list > "$COMPATIBILITY_OUTPUT/swift-sdks.txt"
           bun run build:wasm 2>&1 | tee "$COMPATIBILITY_OUTPUT/wasm-build.txt"
-          bunx playwright test --config playwright.swift.config.ts --reporter=line,json > "$COMPATIBILITY_OUTPUT/playwright.txt" 2>&1
+      - name: Build the relay engine from the same checkout as WASM
+        run: |
+          "$SWIFT_BIN" build --product editor-bridge
+          "$SWIFT_BIN" build --product relay-client
+      - name: Record exact WASM and relay build provenance
+        run: |
+          python3 scripts/runtime-provenance.py record wasm "$RUNNER_TEMP/editor-toolchains/installed-inputs.json" "$RUNNER_TEMP/wasm-reports" \
+            wasm=dist/block-editor.wasm debug-bridge=.build/debug/editor-bridge relay-client=.build/debug/relay-client
+      - name: Execute actual WASM in three browser engines
+        env:
+          COMPATIBILITY_OUTPUT: ${{ runner.temp }}/wasm-reports
+        run: bunx playwright test --config playwright.swift.config.ts --reporter=line,json > "$COMPATIBILITY_OUTPUT/playwright.txt" 2>&1
       - name: Verify WASM measurement harness in three engines
         env:
           PERFORMANCE_PROFILE: smoke
           PERFORMANCE_OUTPUT: ${{ runner.temp }}/wasm-reports
         run: bunx playwright test --config playwright.performance.config.ts --reporter=line,json > "$PERFORMANCE_OUTPUT/performance-playwright.txt" 2>&1
+      - name: Verify browser relay recovery in three engines
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/relay-playwright.json
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/relay-junit.xml
+        run: |
+          bunx playwright test --config playwright.relay.config.ts --forbid-only --fail-on-flaky-tests --reporter=line,json,junit --trace=retain-on-failure --output=test-results/relay-browser 2>&1 | tee "$RUNNER_TEMP/wasm-reports/relay-playwright.txt"
+      - name: Verify browser and relay process restart in three engines
+        env:
+          EVIDENCE_RUNTIME_MANIFEST: ${{ runner.temp }}/wasm-reports/runtime-provenance-wasm.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/relay-restart-playwright.json
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/relay-restart-junit.xml
+        run: |
+          EVIDENCE_SOURCE_SHA="$(git rev-parse HEAD)"
+          export EVIDENCE_SOURCE_SHA
+          bunx playwright test --config playwright.relay-restart.config.ts --forbid-only --fail-on-flaky-tests --reporter=line,json,junit --trace=retain-on-failure --output=test-results/relay-process-restart 2>&1 | tee "$RUNNER_TEMP/wasm-reports/relay-restart-playwright.txt"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -109,6 +139,7 @@ jobs:
             ${{ runner.temp }}/wasm-reports
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             test-results
+            dist/block-editor.wasm
           if-no-files-found: error
           retention-days: 7
 
@@ -145,7 +176,16 @@ jobs:
         run: |
           test -e /dev/kvm
           sudo chown "$USER" /dev/kvm
-          python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' --performance-profile smoke 2>&1 | tee test-results/compatibility/android-run.txt
+          input_checks=()
+          if [ '${{ matrix.api }}' = '26' ]; then input_checks+=(--system-ime); fi
+          python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' --performance-profile smoke "${input_checks[@]}" 2>&1 | tee test-results/compatibility/android-run.txt
+      - name: Record exact JNI build provenance
+        run: |
+          python3 scripts/runtime-provenance.py record 'android-api${{ matrix.api }}-${{ matrix.abi }}' "$RUNNER_TEMP/editor-toolchains/installed-inputs.json" test-results/compatibility \
+            jni=android/editor/src/main/jniLibs/${{ matrix.abi }}/libBlockEditorJNI.so \
+            swift-bridge=android/editor/src/main/jniLibs/${{ matrix.abi }}/libBlockEditorBridge.so \
+            cxx-runtime=android/editor/src/main/jniLibs/${{ matrix.abi }}/libc++_shared.so \
+            test-apk=android/editor/build/outputs/apk/androidTest/debug/editor-debug-androidTest.apk
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -153,6 +193,7 @@ jobs:
           path: |
             test-results/compatibility
             test-results/performance
+            test-results/system-input
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             android/editor/build/reports/androidTests
           if-no-files-found: error
@@ -172,6 +213,7 @@ jobs:
         with:
           bun-version: 1.4.2
       - run: bun test tests/runtime-artifacts.test.ts
+      - run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p runtime_provenance_test.py
       - name: Select the latest evidence from each runtime
         id: runtime-artifacts
         env:
@@ -193,5 +235,6 @@ jobs:
           test "$SWIFT_RESULT" = success
           test "$WASM_RESULT" = success
           test "$ANDROID_RESULT" = success
+      - run: python3 scripts/runtime-provenance.py verify test-results/runtime-reports
       - run: bun scripts/compare-runtime-reports.mjs test-results/runtime-reports
       - run: bun scripts/compare-performance-reports.mjs test-results/runtime-reports native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox smoke

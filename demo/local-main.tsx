@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { SwiftEditorRuntime, SwiftMergeRecoveryError, type SwiftEditorSession, type SwiftMergeRecovery } from "../src/swift.js";
 import { SwiftEditorSurface } from "../src/swift-react.js";
 import { LocalSync, type RelayStatus } from "./local-sync.js";
-import { claimDraft, DraftStore } from "./local-storage.js";
+import { claimDraft, DraftStore, readArchive, type RecoveryArchive } from "./local-storage.js";
 import { recoveryBlocks } from "./recovery-blocks.js";
 import "../src/react.css";
 
@@ -48,18 +48,17 @@ function Demo() {
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [saveFailed]);
-  async function open() {
+  async function open(archive?: RecoveryArchive) {
     setLoading(true); setError("");
     let release: (() => void) | undefined;
     let store: DraftStore | undefined;
     let editor: SwiftEditorSession | undefined;
     try {
       if (!/^[A-Za-z0-9_-]{1,80}$/.test(room)) throw new Error("Use a room name containing letters, numbers, hyphens or underscores.");
-      const client = selectedDraft || sessionStorage.getItem("editor-client") || crypto.randomUUID();
-      sessionStorage.setItem("editor-client", client); sessionStorage.setItem("editor-room", room);
+      const client = archive ? crypto.randomUUID() : selectedDraft || sessionStorage.getItem("editor-client") || crypto.randomUUID();
       const key = `${room}:${client}`;
       release = await claimDraft(key); store = await DraftStore.open();
-      const draft = await store.read(key);
+      const draft = archive ? { version: 2 as const, actor: crypto.randomUUID(), snapshot: archive.snapshot, pending: archive.pending } : await store.read(key);
       let snapshot = draft?.snapshot;
       if (!snapshot) {
         if (!token) throw new Error("Enter the local relay token to open a new draft.");
@@ -77,7 +76,8 @@ function Demo() {
         catch (error) { if (!(error instanceof SwiftMergeRecoveryError)) throw error; }
       }
       const transport = new LocalSync(editor, `/relay/rooms/${room}`, token, actor);
-      await store.write(key, { version: 2, actor, snapshot: editor.save(), pending: editor.mergeRecovery() });
+      await store.write(key, { version: 2, actor, snapshot: editor.save(), pending: editor.mergeRecovery() }, !!archive);
+      sessionStorage.setItem("editor-client", client); sessionStorage.setItem("editor-room", room);
       setSaved("Saved locally");
       const activeEditor = editor, activeStore = store, unlock = release;
       let writes = Promise.resolve(), revision = 0, disposed = false;
@@ -105,6 +105,12 @@ function Demo() {
       setStatus({ connection: "offline", pending: transport.pendingChanges, peers: [] });
       setSession(editor); setSync(transport); setOnline(!draft);
     } catch (error) { editor?.close(); store?.close(); release?.(); setError(String(error)); }
+    finally { setLoading(false); }
+  }
+  async function importArchive(file: File) {
+    setLoading(true); setError("");
+    try { await open(await readArchive(file)); }
+    catch (error) { setError(`Import failed: ${String(error)}. The file and saved drafts were preserved.`); }
     finally { setLoading(false); }
   }
   const choices = recovery ? recoveryBlocks(recovery) : [];
@@ -140,6 +146,11 @@ function Demo() {
       </select></label>}
       <label>Local demo token <input type="password" value={token} onChange={event => setToken(event.target.value)} /></label>
       <button disabled={loading}>{loading ? "Opening…" : "Open editor"}</button>
+      <label>Import recovery archive <input type="file" accept=".json,application/json" disabled={loading} onChange={event => {
+        const file = event.target.files?.[0]; event.target.value = "";
+        if (file) void importArchive(file);
+      }} /></label>
+      <p>Imported archives open as a new local draft with a fresh author. Connect explicitly after choosing the destination room.</p>
     </form>}
     {error && <p role="alert">{error}</p>}
     {session && <>
@@ -150,6 +161,12 @@ function Demo() {
       {saveFailed && <button onClick={() => retrySave.current?.()}>Retry local save</button>}
       <button onClick={exportDraft}>Export recovery archive</button>
       {status.error && <p role="alert">{status.error}</p>}
+      {status.capacity && <section aria-label="Transport capacity">
+        <h2>Synchronization needs a larger transport</h2>
+        <p>The relay limit is {status.capacity.maxBytes.toLocaleString()} bytes. Your complete local history remains on this device and unacknowledged.
+          Export the archive before changing transport or arranging a cutover. Retrying the same oversized history cannot make it fit.</p>
+        <button onClick={() => { setOnline(true); sync?.connect(); void sync?.exchange(); }}>Retry synchronization</button>
+      </section>}
       {recovery && <section aria-label="Merge recovery">
         <h2>Merge needs recovery</h2>
         <p>Accepted content stays selectable. Editing and undo wait while the rejected histories are retained separately.</p>

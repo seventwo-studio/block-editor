@@ -1,11 +1,11 @@
-import { createElement } from "react";
+import { createElement, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { SwiftEditorSurface } from "../src/swift-react.js";
-import { SwiftEditorRuntime } from "../src/swift.js";
+import { SwiftEditorRuntime, type SwiftEditorSession } from "../src/swift.js";
 import { inlineSelection, selectInline } from "../src/inline-react.js";
 import type { Block } from "../src/schema.js";
 
-export async function mount(bytes: ArrayBuffer) {
+export async function mount(bytes: ArrayBuffer, onMount?: (a: SwiftEditorSession, b: SwiftEditorSession, host: HTMLDivElement) => void) {
   const runtime = await SwiftEditorRuntime.initialize(bytes);
   const blocks: Block[] = [{ id: "p", type: "paragraph", content: [
     { type: "text", text: "Hello ", marks: [{ type: "bold" }] },
@@ -15,7 +15,12 @@ export async function mount(bytes: ArrayBuffer) {
   const a = runtime.create({ documentID: "selection", actorID: "a", blocks });
   const b = runtime.create({ documentID: "selection", actorID: "b", blocks });
   const host = document.createElement("div"); host.id = "selection-harness"; document.body.append(host);
-  createRoot(host).render(createElement(SwiftEditorSurface, { session: a }));
+  function MountedSurface() {
+    // Hosts can deliver a batch during layout, before passive effects run.
+    useLayoutEffect(() => { onMount?.(a, b, host); }, []);
+    return createElement(SwiftEditorSurface, { session: a });
+  }
+  createRoot(host).render(createElement(MountedSurface));
   const editor = () => host.querySelector<HTMLElement>('[role="textbox"]')!;
   return { a, b,
     select: (anchor: number, focus = anchor) => { editor().focus(); selectInline(editor(), Math.min(anchor, focus), Math.max(anchor, focus), anchor > focus); },

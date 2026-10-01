@@ -20,6 +20,8 @@ internal class EditorInputs(private val session: EditorSession, private val scop
                             private val report: (Exception) -> Unit) : Closeable {
     private data class Entry(val input: CollaborativeTextInput, var references: Int = 0, var retirement: Job? = null, var generation: Int = 0)
     private val entries = mutableMapOf<String, Entry>()
+    private var targetsSnapshot: JSONObject? = null
+    private val collectionTargets = mutableMapOf<String, List<RenderedNodeTarget>>()
     private var active: String? = null
     private var activeAddress: NodeAddress? = null
     private var focused = false
@@ -36,6 +38,15 @@ internal class EditorInputs(private val session: EditorSession, private val scop
         } else {
             if (address != activeAddress && (focused || localAction || focusRequest?.first == key)) focusRequest = key to ++revision
             activeAddress = address
+        }
+    }
+    /** One native identity query per collection per snapshot, shared by rendered siblings. */
+    fun renderedTargets(collection: NodeCollection, addressAt: (Int) -> NodeAddress): List<RenderedNodeTarget> {
+        if (targetsSnapshot !== session.snapshot) {
+            collectionTargets.clear(); targetsSnapshot = session.snapshot
+        }
+        return collectionTargets.getOrPut(canonical(collection.wire)) {
+            session.nodes(collection).mapIndexed { index, identity -> RenderedNodeTarget(session, addressAt(index), identity) }
         }
     }
     fun key(identity: NodeIdentity?, address: NodeAddress): String =
@@ -105,8 +116,15 @@ internal class EditorInputs(private val session: EditorSession, private val scop
     override fun close() {
         unsubscribe()
         entries.values.forEach { it.retirement?.cancel(); it.input.close() }
-        entries.clear(); active = null; focusRequest = null
+        entries.clear(); collectionTargets.clear(); targetsSnapshot = null; active = null; focusRequest = null
     }
+}
+
+/** A rendered action captures an origin before remote replay can reuse its label. */
+internal class RenderedNodeTarget(private val session: EditorSession, val address: NodeAddress,
+                                  val identity: NodeIdentity? = if (session.syncState().optInt("version", 1) >= 2) session.node(address) else null) {
+    val key: String = identity?.let { canonical(it.wire) } ?: "legacy:${canonical(address.wire())}"
+    fun current(): Boolean = identity?.let { runCatching { session.nodeAddress(it) == address }.getOrDefault(false) } ?: true
 }
 
 private fun canonical(value: Any?): String = when (value) {

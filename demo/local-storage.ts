@@ -7,6 +7,35 @@ export interface LocalDraft {
   pending: SwiftMergeRecovery | null;
 }
 
+export interface RecoveryArchive {
+  kind: "block-editor-recovery";
+  version: 1;
+  snapshot: SwiftChangeBatch;
+  pending: SwiftMergeRecovery | null;
+}
+
+/** Validate the host envelope here; the engine validates both histories before storage. */
+export function decodeArchive(value: unknown): RecoveryArchive {
+  if (!object(value) || value.kind !== "block-editor-recovery" || value.version !== 1 || !Object.hasOwn(value, "pending"))
+    throw new Error("Unsupported recovery archive. The file and saved drafts were preserved.");
+  const draft = decodeDraft({ version: 2, actor: "archive-validation", snapshot: value.snapshot, pending: value.pending });
+  return { kind: "block-editor-recovery", version: 1, snapshot: draft.snapshot, pending: draft.pending };
+}
+
+export async function readArchive(file: File): Promise<RecoveryArchive> {
+  // Two bounded engine histories plus their host envelope. Check before allocating.
+  if (file.size > 130_000_000) throw new Error("Recovery archive exceeds the import limit. Keep the file for a supported transport or cutover.");
+  // FileReader also supports file-picker input on WebKit hosts where File.text fails.
+  const text = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("Unable to read the recovery archive."));
+    reader.onabort = () => reject(new Error("Recovery archive reading was cancelled."));
+    reader.readAsText(file);
+  });
+  return decodeArchive(JSON.parse(text));
+}
+
 function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -67,11 +96,12 @@ export class DraftStore {
       request.onerror = () => reject(request.error);
     });
   }
-  async write(key: string, draft: LocalDraft): Promise<void> {
+  async write(key: string, draft: LocalDraft, create = false): Promise<void> {
     decodeDraft(draft);
     return new Promise((resolve, reject) => {
       const transaction = this.database.transaction("drafts", "readwrite");
-      transaction.objectStore("drafts").put(draft, key);
+      const drafts = transaction.objectStore("drafts");
+      if (create) drafts.add(draft, key); else drafts.put(draft, key);
       transaction.oncomplete = () => resolve();
       transaction.onabort = () => reject(transaction.error ?? new Error("Local save was aborted."));
       transaction.onerror = () => reject(transaction.error);

@@ -1,6 +1,6 @@
 // One fixture contract for native Swift and actual browser WASM execution.
 // Android emits the same raw-response transcript through packaged JNI.
-export const fixtureNames = ['bridge', 'structure', 'recovery', 'documents'];
+export const fixtureNames = ['bridge', 'structure', 'recovery', 'documents', 'writing'];
 
 export function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
@@ -71,12 +71,15 @@ export async function runFixture(name, fixture, call) {
       equal(captured.resolvedPosition, fixture.expectedPosition, `${name} selection`);
       equal(captured.cutover, fixture.expectedCutover, `${name} migration`);
       equal(captured.cutoverChanges.version, 2, `${name} protocol`);
-    } else {
+    } else if (name === 'recovery') {
       equal(captured.cleared, null, `${name} cleared recovery`);
       equal(captured.proposalA.reason, 'identityConflict', `${name} recovery reason`);
       equal(captured.proposalA.batch.changes.length, 2, `${name} retained histories`);
       equal(captured.finalA, fixture.expected, `${name} final document`);
       equal(captured.afterUndo, fixture.expectedAfterUndo, `${name} author undo`);
+    }
+    for (const [capture, expected] of Object.entries(fixture.expectedValues ?? {})) {
+      equal(captured[capture], expected, `${name} ${capture}`);
     }
   }
   return canonical({ responses });

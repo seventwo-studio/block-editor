@@ -31,6 +31,28 @@ export class SwiftMergeRecoveryError extends Error {
 export type SwiftSyncState = { received: unknown[]; documentID?: string; version?: number };
 export type SwiftPresence = { actor: string; revision: number; address?: TextAddress; anchor?: unknown; focus?: unknown };
 
+export interface SwiftWritingField { node: SwiftNodeID; name: string }
+export interface SwiftWritingAtomKey { origin: SwiftWritingField; element: SwiftElementID }
+export interface SwiftWritingPosition {
+  documentID: string; epoch: string; field: SwiftWritingField;
+  anchor?: SwiftWritingAtomKey | null; affinity: "before" | "after"; intraAtomOffset?: number | null;
+}
+export interface SwiftWritingTextRange { start: SwiftWritingPosition; end: SwiftWritingPosition }
+export interface SwiftWritingSelection { nodes: SwiftNodeID[]; text: SwiftWritingTextRange[] }
+export interface SwiftWritingCopy { nodes: unknown[]; text: InlineNode[][] }
+export interface SwiftResolvedWritingPosition { address: TextAddress; offset: number }
+export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3; epoch: string }
+export interface SwiftWritingReceipt { version: 3; documentID: string; epoch: string; received: unknown[] }
+export interface SwiftWritingRecovery { reason: "identityConflict" | "schemaConstraint"; batch: SwiftWritingBatch }
+export class SwiftWritingRecoveryError extends Error {
+  constructor(readonly recovery: SwiftWritingRecovery) { super("Writing recovery required"); this.name = "SwiftWritingRecoveryError"; }
+}
+/** Snapshot strings are base64-encoded UTF-8 JSON, preserving archived local history. */
+export interface SwiftWritingCutoverArchive {
+  acceptedSnapshot: string; pendingRecovery?: SwiftMergeRecovery | null; unacknowledged: SwiftChangeBatch[];
+  reconciledSnapshot: string; epoch: string;
+}
+
 type Exports = WebAssembly.Exports & {
   memory: WebAssembly.Memory;
   _start: () => void;
@@ -67,8 +89,9 @@ export class SwiftEditorRuntime {
       const memory = new Uint8Array(this.exports.memory.buffer);
       const end = memory.indexOf(0, output);
       if (end === -1) throw new Error("Invalid Swift response buffer");
-      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery };
+      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery | SwiftWritingRecovery };
       if (!response.ok) {
+        if (response.error === "writingRecoveryRequired" && response.recovery) throw new SwiftWritingRecoveryError(response.recovery as SwiftWritingRecovery);
         if (response.error === "mergeRecoveryRequired" && response.recovery) throw new SwiftMergeRecoveryError(response.recovery);
         throw new Error(response.error ?? "Swift editor operation failed");
       }
@@ -90,6 +113,122 @@ export class SwiftEditorRuntime {
   cutoverToV2(snapshot: SwiftChangeBatch, options: { documentID: string; actorID: string }): SwiftEditorSession {
     const handle = crypto.randomUUID();
     return new SwiftEditorSession(this, handle, this.call({ command: "cutoverToV2", session: handle, snapshot, ...options }));
+  }
+  createWriting(options: { documentID: string; actorID: string; epoch: string; blocks: Block[] }): SwiftWritingSession {
+    const handle = crypto.randomUUID();
+    return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 3, ...options }));
+  }
+  restoreWriting(snapshot: SwiftWritingBatch, actorID: string): SwiftWritingSession {
+    const handle = crypto.randomUUID();
+    return new SwiftWritingSession(this, handle, this.call({ command: "restore", session: handle, snapshot, actorID }));
+  }
+  cutoverToV3(archive: SwiftWritingCutoverArchive, options: { actorID: string; oldWritersStopped: true; archivePersisted: true; resetUndoAcknowledged: true }): SwiftWritingSession {
+    const handle = crypto.randomUUID();
+    return new SwiftWritingSession(this, handle, this.call({ command: "cutoverToV3", session: handle, archive, ...options }));
+  }
+}
+
+/** Explicit v3 facade. Commit composition before structural commands and hold
+ * remote delivery while the platform owns an uncommitted input buffer. */
+export class SwiftWritingSession {
+  private listeners = new Set<() => void>();
+  private beforeReceive = new Set<() => void | (() => void)>();
+  private closed = false;
+  private holds = 0;
+  private deferred: string[] = [];
+  private drainingCount = 0;
+  private drainingBytes = 0;
+  private draining = false;
+  constructor(private runtime: SwiftEditorRuntime, private handle: string, private snapshot: SwiftSnapshot) {}
+  getSnapshot = (): SwiftSnapshot => this.snapshot;
+  subscribe = (listener: () => void): (() => void) => { this.listeners.add(listener); return () => this.listeners.delete(listener); };
+  subscribeBeforeReceive = (listener: () => void | (() => void)): (() => void) => { this.beforeReceive.add(listener); return () => this.beforeReceive.delete(listener); };
+  private call<T>(command: string, args: Record<string, unknown> = {}): T {
+    if (this.closed) throw new Error("Writing session is closed");
+    return this.runtime.call({ command, session: this.handle, ...args });
+  }
+  private publish(snapshot: SwiftSnapshot): void { this.snapshot = snapshot; for (const listener of this.listeners) listener(); }
+  private command(command: string, args: Record<string, unknown>): SwiftWritingPosition {
+    const result = this.call<{ snapshot: SwiftSnapshot; position: SwiftWritingPosition }>(command, args);
+    this.publish(result.snapshot); return result.position;
+  }
+  node(address: SwiftNodeAddress): SwiftNodeID { return this.call("node", { address }); }
+  nodeAddress(identity: SwiftNodeID): SwiftNodeAddress { return this.call("nodeAddress", { identity }); }
+  textAddress(identity: SwiftNodeID, field = "content"): TextAddress { return this.call("textAddress", { identity, field }); }
+  position(address: TextAddress, offset: number, affinity: SwiftWritingPosition["affinity"] = "before"): SwiftWritingPosition { return this.call("position", { address, offset, affinity }); }
+  resolvePosition(position: SwiftWritingPosition): SwiftResolvedWritingPosition { return this.call("resolvePosition", { position }); }
+  setComposing(active: boolean): void { this.call("composition", { active }); }
+  replaceText(address: TextAddress, start: number, end: number, text: string, marks?: Mark[]): SwiftWritingPosition { return this.command("replaceText", { address, start, end, text, marks }); }
+  softBreak(address: TextAddress, start: number, end: number): SwiftWritingPosition { return this.command("softBreak", { address, start, end }); }
+  splitParagraph(address: TextAddress, start: number, end: number, newBlockID: string): SwiftWritingPosition { return this.command("splitParagraph", { address, start, end, newBlockID }); }
+  selectedText(address: TextAddress, start: number, end: number): SwiftWritingTextRange { return this.call("selectedText", { address, start, end }); }
+  selection(anchor: SwiftWritingPosition, focus: SwiftWritingPosition): SwiftWritingSelection { return this.call("writingSelection", { anchor, focus }); }
+  copySelection(selection: SwiftWritingSelection): SwiftWritingCopy { return this.call("copySelection", { selection }); }
+  deleteSelection(selection: SwiftWritingSelection): SwiftWritingSelection {
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>("deleteSelection", { selection });
+    this.publish(result.snapshot); return result.selection;
+  }
+  moveSelection(selection: SwiftWritingSelection, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection { return this.batch("moveSelection", selection, collection, after); }
+  duplicateSelection(selection: SwiftWritingSelection, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection { return this.batch("duplicateSelection", selection, collection, after); }
+  private batch(command: string, selection: SwiftWritingSelection, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection {
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>(command, { selection, collection, after });
+    this.publish(result.snapshot); return result.selection;
+  }
+  mergeParagraphs(left: SwiftNodeID, right: SwiftNodeID): SwiftWritingPosition { return this.command("mergeParagraphs", { left, right }); }
+  format(address: TextAddress, start: number, end: number, markType: Mark["type"], mark: Mark | null): void { this.publish(this.call("format", { address, start, end, markType, mark })); }
+  undo(): void { this.publish(this.call("undo")); }
+  redo(): void { this.publish(this.call("redo")); }
+  save(): SwiftWritingBatch { return this.call("save"); }
+  syncState(): SwiftWritingReceipt { return this.call("syncState"); }
+  changes(since?: SwiftWritingReceipt): SwiftWritingBatch { return this.call("changes", { since }); }
+  mergeRecovery(): SwiftWritingRecovery | null { return this.call("mergeRecovery"); }
+  restoreRecovery(recovery: SwiftWritingRecovery): void { this.publish(this.call("restoreRecovery", { recovery })); }
+  repairUndo(target: SwiftElementID["change"]): void {
+    if (this.holds) throw new Error("Commit composition before repairing writing");
+    this.publish(this.call("repairWritingUndo", { target }));
+  }
+  exportDeferredChanges(): SwiftWritingBatch[] { return this.deferred.map(value => JSON.parse(value) as SwiftWritingBatch); }
+  deferRemoteChanges(): () => void {
+    if (this.closed) throw new Error("Writing session is closed");
+    this.holds++; let released = false;
+    return () => { if (released || this.closed) return; released = true; if (--this.holds === 0) this.retryDeferredChanges(); };
+  }
+  retryDeferredChanges(): void {
+    if (this.holds || this.draining || this.closed) throw new Error("Remote delivery is held");
+    const pending = this.deferred; this.deferred = [];
+    this.draining = true; this.drainingCount = pending.length;
+    this.drainingBytes = pending.reduce((sum, packet) => sum + new TextEncoder().encode(packet).length, 0);
+    const failed: string[] = []; let failure: unknown;
+    try {
+      for (const packet of pending) {
+        let retained = false;
+        try { this.receive(JSON.parse(packet)); }
+        catch (error) { if (!(error instanceof SwiftWritingRecoveryError)) { failed.push(packet); retained = true; } failure ??= error; }
+        if (!retained) { this.drainingCount--; this.drainingBytes -= new TextEncoder().encode(packet).length; }
+      }
+      this.deferred.unshift(...failed);
+    } finally { this.draining = false; this.drainingCount = 0; this.drainingBytes = 0; }
+    if (failure && (failed.length || this.mergeRecovery())) throw failure;
+  }
+  receive(batch: SwiftWritingBatch): void {
+    if (this.closed) throw new Error("Writing session is closed");
+    if (this.holds) {
+      const packet = JSON.stringify(batch), bytes = new TextEncoder().encode(packet).length;
+      const retained = this.deferred.reduce((sum, value) => sum + new TextEncoder().encode(value).length, 0);
+      if (this.deferred.length + this.drainingCount >= 64 || retained + this.drainingBytes + bytes > 64_000_000) throw new Error("Pending writing changes exceed the composition buffer");
+      this.deferred.push(packet); return;
+    }
+    const cleanup = [...this.beforeReceive].map(listener => listener());
+    let snapshot: SwiftSnapshot;
+    try { snapshot = this.call("receive", { batch }); }
+    catch (error) { for (const undo of cleanup) { try { undo?.(); } catch { /* Preserve the engine failure. */ } } throw error; }
+    this.publish(snapshot);
+  }
+  close(options: { pendingStateRetained?: boolean } = {}): void {
+    if (!this.closed) {
+      if (this.draining || (this.deferred.length && !options.pendingStateRetained)) throw new Error("Retain deferred changes before closing");
+      this.call("close"); this.closed = true; this.listeners.clear(); this.beforeReceive.clear();
+    }
   }
 }
 

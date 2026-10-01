@@ -6,6 +6,5 @@ import Foundation
 let bridge = EditorBridge()
 while let line = readLine() {
     let response = bridge.call(Data(line.utf8))
-    print(String(decoding: response, as: UTF8.self))
-    fflush(stdout)
+    FileHandle.standardOutput.write(response + Data([0x0a]))
 }

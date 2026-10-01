@@ -1,0 +1,6664 @@
+{
+  "version": 3,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "split-a",
+        "documentID": "split",
+        "actorID": "a",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "split-b",
+        "documentID": "split",
+        "actorID": "b",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "split-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 3,
+        "affinity": "after"
+      },
+      "capture": "caret"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "split-a",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "right"
+      },
+      "capture": "split-result"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "split-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "format",
+        "session": "split-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 3,
+        "markType": "bold",
+        "mark": {
+          "type": "bold"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "split-a"
+      },
+      "capture": "split-a-changes"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "split-b"
+      },
+      "capture": "split-b-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "split-a"
+      },
+      "capture": "split-final-a",
+      "bindings": {
+        "batch": "split-b-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "split-b"
+      },
+      "capture": "split-final-b",
+      "bindings": {
+        "batch": "split-a-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "split-b"
+      },
+      "capture": "split-duplicate",
+      "bindings": {
+        "batch": "split-a-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "split-a"
+      },
+      "capture": "resolved-caret",
+      "bindings": {
+        "position": "caret"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "split-a"
+      },
+      "capture": "split-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "split-reopen",
+        "actorID": "a"
+      },
+      "capture": "split-restored",
+      "bindings": {
+        "snapshot": "split-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "split-reopen"
+      },
+      "capture": "split-undone"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "split-reopen"
+      },
+      "capture": "split-redone"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "split-reopen",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "split-reopen",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "blocked"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "split-reopen",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "delete",
+        "session": "split-reopen",
+        "blockID": "left"
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "merge-a",
+        "documentID": "merge",
+        "actorID": "a",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "merge-b",
+        "documentID": "merge",
+        "actorID": "b",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "merge-a",
+        "address": {
+          "blockID": "left",
+          "path": []
+        }
+      },
+      "capture": "merge-left"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "merge-a",
+        "address": {
+          "blockID": "right",
+          "path": []
+        }
+      },
+      "capture": "merge-right"
+    },
+    {
+      "request": {
+        "command": "mergeParagraphs",
+        "session": "merge-a"
+      },
+      "bindings": {
+        "left": "merge-left",
+        "right": "merge-right"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "merge-b",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "merge-a"
+      },
+      "capture": "merge-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "merge-b"
+      },
+      "capture": "merge-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "merge-a"
+      },
+      "capture": "merge-final-a",
+      "bindings": {
+        "batch": "merge-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "merge-b"
+      },
+      "capture": "merge-final-b",
+      "bindings": {
+        "batch": "merge-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "merge-a"
+      },
+      "capture": "merge-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "empty-merge-a",
+        "documentID": "empty-merge",
+        "actorID": "a",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": []
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "empty-merge-b",
+        "documentID": "empty-merge",
+        "actorID": "b",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": []
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "empty-merge-a",
+        "address": {
+          "blockID": "left",
+          "path": []
+        }
+      },
+      "capture": "empty-merge-left"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "empty-merge-a",
+        "address": {
+          "blockID": "right",
+          "path": []
+        }
+      },
+      "capture": "empty-merge-right"
+    },
+    {
+      "request": {
+        "command": "mergeParagraphs",
+        "session": "empty-merge-a"
+      },
+      "bindings": {
+        "left": "empty-merge-left",
+        "right": "empty-merge-right"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "empty-merge-b",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "empty-merge-a"
+      },
+      "capture": "empty-merge-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "empty-merge-b"
+      },
+      "capture": "empty-merge-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "empty-merge-a"
+      },
+      "capture": "empty-merge-final-a",
+      "bindings": {
+        "batch": "empty-merge-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "empty-merge-b"
+      },
+      "capture": "empty-merge-final-b",
+      "bindings": {
+        "batch": "empty-merge-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "empty-merge-a"
+      },
+      "capture": "empty-merge-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "unicode",
+        "documentID": "unicode",
+        "actorID": "a",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "😀",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "same",
+                "entityType": "note",
+                "label": "世界😀",
+                "host": {
+                  "retained": true
+                }
+              },
+              {
+                "type": "text",
+                "text": "z",
+                "marks": [
+                  {
+                    "type": "italic"
+                  }
+                ]
+              }
+            ],
+            "consumer": {
+              "id": "unchanged"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "unicode",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 3
+      },
+      "capture": "reference-interior"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "unicode",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "bad"
+      },
+      "error": "invalidRange"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "unicode",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "right"
+      },
+      "capture": "unicode-split"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "unicode"
+      },
+      "capture": "unicode-final"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "unicode"
+      },
+      "capture": "unicode-caret",
+      "bindings": {
+        "position": "reference-interior"
+      }
+    },
+    {
+      "request": {
+        "command": "softBreak",
+        "session": "unicode",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 4,
+        "end": 4
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "unicode"
+      },
+      "capture": "soft-break-final"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "gap-a",
+        "documentID": "gap",
+        "actorID": "a",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "gap-b",
+        "documentID": "gap",
+        "actorID": "b",
+        "epoch": "v3-epoch",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "gap-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "gap-b"
+      },
+      "capture": "gap-receipt"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "gap-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "Y"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "gap-b"
+      },
+      "capture": "gap-delta",
+      "bindings": {
+        "since": "gap-receipt"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "gap-a"
+      },
+      "capture": "gap-accepted"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "gap-a"
+      },
+      "capture": "gap-proposal",
+      "bindings": {
+        "batch": "gap-delta"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "gap-a"
+      },
+      "capture": "gap-accepted-after"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "gap-reopen",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "gap-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "gap-reopen"
+      },
+      "bindings": {
+        "recovery": "gap-proposal"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "gap-b"
+      },
+      "capture": "gap-all"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "gap-reopen"
+      },
+      "capture": "gap-final",
+      "bindings": {
+        "batch": "gap-all"
+      }
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "gap-reopen"
+      },
+      "capture": "gap-clear"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "gap-reopen",
+        "batch": {
+          "version": 3,
+          "documentID": "gap",
+          "epoch": "wrong",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": []
+        }
+      },
+      "error": "incompatibleEpoch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "gap-reopen",
+        "batch": {
+          "version": 2,
+          "documentID": "gap",
+          "epoch": "v3-epoch",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": []
+        }
+      },
+      "error": "unsupportedVersion(2)"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "cuts-false-low",
+        "documentID": "cuts-false",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "cuts-false-high",
+        "documentID": "cuts-false",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "cuts-false-low",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "lower"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "cuts-false-high",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "upper"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cuts-false-low"
+      },
+      "capture": "cuts-false-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cuts-false-high"
+      },
+      "capture": "cuts-false-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cuts-false-low"
+      },
+      "capture": "cuts-false-a",
+      "bindings": {
+        "batch": "cuts-false-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cuts-false-high"
+      },
+      "capture": "cuts-false-b",
+      "bindings": {
+        "batch": "cuts-false-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "cuts-false-low"
+      },
+      "capture": "cuts-false-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "cuts-true-low",
+        "documentID": "cuts-true",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "cuts-true-high",
+        "documentID": "cuts-true",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "cuts-true-low",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "lower"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "cuts-true-high",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "upper"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cuts-true-low"
+      },
+      "capture": "cuts-true-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cuts-true-high"
+      },
+      "capture": "cuts-true-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cuts-true-low"
+      },
+      "capture": "cuts-true-a",
+      "bindings": {
+        "batch": "cuts-true-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cuts-true-high"
+      },
+      "capture": "cuts-true-b",
+      "bindings": {
+        "batch": "cuts-true-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "cuts-true-low"
+      },
+      "capture": "cuts-true-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-false-left-merge",
+        "documentID": "join-cut-false-left",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-false-left-split",
+        "documentID": "join-cut-false-left",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-false-left-merge",
+        "address": {
+          "blockID": "left",
+          "path": []
+        }
+      },
+      "capture": "join-cut-false-left-left"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-false-left-merge",
+        "address": {
+          "blockID": "right",
+          "path": []
+        }
+      },
+      "capture": "join-cut-false-left-right"
+    },
+    {
+      "request": {
+        "command": "mergeParagraphs",
+        "session": "join-cut-false-left-merge"
+      },
+      "bindings": {
+        "left": "join-cut-false-left-left",
+        "right": "join-cut-false-left-right"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "join-cut-false-left-split",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "cut"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-false-left-merge"
+      },
+      "capture": "join-cut-false-left-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-false-left-split"
+      },
+      "capture": "join-cut-false-left-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-false-left-merge"
+      },
+      "capture": "join-cut-false-left-a",
+      "bindings": {
+        "batch": "join-cut-false-left-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-false-left-split"
+      },
+      "capture": "join-cut-false-left-b",
+      "bindings": {
+        "batch": "join-cut-false-left-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "join-cut-false-left-merge"
+      },
+      "capture": "join-cut-false-left-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-false-right-merge",
+        "documentID": "join-cut-false-right",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-false-right-split",
+        "documentID": "join-cut-false-right",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-false-right-merge",
+        "address": {
+          "blockID": "left",
+          "path": []
+        }
+      },
+      "capture": "join-cut-false-right-left"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-false-right-merge",
+        "address": {
+          "blockID": "right",
+          "path": []
+        }
+      },
+      "capture": "join-cut-false-right-right"
+    },
+    {
+      "request": {
+        "command": "mergeParagraphs",
+        "session": "join-cut-false-right-merge"
+      },
+      "bindings": {
+        "left": "join-cut-false-right-left",
+        "right": "join-cut-false-right-right"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "join-cut-false-right-split",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "cut"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-false-right-merge"
+      },
+      "capture": "join-cut-false-right-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-false-right-split"
+      },
+      "capture": "join-cut-false-right-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-false-right-merge"
+      },
+      "capture": "join-cut-false-right-a",
+      "bindings": {
+        "batch": "join-cut-false-right-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-false-right-split"
+      },
+      "capture": "join-cut-false-right-b",
+      "bindings": {
+        "batch": "join-cut-false-right-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "join-cut-false-right-merge"
+      },
+      "capture": "join-cut-false-right-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-true-left-merge",
+        "documentID": "join-cut-true-left",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-true-left-split",
+        "documentID": "join-cut-true-left",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-true-left-merge",
+        "address": {
+          "blockID": "left",
+          "path": []
+        }
+      },
+      "capture": "join-cut-true-left-left"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-true-left-merge",
+        "address": {
+          "blockID": "right",
+          "path": []
+        }
+      },
+      "capture": "join-cut-true-left-right"
+    },
+    {
+      "request": {
+        "command": "mergeParagraphs",
+        "session": "join-cut-true-left-merge"
+      },
+      "bindings": {
+        "left": "join-cut-true-left-left",
+        "right": "join-cut-true-left-right"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "join-cut-true-left-split",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "cut"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-true-left-merge"
+      },
+      "capture": "join-cut-true-left-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-true-left-split"
+      },
+      "capture": "join-cut-true-left-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-true-left-merge"
+      },
+      "capture": "join-cut-true-left-a",
+      "bindings": {
+        "batch": "join-cut-true-left-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-true-left-split"
+      },
+      "capture": "join-cut-true-left-b",
+      "bindings": {
+        "batch": "join-cut-true-left-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "join-cut-true-left-merge"
+      },
+      "capture": "join-cut-true-left-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-true-right-merge",
+        "documentID": "join-cut-true-right",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "join-cut-true-right-split",
+        "documentID": "join-cut-true-right",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-true-right-merge",
+        "address": {
+          "blockID": "left",
+          "path": []
+        }
+      },
+      "capture": "join-cut-true-right-left"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "join-cut-true-right-merge",
+        "address": {
+          "blockID": "right",
+          "path": []
+        }
+      },
+      "capture": "join-cut-true-right-right"
+    },
+    {
+      "request": {
+        "command": "mergeParagraphs",
+        "session": "join-cut-true-right-merge"
+      },
+      "bindings": {
+        "left": "join-cut-true-right-left",
+        "right": "join-cut-true-right-right"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "join-cut-true-right-split",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "cut"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-true-right-merge"
+      },
+      "capture": "join-cut-true-right-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "join-cut-true-right-split"
+      },
+      "capture": "join-cut-true-right-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-true-right-merge"
+      },
+      "capture": "join-cut-true-right-a",
+      "bindings": {
+        "batch": "join-cut-true-right-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "join-cut-true-right-split"
+      },
+      "capture": "join-cut-true-right-b",
+      "bindings": {
+        "batch": "join-cut-true-right-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "join-cut-true-right-merge"
+      },
+      "capture": "join-cut-true-right-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "same-cut-a",
+        "documentID": "same-cut",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "same-cut-b",
+        "documentID": "same-cut",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "same-cut-a",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "first"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "same-cut-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "second"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "same-cut-a"
+      },
+      "capture": "same-cut-ca"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "same-cut-b"
+      },
+      "capture": "same-cut-cb"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "same-cut-a"
+      },
+      "capture": "same-cut-a",
+      "bindings": {
+        "batch": "same-cut-cb"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "same-cut-b"
+      },
+      "capture": "same-cut-b",
+      "bindings": {
+        "batch": "same-cut-ca"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "sequential-0",
+        "documentID": "sequential-0",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "sequential-0",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "first"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "sequential-0",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "newBlockID": "second"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "sequential-0"
+      },
+      "capture": "sequential-0-final"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "sequential-0"
+      },
+      "capture": "sequential-0-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "sequential-0-reopen",
+        "actorID": "a"
+      },
+      "capture": "sequential-0-restored",
+      "bindings": {
+        "snapshot": "sequential-0-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "sequential-0-reopen"
+      },
+      "capture": "sequential-0-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "sequential-0-reopen"
+      },
+      "capture": "sequential-0-redo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "sequential-1",
+        "documentID": "sequential-1",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "sequential-1",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "first"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "sequential-1",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "second"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "sequential-1"
+      },
+      "capture": "sequential-1-final"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "sequential-1"
+      },
+      "capture": "sequential-1-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "sequential-1-reopen",
+        "actorID": "a"
+      },
+      "capture": "sequential-1-restored",
+      "bindings": {
+        "snapshot": "sequential-1-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "sequential-1-reopen"
+      },
+      "capture": "sequential-1-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "sequential-1-reopen"
+      },
+      "capture": "sequential-1-redo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "repair-a",
+        "documentID": "repair",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "repair-b",
+        "documentID": "repair",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "repair-a",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "collision"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "repair-b",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "collision"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "repair-b"
+      },
+      "capture": "repair-incoming"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "repair-a"
+      },
+      "capture": "repair-accepted"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "repair-a"
+      },
+      "capture": "repair-proposal",
+      "bindings": {
+        "batch": "repair-incoming"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "repair-a"
+      },
+      "capture": "repair-preserved"
+    },
+    {
+      "request": {
+        "command": "repairWritingUndo",
+        "session": "repair-a",
+        "target": {
+          "actor": "b",
+          "counter": 1
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "repairWritingUndo",
+        "session": "repair-a",
+        "target": {
+          "actor": "a",
+          "counter": 1
+        }
+      },
+      "capture": "repair-final"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "repair-a"
+      },
+      "capture": "repair-cleared"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "deleted-cuts-false-lower",
+        "documentID": "deleted-cuts-false",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "deleted-cuts-false-upper",
+        "documentID": "deleted-cuts-false",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "deleted-cuts-false-remote",
+        "documentID": "deleted-cuts-false",
+        "actorID": "c",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "deleted-cuts-false-lower",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "lower"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "deleted-cuts-false-upper",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "upper"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "deleted-cuts-false-remote",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 3,
+        "text": ""
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "deleted-cuts-false-lower"
+      },
+      "capture": "deleted-cuts-false-lower-changes"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "deleted-cuts-false-upper"
+      },
+      "capture": "deleted-cuts-false-upper-changes"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "deleted-cuts-false-remote"
+      },
+      "capture": "deleted-cuts-false-remote-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-false-lower"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-false-upper-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-false-lower"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-false-remote-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "deleted-cuts-false-lower"
+      },
+      "capture": "deleted-cuts-false-lower-final"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-false-upper"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-false-remote-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-false-upper"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-false-lower-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "deleted-cuts-false-upper"
+      },
+      "capture": "deleted-cuts-false-upper-final"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "deleted-cuts-true-lower",
+        "documentID": "deleted-cuts-true",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "deleted-cuts-true-upper",
+        "documentID": "deleted-cuts-true",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "deleted-cuts-true-remote",
+        "documentID": "deleted-cuts-true",
+        "actorID": "c",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "deleted-cuts-true-lower",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "lower"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "deleted-cuts-true-upper",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "upper"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "deleted-cuts-true-remote",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 3,
+        "text": ""
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "deleted-cuts-true-lower"
+      },
+      "capture": "deleted-cuts-true-lower-changes"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "deleted-cuts-true-upper"
+      },
+      "capture": "deleted-cuts-true-upper-changes"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "deleted-cuts-true-remote"
+      },
+      "capture": "deleted-cuts-true-remote-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-true-lower"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-true-upper-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-true-lower"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-true-remote-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "deleted-cuts-true-lower"
+      },
+      "capture": "deleted-cuts-true-lower-final"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-true-upper"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-true-remote-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "deleted-cuts-true-upper"
+      },
+      "bindings": {
+        "batch": "deleted-cuts-true-lower-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "deleted-cuts-true-upper"
+      },
+      "capture": "deleted-cuts-true-upper-final"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "empty-code",
+        "documentID": "empty-code",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "code",
+            "type": "code",
+            "code": "",
+            "host": "keep"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "empty-code",
+        "address": {
+          "blockID": "code",
+          "path": [
+            "code"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "x"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "empty-code"
+      },
+      "capture": "empty-code-edited"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "empty-code"
+      },
+      "capture": "empty-code-undone"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "retained-toggles-v1",
+        "collaborationVersion": 1,
+        "documentID": "retained-toggles-v1",
+        "actorID": "a",
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "retained-toggles-v1",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "retained-toggles-v1"
+      },
+      "capture": "retained-toggles-v1-accepted"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "retained-toggles-v1"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "retained-toggles-v1"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "retained-toggles-v1"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "retained-toggles-v1-resumed",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "retained-toggles-v1-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "retained-toggles-v1-resumed",
+        "batch": {
+          "version": 1,
+          "documentID": "retained-toggles-v1",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "a"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "a"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "retained-toggles-v1-resumed",
+        "batch": {
+          "version": 1,
+          "documentID": "retained-toggles-v1",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "a"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "a"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "capture": "retained-toggles-v1-winner"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "retained-toggles-v1-resumed"
+      },
+      "capture": "retained-toggles-v1-reconciled"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "retained-toggles-v1-reopened",
+        "actorID": "a"
+      },
+      "capture": "retained-toggles-v1-reopen",
+      "bindings": {
+        "snapshot": "retained-toggles-v1-reconciled"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "retained-toggles-v1-reopened"
+      },
+      "capture": "retained-toggles-v1-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "retained-toggles-v2",
+        "collaborationVersion": 2,
+        "documentID": "retained-toggles-v2",
+        "actorID": "a",
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "retained-toggles-v2",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "retained-toggles-v2"
+      },
+      "capture": "retained-toggles-v2-accepted"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "retained-toggles-v2"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "retained-toggles-v2"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "retained-toggles-v2"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "retained-toggles-v2-resumed",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "retained-toggles-v2-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "retained-toggles-v2-resumed",
+        "batch": {
+          "version": 2,
+          "documentID": "retained-toggles-v2",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "a"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "a"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "retained-toggles-v2-resumed",
+        "batch": {
+          "version": 2,
+          "documentID": "retained-toggles-v2",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "a"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "a"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "capture": "retained-toggles-v2-winner"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "retained-toggles-v2-resumed"
+      },
+      "capture": "retained-toggles-v2-reconciled"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "retained-toggles-v2-reopened",
+        "actorID": "a"
+      },
+      "capture": "retained-toggles-v2-reopen",
+      "bindings": {
+        "snapshot": "retained-toggles-v2-reconciled"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "retained-toggles-v2-reopened"
+      },
+      "capture": "retained-toggles-v2-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "retained-toggles-v3",
+        "collaborationVersion": 3,
+        "documentID": "retained-toggles-v3",
+        "actorID": "a",
+        "blocks": [
+          {
+            "id": "left",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ab",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "epoch": "v3"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "retained-toggles-v3",
+        "address": {
+          "blockID": "left",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "retained-toggles-v3"
+      },
+      "capture": "retained-toggles-v3-accepted"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "retained-toggles-v3"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "retained-toggles-v3"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "retained-toggles-v3"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "retained-toggles-v3-resumed",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "retained-toggles-v3-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "retained-toggles-v3-resumed",
+        "batch": {
+          "version": 3,
+          "documentID": "retained-toggles-v3",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "epoch": "v3",
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "a"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "a"
+                  },
+                  "active": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "retained-toggles-v3-resumed",
+        "batch": {
+          "version": 3,
+          "documentID": "retained-toggles-v3",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "left",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ab",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          },
+          "epoch": "v3",
+          "changes": [
+            {
+              "id": {
+                "counter": 2,
+                "actor": "a"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 1,
+                    "actor": "a"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "capture": "retained-toggles-v3-winner"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "retained-toggles-v3-resumed"
+      },
+      "capture": "retained-toggles-v3-reconciled"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "retained-toggles-v3-reopened",
+        "actorID": "a"
+      },
+      "capture": "retained-toggles-v3-reopen",
+      "bindings": {
+        "snapshot": "retained-toggles-v3-reconciled"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "retained-toggles-v3-reopened"
+      },
+      "capture": "retained-toggles-v3-undo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "batch-a",
+        "documentID": "batch-fixture",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "first",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ABC",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "middle",
+            "type": "quote",
+            "content": [
+              {
+                "type": "text",
+                "text": "kept",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "last",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "XYZ",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "batch-b",
+        "documentID": "batch-fixture",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "first",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "ABC",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "middle",
+            "type": "quote",
+            "content": [
+              {
+                "type": "text",
+                "text": "kept",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "last",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "XYZ",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "batch-a",
+        "address": {
+          "blockID": "first",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 1
+      },
+      "capture": "batch-start"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "batch-a",
+        "address": {
+          "blockID": "last",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 2
+      },
+      "capture": "batch-end"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "batch-a"
+      },
+      "capture": "batch-selection",
+      "bindings": {
+        "anchor": "batch-start",
+        "focus": "batch-end"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "batch-a"
+      },
+      "capture": "batch-copy",
+      "bindings": {
+        "selection": "batch-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "batch-b",
+        "address": {
+          "blockID": "first",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "R-"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "batch-b",
+        "address": {
+          "blockID": "last",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "text": "!"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "batch-b"
+      },
+      "capture": "batch-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "batch-a"
+      },
+      "bindings": {
+        "batch": "batch-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "batch-a"
+      },
+      "capture": "batch-result",
+      "bindings": {
+        "selection": "batch-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "batch-a"
+      },
+      "capture": "batch-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "batch-a"
+      },
+      "capture": "batch-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "batch-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "batch-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "batch-reopened"
+      },
+      "capture": "batch-undo"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "batch-b"
+      },
+      "bindings": {
+        "batch": "batch-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "batch-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "batch-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "batch-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "range-a",
+        "documentID": "retained-range",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "range-b",
+        "documentID": "retained-range",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "range-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 1
+      },
+      "capture": "range-start"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "range-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 3
+      },
+      "capture": "range-end"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "range-a"
+      },
+      "capture": "retained-range",
+      "bindings": {
+        "anchor": "range-start",
+        "focus": "range-end"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "range-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "q"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "range-b"
+      },
+      "capture": "range-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "range-a"
+      },
+      "bindings": {
+        "batch": "range-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "range-a"
+      },
+      "capture": "range-copy",
+      "bindings": {
+        "selection": "retained-range"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "range-a"
+      },
+      "bindings": {
+        "selection": "retained-range"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "range-a"
+      },
+      "capture": "range-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "range-a"
+      },
+      "capture": "range-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "range-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "range-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "range-reopened"
+      },
+      "capture": "range-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "range-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "range-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "range-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "collision",
+        "documentID": "collision",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "original",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "copy-a-1-1",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "existing",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "duplicateSelection",
+        "session": "collision",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "p",
+                "path": []
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "field": "blocks"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "collision"
+      },
+      "capture": "collision-duplicated"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "collision"
+      },
+      "capture": "collision-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "collision"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "end-full-a",
+        "documentID": "end-full",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "end-full-b",
+        "documentID": "end-full",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "end-full-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 4
+      },
+      "capture": "end-full-span"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "end-full-a"
+      },
+      "capture": "end-full-selection",
+      "bindings": {
+        "anchor": [
+          "end-full-span",
+          "start"
+        ],
+        "focus": [
+          "end-full-span",
+          "end"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "end-full-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "q"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "end-full-b"
+      },
+      "capture": "end-full-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "end-full-a"
+      },
+      "bindings": {
+        "batch": "end-full-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "end-full-a"
+      },
+      "capture": "end-full-copy",
+      "bindings": {
+        "selection": "end-full-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "end-full-a"
+      },
+      "bindings": {
+        "selection": "end-full-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "end-full-a"
+      },
+      "capture": "end-full-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "end-full-a"
+      },
+      "capture": "end-full-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "end-full-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "end-full-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "end-full-reopened"
+      },
+      "capture": "end-full-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-full-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-full-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-full-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "end-tail-a",
+        "documentID": "end-tail",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "end-tail-b",
+        "documentID": "end-tail",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "end-tail-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 4
+      },
+      "capture": "end-tail-span"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "end-tail-a"
+      },
+      "capture": "end-tail-selection",
+      "bindings": {
+        "anchor": [
+          "end-tail-span",
+          "start"
+        ],
+        "focus": [
+          "end-tail-span",
+          "end"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "end-tail-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "q"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "end-tail-b"
+      },
+      "capture": "end-tail-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "end-tail-a"
+      },
+      "bindings": {
+        "batch": "end-tail-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "end-tail-a"
+      },
+      "capture": "end-tail-copy",
+      "bindings": {
+        "selection": "end-tail-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "end-tail-a"
+      },
+      "bindings": {
+        "selection": "end-tail-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "end-tail-a"
+      },
+      "capture": "end-tail-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "end-tail-a"
+      },
+      "capture": "end-tail-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "end-tail-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "end-tail-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "end-tail-reopened"
+      },
+      "capture": "end-tail-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-tail-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-tail-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-tail-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "end-caret-a",
+        "documentID": "end-caret",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "end-caret-b",
+        "documentID": "end-caret",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "end-caret-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 4,
+        "end": 4
+      },
+      "capture": "end-caret-span"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "end-caret-a"
+      },
+      "capture": "end-caret-selection",
+      "bindings": {
+        "anchor": [
+          "end-caret-span",
+          "start"
+        ],
+        "focus": [
+          "end-caret-span",
+          "end"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "end-caret-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "q"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "end-caret-b"
+      },
+      "capture": "end-caret-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "end-caret-a"
+      },
+      "bindings": {
+        "batch": "end-caret-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "end-caret-a"
+      },
+      "capture": "end-caret-copy",
+      "bindings": {
+        "selection": "end-caret-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "end-caret-a"
+      },
+      "bindings": {
+        "selection": "end-caret-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "end-caret-a"
+      },
+      "capture": "end-caret-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "end-caret-a"
+      },
+      "capture": "end-caret-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "end-caret-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "end-caret-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "end-caret-reopened"
+      },
+      "capture": "end-caret-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-caret-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-caret-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "end-caret-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-range-a",
+        "documentID": "nested-range",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "root",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "head",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "toggle",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "summary",
+                "marks": []
+              }
+            ],
+            "consumer": "keep",
+            "children": [
+              {
+                "id": "a",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "wh",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "external",
+                    "entityType": "note",
+                    "label": "世界😀"
+                  }
+                ],
+                "consumer": {
+                  "id": "external-id"
+                }
+              },
+              {
+                "id": "b",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "last",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "c",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "unselected",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-range-b",
+        "documentID": "nested-range",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "root",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "head",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "toggle",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "summary",
+                "marks": []
+              }
+            ],
+            "consumer": "keep",
+            "children": [
+              {
+                "id": "a",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "wh",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "external",
+                    "entityType": "note",
+                    "label": "世界😀"
+                  }
+                ],
+                "consumer": {
+                  "id": "external-id"
+                }
+              },
+              {
+                "id": "b",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "last",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "c",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "unselected",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "nested-range-a",
+        "address": {
+          "blockID": "root",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 2
+      },
+      "capture": "nested-range-start"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "nested-range-a",
+        "address": {
+          "blockID": "toggle",
+          "path": [
+            "children",
+            "b",
+            "content"
+          ]
+        },
+        "offset": 2
+      },
+      "capture": "nested-range-end"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-selection",
+      "bindings": {
+        "anchor": "nested-range-start",
+        "focus": "nested-range-end"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-copy",
+      "bindings": {
+        "selection": "nested-range-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "nested-range-b",
+        "address": {
+          "blockID": "root",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "R-",
+        "marks": []
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "nested-range-b",
+        "address": {
+          "blockID": "toggle",
+          "path": [
+            "children",
+            "c",
+            "content"
+          ]
+        },
+        "start": 10,
+        "end": 10,
+        "text": "!",
+        "marks": []
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "nested-range-b"
+      },
+      "capture": "nested-range-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-range-a"
+      },
+      "bindings": {
+        "batch": "nested-range-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "nested-range-a"
+      },
+      "bindings": {
+        "selection": "nested-range-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "nested-range-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "nested-range-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-undo"
+    },
+    {
+      "request": {
+        "command": "moveSelection",
+        "session": "nested-range-reopened",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "toggle",
+                "path": [
+                  "children",
+                  "a"
+                ]
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "toggle",
+              "path": []
+            }
+          },
+          "field": "children"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "toggle",
+            "path": [
+              "children",
+              "c"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-moved"
+    },
+    {
+      "request": {
+        "command": "duplicateSelection",
+        "session": "nested-range-reopened",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "toggle",
+                "path": [
+                  "children",
+                  "a"
+                ]
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "toggle",
+              "path": []
+            }
+          },
+          "field": "children"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "toggle",
+            "path": [
+              "children",
+              "a"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-duplicated"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-duplicate-undo"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-move-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-range-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-range-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-range-reopened"
+      }
+    }
+  ],
+  "equal": [
+    [
+      "split-final-a",
+      "split-final-b"
+    ],
+    [
+      "split-final-b",
+      "split-duplicate"
+    ],
+    [
+      "split-final-a",
+      "split-restored"
+    ],
+    [
+      "split-final-a",
+      "split-redone"
+    ],
+    [
+      "merge-final-a",
+      "merge-final-b"
+    ],
+    [
+      "empty-merge-final-a",
+      "empty-merge-final-b"
+    ],
+    [
+      "gap-accepted",
+      "gap-accepted-after"
+    ],
+    [
+      "cuts-false-a",
+      "cuts-false-b"
+    ],
+    [
+      "cuts-true-a",
+      "cuts-true-b"
+    ],
+    [
+      "join-cut-false-left-a",
+      "join-cut-false-left-b"
+    ],
+    [
+      "join-cut-false-right-a",
+      "join-cut-false-right-b"
+    ],
+    [
+      "join-cut-true-left-a",
+      "join-cut-true-left-b"
+    ],
+    [
+      "join-cut-true-right-a",
+      "join-cut-true-right-b"
+    ],
+    [
+      "same-cut-a",
+      "same-cut-b"
+    ],
+    [
+      "sequential-0-final",
+      "sequential-0-restored"
+    ],
+    [
+      "sequential-0-final",
+      "sequential-0-redo"
+    ],
+    [
+      "sequential-1-final",
+      "sequential-1-restored"
+    ],
+    [
+      "sequential-1-final",
+      "sequential-1-redo"
+    ],
+    [
+      "repair-accepted",
+      "repair-preserved"
+    ],
+    [
+      "deleted-cuts-false-lower-final",
+      "deleted-cuts-false-upper-final"
+    ],
+    [
+      "deleted-cuts-true-lower-final",
+      "deleted-cuts-true-upper-final"
+    ]
+  ],
+  "expectedBlocks": {
+    "split-final-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Xd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "split-undone": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "c",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Xd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "merge-final-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abcdX",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "merge-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cdX",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "empty-merge-final-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abX",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "empty-merge-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "X",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "unicode-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "😀",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "unchanged"
+        }
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "entity-ref",
+            "entityId": "same",
+            "entityType": "note",
+            "label": "世界😀",
+            "host": {
+              "retained": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "z",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "soft-break-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "😀",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "unchanged"
+        }
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "entity-ref",
+            "entityId": "same",
+            "entityType": "note",
+            "label": "世界😀",
+            "host": {
+              "retained": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "\n",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "z",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "gap-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "aYXb",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "cuts-false-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "lower",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "upper",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "cuts-false-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "upper",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "cuts-true-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "lower",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "upper",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "cuts-true-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "upper",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-false-left-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-false-left-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-false-right-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-false-right-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-true-left-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-true-left-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-true-right-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "join-cut-true-right-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "cut",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "same-cut-a": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": []
+      },
+      {
+        "id": "second",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "sequential-0-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": []
+      },
+      {
+        "id": "second",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "sequential-0-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "sequential-1-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "second",
+        "type": "paragraph",
+        "content": []
+      },
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "sequential-1-undo": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "repair-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abc",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "collision",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "deleted-cuts-false-lower-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "lower",
+        "type": "paragraph",
+        "content": []
+      },
+      {
+        "id": "upper",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "deleted-cuts-true-lower-final": [
+      {
+        "id": "left",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "lower",
+        "type": "paragraph",
+        "content": []
+      },
+      {
+        "id": "upper",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "empty-code-edited": [
+      {
+        "id": "code",
+        "type": "code",
+        "code": "x",
+        "host": "keep"
+      }
+    ],
+    "empty-code-undone": [
+      {
+        "id": "code",
+        "type": "code",
+        "code": "",
+        "host": "keep"
+      }
+    ],
+    "batch-deleted": [
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-A",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "last",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Z!",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "batch-undo": [
+      {
+        "id": "first",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-ABC",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "middle",
+        "type": "quote",
+        "content": [
+          {
+            "type": "text",
+            "text": "kept",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "consumer": {
+          "id": "external-id"
+        }
+      },
+      {
+        "id": "last",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "XYZ!",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "range-deleted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "range-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "collision-duplicated": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "original",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "copy-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "original",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "copy-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "existing",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "collision-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "original",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "copy-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "existing",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "end-full-deleted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": []
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": []
+      }
+    ],
+    "end-full-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "end-tail-deleted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": []
+      }
+    ],
+    "end-tail-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "end-caret-deleted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "end-caret-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "q",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "nested-range-deleted": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-he",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "st",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "nested-range-undo": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "nested-range-moved": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          }
+        ]
+      }
+    ],
+    "nested-range-duplicated": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "copy-a-6-1",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          }
+        ]
+      }
+    ],
+    "nested-range-duplicate-undo": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          }
+        ]
+      }
+    ],
+    "nested-range-move-undo": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {
+    "resolved-caret": {
+      "address": {
+        "blockID": "@a/1/0",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 1,
+                "actor": "a"
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 1
+    },
+    "gap-clear": null,
+    "repair-cleared": null,
+    "retained-toggles-v1-winner": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "abX",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": true,
+      "canRedo": false
+    },
+    "retained-toggles-v1-reopen": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "abX",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": true,
+      "canRedo": false
+    },
+    "retained-toggles-v1-undo": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "ab",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "retained-toggles-v2-winner": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "abX",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": true,
+      "canRedo": false
+    },
+    "retained-toggles-v2-reopen": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "abX",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": true,
+      "canRedo": false
+    },
+    "retained-toggles-v2-undo": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "ab",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "retained-toggles-v3-winner": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "abX",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": true,
+      "canRedo": false
+    },
+    "retained-toggles-v3-reopen": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "abX",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": true,
+      "canRedo": false
+    },
+    "retained-toggles-v3-undo": {
+      "blocks": [
+        {
+          "id": "left",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "ab",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "batch-copy": {
+      "nodes": [
+        {
+          "id": "middle",
+          "type": "quote",
+          "content": [
+            {
+              "type": "text",
+              "text": "kept",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            }
+          ],
+          "consumer": {
+            "id": "external-id"
+          }
+        }
+      ],
+      "text": [
+        [
+          {
+            "type": "text",
+            "text": "B",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "C",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "X",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "Y",
+            "marks": []
+          }
+        ]
+      ]
+    },
+    "range-copy": {
+      "nodes": [],
+      "text": [
+        [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          }
+        ]
+      ]
+    },
+    "end-full-copy": {
+      "nodes": [],
+      "text": [
+        [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      ]
+    },
+    "end-tail-copy": {
+      "nodes": [],
+      "text": [
+        [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      ]
+    },
+    "end-caret-copy": {
+      "nodes": [],
+      "text": [
+        []
+      ]
+    },
+    "nested-range-copy": {
+      "nodes": [
+        {
+          "id": "a",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "wh",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "type": "entity-ref",
+              "entityId": "external",
+              "entityType": "note",
+              "label": "世界😀"
+            }
+          ],
+          "consumer": {
+            "id": "external-id"
+          }
+        }
+      ],
+      "text": [
+        [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "s",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "u",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "m",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "m",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "r",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "y",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "l",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
+      ]
+    }
+  }
+}

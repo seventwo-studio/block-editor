@@ -24,6 +24,9 @@ import org.json.JSONObject
     asset: @Composable (JSONObject) -> Unit,
 ) {
     val type = block.getString("type")
+    val currentCanAct by rememberUpdatedState(canAct)
+    val lease = remember(session, rootID, path) { mutableStateOf(true) }
+    DisposableEffect(lease) { onDispose { lease.value = false } }
     if (readOnly && type in listOf("toggle", "table", "list")) {
         ReadOnlyBlockPreview(block, asset)
         return
@@ -49,13 +52,20 @@ import org.json.JSONObject
         "code" -> field("code", "Code", MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace))
         "math" -> field("expression", "Math", MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace))
         "divider" -> HorizontalDivider()
-        "image" -> Column {
+        "image" -> {
+            val target = remember(session, session.snapshot, rootID, path) { RenderedNodeTarget(session, NodeAddress(rootID, path)) }
+            key(target.key) {
+            val imageLease = remember { mutableStateOf(true) }
+            DisposableEffect(imageLease) { onDispose { imageLease.value = false } }
+            Column {
             asset(block)
             if (block.has("alt")) field("alt", "Image description")
             if (block.has("caption")) field("caption", "Image caption")
             if (onAssetRequest != null) TextButton(enabled = canAct, onClick = {
+                if (!currentCanAct || !lease.value || !imageLease.value || !target.current()) return@TextButton
                 try { onAssetRequest(NodeAddress(rootID, path), JSONObject(block.toString())) } catch (error: Exception) { report(error) }
             }, modifier = Modifier.testTag("editor-asset:$rootID:${path.joinToString("/")}")) { Text("Edit image") }
+            } }
         }
         "toggle" -> {
             var expanded by remember(session, rootID, path) { mutableStateOf(true) }
@@ -117,15 +127,25 @@ import org.json.JSONObject
 @Composable private fun EditableListItems(session: EditorSession, rootID: String, items: JSONArray, path: List<String>,
                                          style: String, readOnly: Boolean, canAct: Boolean, report: (Exception) -> Unit,
                                          composing: (String, Boolean) -> Unit) {
+    val currentCanAct by rememberUpdatedState(canAct)
+    val lease = remember(session, rootID, path) { mutableStateOf(true) }
+    DisposableEffect(lease) { onDispose { lease.value = false } }
     for (index in 0 until items.length()) {
         val item = items.getJSONObject(index)
         val itemPath = path + item.getString("id")
-        key(item.getString("id")) {
+        val target = remember(session, session.snapshot, rootID, itemPath) { RenderedNodeTarget(session, NodeAddress(rootID, itemPath)) }
+        key(target.key) {
+            val itemLease = remember { mutableStateOf(true) }
+            DisposableEffect(itemLease) { onDispose { itemLease.value = false } }
             Column {
                 Row {
                     if (style == "todo") Checkbox(item.optBoolean("checked"), enabled = canAct,
                         onCheckedChange = { checked ->
-                            try { session.edit("setField", JSONObject().put("blockID", rootID).put("path", JSONArray(itemPath + "checked")).put("value", checked)) }
+                            if (!currentCanAct || !lease.value || !itemLease.value || !target.current()) return@Checkbox
+                            try {
+                                if (target.identity != null) session.setNodeField(target.identity, listOf("checked"), checked)
+                                else session.edit("setField", JSONObject().put("blockID", rootID).put("path", JSONArray(itemPath + "checked")).put("value", checked))
+                            }
                             catch (error: Exception) { report(error) }
                         }, modifier = Modifier.testTag("editor-check:$rootID:${itemPath.joinToString("/")}")
                             .semantics { contentDescription = "Complete ${plainText(item.optJSONArray("content")).ifEmpty { "checklist item" }}" })
@@ -150,20 +170,30 @@ import org.json.JSONObject
     // Scoped structural controls are available only in the structural collaboration epoch.
     val supported = remember(session) { session.syncState().optInt("version", 1) >= 2 }
     if (!supported) return
-    fun identity() = session.node(NodeAddress(rootID, path))
-    fun collection(): NodeCollection {
-        val owner = session.node(NodeAddress(rootID, path.dropLast(2)))
-        return when (path[path.size - 2]) {
-            "items" -> NodeCollection.items(owner)
-            else -> NodeCollection.children(owner)
+    val ownerAddress = NodeAddress(rootID, path.dropLast(2))
+    val owner = remember(session, session.snapshot, ownerAddress) { RenderedNodeTarget(session, ownerAddress) }
+    val collection = if (path[path.size - 2] == "items") NodeCollection.items(checkNotNull(owner.identity))
+        else NodeCollection.children(checkNotNull(owner.identity))
+    val inputs = LocalEditorInputs.current
+    val adjacent = remember(session, session.snapshot, rootID, path, siblings) {
+        inputs.renderedTargets(collection) { sibling ->
+            NodeAddress(rootID, path.dropLast(1) + siblings.getJSONObject(sibling).getString("id"))
         }
     }
-    BlockActions(rootID, path, enabled, index, siblings.length(), report,
-        move = { destination ->
-            val afterIndex = if (destination > index) destination else destination - 1
-            val after = if (afterIndex < 0) null else session.node(NodeAddress(rootID, path.dropLast(1) + siblings.getJSONObject(afterIndex).getString("id")))
-            session.moveNode(identity(), collection(), after)
-        }, delete = { session.deleteNode(identity()) },
-        indent = if (listItem) ({ session.indent(identity()) }) else null,
-        outdent = if (listItem && path[path.size - 2] == "children") ({ session.outdent(identity()) }) else null)
+    val target = adjacent[index]
+    key(target.key) {
+        val origin = checkNotNull(target.identity)
+        BlockActions(rootID, path, enabled, index, siblings.length(), report,
+            canPerform = { target.current() && owner.current() && runCatching {
+                session.nodes(collection).map { it.wire.toString() } == adjacent.map { checkNotNull(it.identity).wire.toString() }
+            }.getOrDefault(false) },
+            move = { destination ->
+                val afterIndex = if (destination > index) destination else destination - 1
+                val after = adjacent.getOrNull(afterIndex)
+                if (after != null) check(after.current()) { "Move target changed; choose the action again" }
+                session.moveNode(origin, collection, after?.identity)
+            }, delete = { session.deleteNode(origin) },
+            indent = if (listItem) ({ session.indent(origin) }) else null,
+            outdent = if (listItem && path[path.size - 2] == "children") ({ session.outdent(origin) }) else null)
+    }
 }
