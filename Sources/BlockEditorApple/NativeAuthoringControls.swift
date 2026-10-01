@@ -2,6 +2,7 @@
 import BlockEditorCore
 import SwiftUI
 
+#if os(macOS) || os(iOS) || os(visionOS)
 @MainActor struct NativeInsertMenu: View {
     let model: EditorModel
     var after: String?
@@ -16,6 +17,7 @@ import SwiftUI
         .accessibilityHint("Choose a block type permitted by this editor")
     }
 }
+#endif
 
 @MainActor struct NativeNodeActions: View {
     let model: EditorModel

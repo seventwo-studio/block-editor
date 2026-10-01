@@ -2,6 +2,24 @@
 import BlockEditorCore
 import Foundation
 
+/// SwiftUI state must follow origin identity, rather than a reusable sibling label.
+@MainActor func nativeNodeIdentity(model: EditorModel, address: NodeAddress) -> NodeID {
+    (try? model.session.node(at: address)) ?? .baseline(blockID: address.blockID, path: address.path)
+}
+
+@MainActor struct NativeFieldTarget {
+    let address: NodeAddress
+    let identity: NodeID?
+    init(session: EditorSession, address: NodeAddress) throws {
+        self.address = address
+        identity = session.collaborationVersion == 2 ? try session.node(at: address) : nil
+    }
+    func set(in session: EditorSession, field: String, value: JSONValue) throws {
+        if let identity { try session.setNodeField(identity, path: [field], value: value) }
+        else { try session.setField(blockID: address.blockID, path: address.path + [field], value: value) }
+    }
+}
+
 /// Asset-backed blocks are supplied by the host, rather than created from URLs.
 public enum NativeBlockInsertion: String, CaseIterable, Identifiable, Sendable {
     case paragraph, heading, quote, callout, unorderedList, orderedList, checklist, code, toggle, table, divider

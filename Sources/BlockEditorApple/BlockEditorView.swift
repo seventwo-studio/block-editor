@@ -35,10 +35,12 @@ import SwiftUI
                             }.accessibilityLabel("Block actions")
                             NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
                         }.accessibilityElement(children: .contain)
+                            .id(nativeNodeIdentity(model: model, address: NodeAddress(block.id)))
                         #else
                         NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
                             .contextMenu { NativeNodeActions(model: model, address: NodeAddress(block.id)) }
                             .accessibilityElement(children: .contain)
+                            .id(nativeNodeIdentity(model: model, address: NodeAddress(block.id)))
                         #endif
                     }
                 }.padding()

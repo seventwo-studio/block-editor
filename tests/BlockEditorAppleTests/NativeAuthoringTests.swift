@@ -114,4 +114,32 @@ import Testing
     #expect(try a.text(at: TextAddress("p")) == "RHello Mira")
     #expect(try a.document.blocks[0].fields["content"]?.array?.contains(mention) == true)
 }
+
+@MainActor @Test func checklistCommandFollowsOriginAfterCompositionReleasesMoveAndLabelReuse() throws {
+    let item: JSONValue = .object(["id": .string("item"), "content": .array([textNode("Original")]), "checked": .bool(false)])
+    let left = try Block(fields: ["id": .string("left"), "type": .string("list"), "style": .string("todo"), "items": .array([item])])
+    let right = try Block(fields: ["id": .string("right"), "type": .string("list"), "style": .string("todo"), "items": .array([])])
+    let document = try Document(blocks: [left, right])
+    let a = try EditorSession(documentID: "checklist-identity", actorID: "a", document: document, collaborationVersion: 2)
+    let b = try EditorSession(documentID: "checklist-identity", actorID: "b", document: document, collaborationVersion: 2)
+    let live = NodeAddress("left", path: ["items", "item"])
+    let original = try a.node(at: live)
+    let model = try EditorModel(session: a)
+    let input = CollaborativeInput(model: model, address: TextAddress("left", path: ["items", "item", "content"]))
+    defer { input.close() }
+    input.beginComposition()
+    input.onCommit = { try input.commit(text: "Original", selection: NSRange(location: 0, length: 0)) }
+    try b.moveNode(original, into: NodeCollection(owner: b.node(at: NodeAddress("right")), field: "items"))
+    let replacement = try b.insertNode(item, into: NodeCollection(owner: b.node(at: NodeAddress("left")), field: "items"))
+    try a.receive(b.changes())
+    let target = try NativeFieldTarget(session: a, address: live)
+    model.perform { try target.set(in: $0, field: "checked", value: .bool(true)) }
+    #expect(model.error == nil)
+    #expect(try a.document.blocks[1].fields["items"]?.array?.first?["checked"] == .bool(true))
+    #expect(try a.document.blocks[0].fields["items"]?.array?.first?["checked"] == .bool(false))
+    #expect(try a.node(at: live) == replacement)
+    try a.undo()
+    #expect(try a.document.blocks[1].fields["items"]?.array?.first?["checked"] == .bool(false))
+    #expect(try a.address(of: original) == NodeAddress("right", path: ["items", "item"]))
+}
 #endif

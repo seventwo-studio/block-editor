@@ -42,6 +42,7 @@ import SwiftUI
                         if let fields = child.object, let childBlock = try? Block(fields: fields) {
                             NativeBlockContent(model: model, rootID: rootID, block: childBlock,
                                                path: path + ["children", childBlock.id], asset: asset)
+                                .id(nativeNodeIdentity(model: model, address: NodeAddress(rootID, path: path + ["children", childBlock.id])))
                                 .contextMenu { NativeNodeActions(model: model,
                                     address: NodeAddress(rootID, path: path + ["children", childBlock.id])) }
                         }
@@ -60,6 +61,8 @@ import SwiftUI
                                 InlineField(model: model,
                                             address: TextAddress(rootID, path: path + ["rows", row.selfID, "cells", cell.selfID, "content"]),
                                             nodes: cell["content"]?.array ?? [], label: "Row \(rowIndex + 1), column \(cellIndex + 1)")
+                                    .id(nativeNodeIdentity(model: model, address: NodeAddress(rootID,
+                                        path: path + ["rows", row.selfID, "cells", cell.selfID])))
                                     .frame(minWidth: 140)
                                     .padding(8)
                                     .overlay(Rectangle().stroke(.separator, lineWidth: 1))
@@ -99,7 +102,10 @@ import SwiftUI
                 HStack(alignment: .top) {
                     if style == "todo" {
                         Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: { value in
-                            model.perform { try $0.setField(blockID: rootID, path: path + [item.selfID, "checked"], value: .bool(value)) }
+                            do {
+                                let target = try NativeFieldTarget(session: model.session, address: NodeAddress(rootID, path: path + [item.selfID]))
+                                model.perform { try target.set(in: $0, field: "checked", value: .bool(value)) }
+                            } catch { model.performInput { _ in throw error } }
                         })).labelsHidden()
                     } else {
                         Text(style == "ordered" ? "\(index + 1)." : "•").accessibilityHidden(true)
@@ -112,7 +118,8 @@ import SwiftUI
                                     path: path + [item.selfID, "children"], style: style)
                         .padding(.leading, 20)
                 }
-            }.contextMenu { NativeNodeActions(model: model, address: NodeAddress(rootID, path: path + [item.selfID]), listItem: true) }
+            }.id(nativeNodeIdentity(model: model, address: NodeAddress(rootID, path: path + [item.selfID])))
+                .contextMenu { NativeNodeActions(model: model, address: NodeAddress(rootID, path: path + [item.selfID]), listItem: true) }
         }
     }
 }

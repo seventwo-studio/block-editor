@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "measurementCheckout": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+  "artifactReuse": {
+    "artifact": "block-editor.wasm",
+    "sha256": "9d84110e2f8b3a08ff7429cfb6114da2d7dd64a4902ed28ec9565aa08821c715",
+    "rawBytes": 61435676,
+    "historicalReportedSource": "31a62488748292ba24cbd41dc0a41afbf05aacae",
+    "historicalReport": "../2026-10-01/performance-wasm-chromium.json",
+    "historicalSourceDirty": true,
+    "originalBuildNotReexecuted": true,
+    "trackedSourceEquivalenceCommand": "git diff --name-only 31a6248 e787146 -- Sources Package.swift src/swift.ts scripts/build-wasm.sh",
+    "trackedSourceDifferences": [],
+    "qualification": "Artifact hash matches historical release report; no new compilation provenance or bit-for-bit reproducibility is claimed."
+  },
+  "workloadSHA256": "e20860e9f7bc8cf85ab34146132b551e4e5a4185225c567d3d49ecadbfffa1be",
+  "nativeComparison": {
+    "path": "/Users/luca/.codex/worktrees/nested-structure/block-editor/benchmarks/results/2026-10-01-repeated/performance-native.json",
+    "sourceCommit": "1e527807f630d77b4f41029bd951371782417dd2",
+    "reportSHA256": "672b3f71f2a6d4f38a4e46a08718058c40085bd24f26ef9aa028259af2f0f952",
+    "preservedInPlace": true
+  },
+  "execution": {
+    "browsers": "Chromium, WebKit, Firefox sequentially",
+    "profile": "baseline",
+    "cases": 8,
+    "repetitions": 3,
+    "warmups": 1,
+    "outputBeforeArchive": "/tmp/editor-wasm-repeated-20261001",
+    "limitsAgreed": false,
+    "results": [
+      {
+        "runtime": "wasm-chromium",
+        "samples": 24,
+        "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+        "sourceDirty": false,
+        "complete": true
+      },
+      {
+        "runtime": "wasm-webkit",
+        "samples": 24,
+        "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+        "sourceDirty": false,
+        "complete": true
+      },
+      {
+        "runtime": "wasm-firefox",
+        "samples": 24,
+        "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+        "sourceDirty": false,
+        "complete": true
+      }
+    ],
+    "fullBrowserMatrixComplete": true,
+    "FirefoxLaunch": {
+      "environmentOverrides": "MOZ_APP_DATA and MOZ_LOCAL_APP_DATA point to owned temporary dirs; TMPDIR=/tmp",
+      "brandingAndBinaryUnchanged": true,
+      "provenance": "launch-provenance.json"
+    }
+  },
+  "exactBuild": {
+    "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+    "sourceDirtyBeforeBuild": false,
+    "swiftVersion": "Apple Swift version 6.4 (swift-6.4-RELEASE)\nTarget: arm64-apple-macosx27.0.0",
+    "swiftBinarySHA256": "79ae5c26645489fb783ae980f0f1bdae810f90fb180c9ac39808807b65e9fd69",
+    "SDKManifest": {
+      "artifacts": {
+        "swift-6.4.0-RELEASE_wasm": {
+          "type": "swiftSDK",
+          "variants": [
+            {
+              "path": "swift-6.4.0-RELEASE_wasm/wasm32-unknown-wasip1/swift-sdk.json"
+            }
+          ],
+          "version": "0.0.1"
+        },
+        "swift-6.4.0-RELEASE_wasm-embedded": {
+          "type": "swiftSDK",
+          "variants": [
+            {
+              "path": "swift-6.4.0-RELEASE_wasm/wasm32-unknown-wasip1/embedded-swift-sdk.json"
+            }
+          ],
+          "version": "0.0.1"
+        }
+      },
+      "schemaVersion": "1.0"
+    },
+    "SDKManifestSHA256": "64a5553ce039aa78f142c9db5876cc7b8e81c4b952ef5d17859bb5a3f94530e9",
+    "sourceObjects": {
+      "Sources": "e1c81e47681ad7e2a064e5140e4299485a2ce22c",
+      "Package.swift": "208aa83dd8c6bf3b734300edded3f71dcc3bf7e4",
+      "src/swift.ts": "91ddc87db474d634747236a7ed2a4cb5cd5a6de4",
+      "scripts/build-wasm.sh": "e81fca3093b8d37696396e0abe4694cce95d5dba",
+      "scripts/performance.mjs": "46cd443d1e85183390f05fe473c1a69fe6d07b68",
+      "tests/performance.spec.ts": "721ca14d59307c29adc9a1d16fc02461f1ec3d4d",
+      "benchmarks/workloads.json": "1941c73328eb9c26c881d85c7a7fcb23d58970e4"
+    },
+    "command": [
+      "/Users/luca/Developer/block-editor/.build/toolchains/swift-6.4/swift-6.4.0-RELEASE-osx-package.pkg/Payload/usr/bin/swift",
+      "build",
+      "--swift-sdks-path",
+      "/Users/luca/Developer/block-editor/.build/toolchains/swift-sdks",
+      "--swift-sdk",
+      "swift-6.4.0-RELEASE_wasm",
+      "--scratch-path",
+      "/Users/luca/.codex/worktrees/nested-structure/block-editor/.build/wasm",
+      "--product",
+      "block-editor-wasm",
+      "-c",
+      "release",
+      "-Xlinker",
+      "--export=block_editor_alloc",
+      "-Xlinker",
+      "--export=block_editor_free",
+      "-Xlinker",
+      "--export=block_editor_call",
+      "-Xlinker",
+      "--strip-debug"
+    ],
+    "log": "/tmp/editor-wasm-exact-build.log",
+    "complete": true,
+    "artifactSHA256": "d659fd2f1212d8242e3c18397f69a540cf76d23c63cd2e073eba15a669518457",
+    "rawBytes": 61435676,
+    "matchesInitiallyMeasuredArtifact": false
+  },
+  "verification": {
+    "nativeVerifiedSeparatelyAtArchivedSource": "1e527807f630d77b4f41029bd951371782417dd2",
+    "browserVerifiedSource": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+    "profile": "baseline",
+    "completeSamples": 96,
+    "browserSamples": 72,
+    "nativeDocumentHistoryReceiptEquality": true,
+    "canonicalDocumentHistoryReceiptSHA256": "3a6b354e737ea164195ff8d7e6d23b455f2d156edb250165e0130900d1d2b79d",
+    "numericBudgetAgreed": false,
+    "currentEngineOrPR34Measurements": false
+  },
+  "archivedReportSHA256": {
+    "performance-wasm-chromium.json": "911926dcb964a9ecb5dad26c1a0bb6313337f1686b1b9fc233fd64ba97738c26",
+    "performance-wasm-webkit.json": "ef3d507fb3cc64080f53a0bca63dcfb9e5194bbe2e7576192eef8546ea378289",
+    "performance-wasm-firefox.json": "22489b40989993cbc495661463ae2820f5186b03bfad487e0f684e42a3ede0e8"
+  }
+}

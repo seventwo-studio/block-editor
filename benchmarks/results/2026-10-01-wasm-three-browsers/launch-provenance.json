@@ -1,0 +1,17 @@
+{
+  "browser": "Playwright pinned Firefox155.0/revision1543",
+  "brandingUnchanged": true,
+  "installedBinaryUnchanged": true,
+  "persistentHostSettingsChanged": false,
+  "appdataOverride": {
+    "MOZ_APP_DATA": "/private/tmp/editor-firefox-baseline-appdata-gq0xrpfi/app",
+    "MOZ_LOCAL_APP_DATA": "/private/tmp/editor-firefox-baseline-appdata-gq0xrpfi/local",
+    "TMPDIR": "/tmp"
+  },
+  "temporaryOwnedNamespace": "/private/tmp/editor-firefox-baseline-appdata-gq0xrpfi",
+  "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+  "profile": "baseline",
+  "source": "https://searchfox.org/firefox-main/source/toolkit/xre/nsXREDirProvider.cpp",
+  "temporaryAppdataCleanupComplete": true,
+  "testExitCode": 0
+}

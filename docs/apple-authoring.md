@@ -16,7 +16,10 @@ blocks remain in the document, including on watchOS and tvOS.
 
 Block context actions offer both ordering directions and deletion. V2 actions
 capture origin identity before committing composition, follow its current parent,
-and use shared node operations. Nested list items offer indentation and outdent.
+and use shared node operations. Native rows also use origin identity so a moved
+node cannot retain the text coordinator of a replacement with the same label.
+Checklist changes capture their target before queued remote changes are released.
+Nested list items offer indentation and outdent.
 Legacy V1 retains root ordering and omits nested structural actions. Selection tools offer bold, italic, strikethrough,
 code and removal of an individual mark type; stable position anchors map through
 queued remote changes before applying formatting. Each operation uses shared
