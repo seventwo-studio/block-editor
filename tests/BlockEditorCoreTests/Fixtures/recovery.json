@@ -9562,6 +9562,1877 @@
         "session": "legacy-seed-true-expected"
       },
       "capture": "legacy-seed-true-expected"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "inactive-initial-clear-peer",
+        "documentID": "inactive-initial-clear",
+        "actorID": "local",
+        "collaborationVersion": 2,
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "T",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "T",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "X",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "X",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-before-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-before-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-initial-clear-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-initial-clear",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "T",
+                                "path": [
+                                  "children",
+                                  "X"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "T",
+                                "path": [
+                                  "children",
+                                  "X"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-after-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-after-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-initial-clear-peer"
+      },
+      "capture": "inactive-initial-clear-after-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-initial-clear-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-initial-clear",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "B",
+                                "path": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "capture": "inactive-initial-clear-valid-disabled"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "inactive-initial-clear-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "inactive-initial-pending-peer",
+        "documentID": "inactive-initial-pending",
+        "actorID": "local",
+        "collaborationVersion": 2,
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "T",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "T",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "X",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "X",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "inactive-initial-pending-collider",
+        "documentID": "inactive-initial-pending",
+        "actorID": "collider",
+        "collaborationVersion": 2,
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "T",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "T",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "X",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "X",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insert",
+        "session": "inactive-initial-pending-peer",
+        "block": {
+          "id": "collision",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "collision",
+              "marks": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "insert",
+        "session": "inactive-initial-pending-collider",
+        "block": {
+          "id": "collision",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "collision",
+              "marks": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "inactive-initial-pending-collider"
+      },
+      "capture": "inactive-initial-pending-collision"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-initial-pending-peer"
+      },
+      "error": "mergeRecoveryRequired",
+      "bindings": {
+        "batch": "inactive-initial-pending-collision"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-before-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-before-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-initial-pending-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-initial-pending",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "T",
+                                "path": [
+                                  "children",
+                                  "X"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "T",
+                                "path": [
+                                  "children",
+                                  "X"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-after-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-after-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-initial-pending-peer"
+      },
+      "capture": "inactive-initial-pending-after-document"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "inactive-initial-pending-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "inactive-initial-pending-collider"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "inactive-edit-clear-peer",
+        "documentID": "inactive-edit-clear",
+        "actorID": "local",
+        "collaborationVersion": 2,
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "T",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "T",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "X",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "X",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-edit-clear-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-edit-clear",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "writer"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-before-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-before-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-edit-clear-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-edit-clear",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "writer"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "T",
+                            "path": [
+                              "children",
+                              "X"
+                            ]
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "T",
+                              "path": []
+                            }
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "writer"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-after-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-after-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-edit-clear-peer"
+      },
+      "capture": "inactive-edit-clear-after-document"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "inactive-edit-clear-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "inactive-edit-pending-peer",
+        "documentID": "inactive-edit-pending",
+        "actorID": "local",
+        "collaborationVersion": 2,
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "T",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "T",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "X",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "X",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "inactive-edit-pending-collider",
+        "documentID": "inactive-edit-pending",
+        "actorID": "collider",
+        "collaborationVersion": 2,
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "T",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "T",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "X",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "X",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insert",
+        "session": "inactive-edit-pending-peer",
+        "block": {
+          "id": "collision",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "collision",
+              "marks": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "insert",
+        "session": "inactive-edit-pending-collider",
+        "block": {
+          "id": "collision",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "collision",
+              "marks": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "inactive-edit-pending-collider"
+      },
+      "capture": "inactive-edit-pending-collision"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-edit-pending-peer"
+      },
+      "error": "mergeRecoveryRequired",
+      "bindings": {
+        "batch": "inactive-edit-pending-collision"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-edit-pending-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-edit-pending",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "writer"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "mergeRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-before-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-before-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-before-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-before-document"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "inactive-edit-pending-peer",
+        "batch": {
+          "version": 2,
+          "documentID": "inactive-edit-pending",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "T",
+                "type": "toggle",
+                "summary": [
+                  {
+                    "type": "text",
+                    "text": "T",
+                    "marks": []
+                  }
+                ],
+                "children": [
+                  {
+                    "id": "X",
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "writer"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 1,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "T",
+                            "path": [
+                              "children",
+                              "X"
+                            ]
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "T",
+                              "path": []
+                            }
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 1,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 2,
+                "actor": "writer"
+              },
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "placement": {
+                          "change": {
+                            "counter": 2,
+                            "actor": "writer"
+                          },
+                          "index": 0
+                        },
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "counter": 1,
+                                "actor": "writer"
+                              },
+                              "index": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": {
+                "counter": 3,
+                "actor": "writer"
+              },
+              "body": {
+                "setActive": {
+                  "target": {
+                    "counter": 2,
+                    "actor": "writer"
+                  },
+                  "active": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-after-save"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-after-syncState"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-after-mergeRecovery"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "inactive-edit-pending-peer"
+      },
+      "capture": "inactive-edit-pending-after-document"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "inactive-edit-pending-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "inactive-edit-pending-collider"
+      }
     }
   ],
   "equal": [
@@ -9744,6 +11615,74 @@
     [
       "legacy-seed-true-actual",
       "legacy-seed-true-expected"
+    ],
+    [
+      "inactive-initial-clear-before-save",
+      "inactive-initial-clear-after-save"
+    ],
+    [
+      "inactive-initial-clear-before-syncState",
+      "inactive-initial-clear-after-syncState"
+    ],
+    [
+      "inactive-initial-clear-before-mergeRecovery",
+      "inactive-initial-clear-after-mergeRecovery"
+    ],
+    [
+      "inactive-initial-clear-before-document",
+      "inactive-initial-clear-after-document"
+    ],
+    [
+      "inactive-initial-clear-before-document",
+      "inactive-initial-clear-valid-disabled"
+    ],
+    [
+      "inactive-initial-pending-before-save",
+      "inactive-initial-pending-after-save"
+    ],
+    [
+      "inactive-initial-pending-before-syncState",
+      "inactive-initial-pending-after-syncState"
+    ],
+    [
+      "inactive-initial-pending-before-mergeRecovery",
+      "inactive-initial-pending-after-mergeRecovery"
+    ],
+    [
+      "inactive-initial-pending-before-document",
+      "inactive-initial-pending-after-document"
+    ],
+    [
+      "inactive-edit-clear-before-save",
+      "inactive-edit-clear-after-save"
+    ],
+    [
+      "inactive-edit-clear-before-syncState",
+      "inactive-edit-clear-after-syncState"
+    ],
+    [
+      "inactive-edit-clear-before-mergeRecovery",
+      "inactive-edit-clear-after-mergeRecovery"
+    ],
+    [
+      "inactive-edit-clear-before-document",
+      "inactive-edit-clear-after-document"
+    ],
+    [
+      "inactive-edit-pending-before-save",
+      "inactive-edit-pending-after-save"
+    ],
+    [
+      "inactive-edit-pending-before-syncState",
+      "inactive-edit-pending-after-syncState"
+    ],
+    [
+      "inactive-edit-pending-before-mergeRecovery",
+      "inactive-edit-pending-after-mergeRecovery"
+    ],
+    [
+      "inactive-edit-pending-before-document",
+      "inactive-edit-pending-after-document"
     ]
   ],
   "expected": {

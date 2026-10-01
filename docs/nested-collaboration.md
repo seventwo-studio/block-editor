@@ -32,8 +32,10 @@ immediate anchor is insufficient: the complete same-collection ordering chain
 must reach an ordering root. Likewise, a known owner must have a potential anchored
 path to the document root. Existing content cannot disappear into an owner whose
 own causal placement is still incomplete. Inactive placements remain ordering
-anchors. Parent-cycle resolution still considers alternative rooted placements
-before falling back deterministically.
+anchors, but a known anchor must belong to the destination collection even if its
+move was undone. Inactive malformed placement references reject before admission;
+disabling a change cannot make its references valid. Parent-cycle resolution still
+considers alternative rooted placements before falling back deterministically.
 
 A complete transaction must reference elements introduced earlier in that same
 transaction. Forward or cyclic same-change anchors fail with `invalidChange`.
@@ -61,7 +63,7 @@ later within that complete transaction; text anchors must belong to the exact
 field, and baseline nodes must exist in the original document. The full candidate
 history is checked before admission, including reversed batches and creations
 whose own causal parent is still absent. Truly missing earlier transactions remain
-deferred. The 202-step shared recovery fixture verifies prior-payload, kind and
+deferred. The shared recovery fixture verifies prior-payload, kind and
 field rejection alongside valid text anchors across Swift, JNI and WASM. Failed
 validation preserves accepted state, receipts, pending recovery and preparation
 callbacks.
@@ -167,6 +169,14 @@ local typing remain usable. Causal completion converges, author undo retains the
 writer's moves, and redo/reopen retain the text. The typed native regression also
 checks that inactive placements still anchor later moves. These preservation
 checks reproduced ten failed native assertions before the deferral fix.
+
+The recovery transcript retains its original 202 commands and comparisons and adds
+59 commands for inactive moves anchored in a different collection. Known initial
+and edit anchors reject without changing accepted saves/receipts, pending proposals
+or receive-preparation callbacks. Missing causal edit anchors may still arrive
+later; the newly known mismatch rejects atomically even through reversed/duplicate
+delivery or existing recovery. A valid disabled move with a same-collection anchor
+still admits. The native regression reproduced 24 failures before this correction.
 
 The [runtime CI contract](runtime-ci.md) executes Swift, packaged API 26 x86_64
 JNI, API 35 x86_64/translated ARM64 JNI and WASM in Chromium, WebKit and Firefox,

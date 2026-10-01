@@ -134,7 +134,12 @@ struct StructuralState {
         // Inactive placements remain traversable anchors, just like tombstones.
         var successors: [NodePlacementID: [NodePlacementID]] = [:], pending: [NodePlacementID] = []
         for p in placements.values {
-            if let anchor = p.after { successors[anchor, default: []].append(p.id) }
+            if let anchor = p.after {
+                // Undo cannot turn a known invalid ordering reference into a
+                // valid transaction. Validate inactive anchors before admission.
+                if let predecessor = placements[anchor], predecessor.collection != p.collection { throw EditorError.invalidChange }
+                successors[anchor, default: []].append(p.id)
+            }
             else { pending.append(p.id) }
         }
         var anchored = Set<NodePlacementID>()
@@ -145,10 +150,6 @@ struct StructuralState {
         var candidates: [NodeID: [Placement]] = [:]
         for p in placements.values where p.active && nodes[p.node] != nil {
             if let owner = p.collection.owner, nodes[owner] == nil { continue }
-            if let anchor = p.after {
-                guard let predecessor = placements[anchor] else { continue }
-                guard predecessor.collection == p.collection else { throw EditorError.invalidChange }
-            }
             guard anchored.contains(p.id) else { continue }
             candidates[p.node, default: []].append(p)
         }

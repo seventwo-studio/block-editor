@@ -65,3 +65,46 @@ func dependentPlacementChainsPreserveExistingContentUntilTheirAnchorArrives(nest
     #expect(try peer.offset(of: caret) == 1)
     #expect(try peer.address(of: a) == NodeAddress("P", path: ["children", "A"]))
 }
+
+@Test(arguments: [false, true])
+func inactiveMovesStillRejectKnownAnchorsFromAnotherCollection(editedAnchor: Bool) throws {
+    let baseline = try Document(blocks: [deferredParagraph("A"), deferredParagraph("B"),
+        Block(fields: ["id": .string("T"), "type": .string("toggle"), "summary": .array([textNode("T")]),
+                       "children": .array([.object(deferredParagraph("X").fields)])])])
+    let a = NodeID.baseline(blockID: "A", path: []), t = NodeID.baseline(blockID: "T", path: [])
+    let x = NodeID.baseline(blockID: "T", path: ["children", "X"])
+    let earlierID = ChangeID(counter: 1, actor: "writer"), badID = ChangeID(counter: 2, actor: "writer")
+    let earlier = Change(id: earlierID, body: .edit([.moveNode(identity: x, collection: NodeCollection(owner: t, field: "children"),
+        placement: ElementID(change: earlierID, index: 0), after: nil)]))
+    let anchor = editedAnchor ? NodePlacementID.edit(ElementID(change: earlierID, index: 0)) : .initial(x)
+    let bad = Change(id: badID, body: .edit([.moveNode(identity: a, collection: .root,
+        placement: ElementID(change: badID, index: 0), after: anchor)]))
+    let disabled = Change(id: ChangeID(counter: 3, actor: "writer"), body: .setActive(target: badID, active: false))
+    let full = (editedAnchor ? [earlier] : []) + [bad, disabled]
+    for pending in [false, true] {
+        for delayed in [false, true] {
+            let peer = try EditorSession(documentID: "inactive-collection", actorID: "local", document: baseline, collaborationVersion: 2)
+            if pending {
+                let collider = try EditorSession(documentID: peer.documentID, actorID: "collider", document: baseline, collaborationVersion: 2)
+                try peer.insert(deferredParagraph("collision")); try collider.insert(deferredParagraph("collision"))
+                #expect(throws: EditorError.self) { try peer.receive(collider.changes()) }
+                #expect(peer.mergeRecovery != nil)
+            }
+            if editedAnchor && delayed {
+                // Unknown earlier anchors remain deferred; their arrival supplies
+                // enough information to reject the malformed later placement.
+                let partial = ChangeBatch(documentID: peer.documentID, baseline: baseline, changes: [disabled, bad], version: 2)
+                if pending { #expect(throws: EditorError.self) { try peer.receive(partial) } }
+                else { try peer.receive(partial) }
+            }
+            let saved = try peer.save(), receipts = peer.syncState, recovery = peer.mergeRecovery, document = try peer.document
+            var prepared = false; peer.onWillReceive = { prepared = true }
+            let delivered = delayed ? Array(full.reversed()) + [disabled, bad] : full
+            #expect(throws: EditorError.invalidChange) {
+                try peer.receive(ChangeBatch(documentID: peer.documentID, baseline: baseline, changes: delivered, version: 2))
+            }
+            #expect(try peer.save() == saved); #expect(peer.syncState == receipts)
+            #expect(peer.mergeRecovery == recovery); #expect(try peer.document == document); #expect(!prepared)
+        }
+    }
+}
