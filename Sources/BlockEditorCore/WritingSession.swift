@@ -777,14 +777,20 @@ public final class WritingSession {
                 switch $0 { case .transfer, .join, .splitBoundary: return false; default: return true }
             })
         }
-        let ancestry = try WritingProjection(seeds: seeds, edits: ancestryEdits, active: active, emptyFields: fields, hiddenSeeds: hidden)
+        var ancestry: WritingProjection?
         var cuts: [WritingField: [Cut]] = [:]
         for edit in edits where active[edit.id] ?? true {
             for mutation in edit.mutations {
                 if case .splitBoundary(let source, let destination, let edge, let before) = mutation {
-                    let rank = try edge.anchor.map { try ancestry.retainedOffset(of: $0, affinity: {
-                        if case .before = edge { return .before }; return .after
-                    }()) } ?? 0
+                    let rank: Int
+                    if let anchor = edge.anchor {
+                        if ancestry == nil {
+                            ancestry = try WritingProjection(seeds: seeds, edits: ancestryEdits, active: active, emptyFields: fields, hiddenSeeds: hidden)
+                        }
+                        rank = try ancestry!.retainedOffset(of: anchor, affinity: {
+                            if case .before = edge { return .before }; return .after
+                        }())
+                    } else { rank = 0 }
                     let keys = edit.mutations.reduce(into: Set<WritingAtomKey>()) { span, mutation in
                         if case .transfer(let keys, let target, _) = mutation, target == destination { span.formUnion(keys) }
                     }

@@ -190,7 +190,7 @@ struct WritingProjection {
     }
 
     private mutating func resolveFields() throws {
-        for key in nodes.keys.sorted() where fields[key] == nil {
+        for key in writingAtomsSorted(Array(nodes.keys)) where fields[key] == nil {
             var cursor = key, chain: [WritingAtomKey] = [], seen = Set<WritingAtomKey>()
             var result: WritingField?
             while result == nil {
@@ -235,7 +235,7 @@ struct WritingProjection {
         // moves after another field's final atom. Sorted sibling order is immutable
         // creation order, never the timestamp of the move that carried a suffix.
         enum Frame { case enter(WritingAtomKey), emit(WritingAtomKey), exit(WritingAtomKey) }
-        var stack = roots.sorted().map(Frame.enter)
+        var stack = writingAtomsSorted(roots).map(Frame.enter)
         var entering = Set<WritingAtomKey>(), seen = Set<WritingAtomKey>()
         while let frame = stack.popLast() {
             switch frame {
@@ -243,13 +243,46 @@ struct WritingProjection {
                 guard !entering.contains(key), !seen.contains(key) else { throw WritingProjectionError.placementCycle }
                 entering.insert(key)
                 stack.append(.exit(key))
-                stack.append(contentsOf: (after[key] ?? []).sorted().map(Frame.enter))
+                stack.append(contentsOf: writingAtomsSorted(after[key] ?? []).map(Frame.enter))
                 stack.append(.emit(key))
-                stack.append(contentsOf: (before[key] ?? []).sorted().map(Frame.enter))
+                stack.append(contentsOf: writingAtomsSorted(before[key] ?? []).map(Frame.enter))
             case .emit(let key): order.append(key); seen.insert(key)
             case .exit(let key): entering.remove(key)
             }
         }
         guard seen.count == nodes.count else { throw WritingProjectionError.placementCycle }
     }
+}
+
+/// String equality normalizes Unicode; canonical wire ordering compares bytes.
+/// Use raw components for memoization so equivalent spellings retain their order.
+private struct RawWritingField: Hashable {
+    let components: [Data]
+    init(_ field: WritingField) {
+        var values: [String]
+        switch field.node {
+        case .baseline(let blockID, let path): values = ["baseline", blockID] + path
+        case .inserted(let creation, let path):
+            values = ["inserted", String(creation.change.counter), creation.change.actor, String(creation.index)] + path
+        }
+        components = (values + [field.name]).map { Data($0.utf8) }
+    }
+}
+
+/// Encode each exact origin once per sort pass; retain the existing public
+/// Comparable contract, including canonically equivalent Unicode spellings.
+func writingAtomsSorted(_ keys: [WritingAtomKey]) -> [WritingAtomKey] {
+    guard keys.count > 1 else { return keys }
+    var encoded: [RawWritingField: String] = [:]
+    let decorated = keys.map { key -> (key: WritingAtomKey, origin: String) in
+        let raw = RawWritingField(key.origin)
+        let value: String
+        if let existing = encoded[raw] { value = existing }
+        else { value = key.origin.key; encoded[raw] = value }
+        return (key, value)
+    }
+    return decorated.sorted { lhs, rhs in
+        if lhs.key.element != rhs.key.element { return lhs.key.element < rhs.key.element }
+        return lhs.origin.utf8.lexicographicallyPrecedes(rhs.origin.utf8)
+    }.map(\.key)
 }

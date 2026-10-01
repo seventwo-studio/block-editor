@@ -4197,6 +4197,435 @@
         "command": "close",
         "session": "end-caret-reopened"
       }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-range-a",
+        "documentID": "nested-range",
+        "actorID": "a",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "root",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "head",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "toggle",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "summary",
+                "marks": []
+              }
+            ],
+            "consumer": "keep",
+            "children": [
+              {
+                "id": "a",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "wh",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "external",
+                    "entityType": "note",
+                    "label": "世界😀"
+                  }
+                ],
+                "consumer": {
+                  "id": "external-id"
+                }
+              },
+              {
+                "id": "b",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "last",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "c",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "unselected",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-range-b",
+        "documentID": "nested-range",
+        "actorID": "b",
+        "epoch": "v3",
+        "collaborationVersion": 3,
+        "blocks": [
+          {
+            "id": "root",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "head",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "toggle",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "summary",
+                "marks": []
+              }
+            ],
+            "consumer": "keep",
+            "children": [
+              {
+                "id": "a",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "wh",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityId": "external",
+                    "entityType": "note",
+                    "label": "世界😀"
+                  }
+                ],
+                "consumer": {
+                  "id": "external-id"
+                }
+              },
+              {
+                "id": "b",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "last",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "c",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "unselected",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "nested-range-a",
+        "address": {
+          "blockID": "root",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 2
+      },
+      "capture": "nested-range-start"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "nested-range-a",
+        "address": {
+          "blockID": "toggle",
+          "path": [
+            "children",
+            "b",
+            "content"
+          ]
+        },
+        "offset": 2
+      },
+      "capture": "nested-range-end"
+    },
+    {
+      "request": {
+        "command": "writingSelection",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-selection",
+      "bindings": {
+        "anchor": "nested-range-start",
+        "focus": "nested-range-end"
+      }
+    },
+    {
+      "request": {
+        "command": "copySelection",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-copy",
+      "bindings": {
+        "selection": "nested-range-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "nested-range-b",
+        "address": {
+          "blockID": "root",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "R-",
+        "marks": []
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "nested-range-b",
+        "address": {
+          "blockID": "toggle",
+          "path": [
+            "children",
+            "c",
+            "content"
+          ]
+        },
+        "start": 10,
+        "end": 10,
+        "text": "!",
+        "marks": []
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "nested-range-b"
+      },
+      "capture": "nested-range-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-range-a"
+      },
+      "bindings": {
+        "batch": "nested-range-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "nested-range-a"
+      },
+      "bindings": {
+        "selection": "nested-range-selection"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-deleted"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "nested-range-a"
+      },
+      "capture": "nested-range-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "nested-range-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "nested-range-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-undo"
+    },
+    {
+      "request": {
+        "command": "moveSelection",
+        "session": "nested-range-reopened",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "toggle",
+                "path": [
+                  "children",
+                  "a"
+                ]
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "toggle",
+              "path": []
+            }
+          },
+          "field": "children"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "toggle",
+            "path": [
+              "children",
+              "c"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-moved"
+    },
+    {
+      "request": {
+        "command": "duplicateSelection",
+        "session": "nested-range-reopened",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "toggle",
+                "path": [
+                  "children",
+                  "a"
+                ]
+              }
+            }
+          ],
+          "text": []
+        },
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "toggle",
+              "path": []
+            }
+          },
+          "field": "children"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "toggle",
+            "path": [
+              "children",
+              "a"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-duplicated"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-duplicate-undo"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-range-reopened"
+      },
+      "capture": "nested-range-move-undo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-range-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-range-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-range-reopened"
+      }
     }
   ],
   "equal": [
@@ -5403,6 +5832,438 @@
           }
         ]
       }
+    ],
+    "nested-range-deleted": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-he",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "st",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "nested-range-undo": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "nested-range-moved": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          }
+        ]
+      }
+    ],
+    "nested-range-duplicated": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "copy-a-6-1",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          }
+        ]
+      }
+    ],
+    "nested-range-duplicate-undo": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          }
+        ]
+      }
+    ],
+    "nested-range-move-undo": [
+      {
+        "id": "root",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "R-head",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "toggle",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "text",
+            "text": "summary",
+            "marks": []
+          }
+        ],
+        "consumer": "keep",
+        "children": [
+          {
+            "id": "a",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "wh",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityId": "external",
+                "entityType": "note",
+                "label": "世界😀"
+              }
+            ],
+            "consumer": {
+              "id": "external-id"
+            }
+          },
+          {
+            "id": "b",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "last",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "c",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "unselected!",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   "expectedValues": {
@@ -5706,6 +6567,97 @@
       "nodes": [],
       "text": [
         []
+      ]
+    },
+    "nested-range-copy": {
+      "nodes": [
+        {
+          "id": "a",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "wh",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "type": "entity-ref",
+              "entityId": "external",
+              "entityType": "note",
+              "label": "世界😀"
+            }
+          ],
+          "consumer": {
+            "id": "external-id"
+          }
+        }
+      ],
+      "text": [
+        [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "s",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "u",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "m",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "m",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "r",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "y",
+            "marks": []
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "l",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ]
       ]
     }
   }

@@ -1,0 +1,33 @@
+Building for production...
+[Planning deferred tasks]
+[22 / 34] BlockEditorCore
+[30 / 81]
+[36 / 81]
+[38 / 81]
+[44 / 81]
+[45 / 81]
+[51 / 81]
+[52 / 81]
+[55 / 81]
+[59 / 81]
+[61 / 81]
+[64 / 81]
+[65 / 81]
+[67 / 81]
+[68 / 81]
+[69 / 81]
+/Users/luca/.codex/worktrees/cfcf/block-editor/.build/st94-release/source/Sources/BlockEditorCore/Bridge.swift:176:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+174 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+175 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+176 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+177 |         default: throw EditorError.invalidChange
+178 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[70 / 81] BlockEditorCore
+[77 / 82]
+[79 / 83] editor-bridge-product
+[81 / 83] editor-bridge-product
+[82 / 83] editor-bridge-product
+Build complete! (22.98 sec)

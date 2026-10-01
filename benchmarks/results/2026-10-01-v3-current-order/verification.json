@@ -1,0 +1,83 @@
+{
+  "sourceCommit": "c3ffbf16ccb461864be8f9e36d6eed86250f51cd",
+  "sourceDirty": true,
+  "inputsSHA256": {
+    "Sources/BlockEditorCore/EditorSession.swift": "8d1761a72b237496002f8fe4c1c8a566f9ae6b355ddb671a94153a22503ac444",
+    "Sources/BlockEditorCore/Bridge.swift": "fc4cd0fc6731b7f3480b1c1cbfd2580b73de644b725877a641c6ecf77b9972ce",
+    "Sources/BlockEditorCore/Collaboration.swift": "fabb79d595e0818115c1f28a0321f4d70b4bfd7cb5c8ba77630355c34c6e45fa",
+    "Sources/BlockEditorCore/MergeRecovery.swift": "18303e6f4c68493c888b3eb1eb04dc072d1cfc4eb6bfacde3aeff3262e03dcd3",
+    "Sources/BlockEditorCore/Structure.swift": "698cb986f21c64f25502ae8dbf98d5c2cbec0caaa6d8a6da954ad945187ef8b3",
+    "Sources/BlockEditorCore/ProtocolMigration.swift": "99ec7a92097ef284e83adc42338c4e3ae10801294f3e502300afe30c29ed21e5",
+    "Sources/BlockEditorCore/Validation.swift": "9fcfc864d5addb571834227faaba90577c5db4f327db2510a25995b52a37d4d5",
+    "Sources/BlockEditorCore/WritingProjection.swift": "e69b1e1ab04032d622692c77719bee96d0cf3edcbeb1655bd206b07f0aceaa50",
+    "Sources/BlockEditorCore/LegacyMigration.swift": "426f26cc32b940d1edd3290fe2dce6c4acc9d61665e14f3cc10578cf19929ac2",
+    "Sources/BlockEditorCore/WritingSession.swift": "9a34890e0b3682ee25b8954946eb03754b26cd3133e1e00cfbc37eed7cee9fc7",
+    "Sources/BlockEditorCore/Document.swift": "f3b1ffe9af30c2aae48287dc103120e21a7399bbbd05a7d7749708d423f48684",
+    "Sources/BlockEditorCore/Markdown.swift": "0e819bf163672170d5e41661f6078e62bfb4ddcb9a1b795d50db4a1f8d9b5320",
+    "Sources/BlockEditorCore/WritingMigration.swift": "038b4872567596e6208439487d6f08412988ad07f0d7b93509d9a572e66409bf",
+    "Examples/EditorBridgeCLI/main.swift": "aaa72bf57143e2b39084990235721ef49b0f0cd103a73c9308500f83c4c026ef",
+    "Package.swift": "801cfd78cc232e10489572f0622cab91929aad6ea89d2fd6674ae94101bb7504"
+  },
+  "artifactSHA256": "5cdd3f6f09bb98fcf148fa34297cc8d8d3873f784b634f9f9fc966014c69e681",
+  "nativeFixtureSHA256": "19261b3a0ec2e396489ec73729ea10293dae1340406d813bfc76a8c826747875",
+  "fixtures": {
+    "bridge": {
+      "requests": 5,
+      "sha256": "55f305d7c87a31db876048e01d21f8080c96ea541edd5009734d57a73c8d3d66"
+    },
+    "documents": {
+      "requests": 59,
+      "sha256": "28a0306a05eeaea035dfff9d1e9694c4b9eb89cf8ff39bddbf7f76a42c6671e2"
+    },
+    "recovery": {
+      "requests": 665,
+      "sha256": "32ce3e5b549a1556b640996f6a7725a85628191ad6b6675a9066f3cc82a21d87"
+    },
+    "structure": {
+      "requests": 1972,
+      "sha256": "7a82baf6c079de837089c6c1a7043a2cef3bc302a19517fec1bfa4e389d724a2"
+    },
+    "writing": {
+      "requests": 346,
+      "sha256": "a6cff40c808ce75c04cc50bd52dd280978d0d174c48cefa5365a20cc67f1f258"
+    }
+  },
+  "retainedOracle": {
+    "artifactSHA256": "5cdd3f6f09bb98fcf148fa34297cc8d8d3873f784b634f9f9fc966014c69e681",
+    "cases": [
+      {
+        "version": 1,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 1,
+        "delivery": "redo-before-undo",
+        "passed": true
+      },
+      {
+        "version": 2,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 2,
+        "delivery": "redo-before-undo",
+        "passed": true
+      },
+      {
+        "version": 3,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 3,
+        "delivery": "redo-before-undo",
+        "passed": true
+      }
+    ]
+  },
+  "swiftSuite": "8 LocalDemo + 118 Core + 23 Apple functions passed; source candidate, not actual device input",
+  "numericBudgets": "unagreed",
+  "crossRuntime": "pending exact-delivery CI; native transcript is not JNI/WASM proof"
+}

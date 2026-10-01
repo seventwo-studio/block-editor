@@ -1,0 +1,15 @@
+Building for production...
+[2 / 6] BlockEditorCore
+/private/tmp/block-editor-v3-sort-performance/Sources/BlockEditorCore/Bridge.swift:191:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+189 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+190 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+191 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+192 |         default: throw EditorError.invalidChange
+193 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[4 / 7] BlockEditorCore
+[8 / 9] editor-bridge-product
+[9 / 9] editor-bridge-product
+Build complete! (16.57 sec)

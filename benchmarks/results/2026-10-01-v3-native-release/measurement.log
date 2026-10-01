@@ -1,0 +1,6 @@
+ordinary-v3 repeat 0: edits p95 45.33 ms; rejoin 122.10 ms; snapshot 46086 bytes
+ordinary-v3 repeat 1: edits p95 43.81 ms; rejoin 121.89 ms; snapshot 46086 bytes
+ordinary-v3 repeat 2: edits p95 43.49 ms; rejoin 122.66 ms; snapshot 46086 bytes
+history-v3-128 repeat 0: edits p95 50.37 ms; rejoin 236.47 ms; snapshot 169135 bytes
+history-v3-128 repeat 1: edits p95 50.53 ms; rejoin 250.82 ms; snapshot 169135 bytes
+history-v3-128 repeat 2: edits p95 69.69 ms; rejoin 256.49 ms; snapshot 169135 bytes
