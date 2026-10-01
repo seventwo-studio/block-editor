@@ -16,6 +16,22 @@ public struct ResolvedWritingPosition: Codable, Equatable, Sendable {
     public let address: TextAddress
     public let offset: Int
 }
+/// An anchored partial range; endpoints follow their atoms across remote edits.
+public struct WritingTextRange: Codable, Equatable, Sendable {
+    public let start: WritingPosition
+    public let end: WritingPosition
+    public init(start: WritingPosition, end: WritingPosition) { self.start = start; self.end = end }
+}
+/// Ordered whole nodes and partial fields. Ancestor/descendant overlap is rejected.
+public struct WritingSelection: Codable, Equatable, Sendable {
+    public let nodes: [NodeID]
+    public let text: [WritingTextRange]
+    public init(nodes: [NodeID] = [], text: [WritingTextRange] = []) { self.nodes = nodes; self.text = text }
+}
+public struct WritingCopy: Codable, Equatable, Sendable {
+    public let nodes: [JSONValue]
+    public let text: [[JSONValue]]
+}
 public enum WritingOperation: Codable, Equatable, Sendable {
     case structure(Mutation)
     case text(WritingMutation)
@@ -323,6 +339,166 @@ public final class WritingSession {
         try perform(nextID(), [.text(.join(source: source, destination: destination, edge: anchor.map(WritingEdge.after) ?? .start))])
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: anchor, affinity: .after)
     }
+    public func selectedText(at address: TextAddress, range: Range<Int>) throws -> WritingTextRange {
+        // Validate atomic references as well as Unicode scalar boundaries.
+        _ = try selection(address, range)
+        let start = try position(at: address, offset: range.lowerBound,
+                                 affinity: range.isEmpty && range.lowerBound == text(at: address).utf16.count ? .after : .before)
+        // A field-end sentinel stays with that field after split. Anchor nonempty
+        // ends to their last selected atom so the retained range follows its suffix.
+        let end = range.isEmpty ? start : try position(at: address, offset: range.upperBound, affinity: .after)
+        return WritingTextRange(start: start, end: end)
+    }
+    /// Capture a forward or backward range in visible document order, including
+    /// across nested collections. Boundary ancestors contribute only their own
+    /// text; whole intervening subtrees are selected once.
+    public func selection(from anchor: WritingPosition, to focus: WritingPosition) throws -> WritingSelection {
+        let first = try resolve(anchor), last = try resolve(focus)
+        let firstField = try field(first.address), lastField = try field(last.address)
+        if firstField == lastField {
+            return try WritingSelection(text: [selectedText(at: first.address, range: min(first.offset, last.offset)..<max(first.offset, last.offset))])
+        }
+        var ordered: [NodeID] = [], stack = Array(try structure.visibleOrder(in: .root).reversed())
+        while let node = stack.popLast() {
+            ordered.append(node)
+            guard let value = structure.nodes[node] else { throw EditorError.invalidPath }
+            for name in StructuralState.collectionFields(value.kind, value.fields).keys.sorted().reversed() {
+                stack += try structure.visibleOrder(in: NodeCollection(owner: node, field: name)).reversed()
+            }
+        }
+        guard let firstIndex = ordered.firstIndex(of: firstField.node), let lastIndex = ordered.firstIndex(of: lastField.node), firstIndex != lastIndex else { throw EditorError.invalidRange }
+        let lower = firstIndex < lastIndex ? first : last, upper = firstIndex < lastIndex ? last : first
+        let endNode = firstIndex < lastIndex ? lastField.node : firstField.node
+        let startIndex = min(firstIndex, lastIndex), endIndex = max(firstIndex, lastIndex)
+        var ranges = [try selectedText(at: lower.address, range: lower.offset..<text(at: lower.address).utf16.count)]
+        var nodes: [NodeID] = [], covered = Set<NodeID>()
+        for node in ordered[(startIndex + 1)..<endIndex] where !covered.contains(node) {
+            let descendants = Set(try structure.descendants(of: node))
+            if descendants.contains(endNode) {
+                guard let value = structure.nodes[node] else { throw EditorError.invalidPath }
+                for name in writingFields(value) {
+                    let address = node.textAddress(name)
+                    ranges.append(try selectedText(at: address, range: 0..<text(at: address).utf16.count))
+                }
+            } else { nodes.append(node); covered.formUnion(descendants) }
+        }
+        ranges.append(try selectedText(at: upper.address, range: 0..<upper.offset))
+        return WritingSelection(nodes: nodes, text: ranges)
+    }
+    public func copy(_ input: WritingSelection) throws -> WritingCopy {
+        let selected = try normalizedSelection(input)
+        let parts = try selectedParts(selected)
+        let values = try selected.nodes.map { identity -> JSONValue in
+            let address = try structure.address(of: identity)
+            guard let value = document.blocks.first(where: { $0.id == address.blockID })?.value(at: address.path) else { throw EditorError.invalidPath }
+            return value
+        }
+        return try WritingCopy(nodes: values, text: parts.map { try $0.map { try atom($0) } })
+    }
+    /// A mixed range deletion is one transaction. Only observed atoms and nodes
+    /// are removed; undo retains independent remote writes in surviving origins.
+    @discardableResult public func delete(_ input: WritingSelection) throws -> WritingSelection {
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        let selected = try normalizedSelection(input)
+        let parts = try selectedParts(selected)
+        var operations: [WritingOperation] = parts.filter { !$0.isEmpty }.map { .text(.delete(keys: $0)) }
+        let nodes = try selected.nodes.flatMap { try structure.descendants(of: $0) }
+        if !nodes.isEmpty { operations.append(.structure(.deleteNodes(identities: nodes))) }
+        if !operations.isEmpty { try perform(nextID(), operations) }
+        return WritingSelection(text: input.text.map { WritingTextRange(start: $0.start, end: $0.start) })
+    }
+    /// Move a whole-node range without changing any origin identity.
+    @discardableResult public func move(_ selected: WritingSelection, into collection: NodeCollection, after: NodeID? = nil) throws -> WritingSelection {
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        _ = try selectedParts(selected)
+        guard selected.text.isEmpty, !selected.nodes.isEmpty, after.map({ !selected.nodes.contains($0) }) ?? true else { throw EditorError.invalidRange }
+        let kind = try structure.kind(in: collection), placements = try structure.effectivePlacements()
+        if let owner = collection.owner { _ = try structure.address(of: owner) }
+        let siblings = try structure.visibleOrder(in: collection)
+        var labels = Set(siblings.filter { !selected.nodes.contains($0) }.compactMap { structure.nodes[$0]?.label })
+        var edge = try selectionPlacement(after, in: collection)
+        let id = try nextID()
+        var operations: [WritingOperation] = []
+        for (index, identity) in selected.nodes.enumerated() {
+            guard let node = structure.nodes[identity], node.kind == kind, placements[identity] != nil,
+                  labels.insert(node.label).inserted else { throw EditorError.invalidPath }
+            if let owner = collection.owner, try structure.descendants(of: identity).contains(owner) { throw EditorError.invalidPath }
+            let placement = ElementID(change: id, index: index)
+            operations.append(.structure(.moveNode(identity: identity, collection: collection, placement: placement, after: edge)))
+            edge = .edit(placement)
+        }
+        try perform(id, operations)
+        return selected
+    }
+    /// Fresh scoped labels are generated only for schema-defined nodes. Consumer
+    /// metadata, reference identities and unknown fields are copied unchanged.
+    @discardableResult public func duplicate(_ selected: WritingSelection, into collection: NodeCollection, after: NodeID? = nil) throws -> WritingSelection {
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        _ = try selectedParts(selected)
+        guard selected.text.isEmpty, !selected.nodes.isEmpty else { throw EditorError.invalidRange }
+        let kind = try structure.kind(in: collection)
+        if let owner = collection.owner { _ = try structure.address(of: owner) }
+        let values = try copy(selected).nodes, id = try nextID()
+        var edge = try selectionPlacement(after, in: collection), serial = 0
+        var reserved = Set(structure.nodes.values.map(\.label))
+        func fresh(_ value: JSONValue, kind: NodeKind) throws -> JSONValue {
+            guard var fields = value.object else { throw EditorError.invalidPath }
+            var label: String
+            repeat { serial += 1; label = "copy-\(actorID)-\(id.counter)-\(serial)" } while reserved.contains(label)
+            reserved.insert(label); fields["id"] = .string(label)
+            for (field, childKind) in StructuralState.collectionFields(kind, fields) {
+                if let children = fields[field]?.array { fields[field] = .array(try children.map { try fresh($0, kind: childKind) }) }
+            }
+            return .object(fields)
+        }
+        var identities: [NodeID] = [], operations: [WritingOperation] = []
+        for (index, value) in values.enumerated() {
+            guard structure.nodes[selected.nodes[index]]?.kind == kind else { throw EditorError.invalidPath }
+            let value = try fresh(value, kind: kind)
+            try validateNode(value, kind: kind)
+            let placement = ElementID(change: id, index: index), identity = NodeID.inserted(creation: placement, path: [])
+            identities.append(identity)
+            operations.append(.structure(.insertNode(value: value, identity: identity, collection: collection, placement: placement, after: edge)))
+            edge = .edit(placement)
+        }
+        try perform(id, operations)
+        return WritingSelection(nodes: identities)
+    }
+    private func selectionPlacement(_ node: NodeID?, in collection: NodeCollection) throws -> NodePlacementID? {
+        guard let node else { return nil }
+        guard try structure.visibleOrder(in: collection).contains(node), let placement = try structure.effectivePlacements()[node], placement.collection == collection else { throw EditorError.invalidPath }
+        return placement.id
+    }
+    private func normalizedSelection(_ selected: WritingSelection) throws -> WritingSelection {
+        guard selected.nodes.count + selected.text.count <= 100_000 else { throw EditorError.invalidRange }
+        var nodes = selected.nodes, text: [WritingTextRange] = []
+        for span in selected.text {
+            let expanded = try selection(from: span.start, to: span.end)
+            nodes += expanded.nodes; text += expanded.text
+            guard nodes.count + text.count <= 100_000 else { throw EditorError.invalidRange }
+        }
+        return WritingSelection(nodes: nodes, text: text)
+    }
+    private func selectedParts(_ selected: WritingSelection) throws -> [[WritingAtomKey]] {
+        guard selected.nodes.count + selected.text.count <= 100_000, Set(selected.nodes).count == selected.nodes.count else { throw EditorError.invalidRange }
+        var covered = Set<NodeID>()
+        for node in selected.nodes {
+            _ = try structure.address(of: node)
+            let descendants = Set(try structure.descendants(of: node))
+            guard covered.isDisjoint(with: descendants) else { throw EditorError.invalidRange }
+            covered.formUnion(descendants)
+        }
+        var seen = Set<WritingAtomKey>()
+        return try selected.text.map { span in
+            let start = try resolve(span.start), end = try resolve(span.end)
+            guard start.address == end.address, start.offset <= end.offset,
+                  !covered.contains(try field(start.address).node) else { throw EditorError.invalidRange }
+            let keys = try selection(start.address, start.offset..<end.offset).keys
+            guard seen.isDisjoint(with: keys) else { throw EditorError.invalidRange }
+            seen.formUnion(keys)
+            return keys
+        }
+    }
     public func undo() throws {
         guard let target = undoStack.last else { return }
         try toggle(target, false)
@@ -493,7 +669,7 @@ public final class WritingSession {
                     switch mutation {
                     case .insertNode(_, _, _, let placement, _), .moveNode(_, _, let placement, _):
                         guard introduced.insert(placement).inserted else { throw EditorError.invalidChange }
-                    case .setNodeField: break
+                    case .setNodeField, .deleteNodes: break
                     default: throw EditorError.invalidChange
                     }
                     try apply([mutation], enabled: active[change.id] ?? true, to: &raw)

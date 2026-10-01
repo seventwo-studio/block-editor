@@ -5,7 +5,7 @@ import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 
-/** Typed Kotlin consumer proof, separate from the raw 2,934-response JNI transcript. */
+/** Typed Kotlin consumer proof, separate from the shared raw JNI transcript. */
 class WritingSessionTest {
     private fun normalize(value: Any?): Any? = when (value) {
         is JSONObject -> value.keys().asSequence().associateWith { normalize(value.get(it)) }
@@ -111,6 +111,42 @@ class WritingSessionTest {
             assertEquals(expected("aYXb"), blocks(restored))
             assertEquals(blocks(b), blocks(restored))
             assertNull(restored.mergeRecovery())
+        } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+    }
+
+    @Test fun batchRangesCopyMoveDuplicateAndRemotePreservingUndo() {
+        val seed = JSONArray("""[
+            {"id":"first","type":"paragraph","content":[{"type":"text","text":"ABC","marks":[]}]},
+            {"id":"middle","type":"paragraph","content":[{"type":"text","text":"kept","marks":[]}]},
+            {"id":"last","type":"paragraph","content":[{"type":"text","text":"XYZ","marks":[]}]}
+        ]""")
+        val a = WritingSession.create("typed-batch", "a", "v3", seed)
+        val b = WritingSession.create("typed-batch", "b", "v3", seed)
+        var reopened: WritingSession? = null
+        try {
+            val firstField = WritingAddress("first"); val lastField = WritingAddress("last")
+            val selected = a.selection(a.position(lastField, 2), a.position(firstField, 1))
+            val copied = a.copySelection(selected).export()
+            assertEquals("middle", copied.getJSONArray("nodes").getJSONObject(0).getString("id"))
+            b.replaceText(firstField, 0, 0, "R-"); b.replaceText(lastField, 3, 3, "!")
+            a.receive(b.changes())
+            val carets = a.deleteSelection(selected)
+            assertEquals(listOf(3, 0), carets.text.map { a.resolvePosition(it.start).offset })
+            assertEquals(normalize(JSONArray("""[
+                {"id":"first","type":"paragraph","content":[{"type":"text","text":"R-A","marks":[]}]},
+                {"id":"last","type":"paragraph","content":[{"type":"text","text":"Z!","marks":[]}]}
+            ]""")), blocks(a))
+            val restored = WritingSession.restore(a.save(), "a"); reopened = restored
+            restored.undo()
+            assertFalse(restored.snapshot.getBoolean("canUndo")); assertTrue(restored.snapshot.getBoolean("canRedo"))
+            val first = restored.node(NodeAddress("first")); val last = restored.node(NodeAddress("last"))
+            val moved = restored.moveSelection(WritingSelection(nodes = listOf(first)), NodeCollection.ROOT, last)
+            val duplicated = restored.duplicateSelection(moved, NodeCollection.ROOT, first)
+            assertNotEquals(normalize(first.wire), normalize(duplicated.nodes.single().wire))
+            val value = restored.copySelection(duplicated).export().getJSONArray("nodes").getJSONObject(0)
+            assertEquals("R-ABC", value.getJSONArray("content").getJSONObject(0).getString("text"))
+            val ids = restored.snapshot.getJSONArray("blocks").let { values -> (0 until values.length()).map { values.getJSONObject(it).getString("id") } }
+            assertEquals(listOf("middle", "last", "first"), ids.take(3))
         } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
     }
 }

@@ -170,6 +170,21 @@ public final class EditorBridge {
             } else if command == "softBreak" { position = try session.softBreak(at: address, range: range) }
             else { position = try session.replaceText(at: address, range: range, with: input["text"]?.string ?? "", marks: input["marks"]?.array) }
             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+        case "selectedText":
+            let start = try decode(input["start"], as: Int.self), end = try decode(input["end"], as: Int.self)
+            guard start >= 0, end >= start else { throw EditorError.invalidRange }
+            return try encode(session.selectedText(at: decode(input["address"], as: TextAddress.self), range: start..<end))
+        case "writingSelection": return try encode(session.selection(from: decode(input["anchor"], as: WritingPosition.self), to: decode(input["focus"], as: WritingPosition.self)))
+        case "copySelection": return try encode(session.copy(decode(input["selection"], as: WritingSelection.self)))
+        case "deleteSelection":
+            let selected = try session.delete(decode(input["selection"], as: WritingSelection.self))
+            return .object(["snapshot": try writingSnapshot(session), "selection": try encode(selected)])
+        case "moveSelection", "duplicateSelection":
+            let selected = try decode(input["selection"], as: WritingSelection.self)
+            let collection = try decode(input["collection"], as: NodeCollection.self)
+            let after = input["after"] == nil || input["after"] == .null ? nil : try decode(input["after"], as: NodeID.self)
+            let result = command == "moveSelection" ? try session.move(selected, into: collection, after: after) : try session.duplicate(selected, into: collection, after: after)
+            return .object(["snapshot": try writingSnapshot(session), "selection": try encode(result)])
         case "mergeParagraphs":
             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])

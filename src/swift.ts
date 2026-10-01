@@ -37,6 +37,9 @@ export interface SwiftWritingPosition {
   documentID: string; epoch: string; field: SwiftWritingField;
   anchor?: SwiftWritingAtomKey | null; affinity: "before" | "after"; intraAtomOffset?: number | null;
 }
+export interface SwiftWritingTextRange { start: SwiftWritingPosition; end: SwiftWritingPosition }
+export interface SwiftWritingSelection { nodes: SwiftNodeID[]; text: SwiftWritingTextRange[] }
+export interface SwiftWritingCopy { nodes: unknown[]; text: InlineNode[][] }
 export interface SwiftResolvedWritingPosition { address: TextAddress; offset: number }
 export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3; epoch: string }
 export interface SwiftWritingReceipt { version: 3; documentID: string; epoch: string; received: unknown[] }
@@ -158,6 +161,19 @@ export class SwiftWritingSession {
   replaceText(address: TextAddress, start: number, end: number, text: string, marks?: Mark[]): SwiftWritingPosition { return this.command("replaceText", { address, start, end, text, marks }); }
   softBreak(address: TextAddress, start: number, end: number): SwiftWritingPosition { return this.command("softBreak", { address, start, end }); }
   splitParagraph(address: TextAddress, start: number, end: number, newBlockID: string): SwiftWritingPosition { return this.command("splitParagraph", { address, start, end, newBlockID }); }
+  selectedText(address: TextAddress, start: number, end: number): SwiftWritingTextRange { return this.call("selectedText", { address, start, end }); }
+  selection(anchor: SwiftWritingPosition, focus: SwiftWritingPosition): SwiftWritingSelection { return this.call("writingSelection", { anchor, focus }); }
+  copySelection(selection: SwiftWritingSelection): SwiftWritingCopy { return this.call("copySelection", { selection }); }
+  deleteSelection(selection: SwiftWritingSelection): SwiftWritingSelection {
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>("deleteSelection", { selection });
+    this.publish(result.snapshot); return result.selection;
+  }
+  moveSelection(selection: SwiftWritingSelection, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection { return this.batch("moveSelection", selection, collection, after); }
+  duplicateSelection(selection: SwiftWritingSelection, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection { return this.batch("duplicateSelection", selection, collection, after); }
+  private batch(command: string, selection: SwiftWritingSelection, collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection {
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>(command, { selection, collection, after });
+    this.publish(result.snapshot); return result.selection;
+  }
   mergeParagraphs(left: SwiftNodeID, right: SwiftNodeID): SwiftWritingPosition { return this.command("mergeParagraphs", { left, right }); }
   format(address: TextAddress, start: number, end: number, markType: Mark["type"], mark: Mark | null): void { this.publish(this.call("format", { address, start, end, markType, mark })); }
   undo(): void { this.publish(this.call("undo")); }

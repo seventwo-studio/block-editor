@@ -23,6 +23,26 @@ class WritingAddress internal constructor(value: JSONObject) {
     val path: List<String> get() = wire.getJSONArray("path").let { values -> (0 until values.length()).map { values.getString(it) } }
     fun export(): JSONObject = JSONObject(wire.toString())
 }
+class WritingTextRange internal constructor(value: JSONObject) {
+    internal val wire = JSONObject(value.toString())
+    val start: WritingPosition get() = WritingPosition(wire.getJSONObject("start"))
+    val end: WritingPosition get() = WritingPosition(wire.getJSONObject("end"))
+}
+class WritingSelection(val nodes: List<NodeIdentity> = emptyList(), val text: List<WritingTextRange> = emptyList()) {
+    internal fun wire() = JSONObject().put("nodes", JSONArray(nodes.map { it.wire }))
+        .put("text", JSONArray(text.map { it.wire }))
+    companion object {
+        internal fun restore(value: JSONObject): WritingSelection {
+            val nodes = value.getJSONArray("nodes"); val text = value.getJSONArray("text")
+            return WritingSelection((0 until nodes.length()).map { NodeIdentity(nodes.getJSONObject(it)) },
+                (0 until text.length()).map { WritingTextRange(text.getJSONObject(it)) })
+        }
+    }
+}
+class WritingCopy internal constructor(value: JSONObject) {
+    private val wire = JSONObject(value.toString())
+    fun export(): JSONObject = JSONObject(wire.toString())
+}
 data class ResolvedWritingPosition(val address: WritingAddress, val offset: Int)
 class WritingBatch private constructor(value: JSONObject) {
     internal val wire = JSONObject(value.toString())
@@ -106,6 +126,20 @@ class WritingSession private constructor(private val handle: String, initial: JS
         command("replaceText", range(address, start, end).put("text", text).also { if (marks != null) it.put("marks", marks) })
     fun softBreak(address: WritingAddress, start: Int, end: Int): WritingPosition = command("softBreak", range(address, start, end))
     fun splitParagraph(address: WritingAddress, start: Int, end: Int, newBlockID: String): WritingPosition = command("splitParagraph", range(address, start, end).put("newBlockID", newBlockID))
+    fun selectedText(address: WritingAddress, start: Int, end: Int) = WritingTextRange(call("selectedText", range(address, start, end)) as JSONObject)
+    fun selection(anchor: WritingPosition, focus: WritingPosition) = WritingSelection.restore(call("writingSelection", JSONObject().put("anchor", anchor.wire).put("focus", focus.wire)) as JSONObject)
+    fun copySelection(selection: WritingSelection) = WritingCopy(call("copySelection", JSONObject().put("selection", selection.wire())) as JSONObject)
+    fun deleteSelection(selection: WritingSelection): WritingSelection {
+        val result = call("deleteSelection", JSONObject().put("selection", selection.wire())) as JSONObject
+        publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
+    }
+    fun moveSelection(selection: WritingSelection, collection: NodeCollection, after: NodeIdentity? = null) = batch("moveSelection", selection, collection, after)
+    fun duplicateSelection(selection: WritingSelection, collection: NodeCollection, after: NodeIdentity? = null) = batch("duplicateSelection", selection, collection, after)
+    private fun batch(name: String, selection: WritingSelection, collection: NodeCollection, after: NodeIdentity?): WritingSelection {
+        val result = call(name, JSONObject().put("selection", selection.wire()).put("collection", collection.wire)
+            .put("after", after?.wire ?: JSONObject.NULL)) as JSONObject
+        publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
+    }
     fun mergeParagraphs(left: NodeIdentity, right: NodeIdentity): WritingPosition = command("mergeParagraphs", JSONObject().put("left", left.wire).put("right", right.wire))
     fun format(address: WritingAddress, start: Int, end: Int, markType: String, mark: JSONObject?) {
         publish(call("format", range(address, start, end).put("markType", markType).put("mark", mark ?: JSONObject.NULL)) as JSONObject)
