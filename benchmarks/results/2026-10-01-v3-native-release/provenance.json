@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "sourceCommit": "f97db3023e2ce79cca534e6ac6e3b869eec37224",
+  "sourceOverlayTree": "907b586fc1efbb2203b031153f053b94856f958f",
+  "sourceDirty": true,
+  "sourceBoundary": "Frozen f97 default plus qualified v3 core/ABI overlay; base revision does not identify an exact committed engine",
+  "artifactSHA256": "6f25b88500c1561f2750ba8fdfcc36d8eaa4df9cd20e653ad6921387ad4a4468",
+  "ownerIntegratedManifestSHA256": "07cd667a3f19548728add56b81655b5aa434b4fb365beb9c07fc2f13723abcd7",
+  "inputsSHA256": {
+    "Package.swift": "801cfd78cc232e10489572f0622cab91929aad6ea89d2fd6674ae94101bb7504",
+    "Sources/BlockEditorCore/EditorSession.swift": "8d1761a72b237496002f8fe4c1c8a566f9ae6b355ddb671a94153a22503ac444",
+    "Sources/BlockEditorCore/Bridge.swift": "8307fcc7bda0e67808f26f5d17f0d6820e04fc9a0abb037ec034448839faedeb",
+    "Sources/BlockEditorCore/Collaboration.swift": "fabb79d595e0818115c1f28a0321f4d70b4bfd7cb5c8ba77630355c34c6e45fa",
+    "Sources/BlockEditorCore/MergeRecovery.swift": "18303e6f4c68493c888b3eb1eb04dc072d1cfc4eb6bfacde3aeff3262e03dcd3",
+    "Sources/BlockEditorCore/Structure.swift": "698cb986f21c64f25502ae8dbf98d5c2cbec0caaa6d8a6da954ad945187ef8b3",
+    "Sources/BlockEditorCore/ProtocolMigration.swift": "99ec7a92097ef284e83adc42338c4e3ae10801294f3e502300afe30c29ed21e5",
+    "Sources/BlockEditorCore/Validation.swift": "9fcfc864d5addb571834227faaba90577c5db4f327db2510a25995b52a37d4d5",
+    "Sources/BlockEditorCore/WritingProjection.swift": "bf9a9bd473d24b6b49483a8e22ef5a59f3364a8f936f2aef86b187d37702600e",
+    "Sources/BlockEditorCore/LegacyMigration.swift": "426f26cc32b940d1edd3290fe2dce6c4acc9d61665e14f3cc10578cf19929ac2",
+    "Sources/BlockEditorCore/WritingSession.swift": "eaa643dbb2b5cb1db1b7c0ada4f8be7a482a8523a4704448884f266365fdb82c",
+    "Sources/BlockEditorCore/Document.swift": "f3b1ffe9af30c2aae48287dc103120e21a7399bbbd05a7d7749708d423f48684",
+    "Sources/BlockEditorCore/Markdown.swift": "0e819bf163672170d5e41661f6078e62bfb4ddcb9a1b795d50db4a1f8d9b5320",
+    "Sources/BlockEditorCore/WritingMigration.swift": "038b4872567596e6208439487d6f08412988ad07f0d7b93509d9a572e66409bf",
+    "Sources/BlockEditorABI/ABI.swift": "48cb83a97c16a3a6c9c9fa60a3d40ab8909cb3cc65d4d5279e87263a00c23b36",
+    "Sources/BlockEditorWasm/main.swift": "3538f9c10342c1520d374552cf498eafbd1ab379aa19815493ae7216b0dec1e9",
+    "Examples/EditorBridgeCLI/main.swift": "e939692e4b4c90ff53995c914c7d05dcc2bf0cced407415c23a7f82a888f0686"
+  },
+  "buildConfiguration": "Swift6.4 -c release --jobs2, editor-bridge arm64-macos; ABI source included in freeze but CLI links core only",
+  "compatibilitySHA256": "bcade61965a96973ae67504f051df498ccc8cf59832054f723bf663f8dbe8eba",
+  "compatibilityResponses": 2934,
+  "compatibilityCompressedSHA256": "e008f57428434a22649f392bc741813eab9dbfa018d687bb5e457f4e797b7849",
+  "workloadSHA256": "2938e44e1d34c5df7779fb1a1666bf89b738878be1fe7ee866e41cfca8e631be",
+  "results": {
+    "ordinary-v3": {
+      "editsPerAuthor": 32,
+      "editCallP95Ms": [
+        45.331333000000086,
+        43.8096659999992,
+        43.48958400000083
+      ],
+      "twoCallRejoinTotalMs": [
+        122.09699999999975,
+        121.88687399999799,
+        122.65845799999806
+      ],
+      "acceptedHistoryChanges": 66,
+      "exactReceipts": 66,
+      "snapshotBytes": [
+        46086,
+        46086,
+        46086
+      ],
+      "canonicalFinalBlocksSHA256": "c4686ebc9639cbd55d31050a3bc0afc8a6cb3fd758467e8d6e0c19b4ba051e45"
+    },
+    "history-v3-128": {
+      "editsPerAuthor": 128,
+      "editCallP95Ms": [
+        50.37325000000419,
+        50.53091699999641,
+        69.6886669999949
+      ],
+      "twoCallRejoinTotalMs": [
+        236.47324999999546,
+        250.81845800000156,
+        256.4904169999936
+      ],
+      "acceptedHistoryChanges": 258,
+      "exactReceipts": 258,
+      "snapshotBytes": [
+        169135,
+        169135,
+        169135
+      ],
+      "canonicalFinalBlocksSHA256": "c9ccebb4487ac6b775067b9747387b752f67cc6b9c9e40e74d773aa21ada9992"
+    }
+  },
+  "boundaries": [
+    "Native JSON serialization/pipes/parsing/export assertions; rendering/network excluded",
+    "Fresh-process initialization has uncontrolled disk caches; not disk-cold device startup",
+    "Only 32/128 cases; no512/2048 v3 timings",
+    "Numeric budgets unagreed; no threshold gate",
+    "No cross-source speedup claimed against historical v1/v2 or debug smoke"
+  ],
+  "publishedFilesSHA256": {
+    "compatibility.log": "99271bf28ba3964215f9ef6213a037eeeab8d1a30b91e61d4f4b37580c88a6d5",
+    "measurement.log": "cc5bcc28c7a66ac17a9ed3d7d1e27a4e428705ab03d309e25bf44d7a89868e3b",
+    "release-build.log": "b563ef396b2a4075c934ef45632a83449c8fc8a2851ff2ead89388f1c1dba065",
+    "original-verification.json": "c530a03296d0ed3f79812e6a019211601778f4c132f0f52b0174300a4b392499",
+    "compatibility-transcript.json.gz": "e008f57428434a22649f392bc741813eab9dbfa018d687bb5e457f4e797b7849",
+    "performance-native.json": "0089058fc5c0bcb35ea5b0a35c939f77e71daca440e5be5fb83eae95bb9b6e96",
+    "original-build-plan.json": "5a122d7da8fe5f9e32292550f5eaa11710e902f400cc20d83cbcb2e408922e00",
+    "executed-runner.mjs.txt": "501126c9e4e8862821b9a4aa5f81283850781aff6867be173d262b86f4400f88"
+  },
+  "coreDependency": {
+    "pullRequest": "https://github.com/seventwo-studio/block-editor/pull/44",
+    "head": "225b6b0c29094c196855e8af948a8f566e9c5ff3",
+    "measuredInputsVerifiedAgainstHead": 17,
+    "qualification": "Input bytes match; historical timing source stamp remains f97 plus 907 overlay"
+  }
+}
