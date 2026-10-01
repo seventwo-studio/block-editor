@@ -10,10 +10,32 @@ import shutil
 import subprocess
 import tempfile
 import urllib.request
+import xml.etree.ElementTree as ET
 
 
 def run(*args, **kwargs):
     subprocess.run([str(arg) for arg in args], check=True, **kwargs)
+
+
+def register_emulator_package(directory):
+    # Direct emulator archives omit the local package record normally written by
+    # sdkmanager. avdmanager requires that record even when the binaries exist.
+    properties = dict(line.split("=", 1) for line in (directory / "source.properties").read_text().splitlines() if "=" in line)
+    if properties.get("Pkg.Path") != "emulator" or properties.get("Pkg.Revision") != "37.1.11":
+        raise RuntimeError("Unexpected pinned emulator package properties")
+    common = "http://schemas.android.com/repository/android/common/02"
+    generic = "http://schemas.android.com/repository/android/generic/02"
+    xsi = "http://www.w3.org/2001/XMLSchema-instance"
+    ET.register_namespace("common", common)
+    ET.register_namespace("xsi", xsi)
+    root = ET.Element(f"{{{common}}}repository", {"xmlns:generic": generic})
+    package = ET.SubElement(root, "localPackage", {"path": "emulator", "obsolete": "false"})
+    ET.SubElement(package, "type-details", {f"{{{xsi}}}type": "generic:genericDetailsType"})
+    revision = ET.SubElement(package, "revision")
+    for field, value in zip(["major", "minor", "micro"], properties["Pkg.Revision"].split(".")):
+        ET.SubElement(revision, field).text = value
+    ET.SubElement(package, "display-name").text = properties["Pkg.Desc"]
+    ET.ElementTree(root).write(directory / "package.xml", encoding="utf-8", xml_declaration=True)
 
 
 def main():
@@ -85,6 +107,7 @@ def main():
         names = ["android-platform", "android-ndk", "android-build-tools", "android-command-tools", "android-platform-tools", "android-emulator", "android-image-" + args.api]
         for name in names:
             unpack_zip(name, sdk / artifacts[name]["sdkPath"])
+        register_emulator_package(sdk / "emulator")
         unpack_zip("gradle", root / "gradle")
         environment.update({
             "ANDROID_HOME": str(sdk), "ANDROID_SDK_ROOT": str(sdk),
