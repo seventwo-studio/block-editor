@@ -67,6 +67,10 @@ import Testing
         #expect(response["ok"] == .bool(true), "\(request["command"] ?? .null): \(response)")
         if let name = step["capture"]?.string { captured[name] = response["value"] }
     }
+    for pair in fixture["equal"]?.array ?? [] {
+        let names = try #require(pair.array).compactMap { $0.string }
+        #expect(try #require(captured[names[0]]) == #require(captured[names[1]]), "\(names)")
+    }
     #expect(captured["final"] == fixture["expected"])
     #expect(captured["resolvedPosition"] == fixture["expectedPosition"])
     #expect(captured["cutover"] == fixture["expectedCutover"])

@@ -194,14 +194,15 @@ the repaired draft and reconnects to a restarted server. A fresh Swift peer has
 the same document with both authors' content. Four incompatible/malformed draft
 cases preserve the stored input. These are tab-restart checks with locally served
 UI/WASM assets, not full browser-process restart or airplane-mode acceptance.
-Firefox execution, system input/accessibility and production React migration stay
+Firefox host recovery, system input/accessibility and production React migration stay
 open.
 
 ## Evidence
 
 `Fixtures/recovery.json` executes the same rejected union, receipt/save invariants,
 separate proposal restoration, repair, synchronization, reopening and remote author
-undo through native Swift, Android JNI and actual WASM in Chromium/WebKit. The typed
+undo through native Swift, Android JNI and actual WASM in all three browser engines
+under the [runtime CI contract](runtime-ci.md). The typed
 Kotlin and TypeScript APIs have additional runtime checks.
 
 Swift tests independently exercise concurrent repairs, duplicate/reordered additional
@@ -237,11 +238,14 @@ Creating an additional connection from the focused View let the system keyboard
 finish the injected composing range before remote delivery. The owned connection
 retains the original receipt, text, selection and author-undo assertions without
 lowering the test target SDK. This verifies the Compose/InputConnection boundary;
-installed-keyboard/system-IME and TalkBack acceptance remain open, along with API
-26, the x86 runtime and complete rich authoring. The runner does not accept those
+installed-keyboard/system-IME and TalkBack acceptance remain open, along with
+minimum/current-runtime interaction and complete rich authoring. API 26/x86 and
+API 35/translated ARM64 engine fixtures execute separately in runtime CI; they
+do not establish these input requirements. The runner does not accept those
 broader platform requirements or browser recovery.
 
 ST-96 remains open for full recovery integration, expanded generated conflict/resource
 coverage and the complete cross-runtime threshold matrix. Remaining platform recovery UI,
-minimum/current runtime interaction, Firefox, runtime CI, measured budgets and clean
+minimum/current runtime interaction, Firefox host recovery, post-merge runtime CI,
+measured budgets and clean
 private consumer installation remain separate gates.

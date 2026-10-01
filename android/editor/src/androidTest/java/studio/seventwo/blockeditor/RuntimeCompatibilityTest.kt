@@ -98,17 +98,17 @@ class RuntimeCompatibilityTest {
                             val response = request(input, if (step.has("error")) step.getString("error") else null)
                             if (step.has("capture")) captured[step.getString("capture")] = response.get(if (step.has("error")) "recovery" else "value")
                         }
+                        val pairs = fixture.optJSONArray("equal")
+                        if (pairs != null) for (index in 0 until pairs.length()) {
+                            val pair = pairs.getJSONArray(index)
+                            assertEquals(normalize(checkNotNull(captured[pair.getString(0)])), normalize(checkNotNull(captured[pair.getString(1)])))
+                        }
                         if (name == "structure") {
                             assertEquals(normalize(fixture.get("expected")), normalize(captured["final"]))
                             assertEquals(fixture.getInt("expectedPosition"), (captured["resolvedPosition"] as Number).toInt())
                             assertEquals(normalize(fixture.get("expectedCutover")), normalize(captured["cutover"]))
                             assertEquals(2, (captured["cutoverChanges"] as JSONObject).getInt("version"))
                         } else {
-                            val pairs = fixture.getJSONArray("equal")
-                            for (index in 0 until pairs.length()) {
-                                val pair = pairs.getJSONArray(index)
-                                assertEquals(normalize(captured[pair.getString(0)]), normalize(captured[pair.getString(1)]))
-                            }
                             assertEquals(JSONObject.NULL, captured["cleared"])
                             assertEquals("identityConflict", (captured["proposalA"] as JSONObject).getString("reason"))
                             assertEquals(2, (captured["proposalA"] as JSONObject).getJSONObject("batch").getJSONArray("changes").length())

@@ -58,13 +58,16 @@ export async function runFixture(name, fixture, call) {
         if (captured[step.capture] === undefined) throw new Error(`${name}: missing capture ${step.capture}`);
       }
     }
+    for (const [left, right] of fixture.equal ?? []) {
+      if (captured[left] === undefined || captured[right] === undefined) throw new Error(`${name}: missing comparison capture ${left}/${right}`);
+      equal(captured[left], captured[right], `${name} ${left}/${right}`);
+    }
     if (name === 'structure') {
       equal(captured.final, fixture.expected, `${name} final document`);
       equal(captured.resolvedPosition, fixture.expectedPosition, `${name} selection`);
       equal(captured.cutover, fixture.expectedCutover, `${name} migration`);
       equal(captured.cutoverChanges.version, 2, `${name} protocol`);
     } else {
-      for (const [left, right] of fixture.equal) equal(captured[left], captured[right], `${name} ${left}/${right}`);
       equal(captured.cleared, null, `${name} cleared recovery`);
       equal(captured.proposalA.reason, 'identityConflict', `${name} recovery reason`);
       equal(captured.proposalA.batch.changes.length, 2, `${name} retained histories`);

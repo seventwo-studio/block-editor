@@ -162,21 +162,29 @@ class CompatibilityTest {
         val fixture = JSONObject(context.assets.open("structure.json").bufferedReader().use { it.readText() })
         val steps = fixture.getJSONArray("steps")
         val captured = mutableMapOf<String, Any>()
+        val sessions = mutableSetOf<String>()
         try {
             for (index in 0 until steps.length()) {
                 val step = steps.getJSONObject(index)
                 val request = JSONObject(step.getJSONObject("request").toString())
                 val bindings = step.optJSONObject("bindings")
                 bindings?.keys()?.forEach { key -> request.put(key, checkNotNull(captured[bindings.getString(key)])) }
+                if (request.getString("command") in listOf("create", "restore", "cutoverToV2")) sessions.add(request.getString("session"))
                 val value = NativeEngine.call(request).get("value")
+                if (request.getString("command") == "close") sessions.remove(request.getString("session"))
                 if (step.has("capture")) captured[step.getString("capture")] = value
+            }
+            val pairs = fixture.optJSONArray("equal")
+            if (pairs != null) for (index in 0 until pairs.length()) {
+                val pair = pairs.getJSONArray(index)
+                assertEquals(normalize(checkNotNull(captured[pair.getString(0)])), normalize(checkNotNull(captured[pair.getString(1)])))
             }
             assertEquals(normalize(fixture.getJSONObject("expected")), normalize(captured["final"]))
             assertEquals(fixture.getInt("expectedPosition"), (captured["resolvedPosition"] as Number).toInt())
             assertEquals(normalize(fixture.getJSONObject("expectedCutover")), normalize(captured["cutover"]))
             assertEquals(2, (captured["cutoverChanges"] as JSONObject).getInt("version"))
         } finally {
-            for (handle in listOf("a", "b", "c", "legacy", "upgraded")) {
+            for (handle in sessions.toList()) {
                 try { NativeEngine.call(JSONObject().put("command", "close").put("session", handle)) } catch (_: Exception) { }
             }
         }

@@ -148,10 +148,16 @@ test("versioned nested structure fixture matches Swift through actual WASM", asy
       const value = runtime.call(request);
       if (step.capture) captured[step.capture] = value;
     }
-    return { final: captured.final, position: captured.resolvedPosition, cutover: captured.cutover,
-      cutoverVersion: (captured.cutoverChanges as { version: number }).version };
+    return captured;
   }, { source: `/block-editor/@fs${process.cwd()}/src/swift.ts`, steps: fixture.steps });
-  expect(captured).toEqual({ final: fixture.expected, position: fixture.expectedPosition, cutover: fixture.expectedCutover, cutoverVersion: 2 });
+  for (const [left, right] of fixture.equal ?? []) {
+    expect(captured[left], left).toBeDefined(); expect(captured[right], right).toBeDefined();
+    expect(captured[left], `${left}/${right}`).toEqual(captured[right]);
+  }
+  expect(captured.final).toEqual(fixture.expected);
+  expect(captured.resolvedPosition).toBe(fixture.expectedPosition);
+  expect(captured.cutover).toEqual(fixture.expectedCutover);
+  expect(captured.cutoverChanges).toMatchObject({ version: 2 });
 });
 
 test("typed WASM node APIs retain remote content through undo and reopen", async ({ page }) => {

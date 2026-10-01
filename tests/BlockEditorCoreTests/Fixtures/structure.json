@@ -946,6 +946,5335 @@
         "command": "close",
         "session": "upgraded"
       }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "root-ordered-baseline",
+        "documentID": "deferred-root",
+        "actorID": "baseline",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "C",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      },
+      "capture": "root-ordered-initial"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "root-ordered-peer",
+        "documentID": "deferred-root",
+        "actorID": "peer",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "C",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "textAddress",
+        "session": "root-ordered-peer",
+        "identity": {
+          "baseline": {
+            "blockID": "A",
+            "path": []
+          }
+        }
+      },
+      "capture": "root-ordered-address"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "root-ordered-peer",
+        "offset": 1
+      },
+      "capture": "root-ordered-caret",
+      "bindings": {
+        "address": "root-ordered-address"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "root-ordered-peer"
+      },
+      "capture": "root-ordered-offset-before",
+      "bindings": {
+        "position": "root-ordered-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-ordered-peer",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "C",
+                    "type": "text"
+                  }
+                ],
+                "id": "C",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "B",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-root",
+          "version": 2
+        }
+      },
+      "capture": "root-ordered-partial"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "root-ordered-peer"
+      },
+      "capture": "root-ordered-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-ordered-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "root-ordered-restored",
+        "actorID": "peer"
+      },
+      "capture": "root-ordered-restored",
+      "bindings": {
+        "snapshot": "root-ordered-save"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "root-ordered-restored"
+      },
+      "capture": "root-ordered-offset-partial",
+      "bindings": {
+        "position": "root-ordered-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "root-ordered-control",
+        "documentID": "deferred-root",
+        "actorID": "control",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "C",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-ordered-control",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "C",
+                    "type": "text"
+                  }
+                ],
+                "id": "C",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "C",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "B",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-root",
+          "version": 2
+        }
+      },
+      "capture": "root-ordered-control-full"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-ordered-control"
+      },
+      "capture": "root-ordered-full-markdown"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "root-ordered-restored",
+        "start": 1,
+        "end": 1,
+        "text": "<peer>"
+      },
+      "bindings": {
+        "address": "root-ordered-address"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-ordered-restored",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "C",
+                    "type": "text"
+                  }
+                ],
+                "id": "C",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "C",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "B",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-root",
+          "version": 2
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "root-ordered-restored"
+      },
+      "capture": "root-ordered-typed-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-ordered-control"
+      },
+      "bindings": {
+        "batch": "root-ordered-typed-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-ordered-restored"
+      },
+      "capture": "root-ordered-typed-markdown"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-ordered-control"
+      },
+      "capture": "root-ordered-control-markdown"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "root-ordered-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-ordered-restored"
+      },
+      "capture": "root-ordered-undo-markdown"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "root-ordered-restored"
+      },
+      "capture": "root-ordered-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "root-ordered-restored"
+      },
+      "capture": "root-ordered-complete-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-ordered-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "root-ordered-peer",
+        "actorID": "peer"
+      },
+      "capture": "root-ordered-complete-restored",
+      "bindings": {
+        "snapshot": "root-ordered-complete-save"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-ordered-baseline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-ordered-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-ordered-control"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "root-reversed-baseline",
+        "documentID": "deferred-root",
+        "actorID": "baseline",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "C",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      },
+      "capture": "root-reversed-initial"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "root-reversed-peer",
+        "documentID": "deferred-root",
+        "actorID": "peer",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "C",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "textAddress",
+        "session": "root-reversed-peer",
+        "identity": {
+          "baseline": {
+            "blockID": "A",
+            "path": []
+          }
+        }
+      },
+      "capture": "root-reversed-address"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "root-reversed-peer",
+        "offset": 1
+      },
+      "capture": "root-reversed-caret",
+      "bindings": {
+        "address": "root-reversed-address"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "root-reversed-peer"
+      },
+      "capture": "root-reversed-offset-before",
+      "bindings": {
+        "position": "root-reversed-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-reversed-peer",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "C",
+                    "type": "text"
+                  }
+                ],
+                "id": "C",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "B",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-root",
+          "version": 2
+        }
+      },
+      "capture": "root-reversed-partial"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "root-reversed-peer"
+      },
+      "capture": "root-reversed-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-reversed-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "root-reversed-restored",
+        "actorID": "peer"
+      },
+      "capture": "root-reversed-restored",
+      "bindings": {
+        "snapshot": "root-reversed-save"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "root-reversed-restored"
+      },
+      "capture": "root-reversed-offset-partial",
+      "bindings": {
+        "position": "root-reversed-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "root-reversed-control",
+        "documentID": "deferred-root",
+        "actorID": "control",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "C",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-reversed-control",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "C",
+                    "type": "text"
+                  }
+                ],
+                "id": "C",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "C",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "B",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-root",
+          "version": 2
+        }
+      },
+      "capture": "root-reversed-control-full"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-reversed-control"
+      },
+      "capture": "root-reversed-full-markdown"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "root-reversed-restored",
+        "start": 1,
+        "end": 1,
+        "text": "<peer>"
+      },
+      "bindings": {
+        "address": "root-reversed-address"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-reversed-restored",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "C",
+                    "type": "text"
+                  }
+                ],
+                "id": "C",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "C",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "B",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-root",
+          "version": 2
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "root-reversed-restored"
+      },
+      "capture": "root-reversed-typed-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "root-reversed-control"
+      },
+      "bindings": {
+        "batch": "root-reversed-typed-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-reversed-restored"
+      },
+      "capture": "root-reversed-typed-markdown"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-reversed-control"
+      },
+      "capture": "root-reversed-control-markdown"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "root-reversed-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "root-reversed-restored"
+      },
+      "capture": "root-reversed-undo-markdown"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "root-reversed-restored"
+      },
+      "capture": "root-reversed-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "root-reversed-restored"
+      },
+      "capture": "root-reversed-complete-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-reversed-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "root-reversed-peer",
+        "actorID": "peer"
+      },
+      "capture": "root-reversed-complete-restored",
+      "bindings": {
+        "snapshot": "root-reversed-complete-save"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-reversed-baseline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-reversed-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "root-reversed-control"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-ordered-baseline",
+        "documentID": "deferred-nested",
+        "actorID": "baseline",
+        "blocks": [
+          {
+            "id": "group",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "group",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      },
+      "capture": "nested-ordered-initial"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-ordered-peer",
+        "documentID": "deferred-nested",
+        "actorID": "peer",
+        "blocks": [
+          {
+            "id": "group",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "group",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "textAddress",
+        "session": "nested-ordered-peer",
+        "identity": {
+          "baseline": {
+            "blockID": "group",
+            "path": [
+              "children",
+              "A"
+            ]
+          }
+        }
+      },
+      "capture": "nested-ordered-address"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "nested-ordered-peer",
+        "offset": 1
+      },
+      "capture": "nested-ordered-caret",
+      "bindings": {
+        "address": "nested-ordered-address"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "nested-ordered-peer"
+      },
+      "capture": "nested-ordered-offset-before",
+      "bindings": {
+        "position": "nested-ordered-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-ordered-peer",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "A",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "B",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "B",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "C",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "C",
+                    "type": "paragraph"
+                  }
+                ],
+                "id": "group",
+                "summary": [
+                  {
+                    "marks": [],
+                    "text": "group",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "B"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-nested",
+          "version": 2
+        }
+      },
+      "capture": "nested-ordered-partial"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "nested-ordered-peer"
+      },
+      "capture": "nested-ordered-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-ordered-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "nested-ordered-restored",
+        "actorID": "peer"
+      },
+      "capture": "nested-ordered-restored",
+      "bindings": {
+        "snapshot": "nested-ordered-save"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "nested-ordered-restored"
+      },
+      "capture": "nested-ordered-offset-partial",
+      "bindings": {
+        "position": "nested-ordered-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-ordered-control",
+        "documentID": "deferred-nested",
+        "actorID": "control",
+        "blocks": [
+          {
+            "id": "group",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "group",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-ordered-control",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "A",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "B",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "B",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "C",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "C",
+                    "type": "paragraph"
+                  }
+                ],
+                "id": "group",
+                "summary": [
+                  {
+                    "marks": [],
+                    "text": "group",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "group",
+                                "path": [
+                                  "children",
+                                  "A"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "C"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "B"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-nested",
+          "version": 2
+        }
+      },
+      "capture": "nested-ordered-control-full"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-ordered-control"
+      },
+      "capture": "nested-ordered-full-markdown"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "nested-ordered-restored",
+        "start": 1,
+        "end": 1,
+        "text": "<peer>"
+      },
+      "bindings": {
+        "address": "nested-ordered-address"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-ordered-restored",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "A",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "B",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "B",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "C",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "C",
+                    "type": "paragraph"
+                  }
+                ],
+                "id": "group",
+                "summary": [
+                  {
+                    "marks": [],
+                    "text": "group",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "group",
+                                "path": [
+                                  "children",
+                                  "A"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "C"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "B"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-nested",
+          "version": 2
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "nested-ordered-restored"
+      },
+      "capture": "nested-ordered-typed-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-ordered-control"
+      },
+      "bindings": {
+        "batch": "nested-ordered-typed-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-ordered-restored"
+      },
+      "capture": "nested-ordered-typed-markdown"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-ordered-control"
+      },
+      "capture": "nested-ordered-control-markdown"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-ordered-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-ordered-restored"
+      },
+      "capture": "nested-ordered-undo-markdown"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "nested-ordered-restored"
+      },
+      "capture": "nested-ordered-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "nested-ordered-restored"
+      },
+      "capture": "nested-ordered-complete-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-ordered-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "nested-ordered-peer",
+        "actorID": "peer"
+      },
+      "capture": "nested-ordered-complete-restored",
+      "bindings": {
+        "snapshot": "nested-ordered-complete-save"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-ordered-baseline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-ordered-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-ordered-control"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-reversed-baseline",
+        "documentID": "deferred-nested",
+        "actorID": "baseline",
+        "blocks": [
+          {
+            "id": "group",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "group",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      },
+      "capture": "nested-reversed-initial"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-reversed-peer",
+        "documentID": "deferred-nested",
+        "actorID": "peer",
+        "blocks": [
+          {
+            "id": "group",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "group",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "textAddress",
+        "session": "nested-reversed-peer",
+        "identity": {
+          "baseline": {
+            "blockID": "group",
+            "path": [
+              "children",
+              "A"
+            ]
+          }
+        }
+      },
+      "capture": "nested-reversed-address"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "nested-reversed-peer",
+        "offset": 1
+      },
+      "capture": "nested-reversed-caret",
+      "bindings": {
+        "address": "nested-reversed-address"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "nested-reversed-peer"
+      },
+      "capture": "nested-reversed-offset-before",
+      "bindings": {
+        "position": "nested-reversed-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-reversed-peer",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "A",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "B",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "B",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "C",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "C",
+                    "type": "paragraph"
+                  }
+                ],
+                "id": "group",
+                "summary": [
+                  {
+                    "marks": [],
+                    "text": "group",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "B"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-nested",
+          "version": 2
+        }
+      },
+      "capture": "nested-reversed-partial"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "nested-reversed-peer"
+      },
+      "capture": "nested-reversed-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-reversed-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "nested-reversed-restored",
+        "actorID": "peer"
+      },
+      "capture": "nested-reversed-restored",
+      "bindings": {
+        "snapshot": "nested-reversed-save"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "nested-reversed-restored"
+      },
+      "capture": "nested-reversed-offset-partial",
+      "bindings": {
+        "position": "nested-reversed-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "nested-reversed-control",
+        "documentID": "deferred-nested",
+        "actorID": "control",
+        "blocks": [
+          {
+            "id": "group",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "group",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "A",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "B",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  }
+                ]
+              },
+              {
+                "id": "C",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-reversed-control",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "A",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "B",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "B",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "C",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "C",
+                    "type": "paragraph"
+                  }
+                ],
+                "id": "group",
+                "summary": [
+                  {
+                    "marks": [],
+                    "text": "group",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "group",
+                                "path": [
+                                  "children",
+                                  "A"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "C"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "B"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-nested",
+          "version": 2
+        }
+      },
+      "capture": "nested-reversed-control-full"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-reversed-control"
+      },
+      "capture": "nested-reversed-full-markdown"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "nested-reversed-restored",
+        "start": 1,
+        "end": 1,
+        "text": "<peer>"
+      },
+      "bindings": {
+        "address": "nested-reversed-address"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-reversed-restored",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "A",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "B",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "B",
+                    "type": "paragraph"
+                  },
+                  {
+                    "content": [
+                      {
+                        "marks": [],
+                        "text": "C",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "C",
+                    "type": "paragraph"
+                  }
+                ],
+                "id": "group",
+                "summary": [
+                  {
+                    "marks": [],
+                    "text": "group",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "group",
+                                "path": [
+                                  "children",
+                                  "A"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "C"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "B"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "baseline": {
+                              "blockID": "group",
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "group",
+                            "path": [
+                              "children",
+                              "A"
+                            ]
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-nested",
+          "version": 2
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "nested-reversed-restored"
+      },
+      "capture": "nested-reversed-typed-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "nested-reversed-control"
+      },
+      "bindings": {
+        "batch": "nested-reversed-typed-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-reversed-restored"
+      },
+      "capture": "nested-reversed-typed-markdown"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-reversed-control"
+      },
+      "capture": "nested-reversed-control-markdown"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "nested-reversed-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "nested-reversed-restored"
+      },
+      "capture": "nested-reversed-undo-markdown"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "nested-reversed-restored"
+      },
+      "capture": "nested-reversed-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "nested-reversed-restored"
+      },
+      "capture": "nested-reversed-complete-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-reversed-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "nested-reversed-peer",
+        "actorID": "peer"
+      },
+      "capture": "nested-reversed-complete-restored",
+      "bindings": {
+        "snapshot": "nested-reversed-complete-save"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-reversed-baseline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-reversed-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "nested-reversed-control"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "owner-ordered-baseline",
+        "documentID": "deferred-owner",
+        "actorID": "baseline",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      },
+      "capture": "owner-ordered-initial"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "owner-ordered-peer",
+        "documentID": "deferred-owner",
+        "actorID": "peer",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "textAddress",
+        "session": "owner-ordered-peer",
+        "identity": {
+          "baseline": {
+            "blockID": "A",
+            "path": []
+          }
+        }
+      },
+      "capture": "owner-ordered-address"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "owner-ordered-peer",
+        "offset": 1
+      },
+      "capture": "owner-ordered-caret",
+      "bindings": {
+        "address": "owner-ordered-address"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "owner-ordered-peer"
+      },
+      "capture": "owner-ordered-offset-before",
+      "bindings": {
+        "position": "owner-ordered-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-ordered-peer",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "P",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "P",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-owner",
+          "version": 2
+        }
+      },
+      "capture": "owner-ordered-partial"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "owner-ordered-peer"
+      },
+      "capture": "owner-ordered-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-ordered-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "owner-ordered-restored",
+        "actorID": "peer"
+      },
+      "capture": "owner-ordered-restored",
+      "bindings": {
+        "snapshot": "owner-ordered-save"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "owner-ordered-restored"
+      },
+      "capture": "owner-ordered-offset-partial",
+      "bindings": {
+        "position": "owner-ordered-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "owner-ordered-control",
+        "documentID": "deferred-owner",
+        "actorID": "control",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-ordered-control",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "W",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "W",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "P",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "P",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-owner",
+          "version": 2
+        }
+      },
+      "capture": "owner-ordered-control-full"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-ordered-control"
+      },
+      "capture": "owner-ordered-full-markdown"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "owner-ordered-restored",
+        "start": 1,
+        "end": 1,
+        "text": "<peer>"
+      },
+      "bindings": {
+        "address": "owner-ordered-address"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-ordered-restored",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "W",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "W",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "P",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "P",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-owner",
+          "version": 2
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "owner-ordered-restored"
+      },
+      "capture": "owner-ordered-typed-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-ordered-control"
+      },
+      "bindings": {
+        "batch": "owner-ordered-typed-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-ordered-restored"
+      },
+      "capture": "owner-ordered-typed-markdown"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-ordered-control"
+      },
+      "capture": "owner-ordered-control-markdown"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "owner-ordered-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-ordered-restored"
+      },
+      "capture": "owner-ordered-undo-markdown"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "owner-ordered-restored"
+      },
+      "capture": "owner-ordered-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "owner-ordered-restored"
+      },
+      "capture": "owner-ordered-complete-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-ordered-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "owner-ordered-peer",
+        "actorID": "peer"
+      },
+      "capture": "owner-ordered-complete-restored",
+      "bindings": {
+        "snapshot": "owner-ordered-complete-save"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-ordered-baseline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-ordered-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-ordered-control"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "owner-reversed-baseline",
+        "documentID": "deferred-owner",
+        "actorID": "baseline",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      },
+      "capture": "owner-reversed-initial"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "owner-reversed-peer",
+        "documentID": "deferred-owner",
+        "actorID": "peer",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "textAddress",
+        "session": "owner-reversed-peer",
+        "identity": {
+          "baseline": {
+            "blockID": "A",
+            "path": []
+          }
+        }
+      },
+      "capture": "owner-reversed-address"
+    },
+    {
+      "request": {
+        "command": "position",
+        "session": "owner-reversed-peer",
+        "offset": 1
+      },
+      "capture": "owner-reversed-caret",
+      "bindings": {
+        "address": "owner-reversed-address"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "owner-reversed-peer"
+      },
+      "capture": "owner-reversed-offset-before",
+      "bindings": {
+        "position": "owner-reversed-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-reversed-peer",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "P",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "P",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-owner",
+          "version": 2
+        }
+      },
+      "capture": "owner-reversed-partial"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "owner-reversed-peer"
+      },
+      "capture": "owner-reversed-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-reversed-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "owner-reversed-restored",
+        "actorID": "peer"
+      },
+      "capture": "owner-reversed-restored",
+      "bindings": {
+        "snapshot": "owner-reversed-save"
+      }
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "owner-reversed-restored"
+      },
+      "capture": "owner-reversed-offset-partial",
+      "bindings": {
+        "position": "owner-reversed-caret"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "owner-reversed-control",
+        "documentID": "deferred-owner",
+        "actorID": "control",
+        "blocks": [
+          {
+            "id": "A",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "B",
+                "marks": []
+              }
+            ]
+          }
+        ],
+        "collaborationVersion": 2
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-reversed-control",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "W",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "W",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "P",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "P",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-owner",
+          "version": 2
+        }
+      },
+      "capture": "owner-reversed-control-full"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-reversed-control"
+      },
+      "capture": "owner-reversed-full-markdown"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "owner-reversed-restored",
+        "start": 1,
+        "end": 1,
+        "text": "<peer>"
+      },
+      "bindings": {
+        "address": "owner-reversed-address"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-reversed-restored",
+        "batch": {
+          "baseline": {
+            "blocks": [
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "A",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "content": [
+                  {
+                    "marks": [],
+                    "text": "B",
+                    "type": "text"
+                  }
+                ],
+                "id": "B",
+                "type": "paragraph"
+              }
+            ]
+          },
+          "changes": [
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "initial": {
+                            "_0": {
+                              "baseline": {
+                                "blockID": "A",
+                                "path": []
+                              }
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 1
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "W",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "W",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 1
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "insertNode": {
+                        "after": {
+                          "edit": {
+                            "_0": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 1
+                              },
+                              "index": 0
+                            }
+                          }
+                        },
+                        "collection": {
+                          "field": "blocks"
+                        },
+                        "identity": {
+                          "inserted": {
+                            "creation": {
+                              "change": {
+                                "actor": "writer",
+                                "counter": 2
+                              },
+                              "index": 0
+                            },
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 2
+                          },
+                          "index": 0
+                        },
+                        "value": {
+                          "children": [],
+                          "id": "P",
+                          "summary": [
+                            {
+                              "marks": [],
+                              "text": "P",
+                              "type": "text"
+                            }
+                          ],
+                          "type": "toggle"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 2
+              }
+            },
+            {
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "moveNode": {
+                        "collection": {
+                          "field": "children",
+                          "owner": {
+                            "inserted": {
+                              "creation": {
+                                "change": {
+                                  "actor": "writer",
+                                  "counter": 2
+                                },
+                                "index": 0
+                              },
+                              "path": []
+                            }
+                          }
+                        },
+                        "identity": {
+                          "baseline": {
+                            "blockID": "A",
+                            "path": []
+                          }
+                        },
+                        "placement": {
+                          "change": {
+                            "actor": "writer",
+                            "counter": 3
+                          },
+                          "index": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": {
+                "actor": "writer",
+                "counter": 3
+              }
+            }
+          ],
+          "documentID": "deferred-owner",
+          "version": 2
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "owner-reversed-restored"
+      },
+      "capture": "owner-reversed-typed-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "owner-reversed-control"
+      },
+      "bindings": {
+        "batch": "owner-reversed-typed-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-reversed-restored"
+      },
+      "capture": "owner-reversed-typed-markdown"
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-reversed-control"
+      },
+      "capture": "owner-reversed-control-markdown"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "owner-reversed-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "markdown",
+        "session": "owner-reversed-restored"
+      },
+      "capture": "owner-reversed-undo-markdown"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "owner-reversed-restored"
+      },
+      "capture": "owner-reversed-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "owner-reversed-restored"
+      },
+      "capture": "owner-reversed-complete-save"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-reversed-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "owner-reversed-peer",
+        "actorID": "peer"
+      },
+      "capture": "owner-reversed-complete-restored",
+      "bindings": {
+        "snapshot": "owner-reversed-complete-save"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-reversed-baseline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-reversed-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "owner-reversed-control"
+      }
     }
   ],
   "expected": {
@@ -1275,5 +6604,151 @@
     ],
     "canUndo": false,
     "canRedo": false
-  }
+  },
+  "equal": [
+    [
+      "root-ordered-initial",
+      "root-ordered-partial"
+    ],
+    [
+      "root-ordered-initial",
+      "root-ordered-restored"
+    ],
+    [
+      "root-ordered-offset-before",
+      "root-ordered-offset-partial"
+    ],
+    [
+      "root-ordered-typed-markdown",
+      "root-ordered-control-markdown"
+    ],
+    [
+      "root-ordered-full-markdown",
+      "root-ordered-undo-markdown"
+    ],
+    [
+      "root-ordered-redo",
+      "root-ordered-complete-restored"
+    ],
+    [
+      "root-reversed-initial",
+      "root-reversed-partial"
+    ],
+    [
+      "root-reversed-initial",
+      "root-reversed-restored"
+    ],
+    [
+      "root-reversed-offset-before",
+      "root-reversed-offset-partial"
+    ],
+    [
+      "root-reversed-typed-markdown",
+      "root-reversed-control-markdown"
+    ],
+    [
+      "root-reversed-full-markdown",
+      "root-reversed-undo-markdown"
+    ],
+    [
+      "root-reversed-redo",
+      "root-reversed-complete-restored"
+    ],
+    [
+      "nested-ordered-initial",
+      "nested-ordered-partial"
+    ],
+    [
+      "nested-ordered-initial",
+      "nested-ordered-restored"
+    ],
+    [
+      "nested-ordered-offset-before",
+      "nested-ordered-offset-partial"
+    ],
+    [
+      "nested-ordered-typed-markdown",
+      "nested-ordered-control-markdown"
+    ],
+    [
+      "nested-ordered-full-markdown",
+      "nested-ordered-undo-markdown"
+    ],
+    [
+      "nested-ordered-redo",
+      "nested-ordered-complete-restored"
+    ],
+    [
+      "nested-reversed-initial",
+      "nested-reversed-partial"
+    ],
+    [
+      "nested-reversed-initial",
+      "nested-reversed-restored"
+    ],
+    [
+      "nested-reversed-offset-before",
+      "nested-reversed-offset-partial"
+    ],
+    [
+      "nested-reversed-typed-markdown",
+      "nested-reversed-control-markdown"
+    ],
+    [
+      "nested-reversed-full-markdown",
+      "nested-reversed-undo-markdown"
+    ],
+    [
+      "nested-reversed-redo",
+      "nested-reversed-complete-restored"
+    ],
+    [
+      "owner-ordered-initial",
+      "owner-ordered-partial"
+    ],
+    [
+      "owner-ordered-initial",
+      "owner-ordered-restored"
+    ],
+    [
+      "owner-ordered-offset-before",
+      "owner-ordered-offset-partial"
+    ],
+    [
+      "owner-ordered-typed-markdown",
+      "owner-ordered-control-markdown"
+    ],
+    [
+      "owner-ordered-full-markdown",
+      "owner-ordered-undo-markdown"
+    ],
+    [
+      "owner-ordered-redo",
+      "owner-ordered-complete-restored"
+    ],
+    [
+      "owner-reversed-initial",
+      "owner-reversed-partial"
+    ],
+    [
+      "owner-reversed-initial",
+      "owner-reversed-restored"
+    ],
+    [
+      "owner-reversed-offset-before",
+      "owner-reversed-offset-partial"
+    ],
+    [
+      "owner-reversed-typed-markdown",
+      "owner-reversed-control-markdown"
+    ],
+    [
+      "owner-reversed-full-markdown",
+      "owner-reversed-undo-markdown"
+    ],
+    [
+      "owner-reversed-redo",
+      "owner-reversed-complete-restored"
+    ]
+  ]
 }

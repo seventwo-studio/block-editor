@@ -4,7 +4,7 @@ Protocol v2 adds structural commands for root blocks, toggle children, list item
 table rows and table cells. It is an experimental, explicit session option; existing
 sessions and the production React entrypoint still use v1. The document JSON schema
 does not change. This work advances ST-95 and does not complete native authoring,
-browser migration, runtime CI or package acceptance.
+browser migration, post-merge runtime CI or package acceptance.
 
 ## Identity and placement
 
@@ -27,7 +27,13 @@ earliest winning move in that cycle falls back to its previous placement, repeat
 until the tree is acyclic. A move that would create duplicate sibling labels also
 falls back to a previous placement. Document IDs are never rewritten to resolve
 these move conflicts. Missing causal owners or anchors defer a placement until
-they arrive; an existing node retains its earlier placement meanwhile.
+they arrive; an existing node retains its earlier placement meanwhile. A known
+immediate anchor is insufficient: the complete same-collection ordering chain
+must reach an ordering root. Likewise, a known owner must have a potential anchored
+path to the document root. Existing content cannot disappear into an owner whose
+own causal placement is still incomplete. Inactive placements remain ordering
+anchors. Parent-cycle resolution still considers alternative rooted placements
+before falling back deterministically.
 
 A complete transaction must reference elements introduced earlier in that same
 transaction. Forward or cyclic same-change anchors fail with `invalidChange`.
@@ -153,10 +159,20 @@ exercise eight seeds, three replicas, disconnected editing, partial/reordered
 delivery and restart. A local HTTP relay test additionally verifies independent
 Swift processes, server restart, acknowledgement and remote-preserving undo.
 
-Swift and the API 35 arm64 JNI execution pass, as do Chromium and WebKit WASM.
-Firefox currently fails before execution because its profile folder cannot be
-opened. Android API 26/x86 execution and complete native/browser interaction remain
-separate acceptance work.
+The structure transcript preserves its original 44 commands and adds 168 commands
+with 36 independent comparisons for incomplete ordering chains at root/nested
+levels and unanchored created owners. Ordered and reversed/duplicated partial
+delivery retain the pristine baseline through save/reopen; stable positions and
+local typing remain usable. Causal completion converges, author undo retains the
+writer's moves, and redo/reopen retain the text. The typed native regression also
+checks that inactive placements still anchor later moves. These preservation
+checks reproduced ten failed native assertions before the deferral fix.
+
+The [runtime CI contract](runtime-ci.md) executes Swift, packaged API 26 x86_64
+JNI, API 35 x86_64/translated ARM64 JNI and WASM in Chromium, WebKit and Firefox,
+comparing complete fixture responses. ARM translation proves execution of the
+ARM64 libraries; physical-device input, minimum/current runtime interaction,
+complete native/browser authoring and post-merge CI remain separate acceptance.
 
 Valid histories can exceed document/depth limits or insert the same sibling label
 without a prior placement to fall back to. V2 now exposes a canonical pending union

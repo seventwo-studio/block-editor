@@ -129,6 +129,19 @@ struct StructuralState {
     /// Highest active placement wins. Cyclic or duplicate-label moves fall back to
     /// an earlier placement deterministically, without changing document IDs.
     func effectivePlacements() throws -> [NodeID: Placement] {
+        // A known immediate anchor can itself depend on an absent earlier anchor.
+        // Only complete ordering chains may replace a node's previous placement.
+        // Inactive placements remain traversable anchors, just like tombstones.
+        var successors: [NodePlacementID: [NodePlacementID]] = [:], pending: [NodePlacementID] = []
+        for p in placements.values {
+            if let anchor = p.after { successors[anchor, default: []].append(p.id) }
+            else { pending.append(p.id) }
+        }
+        var anchored = Set<NodePlacementID>()
+        while let id = pending.popLast() {
+            guard anchored.insert(id).inserted, let placement = placements[id] else { continue }
+            pending.append(contentsOf: (successors[id] ?? []).filter { placements[$0]?.collection == placement.collection })
+        }
         var candidates: [NodeID: [Placement]] = [:]
         for p in placements.values where p.active && nodes[p.node] != nil {
             if let owner = p.collection.owner, nodes[owner] == nil { continue }
@@ -136,7 +149,28 @@ struct StructuralState {
                 guard let predecessor = placements[anchor] else { continue }
                 guard predecessor.collection == p.collection else { throw EditorError.invalidChange }
             }
+            guard anchored.contains(p.id) else { continue }
             candidates[p.node, default: []].append(p)
+        }
+        // A created owner can exist before its own ordering chain is complete.
+        // Moving existing content into that owner must also wait; otherwise the
+        // content has no renderable path back to the document's root collection.
+        var children: [NodeID: [NodeID]] = [:], roots: [NodeID] = []
+        for alternatives in candidates.values {
+            for placement in alternatives {
+                if let owner = placement.collection.owner { children[owner, default: []].append(placement.node) }
+                else { roots.append(placement.node) }
+            }
+        }
+        var attached = Set<NodeID>()
+        while let node = roots.popLast() {
+            guard attached.insert(node).inserted else { continue }
+            roots.append(contentsOf: children[node] ?? [])
+        }
+        for node in candidates.keys {
+            candidates[node]?.removeAll { placement in
+                placement.collection.owner.map { !attached.contains($0) } ?? false
+            }
         }
         for key in candidates.keys { candidates[key]?.sort { $1.id < $0.id } }
         var indices: [NodeID: Int] = [:]
