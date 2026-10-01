@@ -49,6 +49,7 @@ jobs:
       - name: Execute Swift tests and shared fixture transcript
         run: |
           python3 scripts/generate-collection-history.py --check
+          python3 scripts/generate-recovery-history.py --check
           mkdir -p test-results/compatibility
           "$SWIFT_BIN" --version > test-results/compatibility/swift-version.txt
           xcodebuild -version > test-results/compatibility/xcode-version.txt
@@ -57,7 +58,7 @@ jobs:
           "$SWIFT_BIN" build --product editor-bridge
           bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
           "$SWIFT_BIN" build --product relay-client
-          bun test tests/relay.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
+          bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
       - name: Verify optimized measurement harness
         run: |
           "$SWIFT_BIN" build -c release --product editor-bridge
