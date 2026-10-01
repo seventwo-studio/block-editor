@@ -4,6 +4,12 @@ ST-94 measures artifacts, initialization, ordinary editing and growing offline
 histories before numeric budgets are chosen. Passing these checks verifies the
 workload and its preserved content; it does not accept a performance budget.
 
+The [budget proposal](editor-budget-proposal.md) records numerical candidates,
+exact measured gaps and the remaining startup/device decisions. Inspect an exact
+WASM artifact with `bun scripts/wasm-size.mjs dist/block-editor.wasm`; the optional
+`--strip-names=<new-path>` writes a separate candidate and refuses existing paths.
+This analysis does not change the default build or establish runtime acceptance.
+
 ## Workloads and correctness
 
 `benchmarks/workloads.json` is the shared, versioned input. Its 17 root blocks

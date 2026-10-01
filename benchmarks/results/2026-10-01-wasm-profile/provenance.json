@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sourceCommit": "e787146c432e649e71a1a6423fe4a24c55e21f5c",
+  "trackedProductionInputChanges": [],
+  "artifactSHA256": "d659fd2f1212d8242e3c18397f69a540cf76d23c63cd2e073eba15a669518457",
+  "captureSHA256": "f461ad865abc27d55e18e2c0c87e542deca7795b8f2acd6f2ce6e8c529c77905",
+  "command": "node .codex/st94/profile.mjs",
+  "browser": "Chromium 153.0.8010.12",
+  "samplingIntervalUs": 1000,
+  "repetitions": 1,
+  "warmups": 0,
+  "diagnosticOnly": true,
+  "profilingOverheadIncluded": true,
+  "cacheConditions": "Uncontrolled OS/browser caches; module initialized before profiling",
+  "rawProfilesPreservedAt": "/tmp/editor-wasm-cpu-profile-20261001",
+  "profiles": [
+    {
+      "case": "history-v1-512",
+      "profile": "history-v1-512.cpuprofile.gz",
+      "uncompressedSHA256": "3a78940170cd691ea7c1d6966f928bee13d5651c3b696d02b21c06c73d3f1c8f",
+      "gzipSHA256": "12a8f5ebd51df5559cf8872d35c0d7a41efe0f46374026dc558bebfb3d46a57d",
+      "uncompressedBytes": 2365840,
+      "gzipBytes": 146745,
+      "summarySHA256": "b13d8b7a7f17b379278a490d6718ad2c2d834b5fa07c773e53091cde9e79f719"
+    },
+    {
+      "case": "history-v2-512",
+      "profile": "history-v2-512.cpuprofile.gz",
+      "uncompressedSHA256": "7027b093ee06c63b2f74d794e6162f9283d25f43c2f33381efaf3d67327a7b4d",
+      "gzipSHA256": "2183a8200e3d2bbe656df8f293e4dfe505ada20ee44515ed598f20110422c14b",
+      "uncompressedBytes": 3179704,
+      "gzipBytes": 218697,
+      "summarySHA256": "bc82b8fa1a0d6ab72bc54c03487b9b33096e2b17ec530e1b396b0b61af3b975b"
+    }
+  ],
+  "numericBudgetsAgreed": false
+}

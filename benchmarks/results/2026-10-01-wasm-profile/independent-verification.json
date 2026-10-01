@@ -1,0 +1,103 @@
+[
+  {
+    "case": "history-v1-512",
+    "gzipRoundTripSHA256Verified": true,
+    "nodes": 8730,
+    "samples": 2014,
+    "sampledIntervalsMs": 2542.319,
+    "capacityFrames": []
+  },
+  {
+    "case": "history-v2-512",
+    "gzipRoundTripSHA256Verified": true,
+    "nodes": 11379,
+    "samples": 8329,
+    "sampledIntervalsMs": 10411.529,
+    "capacityFrames": [
+      {
+        "node": 184,
+        "function": "$s15BlockEditorCore0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8ChangeIDVAA0O0VGKF",
+        "inclusiveMs": 4249.639,
+        "percent": 40.81666583265532
+      },
+      {
+        "node": 1463,
+        "function": "$sSMsSkRzrlE4sort2byySb7ElementSTQz_ADtKXE_tKFs15ContiguousArrayVy15BlockEditorCore6ChangeVG_Tg504$s15fg83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8I25IDVAA0O0VGKFSbAI_AItXEfU_Tf1cn_nTm",
+        "inclusiveMs": 2.511,
+        "percent": 0.02411749513448025
+      },
+      {
+        "node": 1464,
+        "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKF15BlockEditorCore6ChangeV_Tg504$s15ef83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8H25IDVAA0O0VGKFSbAI_AItXEfU_Tf1cn_nTm",
+        "inclusiveMs": 2.511,
+        "percent": 0.02411749513448025
+      },
+      {
+        "node": 1465,
+        "function": "$sSMsSKRzrlE14_insertionSort6within9sortedEnd2byySny5IndexSlQzG_AFSb7ElementSTQz_AItKXEtKFSry15BlockEditorCore6ChangeVG_Tg504$s15ij83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8L25IDVAA0O0VGKFSbAI_AItXEfU_Tf1nncn_nTm",
+        "inclusiveMs": 1.256,
+        "percent": 0.012063549935845158
+      },
+      {
+        "node": 1984,
+        "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKFySryxGz_SiztKXEfU_15BlockEditorCore6ChangeV_Tg504$s15ef83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8H25IDVAA0O0VGKFSbAI_AItXEfU_Tf1nnncn_nTm",
+        "inclusiveMs": 1.255,
+        "percent": 0.01205394519863509
+      },
+      {
+        "node": 2463,
+        "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKF15BlockEditorCore6ChangeV_Tg504$s15ef83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8H25IDVAA0O0VGKFSbAI_AItXEfU_Tf1cn_nTm",
+        "inclusiveMs": 24.77,
+        "percent": 0.2379093406933794
+      },
+      {
+        "node": 2464,
+        "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKFySryxGz_SiztKXEfU_15BlockEditorCore6ChangeV_Tg504$s15ef83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8H25IDVAA0O0VGKFSbAI_AItXEfU_Tf1nnncn_nTm",
+        "inclusiveMs": 23.521,
+        "percent": 0.22591302391800475
+      },
+      {
+        "node": 4920,
+        "function": "$sSr13_mergeTopRuns_6buffer2bySbSaySnySiGGz_SpyxGSbx_xtKXEtKF15BlockEditorCore6ChangeV_Tg504$s15fg83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8I25IDVAA0O0VGKFSbAI_AItXEfU_Tf1nncn_nTm",
+        "inclusiveMs": 2.505,
+        "percent": 0.02405986671121984
+      },
+      {
+        "node": 5286,
+        "function": "$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15BlockEditorCore6ChangeV_Tg504$s15gh83Core0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8J25IDVAA0O0VGKFSbAI_AItXEfU_Tf1nnnnc_nTm",
+        "inclusiveMs": 1.25,
+        "percent": 0.012005921512584752
+      },
+      {
+        "node": 5618,
+        "function": "$s15BlockEditorCore0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8ChangeIDVAA0O0VGKF",
+        "inclusiveMs": 17.552,
+        "percent": 0.16858234751111004
+      },
+      {
+        "node": 10327,
+        "function": "$s15BlockEditorCore0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8ChangeIDVAA0O0VGKF",
+        "inclusiveMs": 15.058,
+        "percent": 0.14462813290920096
+      },
+      {
+        "node": 10953,
+        "function": "$s15BlockEditorCore0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8ChangeIDVAA0O0VGKF",
+        "inclusiveMs": 30.941,
+        "percent": 0.2971801740167078
+      },
+      {
+        "node": 11149,
+        "function": "$s15BlockEditorCore0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8ChangeIDVAA0O0VGKF",
+        "inclusiveMs": 32.48,
+        "percent": 0.3119618645830022
+      },
+      {
+        "node": 7340,
+        "function": "$s15BlockEditorCore0B7SessionC21checkRecoveryCapacity33_7771398A39B0148EF1DEDE18F7DB4CBDLLyySDyAA8ChangeIDVAA0O0VGKF",
+        "inclusiveMs": 49.644,
+        "percent": 0.47681757405660596
+      }
+    ]
+  }
+]
