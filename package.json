@@ -62,7 +62,8 @@
     "typecheck:relay": "tsc -p tsconfig.relay.json",
     "test:wasm": "playwright test --config playwright.swift.config.ts",
     "test:relay:apple": "bun scripts/test-apple-relay.ts",
-    "test:apple:ui": "bun scripts/test-apple-ui.ts"
+    "test:apple:ui": "bun scripts/test-apple-ui.ts",
+    "test:android:recovery": "bun scripts/test-android-recovery.ts"
   },
   "dependencies": {
     "@bjorn3/browser_wasi_shim": "0.4.2",

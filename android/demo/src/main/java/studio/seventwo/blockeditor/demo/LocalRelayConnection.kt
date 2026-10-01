@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import studio.seventwo.blockeditor.EditorSession
+import studio.seventwo.blockeditor.MergeRecovery
 import java.io.Closeable
 import java.io.File
 import androidx.compose.runtime.getValue
@@ -21,10 +22,30 @@ class LocalRelayConnection private constructor(
 ) : Closeable {
     var saveStatus by mutableStateOf(if (draft == null) "Memory-only session" else "Saved locally")
         private set
+    var recovery by mutableStateOf<MergeRecovery?>(session.mergeRecovery())
+        private set
+    fun refreshRecovery() {
+        if (closed) return
+        val next = session.mergeRecovery()
+        if (next?.export()?.toString() == recovery?.export()?.toString()) return
+        recovery = next
+        save()
+    }
+    private fun save() {
+        if (draft == null) return
+        try { draft.save(endpoint, actor, session); saveStatus = "Saved locally" }
+        catch (error: Exception) {
+            saveStatus = "Local save failed: ${error.message}" + if (recovery != null) ". Export pending recovery before closing." else ""
+        }
+    }
+    fun exportRecovery(destination: File) {
+        checkNotNull(draft) { "No persistent local draft" }.exportRecovery(endpoint, actor, session, destination)
+    }
     fun setToken(value: String) { token = value }
     var connected = true
         set(value) { field = value; generation++; if (!value) peerCount = 0 }
     private var generation = 0
+    private var closed = false
     private var exchanging = false
     private var revision = 0L
     private var receipt = JSONObject().put("received", JSONArray())
@@ -38,22 +59,25 @@ class LocalRelayConnection private constructor(
             var session: EditorSession? = null
             try {
                 val saved = draft?.read(endpoint)
-                val snapshot = saved?.getJSONObject("snapshot") ?: request(endpoint, token, null)
-                val actor = saved?.getString("actor") ?: UUID.randomUUID().toString()
-                val editor = EditorSession.restore(snapshot, actor); session = editor
+                val (actor, editor) = if (saved != null) checkNotNull(draft).restore(saved) else {
+                    val reply = request(endpoint, token, null)
+                    check(reply.code == 200) { "Relay rejected request (${reply.code}): ${reply.body}" }
+                    val author = UUID.randomUUID().toString()
+                    author to EditorSession.restore(reply.body, author)
+                }
+                session = editor
                 draft?.save(endpoint, actor, editor)
                 val connection = LocalRelayConnection(editor, endpoint, token, actor, draft)
                 connection.connected = saved == null
                 editor.onChange = {
-                    if (draft != null) {
-                        try { draft.save(endpoint, actor, editor); connection.saveStatus = "Saved locally" }
-                        catch (error: Exception) { connection.saveStatus = "Local save failed: ${error.message}" }
-                    }
+                    connection.recovery = editor.mergeRecovery()
+                    connection.save()
                 }
                 return connection
             } catch (error: Exception) { session?.close(); draft?.close(); throw error }
         }
-        private suspend fun request(endpoint: String, token: String, body: String?): JSONObject = withContext(Dispatchers.IO) {
+        private data class Reply(val code: Int, val body: JSONObject)
+        private suspend fun request(endpoint: String, token: String, body: String?): Reply = withContext(Dispatchers.IO) {
             val connection = URL(endpoint).openConnection() as HttpURLConnection
             try {
                 connection.connectTimeout = 10_000; connection.readTimeout = 10_000
@@ -65,13 +89,13 @@ class LocalRelayConnection private constructor(
                 }
                 val code = connection.responseCode
                 val text = (if (code == 200) connection.inputStream else connection.errorStream)?.bufferedReader()?.use { it.readText() } ?: ""
-                check(code == 200) { "Relay rejected request ($code): $text" }
-                JSONObject(text)
+                check(code == 200 || code == 409) { "Relay rejected request ($code): $text" }
+                Reply(code, JSONObject(text))
             } finally { connection.disconnect() }
         }
     }
     suspend fun exchange() {
-        if (!connected || exchanging) return
+        if (closed || !connected || exchanging) return
         exchanging = true
         val started = generation
         try {
@@ -79,10 +103,21 @@ class LocalRelayConnection private constructor(
                 .put("presence", JSONObject().put("actor", actor).put("revision", ++revision)).toString()
             val response = request(endpoint, token, body)
             if (!connected || started != generation) return
-            session.receive(response.getJSONObject("batch")); receipt = response.getJSONObject("state")
-            val peers = response.getJSONArray("presence")
+            if (response.code == 409) {
+                check(response.body.getString("error") == "mergeRecoveryRequired") { "Unsupported relay rejection" }
+                session.receive(MergeRecovery.restore(response.body.getJSONObject("recovery")).batch)
+                error("The server has not accepted these edits; retry synchronization.")
+            }
+            session.receive(response.body.getJSONObject("batch")); receipt = response.body.getJSONObject("state")
+            val peers = response.body.getJSONArray("presence")
             peerCount = (0 until peers.length()).count { peers.getJSONObject(it).getString("actor") != actor }
-        } finally { exchanging = false }
+        } finally {
+            try { refreshRecovery() } finally { exchanging = false }
+        }
     }
-    override fun close() { connected = false; try { session.close() } finally { draft?.close() } }
+    override fun close() {
+        if (closed) return
+        closed = true; connected = false
+        try { session.close() } finally { draft?.close() }
+    }
 }

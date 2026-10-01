@@ -149,6 +149,10 @@ gradle -p android :editor:connectedDebugAndroidTest :demo:connectedDebugAndroidT
   -Pandroid.testInstrumentationRunnerArguments.relayToken=choose-a-local-test-token
 # Build both demo APKs and the native relay-client first; the relay must be running.
 ANDROID_SERIAL=emulator-5556 DEMO_TOKEN=choose-a-local-test-token sh scripts/test-android-restart.sh
+# Builds/installs APKs using existing toolchains, starts isolated v1/v2 relays,
+# and verifies recovery across real Android process termination and relay restart.
+ANDROID_HOME=/path/to/android-sdk ANDROID_SERIAL=emulator-5556 \
+  GRADLE_BIN=/path/to/gradle bun run test:android:recovery
 DEMO_TOKEN=choose-a-local-test-token STRESS_REPLICAS=8 STRESS_ROUNDS=40 STRESS_SEED=20260930 bun run demo:stress
 ```
 
@@ -160,6 +164,17 @@ undo, composition receipt gaps, and authentication recovery. The runner closes t
 server and removes its temporary room data after testing. Ordinary Swift test runs
 skip the network case unless explicitly configured; the offline draft tests still
 run. Native window and input-method acceptance is a separate check.
+
+The Android recovery runner passes an API 35 arm64 packaged-library/input suite,
+draft/archive checks and visible Compose recovery interaction. It then invokes
+three separate instrumentation processes: retain/export a rejected union, force-stop
+and restore/repair while the relay is stopped, force-stop again and reconnect the
+repaired draft to the restarted relay. The same saved author resumes; neither
+restart drops the accepted content or pending history. Restoring requires no token,
+and reconnect requires the local token. Existing default-v1 process-restart
+acceptance keeps its separate command. API 26, x86 runtime, installed-keyboard IME,
+TalkBack and full Notion-like Android authoring remain open. The browser recovery
+host still needs separate proposal persistence and visible repair/export controls.
 
 The stress runner uses independent native Swift processes, overlapping Unicode
 inserts/replacements/deletions, formatting and mark removal, block insert/move/delete,

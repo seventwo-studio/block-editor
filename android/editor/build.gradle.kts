@@ -8,6 +8,7 @@ android {
     compileSdk = 35
     defaultConfig {
         minSdk = 26
+        targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }

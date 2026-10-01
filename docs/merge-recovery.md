@@ -119,9 +119,42 @@ fresh-actor undo policy. Exports refuse to overwrite an existing destination.
 
 The reference stores archives locally and offers platform sharing on iOS, macOS
 and visionOS. A failed draft save is visible and directs the author to export before
-closing. Android and browser reference hosts still require equivalent recovery
-persistence and controls. No automatic destructive repair or protocol cutover is
+closing. The browser reference host still requires equivalent recovery persistence
+and controls. No automatic destructive repair or protocol cutover is
 implied by opening the Apple panel.
+
+## Android reference recovery controls
+
+The Android relay host also imports typed HTTP 409 recovery without advancing
+receipts or presence. Its version-2 `AtomicFile` envelope keeps accepted snapshots
+and pending proposals separate, reads legacy version 1 without resetting the actor,
+and preserves incompatible or malformed proposals on disk. Recovery archives open
+with a fresh actor and refuse to overwrite an existing destination. Closed hosts
+ignore late exchange completion rather than accessing a disposed session.
+
+The Compose panel offers original-block wrapping, archive export, retry and a
+system sharing action. Accepted text remains selectable in read-only fields;
+ordinary edit/undo/block actions wait until repair. Failed repairs retain the
+proposal and show their error. Archive sharing grants read access only to the
+explicitly chosen file through a provider restricted to the recovery directory.
+Existing `BlockEditor` callers retain their default editing API; the host opts
+into the new read-only overload and error callback.
+
+Nested toggle/list/table text renders in the reference, so repaired content can be
+read and selected instead of being hidden by a preservation placeholder. Checked
+list state is exposed through a disabled native checkbox. These readers do not
+complete nested authoring, rich inline formatting or structural focus acceptance.
+
+Run `bun run test:android:recovery` with `ANDROID_HOME`, `ANDROID_SERIAL` and an
+existing `GRADLE_BIN`/Java setup. It starts separate v1/v2 loopback relays, builds
+and installs the demo and packaged-library tests on the selected emulator, checks
+instrumentation results and cleans up both servers. No production backend is used.
+It also force-stops the demo between three separately instrumented recovery phases.
+The relay is stopped entirely while the second process restores and repairs its
+pending proposal without a token. A third process reopens the repaired draft,
+reconnects to the restarted server and compares the accepted document with a fresh
+peer. The saved author identity, accepted snapshot and proposal are checked across
+the first restart; the repaired snapshot survives the second restart.
 
 ## Evidence
 
@@ -145,6 +178,27 @@ losing either block. Storage tests separately cover failed repair preservation,
 fresh-actor archive opening, legacy upgrade and incompatible recovery retention.
 These checks do not establish OS 26 minimum-runtime, macOS/visionOS/watchOS/tvOS
 interaction or Android/browser recovery acceptance.
+
+On Android API 35 arm64, the recovery runner passes 15 packaged-library checks,
+seven ordinary demo checks and all three separately invoked recovery restart phases.
+The ordinary demo run reports nine tests with two explicit phase-gated skips; the
+new recovery phase is then executed three times, while the existing default-v1
+process-restart test retains its separate command. The actual Compose workflow
+verifies HTTP 409 recovery, selectable accepted text, disabled ordinary actions,
+archive export, offline Activity recreation, explicit wrapping and convergence.
+Screenshots show the pending panel and both authors' content after repair. Storage
+checks verify legacy upgrades, malformed/incompatible proposal retention, failed
+repair preservation, archive actor isolation and refusal to overwrite an archive.
+
+The rendered-field composition test now owns one Compose input session through
+[platform input interception](https://developer.android.com/reference/kotlin/androidx/compose/ui/platform/PlatformTextInputInterceptor).
+Creating an additional connection from the focused View let the system keyboard
+finish the injected composing range before remote delivery. The owned connection
+retains the original receipt, text, selection and author-undo assertions without
+lowering the test target SDK. This verifies the Compose/InputConnection boundary;
+installed-keyboard/system-IME and TalkBack acceptance remain open, along with API
+26, the x86 runtime and complete rich authoring. The runner does not accept those
+broader platform requirements or browser recovery.
 
 ST-96 remains open for full recovery integration, expanded generated conflict/resource
 coverage and the complete cross-runtime threshold matrix. Remaining platform recovery UI,
