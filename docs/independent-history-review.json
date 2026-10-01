@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "issue": "ST-41",
+  "scope": "Independent public JSON oracle and source-qualified review; historical execution is not current-default runtime acceptance.",
+  "oracleSHA256": "da4806bfc248d1b0b077628748e645cb845f6f39151557c017ffd7240c259e36",
+  "retainedToggleBefore": {
+    "bridgeSHA256": "94581c737c9186629c082966064020c1e5350854cb2b43928590cbd6a7424a6a",
+    "cases": [
+      {
+        "version": 1,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 1,
+        "delivery": "redo-before-undo",
+        "passed": false
+      },
+      {
+        "version": 2,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 2,
+        "delivery": "redo-before-undo",
+        "passed": false
+      },
+      {
+        "version": 3,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 3,
+        "delivery": "redo-before-undo",
+        "passed": false
+      }
+    ]
+  },
+  "retainedToggleAfter": {
+    "bridgeSHA256": "ba6cda2cd0dd3d6a456432e7cfcb06ef1faed9e61c48a447d54b564174456533",
+    "cases": [
+      {
+        "version": 1,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 1,
+        "delivery": "redo-before-undo",
+        "passed": true
+      },
+      {
+        "version": 2,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 2,
+        "delivery": "redo-before-undo",
+        "passed": true
+      },
+      {
+        "version": 3,
+        "delivery": "undo-before-redo",
+        "passed": true
+      },
+      {
+        "version": 3,
+        "delivery": "redo-before-undo",
+        "passed": true
+      }
+    ]
+  },
+  "priorRuntimeReview": {
+    "manifestSHA256": "07cd667a3f19548728add56b81655b5aa434b4fb365beb9c07fc2f13723abcd7",
+    "sourceOverlayTree": "907b586fc1efbb2203b031153f053b94856f958f",
+    "sourceHashesChecked": 77,
+    "sourceMismatches": [],
+    "reports": {
+      "native-integrated": "bcade61965a96973ae67504f051df498ccc8cf59832054f723bf663f8dbe8eba",
+      "wasm-chromium": "bcade61965a96973ae67504f051df498ccc8cf59832054f723bf663f8dbe8eba",
+      "wasm-webkit": "bcade61965a96973ae67504f051df498ccc8cf59832054f723bf663f8dbe8eba",
+      "wasm-firefox": "bcade61965a96973ae67504f051df498ccc8cf59832054f723bf663f8dbe8eba"
+    },
+    "responsesEach": 2934,
+    "sixBrowserTestsPassed": 6,
+    "jniPending": "pending ST103 owner reservation",
+    "scope": "Core fixture runtime execution and typed writing wrapper; native/React IME/focus/accessibility acceptance open"
+  },
+  "currentDefaultSourceReview": {
+    "liveBase": "f97db3023e2ce79cca534e6ac6e3b869eec37224",
+    "candidateTree": "31ba092bc898f0d5832379b5c7208e1aa32feeb4",
+    "patchSHA256": "75160b28e7d42290fbb14cdcf80943e63af5934084d0c8e52b9868beb202f8e0",
+    "patchRawDiffUnchanged": true,
+    "changedFiles": 16,
+    "candidateTreeMatchesReviewedSource": true,
+    "acceptedAppleFilesPreserved": 11,
+    "unexpectedDefaultChanges": [],
+    "engineCompilationInputCount": 17,
+    "engineInputChanges": [],
+    "allNativeCompilationInputCount": 34,
+    "changedNativeInputsFromOldSnapshot": [
+      "Sources/BlockEditorApple/BlockEditorView.swift",
+      "Sources/BlockEditorApple/CollaborativeInput.swift",
+      "Sources/BlockEditorApple/EditorModel.swift",
+      "Sources/BlockEditorApple/MacTextInput.swift",
+      "Sources/BlockEditorApple/NativeBlockContent.swift",
+      "Sources/BlockEditorApple/UIKitTextInput.swift"
+    ],
+    "addedNativeInputsFromOldSnapshot": [
+      "Sources/BlockEditorApple/NativeAuthoring.swift",
+      "Sources/BlockEditorApple/NativeAuthoringControls.swift"
+    ],
+    "wrapperAndRuntimeHarnessUnchanged": true,
+    "qualification": "Source-only preservation review against f97; prior actual 2934 reports remain pinned to 280+907, no new f97 runtime execution or JNI proof claimed"
+  },
+  "pending": [
+    "Packaged JNI source-qualified execution",
+    "Signed v3 candidate and fresh CI/review",
+    "Actual Apple/Android/browser IME, selection, focus and accessibility acceptance"
+  ]
+}
