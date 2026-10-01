@@ -102,7 +102,7 @@ def main():
         owned = ["system-ime-proof.json", "system-ime-reopen-proof.json", "system-ime-paste-proof.json"]
         for name in ("plain-keyboard", "plain-composing", "composing", "author-undo", "author-redo", "process-reopen", "paste-menu", "plain-paste"):
             owned.extend(["system-ime-" + name + ".png", "system-ime-" + name + "-input-method.txt"])
-        owned.extend("system-ime-" + name + ".json" for name in ("keyboard-nodes", "key-touches", "plain-updates"))
+        owned.extend("system-ime-" + name + ".json" for name in ("keyboard-nodes", "key-touches", "plain-updates", "paste-menu-nodes"))
         run(adb + ["shell", "run-as", "studio.seventwo.blockeditor.test", "rm", "-f", *["files/" + n for n in owned]])
         instrument("BuiltinImeTest", "installedLatinImeHoldsRemoteAndPreservesAuthorHistory",
                    ["-e", "ciSystemIme", "true"], "instrumentation.log")
@@ -141,7 +141,7 @@ def main():
                 try: pull("system-ime-" + name + suffix, destination)
                 except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as error:
                     collection_failures.append({"file": destination, "error": f"{type(error).__name__}: {error}"})
-        for name in ("keyboard-nodes", "key-touches", "plain-updates"):
+        for name in ("keyboard-nodes", "key-touches", "plain-updates", "paste-menu-nodes"):
             try: pull("system-ime-" + name + ".json", name + ".json")
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as error:
                 collection_failures.append({"file": name + ".json", "error": f"{type(error).__name__}: {error}"})

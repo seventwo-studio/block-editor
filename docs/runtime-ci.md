@@ -81,9 +81,11 @@ and source/APK/JNI provenance. Other Android entries retain their existing runti
 fixtures and measurement checks. A passing build alone does not validate this
 input workflow; the opt-in runner must execute its actual instrumentation checks.
 Every Android entry also runs the existing Compose and collaboration input
-adapter tests. Authoring-control tests run when their class exists in the exact
-checkout; otherwise the coverage report explicitly records their omission. These
-component tests remain separate from installed-keyboard and accessibility evidence.
+adapter tests. Authoring-control and retained authoring-action tests run when their
+classes exist in the exact checkout, using the declared method count and the same
+no-skip instrumentation checks. Each coverage report explicitly records an absent
+class as omitted, not passed. These component tests remain separate from
+installed-keyboard and accessibility evidence.
 
 Reruns can retain several artifacts with the same runtime name. The parity job
 selects the newest creation timestamp for each of the five expected artifact

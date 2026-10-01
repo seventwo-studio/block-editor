@@ -101,19 +101,22 @@ def main():
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 3)
         instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 4)
-        authoring_source = Path("android/editor/src/androidTest/java/studio/seventwo/blockeditor/AuthoringControlsTest.kt")
-        authoring = {"included": authoring_source.is_file(), "passed": False,
-                     "scope": "Rendered component/semantics input; separate from installed IME, TalkBack and full authoring acceptance"}
-        if not authoring["included"]:
-            authoring["reason"] = "AuthoringControlsTest is absent from this exact source snapshot; controls acceptance is omitted"
-        (output / "authoring-controls-coverage.json").write_text(json.dumps(authoring, indent=2) + "\n")
-        if authoring["included"]:
-            expected_authoring_tests = len(re.findall(r"^\s*@Test\b", authoring_source.read_text(), flags=re.MULTILINE))
-            if expected_authoring_tests < 1:
-                raise RuntimeError("Present authoring test class has no declared test methods")
-            instrument("studio.seventwo.blockeditor.AuthoringControlsTest", "authoring-controls-instrumentation.txt", expected_authoring_tests)
-            authoring.update(passed=True, executedTests=expected_authoring_tests)
-            (output / "authoring-controls-coverage.json").write_text(json.dumps(authoring, indent=2) + "\n")
+        for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),
+                                        ("RetainedAuthoringActionsTest", "retained-authoring-actions")):
+            authoring_source = Path(f"android/editor/src/androidTest/java/studio/seventwo/blockeditor/{class_name}.kt")
+            authoring = {"included": authoring_source.is_file(), "passed": False,
+                         "scope": "Rendered component/semantics input; separate from installed IME, TalkBack and full authoring acceptance"}
+            if not authoring["included"]:
+                authoring["reason"] = f"{class_name} is absent from this exact source snapshot; controls acceptance is omitted"
+            coverage_file = output / f"{report_name}-coverage.json"
+            coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
+            if authoring["included"]:
+                expected_authoring_tests = len(re.findall(r"^\s*@Test\b", authoring_source.read_text(), flags=re.MULTILINE))
+                if expected_authoring_tests < 1:
+                    raise RuntimeError(f"Present {class_name} has no declared test methods")
+                instrument(f"studio.seventwo.blockeditor.{class_name}", f"{report_name}-instrumentation.txt", expected_authoring_tests)
+                authoring.update(passed=True, executedTests=expected_authoring_tests)
+                coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
         if args.system_ime:
             run("python3", "scripts/test-android-builtin-ime.py", "--sdk", sdk, "--serial", serial,
                 "--apk", apk, "--output", "test-results/system-input", timeout=600)

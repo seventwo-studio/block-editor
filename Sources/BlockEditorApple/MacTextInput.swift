@@ -63,6 +63,7 @@ import SwiftUI
             view.beginComposition = { [weak self] in self?.input.beginComposition() }
             view.didEdit = { [weak self] in self?.changed() }
             view.history = { [weak self] redo in self?.input.model.perform { if redo { try $0.redo() } else { try $0.undo() } } }
+            view.formatSelection = { [weak self] type in self?.input.formatSelection(type: type) }
             input.onCommit = { [weak self] in
                 guard let self, let view = self.view else { throw EditorError.invalidChange }
                 // End native composition without recursively publishing its delegate callbacks.
@@ -101,7 +102,7 @@ import SwiftUI
             view.enclosingScrollView?.invalidateIntrinsicContentSize()
         }
         func close() {
-            view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil
+            view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil; view?.formatSelection = nil
             input.close(); view = nil
         }
     }
@@ -111,6 +112,7 @@ import SwiftUI
     var beginComposition: (() -> Void)?
     var didEdit: (() -> Void)?
     var history: ((Bool) -> Void)?
+    var formatSelection: ((String) -> Void)?
     override func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) {
         beginComposition?()
         super.setMarkedText(string, selectedRange: selectedRange, replacementRange: replacementRange)
@@ -121,7 +123,12 @@ import SwiftUI
     }
     override func paste(_ sender: Any?) { super.pasteAsPlainText(sender) }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
-        if event.modifierFlags.contains(.command), event.charactersIgnoringModifiers?.lowercased() == "z", !hasMarkedText() {
+        if isEditable, event.modifierFlags.intersection([.command, .control, .option, .shift]) == .command,
+           !hasMarkedText(), selectedRange().length > 0,
+           let type = ["b": "bold", "i": "italic"][event.charactersIgnoringModifiers?.lowercased() ?? ""] {
+            formatSelection?(type); return true
+        }
+        if isEditable, event.modifierFlags.contains(.command), event.charactersIgnoringModifiers?.lowercased() == "z", !hasMarkedText() {
             history?(event.modifierFlags.contains(.shift)); return true
         }
         return super.performKeyEquivalent(with: event)

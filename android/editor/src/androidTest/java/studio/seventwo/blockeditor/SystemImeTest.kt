@@ -244,7 +244,32 @@ class SystemImeTest {
             capture("paste-menu")
             val automation = instrumentation.uiAutomation
             automation.serviceInfo = automation.serviceInfo.apply { flags = flags or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
-            val nodes = automation.windows.flatMap { it.root?.findAccessibilityNodeInfosByText("Paste") ?: emptyList() }
+            val windows = automation.windows
+            val nodes = windows.flatMap { it.root?.findAccessibilityNodeInfosByText("Paste") ?: emptyList() }
+            fun describeNodes(values: List<android.view.accessibility.AccessibilityNodeInfo>): JSONArray {
+                val observed = JSONArray()
+                for (node in values) {
+                val area = Rect().also(node::getBoundsInScreen)
+                observed.put(JSONObject().put("text", node.text?.toString() ?: "")
+                    .put("description", node.contentDescription?.toString() ?: "")
+                    .put("package", node.packageName?.toString() ?: "").put("class", node.className?.toString() ?: "")
+                    .put("window", node.windowId).put("enabled", node.isEnabled).put("clickable", node.isClickable)
+                    .put("bounds", JSONArray(listOf(area.left, area.top, area.right, area.bottom))))
+                }
+                return observed
+            }
+            val observedWindows = JSONArray()
+            for (window in windows) {
+                val area = Rect().also(window::getBoundsInScreen)
+                observedWindows.put(JSONObject().put("id", window.id).put("type", window.type)
+                    .put("active", window.isActive).put("focused", window.isFocused)
+                    .put("rootPackage", window.root?.packageName?.toString() ?: "")
+                    .put("bounds", JSONArray(listOf(area.left, area.top, area.right, area.bottom))))
+            }
+            val uppercaseNodes = windows.flatMap { it.root?.findAccessibilityNodeInfosByText("PASTE") ?: emptyList() }
+            File(instrumentation.targetContext.filesDir, "system-ime-paste-menu-nodes.json").writeText(
+                JSONObject().put("windows", observedWindows).put("PasteQuery", describeNodes(nodes))
+                    .put("PASTEQuery", describeNodes(uppercaseNodes)).toString())
             val paste = nodes.single { it.text?.toString() == "Paste" }
             val bounds = Rect(); paste.getBoundsInScreen(bounds)
             assertFalse("Native paste menu must have visible touch bounds", bounds.isEmpty)
