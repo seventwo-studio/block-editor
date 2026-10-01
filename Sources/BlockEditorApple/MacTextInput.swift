@@ -13,6 +13,7 @@ import SwiftUI
     func makeNSView(context: Context) -> NSScrollView {
         let scroll = NSScrollView()
         let view = ComposingTextView()
+        view.isEditable = context.environment.isEnabled
         view.isRichText = true; view.importsGraphics = false; view.allowsUndo = false
         view.isAutomaticLinkDetectionEnabled = false
         view.isVerticallyResizable = true; view.isHorizontallyResizable = false
@@ -25,7 +26,13 @@ import SwiftUI
         context.coordinator.connect(view)
         return scroll
     }
-    func updateNSView(_ view: NSScrollView, context: Context) { context.coordinator.render() }
+    func updateNSView(_ view: NSScrollView, context: Context) {
+        if let text = view.documentView as? NSTextView {
+            text.isEditable = context.environment.isEnabled
+            if !text.isEditable, text.window?.firstResponder === text { text.window?.makeFirstResponder(nil) }
+        }
+        context.coordinator.render()
+    }
     func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSScrollView, context: Context) -> CGSize? {
         guard let width = proposal.width, width.isFinite, width > 0,
               let view = nsView.documentView as? NSTextView else { return nil }

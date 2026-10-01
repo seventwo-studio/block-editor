@@ -6,6 +6,41 @@ import Testing
 import UIKit
 @testable import BlockEditorApple
 
+@MainActor @Test func uiKitDisabledHostKeepsAcceptedTextSelectable() async throws {
+    let session = try EditorSession(documentID: "uikit-readonly", actorID: "a",
+                                    document: Document(blocks: [.paragraph(id: "p", text: "Accepted café 👩🏽‍💻")]))
+    let model = try EditorModel(session: session)
+    let input = UIKitTextInput(model: model, address: TextAddress("p"), selection: .constant(NSRange(location: 0, length: 0)))
+    let host = UIHostingController(rootView: input.disabled(true))
+    let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 400, height: 200))
+    window.rootViewController = host
+    window.isHidden = false
+    defer { window.isHidden = true; window.rootViewController = nil }
+    host.loadViewIfNeeded()
+    host.view.frame = CGRect(x: 0, y: 0, width: 400, height: 200)
+    host.view.layoutIfNeeded()
+    func textView(in view: UIView) -> UITextView? {
+        if let text = view as? UITextView { return text }
+        return view.subviews.lazy.compactMap { textView(in: $0) }.first
+    }
+    for _ in 0..<20 where textView(in: host.view) == nil {
+        try await Task.sleep(for: .milliseconds(10))
+        host.view.layoutIfNeeded()
+    }
+    let text = try #require(textView(in: host.view))
+    #expect(!text.isEditable)
+    #expect(text.isSelectable)
+    text.selectedRange = NSRange(location: 0, length: 8)
+    #expect(text.selectedRange.length == 8)
+    #expect(text.text == "Accepted café 👩🏽‍💻")
+    host.rootView = input.disabled(false)
+    host.view.layoutIfNeeded()
+    for _ in 0..<20 where !text.isEditable { try await Task.sleep(for: .milliseconds(10)) }
+    #expect(text.isEditable)
+    #expect(text.text == "Accepted café 👩🏽‍💻")
+    #expect(session.syncState.received.isEmpty)
+}
+
 @MainActor @Test func uiKitMarkedTextDefersRemoteChangesUntilCommit() throws {
     let document = try Document(blocks: [.paragraph(id: "p", text: "Hello")])
     let a = try EditorSession(documentID: "uikit-ime", actorID: "a", document: document)

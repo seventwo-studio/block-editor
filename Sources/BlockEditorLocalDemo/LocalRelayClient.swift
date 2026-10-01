@@ -54,6 +54,15 @@ import FoundationNetworking
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard connected, generation == started else { return }
+            if let http = response as? HTTPURLResponse, http.statusCode == 409 {
+                struct RejectedMerge: Decodable { let error: String; let recovery: MergeRecovery }
+                let rejected = try JSONDecoder().decode(RejectedMerge.self, from: data)
+                guard rejected.error == "mergeRecoveryRequired" else { throw RelayError.rejected(rejected.error) }
+                // Import the union without acknowledging it. The engine either retains
+                // recovery or recognizes a repair authored while the request was in flight.
+                try session.receive(rejected.recovery.batch)
+                throw RelayError.rejected("The server has not accepted these edits; retry synchronization.")
+            }
             try Self.check(response, data)
             let reply = try JSONDecoder().decode(Reply.self, from: data)
             try session.receive(reply.batch); receipt = reply.state
@@ -64,7 +73,10 @@ import FoundationNetworking
             lastError = nil
         } catch {
             guard connected, generation == started else { return }
-            lastError = String(describing: error); throw error
+            if case EditorError.mergeRecoveryRequired = error {
+                lastError = "Some edits conflict. Review the recovery actions."
+            } else { lastError = String(describing: error) }
+            throw error
         }
     }
     private static func check(_ response: URLResponse, _ data: Data) throws {

@@ -250,3 +250,14 @@ verify one browser author's undo retains both other authors' edits.
 
 Run results are evidence for these precise scenarios, not permission to close the
 full platform, editor parity, release or consumer-integration issues.
+
+The Apple reference also exposes explicit v2 recovery controls. Accepted content
+stays selectable while typing and undo wait; a rejected union is persisted
+separately, and the author can choose a supported wrap repair, export the accepted
+and pending histories, or retry synchronization. Host draft version 2 reads legacy
+version 1 without resetting the writer. Recovery archives reopen with a fresh actor
+and cannot overwrite an existing file. The iPhone/iPad OS 27 app suite covers real
+HTTP 409, export, offline restart, on-screen repair and repaired resubmission.
+See [the recovery contract](merge-recovery.md) for the storage boundary and remaining
+Android/browser and Apple-family interaction acceptance. The default-v1 reference
+and standalone network-free workflows remain available.

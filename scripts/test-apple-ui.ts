@@ -14,11 +14,18 @@ await run(["swift", "build", "--product", "editor-bridge"]);
 const directory = await mkdtemp(join(tmpdir(), "editor-apple-ui-"));
 const token = crypto.randomUUID();
 const relay = await startRelay({ directory, executable: "./.build/debug/editor-bridge", token, port: 0 });
+let recoveryRelay: Awaited<ReturnType<typeof startRelay>> | undefined;
 try {
+  recoveryRelay = await startRelay({ directory: join(directory, "recovery"), executable: "./.build/debug/editor-bridge", token, port: 0,
+    blocks: [], collaborationVersion: 2 });
   for (const destination of destinations) {
     await run(["xcodebuild", "-project", "Examples/AppleDemo/EditorLab.xcodeproj", "-scheme", "EditorLab-iOS",
       "-destination", destination, "-derivedDataPath", ".build/apple-demo", "-collect-test-diagnostics", "never",
       "CODE_SIGNING_ALLOWED=NO", "test"],
-    { ...process.env, TEST_RUNNER_BLOCK_EDITOR_RELAY_URL: relay.url, TEST_RUNNER_BLOCK_EDITOR_RELAY_TOKEN: token });
+    { ...process.env, TEST_RUNNER_BLOCK_EDITOR_RELAY_URL: relay.url, TEST_RUNNER_BLOCK_EDITOR_RECOVERY_RELAY_URL: recoveryRelay.url,
+      TEST_RUNNER_BLOCK_EDITOR_RELAY_TOKEN: token });
   }
-} finally { await relay.close(); await rm(directory, { recursive: true, force: true }); }
+} finally {
+  try { await recoveryRelay?.close(); }
+  finally { try { await relay.close(); } finally { await rm(directory, { recursive: true, force: true }); } }
+}

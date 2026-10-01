@@ -91,10 +91,37 @@ The caller must retain that rejected input separately; it is not acknowledged.
 Before any explicit partition or epoch cutover, archive accepted history, the
 pending proposal and every unacknowledged input, stop old writers and reconcile
 their drafts. Never clear a pending proposal, truncate history, reinterpret versions
-or discard content to make a limit pass. Automatic partitioning, compaction and a
-host-facing recovery UI are not delivered here; they require explicit integration
-and further acceptance. A bounded recoverable outcome is not unrestricted merge
+or discard content to make a limit pass. Automatic partitioning and compaction
+are not delivered here. A bounded recoverable outcome is not unrestricted merge
 convergence or an accepted performance budget.
+
+## Apple reference recovery controls
+
+The local Apple relay editor imports an HTTP 409 proposal through the same session
+without advancing the server receipt or presence. It keeps accepted content visible
+and selectable, suspends ordinary typing and undo, and offers explicit recovery
+actions. The author can select an original block and place it in a new toggle,
+export the complete recovery archive, or retry synchronization. The block catalogue
+lists original root/toggle blocks by stable origin identity; it is not an invalid
+merged-document preview. Table/list conflicts without a supported block repair
+retain the export/retry path. Failed repairs leave both accepted and pending state
+unchanged and display the engine error.
+
+`LocalDraft` storage version 2 writes accepted engine snapshot and pending proposal
+as separate fields in one atomic host envelope. Host storage and collaboration
+protocol versions are independent. Legacy version-1 drafts reopen without resetting
+their actor or content and upgrade on save. Incompatible proposal versions fail
+explicitly while leaving the file untouched. A regular draft retains its exclusive
+writer lease and actor. An exported recovery archive contains both histories and
+opens with a fresh actor so it can coexist with the original writer; the archive
+retains the original authored history, while the new session follows the engine's
+fresh-actor undo policy. Exports refuse to overwrite an existing destination.
+
+The reference stores archives locally and offers platform sharing on iOS, macOS
+and visionOS. A failed draft save is visible and directs the author to export before
+closing. Android and browser reference hosts still require equivalent recovery
+persistence and controls. No automatic destructive repair or protocol cutover is
+implied by opening the Apple panel.
 
 ## Evidence
 
@@ -110,7 +137,16 @@ boundary and oversized document/capacity retention. Iterative validation and tre
 materialization avoid recursive stack overflow on deep rejected unions. A relay test
 uses independent Swift processes and HTTP 409 recovery across server/client restart.
 
+Five actual app workflows pass on iPhone and iPad Simulators running OS 27. The new
+recovery workflow receives a real v2 rejection, exports its history, restarts
+offline with recovery still pending, explicitly wraps the conflicting original
+block through the panel, reconnects and verifies both authors converge without
+losing either block. Storage tests separately cover failed repair preservation,
+fresh-actor archive opening, legacy upgrade and incompatible recovery retention.
+These checks do not establish OS 26 minimum-runtime, macOS/visionOS/watchOS/tvOS
+interaction or Android/browser recovery acceptance.
+
 ST-96 remains open for full recovery integration, expanded generated conflict/resource
-coverage and the complete cross-runtime threshold matrix. Platform recovery UI,
+coverage and the complete cross-runtime threshold matrix. Remaining platform recovery UI,
 minimum/current runtime interaction, Firefox, runtime CI, measured budgets and clean
 private consumer installation remain separate gates.
