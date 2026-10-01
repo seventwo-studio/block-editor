@@ -3,6 +3,7 @@ import Foundation
 /// A narrow JSON boundary shared by JNI and WASM. One instance per host executor.
 public final class EditorBridge {
     private var sessions: [String: EditorSession] = [:]
+    private var writingSessions: [String: WritingSession] = [:]
     public init() {}
     public func call(_ request: Data) -> Data {
         do {
@@ -11,6 +12,10 @@ public final class EditorBridge {
             let result = try dispatch(input)
             return try canonicalEncoder().encode(JSONValue.object(["ok": .bool(true), "value": result]))
         } catch {
+            if case WritingSessionError.recoveryRequired(let recovery) = error, let value = try? encode(recovery) {
+                return (try? canonicalEncoder().encode(JSONValue.object([
+                    "ok": .bool(false), "error": .string("writingRecoveryRequired"), "recovery": value]))) ?? Data()
+            }
             if case EditorError.mergeRecoveryRequired(let recovery) = error,
                let value = try? encode(recovery) {
                 return (try? canonicalEncoder().encode(JSONValue.object([
@@ -29,6 +34,27 @@ public final class EditorBridge {
     private func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
+        if (command == "create" && input["collaborationVersion"] == .number(3)) ||
+           (command == "restore" && input["snapshot"]?["version"] == .number(3)) || command == "cutoverToV3" {
+            guard !handle.isEmpty, sessions[handle] == nil, writingSessions[handle] == nil,
+                  let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
+            let writing: WritingSession
+            if command == "restore" {
+                writing = try WritingSession.restore(canonicalEncoder().encode(input["snapshot"] ?? .null), actorID: actor)
+            } else if command == "cutoverToV3" {
+                writing = try ProtocolMigration.cutoverToV3(decode(input["archive"], as: WritingCutoverArchive.self), actorID: actor,
+                    oldWritersStopped: decode(input["oldWritersStopped"], as: Bool.self),
+                    archivePersisted: decode(input["archivePersisted"], as: Bool.self),
+                    resetUndoAcknowledged: decode(input["resetUndoAcknowledged"], as: Bool.self))
+            } else {
+                guard let documentID = input["documentID"]?.string, let epoch = input["epoch"]?.string else { throw EditorError.invalidChange }
+                writing = try WritingSession(documentID: documentID, actorID: actor, epoch: epoch,
+                    document: Document(json: canonicalEncoder().encode(input["blocks"] ?? .array([]))))
+            }
+            writingSessions[handle] = writing
+            return try writingSnapshot(writing)
+        }
+        if let writing = writingSessions[handle] { return try dispatchWriting(input, command: command, handle: handle, session: writing) }
         if command == "create" || command == "restore" || command == "cutoverToV2" {
             guard !handle.isEmpty, sessions[handle] == nil, let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             if command == "cutoverToV2" {
@@ -105,5 +131,51 @@ public final class EditorBridge {
     }
     private func snapshot(_ session: EditorSession) throws -> JSONValue {
         .object(["blocks": try encode(session.document.blocks), "canUndo": .bool(session.canUndo), "canRedo": .bool(session.canRedo)])
+    }
+    private func writingSnapshot(_ session: WritingSession) throws -> JSONValue {
+        .object(["blocks": try encode(session.document.blocks), "canUndo": .bool(session.canUndo), "canRedo": .bool(session.canRedo)])
+    }
+    private func dispatchWriting(_ input: JSONValue, command: String, handle: String, session: WritingSession) throws -> JSONValue {
+        switch command {
+        case "document": break
+        case "close": writingSessions.removeValue(forKey: handle); return .null
+        case "save": return try JSONDecoder().decode(JSONValue.self, from: session.save())
+        case "syncState": return try encode(session.syncState)
+        case "changes": return try encode(session.changes(since: input["since"] == nil ? WritingSyncState() : decode(input["since"], as: WritingSyncState.self)))
+        case "receive": try session.receive(decode(input["batch"], as: WritingBatch.self))
+        case "mergeRecovery": return try session.mergeRecovery.map { try encode($0) } ?? .null
+        case "restoreRecovery": try session.restoreRecovery(canonicalEncoder().encode(input["recovery"] ?? .null))
+        case "repairWritingUndo": try session.repairUndo(decode(input["target"], as: ChangeID.self))
+        case "node": return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
+        case "nodeAddress": return try encode(session.address(of: decode(input["identity"], as: NodeID.self)))
+        case "textAddress": return try encode(session.textAddress(of: decode(input["identity"], as: NodeID.self), field: input["field"]?.string ?? "content"))
+        case "position": return try encode(session.position(at: decode(input["address"], as: TextAddress.self), offset: decode(input["offset"], as: Int.self), affinity: input["affinity"] == nil ? .before : decode(input["affinity"], as: TextAffinity.self)))
+        case "resolvePosition": return try encode(session.resolve(decode(input["position"], as: WritingPosition.self)))
+        case "composition": session.isComposing = try decode(input["active"], as: Bool.self)
+        case "undo": try session.undo()
+        case "redo": try session.redo()
+        case "replaceText", "splitParagraph", "softBreak", "format":
+            let address = try decode(input["address"], as: TextAddress.self)
+            let start = try decode(input["start"], as: Int.self), end = try decode(input["end"], as: Int.self)
+            guard start >= 0, end >= start else { throw EditorError.invalidRange }
+            let range = start..<end
+            if command == "format" {
+                try session.format(at: address, range: range, markType: input["markType"]?.string ?? "", mark: input["mark"] == .null ? nil : input["mark"])
+                break
+            }
+            let position: WritingPosition
+            if command == "splitParagraph" {
+                guard let blockID = input["newBlockID"]?.string else { throw EditorError.invalidChange }
+                position = try session.splitParagraph(at: address, range: range, newBlockID: blockID)
+            } else if command == "softBreak" { position = try session.softBreak(at: address, range: range) }
+            else { position = try session.replaceText(at: address, range: range, with: input["text"]?.string ?? "", marks: input["marks"]?.array) }
+            return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+        case "mergeParagraphs":
+            let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+            return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+        case "markdown": return .string(try Markdown.serialize(session.document))
+        default: throw EditorError.invalidChange
+        }
+        return try writingSnapshot(session)
     }
 }

@@ -42,16 +42,18 @@ class RuntimeCompatibilityTest {
         fun call(input: JSONObject): JSONObject {
             val handle = input.optString("session")
             val response = try { NativeEngine.call(input) }
-            catch (error: MergeRecoveryException) {
+            catch (error: WritingRecoveryException) {
+                JSONObject().put("ok", false).put("error", "writingRecoveryRequired").put("recovery", error.recovery.export())
+            } catch (error: MergeRecoveryException) {
                 JSONObject().put("ok", false).put("error", "mergeRecoveryRequired").put("recovery", error.recovery.export())
             } catch (error: IllegalStateException) {
                 JSONObject().put("ok", false).put("error", error.message)
             }
-            if (response.getBoolean("ok") && input.getString("command") in listOf("create", "restore", "cutoverToV2")) sessions.add(handle)
+            if (response.getBoolean("ok") && input.getString("command") in listOf("create", "restore", "cutoverToV2", "cutoverToV3")) sessions.add(handle)
             if (response.getBoolean("ok") && input.getString("command") == "close") sessions.remove(handle)
             return response
         }
-        for (name in listOf("bridge", "structure", "recovery", "documents")) {
+        for (name in listOf("bridge", "structure", "recovery", "documents", "writing")) {
             val bytes = context.assets.open("$name.json").use { it.readBytes() }
             fixtureHashes.put(name, MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) })
             val fixture = JSONObject(bytes.toString(Charsets.UTF_8))
@@ -134,12 +136,17 @@ class RuntimeCompatibilityTest {
                             assertEquals(fixture.getInt("expectedPosition"), (captured["resolvedPosition"] as Number).toInt())
                             assertEquals(normalize(fixture.get("expectedCutover")), normalize(captured["cutover"]))
                             assertEquals(2, (captured["cutoverChanges"] as JSONObject).getInt("version"))
-                        } else {
+                        } else if (name == "recovery") {
                             assertEquals(JSONObject.NULL, captured["cleared"])
                             assertEquals("identityConflict", (captured["proposalA"] as JSONObject).getString("reason"))
                             assertEquals(2, (captured["proposalA"] as JSONObject).getJSONObject("batch").getJSONArray("changes").length())
                             assertEquals(normalize(fixture.get("expected")), normalize(captured["finalA"]))
                             assertEquals(normalize(fixture.get("expectedAfterUndo")), normalize(captured["afterUndo"]))
+                        }
+                        fixture.optJSONObject("expectedValues")?.let { expected ->
+                            expected.keys().forEach { capture ->
+                                assertEquals("$name $capture value", normalize(expected.get(capture)), normalize(checkNotNull(captured[capture])))
+                            }
                         }
                     }
                 }
