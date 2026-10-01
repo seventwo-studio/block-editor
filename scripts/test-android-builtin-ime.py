@@ -135,16 +135,23 @@ def main():
         report["settingsAfter"] = settings()
         if report["settingsAfter"] != report["settingsBefore"]:
             report["passed"] = False
-        (args.output / "environment.json").write_text(json.dumps(report, indent=2) + "\n")
+        collection_failures = []
         for name in ("plain-keyboard", "plain-composing", "composing", "author-undo", "author-redo", "process-reopen", "paste-menu", "plain-paste"):
             for suffix, destination in ((".png", name + ".png"), ("-input-method.txt", name + "-input-method.txt")):
                 try: pull("system-ime-" + name + suffix, destination)
-                except (subprocess.CalledProcessError, subprocess.TimeoutExpired): pass
+                except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as error:
+                    collection_failures.append({"file": destination, "error": f"{type(error).__name__}: {error}"})
         for name in ("keyboard-nodes", "key-touches", "plain-updates"):
             try: pull("system-ime-" + name + ".json", name + ".json")
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired): pass
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as error:
+                collection_failures.append({"file": name + ".json", "error": f"{type(error).__name__}: {error}"})
         try: run(adb + ["shell", "run-as", "studio.seventwo.blockeditor.test", "rm", "-f", "files/" + archive_name], timeout=10)
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired): pass
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+            collection_failures.append({"file": archive_name, "error": f"{type(error).__name__}: {error}"})
+        # Optional failure diagnostics must preserve the original test failure and
+        # allow archive cleanup. Screenshots remain mandatory in the success path.
+        report["diagnosticCollectionFailures"] = collection_failures
+        (args.output / "environment.json").write_text(json.dumps(report, indent=2) + "\n")
         if report["settingsAfter"] != report["settingsBefore"]:
             raise RuntimeError("System input settings changed; restore and investigate before accepting the run")
 

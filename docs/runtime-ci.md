@@ -54,18 +54,21 @@ not pass this gate.
 Each runtime artifact also contains `runtime-provenance-<runtime>.json`. The
 manifest records the actual checked-out Git commit and tree, workflow run and
 attempt, fixture/build-input hashes, locked installed toolchains, host identity
-and the size/SHA-256 of the executed native, WASM or JNI/APK binaries. Recording
+and the size/SHA-256 of the built native, WASM or JNI/APK binaries. Recording
 rejects tracked edits and untracked source; ignored build outputs are permitted.
 Parity requires exactly one manifest per artifact bundle, the same checkout/tree
 as the parity job, and exact fixture, workload, lockfile and installed-toolchain
 inputs. PR checkout merge commits remain distinct from the PR head recorded in
 GitHub artifact metadata. Both checks apply; neither source is relabeled.
 
-Browser relay recovery runs in the existing WASM job after its runtime fixtures
-and measurements. It builds the native Linux `editor-bridge` and `relay-client`
-with the already installed Swift compiler and reuses the same browser binaries.
-JSON, JUnit, console output and failure traces are retained with the runtime
-artifact. These host workflows supplement shared engine transcript parity.
+The existing WASM job builds WASM and the native Linux `editor-bridge` and
+`relay-client` with the already installed Swift compiler, then records their
+provenance before browser execution. The actual WASM binary is retained with the
+runtime artifact even when a later browser assertion fails. Browser relay
+recovery runs after the runtime fixtures and measurements and reuses the same
+browser binaries. JSON, JUnit, console output and failure traces are retained.
+These host workflows supplement shared engine transcript parity; build provenance
+alone does not prove they executed successfully.
 The dedicated process-restart suite stops and relaunches full browser and relay
 processes. It verifies v1 offline history/presence, v2 recovery proposals and the
 relay transport limit with separate accepted/pending state. Its attachments pin

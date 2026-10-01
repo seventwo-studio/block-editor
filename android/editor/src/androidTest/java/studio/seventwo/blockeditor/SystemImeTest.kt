@@ -204,7 +204,7 @@ class SystemImeTest {
 
     @Test fun nativePlainPasteAndHostOwnedImage() {
         assumeTrue(InstrumentationRegistry.getArguments().getString("nativeClipboard") == "true")
-        val clipboard = instrumentation.targetContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        lateinit var clipboard: ClipboardManager
         lateinit var session: EditorSession
         val plain = "Paste 👩🏽‍💻 café 日本語"
         val image = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888).apply { eraseColor(android.graphics.Color.BLUE) }
@@ -212,6 +212,8 @@ class SystemImeTest {
         var previous: ClipData? = null
         var clipboardChanged = false
         compose.runOnUiThread {
+            // API26's ClipboardManager constructs a Handler on the calling thread.
+            clipboard = instrumentation.targetContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             session = EditorSession.create("native-paste", "local", JSONArray("""[
                 {"id":"p","type":"paragraph","content":[]},
                 {"id":"rich","type":"paragraph","content":[{"type":"text","text":"Original café 日本語","marks":[{"type":"italic"}]},{"type":"mention","entityId":"ref","entityType":"user","label":"Reference"}]},
