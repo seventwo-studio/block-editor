@@ -80,6 +80,8 @@ The Android executor streams each response to a fixture file and assembles the
 report with buffered reads. It retains the complete transcript without building a
 second large JSON string in the instrumentation heap. Failure paths still publish
 the executed responses and close live sessions; incomplete reports fail parity.
+The parity job selects current-run, current-source artifacts by creation time, so
+a rerun cannot accidentally reuse an earlier empty transport-failure report.
 
 Runtime fixtures do not accept platform input, accessibility, full reference-host
 process recovery, production browser migration or private-package delivery. These
