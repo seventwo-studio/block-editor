@@ -45,6 +45,7 @@ import UIKit
             view.beginComposition = { [weak self] in self?.input.beginComposition() }
             view.didEdit = { [weak self] in self?.changed() }
             view.history = { [weak self] redo in self?.input.model.perform { if redo { try $0.redo() } else { try $0.undo() } } }
+            view.formatSelection = { [weak self] type in self?.input.formatSelection(type: type) }
             input.onCommit = { [weak self] in
                 guard let self, let view = self.view else { throw EditorError.invalidChange }
                 // End native composition without recursively publishing its delegate callbacks.
@@ -83,7 +84,7 @@ import UIKit
             view.invalidateIntrinsicContentSize()
         }
         func close() {
-            view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil
+            view?.delegate = nil; view?.beginComposition = nil; view?.didEdit = nil; view?.history = nil; view?.formatSelection = nil
             input.close(); view = nil
         }
     }
@@ -93,6 +94,7 @@ import UIKit
     var beginComposition: (() -> Void)?
     var didEdit: (() -> Void)?
     var history: ((Bool) -> Void)?
+    var formatSelection: ((String) -> Void)?
     override var undoManager: UndoManager? { nil }
     override func setMarkedText(_ markedText: String?, selectedRange: NSRange) {
         beginComposition?()
@@ -107,9 +109,13 @@ import UIKit
     }
     override var keyCommands: [UIKeyCommand]? {
         [UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(undoLocal)),
-         UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(redoLocal))]
+         UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(redoLocal)),
+         UIKeyCommand(input: "b", modifierFlags: .command, action: #selector(boldSelection)),
+         UIKeyCommand(input: "i", modifierFlags: .command, action: #selector(italicSelection))]
     }
-    @objc private func undoLocal() { if markedTextRange == nil { history?(false) } }
-    @objc private func redoLocal() { if markedTextRange == nil { history?(true) } }
+    @objc private func boldSelection() { if isEditable, markedTextRange == nil, selectedRange.length > 0 { formatSelection?("bold") } }
+    @objc private func italicSelection() { if isEditable, markedTextRange == nil, selectedRange.length > 0 { formatSelection?("italic") } }
+    @objc private func undoLocal() { if isEditable, markedTextRange == nil { history?(false) } }
+    @objc private func redoLocal() { if isEditable, markedTextRange == nil { history?(true) } }
 }
 #endif

@@ -42,6 +42,8 @@ import SwiftUI
                         if let fields = child.object, let childBlock = try? Block(fields: fields) {
                             NativeBlockContent(model: model, rootID: rootID, block: childBlock,
                                                path: path + ["children", childBlock.id], asset: asset)
+                                .contextMenu { NativeNodeActions(model: model,
+                                    address: NodeAddress(rootID, path: path + ["children", childBlock.id])) }
                         }
                     }.padding(.leading, 20)
                 }
@@ -110,7 +112,7 @@ import SwiftUI
                                     path: path + [item.selfID, "children"], style: style)
                         .padding(.leading, 20)
                 }
-            }
+            }.contextMenu { NativeNodeActions(model: model, address: NodeAddress(rootID, path: path + [item.selfID]), listItem: true) }
         }
     }
 }
