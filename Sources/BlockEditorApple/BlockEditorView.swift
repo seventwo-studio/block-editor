@@ -16,9 +16,13 @@ import SwiftUI
             HStack {
                 Button("Undo", systemImage: "arrow.uturn.backward") { model.perform { try $0.undo() } }.disabled(!model.canUndo)
                 Button("Redo", systemImage: "arrow.uturn.forward") { model.perform { try $0.redo() } }.disabled(!model.canRedo)
+                #if os(macOS) || os(iOS) || os(visionOS)
+                NativeInsertMenu(model: model, after: model.document.blocks.last?.id)
+                #else
                 Button("Paragraph", systemImage: "plus") {
                     model.perform { try $0.insert(.paragraph(id: UUID().uuidString), after: model.document.blocks.last?.id) }
                 }
+                #endif
             }
             if let error = model.error { Text(error).foregroundStyle(.red).accessibilityLabel("Editor error: \(error)") }
             ScrollView {
@@ -26,31 +30,22 @@ import SwiftUI
                     ForEach(model.document.blocks) { block in
                         #if os(macOS) || os(iOS) || os(visionOS)
                         HStack(alignment: .top, spacing: 4) {
-                            Menu { blockActions(block) } label: {
+                            Menu { NativeNodeActions(model: model, address: NodeAddress(block.id)) } label: {
                                 Image(systemName: "ellipsis").frame(width: 24, height: 32)
                             }.accessibilityLabel("Block actions")
                             NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
                         }.accessibilityElement(children: .contain)
+                            .id(nativeNodeIdentity(model: model, address: NodeAddress(block.id)))
                         #else
                         NativeBlockContent(model: model, rootID: block.id, block: block, path: [], asset: asset)
-                            .contextMenu { blockActions(block) }
+                            .contextMenu { NativeNodeActions(model: model, address: NodeAddress(block.id)) }
                             .accessibilityElement(children: .contain)
+                            .id(nativeNodeIdentity(model: model, address: NodeAddress(block.id)))
                         #endif
                     }
                 }.padding()
             }
         }.id(ObjectIdentifier(model))
-    }
-    @ViewBuilder private func blockActions(_ block: Block) -> some View {
-        Button("Move up", systemImage: "arrow.up") { moveUp(block) }
-            .disabled(model.document.blocks.first?.id == block.id)
-        Button("Delete", systemImage: "trash", role: .destructive) {
-            model.perform { try $0.delete(blockID: block.id) }
-        }
-    }
-    private func moveUp(_ block: Block) {
-        guard let index = model.document.blocks.firstIndex(where: { $0.id == block.id }), index > 0 else { return }
-        model.perform { try $0.move(blockID: block.id, after: index > 1 ? model.document.blocks[index - 2].id : nil) }
     }
 }
 
@@ -78,22 +73,33 @@ extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
     let address: TextAddress
     let nodes: [JSONValue]
     var label = "Block text"
+    @State private var inputAddress: TextAddress
     @State private var nativeSelection = NSRange(location: 0, length: 0)
+
+    init(model: EditorModel, address: TextAddress, nodes: [JSONValue], label: String = "Block text") {
+        self.model = model; self.address = address; self.nodes = nodes; self.label = label
+        _inputAddress = State(initialValue: (try? model.session.position(at: address, offset: 0).address) ?? address)
+    }
 
     var body: some View {
         #if os(macOS) || os(iOS) || os(visionOS)
         VStack(alignment: .leading) {
             #if os(macOS)
-            MacTextInput(model: model, address: address, label: label, selection: $nativeSelection).frame(minHeight: 32)
+            MacTextInput(model: model, address: inputAddress, label: label, selection: $nativeSelection).frame(minHeight: 32)
             #else
-            UIKitTextInput(model: model, address: address, label: label, selection: $nativeSelection).frame(minHeight: 32)
+            UIKitTextInput(model: model, address: inputAddress, label: label, selection: $nativeSelection).frame(minHeight: 32)
             #endif
             if nativeSelection.length > 0 {
                 HStack {
                     Button("Bold") { formatNative("bold") }
                     Button("Italic") { formatNative("italic") }
                     Button("Strikethrough") { formatNative("strikethrough") }
-                    Button("Clear bold") { formatNative("bold", remove: true) }
+                    Button("Code") { formatNative("code") }
+                    Menu("Remove formatting") {
+                        ForEach(["bold", "italic", "strikethrough", "code", "link"], id: \.self) { type in
+                            Button(type.capitalized) { formatNative(type, remove: true) }
+                        }
+                    }
                 }
             }
         }
@@ -102,7 +108,11 @@ extension JSONValue { var selfID: String { self["id"]?.string ?? "" } }
         #endif
     }
     private func formatNative(_ type: String, remove: Bool = false) {
-        model.perform { try $0.format(at: address, range: nativeSelection.location..<NSMaxRange(nativeSelection), markType: type, mark: remove ? nil : .object(["type": .string(type)])) }
+        // Resolve identity before composition commit can release queued remote moves.
+        do {
+            let selection = try NativeFormattingSelection(session: model.session, address: inputAddress, range: nativeSelection)
+            model.perform { try selection.apply(in: $0, type: type, remove: remove) }
+        } catch { model.performInput { _ in throw error } }
     }
 }
 #endif

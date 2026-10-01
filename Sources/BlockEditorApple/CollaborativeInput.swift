@@ -32,6 +32,13 @@ import Foundation
         composing = true
         if release == nil { release = model.session.deferRemoteChanges() }
     }
+    func formatSelection(type: String) {
+        guard !closed, !composing, selection.length > 0 else { return }
+        do {
+            let selected = try NativeFormattingSelection(session: model.session, address: address, range: selection)
+            model.perform { try selected.toggle(in: $0, type: type) }
+        } catch { model.performInput { _ in throw error } }
+    }
     func update(text: String, selection: NSRange, composing: Bool) {
         guard !closed else { return }
         self.selection = selection
