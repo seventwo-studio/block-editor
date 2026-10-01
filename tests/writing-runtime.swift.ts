@@ -57,3 +57,46 @@ test("typed v3 writing commands and composition queues preserve accepted history
   expect(result.compositionGuard).toBe(true); expect(result.protocolError).toBe(true);
   expect(result.closeGuard).toBe(true); expect(result.retainedEpoch).toBe("wrong");
 });
+
+test("typed batch ranges retain remote text, identities and one reopened undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const blocks = ["first", "middle", "last"].map((id, index) => ({ id, type: "paragraph" as const,
+      content: [{ type: "text" as const, text: ["ABC", "kept", "XYZ"][index], marks: [] }] }));
+    const a = runtime.createWriting({ documentID: "batch", actorID: "a", epoch: "v3", blocks });
+    const b = runtime.createWriting({ documentID: "batch", actorID: "b", epoch: "v3", blocks });
+    const selected = a.selection(a.position({ blockID: "last", path: ["content"] }, 2), a.position({ blockID: "first", path: ["content"] }, 1));
+    const copied = a.copySelection(selected);
+    b.replaceText({ blockID: "first", path: ["content"] }, 0, 0, "R-");
+    b.replaceText({ blockID: "last", path: ["content"] }, 3, 3, "!");
+    a.receive(b.changes());
+    const caret = a.deleteSelection(selected), deleted = a.getSnapshot().blocks;
+    const offsets = caret.text.map(span => a.resolvePosition(span.start).offset);
+    const reopened = runtime.restoreWriting(a.save(), "a"); reopened.undo();
+    const undone = reopened.getSnapshot();
+    const first = reopened.node({ blockID: "first", path: [] });
+    const last = reopened.node({ blockID: "last", path: [] });
+    const moved = reopened.moveSelection({ nodes: [first], text: [] }, { field: "blocks" }, last);
+    const copy = reopened.duplicateSelection(moved, { field: "blocks" }, first);
+    const duplicateText = reopened.copySelection(copy).nodes[0];
+    const fresh = JSON.stringify(first) !== JSON.stringify(copy.nodes[0]);
+    const order = reopened.getSnapshot().blocks.map(block => block.id);
+    a.close(); b.close(); reopened.close();
+    return { copied, deleted, offsets, undone, duplicateText, fresh, order };
+  }, `/block-editor/@fs${process.cwd()}`);
+  expect(result.copied.text.map(parts => parts.map(node => "text" in node ? node.text : "").join(""))).toEqual(["BC", "XY"]);
+  expect(result.copied.nodes).toEqual([{ id: "middle", type: "paragraph", content: [{ type: "text", text: "kept", marks: [] }] }]);
+  expect(result.deleted).toEqual([
+    { id: "first", type: "paragraph", content: [{ type: "text", text: "R-A", marks: [] }] },
+    { id: "last", type: "paragraph", content: [{ type: "text", text: "Z!", marks: [] }] },
+  ]);
+  expect(result.offsets).toEqual([3, 0]);
+  expect(result.undone.canUndo).toBe(false); expect(result.undone.canRedo).toBe(true);
+  expect(result.undone.blocks.map(block => block.content?.map(node => "text" in node ? node.text : "").join(""))).toEqual(["R-ABC", "kept", "XYZ!"]);
+  expect(result.fresh).toBe(true);
+  expect(result.order.slice(0, 3)).toEqual(["middle", "last", "first"]);
+  expect(result.duplicateText).toMatchObject({ type: "paragraph", content: [{ type: "text", text: "R-ABC", marks: [] }] });
+});
