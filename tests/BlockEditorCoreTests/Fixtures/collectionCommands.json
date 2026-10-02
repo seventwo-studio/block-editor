@@ -1,0 +1,1414 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "table-a",
+        "documentID": "table",
+        "actorID": "a",
+        "epoch": "collections-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "t",
+            "type": "table",
+            "columnWidths": [
+              120
+            ],
+            "rows": [
+              {
+                "id": "base",
+                "cells": [
+                  {
+                    "id": "same",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "A",
+                        "marks": []
+                      },
+                      {
+                        "type": "entity-ref",
+                        "entityType": "note",
+                        "entityId": "external",
+                        "label": "世界😀"
+                      }
+                    ],
+                    "extension": {
+                      "id": "consumer"
+                    }
+                  }
+                ],
+                "extension": "row"
+              }
+            ],
+            "extension": "table"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "table-b",
+        "documentID": "table",
+        "actorID": "b",
+        "epoch": "collections-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "t",
+            "type": "table",
+            "columnWidths": [
+              120
+            ],
+            "rows": [
+              {
+                "id": "base",
+                "cells": [
+                  {
+                    "id": "same",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "A",
+                        "marks": []
+                      },
+                      {
+                        "type": "entity-ref",
+                        "entityType": "note",
+                        "entityId": "external",
+                        "label": "世界😀"
+                      }
+                    ],
+                    "extension": {
+                      "id": "consumer"
+                    }
+                  }
+                ],
+                "extension": "row"
+              }
+            ],
+            "extension": "table"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "table-a",
+        "values": [
+          {
+            "id": "a",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          }
+        ],
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "t",
+              "path": []
+            }
+          },
+          "field": "rows"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "t",
+            "path": [
+              "rows",
+              "base"
+            ]
+          }
+        }
+      },
+      "capture": "row-a"
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "table-b",
+        "values": [
+          {
+            "id": "b",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          }
+        ],
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "t",
+              "path": []
+            }
+          },
+          "field": "rows"
+        },
+        "after": {
+          "baseline": {
+            "blockID": "t",
+            "path": [
+              "rows",
+              "base"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "table-a"
+      },
+      "capture": "table-a-batch"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "table-b"
+      },
+      "capture": "table-b-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "table-a"
+      },
+      "bindings": {
+        "batch": "table-b-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "table-b"
+      },
+      "bindings": {
+        "batch": "table-a-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "table-b"
+      },
+      "bindings": {
+        "batch": "table-a-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "table-a",
+        "address": {
+          "blockID": "t",
+          "path": [
+            "rows",
+            "b"
+          ]
+        }
+      },
+      "capture": "node-b"
+    },
+    {
+      "request": {
+        "command": "moveSelection",
+        "session": "table-a",
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "t",
+              "path": []
+            }
+          },
+          "field": "rows"
+        }
+      },
+      "bindings": {
+        "selection": [
+          "row-a",
+          "selection"
+        ],
+        "after": "node-b"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "table-a"
+      },
+      "capture": "moved-table"
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "table-a",
+        "address": {
+          "blockID": "t",
+          "path": [
+            "rows",
+            "a"
+          ]
+        }
+      },
+      "capture": "node-a"
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "table-a",
+        "values": [
+          {
+            "id": "other",
+            "content": [
+              {
+                "type": "text",
+                "text": "A",
+                "marks": []
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "extension": {
+              "id": "consumer"
+            }
+          }
+        ],
+        "collection": {
+          "owner": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 1,
+                  "actor": "a"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          },
+          "field": "cells"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "collectionNodes",
+        "session": "table-a",
+        "collection": {
+          "owner": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 1,
+                  "actor": "a"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          },
+          "field": "cells"
+        }
+      },
+      "capture": "two-cells"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "table-b",
+        "address": {
+          "blockID": "t",
+          "path": [
+            "rows",
+            "base",
+            "cells",
+            "same",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "table-b"
+      },
+      "capture": "table-remote-text"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "table-a"
+      },
+      "bindings": {
+        "batch": "table-remote-text"
+      }
+    },
+    {
+      "request": {
+        "command": "deleteSelection",
+        "session": "table-a",
+        "selection": {
+          "nodes": [
+            {
+              "baseline": {
+                "blockID": "t",
+                "path": [
+                  "rows",
+                  "base"
+                ]
+              }
+            }
+          ],
+          "text": []
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "table-a"
+      },
+      "capture": "table-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "table-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "table-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "table-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "table-reopened"
+      },
+      "capture": "table-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "table-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "table-reopened"
+      },
+      "capture": "table-redo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "toggle-a",
+        "documentID": "toggle",
+        "actorID": "a",
+        "epoch": "collections-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "t",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "children": [],
+            "extension": "toggle"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "toggle-b",
+        "documentID": "toggle",
+        "actorID": "b",
+        "epoch": "collections-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "t",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "children": [],
+            "extension": "toggle"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "toggle-a",
+        "values": [
+          {
+            "id": "branch",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "branch",
+                "marks": []
+              }
+            ],
+            "children": [],
+            "extension": "branch"
+          }
+        ],
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "t",
+              "path": []
+            }
+          },
+          "field": "children"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "toggle-a"
+      },
+      "capture": "toggle-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "toggle-b"
+      },
+      "bindings": {
+        "batch": "toggle-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "toggle-b",
+        "values": [
+          {
+            "id": "peer",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "remote 😀",
+                "marks": []
+              }
+            ],
+            "extension": "peer"
+          }
+        ],
+        "collection": {
+          "owner": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 1,
+                  "actor": "a"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          },
+          "field": "children"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "toggle-b"
+      },
+      "capture": "peer-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "toggle-a"
+      },
+      "bindings": {
+        "batch": "peer-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "toggle-a"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "toggle-a"
+      },
+      "capture": "toggle-undo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "toggle-a"
+      },
+      "capture": "toggle-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "toggle-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "toggle-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "toggle-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "toggle-reopened"
+      },
+      "capture": "toggle-redo"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "list-a",
+        "documentID": "list",
+        "actorID": "a",
+        "epoch": "collections-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "checked": true,
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "checked": true,
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "list-b",
+        "documentID": "list",
+        "actorID": "b",
+        "epoch": "collections-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "left",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "checked": true,
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "type": "list",
+            "style": "todo",
+            "items": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "checked": true,
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "list-a",
+        "values": [
+          {
+            "id": "same",
+            "content": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "checked": true,
+            "extension": {
+              "id": "consumer"
+            }
+          }
+        ],
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "left",
+              "path": [
+                "items",
+                "same"
+              ]
+            }
+          },
+          "field": "children"
+        }
+      },
+      "capture": "nested-item"
+    },
+    {
+      "request": {
+        "command": "moveSelection",
+        "session": "list-a",
+        "collection": {
+          "owner": {
+            "baseline": {
+              "blockID": "right",
+              "path": [
+                "items",
+                "same"
+              ]
+            }
+          },
+          "field": "children"
+        }
+      },
+      "bindings": {
+        "selection": [
+          "nested-item",
+          "selection"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-a"
+      },
+      "capture": "list-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-b"
+      },
+      "bindings": {
+        "batch": "list-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-b",
+        "address": {
+          "blockID": "right",
+          "path": [
+            "items",
+            "same",
+            "children",
+            "same",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-b"
+      },
+      "capture": "list-peer-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-a"
+      },
+      "bindings": {
+        "batch": "list-peer-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "list-a"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "list-a"
+      },
+      "capture": "list-undo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "list-a"
+      },
+      "capture": "list-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "list-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "list-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "list-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "list-reopened"
+      },
+      "capture": "list-redo"
+    }
+  ],
+  "equal": [],
+  "expectedBlocks": {
+    "moved-table": [
+      {
+        "id": "t",
+        "type": "table",
+        "columnWidths": [
+          120
+        ],
+        "rows": [
+          {
+            "id": "base",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          },
+          {
+            "id": "b",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          },
+          {
+            "id": "a",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          }
+        ],
+        "extension": "table"
+      }
+    ],
+    "table-undo": [
+      {
+        "id": "t",
+        "type": "table",
+        "columnWidths": [
+          120
+        ],
+        "rows": [
+          {
+            "id": "base",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "RA",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          },
+          {
+            "id": "b",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          },
+          {
+            "id": "a",
+            "cells": [
+              {
+                "id": "other",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              },
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          }
+        ],
+        "extension": "table"
+      }
+    ],
+    "table-redo": [
+      {
+        "id": "t",
+        "type": "table",
+        "columnWidths": [
+          120
+        ],
+        "rows": [
+          {
+            "id": "b",
+            "cells": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          },
+          {
+            "id": "a",
+            "cells": [
+              {
+                "id": "other",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              },
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ],
+            "extension": "row"
+          }
+        ],
+        "extension": "table"
+      }
+    ],
+    "toggle-undo": [
+      {
+        "id": "t",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "世界😀"
+          }
+        ],
+        "children": [
+          {
+            "id": "branch",
+            "type": "toggle",
+            "summary": [],
+            "children": [
+              {
+                "id": "peer",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "remote 😀",
+                    "marks": []
+                  }
+                ],
+                "extension": "peer"
+              }
+            ],
+            "extension": "branch"
+          }
+        ],
+        "extension": "toggle"
+      }
+    ],
+    "toggle-redo": [
+      {
+        "id": "t",
+        "type": "toggle",
+        "summary": [
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "世界😀"
+          }
+        ],
+        "children": [
+          {
+            "id": "branch",
+            "type": "toggle",
+            "summary": [
+              {
+                "type": "text",
+                "text": "branch",
+                "marks": []
+              }
+            ],
+            "children": [
+              {
+                "id": "peer",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "remote 😀",
+                    "marks": []
+                  }
+                ],
+                "extension": "peer"
+              }
+            ],
+            "extension": "branch"
+          }
+        ],
+        "extension": "toggle"
+      }
+    ],
+    "list-undo": [
+      {
+        "id": "left",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "same",
+            "content": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "checked": true,
+            "extension": {
+              "id": "consumer"
+            },
+            "children": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "R",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "checked": true,
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "same",
+            "content": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "checked": true,
+            "extension": {
+              "id": "consumer"
+            }
+          }
+        ]
+      }
+    ],
+    "list-redo": [
+      {
+        "id": "left",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "same",
+            "content": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "checked": true,
+            "extension": {
+              "id": "consumer"
+            }
+          }
+        ]
+      },
+      {
+        "id": "right",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "same",
+            "content": [
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "世界😀"
+              }
+            ],
+            "checked": true,
+            "extension": {
+              "id": "consumer"
+            },
+            "children": [
+              {
+                "id": "same",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "R",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "世界😀"
+                  }
+                ],
+                "checked": true,
+                "extension": {
+                  "id": "consumer"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {}
+}

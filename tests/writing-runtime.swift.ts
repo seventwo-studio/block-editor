@@ -1,5 +1,201 @@
 import { test, expect } from "@playwright/test";
 
+test("typed v4 sequential input follows observed Unicode and preserves peer undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const list of [false, true]) for (const actorID of ["a", "z"]) {
+      const content = [{ type: "text", text: "C", marks: [{ type: "bold" }] }];
+      const blocks = list ? [{ id: "p", type: "list", style: "todo", host: "owner", items: [{ id: "i", content, checked: true, host: "item" }] }]
+        : [{ id: "p", type: "paragraph", content, host: "original" }];
+      const documentID = `typed-boundary-${list}-${actorID}`;
+      const a = runtime.createWritingV4({ documentID, actorID, epoch: "boundary-v4", blocks });
+      const b = runtime.createWritingV4({ documentID, actorID: "m", epoch: "boundary-v4", blocks });
+      const address = { blockID: "p", path: list ? ["items", "i", "content"] : ["content"] };
+      a.replaceText(address, 0, 0, "東京");
+      const caret = a.replaceText(address, 2, 2, "X"), offset = a.resolvePosition(caret).offset;
+      const typed = a.getSnapshot().blocks;
+      b.replaceText(address, 1, 1, "R"); const remote = b.changes(); a.receive(remote); a.receive(remote);
+      b.receive(a.changes()); const replica = b.getSnapshot().blocks;
+      const reopened = runtime.restoreWriting(a.save(), actorID), accepted = reopened.getSnapshot().blocks;
+      reopened.undo(); const undo = reopened.getSnapshot().blocks;
+      reopened.redo(); const redo = reopened.getSnapshot().blocks;
+      results.push({ list, offset, typed, replica, accepted, undo, redo });
+      reopened.close(); a.close(); b.close();
+    }
+    return results;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    const nodes = (blocks: typeof result.typed) => result.list ? blocks[0].items! : blocks;
+    const texts = (blocks: typeof result.typed) => nodes(blocks).map(node => node.content!.map(run => run.type === "text" ? run.text : "").join(""));
+    expect(result.offset).toBe(3);
+    expect(texts(result.typed)).toEqual(["東京XC"]);
+    expect(texts(result.accepted)).toEqual(["東京XCR"]);
+    expect(result.replica).toEqual(result.accepted);
+    expect(texts(result.undo)).toEqual(["東京CR"]);
+    expect(result.redo).toEqual(result.accepted);
+    for (const node of nodes(result.redo)) for (const run of node.content!) expect(run).toMatchObject({ marks: [{ type: "bold" }] });
+    if (result.list) expect(nodes(result.redo)[0]).toMatchObject({ checked: true, host: "item" });
+    else expect(nodes(result.redo)[0]).toMatchObject({ host: "original" });
+  }
+});
+
+test("typed v4 splits pin committed prefix and preserve remote tail through reopened undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const list of [false, true]) for (const swap of [false, true]) {
+      const content = [{ type: "text", text: "AB", marks: [{ type: "bold" }] }];
+      const blocks = list ? [{ id: "p", type: "list", style: "todo", items: [{ id: "i", content, checked: true, host: "item" }] }]
+        : [{ id: "p", type: "paragraph", content, host: "original" }];
+      const actorID = swap ? "b" : "a", documentID = `typed-pin-${list}-${swap}`;
+      const a = runtime.createWritingV4({ documentID, actorID, epoch: "pin-v4", blocks });
+      const b = runtime.createWritingV4({ documentID, actorID: swap ? "a" : "b", epoch: "pin-v4", blocks });
+      const field = { blockID: "p", path: list ? ["items", "i", "content"] : ["content"] };
+      a.replaceText(field, 1, 1, "東京"); b.replaceText(field, 2, 2, "R"); a.receive(b.changes());
+      const caret = list ? a.enterListItem(field, 3, 3, "tail") : a.splitParagraph(field, 3, 3, "tail");
+      const resolved = a.resolvePosition(caret), split = a.getSnapshot().blocks;
+      b.receive(a.changes()); const replica = b.getSnapshot().blocks;
+      b.replaceText(resolved.address, 1, 1, "X"); a.receive(b.changes()); a.receive(b.changes());
+      const reopened = runtime.restoreWriting(a.save(), actorID), accepted = reopened.getSnapshot().blocks;
+      reopened.undo(); const undo = reopened.getSnapshot().blocks;
+      reopened.redo(); const redo = reopened.getSnapshot().blocks;
+      results.push({ list, offset: resolved.offset, split, replica, accepted, undo, redo });
+      a.close(); b.close(); reopened.close();
+    }
+    return results;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    const nodes = (blocks: typeof result.split) => result.list ? blocks[0].items! : blocks;
+    const texts = (blocks: typeof result.split) => nodes(blocks).map(node => node.content!.map(run => run.type === "text" ? run.text : "").join(""));
+    expect(result.offset).toBe(0);
+    expect(texts(result.split)).toEqual(["A東京", "BR"]);
+    expect(result.replica).toEqual(result.split);
+    expect(texts(result.accepted)).toEqual(["A東京", "BXR"]);
+    expect(texts(result.undo)).toEqual(["A東京BXR"]);
+    expect(result.redo).toEqual(result.accepted);
+    for (const node of nodes(result.redo)) for (const run of node.content!) expect(run).toMatchObject({ marks: [{ type: "bold" }] });
+  }
+});
+
+test("typed v4 middle exit keeps item identity and remote work through reopened undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const blocks = [{ id: "list", type: "list", style: "todo", host: "root", items: [
+      { id: "first", content: [{ type: "text", text: "before", marks: [] }] },
+      { id: "empty", content: [], checked: true, host: "item" },
+      { id: "last", content: [{ type: "text", text: "after", marks: [] }] },
+    ] }];
+    const a = runtime.createWritingV4({ documentID: "typed-exit", actorID: "a", epoch: "exit-v4", blocks });
+    const b = runtime.createWritingV4({ documentID: "typed-exit", actorID: "b", epoch: "exit-v4", blocks });
+    const owner = a.node({ blockID: "list", path: [] }), item = a.node({ blockID: "list", path: ["items", "empty"] });
+    const field = { blockID: "list", path: ["items", "empty", "content"] };
+    const caret = a.enterListItem(field, 0, 0, "tail");
+    const exitIdentity = a.node({ blockID: "empty", path: [] }), remainingOwner = a.node({ blockID: "list", path: [] });
+    const resolvedOffset = a.resolvePosition(caret).offset;
+    b.replaceText(field, 0, 0, "peer");
+    a.receive(b.changes()); b.receive(a.changes()); b.receive(a.changes());
+    const accepted = a.getSnapshot().blocks, replica = b.getSnapshot().blocks;
+    const reopened = runtime.restoreWriting(a.save(), "a");
+    reopened.undo(); const undo = reopened.getSnapshot().blocks;
+    const undoIdentity = reopened.node({ blockID: "list", path: ["items", "empty"] });
+    reopened.redo(); const redo = reopened.getSnapshot().blocks;
+    a.close(); b.close(); reopened.close();
+    return { owner, item, exitIdentity, remainingOwner, resolvedOffset, accepted, replica, undo, undoIdentity, redo };
+  }, `/block-editor/@fs${process.cwd()}`);
+  expect(result.exitIdentity).toEqual(result.item);
+  expect(result.remainingOwner).toEqual(result.owner);
+  expect(result.undoIdentity).toEqual(result.item);
+  expect(result.resolvedOffset).toBe(0);
+  expect(result.accepted.map((block: { id: string }) => block.id)).toEqual(["list", "empty", "tail"]);
+  expect(result.replica).toEqual(result.accepted);
+  expect(result.undo[0].items[1]).toEqual({ id: "empty", content: [{ type: "text", text: "peer", marks: [] }], checked: true, host: "item" });
+  expect(result.redo).toEqual(result.accepted);
+});
+
+test("typed v4 owner repair retains both historic head writes and rejected accepted state", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const blocks = [
+      { id: "left", type: "list", style: "todo", items: [{ id: "i", content: [{ type: "text", text: "keep😀", marks: [] }], host: "item" }] },
+      { id: "right", type: "list", style: "ordered", items: [] },
+    ];
+    const a = runtime.createWritingV4({ documentID: "typed-owner", actorID: "a", epoch: "exit-v4", blocks });
+    const b = runtime.createWritingV4({ documentID: "typed-owner", actorID: "b", epoch: "exit-v4", blocks });
+    const item = b.node({ blockID: "left", path: ["items", "i"] });
+    a.convertBlock({ blockID: "left", path: ["items", "i", "content"] }, 0, { type: "paragraph" });
+    b.moveSelection({ nodes: [item], text: [] }, { owner: b.node({ blockID: "right", path: [] }), field: "items" });
+    b.convertBlock({ blockID: "right", path: ["items", "i", "content"] }, 0, { type: "paragraph" });
+    a.replaceText({ blockID: "left", path: ["content"] }, 0, 0, "A");
+    b.replaceText({ blockID: "right", path: ["content"] }, 0, 0, "B");
+    const aa = a.changes(), bb = b.changes(), before = JSON.stringify(a.save());
+    const { SwiftWritingRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    let recoveryA: unknown, recoveryB: unknown;
+    try { a.receive(bb); } catch (error) { if (!(error instanceof SwiftWritingRecoveryError)) throw error; recoveryA = error.recovery; }
+    try { b.receive(aa); } catch (error) { if (!(error instanceof SwiftWritingRecoveryError)) throw error; recoveryB = error.recovery; }
+    const rejectedA = recoveryA !== undefined && JSON.stringify(recoveryA) === JSON.stringify(a.mergeRecovery());
+    const rejectedB = recoveryB !== undefined && JSON.stringify(recoveryB) === JSON.stringify(b.mergeRecovery());
+    const preserved = JSON.stringify(a.save()) === before;
+    a.repairUndo({ counter: 1, actor: "a" }); b.receive(a.changes());
+    const repaired = a.getSnapshot().blocks, replica = b.getSnapshot().blocks;
+    const reopened = runtime.restoreWriting(a.save(), "a"), restored = reopened.getSnapshot().blocks;
+    a.close(); b.close(); reopened.close();
+    return { rejectedA, rejectedB, recoveryA, recoveryB, preserved, repaired, replica, restored };
+  }, `/block-editor/@fs${process.cwd()}`);
+  expect(result.rejectedA && result.rejectedB && result.preserved).toBe(true);
+  expect(result.recoveryA).toMatchObject({ reason: "schemaConstraint", batch: { version: 4, epoch: "exit-v4" } });
+  expect(result.recoveryB).toMatchObject({ reason: "schemaConstraint", batch: { version: 4, epoch: "exit-v4" } });
+  expect(result.repaired[1].content).toEqual([{ type: "text", text: "BAkeep😀", marks: [] }]);
+  expect(result.replica).toEqual(result.repaired);
+  expect(result.restored).toEqual(result.repaired);
+});
+
+test("typed v4 collection commands keep scoped IDs and remote work across author undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const blocks = [{ id: "table", type: "table", rows: [], columnWidths: [120], extension: "keep" }];
+    const a = runtime.createWritingV4({ documentID: "typed-collections", actorID: "a", epoch: "collections-v4", blocks });
+    const b = runtime.createWritingV4({ documentID: "typed-collections", actorID: "b", epoch: "collections-v4", blocks });
+    const rows = { owner: a.node({ blockID: "table", path: [] }), field: "rows" };
+    const values = ["one", "two"].map(id => ({ id, cells: [{ id: "same", content: [{ type: "text", text: id, marks: [] }], extension: { id: "consumer" } }] }));
+    const created = a.insertCollectionNodes(values, rows);
+    const initialIdentities = a.collectionNodes(rows);
+    b.receive(a.changes());
+    b.replaceText({ blockID: "table", path: ["rows", "one", "cells", "same", "content"] }, 0, 0, "R");
+    a.receive(b.changes());
+    a.moveSelection({ nodes: [created.nodes[0]], text: [] }, rows, created.nodes[1]);
+    const reordered = a.getSnapshot().blocks;
+    const reopened = runtime.restoreWriting(a.save(), "a");
+    reopened.undo(); const moveUndo = reopened.getSnapshot().blocks;
+    reopened.undo(); const creationUndo = reopened.getSnapshot().blocks;
+    reopened.redo(); const redo = reopened.getSnapshot().blocks;
+    const restoredIdentities = reopened.collectionNodes(rows);
+    a.close(); b.close(); reopened.close();
+    return { created: created.nodes, initialIdentities, reordered, moveUndo, creationUndo, redo, restoredIdentities };
+  }, `/block-editor/@fs${process.cwd()}`);
+  expect(result.initialIdentities).toEqual(result.created);
+  expect(result.restoredIdentities).toEqual(result.created);
+  expect(result.reordered[0].rows.map((row: { id: string }) => row.id)).toEqual(["two", "one"]);
+  expect(result.moveUndo[0].rows[0].cells[0]).toEqual({ id: "same", content: [{ type: "text", text: "Rone", marks: [] }], extension: { id: "consumer" } });
+  expect(result.creationUndo).toEqual([{ id: "table", type: "table", rows: [{ id: "one", cells: [{ id: "same", content: [{ type: "text", text: "R", marks: [] }], extension: { id: "consumer" } }] }], columnWidths: [120], extension: "keep" }]);
+  expect(result.redo).toEqual(result.moveUndo);
+});
+
 test("typed v3 writing commands and composition queues preserve accepted history", async ({ page }) => {
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");

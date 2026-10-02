@@ -1,0 +1,642 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "a",
+        "documentID": "roleFixture",
+        "actorID": "a",
+        "epoch": "role-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "b",
+        "documentID": "roleFixture",
+        "actorID": "b",
+        "epoch": "role-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "convertBlock",
+        "session": "a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 0,
+        "target": {
+          "type": "list",
+          "style": "todo"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a"
+      },
+      "capture": "initial"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "b"
+      },
+      "bindings": {
+        "batch": [
+          "initial"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "p-item",
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newItemID": "peer"
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "peer"
+          ]
+        }
+      },
+      "capture": "bornPeer"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "b"
+      },
+      "capture": "peerChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a"
+      },
+      "bindings": {
+        "batch": [
+          "peerChanges"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "a"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a"
+      },
+      "capture": "retired"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "b"
+      },
+      "bindings": {
+        "batch": [
+          "retired"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "b",
+        "address": {
+          "blockID": "peer",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "tail"
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "b",
+        "address": {
+          "blockID": "peer",
+          "path": []
+        }
+      },
+      "capture": "retainedPeer"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "b"
+      },
+      "capture": "split"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "b"
+      },
+      "capture": "saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "reopened",
+        "actorID": "b"
+      },
+      "bindings": {
+        "snapshot": [
+          "saved"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "reopened"
+      },
+      "capture": "opened"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "reopened"
+      },
+      "capture": "undone"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "reopened"
+      },
+      "capture": "redone"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "cohort-a",
+        "documentID": "roleCohortFixture",
+        "actorID": "a",
+        "epoch": "role-cohort-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "cohort-b",
+        "documentID": "roleCohortFixture",
+        "actorID": "b",
+        "epoch": "role-cohort-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "convertBlock",
+        "session": "cohort-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "offset": 0,
+        "target": {
+          "type": "list",
+          "style": "todo"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cohort-a"
+      },
+      "capture": "cohort-initial"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cohort-b"
+      },
+      "bindings": {
+        "batch": [
+          "cohort-initial"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "cohort-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "p-item",
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newItemID": "peer"
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "cohort-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "peer"
+          ]
+        }
+      },
+      "capture": "cohort-bornPeer"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cohort-b"
+      },
+      "capture": "cohort-peerChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cohort-a"
+      },
+      "bindings": {
+        "batch": [
+          "cohort-peerChanges"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "cohort-a"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cohort-a"
+      },
+      "capture": "cohort-retired"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cohort-b"
+      },
+      "bindings": {
+        "batch": [
+          "cohort-retired"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "cohort-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "cohort-a"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cohort-a"
+      },
+      "capture": "cohort-redo"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "cohort-b",
+        "address": {
+          "blockID": "peer",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "tail"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "cohort-b"
+      },
+      "capture": "cohort-splitChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cohort-a"
+      },
+      "bindings": {
+        "batch": [
+          "cohort-splitChanges"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "cohort-b"
+      },
+      "bindings": {
+        "batch": [
+          "cohort-redo"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "cohort-a"
+      },
+      "capture": "cohort-aFinal"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "cohort-b"
+      },
+      "capture": "cohort-bFinal"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "cohort-b"
+      },
+      "capture": "cohort-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "cohort-opened",
+        "actorID": "b"
+      },
+      "bindings": {
+        "snapshot": [
+          "cohort-saved"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "cohort-opened"
+      },
+      "capture": "cohort-reopened"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "cohort-opened"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "cohort-opened"
+      },
+      "capture": "cohort-undone"
+    }
+  ],
+  "equal": [
+    [
+      "bornPeer",
+      "retainedPeer"
+    ],
+    [
+      "split",
+      "opened"
+    ],
+    [
+      "cohort-aFinal",
+      "cohort-bFinal"
+    ],
+    [
+      "cohort-aFinal",
+      "cohort-reopened"
+    ]
+  ],
+  "expectedBlocks": {
+    "split": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "peer",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          }
+        ],
+        "checked": false
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "cohort-aFinal": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "p-item",
+            "content": [
+              {
+                "type": "text",
+                "text": "Xab",
+                "marks": []
+              }
+            ],
+            "checked": false
+          }
+        ]
+      },
+      {
+        "id": "peer",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "c",
+            "marks": []
+          }
+        ],
+        "checked": false
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "d",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "cohort-undone": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "items": [
+          {
+            "id": "p-item",
+            "content": [
+              {
+                "type": "text",
+                "text": "Xab",
+                "marks": []
+              }
+            ],
+            "checked": false
+          },
+          {
+            "id": "peer",
+            "content": [
+              {
+                "type": "text",
+                "text": "cd",
+                "marks": []
+              }
+            ],
+            "checked": false
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {}
+}

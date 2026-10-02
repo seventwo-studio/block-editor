@@ -1,0 +1,1875 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "paragraph-0-a",
+        "documentID": "paragraph-0",
+        "actorID": "a",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "paragraph-0-b",
+        "documentID": "paragraph-0",
+        "actorID": "b",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "paragraph-0-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "paragraph-0-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "paragraph-0-b"
+      },
+      "capture": "paragraph-0-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-0-a"
+      },
+      "bindings": {
+        "batch": "paragraph-0-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "paragraph-0-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "tail"
+      },
+      "capture": "paragraph-0-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "paragraph-0-a"
+      },
+      "capture": "paragraph-0-resolved",
+      "bindings": {
+        "position": [
+          "paragraph-0-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "paragraph-0-a"
+      },
+      "capture": "paragraph-0-split"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "paragraph-0-a"
+      },
+      "capture": "paragraph-0-splitChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-0-b"
+      },
+      "capture": "paragraph-0-replica",
+      "bindings": {
+        "batch": "paragraph-0-splitChanges"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "paragraph-0-b",
+        "address": {
+          "blockID": "@a/2/0",
+          "path": [
+            "content"
+          ],
+          "identity": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 2,
+                  "actor": "a"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          }
+        },
+        "start": 1,
+        "end": 1,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "paragraph-0-b"
+      },
+      "capture": "paragraph-0-remoteTail"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-0-a"
+      },
+      "bindings": {
+        "batch": "paragraph-0-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-0-a"
+      },
+      "capture": "paragraph-0-duplicate",
+      "bindings": {
+        "batch": "paragraph-0-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "paragraph-0-a"
+      },
+      "capture": "paragraph-0-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "paragraph-0-reopened",
+        "actorID": "a"
+      },
+      "capture": "paragraph-0-reopened",
+      "bindings": {
+        "snapshot": "paragraph-0-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "paragraph-0-reopened"
+      },
+      "capture": "paragraph-0-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "paragraph-0-reopened"
+      },
+      "capture": "paragraph-0-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "paragraph-0-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "paragraph-0-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "paragraph-0-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "paragraph-1-a",
+        "documentID": "paragraph-1",
+        "actorID": "b",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "paragraph-1-b",
+        "documentID": "paragraph-1",
+        "actorID": "a",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "paragraph-1-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "paragraph-1-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "paragraph-1-b"
+      },
+      "capture": "paragraph-1-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-1-a"
+      },
+      "bindings": {
+        "batch": "paragraph-1-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "paragraph-1-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newBlockID": "tail"
+      },
+      "capture": "paragraph-1-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "paragraph-1-a"
+      },
+      "capture": "paragraph-1-resolved",
+      "bindings": {
+        "position": [
+          "paragraph-1-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "paragraph-1-a"
+      },
+      "capture": "paragraph-1-split"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "paragraph-1-a"
+      },
+      "capture": "paragraph-1-splitChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-1-b"
+      },
+      "capture": "paragraph-1-replica",
+      "bindings": {
+        "batch": "paragraph-1-splitChanges"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "paragraph-1-b",
+        "address": {
+          "blockID": "@b/2/0",
+          "path": [
+            "content"
+          ],
+          "identity": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 2,
+                  "actor": "b"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          }
+        },
+        "start": 1,
+        "end": 1,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "paragraph-1-b"
+      },
+      "capture": "paragraph-1-remoteTail"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-1-a"
+      },
+      "bindings": {
+        "batch": "paragraph-1-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "paragraph-1-a"
+      },
+      "capture": "paragraph-1-duplicate",
+      "bindings": {
+        "batch": "paragraph-1-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "paragraph-1-a"
+      },
+      "capture": "paragraph-1-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "paragraph-1-reopened",
+        "actorID": "b"
+      },
+      "capture": "paragraph-1-reopened",
+      "bindings": {
+        "snapshot": "paragraph-1-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "paragraph-1-reopened"
+      },
+      "capture": "paragraph-1-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "paragraph-1-reopened"
+      },
+      "capture": "paragraph-1-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "paragraph-1-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "paragraph-1-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "paragraph-1-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "list-0-a",
+        "documentID": "list-0",
+        "actorID": "a",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "AB",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "list-0-b",
+        "documentID": "list-0",
+        "actorID": "b",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "AB",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-0-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-0-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-0-b"
+      },
+      "capture": "list-0-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-0-a"
+      },
+      "bindings": {
+        "batch": "list-0-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "list-0-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newItemID": "tail"
+      },
+      "capture": "list-0-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "list-0-a"
+      },
+      "capture": "list-0-resolved",
+      "bindings": {
+        "position": [
+          "list-0-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "list-0-a"
+      },
+      "capture": "list-0-split"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-0-a"
+      },
+      "capture": "list-0-splitChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-0-b"
+      },
+      "capture": "list-0-replica",
+      "bindings": {
+        "batch": "list-0-splitChanges"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-0-b",
+        "address": {
+          "blockID": "@a/2/0",
+          "path": [
+            "content"
+          ],
+          "identity": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 2,
+                  "actor": "a"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          }
+        },
+        "start": 1,
+        "end": 1,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-0-b"
+      },
+      "capture": "list-0-remoteTail"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-0-a"
+      },
+      "bindings": {
+        "batch": "list-0-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-0-a"
+      },
+      "capture": "list-0-duplicate",
+      "bindings": {
+        "batch": "list-0-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "list-0-a"
+      },
+      "capture": "list-0-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "list-0-reopened",
+        "actorID": "a"
+      },
+      "capture": "list-0-reopened",
+      "bindings": {
+        "snapshot": "list-0-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "list-0-reopened"
+      },
+      "capture": "list-0-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "list-0-reopened"
+      },
+      "capture": "list-0-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "list-0-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "list-0-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "list-0-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "list-1-a",
+        "documentID": "list-1",
+        "actorID": "b",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "AB",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "list-1-b",
+        "documentID": "list-1",
+        "actorID": "a",
+        "epoch": "pin-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "AB",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-1-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-1-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-1-b"
+      },
+      "capture": "list-1-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-1-a"
+      },
+      "bindings": {
+        "batch": "list-1-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "enterListItem",
+        "session": "list-1-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "newItemID": "tail"
+      },
+      "capture": "list-1-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "list-1-a"
+      },
+      "capture": "list-1-resolved",
+      "bindings": {
+        "position": [
+          "list-1-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "list-1-a"
+      },
+      "capture": "list-1-split"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-1-a"
+      },
+      "capture": "list-1-splitChanges"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-1-b"
+      },
+      "capture": "list-1-replica",
+      "bindings": {
+        "batch": "list-1-splitChanges"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "list-1-b",
+        "address": {
+          "blockID": "@b/2/0",
+          "path": [
+            "content"
+          ],
+          "identity": {
+            "inserted": {
+              "creation": {
+                "change": {
+                  "counter": 2,
+                  "actor": "b"
+                },
+                "index": 0
+              },
+              "path": []
+            }
+          }
+        },
+        "start": 1,
+        "end": 1,
+        "text": "X"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "list-1-b"
+      },
+      "capture": "list-1-remoteTail"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-1-a"
+      },
+      "bindings": {
+        "batch": "list-1-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "list-1-a"
+      },
+      "capture": "list-1-duplicate",
+      "bindings": {
+        "batch": "list-1-remoteTail"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "list-1-a"
+      },
+      "capture": "list-1-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "list-1-reopened",
+        "actorID": "b"
+      },
+      "capture": "list-1-reopened",
+      "bindings": {
+        "snapshot": "list-1-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "list-1-reopened"
+      },
+      "capture": "list-1-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "list-1-reopened"
+      },
+      "capture": "list-1-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "list-1-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "list-1-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "list-1-reopened"
+      }
+    }
+  ],
+  "expectedBlocks": {
+    "paragraph-0-split": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-0-duplicate": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-0-reopened": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-0-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "paragraph-0-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-1-split": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-1-duplicate": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-1-reopened": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paragraph-1-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "paragraph-1-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A東京",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      },
+      {
+        "id": "tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "BXR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "list-0-split": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-0-duplicate": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-0-reopened": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-0-undo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-0-redo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-1-split": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-1-duplicate": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-1-reopened": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-1-undo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "list-1-redo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "A東京",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          },
+          {
+            "id": "tail",
+            "content": [
+              {
+                "type": "text",
+                "text": "BXR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": false,
+            "host": "item"
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {
+    "paragraph-0-resolved": {
+      "address": {
+        "blockID": "@a/2/0",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 2,
+                "actor": "a"
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "paragraph-1-resolved": {
+      "address": {
+        "blockID": "@b/2/0",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 2,
+                "actor": "b"
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "list-0-resolved": {
+      "address": {
+        "blockID": "@a/2/0",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 2,
+                "actor": "a"
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "list-1-resolved": {
+      "address": {
+        "blockID": "@b/2/0",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 2,
+                "actor": "b"
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    }
+  },
+  "equal": [
+    [
+      "paragraph-0-split",
+      "paragraph-0-replica"
+    ],
+    [
+      "paragraph-1-split",
+      "paragraph-1-replica"
+    ],
+    [
+      "list-0-split",
+      "list-0-replica"
+    ],
+    [
+      "list-1-split",
+      "list-1-replica"
+    ]
+  ]
+}

@@ -31,6 +31,7 @@ export class SwiftMergeRecoveryError extends Error {
 export type SwiftSyncState = { received: unknown[]; documentID?: string; version?: number };
 export type SwiftPresence = { actor: string; revision: number; address?: TextAddress; anchor?: unknown; focus?: unknown };
 
+export interface SwiftWritingBlockTarget { type: "paragraph" | "heading" | "quote" | "callout" | "list" | "code"; level?: 1 | 2 | 3; style?: "ordered" | "unordered" | "todo"; variant?: "info" | "warning" | "error" | "success" }
 export interface SwiftWritingField { node: SwiftNodeID; name: string }
 export interface SwiftWritingAtomKey { origin: SwiftWritingField; element: SwiftElementID }
 export interface SwiftWritingPosition {
@@ -41,8 +42,8 @@ export interface SwiftWritingTextRange { start: SwiftWritingPosition; end: Swift
 export interface SwiftWritingSelection { nodes: SwiftNodeID[]; text: SwiftWritingTextRange[] }
 export interface SwiftWritingCopy { nodes: unknown[]; text: InlineNode[][] }
 export interface SwiftResolvedWritingPosition { address: TextAddress; offset: number }
-export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3; epoch: string }
-export interface SwiftWritingReceipt { version: 3; documentID: string; epoch: string; received: unknown[] }
+export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3 | 4; epoch: string }
+export interface SwiftWritingReceipt { version: 3 | 4; documentID: string; epoch: string; received: unknown[] }
 export interface SwiftWritingRecovery { reason: "identityConflict" | "schemaConstraint"; batch: SwiftWritingBatch }
 export class SwiftWritingRecoveryError extends Error {
   constructor(readonly recovery: SwiftWritingRecovery) { super("Writing recovery required"); this.name = "SwiftWritingRecoveryError"; }
@@ -118,6 +119,11 @@ export class SwiftEditorRuntime {
     const handle = crypto.randomUUID();
     return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 3, ...options }));
   }
+  /** Explicit isolated schema-conversion epoch; v3 peers reject its batches. */
+  createWritingV4(options: { documentID: string; actorID: string; epoch: string; blocks: Block[] }): SwiftWritingSession {
+    const handle = crypto.randomUUID();
+    return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 4, ...options }));
+  }
   restoreWriting(snapshot: SwiftWritingBatch, actorID: string): SwiftWritingSession {
     const handle = crypto.randomUUID();
     return new SwiftWritingSession(this, handle, this.call({ command: "restore", session: handle, snapshot, actorID }));
@@ -175,6 +181,15 @@ export class SwiftWritingSession {
     this.publish(result.snapshot); return result.selection;
   }
   mergeParagraphs(left: SwiftNodeID, right: SwiftNodeID): SwiftWritingPosition { return this.command("mergeParagraphs", { left, right }); }
+  collectionNodes(collection: SwiftNodeCollection): SwiftNodeID[] { return this.call("collectionNodes", { collection }); }
+  insertCollectionNodes(values: Record<string, unknown>[], collection: SwiftNodeCollection, after?: SwiftNodeID): SwiftWritingSelection {
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>("insertCollectionNodes", { values, collection, after });
+    this.publish(result.snapshot); return result.selection;
+  }
+  setAllowedBlockTypes(types: string[] | null): void { this.publish(this.call("allowedBlockTypes", { types })); }
+  convertBlock(address: TextAddress, offset: number, target: SwiftWritingBlockTarget): SwiftWritingPosition { return this.command("convertBlock", { address, offset, target }); }
+  markdownShortcut(address: TextAddress, offset: number): SwiftWritingPosition { return this.command("markdownShortcut", { address, offset }); }
+  enterListItem(address: TextAddress, start: number, end: number, newItemID: string): SwiftWritingPosition { return this.command("enterListItem", { address, start, end, newItemID }); }
   format(address: TextAddress, start: number, end: number, markType: Mark["type"], mark: Mark | null): void { this.publish(this.call("format", { address, start, end, markType, mark })); }
   undo(): void { this.publish(this.call("undo")); }
   redo(): void { this.publish(this.call("redo")); }

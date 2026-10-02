@@ -9,6 +9,11 @@ import java.io.Closeable
 import java.util.UUID
 
 /** Stable origin fields and atom keys stay opaque to the host. */
+data class WritingBlockTarget(val type: String, val level: Int? = null, val style: String? = null, val variant: String? = null) {
+    internal fun wire() = JSONObject().put("type", type).also { value ->
+        level?.let { value.put("level", it) }; style?.let { value.put("style", it) }; variant?.let { value.put("variant", it) }
+    }
+}
 class WritingPosition internal constructor(value: JSONObject) {
     internal val wire = JSONObject(value.toString())
     val documentID: String get() = wire.getString("documentID")
@@ -46,7 +51,7 @@ class WritingCopy internal constructor(value: JSONObject) {
 data class ResolvedWritingPosition(val address: WritingAddress, val offset: Int)
 class WritingBatch private constructor(value: JSONObject) {
     internal val wire = JSONObject(value.toString())
-    init { require(wire.getInt("version") == 3 && wire.getString("epoch").isNotEmpty()) }
+    init { require(wire.getInt("version") in setOf(3, 4) && wire.getString("epoch").isNotEmpty()) }
     val documentID: String get() = wire.getString("documentID")
     val epoch: String get() = wire.getString("epoch")
     fun export(): JSONObject = JSONObject(wire.toString())
@@ -87,6 +92,14 @@ class WritingSession private constructor(private val handle: String, initial: JS
             val result = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
                 .put("documentID", documentID).put("actorID", actorID).put("epoch", epoch)
                 .put("collaborationVersion", 3).put("blocks", blocks)).getJSONObject("value")
+            return WritingSession(handle, result)
+        }
+        /** Explicit isolated schema-conversion epoch; never mix v3 writers. */
+        fun createV4(documentID: String, actorID: String, epoch: String, blocks: JSONArray = JSONArray()): WritingSession {
+            val handle = UUID.randomUUID().toString()
+            val result = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
+                .put("documentID", documentID).put("actorID", actorID).put("epoch", epoch)
+                .put("collaborationVersion", 4).put("blocks", blocks)).getJSONObject("value")
             return WritingSession(handle, result)
         }
         fun restore(snapshot: WritingBatch, actorID: String): WritingSession {
@@ -141,6 +154,19 @@ class WritingSession private constructor(private val handle: String, initial: JS
         publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
     }
     fun mergeParagraphs(left: NodeIdentity, right: NodeIdentity): WritingPosition = command("mergeParagraphs", JSONObject().put("left", left.wire).put("right", right.wire))
+    fun collectionNodes(collection: NodeCollection): List<NodeIdentity> {
+        val result = call("collectionNodes", JSONObject().put("collection", collection.wire)) as JSONArray
+        return (0 until result.length()).map { NodeIdentity(result.getJSONObject(it)) }
+    }
+    fun insertCollectionNodes(values: JSONArray, collection: NodeCollection, after: NodeIdentity? = null): WritingSelection {
+        val result = call("insertCollectionNodes", JSONObject().put("values", values).put("collection", collection.wire)
+            .put("after", after?.wire ?: JSONObject.NULL)) as JSONObject
+        publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
+    }
+    fun setAllowedBlockTypes(types: Set<String>?) { publish(call("allowedBlockTypes", JSONObject().put("types", types?.let { JSONArray(it.toList()) } ?: JSONObject.NULL)) as JSONObject) }
+    fun convertBlock(address: WritingAddress, offset: Int, target: WritingBlockTarget): WritingPosition = command("convertBlock", JSONObject().put("address", address.wire).put("offset", offset).put("target", target.wire()))
+    fun markdownShortcut(address: WritingAddress, offset: Int): WritingPosition = command("markdownShortcut", JSONObject().put("address", address.wire).put("offset", offset))
+    fun enterListItem(address: WritingAddress, start: Int, end: Int, newItemID: String): WritingPosition = command("enterListItem", range(address, start, end).put("newItemID", newItemID))
     fun format(address: WritingAddress, start: Int, end: Int, markType: String, mark: JSONObject?) {
         publish(call("format", range(address, start, end).put("markType", markType).put("mark", mark ?: JSONObject.NULL)) as JSONObject)
     }

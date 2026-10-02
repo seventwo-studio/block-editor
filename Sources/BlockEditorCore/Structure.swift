@@ -33,12 +33,16 @@ public struct NodeCollection: Codable, Hashable, Sendable {
 
 public enum NodePlacementID: Codable, Hashable, Comparable, Sendable {
     case initial(NodeID)
+    /// A protocol-4 derived paragraph placement, distinct from birth placement.
+    case role(owner: NodeID, node: NodeID)
     case edit(ElementID)
     public static func < (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
         case (.initial(let a), .initial(let b)): return a.key.utf8.lexicographicallyPrecedes(b.key.utf8)
-        case (.initial, .edit): return true
-        case (.edit, .initial): return false
+        case (.initial, .role), (.initial, .edit), (.role, .edit): return true
+        case (.role, .initial), (.edit, .initial), (.edit, .role): return false
+        case (.role(let ownerA, let nodeA), .role(let ownerB, let nodeB)):
+            return ownerA.key == ownerB.key ? nodeA.key.utf8.lexicographicallyPrecedes(nodeB.key.utf8) : ownerA.key.utf8.lexicographicallyPrecedes(ownerB.key.utf8)
         case (.edit(let a), .edit(let b)): return a < b
         }
     }
@@ -49,7 +53,8 @@ enum NodeKind: String { case block, item, row, cell }
 struct StructuralState {
     struct Node {
         let identity: NodeID
-        let kind: NodeKind
+        var kind: NodeKind
+        let birthKind: NodeKind
         var fields: [String: JSONValue]
         var collections: Set<String>
         let birthActive: Bool
@@ -61,6 +66,13 @@ struct StructuralState {
         let node: NodeID
         let collection: NodeCollection
         let active: Bool
+        let rolePriority: ElementID?
+        let roleOrigin: NodePlacementID?
+        init(id: NodePlacementID, after: NodePlacementID?, node: NodeID, collection: NodeCollection, active: Bool,
+             rolePriority: ElementID? = nil, roleOrigin: NodePlacementID? = nil) {
+            self.id = id; self.after = after; self.node = node; self.collection = collection; self.active = active
+            self.rolePriority = rolePriority; self.roleOrigin = roleOrigin
+        }
     }
     var nodes: [NodeID: Node] = [:]
     var placements: [NodePlacementID: Placement] = [:]
@@ -100,7 +112,7 @@ struct StructuralState {
         let present = Set(collections.keys.filter { fields[$0] != nil })
         let arrays = collections.reduce(into: [String: [JSONValue]]()) { $0[$1.key] = fields[$1.key]?.array ?? [] }
         for field in present { fields.removeValue(forKey: field) }
-        nodes[identity] = Node(identity: identity, kind: kind, fields: fields, collections: present, birthActive: active)
+        nodes[identity] = Node(identity: identity, kind: kind, birthKind: kind, fields: fields, collections: present, birthActive: active)
         for (field, childKind) in collections {
             var after: NodePlacementID?
             for child in arrays[field] ?? [] {
@@ -232,11 +244,52 @@ struct StructuralState {
         for (id, p) in entries {
             if let after = p.after { children[after, default: []].append(id) } else { roots.append(id) }
         }
-        var stack = roots.sorted(), result: [NodeID] = [], seen = Set<NodePlacementID>()
+        var itemRanks: [NodePlacementID: Int] = [:]
+        let originCollections = Set(entries.values.compactMap { $0.roleOrigin.flatMap { placements[$0]?.collection } })
+        for originCollection in originCollections {
+            let old = placements.filter { $0.value.collection == originCollection }
+            var successors: [NodePlacementID: [NodePlacementID]] = [:], pending: [NodePlacementID] = []
+            for (id, placement) in old {
+                if let after = placement.after { successors[after, default: []].append(id) } else { pending.append(id) }
+            }
+            pending.sort(); var visited = Set<NodePlacementID>(), index = 0
+            while let id = pending.popLast() {
+                guard visited.insert(id).inserted else { continue }
+                itemRanks[id] = index; index += 1
+                pending.append(contentsOf: (successors[id] ?? []).sorted())
+            }
+        }
+        var groupPriorities: [NodeID: ElementID] = [:]
+        for entry in entries.values {
+            if case .role(let owner, _) = entry.id, let priority = entry.rolePriority,
+               groupPriorities[owner].map({ $0 < priority }) ?? true { groupPriorities[owner] = priority }
+        }
+        func orderingKey(_ placement: Placement) -> NodePlacementID {
+            if case .role(let owner, _) = placement.id, let priority = groupPriorities[owner] { return .edit(priority) }
+            return placement.id
+        }
+        func ordered(_ lhs: NodePlacementID, _ rhs: NodePlacementID) -> Bool {
+            let a = entries[lhs]!, b = entries[rhs]!
+            let keyA = orderingKey(a), keyB = orderingKey(b)
+            if keyA != keyB { return keyA < keyB }
+            if case .role(let ownerA, _) = lhs, case .role(let ownerB, _) = rhs {
+                if ownerA != ownerB { return ownerA.key < ownerB.key }
+                let sourceA = a.roleOrigin.flatMap { placements[$0]?.collection }
+                let sourceB = b.roleOrigin.flatMap { placements[$0]?.collection }
+                let bucketA = sourceA.map { ($0.owner?.key ?? "") + ":" + $0.field } ?? ""
+                let bucketB = sourceB.map { ($0.owner?.key ?? "") + ":" + $0.field } ?? ""
+                if bucketA != bucketB { return bucketA < bucketB }
+                let rankA = a.roleOrigin.flatMap { itemRanks[$0] } ?? Int.max
+                let rankB = b.roleOrigin.flatMap { itemRanks[$0] } ?? Int.max
+                if rankA != rankB { return rankA > rankB }
+            }
+            return lhs < rhs
+        }
+        var stack = roots.sorted(by: ordered), result: [NodeID] = [], seen = Set<NodePlacementID>()
         while let id = stack.popLast() {
             guard seen.insert(id).inserted, let p = entries[id] else { continue }
             if selected[p.node]?.id == id { result.append(p.node) }
-            stack.append(contentsOf: (children[id] ?? []).sorted())
+            stack.append(contentsOf: (children[id] ?? []).sorted(by: ordered))
         }
         return result
     }
