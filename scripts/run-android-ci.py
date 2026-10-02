@@ -96,8 +96,43 @@ def main():
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
         device("install", "-r", "--abi", args.abi, apk)
-        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 8)
+        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 9)
         instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
+        instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
+        instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
+        instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
+        instrument("studio.seventwo.blockeditor.WritingCollectionInputTest", "writing-collection-input-instrumentation.txt", 7)
+        instrument("studio.seventwo.blockeditor.WritingCollectionComposeTest", "writing-collection-compose-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.WritingMarkdownInputTest", "writing-markdown-input-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.WritingPlainInputTest", "writing-plain-input-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 11)
+        for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),
+                                        ("RetainedAuthoringActionsTest", "retained-authoring-actions"),
+                                        ("RetainedReadonlyLinkTest", "retained-readonly-link"),
+                                        ("RetainedStructuralActionsTest", "retained-structural-actions")):
+            authoring_source = Path(f"android/editor/src/androidTest/java/studio/seventwo/blockeditor/{class_name}.kt")
+            authoring = {"included": authoring_source.is_file(), "passed": False,
+                         "scope": "Rendered component/semantics input; separate from installed IME, TalkBack and full authoring acceptance"}
+            if not authoring["included"]:
+                authoring["reason"] = f"{class_name} is absent from this exact source snapshot; controls acceptance is omitted"
+            coverage_file = output / f"{report_name}-coverage.json"
+            coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
+            if authoring["included"]:
+                expected_authoring_tests = len(re.findall(r"^\s*@Test\b", authoring_source.read_text(), flags=re.MULTILINE))
+                if expected_authoring_tests < 1:
+                    raise RuntimeError(f"Present {class_name} has no declared test methods")
+                instrument(f"studio.seventwo.blockeditor.{class_name}", f"{report_name}-instrumentation.txt", expected_authoring_tests)
+                authoring.update(passed=True, executedTests=expected_authoring_tests)
+                coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
+        if args.system_ime:
+            run("python3", "scripts/test-android-builtin-ime.py", "--sdk", sdk, "--serial", serial,
+                "--apk", apk, "--output", "test-results/system-input", timeout=600)
+            run("python3", "scripts/test-android-writing-builtin-ime.py", "--sdk", sdk, "--serial", serial,
+                "--apk", apk, "--output", "test-results/writing-system-input", timeout=600)
         # This one invocation executes the entire 19-group corpus, including
         # 316 legal/over-depth commands under translated ARM64. Its watchdog is
         # separate from individual typed/UI acceptance and performance limits.
@@ -142,41 +177,6 @@ def main():
                 if type(resource_pid) is not int or resource_pid <= 0 or resource_pid == previous_resource_pid:
                     raise RuntimeError("Resource case did not execute in a distinct installed testhost process")
                 previous_resource_pid = resource_pid
-        instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
-        instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
-        instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
-        instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
-        instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
-        instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
-        instrument("studio.seventwo.blockeditor.WritingCollectionInputTest", "writing-collection-input-instrumentation.txt", 7)
-        instrument("studio.seventwo.blockeditor.WritingCollectionComposeTest", "writing-collection-compose-instrumentation.txt", 4)
-        instrument("studio.seventwo.blockeditor.WritingMarkdownInputTest", "writing-markdown-input-instrumentation.txt", 4)
-        instrument("studio.seventwo.blockeditor.WritingPlainInputTest", "writing-plain-input-instrumentation.txt", 5)
-        instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 5)
-        instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 11)
-        for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),
-                                        ("RetainedAuthoringActionsTest", "retained-authoring-actions"),
-                                        ("RetainedReadonlyLinkTest", "retained-readonly-link"),
-                                        ("RetainedStructuralActionsTest", "retained-structural-actions")):
-            authoring_source = Path(f"android/editor/src/androidTest/java/studio/seventwo/blockeditor/{class_name}.kt")
-            authoring = {"included": authoring_source.is_file(), "passed": False,
-                         "scope": "Rendered component/semantics input; separate from installed IME, TalkBack and full authoring acceptance"}
-            if not authoring["included"]:
-                authoring["reason"] = f"{class_name} is absent from this exact source snapshot; controls acceptance is omitted"
-            coverage_file = output / f"{report_name}-coverage.json"
-            coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
-            if authoring["included"]:
-                expected_authoring_tests = len(re.findall(r"^\s*@Test\b", authoring_source.read_text(), flags=re.MULTILINE))
-                if expected_authoring_tests < 1:
-                    raise RuntimeError(f"Present {class_name} has no declared test methods")
-                instrument(f"studio.seventwo.blockeditor.{class_name}", f"{report_name}-instrumentation.txt", expected_authoring_tests)
-                authoring.update(passed=True, executedTests=expected_authoring_tests)
-                coverage_file.write_text(json.dumps(authoring, indent=2) + "\n")
-        if args.system_ime:
-            run("python3", "scripts/test-android-builtin-ime.py", "--sdk", sdk, "--serial", serial,
-                "--apk", apk, "--output", "test-results/system-input", timeout=600)
-            run("python3", "scripts/test-android-writing-builtin-ime.py", "--sdk", sdk, "--serial", serial,
-                "--apk", apk, "--output", "test-results/writing-system-input", timeout=600)
         if args.performance_profile:
             performance_output = Path("test-results/performance")
             performance_output.mkdir(parents=True, exist_ok=True)

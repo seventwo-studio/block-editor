@@ -48,6 +48,40 @@ class WritingInputTest {
         } finally { owner.close(); scope.cancel(); a.close(); b.close() }
     }
 
+    @Test fun cleanBlurSelectionKeepsReversedRichRangeAndRebasesHeldPeerBeforeFormat() {
+        val a = WritingSession.createV4("native-clean-format", "a", "v4", seed())
+        val b = WritingSession.createV4("native-clean-format", "b", "v4", seed())
+        val scope = CoroutineScope(SupervisorJob() + Dispatcher())
+        val owner = WritingEditorInputs(a, scope, { true }, { fail("No draft expected") }, { throw it })
+        val identity = a.node(NodeAddress("p")); val old = owner.bind(identity); owner.attach(old); owner.focusChanged(old, true)
+        try {
+            old.update(TextFieldValue("AMiraB", TextRange(1, 0)))
+            b.replaceText(b.textAddress(b.node(NodeAddress("p"))), 0, 0, "R")
+            owner.format(old, {
+                old.update(TextFieldValue("AMiraB", TextRange(1))) // exact selection-only native blur
+                a.receive(b.changes()) // held by finish until accepted anchors are restored
+            }, "italic", org.json.JSONObject().put("type", "italic"))
+            assertEquals(listOf("RAMiraB"), text(a))
+            val content = a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content")
+            val copied = a.copyClipboard(WritingSelection(text = listOf(a.selectedText(a.textAddress(identity), 1, 2)))).export().toString()
+            assertTrue(copied.contains("italic")); assertTrue(copied.contains("bold"))
+            assertTrue(content.toString().contains("mira")); assertTrue(content.toString().contains("opaque"))
+            val request = checkNotNull(owner.focusRequest)
+            assertEquals(2, a.resolvePosition(request.range.start).offset)
+            assertEquals(1, a.resolvePosition(request.range.end).offset)
+            assertTrue(a.exportDeferredChanges().isEmpty())
+            assertEquals(1, a.changes().export().getJSONArray("changes").let { changes ->
+                (0 until changes.length()).count { changes.getJSONObject(it).getJSONObject("id").getString("actor") == "a" }
+            })
+            val reopened = WritingSession.restore(a.save(), "a")
+            try {
+                reopened.undo(); assertEquals(listOf("RAMiraB"), text(reopened))
+                assertFalse(reopened.snapshot.toString().contains("italic"))
+                reopened.redo(); assertEquals(a.snapshot.toString(), reopened.snapshot.toString())
+            } finally { reopened.close() }
+        } finally { owner.close(); scope.cancel(); a.close(); b.close() }
+    }
+
     @Test fun compositionFinalCorrectionCommitsBeforeSharedEnterAndReturnsOpaqueCaret() {
         val a = WritingSession.createV4("native-enter", "a", "v4", seed())
         val b = WritingSession.createV4("native-enter", "b", "v4", seed())

@@ -100,10 +100,18 @@ internal class WritingCollaborativeTextInput(
      * Capture that exact lease's final value before committing or releasing peers. */
     fun finish(revokeNativeInput: () -> Unit) {
         check(canAuthor()) { "Shared input is not editable or its origin is retired" }
+        // Closing a clean InputConnection may report only a collapsed blur
+        // selection. Preserve the action's accepted range and opaque anchors;
+        // real marked/text corrections still use the exact final native value.
+        val clean = if (!requiresCommit) Triple(value, anchors, retained) else null
         if (release == null) release = session.deferRemoteChanges()
         finishing = true
         try { revokeNativeInput() } finally { finishing = false }
         check(canAuthor()) { "Authoring permission changed during native finalization" }
+        if (clean != null && value.text == clean.first.text && value.composition == null) {
+            value = value.copy(selection = clean.first.selection)
+            anchors = clean.second; retained = clean.third
+        }
         try { commit() } catch (error: Exception) { failedReason = error.message ?: error.javaClass.simpleName; throw error }
     }
     private fun commit() {

@@ -95,7 +95,8 @@ class WritingCollectionComposeTest {
         try {
             compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme {
                 state = rememberWritingBlockEditorState(a, { assertTrue(it.isEmpty()) }, { throw it })
-                SideEffect { state.readOnly = readOnly.value }
+                val requestedReadOnly = readOnly.value
+                SideEffect { state.readOnly = requestedReadOnly }
                 if (visible.value) WritingBlockEditor(state)
             } } }
             field(original).performScrollTo().performClick().performTextInputSelection(TextRange(1))
@@ -119,11 +120,12 @@ class WritingCollectionComposeTest {
             val tag = "writing-check:${writingCanonical(tail.wire)}"
             compose.onNodeWithTag(tag).assertContentDescriptionEquals("B")
             val stale = checkNotNull(compose.onNodeWithTag(tag).fetchSemanticsNode().config[SemanticsActions.OnClick].action)
+            compose.runOnIdle { assertFalse(state.readOnly) }
             compose.onNodeWithTag(tag).performScrollTo().performClick()
             compose.onNodeWithTag(tag).assertContentDescriptionEquals("B")
             compose.runOnIdle { assertTrue(writingNodeValue(a, tail).getBoolean("checked")); readOnly.value = true }
             compose.waitForIdle()
-            compose.runOnIdle { val before = a.save().export().toString(); stale(); assertEquals(before, a.save().export().toString()) }
+            compose.runOnIdle { assertTrue(state.readOnly); val before = a.save().export().toString(); stale(); assertEquals(before, a.save().export().toString()) }
             compose.onNodeWithTag(tag).assertIsNotEnabled()
             compose.runOnIdle {
                 val reopened = WritingSession.restore(a.save(), "a")

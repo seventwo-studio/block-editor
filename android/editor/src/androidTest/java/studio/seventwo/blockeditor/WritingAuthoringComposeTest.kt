@@ -61,22 +61,29 @@ class WritingAuthoringComposeTest {
 
     @Test fun renderedFormattingAndConversionRetainOpaqueInputAndLivePermission() {
         lateinit var a:WritingSession;val visible=mutableStateOf(true);val readonly=mutableStateOf(false)
+        var renderedOwner: WritingParagraphEditorState? = null
         val interceptor=PlatformTextInputInterceptor {request,_->val current=request.createInputConnection(EditorInfo());try{awaitCancellation()}finally{current.closeConnection()}}
         compose.runOnUiThread {a=WritingSession.createV5("compose-native-format","a","five",seed())}
         try {
             compose.setContent {InterceptPlatformTextInput(interceptor){MaterialTheme{run{
                 val state=rememberWritingParagraphEditorState(a,{assertTrue(it.isEmpty())},reportError={throw it})
-                androidx.compose.runtime.SideEffect {state.readOnly=readonly.value}
+                val requestedReadOnly = readonly.value
+                androidx.compose.runtime.SideEffect { state.readOnly = requestedReadOnly; renderedOwner = state }
                 if(visible.value)WritingParagraphEditor(state,reportError={throw it})
             }}}}
             val field=compose.onNode(hasSetTextAction());field.performClick();field.performTextInputSelection(TextRange(2,0))
             val original=field.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange]
             val stale=checkNotNull(compose.onNodeWithTag("writing-italic").fetchSemanticsNode().config[SemanticsActions.OnClick].action)
             compose.runOnIdle {readonly.value=true};compose.waitForIdle()
-            compose.runOnIdle {val before=a.save().export().toString();stale();assertEquals(before,a.save().export().toString());readonly.value=false}
+            compose.runOnIdle {assertTrue(checkNotNull(renderedOwner).readOnly);val before=a.save().export().toString();stale();assertEquals(before,a.save().export().toString());readonly.value=false}
             compose.waitForIdle();field.performClick();field.performTextInputSelection(original)
+            compose.runOnIdle { assertFalse(checkNotNull(renderedOwner).readOnly) }
+            val observedBeforeFormat = field.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange]
+            assertEquals(0, observedBeforeFormat.min); assertEquals(2, observedBeforeFormat.max)
             compose.onNodeWithTag("writing-italic").performClick()
-            compose.runOnIdle {assertTrue(a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content").toString().contains("italic"))}
+            val observedAfterFormat = field.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange]
+            assertEquals(observedBeforeFormat, observedAfterFormat)
+            compose.runOnIdle {assertTrue("Original=$original before=$observedBeforeFormat after=$observedAfterFormat snapshot=${a.snapshot}", a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content").toString().contains("italic"))}
             compose.onNode(hasSetTextAction() and isFocused()).assertTextContains("ABMira")
             val origin=compose.runOnIdle {a.node(NodeAddress("p"))}
             compose.onNodeWithTag("writing-heading").performClick()
