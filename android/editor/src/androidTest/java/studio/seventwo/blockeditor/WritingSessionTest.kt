@@ -22,6 +22,46 @@ class WritingSessionTest {
         catch (failure: IllegalStateException) { assertEquals(message, failure.message) }
     }
 
+    @Test fun typedV4SplitPinsCommittedPrefixAndKeepsRemoteTailThroughReopenedUndo() {
+        for (list in listOf(false, true)) for (swap in listOf(false, true)) {
+            val seed = if (list) JSONArray("""[{"id":"p","type":"list","style":"todo","items":[{"id":"i","content":[{"type":"text","text":"AB","marks":[{"type":"bold"}]}],"checked":true,"host":"item"}]}]""")
+                else JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"AB","marks":[{"type":"bold"}]}],"host":"original"}]""")
+            val actor = if (swap) "b" else "a"
+            val a = WritingSession.createV4("typed-pin-$list-$swap", actor, "pin-v4", seed)
+            val b = WritingSession.createV4("typed-pin-$list-$swap", if (swap) "a" else "b", "pin-v4", seed)
+            var reopened: WritingSession? = null
+            fun texts(session: WritingSession): List<String> {
+                val roots = session.snapshot.getJSONArray("blocks")
+                val nodes = if (list) roots.getJSONObject(0).getJSONArray("items") else roots
+                return (0 until nodes.length()).map { index ->
+                    val content = nodes.getJSONObject(index).getJSONArray("content")
+                    (0 until content.length()).joinToString("") { content.getJSONObject(it).getString("text") }
+                }
+            }
+            try {
+                val address = if (list) WritingAddress("p", listOf("items", "i", "content")) else WritingAddress("p")
+                a.replaceText(address, 1, 1, "東京"); b.replaceText(address, 2, 2, "R")
+                a.receive(b.changes())
+                val caret = if (list) a.enterListItem(address, 3, 3, "tail") else a.splitParagraph(address, 3, 3, "tail")
+                val resolved = a.resolvePosition(caret)
+                assertEquals(0, resolved.offset)
+                assertEquals(listOf("A東京", "BR"), texts(a))
+                b.receive(a.changes()); assertEquals(blocks(a), blocks(b))
+                b.replaceText(resolved.address, 1, 1, "X"); a.receive(b.changes()); a.receive(b.changes())
+                val restored = WritingSession.restore(a.save(), actor); reopened = restored
+                assertEquals(listOf("A東京", "BXR"), texts(restored))
+                restored.undo(); assertEquals(listOf("A東京BXR"), texts(restored))
+                restored.redo(); assertEquals(blocks(a), blocks(restored))
+                val roots = restored.snapshot.getJSONArray("blocks")
+                val nodes = if (list) roots.getJSONObject(0).getJSONArray("items") else roots
+                for (index in 0 until nodes.length()) {
+                    val content = nodes.getJSONObject(index).getJSONArray("content")
+                    for (run in 0 until content.length()) assertEquals(normalize(JSONArray("""[{"type":"bold"}]""")), normalize(content.getJSONObject(run).getJSONArray("marks")))
+                }
+            } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+        }
+    }
+
     @Test fun typedV4MiddleEmptyExitPreservesItemOwnerAndRemoteUndo() {
         val seed = JSONArray("""[{"id":"list","type":"list","style":"todo","host":"root","items":[{"id":"first","content":[{"type":"text","text":"before","marks":[]}]},{"id":"empty","content":[],"checked":true,"host":"item"},{"id":"last","content":[{"type":"text","text":"after","marks":[]}]}]}]""")
         val a = WritingSession.createV4("typed-exit", "a", "exit-v4", seed)
@@ -59,8 +99,14 @@ class WritingSessionTest {
             b.convertBlock(WritingAddress("right", listOf("items", "i", "content")), 0, WritingBlockTarget("paragraph"))
             a.replaceText(WritingAddress("left"), 0, 0, "A"); b.replaceText(WritingAddress("right"), 0, 0, "B")
             val aa = a.changes(); val bb = b.changes(); val before = normalize(a.save().export())
-            error("writingRecoveryRequired") { a.receive(bb) }
-            error("writingRecoveryRequired") { b.receive(aa) }
+            val recoveryA = try { a.receive(bb); throw AssertionError("Missing typed writing recovery") }
+                catch (failure: WritingRecoveryException) { failure.recovery }
+            val recoveryB = try { b.receive(aa); throw AssertionError("Missing typed writing recovery") }
+                catch (failure: WritingRecoveryException) { failure.recovery }
+            assertEquals(MergeRecoveryReason.SCHEMA_CONSTRAINT, recoveryA.reason)
+            assertEquals(MergeRecoveryReason.SCHEMA_CONSTRAINT, recoveryB.reason)
+            assertEquals(normalize(recoveryA.export()), normalize(checkNotNull(a.mergeRecovery()).export()))
+            assertEquals(normalize(recoveryB.export()), normalize(checkNotNull(b.mergeRecovery()).export()))
             assertEquals(before, normalize(a.save().export()))
             a.repairUndo(1, "a"); b.receive(a.changes()); assertEquals(blocks(a), blocks(b))
             assertEquals("BAkeep😀", a.snapshot.getJSONArray("blocks").getJSONObject(1).getJSONArray("content").getJSONObject(0).getString("text"))

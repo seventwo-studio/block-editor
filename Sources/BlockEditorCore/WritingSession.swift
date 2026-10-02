@@ -337,6 +337,13 @@ public final class WritingSession {
         operations.append(.structure(.insertNode(value: value, identity: node, collection: parent.collection, placement: creation, after: parent.id)))
         operations.append(.text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: nextSibling)))
         if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
+        // Observed prefix atoms can themselves be anchored before a suffix atom.
+        // Pin those known atoms to the source before moving the suffix, so native
+        // committed composition does not follow its old anchor into the new field.
+        if protocolVersion == 4 {
+            let prefix = try selection(address, 0..<range.lowerBound).keys
+            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
+        }
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
         if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
         try perform(id, operations)
@@ -1361,11 +1368,15 @@ public final class WritingSession {
             for mutation in edit.mutations {
                 if case .splitBoundary(let source, let destination, let edge, let before) = mutation {
                     let rank: Int
-                    if let anchor = edge.anchor {
+                    let pin = retained == nil ? nil : edit.mutations.compactMap { mutation -> WritingAtomKey? in
+                        if case .transfer(let keys, let target, .start) = mutation, target == source { return keys.last }; return nil
+                    }.last
+                    if let anchor = pin ?? edge.anchor {
                         if ancestry == nil {
                             ancestry = try WritingProjection(seeds: seeds, edits: ancestryEdits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
                         }
                         rank = try ancestry!.retainedOffset(of: anchor, affinity: {
+                            if pin != nil { return .after }
                             if case .before = edge { return .before }; return .after
                         }())
                     } else { rank = 0 }
@@ -1382,17 +1393,59 @@ public final class WritingSession {
             guard Set(destinations).count == destinations.count else { throw EditorError.invalidChange }
         }
         let cutByDestination = cuts.values.flatMap { $0 }.reduce(into: [WritingField: Cut]()) { $0[$1.destination] = $1 }
-        edits = edits.map { edit in
-            WritingEdit(id: edit.id, mutations: edit.mutations.compactMap { mutation in
-                guard case .transfer(let keys, let destination, let edge) = mutation,
-                      let cut = cutByDestination[destination] else { return mutation }
-                let retained = keys.filter { key in
-                    let competitors = (cuts[cut.source] ?? []).filter { $0.keys.contains(key) }
-                    let winner = competitors.max { lhs, rhs in lhs.rank == rhs.rank ? lhs.id < rhs.id : lhs.rank < rhs.rank }
-                    return winner?.destination == destination
+        if retained == nil {
+            edits = edits.map { edit in
+                WritingEdit(id: edit.id, mutations: edit.mutations.compactMap { mutation in
+                    guard case .transfer(let keys, let destination, let edge) = mutation,
+                          let cut = cutByDestination[destination] else { return mutation }
+                    let retained = keys.filter { key in
+                        let competitors = (cuts[cut.source] ?? []).filter { $0.keys.contains(key) }
+                        let winner = competitors.max { lhs, rhs in lhs.rank == rhs.rank ? lhs.id < rhs.id : lhs.rank < rhs.rank }
+                        return winner?.destination == destination
+                    }
+                    return retained.isEmpty ? nil : .transfer(keys: retained, destination: destination, edge: edge)
+                })
+            }
+        } else {
+            let history = Dictionary(uniqueKeysWithValues: changes.map { ($0.id, $0) })
+            var observedBy: [ChangeID: Set<ChangeID>] = [:]
+            func observed(_ id: ChangeID) -> Set<ChangeID> {
+                if let known = observedBy[id] { return known }
+                var pending = history[id]?.observed ?? [], known = Set<ChangeID>()
+                while let predecessor = pending.popLast() {
+                    if known.insert(predecessor).inserted { pending.append(contentsOf: history[predecessor]?.observed ?? []) }
                 }
-                return retained.isEmpty ? nil : .transfer(keys: retained, destination: destination, edge: edge)
-            })
+                observedBy[id] = known; return known
+            }
+            edits = try edits.map { edit in
+                WritingEdit(id: edit.id, mutations: try edit.mutations.flatMap { mutation -> [WritingMutation] in
+                    guard case .transfer(let keys, let destination, let edge) = mutation else { return [mutation] }
+                    let origin = aliases[destination] ?? destination
+                    if case .start = edge, let own = cuts[origin]?.first(where: { $0.id == edit.id }) {
+                        // Pins express the source atoms this author observed. Reserve
+                        // truly concurrent suffix ownership, including birth-route
+                        // descendants, without blocking causal later pins after joins.
+                        let competitors = (cuts[own.source] ?? []).filter { $0.id != edit.id && !observed(edit.id).contains($0.id) && !observed($0.id).contains(edit.id) }
+                        if !competitors.isEmpty, ancestry == nil {
+                            ancestry = try WritingProjection(seeds: seeds, edits: ancestryEdits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
+                        }
+                        var partitions: [WritingField: [WritingAtomKey]] = [:]
+                        for key in keys {
+                            let claiming = try competitors.filter { try ancestry!.follows(key, anyOf: $0.keys) }
+                            let winner = claiming.max { lhs, rhs in lhs.rank == rhs.rank ? lhs.id < rhs.id : lhs.rank < rhs.rank }
+                            partitions[winner?.destination ?? destination, default: []].append(key)
+                        }
+                        return partitions.keys.sorted { $0.key < $1.key }.map { .transfer(keys: partitions[$0]!, destination: $0, edge: edge) }
+                    }
+                    guard let cut = cutByDestination[destination], retained == nil || cut.id == edit.id else { return [mutation] }
+                    let retainedKeys = keys.filter { key in
+                        let competitors = (cuts[cut.source] ?? []).filter { $0.keys.contains(key) }
+                        let winner = competitors.max { lhs, rhs in lhs.rank == rhs.rank ? lhs.id < rhs.id : lhs.rank < rhs.rank }
+                        return winner?.destination == destination
+                    }
+                    return retainedKeys.isEmpty ? [] : [.transfer(keys: retainedKeys, destination: destination, edge: edge)]
+                })
+            }
         }
         let selected = try structure.effectivePlacements()
         for (source, siblings) in cuts {
@@ -1668,6 +1721,13 @@ extension WritingSession {
         var operations: [WritingOperation] = [.structure(.insertNode(value: .object(fields), identity: destinationNode, collection: parent.collection, placement: creation, after: parent.id)),
             .text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: next))]
         if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
+        // Observed prefix atoms can themselves be anchored before a suffix atom.
+        // Pin those known atoms to the source before moving the suffix, so native
+        // committed composition does not follow its old anchor into the new field.
+        if protocolVersion == 4 {
+            let prefix = try selection(address, 0..<range.lowerBound).keys
+            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
+        }
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
         if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
         try perform(id, operations)

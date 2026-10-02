@@ -158,6 +158,20 @@ struct WritingProjection {
         visibleKeys(in: field).compactMap { nodes[$0] }
     }
     func text(in field: WritingField) -> String { plainText(nodes(in: field)) }
+    /// Birth-route ancestry for concurrent cut ownership. Projection callers can
+    /// distinguish unobserved descendants from atoms explicitly pinned later.
+    func follows(_ key: WritingAtomKey, anyOf anchors: Set<WritingAtomKey>) throws -> Bool {
+        var current = key, seen = Set<WritingAtomKey>()
+        while true {
+            if anchors.contains(current) { return true }
+            guard seen.insert(current).inserted else { throw WritingProjectionError.routeCycle }
+            guard let placement = placements[current] else { throw WritingProjectionError.missingAtom }
+            switch placement.route {
+            case .field: return false
+            case .follow(let next): current = next
+            }
+        }
+    }
     func field(of key: WritingAtomKey) throws -> WritingField {
         guard let field = fields[key] else { throw WritingProjectionError.missingAtom }
         return field
