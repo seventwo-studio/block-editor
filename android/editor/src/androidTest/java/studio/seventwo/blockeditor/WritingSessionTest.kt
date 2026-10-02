@@ -7,6 +7,80 @@ import org.junit.Test
 
 /** Typed Kotlin consumer proof, separate from the shared raw JNI transcript. */
 class WritingSessionTest {
+    @Test fun typedWritingMathThresholdRetainsBothAtomsAndSeparateRecoveryAcrossRestart() {
+        val rich = JSONObject("""{"id":"rich","type":"paragraph","host":"retained","content":[{"type":"text","text":"café 東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"outside","label":"Task","consumer":{"id":"reference-opaque"}}]}""")
+        for (version in listOf(4, 5)) for (actor in listOf("a", "z")) for (length in listOf(9_998, 9_999)) {
+            val math = JSONObject().put("id", "math").put("type", "math").put("expression", "x".repeat(length))
+                .put("consumer", JSONObject("""{"id":"math-opaque","children":[{"id":"opaque-child"}]}"""))
+            val seed = JSONArray().put(math).put(rich)
+            fun create(writer: String) = if (version == 4) WritingSession.createV4("typed-threshold-$version", writer, "threshold-$version", seed)
+                else WritingSession.createV5("typed-threshold-$version", writer, "threshold-$version", seed)
+            fun expected(count: Int, suffix: String) = normalize(JSONArray().put(JSONObject(math.toString()).put("expression", "x".repeat(count) + suffix)).put(rich))
+            fun pending(operation: () -> Unit): WritingRecovery {
+                try { operation() } catch (failure: WritingRecoveryException) { return failure.recovery }
+                throw AssertionError("Over-limit union must retain a proposal")
+            }
+            val a = create(actor); val b = create("m")
+            var resumedA: WritingSession? = null; var resumedB: WritingSession? = null; var reopened: WritingSession? = null
+            try {
+                val address = WritingAddress("math", listOf("expression"))
+                val positionA = a.replaceText(address, length, length, "A")
+                val positionB = b.replaceText(address, length, length, "B")
+                assertEquals(expected(length, "A"), blocks(a)); assertEquals(expected(length, "B"), blocks(b))
+                val own = a.changes(); val remote = b.changes(); val suffix = if (actor == "z") "AB" else "BA"
+                if (length == 9_998) {
+                    a.receive(remote); b.receive(own); a.receive(remote); b.receive(own)
+                    assertEquals(expected(9_998, suffix), blocks(a)); assertEquals(blocks(a), blocks(b))
+                    assertNull(a.mergeRecovery()); assertNull(b.mergeRecovery())
+                    assertEquals(if (actor == "z") 9_999 else 10_000, a.resolvePosition(positionA).offset)
+                    assertEquals(if (actor == "z") 10_000 else 9_999, a.resolvePosition(positionB).offset)
+                    val restored = WritingSession.restore(a.save(), actor); reopened = restored
+                    restored.undo(); b.receive(restored.changes())
+                    assertEquals(expected(9_998, "B"), blocks(restored)); assertEquals(blocks(restored), blocks(b))
+                    restored.redo(); b.receive(restored.changes()); b.receive(restored.changes())
+                    assertEquals(expected(9_998, suffix), blocks(restored)); assertEquals(blocks(restored), blocks(b))
+                    continue
+                }
+                val acceptedA = a.save(); val acceptedB = b.save()
+                val savedA = normalize(acceptedA.export()); val savedB = normalize(acceptedB.export())
+                val receiptA = normalize(a.syncState().export()); val receiptB = normalize(b.syncState().export())
+                val proposalA = pending { a.receive(remote) }; val proposalB = pending { b.receive(own) }
+                assertEquals(MergeRecoveryReason.SCHEMA_CONSTRAINT, proposalA.reason)
+                assertEquals(normalize(proposalA.export()), normalize(proposalB.export()))
+                repeat(2) { assertEquals(normalize(proposalA.export()), normalize(pending { a.receive(remote) }.export())) }
+                assertEquals(savedA, normalize(a.save().export())); assertEquals(savedB, normalize(b.save().export()))
+                assertEquals(receiptA, normalize(a.syncState().export())); assertEquals(receiptB, normalize(b.syncState().export()))
+                pending { a.undo() }; pending { a.replaceText(address, 0, 0, "blocked") }
+                val restoredA = WritingSession.restore(acceptedA, actor); resumedA = restoredA
+                val restoredB = WritingSession.restore(acceptedB, "m"); resumedB = restoredB
+                pending { restoredA.restoreRecovery(WritingRecovery.restore(proposalA.export())) }
+                pending { restoredB.restoreRecovery(WritingRecovery.restore(proposalB.export())) }
+                assertEquals(savedA, normalize(restoredA.save().export())); assertEquals(savedB, normalize(restoredB.save().export()))
+                assertEquals(receiptA, normalize(restoredA.syncState().export())); assertEquals(receiptB, normalize(restoredB.syncState().export()))
+                val origin = restoredA.node(NodeAddress("math"))
+                error("invalidChange") { restoredA.repairText(origin, "expression", "x".repeat(9_999) + suffix) }
+                assertEquals(savedA, normalize(restoredA.save().export()))
+                assertEquals(normalize(proposalA.export()), normalize(restoredA.mergeRecovery()!!.export()))
+                restoredA.repairText(origin, "expression", "x".repeat(9_998) + suffix)
+                assertEquals(expected(9_998, suffix), blocks(restoredA)); assertNull(restoredA.mergeRecovery())
+                assertEquals(if (actor == "z") 9_999 else 10_000, restoredA.resolvePosition(positionA).offset)
+                assertEquals(if (actor == "z") 10_000 else 9_999, restoredA.resolvePosition(positionB).offset)
+                val forward = restoredA.changes().export(); val changes = forward.getJSONArray("changes")
+                val reverse = JSONObject(forward.toString()).put("changes", JSONArray((0 until changes.length()).reversed().map { changes.getJSONObject(it) }))
+                restoredB.receive(WritingBatch.restore(reverse)); restoredB.receive(restoredA.changes()); restoredB.receive(WritingBatch.restore(reverse))
+                assertEquals(blocks(restoredA), blocks(restoredB)); assertNull(restoredB.mergeRecovery())
+                val stopped = WritingSession.restore(restoredA.save(), actor); reopened = stopped
+                val beforeUndo = normalize(stopped.save().export()); val beforeReceipt = normalize(stopped.syncState().export())
+                val pendingUndo = pending { stopped.undo() }
+                assertEquals(beforeUndo, normalize(stopped.save().export())); assertEquals(beforeReceipt, normalize(stopped.syncState().export()))
+                assertEquals(4, pendingUndo.batch.export().getJSONArray("changes").length())
+                stopped.repairRedo(2, actor); restoredB.receive(stopped.changes()); restoredB.receive(stopped.changes())
+                assertEquals(expected(9_998, suffix), blocks(stopped)); assertEquals(blocks(stopped), blocks(restoredB))
+                assertEquals(5, stopped.changes().export().getJSONArray("changes").length())
+            } finally { a.close(); b.close(); resumedA?.close(); resumedB?.close(); reopened?.close() }
+        }
+    }
+
     @Test fun typedV5WholeBlockPasteKeepsConcurrentCutGroupsAndOneAuthorUndo() {
         val seed = JSONArray("""[{"id":"p","type":"paragraph","host":"boundary","content":[{"type":"text","text":"abcd","marks":[]}]}]""")
         val clipboard = WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"node":{"value":{"id":"input","type":"paragraph","content":[{"type":"text","text":"東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"consumer-task","label":"Task","consumer":{"id":"reference-opaque"}}],"consumer":{"id":"opaque-owner","children":[{"id":"opaque-child"}]}},"kind":"block"}}]}"""))
