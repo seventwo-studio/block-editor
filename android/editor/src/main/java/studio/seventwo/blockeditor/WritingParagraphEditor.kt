@@ -105,10 +105,10 @@ class WritingParagraphEditorState private constructor(val session: WritingSessio
     val nativeFocus = LocalFocusManager.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val clipboard = remember(context) { context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager }
-    var focused by remember(input) { mutableStateOf(false) }
+    var focused by remember(binding) { mutableStateOf(false) }
     val request = inputs.focusRequest
     DisposableEffect(binding) { inputs.attach(binding); onDispose { inputs.detach(binding) } }
-    LaunchedEffect(binding, request, input.value) {
+    LaunchedEffect(binding, request, input.value, focused) {
         if (request?.key == origin && binding.current()) {
             val start = session.resolvePosition(request.range.start)
             val end = session.resolvePosition(request.range.end)
@@ -119,8 +119,19 @@ class WritingParagraphEditorState private constructor(val session: WritingSessio
                 input.adopt(request.range)
                 return@LaunchedEffect
             }
-            focus.requestFocus()
-            inputs.consume(request, binding)
+            if (!focused) {
+                // Wait for this native node's layout before requesting focus.
+                // Requesting focus alone does not prove that it was adopted.
+                withFrameNanos { }
+                if (inputs.focusRequest != request || !binding.current()) return@LaunchedEffect
+                focus.requestFocus()
+            }
+            if (focused) {
+                // A focus callback can precede lease attachment. Reconcile the
+                // observed native owner before consuming its opaque caret.
+                inputs.focusChanged(binding, true)
+                inputs.consume(request, binding)
+            }
         }
     }
     fun invoke(command: Int) {

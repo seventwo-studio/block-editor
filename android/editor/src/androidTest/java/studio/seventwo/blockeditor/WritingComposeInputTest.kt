@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.semantics.SemanticsActions
@@ -29,6 +30,63 @@ class WritingComposeInputTest {
         (0 until blocks.length()).map { plainText(blocks.getJSONObject(it).getJSONArray("content")) }
     }
     private fun retainedDrafts(drafts: List<WritingInputDraft>) { assertTrue("No pending draft in this test", drafts.isEmpty()) }
+
+    @Test fun returnedCaretWaitsForActualNativeDestinationFocus() {
+        lateinit var a: WritingSession
+        lateinit var owner: WritingParagraphEditorState
+        val visible = mutableStateOf(true)
+        val allowTailFocus = mutableStateOf(false)
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            val connection = request.createInputConnection(EditorInfo())
+            try { awaitCancellation() } finally { connection.closeConnection() }
+        }
+        compose.runOnUiThread { a = WritingSession.createV4("compose-focus-adoption", "a", "v4", seed()) }
+        try {
+            compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme {
+                owner = rememberWritingParagraphEditorState(a, ::retainedDrafts, reportError = { throw it })
+                if (visible.value) {
+                    val snapshot = a.snapshot
+                    val roots = androidx.compose.runtime.remember(a, snapshot) { a.collectionNodes(NodeCollection.ROOT) }
+                    roots.forEachIndexed { index, identity ->
+                        androidx.compose.runtime.key(writingCanonical(identity.wire)) {
+                            val permitted = index == 0 || allowTailFocus.value
+                            androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.focusProperties { canFocus = permitted }) {
+                                WritingTextField(a, owner.inputs, identity, false, { throw it })
+                            }
+                        }
+                    }
+                }
+            } } }
+            val source = compose.onNode(hasSetTextAction())
+            source.performClick(); source.performTextInputSelection(TextRange(6))
+            compose.onNodeWithTag("writing-enter").performClick()
+            // Pending caret ownership makes the field read-only, so SetText
+            // semantics are intentionally absent until actual focus adoption.
+            val tailTag = compose.runOnIdle { "writing-text:${a.collectionNodes(NodeCollection.ROOT)[1].wire}" }
+            val tail = compose.onNodeWithTag(tailTag)
+            tail.assertIsNotFocused()
+            compose.runOnIdle {
+                val pending = checkNotNull(owner.inputs.focusRequest) { "Unfocused destination must retain its caret request" }
+                assertEquals(0, a.resolvePosition(pending.range.start).offset)
+                assertTrue(owner.pendingDrafts().isEmpty())
+                assertEquals(listOf("ABMira", ""), texts(a))
+                allowTailFocus.value = true
+            }
+            tail.performClick(); tail.assertIsFocused()
+            assertEquals(TextRange(0), tail.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            compose.runOnIdle {
+                assertNull(owner.inputs.focusRequest); assertTrue(owner.pendingDrafts().isEmpty())
+                val reopened = WritingSession.restore(a.save(), "a")
+                try {
+                    reopened.undo(); assertEquals(listOf("ABMira"), texts(reopened))
+                    reopened.redo(); assertEquals(a.snapshot.toString(), reopened.snapshot.toString())
+                } finally { reopened.close() }
+            }
+        } finally {
+            compose.runOnIdle { visible.value = false }; compose.waitForIdle()
+            compose.runOnIdle { owner.close(); a.close() }
+        }
+    }
 
     @Test fun sameFieldSoftBreakKeepsCaretOwnershipAgainstSiblingFocusDuringHandoff() {
         lateinit var a: WritingSession; lateinit var b: WritingSession
@@ -267,37 +325,8 @@ class WritingComposeInputTest {
         }
     }
 
-    private fun traceEmptyTail(stage: String, state: WritingParagraphEditorState,
-        captured: WritingEditorInputs.FocusRequest? = state.inputs.focusRequest) {
-        // Diagnostic reads only: retain the exact opaque anchors and owner
-        // bookkeeping when platform focus differs from the asserted caret.
-        try {
-            val owner = state.inputs
-            fun member(name: String) = owner.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(owner)
-            val entries = member("entries") as Map<*, *>
-            val inputs = JSONArray(entries.map { (key, entry) ->
-                val input = checkNotNull(entry).javaClass.getDeclaredField("input").apply { isAccessible = true }.get(entry) as WritingCollaborativeTextInput
-                val range = input.resolvedSelection()
-                org.json.JSONObject().put("key", key).put("text", input.value.text)
-                    .put("selection", input.value.selection.toString()).put("requiresCommit", input.requiresCommit)
-                    .put("anchor", range?.start?.export() ?: org.json.JSONObject.NULL)
-                    .put("resolved", range?.let { runCatching {
-                        val resolved = state.session.resolvePosition(it.start)
-                        org.json.JSONObject().put("key", writingKey(resolved.address)).put("offset", resolved.offset)
-                    }.getOrNull() } ?: org.json.JSONObject.NULL)
-            })
-            println("ST97_EMPTY_TAIL " + org.json.JSONObject().put("stage", stage)
-                .put("active", member("active") ?: org.json.JSONObject.NULL).put("focused", member("focused"))
-                .put("pending", captured?.let { org.json.JSONObject().put("key", it.key).put("anchor", it.range.start.export())
-                    .put("offset", runCatching { state.session.resolvePosition(it.range.start).offset }.getOrNull()) } ?: org.json.JSONObject.NULL)
-                .put("inputs", inputs).put("snapshot", state.session.snapshot))
-        } catch (diagnostic: Exception) { println("ST97_EMPTY_TAIL_DIAGNOSTIC ${diagnostic.message}") }
-    }
-
     @Test fun nativeEmptyTailUndoRedoKeepsOriginalRetainedHeadSelection() {
         lateinit var a: WritingSession
-        lateinit var renderedOwner: WritingParagraphEditorState
-        var phase = "initial"
         val visible = mutableStateOf(true)
         val interceptor = PlatformTextInputInterceptor { request, _ ->
             val connection = request.createInputConnection(EditorInfo()); try { awaitCancellation() } finally { connection.closeConnection() }
@@ -306,24 +335,20 @@ class WritingComposeInputTest {
         try {
             compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { run {
                 val state = rememberWritingParagraphEditorState(a, ::retainedDrafts, reportError = { throw it })
-                val pending = state.inputs.focusRequest
-                androidx.compose.runtime.SideEffect { renderedOwner = state; traceEmptyTail(phase, state, pending) }
                 if (visible.value) WritingParagraphEditor(state, reportError = { throw it })
             } } } }
             val original = compose.onNode(hasSetTextAction()); original.performClick(); original.performTextInputSelection(TextRange(6))
-            phase = "enter"
             compose.onNodeWithTag("writing-enter").performClick()
             compose.onNode(hasSetTextAction() and isFocused()).assertTextContains("")
+            assertEquals("The returned empty tail must actually own native focus", "",
+                compose.onNode(hasSetTextAction() and isFocused()).fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+            assertEquals(TextRange(0), compose.onNode(hasSetTextAction() and isFocused()).fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
             compose.runOnIdle { assertEquals(listOf("ABMira", ""), texts(a)) }
-            phase = "undo"
             compose.onNodeWithTag("writing-undo").performClick()
             compose.onNode(hasSetTextAction() and isFocused()).assertTextContains("ABMira")
             assertEquals(TextRange(6), compose.onNode(hasSetTextAction() and isFocused()).fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
-            compose.runOnIdle { traceEmptyTail("after-undo", renderedOwner) }
-            phase = "redo"
             compose.onNodeWithTag("writing-redo").performClick()
             compose.runOnIdle { assertEquals(listOf("ABMira", ""), texts(a)) }
-            compose.runOnIdle { traceEmptyTail("after-redo", renderedOwner) }
             assertEquals(TextRange(0), compose.onNode(hasSetTextAction() and isFocused()).fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
         } finally {
             compose.runOnIdle { visible.value = false }; compose.waitForIdle()
