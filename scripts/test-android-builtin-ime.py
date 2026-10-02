@@ -99,8 +99,8 @@ def main():
         if report["installedAPK_SHA256"] != report["apkSHA256"]:
             raise RuntimeError("Supplied test APK does not match installed input host")
         # Remove only test-owned evidence to prevent an earlier proof from masquerading as this run.
-        owned = ["system-ime-proof.json", "system-ime-reopen-proof.json", "system-ime-paste-proof.json"]
-        for name in ("plain-keyboard", "plain-composing", "composing", "author-undo", "author-redo", "process-reopen", "paste-menu", "plain-paste"):
+        owned = ["system-ime-proof.json", "system-ime-reopen-proof.json", "system-ime-paste-proof.json", "system-ime-control-states.json"]
+        for name in ("plain-keyboard", "plain-composing", "composing", "author-undo", "author-redo-before", "author-redo", "process-reopen", "paste-menu", "plain-paste"):
             owned.extend(["system-ime-" + name + ".png", "system-ime-" + name + "-input-method.txt"])
         owned.extend("system-ime-" + name + ".json" for name in ("keyboard-nodes", "key-touches", "plain-updates", "paste-menu-nodes"))
         run(adb + ["shell", "run-as", "studio.seventwo.blockeditor.test", "rm", "-f", *["files/" + n for n in owned]])
@@ -136,12 +136,12 @@ def main():
         if report["settingsAfter"] != report["settingsBefore"]:
             report["passed"] = False
         collection_failures = []
-        for name in ("plain-keyboard", "plain-composing", "composing", "author-undo", "author-redo", "process-reopen", "paste-menu", "plain-paste"):
+        for name in ("plain-keyboard", "plain-composing", "composing", "author-undo", "author-redo-before", "author-redo", "process-reopen", "paste-menu", "plain-paste"):
             for suffix, destination in ((".png", name + ".png"), ("-input-method.txt", name + "-input-method.txt")):
                 try: pull("system-ime-" + name + suffix, destination)
                 except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as error:
                     collection_failures.append({"file": destination, "error": f"{type(error).__name__}: {error}"})
-        for name in ("keyboard-nodes", "key-touches", "plain-updates", "paste-menu-nodes"):
+        for name in ("keyboard-nodes", "key-touches", "plain-updates", "paste-menu-nodes", "control-states"):
             try: pull("system-ime-" + name + ".json", name + ".json")
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as error:
                 collection_failures.append({"file": name + ".json", "error": f"{type(error).__name__}: {error}"})

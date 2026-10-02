@@ -14,22 +14,29 @@ internal class CollaborativeTextInput(
     private val session: EditorSession,
     private val blockID: String,
     private val path: List<String> = listOf("content"),
+    private val origin: NodeIdentity? = null,
     private val reportError: (Exception) -> Unit,
 ) : Closeable {
     var value by mutableStateOf(TextFieldValue(readText()))
         private set
     private var closed = false
+    private var finishingNativeComposition = false
+    internal val acceptsFinalNativeValue: Boolean get() = finishingNativeComposition
     private var release: (() -> Unit)? = null
+    internal val requiresCommit: Boolean get() = value.composition != null || release != null
+    internal fun canFinishUnchangedComposition(): Boolean =
+        !closed && !finishingNativeComposition && requiresCommit && liveAddress() != null && value.text == readText()
     private var anchors: Pair<JSONObject, JSONObject>? = null
     private val unsubscribeBefore = session.subscribeBeforeReceive {
         try {
-            anchors = session.position(blockID, value.selection.start, path) to session.position(blockID, value.selection.end, path)
+            val address = checkNotNull(liveAddress())
+            anchors = session.position(address.blockID, value.selection.start, address.path) to session.position(address.blockID, value.selection.end, address.path)
         } catch (_: Exception) { anchors = null }
         val rollback: () -> Unit = { anchors = null }
         rollback
     }
     private val unsubscribe = session.subscribe {
-        if (value.composition == null) {
+        if (!finishingNativeComposition && !requiresCommit) {
             val text = readText()
             val selection = try {
                 anchors?.let { TextRange(session.resolvePosition(it.first), session.resolvePosition(it.second)) } ?: value.selection
@@ -41,25 +48,45 @@ internal class CollaborativeTextInput(
     fun update(next: TextFieldValue) {
         if (closed) return
         value = next
+        // Focus revocation may synchronously deliver the platform's final value.
+        // Retain it, then let the explicit owner validate/drain before history.
+        if (finishingNativeComposition) return
         if (next.composition != null) {
             if (release == null) release = session.deferRemoteChanges()
             return
         }
-        try { if (next.text != readText()) session.setText(blockID, next.text, path) }
+        try {
+            if (next.text != readText()) {
+                if (origin == null) session.setText(blockID, next.text, path)
+                else session.setText(origin, next.text, path.last())
+            }
+        }
         catch (error: Exception) { value = TextFieldValue(readText()); reportError(error) }
         finally {
             val finish = release; release = null
             try { finish?.invoke() } catch (error: Exception) { reportError(error) }
         }
     }
+    /** Finish only a native recomposition of already accepted text. A changed
+     * draft must be committed through the ordinary input path first. */
+    internal fun finishUnchangedComposition(revokeNativeInput: () -> Unit) {
+        check(canFinishUnchangedComposition()) { "Commit the changed draft before history" }
+        finishingNativeComposition = true
+        try { revokeNativeInput() } finally { finishingNativeComposition = false }
+        // Revocation can produce a final changed value (for example correction).
+        // Preserve that draft and its remote hold; never run history over it.
+        check(!closed && liveAddress() != null && value.text == readText()) { "Native input changed while ending composition; commit the retained draft first" }
+        value = value.copy(composition = null)
+        val finish = release; release = null
+        // A failed remote drain must reach the command owner and suppress history.
+        finish?.invoke()
+    }
+    internal fun liveAddress(): NodeAddress? = if (origin == null) NodeAddress(blockID, path) else try {
+        session.nodeAddress(origin).let { NodeAddress(it.blockID, it.path + path.last()) }
+    } catch (_: IllegalStateException) { null }
     private fun readText(): String {
-        val blocks = session.snapshot.getJSONArray("blocks")
-        var field: Any? = (0 until blocks.length()).map { blocks.getJSONObject(it) }.find { it.optString("id") == blockID }
-        for (part in path) field = when (val parent = field) {
-            is JSONObject -> parent.opt(part)
-            is JSONArray -> (0 until parent.length()).mapNotNull { parent.optJSONObject(it) }.find { it.optString("id") == part }
-            else -> null
-        }
+        val address = liveAddress() ?: return ""
+        val field = fieldValue(session.snapshot, address.blockID, address.path)
         return when (field) {
             is String -> field
             is JSONArray -> plainText(field)
