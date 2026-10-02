@@ -41,6 +41,8 @@ import UIKit
                 self.input.model.perform { if redo { try $0.redo() } else { try $0.undo() } }
             }
             view.formatSelection = { [weak self] type in self?.input.format(type) }
+            view.copySharedClipboard = { [weak self] in self?.input.copyClipboard() }
+            view.pasteSharedClipboard = { [weak self] payload in self?.input.pasteImported(payload) ?? false }
             input.onCommit = { [weak self] in
                 guard let self, self.input.canAuthor, let view = self.view else { throw EditorError.invalidChange }
                 if !self.input.composing, self.input.effectiveAddress.identity.flatMap({ try? self.input.model.session.address(of: $0) }) == nil { return }
@@ -68,7 +70,7 @@ import UIKit
         func close() {
             input.close(); if let view { input.model.focus.unregister(view) }
             view?.delegate = nil; view?.didMove = nil; view?.didResignFocus = nil; view?.beginComposition = nil; view?.didEdit = nil
-            view?.command = nil; view?.history = nil; view?.formatSelection = nil; view = nil
+            view?.command = nil; view?.history = nil; view?.formatSelection = nil; view?.copySharedClipboard = nil; view?.pasteSharedClipboard = nil; view = nil
         }
     }
 }
@@ -91,13 +93,25 @@ import UIKit
     var command: ((WritingNativeKey) -> Bool)?
     var history: ((Bool) -> Void)?
     var formatSelection: ((String) -> Void)?
+    var copySharedClipboard: (() -> WritingClipboard?)?
+    var pasteSharedClipboard: ((WritingNativeClipboardPayload) -> Bool)?
     override var undoManager: UndoManager? { nil }
     override func didMoveToWindow() { super.didMoveToWindow(); didMove?() }
     override func setMarkedText(_ markedText: String?, selectedRange: NSRange) { guard isEditable else { return }; beginComposition?(); nativeEditing = true; super.setMarkedText(markedText, selectedRange: selectedRange); nativeEditing = false; didEdit?() }
     override func unmarkText() { nativeEditing = true; super.unmarkText(); nativeEditing = false; didEdit?() }
     override func insertText(_ text: String) { guard isEditable else { return }; if text == "\n", command?(.enter) == true { return }; nativeEditing = true; super.insertText(text); nativeEditing = false; didEdit?() }
     override func deleteBackward() { guard isEditable else { return }; if command?(.backspace) == true { return }; nativeEditing = true; super.deleteBackward(); nativeEditing = false; didEdit?() }
-    override func paste(_ sender: Any?) { if isEditable, let text = UIPasteboard.general.string { nativeEditing = true; super.insertText(text); nativeEditing = false; didEdit?() } }
+    override func copy(_ sender: Any?) {
+        guard let clipboard = copySharedClipboard?(), let data = try? WritingNativeClipboard.encode(clipboard) else { super.copy(sender); return }
+        let plain = (text as NSString).substring(with: selectedRange)
+        UIPasteboard.general.setItems([[WritingNativeClipboard.identifier: data, "public.utf8-plain-text": plain]])
+    }
+    override func paste(_ sender: Any?) {
+        guard isEditable, let pasteSharedClipboard else { return }
+        let board = UIPasteboard.general
+        if let data = board.data(forPasteboardType: WritingNativeClipboard.identifier) { _ = pasteSharedClipboard(.structured(data)) }
+        else if let text = board.string { _ = pasteSharedClipboard(.text(text)) }
+    }
     override var keyCommands: [UIKeyCommand]? {
         [UIKeyCommand(input: "\r", modifierFlags: .shift, action: #selector(softBreak)),
          UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(undoLocal)),

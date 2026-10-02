@@ -57,12 +57,14 @@ jobs:
           "$SWIFT_BIN" test 2>&1 | tee test-results/compatibility/swift-tests.txt
           "$SWIFT_BIN" build --product editor-bridge
           bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
+          bun scripts/run-native-writing-resource.mjs .build/debug/editor-bridge
           "$SWIFT_BIN" build --product relay-client
           bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
       - name: Verify optimized measurement harness
         run: |
           "$SWIFT_BIN" build -c release --product editor-bridge
           PERFORMANCE_PROFILE=smoke bun scripts/run-native-performance.mjs
+          PERFORMANCE_PROFILE=smoke PERFORMANCE_WRITING=true PERFORMANCE_BINARY_CONFIGURATION=release bun scripts/run-native-performance.mjs
           bun test tests/performance-report.test.ts tests/wasm-size.test.ts
       - name: Record exact native build provenance
         run: |
@@ -75,6 +77,7 @@ jobs:
           path: |
             test-results/compatibility
             test-results/performance
+            test-results/resource
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
           if-no-files-found: error
           retention-days: 7
@@ -111,11 +114,21 @@ jobs:
         env:
           COMPATIBILITY_OUTPUT: ${{ runner.temp }}/wasm-reports
         run: bunx playwright test --config playwright.swift.config.ts --reporter=line,json > "$COMPATIBILITY_OUTPUT/playwright.txt" 2>&1
+      - name: Verify actual production writing limits in three engines
+        env:
+          RESOURCE_OUTPUT: ${{ runner.temp }}/wasm-reports
+        run: bunx playwright test --config playwright.resource.config.ts --reporter=line,json > "$RESOURCE_OUTPUT/resource-playwright.txt" 2>&1
       - name: Verify WASM measurement harness in three engines
         env:
           PERFORMANCE_PROFILE: smoke
           PERFORMANCE_OUTPUT: ${{ runner.temp }}/wasm-reports
         run: bunx playwright test --config playwright.performance.config.ts --reporter=line,json > "$PERFORMANCE_OUTPUT/performance-playwright.txt" 2>&1
+      - name: Verify current writing measurement harness in three engines
+        env:
+          PERFORMANCE_PROFILE: smoke
+          PERFORMANCE_WRITING: 'true'
+          PERFORMANCE_OUTPUT: ${{ runner.temp }}/wasm-reports
+        run: bunx playwright test --config playwright.performance.config.ts --reporter=line,json > "$PERFORMANCE_OUTPUT/performance-writing-playwright.txt" 2>&1
       - name: Verify browser relay recovery in three engines
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/relay-playwright.json
@@ -193,7 +206,9 @@ jobs:
           path: |
             test-results/compatibility
             test-results/performance
+            test-results/resource
             test-results/system-input
+            test-results/writing-system-input
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             android/editor/build/reports/androidTests
           if-no-files-found: error
@@ -212,7 +227,7 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.2
-      - run: bun test tests/runtime-artifacts.test.ts
+      - run: bun test tests/runtime-artifacts.test.ts tests/writing-performance-provenance.test.ts
       - run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p runtime_provenance_test.py
       - name: Select the latest evidence from each runtime
         id: runtime-artifacts
@@ -238,3 +253,5 @@ jobs:
       - run: python3 scripts/runtime-provenance.py verify test-results/runtime-reports
       - run: bun scripts/compare-runtime-reports.mjs test-results/runtime-reports
       - run: bun scripts/compare-performance-reports.mjs test-results/runtime-reports native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox smoke
+      - run: bun scripts/compare-performance-reports.mjs test-results/runtime-reports native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox smoke --writing
+      - run: bun scripts/compare-writing-resource-reports.mjs test-results/runtime-reports

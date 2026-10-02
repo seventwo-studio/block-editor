@@ -49,14 +49,14 @@ func v5RejectsMixedVersionsAndUnknownVersionsWithoutAdmission() throws {
     let wrongEpoch = WritingBatch(documentID: b.documentID, epoch: "other-epoch", baseline: baseline, changes: [], version: 5)
     #expect(throws: WritingSessionError.incompatibleEpoch) { try b.receive(wrongEpoch) }
     #expect(try b.save() == savedB)
-    #expect(throws: EditorError.unsupportedVersion(6)) {
-        _ = try WritingSession(documentID: "unsupported", actorID: "a", epoch: "six", document: baseline, protocolVersion: 6)
+    #expect(throws: EditorError.unsupportedVersion(7)) {
+        _ = try WritingSession(documentID: "unsupported", actorID: "a", epoch: "six", document: baseline, protocolVersion: 7)
     }
-    let unsupported = WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: baseline, changes: b.changes().changes, version: 6)
-    #expect(throws: EditorError.unsupportedVersion(6)) {
+    let unsupported = WritingBatch(documentID: b.documentID, epoch: b.epoch, baseline: baseline, changes: b.changes().changes, version: 7)
+    #expect(throws: EditorError.unsupportedVersion(7)) {
         _ = try WritingSession.restore(JSONEncoder().encode(unsupported), actorID: "b")
     }
-    #expect(throws: EditorError.unsupportedVersion(6)) { try b.receive(unsupported) }
+    #expect(throws: EditorError.unsupportedVersion(7)) { try b.receive(unsupported) }
     #expect(try b.save() == savedB)
     #expect(try WritingSession.restore(savedA, actorID: "a").protocolVersion == 4)
 }
@@ -106,9 +106,9 @@ func bridgeRoutesExplicitV5AndRejectsUnknownCreateAndRestoreVersions() throws {
         .object(["command": .string("create"), "session": .string(handle), "collaborationVersion": .number(Double(version)),
             "documentID": .string("bridge-five"), "actorID": .string("a"), "epoch": .string("explicit"), "blocks": .array([])])
     }
-    let rejected = try call(create(6, "reusable"))
-    #expect(rejected["ok"] == .bool(false) && rejected["error"] == .string("unsupportedVersion(6)"))
-    for version in [3, 4, 5] {
+    let rejected = try call(create(7, "reusable"))
+    #expect(rejected["ok"] == .bool(false) && rejected["error"] == .string("unsupportedVersion(7)"))
+    for version in [3, 4, 5, 6] {
         let handle = version == 5 ? "reusable" : "version-\(version)"
         let created = try call(create(version, handle))
         #expect(created["ok"] == .bool(true))
@@ -117,8 +117,8 @@ func bridgeRoutesExplicitV5AndRejectsUnknownCreateAndRestoreVersions() throws {
         #expect(snapshot["version"] == .number(Double(version)))
         let restored = try call(.object(["command": .string("restore"), "session": .string("restored-\(version)"), "actorID": .string("a"), "snapshot": snapshot]))
         #expect(restored["ok"] == .bool(true))
-        var unknown = try #require(snapshot.object); unknown["version"] = .number(6)
+        var unknown = try #require(snapshot.object); unknown["version"] = .number(7)
         let failedRestore = try call(.object(["command": .string("restore"), "session": .string("unknown-\(version)"), "actorID": .string("a"), "snapshot": .object(unknown)]))
-        #expect(failedRestore["ok"] == .bool(false) && failedRestore["error"] == .string("unsupportedVersion(6)"))
+        #expect(failedRestore["ok"] == .bool(false) && failedRestore["error"] == .string("unsupportedVersion(7)"))
     }
 }

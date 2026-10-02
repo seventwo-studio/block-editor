@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "protocols": [
+    4,
+    5,
+    6
+  ],
+  "limits": {
+    "documentBytes": 32000000,
+    "retainedBytes": 64000000,
+    "rootBlocks": 10000,
+    "retainedReserveBytes": 1024
+  },
+  "cases": [
+    "document-exact",
+    "document-over",
+    "retained-exact-over",
+    "roots-exact",
+    "roots-over"
+  ],
+  "baseline": [
+    {
+      "id": "owner",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "café 東京😀",
+          "marks": [
+            {
+              "type": "italic"
+            }
+          ]
+        },
+        {
+          "type": "entity-ref",
+          "entityType": "task",
+          "entityId": "outside",
+          "label": "Task",
+          "consumer": {
+            "id": "ref-opaque"
+          }
+        }
+      ],
+      "consumer": {
+        "left": "",
+        "right": "",
+        "history": "",
+        "id": "opaque"
+      }
+    }
+  ],
+  "padding": {
+    "document": "UTF8 é pairs plus x for odd byte",
+    "history": "four distinct ASCII digits0/1/2/3"
+  },
+  "errors": {
+    "schema": "writingRecoveryRequired",
+    "capacity": "recoveryCapacityExceeded",
+    "foreignRepair": "invalidChange",
+    "baseline": "differentDocument",
+    "epoch": "incompatibleEpoch"
+  }
+}

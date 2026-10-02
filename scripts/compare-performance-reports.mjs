@@ -49,8 +49,9 @@ function files(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)]);
 }
 
-export function comparePerformanceReports(root, expected, requiredProfile, sourceRevision) {
-  const source = readFileSync('benchmarks/workloads.json');
+export function comparePerformanceReports(root, expected, requiredProfile, sourceRevision, writing = false) {
+  const source = readFileSync(writing ? 'benchmarks/workloads-writing.json' : 'benchmarks/workloads.json');
+  const prefix = writing ? 'performance-writing' : 'performance';
   const config = JSON.parse(source);
   const hash = createHash('sha256').update(source).digest('hex');
   const revision = sourceRevision ?? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
@@ -58,17 +59,40 @@ export function comparePerformanceReports(root, expected, requiredProfile, sourc
   // Playwright also retains renamed diagnostic attachment copies. Only the
   // canonical runner outputs are inputs to parity, as with compatibility reports.
   const paths = files(root);
+  const expectedTree = writing ? execFileSync('git', ['rev-parse', `${revision}^{tree}`], { encoding: 'utf8' }).trim() : undefined;
   const reports = expected.map(name => {
-    const matching = paths.filter(path => path.endsWith(`/performance-${name}.json`));
+    const matching = paths.filter(path => path.endsWith(`/${prefix}-${name}.json`));
     if (matching.length !== 1) throw new Error(`Expected exactly one ${name} performance report, found ${matching.length}`);
     const value = JSON.parse(readFileSync(matching[0], 'utf8'));
     if (value.runtime?.name !== name) throw new Error(`${name}: incorrect report runtime`);
     validatePerformanceReport(value, config);
+    if (writing) {
+      if (!/^[a-f0-9]{40}$/.test(value.sourceTree) || value.sourceDirty !== false || value.numericBudgets !== 'unagreed') throw new Error(`${name}: unqualified writing source/budget metadata`);
+      if (value.sourceTree !== expectedTree) throw new Error(`${name}: writing tree differs from expected source`);
+      const label = name === 'native' ? 'swift' : name.startsWith('wasm-') ? 'wasm' : name;
+      const manifests = paths.filter(path => path.endsWith(`/runtime-provenance-${label}.json`));
+      if (manifests.length !== 1) throw new Error(`${name}: missing/duplicate runtime provenance`);
+      const provenance = JSON.parse(readFileSync(manifests[0], 'utf8'));
+      if (provenance.version !== 1 || provenance.runtime !== label || provenance.source?.commit !== revision || provenance.source?.tree !== expectedTree || provenance.inputs?.['benchmarks/workloads-writing.json'] !== hash) throw new Error(`${name}: stale writing build provenance`);
+      if (process.env.GITHUB_RUN_ID && provenance.workflowRun !== process.env.GITHUB_RUN_ID) throw new Error(`${name}: wrong writing workflow run`);
+      const roles = name === 'native' ? { 'editor-bridge': 'release-bridge' } : name.startsWith('wasm-') ? { 'block-editor.wasm': 'wasm' } : { 'libBlockEditorJNI.so': 'jni', 'libBlockEditorBridge.so': 'swift-bridge', 'libc++_shared.so': 'cxx-runtime' };
+      if (value.artifacts.length !== Object.keys(roles).length || new Set(value.artifacts.map(artifact => artifact.name)).size !== value.artifacts.length) throw new Error(`${name}: incomplete writing artifact roles`);
+      for (const [artifactName, role] of Object.entries(roles)) {
+        const artifact = value.artifacts.find(artifact => artifact.name === artifactName);
+        const binary = provenance.binaries?.[role];
+        if (!artifact || !binary || artifact.sha256 !== binary.sha256 || artifact.rawBytes !== binary.bytes) throw new Error(`${name}: writing artifact differs from exact ${role} build`);
+      }
+      const memory = value.memory;
+      const measured = name === 'native' ? memory?.maximumResidentSetSizeBytes : name.startsWith('android-') ? memory?.maximumSampledProcessPssBytes : memory?.linearMemoryHighWaterBytes;
+      if (!Number.isSafeInteger(measured) || measured <= 0 || typeof memory.boundary !== 'string' || !memory.boundary) throw new Error(`${name}: missing writing memory evidence`);
+      if (name.startsWith('android-') && (!Number.isInteger(memory.samples) || memory.samples < 1)) throw new Error(`${name}: missing PSS samples`);
+    }
     if (value.workloadHash !== hash || value.sourceCommit !== revision) throw new Error(`${name}: stale workload/source`);
     if (requiredProfile && !isDeepStrictEqual(canonical(value.options), canonical(performanceOptions(config, { profile: requiredProfile })))) throw new Error(`${name}: incomplete required ${requiredProfile} profile`);
     return { name, value };
   });
   for (const { name, value } of reports.slice(1)) {
+    if (writing && value.sourceTree !== reports[0].value.sourceTree) throw new Error(`${name}: differing writing source tree`);
     if (!isDeepStrictEqual(canonical(value.options), canonical(reports[0].value.options))) throw new Error(`${name}: differing measured workloads`);
     const results = report => canonical(report.samples.map(x => ({ case: x.case, repetition: x.repetition, finalBlocks: x.finalBlocks, changes: x.sizes.changes, receipts: x.sizes.receipts })).sort((a, b) => `${a.case}/${a.repetition}`.localeCompare(`${b.case}/${b.repetition}`)));
     if (!isDeepStrictEqual(results(value), results(reports[0].value))) throw new Error(`${name}: differing measured documents/histories`);
@@ -79,11 +103,11 @@ export function comparePerformanceReports(root, expected, requiredProfile, sourc
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const arguments_ = process.argv.slice(2);
   const source = arguments_.find(x => x.startsWith('--source='))?.slice('--source='.length);
-  if (arguments_.filter(x => x.startsWith('--')).some(x => !x.startsWith('--source=')) || arguments_.filter(x => x.startsWith('--source=')).length > 1) throw new Error('Unknown/duplicated verifier option');
+  if (arguments_.filter(x => x.startsWith('--')).some(x => !x.startsWith('--source=') && x !== '--writing') || arguments_.filter(x => x.startsWith('--source=')).length > 1 || arguments_.filter(x => x === '--writing').length > 1) throw new Error('Unknown/duplicated verifier option');
   const positional = arguments_.filter(x => !x.startsWith('--'));
   const expected = (positional[1] ?? 'native,android-api26-x86_64,android-api35-x86_64,android-api35-arm64-v8a,wasm-chromium,wasm-webkit,wasm-firefox').split(',');
   if (new Set(expected).size !== expected.length || expected.some(x => !x)) throw new Error('Empty/duplicated expected runtimes');
-  const reports = comparePerformanceReports(resolve(positional[0] ?? 'test-results/performance'), expected, positional[2], source);
+  const reports = comparePerformanceReports(resolve(positional[0] ?? 'test-results/performance'), expected, positional[2], source, arguments_.includes('--writing'));
   console.log(`Verified ${reports.length} complete measurement reports with matching workloads and preserved documents; no numeric performance budget is asserted.`);
   if (source) console.log(`Explicit archived source: ${source}; this does not verify measurements of the current checkout.`);
 }

@@ -279,7 +279,7 @@ class WritingSessionTest {
             error("unsupportedVersion(5)") { four.receive(a.changes()) }
             assertEquals(accepted, normalize(a.save().export())); assertEquals(fourAccepted, normalize(four.save().export()))
             assertNull(a.mergeRecovery()); assertNull(four.mergeRecovery())
-            try { WritingBatch.restore(saved.export().put("version", 6)); fail("Unknown version must be rejected") }
+            try { WritingBatch.restore(saved.export().put("version", 7)); fail("Unknown version must be rejected") }
             catch (_: IllegalArgumentException) { }
             val restored = WritingSession.restore(saved, "a"); reopened = restored
             restored.undo(); assertEquals("東京CR", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content").getJSONObject(0).getString("text"))
@@ -784,6 +784,48 @@ class WritingSessionTest {
                 b.receive(restored.changes()); b.receive(restored.changes()); assertEquals(expected, blocks(b))
                 reopened = WritingSession.restore(restored.save(), actor); assertEquals(expected, blocks(reopened!!))
             } finally { a.close(); b.close(); resumed?.close(); reopened?.close() }
+        }
+    }
+
+    @Test fun typedExternalNormalizationKeepsRichPeerUndoAndExplicitHostFallback() {
+        fun plain(session: WritingSession): String {
+            val content = session.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content")
+            return (0 until content.length()).joinToString("") { index ->
+                val node = content.getJSONObject(index)
+                if (node.has("text")) node.getString("text") else node.optString("label", "")
+            }
+        }
+        for (version in listOf(4, 5)) {
+            val seed = JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"AB","marks":[]}]}]""")
+            fun create(actor: String) = if (version == 4) WritingSession.createV4("normalize-$version", actor, "normalize-$version", seed)
+                else WritingSession.createV5("normalize-$version", actor, "normalize-$version", seed)
+            val a = create("a"); val b = create("b"); var reopened: WritingSession? = null
+            try {
+                val address = WritingAddress("p"); val range = a.selectedText(address, 1, 1)
+                val external = WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"inline":{"_0":[{"type":"text","text":"東京😀","marks":[{"type":"bold"},{"type":"link","href":"javascript:alert(1)"},{"type":"foreign-color"}]},{"type":"entity-ref","entityType":"task","entityId":"original","label":"Mira","consumer":{"id":"opaque-ref"}}]}}]}"""))
+                val before = normalize(a.save().export()); var rejected = false
+                try { a.pasteInline(external, range) } catch (failure: Exception) { rejected = true }
+                assertTrue(rejected)
+                val imported = a.normalizeForImport(external)
+                assertEquals(before, normalize(a.save().export()))
+                assertEquals(normalize(JSONObject("""{"version":1,"parts":[{"inline":{"_0":[{"type":"text","text":"東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"original","label":"Mira","consumer":{"id":"opaque-ref"}}]}}]}""")), normalize(imported.clipboard.export()))
+                b.replaceText(address, 2, 2, "R"); a.receive(b.changes())
+                a.pasteInline(imported.clipboard, range, imported.effectivePastePolicy)
+                b.receive(a.changes()); b.receive(a.changes()); assertEquals(blocks(a), blocks(b))
+                assertEquals("A東京😀MiraBR", plain(a))
+                reopened = WritingSession.restore(a.save(), "a"); reopened!!.undo()
+                assertEquals("ABR", plain(reopened!!)); reopened!!.redo(); assertEquals(blocks(a), blocks(reopened!!))
+                a.setAllowedBlockTypes(emptySet()); val accepted = normalize(a.save().export())
+                val heading = WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"node":{"kind":"block","value":{"id":"h","type":"heading","level":2,"content":[{"type":"text","text":"Title","marks":[]}]}}}]}"""))
+                val fallback = a.normalizeForImport(heading, WritingPastePolicy(allowedBlockTypes = setOf("heading")))
+                assertEquals(setOf("paragraph"), fallback.suggestedHostBlockTypes)
+                rejected = false; try { a.pasteCollection(fallback.clipboard, NodeCollection.ROOT, policy = fallback.effectivePastePolicy) } catch (failure: Exception) { rejected = true }
+                assertTrue(rejected); assertEquals(accepted, normalize(a.save().export()))
+                a.setAllowedBlockTypes(fallback.suggestedHostBlockTypes)
+                a.pasteCollection(fallback.clipboard, NodeCollection.ROOT, a.node(NodeAddress("p")), fallback.effectivePastePolicy)
+                val pasted = a.snapshot.getJSONArray("blocks").getJSONObject(1)
+                assertEquals("paragraph", pasted.getString("type")); assertEquals("Title", pasted.getJSONArray("content").getJSONObject(0).getString("text"))
+            } finally { a.close(); b.close(); reopened?.close() }
         }
     }
 

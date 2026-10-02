@@ -3,7 +3,8 @@ import BlockEditorCore
 import Observation
 import SwiftUI
 
-/// Explicit protocol-4 native editor. Hosts own persistence, transport and assets.
+/// Native editor for an explicitly selected writing protocol4,5 or6 epoch.
+/// Hosts own persistence, transport and assets; no session is upgraded here.
 /// Legacy EditorModel/EditorSession consumers retain their existing epoch and API.
 public struct WritingPendingDraft {
     public let address: TextAddress
@@ -20,6 +21,8 @@ public struct WritingPendingDraft {
     public var isEditable = true
     public private(set) var pendingDrafts: [UUID: WritingPendingDraft] = [:]
     public var allowedBlockTypes: Set<String>? { didSet { session.allowedBlockTypes = allowedBlockTypes } }
+    /// Applies only to imported content; asset metadata requires explicit host permission.
+    public var pastePolicy = WritingPastePolicy()
     @ObservationIgnored public let session: WritingSession
     @ObservationIgnored public var onChange: ((BlockEditorCore.Document, WritingChange?) -> Void)?
     @ObservationIgnored private var inputs: [UUID: (before: () -> Void, after: () -> Void, commit: () throws -> Void, caret: (WritingPosition) -> Void)] = [:]
@@ -33,7 +36,7 @@ public struct WritingPendingDraft {
     #endif
 
     public init(session: WritingSession) throws {
-        guard session.protocolVersion == 4 else { throw EditorError.unsupportedVersion(session.protocolVersion) }
+        guard [4, 5, 6].contains(session.protocolVersion) else { throw EditorError.unsupportedVersion(session.protocolVersion) }
         self.session = session; document = session.document
         canUndo = session.canUndo; canRedo = session.canRedo; allowedBlockTypes = session.allowedBlockTypes
         session.onWillReceive = { [weak self] in guard let self else { return }; Array(self.inputs.values).forEach { $0.before() } }

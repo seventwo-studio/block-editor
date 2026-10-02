@@ -193,6 +193,33 @@ import AppKit
         if succeeded { onUpdate?() }
         return true
     }
+    func copyClipboard() -> WritingClipboard? {
+        guard canReceiveKey, !composing else { return nil }
+        onPrepare?()
+        var clipboard: WritingClipboard?
+        _ = model.performInput {
+            let range = try model.session.selectedText(at: effectiveAddress, range: selection.location..<NSMaxRange(selection))
+            clipboard = try model.session.copyClipboard(WritingSelection(text: [range]))
+        }
+        return clipboard
+    }
+    /// Finalize the native draft and drain peers before resolving its current range.
+    /// Failed import/paste stays visible; the native control never writes a fallback.
+    @discardableResult func pasteImported(_ payload: WritingNativeClipboardPayload) -> Bool {
+        guard canReceiveKey else { return false }
+        return model.performCommand(source: id) { session in
+            let clipboard = try WritingNativeClipboard.decode(payload, protocolVersion: session.protocolVersion)
+            let normalized = try clipboard.normalizeForImport(policy: self.model.pastePolicy, hostBlockTypes: self.model.allowedBlockTypes)
+            let resolved = try self.model.commandCaret.map { try session.resolve($0) }
+            let offset = resolved?.offset ?? self.selection.location
+            let live = try resolved?.address ?? session.resolve(session.position(at: self.address, offset: offset)).address
+            let range = try session.selectedText(at: live, range: offset..<(offset + self.selection.length))
+            if session.protocolVersion == 4 {
+                return try session.pasteInline(normalized.clipboard, replacing: range, policy: normalized.effectivePastePolicy)
+            }
+            return try session.pasteSelection(normalized.clipboard, replacing: range, policy: normalized.effectivePastePolicy)
+        }
+    }
     func selectionChangedByUser(_ nativeSelection: NSRange? = nil) {
         if let nativeSelection, nativeSelection == selection { return }
         anchors = nil; retainedSelection = nil

@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "settingsBefore": {
+    "enabled_accessibility_services": "null",
+    "accessibility_enabled": "0",
+    "touch_exploration_enabled": "0"
+  },
+  "api": "35",
+  "abi": "arm64-v8a",
+  "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+  "apkSHA256": "d07bf3cb85001bcac98eb1706dc84a3085bfe6af5299085119eb69edae4cf637",
+  "talkbackTestSourceSHA256": "921a3ac4078fa7d9549211be41aab89648809bca8a0c341f8cf8b97cf58de617",
+  "scope": "Installed TalkBack retained with FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES; real swipe focus and double-tap author Undo. Spoken audio/full editor accessibility remain open.",
+  "gestureSource": "emulator-kernel-touchscreen",
+  "installedAPK_SHA256": "d07bf3cb85001bcac98eb1706dc84a3085bfe6af5299085119eb69edae4cf637",
+  "settingsAfter": {
+    "enabled_accessibility_services": "null",
+    "accessibility_enabled": "0",
+    "touch_exploration_enabled": "0"
+  }
+}

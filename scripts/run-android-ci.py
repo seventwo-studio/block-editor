@@ -96,7 +96,7 @@ def main():
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
         device("install", "-r", "--abi", args.abi, apk)
-        # This one invocation executes the entire 17-group corpus, including
+        # This one invocation executes the entire 19-group corpus, including
         # 316 legal/over-depth commands under translated ARM64. Its watchdog is
         # separate from individual typed/UI acceptance and performance limits.
         instrument("studio.seventwo.blockeditor.RuntimeCompatibilityTest", "runtime-instrumentation.txt", 1, timeout=900)
@@ -107,8 +107,44 @@ def main():
         metadata = json.loads((output / "android-environment.json").read_text())
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
+        # One actual installed process per production case bounds retained host
+        # working sets; all real limits and each900s watchdog remain unchanged.
+        resource_output = Path("test-results/resource")
+        resource_output.mkdir(parents=True, exist_ok=True)
+        resource_spec = json.loads(Path("benchmarks/resources-writing.json").read_text())
+        resource_revision = run("git", "rev-parse", "HEAD", capture_output=True, text=True).stdout.strip()
+        resource_tree = run("git", "rev-parse", "HEAD^{tree}", capture_output=True, text=True).stdout.strip()
+        resource_dirty = str(bool(run("git", "status", "--porcelain", "--untracked-files=all", capture_output=True, text=True).stdout.strip())).lower()
+        previous_resource_pid = None
+        for resource_version in resource_spec["protocols"]:
+            for resource_case in resource_spec["cases"]:
+                resource_name = f"resource-writing-{label}-v{resource_version}-{resource_case}.json"
+                # This runner created a wiped, job-owned AVD above. Stop only
+                # its disposable testhost, never an existing user device/app.
+                device("shell", "am", "force-stop", "studio.seventwo.blockeditor.test", timeout=20)
+                try:
+                    instrument("studio.seventwo.blockeditor.WritingResourceTest", f"{resource_name}.instrumentation.txt", 1,
+                               extra_args=("-e", "resourceVersion", str(resource_version), "-e", "resourceCase", resource_case,
+                                           "-e", "sourceCommit", resource_revision, "-e", "sourceTree", resource_tree,
+                                           "-e", "sourceDirty", resource_dirty), timeout=900)
+                finally:
+                    # Preserve an incomplete case report beside the original
+                    # instrumentation failure; diagnostics cannot replace it.
+                    try:
+                        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", f"files/resource/{resource_name}",
+                               stdout=(resource_output / resource_name).open("w"), timeout=20)
+                    except Exception as diagnostic:
+                        print(f"Resource report capture failed: {diagnostic}", flush=True)
+                resource_report = json.loads((resource_output / resource_name).read_text())
+                resource_pid = resource_report.get("processPID")
+                if type(resource_pid) is not int or resource_pid <= 0 or resource_pid == previous_resource_pid:
+                    raise RuntimeError("Resource case did not execute in a distinct installed testhost process")
+                previous_resource_pid = resource_pid
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
-        instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 18)
+        instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
+        instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
+        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 8)
+        instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 4)
         instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 11)
         for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),
@@ -132,6 +168,8 @@ def main():
         if args.system_ime:
             run("python3", "scripts/test-android-builtin-ime.py", "--sdk", sdk, "--serial", serial,
                 "--apk", apk, "--output", "test-results/system-input", timeout=600)
+            run("python3", "scripts/test-android-writing-builtin-ime.py", "--sdk", sdk, "--serial", serial,
+                "--apk", apk, "--output", "test-results/writing-system-input", timeout=600)
         if args.performance_profile:
             performance_output = Path("test-results/performance")
             performance_output.mkdir(parents=True, exist_ok=True)
@@ -140,6 +178,13 @@ def main():
                        extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision), timeout=1800)
             device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android.json",
                    stdout=(performance_output / f"performance-{label}.json").open("w"))
+            instrument("studio.seventwo.blockeditor.PerformanceTest", "performance-writing-instrumentation.txt", 1,
+                       extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision,
+                                   "-e", "performanceWriting", "true",
+                                   "-e", "sourceTree", run("git", "rev-parse", "HEAD^{tree}", capture_output=True, text=True).stdout.strip(),
+                                   "-e", "sourceDirty", str(bool(run("git", "status", "--porcelain", capture_output=True, text=True).stdout.strip())).lower()), timeout=1800)
+            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android-writing.json",
+                   stdout=(performance_output / f"performance-writing-{label}.json").open("w"))
     finally:
         try:
             diagnostics = [("logcat.txt", ["logcat", "-d"])]
@@ -153,6 +198,9 @@ def main():
                 performance_file = performance_output / f"performance-{label}.json"
                 if not performance_file.exists():
                     diagnostics.append((str(performance_file.resolve()), ["exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android.json"]))
+                writing_file = performance_output / f"performance-writing-{label}.json"
+                if not writing_file.exists():
+                    diagnostics.append((str(writing_file.resolve()), ["exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android-writing.json"]))
             for filename, command in diagnostics:
                 with (output / filename).open("w") as log:
                     try:

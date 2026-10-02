@@ -53,6 +53,8 @@ import SwiftUI
                 self.input.model.perform { if redo { try $0.redo() } else { try $0.undo() } }
             }
             view.formatSelection = { [weak self] type in self?.input.format(type) }
+            view.copySharedClipboard = { [weak self] in self?.input.copyClipboard() }
+            view.pasteSharedClipboard = { [weak self] payload in self?.input.pasteImported(payload) ?? false }
             input.onCommit = { [weak self] in
                 guard let self, self.input.canAuthor, let view = self.view else { throw EditorError.invalidChange }
                 if !self.input.composing, self.input.effectiveAddress.identity.flatMap({ try? self.input.model.session.address(of: $0) }) == nil { return }
@@ -88,7 +90,7 @@ import SwiftUI
             input.close()
             if let view { input.model.focus.unregister(view) }
             view?.delegate = nil; view?.didMove = nil; view?.didResignFocus = nil; view?.beginComposition = nil; view?.didEdit = nil
-            view?.command = nil; view?.history = nil; view?.formatSelection = nil; view = nil
+            view?.command = nil; view?.history = nil; view?.formatSelection = nil; view?.copySharedClipboard = nil; view?.pasteSharedClipboard = nil; view = nil
         }
     }
 }
@@ -111,6 +113,8 @@ import SwiftUI
     var command: ((WritingNativeKey) -> Bool)?
     var history: ((Bool) -> Void)?
     var formatSelection: ((String) -> Void)?
+    var copySharedClipboard: (() -> WritingClipboard?)?
+    var pasteSharedClipboard: ((WritingNativeClipboardPayload) -> Bool)?
     override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); didMove?() }
     override func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) { guard isEditable else { return }; beginComposition?(); nativeEditing = true; super.setMarkedText(string, selectedRange: selectedRange, replacementRange: replacementRange); nativeEditing = false; didEdit?() }
     override func unmarkText() { nativeEditing = true; super.unmarkText(); nativeEditing = false; didEdit?() }
@@ -127,7 +131,18 @@ import SwiftUI
         if let key, command?(key) == true { return }
         super.doCommand(by: selector)
     }
-    override func paste(_ sender: Any?) { super.pasteAsPlainText(sender) }
+    override func copy(_ sender: Any?) {
+        guard let clipboard = copySharedClipboard?(), let data = try? WritingNativeClipboard.encode(clipboard) else { super.copy(sender); return }
+        let board = NSPasteboard.general
+        board.clearContents(); board.setData(data, forType: NSPasteboard.PasteboardType(WritingNativeClipboard.identifier))
+        board.setString((string as NSString).substring(with: selectedRange()), forType: .string)
+    }
+    override func paste(_ sender: Any?) {
+        guard isEditable, let pasteSharedClipboard else { return }
+        let board = NSPasteboard.general
+        if let data = board.data(forType: NSPasteboard.PasteboardType(WritingNativeClipboard.identifier)) { _ = pasteSharedClipboard(.structured(data)) }
+        else if let text = board.string(forType: .string) { _ = pasteSharedClipboard(.text(text)) }
+    }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         guard isEditable else { return super.performKeyEquivalent(with: event) }
         if event.modifierFlags.contains(.command), event.charactersIgnoringModifiers?.lowercased() == "z" { history?(event.modifierFlags.contains(.shift)); return true }

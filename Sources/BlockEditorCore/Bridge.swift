@@ -34,8 +34,8 @@ public final class EditorBridge {
     private func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
-        if (command == "create" && [.number(3), .number(4), .number(5)].contains(input["collaborationVersion"])) ||
-           (command == "restore" && [.number(3), .number(4), .number(5)].contains(input["snapshot"]?["version"])) || command == "cutoverToV3" {
+        if (command == "create" && [.number(3), .number(4), .number(5), .number(6)].contains(input["collaborationVersion"])) ||
+           (command == "restore" && [.number(3), .number(4), .number(5), .number(6)].contains(input["snapshot"]?["version"])) || command == "cutoverToV3" {
             guard !handle.isEmpty, sessions[handle] == nil, writingSessions[handle] == nil,
                   let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             let writing: WritingSession
@@ -191,6 +191,13 @@ public final class EditorBridge {
             default: throw EditorError.invalidChange
             }
             return try encode(clipboard)
+        case "pasteSelection":
+            let policy = input["policy"] == nil ? WritingPastePolicy() : try decode(input["policy"], as: WritingPastePolicy.self)
+            let position = try session.pasteSelection(decode(input["clipboard"], as: WritingClipboard.self), replacing: decode(input["range"], as: WritingTextRange.self), policy: policy)
+            return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+        case "normalizeForImport":
+            let policy = input["policy"] == nil ? WritingPastePolicy() : try decode(input["policy"], as: WritingPastePolicy.self)
+            return try encode(decode(input["clipboard"], as: WritingClipboard.self).normalizeForImport(policy: policy, hostBlockTypes: session.allowedBlockTypes))
         case "pasteBlocks":
             let policy = input["policy"] == nil ? WritingPastePolicy() : try decode(input["policy"], as: WritingPastePolicy.self)
             let position = try session.pasteBlocks(decode(input["clipboard"], as: WritingClipboard.self), replacing: decode(input["range"], as: WritingTextRange.self), policy: policy)

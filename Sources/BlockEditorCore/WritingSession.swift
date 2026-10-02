@@ -92,7 +92,7 @@ public final class WritingSession {
     public let protocolVersion: Int
     public let baseline: Document
     // Only these explicitly supported epochs inherit retained-origin writing semantics.
-    private var usesRetainedOrigins: Bool { protocolVersion == 4 || protocolVersion == 5 }
+    private var usesRetainedOrigins: Bool { protocolVersion == 4 || protocolVersion == 5 || protocolVersion == 6 }
     public var onChange: ((Document, WritingChange?) -> Void)?
     public var onWillReceive: (() -> Void)?
     public var isComposing = false
@@ -114,7 +114,7 @@ public final class WritingSession {
     public private(set) var document: Document
 
     public init(documentID: String, actorID: String, epoch: String, document: Document, protocolVersion: Int = 3) throws {
-        guard [3, 4, 5].contains(protocolVersion) else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard [3, 4, 5, 6].contains(protocolVersion) else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !documentID.isEmpty, validToken(actorID), validToken(epoch) else { throw EditorError.invalidChange }
         let validated = try Document(blocks: document.blocks)
         guard try validated.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
@@ -259,7 +259,7 @@ public final class WritingSession {
     public static func restore(_ snapshot: Data, actorID: String) throws -> WritingSession {
         guard snapshot.count <= 64_000_000 else { throw EditorError.recoveryCapacityExceeded }
         let batch = try JSONDecoder().decode(WritingBatch.self, from: snapshot)
-        guard [3, 4, 5].contains(batch.version) else { throw EditorError.unsupportedVersion(batch.version) }
+        guard [3, 4, 5, 6].contains(batch.version) else { throw EditorError.unsupportedVersion(batch.version) }
         let session = try WritingSession(documentID: batch.documentID, actorID: actorID, epoch: batch.epoch, document: batch.baseline, protocolVersion: batch.version)
         try session.receive(batch)
         if let local = try JSONDecoder().decode(JSONValue.self, from: snapshot)["localHistory"], local["actorID"] == .string(actorID) {
@@ -721,12 +721,344 @@ public final class WritingSession {
         try perform(id, operations)
         return WritingSelection(nodes: identities)
     }
+    /// Replace a paragraph range with ordered rich fragments and whole blocks.
+    /// Only explicit boundary inline parts are absorbed; whole nodes retain all
+    /// their metadata and receive fresh schema identities. One transaction owns
+    /// the deletion, imports, text seeds and retained cut boundary.
+    @discardableResult public func pasteSelection(_ clipboard: WritingClipboard, replacing range: WritingTextRange,
+                                                   policy: WritingPastePolicy = WritingPastePolicy()) throws -> WritingPosition {
+        guard protocolVersion == 5 || protocolVersion == 6 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        try clipboard.validate(policy: policy, hostBlockTypes: allowedBlockTypes)
+        var start = try resolve(range.start), end = try resolve(range.end)
+        var source = try field(start.address), endpoint = try field(end.address)
+        let placements = try structure.effectivePlacements()
+        guard let initialParent = placements[source.node], let endParent = placements[endpoint.node] else { throw EditorError.invalidPath }
+        if protocolVersion == 6, source != endpoint {
+            let single = clipboard.parts.count == 1 && { if case .inline = clipboard.parts[0] { return true }; return false }()
+            let a = structure.nodes[source.node], b = structure.nodes[endpoint.node]
+            let plainEnding = b.map { Set($0.fields.keys).isSubset(of: ["id", "type", "content"]) && $0.collections.isEmpty } ?? false
+            if initialParent.collection != endParent.collection ||
+                (single && !plainEnding) || source.name != "content" || endpoint.name != "content" ||
+                a?.kind != .block || b?.kind != .block || a?.fields["type"] != .string("paragraph") || b?.fields["type"] != .string("paragraph") {
+                return try pasteHierarchical(clipboard, replacing: range, policy: policy)
+            }
+        }
+        guard initialParent.collection == endParent.collection else { throw EditorError.invalidPath }
+        let siblings = try structure.visibleOrder(in: initialParent.collection)
+        guard let initialIndex = siblings.firstIndex(of: source.node), let endIndex = siblings.firstIndex(of: endpoint.node) else { throw EditorError.invalidPath }
+        if initialIndex > endIndex { swap(&start, &end); swap(&source, &endpoint) }
+        let crossBlock = source != endpoint
+        if !crossBlock, clipboard.parts.count == 1, case .inline = clipboard.parts[0] {
+            return try pasteInline(clipboard, replacing: range, policy: policy)
+        }
+        if !crossBlock, clipboard.parts.allSatisfy({ if case .node = $0 { return true }; return false }) {
+            return try pasteBlocks(clipboard, replacing: range, policy: policy)
+        }
+        guard source.name == "content", endpoint.name == "content",
+              let original = structure.nodes[source.node], original.kind == .block,
+              original.fields["type"] == .string("paragraph"),
+              let ending = structure.nodes[endpoint.node], ending.kind == .block,
+              ending.fields["type"] == .string("paragraph") else { throw EditorError.invalidPath }
+        // A lossless join can retire only a plain paragraph endpoint. Existing
+        // metadata/child namespaces must not be discarded or merged implicitly.
+        if crossBlock, protocolVersion != 6 || (clipboard.parts.count == 1 && { if case .inline = clipboard.parts[0] { return true }; return false }()) {
+            guard Set(ending.fields.keys).isSubset(of: ["id", "type", "content"]), ending.collections.isEmpty else { throw EditorError.invalidPath }
+        }
+        let lower = crossBlock ? start.offset : min(start.offset, end.offset)
+        let upper = crossBlock ? end.offset : max(start.offset, end.offset)
+        let sourceLength = projection.text(in: source).utf16.count
+        let selected = try selection(start.address, lower..<(crossBlock ? sourceLength : upper))
+        let endpointSelection = crossBlock ? try selection(end.address, 0..<upper).keys : []
+        guard let parent = placements[source.node], let sourceIndex = siblings.firstIndex(of: source.node),
+              let endpointIndex = siblings.firstIndex(of: endpoint.node) else { throw EditorError.invalidPath }
+        let neighborIndex = crossBlock && protocolVersion == 6 ? endpointIndex + 1 : sourceIndex + 1
+        let before = neighborIndex < siblings.count ? siblings[neighborIndex] : nil
+        let middleNodes = crossBlock ? Array(siblings[(sourceIndex + 1)..<endpointIndex]) : []
+        let singleInline = clipboard.parts.count == 1 && { if case .inline = clipboard.parts[0] { return true }; return false }()
+        var parts = clipboard.parts, leading: [JSONValue] = [], trailing: [JSONValue] = []
+        let hasLeadingInline: Bool
+        if case .inline(let values)? = parts.first { hasLeadingInline = true; leading = values; parts.removeFirst() }
+        else { hasLeadingInline = false }
+        if case .inline(let values)? = parts.last { trailing = values; parts.removeLast() }
+        let values = try parts.map { part -> JSONValue in
+            switch part {
+            case .node(let value, let kind):
+                guard kind == "block" else { throw EditorError.invalidPath }; return value
+            case .inline(let values):
+                return .object(["id": .string("clipboard"), "type": .string("paragraph"), "content": .array(values)])
+            }
+        }
+        // Inline parts are distinct fields. Even two adjacent boundary parts
+        // represent a break; they are never silently concatenated into one field.
+        let authorsParagraph = parts.contains { if case .inline = $0 { return true }; return false }
+            || (!singleInline && (!crossBlock || protocolVersion != 6) && (lower > 0 || hasLeadingInline))
+        if authorsParagraph {
+            try requireAuthoredType("paragraph")
+            guard policy.allowedBlockTypes?.contains("paragraph") ?? true else { throw EditorError.restrictedBlock("paragraph") }
+        }
+        let id = try nextID()
+        var index = 0, serial = 0, reserved = Set(structure.nodes.values.map(\.label))
+        var operations = try retainedRoleOperations(for: crossBlock ? [source.node, endpoint.node] : [source.node])
+        func fresh(_ value: JSONValue, kind: NodeKind) throws -> JSONValue {
+            guard var fields = value.object else { throw EditorError.invalidPath }
+            var label: String
+            repeat { serial += 1; label = "paste-\(actorID)-\(id.counter)-\(serial)" } while reserved.contains(label)
+            reserved.insert(label); fields["id"] = .string(label)
+            for (name, childKind) in StructuralState.collectionFields(kind, fields) {
+                if let children = fields[name]?.array { fields[name] = .array(try children.map { try fresh($0, kind: childKind) }) }
+            }
+            return .object(fields)
+        }
+        func appendInline(_ values: [JSONValue], field: WritingField, edge initial: WritingEdge) throws -> [WritingAtomKey] {
+            var edge = initial, inserted: [WritingAtomKey] = []
+            for value in values {
+                let atoms: [JSONValue]
+                if value["type"] == .string("text") {
+                    atoms = (value["text"]?.string ?? "").unicodeScalars.map { scalar in
+                        var fields = value.object!; fields["text"] = .string(String(scalar)); return .object(fields)
+                    }
+                } else {
+                    guard !plainText([value]).isEmpty else { throw EditorError.invalidChange }; atoms = [value]
+                }
+                for atom in atoms {
+                    let key = WritingAtomKey(origin: field, element: ElementID(change: id, index: index)); index += 1
+                    operations.append(.text(.insert(WritingAtomSeed(key: key, node: atom, edge: edge, route: edge.anchor.map(WritingRoute.follow) ?? .field(field)))))
+                    inserted.append(key); edge = .after(key)
+                }
+            }
+            return inserted
+        }
+        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
+        if !endpointSelection.isEmpty { operations.append(.text(.delete(keys: endpointSelection))) }
+        let deleted = try middleNodes.flatMap { try structure.descendants(of: $0) }
+        if !deleted.isEmpty { operations.append(.structure(.deleteNodes(identities: deleted))) }
+        let originalPrefix = try selection(start.address, 0..<lower).keys
+        let head = try appendInline(leading, field: source, edge: originalPrefix.last.map(WritingEdge.after) ?? .start)
+        let suffix = try selection(end.address, upper..<projection.text(in: endpoint).utf16.count).keys
+        if singleInline {
+            let edge = head.last.map(WritingEdge.after) ?? originalPrefix.last.map(WritingEdge.after) ?? .start
+            operations.append(.text(.join(source: endpoint, destination: source, edge: edge)))
+            let caret = head.last.map { WritingPosition(documentID: documentID, epoch: epoch, field: source, anchor: $0, affinity: .after) }
+                ?? suffix.first.map { WritingPosition(documentID: documentID, epoch: epoch, field: source, anchor: $0, affinity: .before) }
+                ?? WritingPosition(documentID: documentID, epoch: epoch, field: source, anchor: originalPrefix.last, affinity: .after)
+            try perform(id, operations)
+            return caret
+        }
+        let retainedEndpoint = crossBlock && protocolVersion == 6 && !singleInline
+        let retainPrefix = retainedEndpoint ? (lower > 0 || (hasLeadingInline && !singleInline)) : (lower > 0 || hasLeadingInline)
+        var after = retainedEndpoint || retainPrefix ? parent.id : parent.after, members: [NodeID] = []
+        for value in values {
+            let placement = ElementID(change: id, index: index); index += 1
+            let identity = NodeID.inserted(creation: placement, path: [])
+            let imported = try fresh(value, kind: .block); try validateNode(imported, kind: .block)
+            operations.append(.structure(.insertNode(value: imported, identity: identity, collection: parent.collection, placement: placement, after: after)))
+            members.append(identity); after = .edit(placement)
+        }
+        var destination = source
+        var endpointMove: ElementID?
+        if retainedEndpoint {
+            let placement = ElementID(change: id, index: index); index += 1
+            operations.append(.structure(.moveNode(identity: endpoint.node, collection: parent.collection, placement: placement, after: after)))
+            endpointMove = placement; members.append(endpoint.node); destination = endpoint
+            if !retainPrefix { operations.append(.structure(.deleteNodes(identities: [source.node]))) }
+        } else if retainPrefix {
+            let placement = ElementID(change: id, index: index); index += 1
+            let identity = NodeID.inserted(creation: placement, path: [])
+            var tail = original.fields; tail["content"] = .array([])
+            let value = try fresh(.object(tail), kind: .block)
+            operations.append(.structure(.insertNode(value: value, identity: identity, collection: parent.collection, placement: placement, after: after)))
+            members.append(identity); destination = WritingField(node: identity, name: "content")
+        }
+        let tail = try appendInline(trailing, field: destination,
+                                    edge: retainedEndpoint || retainPrefix ? .start : selected.edge)
+        if retainedEndpoint {
+            guard let endpointMove, let endPlacement = placements[endpoint.node] else { throw EditorError.invalidPath }
+            operations.append(.text(.rangeSpliceBoundary(WritingRangeSplice(source: source, destination: destination,
+                edge: selected.edge, before: before, members: members, sourcePlacement: parent.id,
+                endpointPlacement: endPlacement.id, destinationPlacement: endpointMove,
+                endpointKeys: endpointSelection + suffix))))
+            let prefix = originalPrefix + head
+            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: source, edge: .start))) }
+            if !selected.keys.isEmpty { operations.append(.text(.transfer(keys: selected.keys, destination: destination, edge: tail.last.map(WritingEdge.after) ?? .start))) }
+            let endpointKeys = endpointSelection + suffix
+            if !endpointKeys.isEmpty {
+                operations.append(.text(.transfer(keys: endpointKeys, destination: destination,
+                    edge: selected.keys.last.map(WritingEdge.after) ?? tail.last.map(WritingEdge.after) ?? .start)))
+            }
+        } else if retainPrefix {
+            operations.append(.text(.spliceBoundary(source: source, destination: destination, edge: selected.edge, before: before, members: members)))
+            let prefix = originalPrefix + head
+            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: source, edge: .start))) }
+            // Cross-block source tombstones remain routed with the continuation
+            // so unseen peer insertions following them are not abandoned.
+            let routed = crossBlock ? selected.keys : suffix
+            if !routed.isEmpty { operations.append(.text(.transfer(keys: routed, destination: destination, edge: tail.last.map(WritingEdge.after) ?? .start))) }
+        }
+        if crossBlock, !retainedEndpoint {
+            let boundary = tail.last.map(WritingEdge.after)
+                ?? (retainPrefix ? selected.keys.last.map(WritingEdge.after) : nil) ?? .start
+            operations.append(.text(.join(source: endpoint, destination: destination, edge: boundary)))
+        }
+        let caret = tail.last.map { WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: $0, affinity: .after) }
+            ?? suffix.first.map { WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: $0, affinity: .before) }
+            ?? WritingPosition(documentID: documentID, epoch: epoch, field: destination, affinity: .after)
+        try perform(id, operations)
+        return caret
+    }
+    /// Protocol 6 uses the same global range traversal as copy/delete. Boundary
+    /// owners remain visible when their schema or metadata cannot be joined.
+    private func pasteHierarchical(_ clipboard: WritingClipboard, replacing range: WritingTextRange,
+                                   policy: WritingPastePolicy) throws -> WritingPosition {
+        guard protocolVersion == 6 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        let selected = try selection(from: range.start, to: range.end)
+        guard let first = selected.text.first, let last = selected.text.last else { throw EditorError.invalidRange }
+        let start = try resolve(first.start), end = try resolve(last.end)
+        let source = try field(start.address), endpoint = try field(end.address)
+        guard source != endpoint, let original = structure.nodes[source.node], let ending = structure.nodes[endpoint.node] else { throw EditorError.invalidPath }
+        let placements = try structure.effectivePlacements()
+        guard let parent = placements[source.node] else { throw EditorError.invalidPath }
+        var parts = clipboard.parts, leading: [JSONValue] = [], trailing: [JSONValue] = []
+        let leadingPresent: Bool
+        if case .inline(let values)? = parts.first { leadingPresent = true; leading = values; parts.removeFirst() }
+        else { leadingPresent = false }
+        let singleInline = clipboard.parts.count == 1 && leadingPresent
+        if case .inline(let values)? = parts.last { trailing = values; parts.removeLast() }
+        let endpointDescendants = Set(try structure.descendants(of: endpoint.node))
+        let sourceDescendants = Set(try structure.descendants(of: source.node))
+        let partsKind = parts.compactMap { part -> NodeKind? in
+            if case .node(_, let kind) = part { return NodeKind(rawValue: kind) }; return nil
+        }.first ?? original.kind
+        var collection = parent.collection, after: NodePlacementID? = parent.id
+        if sourceDescendants.contains(endpoint.node) {
+            let slots = StructuralState.collectionFields(original.kind, original.fields).filter { $0.value == partsKind }.keys.sorted()
+            if let slot = slots.first { collection = NodeCollection(owner: source.node, field: slot); after = nil }
+            else if !parts.isEmpty { throw EditorError.invalidPath }
+        }
+        let kind = try structure.kind(in: collection)
+        let siblings = try structure.visibleOrder(in: collection)
+        let before: NodeID?
+        if after == nil { before = siblings.first }
+        else if let index = siblings.firstIndex(of: source.node), index + 1 < siblings.count { before = siblings[index + 1] }
+        else { before = nil }
+        func inlineValue(_ values: [JSONValue]) throws -> JSONValue {
+            switch kind {
+            case .block:
+                try requireAuthoredType("paragraph")
+                guard policy.allowedBlockTypes?.contains("paragraph") ?? true else { throw EditorError.restrictedBlock("paragraph") }
+                return .object(["id": .string("clipboard"), "type": .string("paragraph"), "content": .array(values)])
+            case .item: return .object(["id": .string("clipboard"), "content": .array(values)])
+            case .cell: return .object(["id": .string("clipboard"), "content": .array(values)])
+            case .row: throw EditorError.invalidPath
+            }
+        }
+        let values = try parts.map { part -> JSONValue in
+            switch part {
+            case .node(let value, let name): guard name == kind.rawValue else { throw EditorError.invalidPath }; return value
+            case .inline(let values): return try inlineValue(values)
+            }
+        }
+        for value in values {
+            try validateNode(value, kind: kind)
+            try WritingClipboard(parts: [.node(value: value, kind: kind.rawValue)]).validate(policy: policy, hostBlockTypes: allowedBlockTypes)
+        }
+        func validateFieldImport(_ values: [JSONValue], field: WritingField) throws {
+            if field.name == "code" || field.name == "expression" {
+                guard values.allSatisfy({ $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
+                    Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"]) }) else { throw EditorError.invalidChange }
+            }
+        }
+        try validateFieldImport(leading, field: source); try validateFieldImport(trailing, field: endpoint)
+        let spans = try selectedParts(selected)
+        let deletedNodes = try selected.nodes.flatMap { try structure.descendants(of: $0) }
+        guard Set(deletedNodes).isDisjoint(with: [source.node, endpoint.node]),
+              !deletedNodes.contains(where: { sourceDescendants.contains($0) && endpointDescendants.contains($0) }) else { throw EditorError.invalidPath }
+        let id = try nextID()
+        var operations = try retainedRoleOperations(for: [source.node, endpoint.node])
+        for keys in spans where !keys.isEmpty { operations.append(.text(.delete(keys: keys))) }
+        if !deletedNodes.isEmpty { operations.append(.structure(.deleteNodes(identities: deletedNodes))) }
+        var index = 0, serial = 0, reserved = Set(structure.nodes.values.map(\.label))
+        func fresh(_ value: JSONValue, kind: NodeKind) throws -> JSONValue {
+            guard var fields = value.object else { throw EditorError.invalidPath }
+            var label: String
+            repeat { serial += 1; label = "paste-\(actorID)-\(id.counter)-\(serial)" } while reserved.contains(label)
+            reserved.insert(label); fields["id"] = .string(label)
+            for (field, childKind) in StructuralState.collectionFields(kind, fields) {
+                if let children = fields[field]?.array { fields[field] = .array(try children.map { try fresh($0, kind: childKind) }) }
+            }
+            return .object(fields)
+        }
+        func append(_ values: [JSONValue], field: WritingField, edge initial: WritingEdge) throws -> [WritingAtomKey] {
+            var edge = initial, keys: [WritingAtomKey] = []
+            for value in values {
+                let atoms: [JSONValue]
+                if value["type"] == .string("text") {
+                    atoms = (value["text"]?.string ?? "").unicodeScalars.map { scalar in
+                        var fields = value.object!; fields["text"] = .string(String(scalar)); return .object(fields)
+                    }
+                } else { atoms = [value] }
+                for value in atoms {
+                    let key = WritingAtomKey(origin: field, element: ElementID(change: id, index: index)); index += 1
+                    operations.append(.text(.insert(WritingAtomSeed(key: key, node: value, edge: edge,
+                        route: edge.anchor.map(WritingRoute.follow) ?? .field(field)))))
+                    keys.append(key); edge = .after(key)
+                }
+            }
+            return keys
+        }
+        let prefix = try selection(start.address, 0..<start.offset).keys
+        let head = try append(leading, field: source, edge: prefix.last.map(WritingEdge.after) ?? .start)
+        if prefix.isEmpty, !head.isEmpty, let first = projection.visibleKeys(in: source).first {
+            operations.append(.text(.transfer(keys: head, destination: source, edge: .before(first))))
+        }
+        var members: [NodeID] = [], previous = after
+        for value in values {
+            let placement = ElementID(change: id, index: index); index += 1
+            let identity = NodeID.inserted(creation: placement, path: [])
+            operations.append(.structure(.insertNode(value: try fresh(value, kind: kind), identity: identity,
+                collection: collection, placement: placement, after: previous)))
+            members.append(identity); previous = .edit(placement)
+        }
+        // The suffix owner never moves. Fix pasted trailing atoms to its field
+        // before its retained first atom, rather than following a peer's cut.
+        let endpointKeys = projection.visibleKeys(in: endpoint)
+        let tail = try append(trailing, field: endpoint, edge: .start)
+        if !tail.isEmpty, let first = endpointKeys.first {
+            operations.append(.text(.transfer(keys: tail, destination: endpoint, edge: .before(first))))
+        }
+        if !members.isEmpty {
+            let sourceKeys = try selection(start.address, start.offset..<projection.text(in: source).utf16.count).keys
+            let edge = try head.last.map(WritingEdge.after) ?? selection(start.address, start.offset..<start.offset).edge
+            operations.append(.text(.importBoundary(WritingImportBoundary(source: source, edge: edge,
+                sourcePlacement: parent.id, collection: collection, after: after, before: before, members: members, sourceKeys: sourceKeys))))
+        }
+        // A plain fully selected shell can retire; metadata-bearing owners and
+        // boundary ancestors stay separately visible, even with empty text.
+        if start.offset == 0, !leadingPresent, !sourceDescendants.contains(endpoint.node),
+           original.kind == .block, Set(original.fields.keys).isSubset(of: ["id", "type", "content"]), original.collections.isEmpty {
+            operations.append(.structure(.deleteNodes(identities: [source.node])))
+        }
+        let caret: WritingPosition
+        if singleInline {
+            caret = WritingPosition(documentID: documentID, epoch: epoch, field: source,
+                anchor: head.last ?? prefix.last, affinity: .after)
+        } else if let last = tail.last {
+            caret = WritingPosition(documentID: documentID, epoch: epoch, field: endpoint, anchor: last, affinity: .after)
+        } else {
+            let suffix = try selection(end.address, end.offset..<projection.text(in: endpoint).utf16.count).keys
+            caret = WritingPosition(documentID: documentID, epoch: epoch, field: endpoint, anchor: suffix.first,
+                affinity: suffix.isEmpty ? .after : .before)
+        }
+        if !operations.isEmpty { try perform(id, operations) }
+        _ = ending // The unchanged owner carries its complete metadata namespace.
+        return caret
+    }
     /// Replace a range in a paragraph with complete imported blocks. Imported
     /// nodes remain complete; inline absorption and cross-block ranges use a
     /// separate planner. Protocol 5 records the complete cut group explicitly.
     @discardableResult public func pasteBlocks(_ clipboard: WritingClipboard, replacing range: WritingTextRange,
                                                 policy: WritingPastePolicy = WritingPastePolicy()) throws -> WritingPosition {
-        guard protocolVersion == 5 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard protocolVersion == 5 || protocolVersion == 6 else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !isComposing else { throw WritingSessionError.compositionActive }
         try clipboard.validate(policy: policy, hostBlockTypes: allowedBlockTypes)
         let start = try resolve(range.start), end = try resolve(range.end)
@@ -1230,7 +1562,7 @@ public final class WritingSession {
                 do { try validate(structural, version: 2, structure: validating.structure, history: history, seedState: validating) }
                 catch EditorError.invalidDocument { throw EditorError.invalidChange }
             }
-            if protocolVersion == 5 {
+            if protocolVersion == 5 || protocolVersion == 6 {
                 // Descriptor ownership is a packet invariant, including retained
                 // inactive edits. Undo cannot legalize a duplicate group.
                 var grouped = Set<NodeID>(), destinations = Set<NodeID>()
@@ -1242,6 +1574,15 @@ public final class WritingSession {
                         guard Set(members).count == members.count, grouped.isDisjoint(with: members),
                               destinations.isDisjoint(with: members), destinations.insert(destination.node).inserted else { throw EditorError.invalidChange }
                         grouped.formUnion(members)
+                    case .text(.rangeSpliceBoundary(let splice)):
+                        guard protocolVersion == 6, Set(splice.members).count == splice.members.count,
+                              grouped.isDisjoint(with: splice.members), destinations.isDisjoint(with: splice.members),
+                              destinations.insert(splice.destination.node).inserted else { throw EditorError.invalidChange }
+                        grouped.formUnion(splice.members)
+                    case .text(.importBoundary(let boundary)):
+                        guard protocolVersion == 6, Set(boundary.members).count == boundary.members.count,
+                              grouped.isDisjoint(with: boundary.members), destinations.isDisjoint(with: boundary.members) else { throw EditorError.invalidChange }
+                        grouped.formUnion(boundary.members)
                     default: break
                     }
                 }
@@ -1249,7 +1590,7 @@ public final class WritingSession {
             // Index declared placements once. Node/field validation below still
             // requires that each referenced origin exists at this operation.
             var spliceCollections: [NodeID: Set<NodeCollection>] = [:]
-            if protocolVersion == 5 {
+            if protocolVersion == 5 || protocolVersion == 6 {
                 for placement in raw.structure?.placements.values ?? Dictionary<NodePlacementID, StructuralState.Placement>().values {
                     spliceCollections[placement.node, default: []].insert(placement.collection)
                 }
@@ -1301,6 +1642,148 @@ public final class WritingSession {
                 guard !keys.isEmpty, keys.count <= 100_000, Set(keys).count == keys.count else { throw EditorError.invalidChange }
                 for key in keys { try reference(key) }
             }
+            @inline(never) func validateImportBoundary(_ boundary: WritingImportBoundary) throws {
+                guard protocolVersion == 6, !boundary.members.isEmpty, boundary.members.count <= 10_000,
+                      Set(boundary.members).count == boundary.members.count,
+                      !boundary.members.contains(boundary.source.node) else { throw EditorError.invalidChange }
+                try field(boundary.source); try edge(boundary.edge)
+                if !boundary.sourceKeys.isEmpty { try keys(boundary.sourceKeys) }
+                let cohort = try observedClosure(change.observed ?? [], before: change.id, in: candidate)
+                func origin(_ identity: NodeID) throws {
+                    try node(identity)
+                    if case .inserted(let creation, _) = identity, !cohort.contains(creation.change) { throw EditorError.invalidChange }
+                }
+                func observed(_ key: WritingAtomKey, allowOwn: Bool = false) throws {
+                    try reference(key)
+                    if key.element.change == change.id {
+                        guard allowOwn, key.origin == boundary.source else { throw EditorError.invalidChange }
+                    } else if key.element.change.counter > 0, !cohort.contains(key.element.change) { throw EditorError.invalidChange }
+                    try origin(key.origin.node)
+                }
+                try origin(boundary.source.node)
+                if let anchor = boundary.edge.anchor { try observed(anchor, allowOwn: true) }
+                for key in boundary.sourceKeys { try observed(key) }
+                switch boundary.sourcePlacement {
+                case .edit(let edit):
+                    guard edit.change < change.id, cohort.contains(edit.change), edit.index >= 0,
+                          edit.index <= 2_147_483_647 else { throw EditorError.invalidChange }
+                case .initial(let identity):
+                    try origin(identity)
+                    if case .inserted(_, let path) = identity, path.isEmpty { throw EditorError.invalidChange }
+                case .role(let owner, let identity):
+                    try origin(owner); try origin(identity)
+                    guard let role = operations.compactMap({ operation -> WritingParagraphRole? in
+                        if case .retainParagraphRole(let role) = operation, role.owner == owner, role.node == identity { return role }; return nil
+                    }).first, cohort.contains(role.retirement),
+                          try observedClosure(role.exposure, before: change.id, in: candidate).isSubset(of: cohort) else { throw EditorError.invalidChange }
+                }
+                guard let source = raw.structure?.placements[boundary.sourcePlacement] else { throw WritingProjectionError.missingAtom }
+                guard source.node == boundary.source.node else { throw EditorError.invalidChange }
+                let kind = try raw.structure!.kind(in: boundary.collection)
+                if boundary.collection == source.collection {
+                    guard boundary.after == source.id else { throw EditorError.invalidChange }
+                } else {
+                    guard boundary.collection.owner == boundary.source.node, boundary.after == nil else { throw EditorError.invalidChange }
+                }
+                var previous = boundary.after
+                for member in boundary.members {
+                    try node(member)
+                    guard case .inserted(let creation, let path) = member, path.isEmpty, creation.change == change.id,
+                          let birth = raw.structure?.placements[.edit(creation)], birth.node == member,
+                          birth.collection == boundary.collection, birth.after == previous,
+                          raw.structure?.nodes[member]?.kind == kind, !explicitlyMoved.contains(member) else { throw EditorError.invalidChange }
+                    previous = birth.id
+                }
+                if let before = boundary.before {
+                    try origin(before)
+                    guard !boundary.members.contains(before), before != boundary.source.node,
+                          spliceCollections[before]?.contains(boundary.collection) == true else { throw EditorError.invalidChange }
+                }
+            }
+            @inline(never) func validateRangeSplice(_ splice: WritingRangeSplice) throws {
+                guard protocolVersion == 6 else { throw EditorError.invalidChange }
+                try field(splice.source); try field(splice.destination); try edge(splice.edge)
+                if !splice.endpointKeys.isEmpty { try keys(splice.endpointKeys) }
+                guard splice.endpointKeys.allSatisfy({ $0.element.change != change.id }), splice.source != splice.destination, splice.source.name == "content", splice.destination.name == "content",
+                      !splice.members.isEmpty, splice.members.count <= 10_000, splice.members.last == splice.destination.node,
+                      Set(splice.members).count == splice.members.count, !splice.members.contains(splice.source.node),
+                      splice.destinationPlacement.change == change.id else { throw EditorError.invalidChange }
+                let cohort = try observedClosure(change.observed ?? [], before: change.id, in: candidate)
+                func observedAtom(_ key: WritingAtomKey) throws {
+                    if key.element.change.counter > 0, !cohort.contains(key.element.change) { throw EditorError.invalidChange }
+                    if case .inserted(let creation, _) = key.origin.node, !cohort.contains(creation.change) { throw EditorError.invalidChange }
+                }
+                for key in splice.endpointKeys { try observedAtom(key) }
+                if let anchor = splice.edge.anchor { try observedAtom(anchor) }
+                for operation in operations {
+                    if case .text(.transfer(let pin, let target, .start)) = operation, target == splice.source {
+                        for key in pin {
+                            try reference(key)
+                            if key.element.change == change.id {
+                                guard key.origin == splice.source else { throw EditorError.invalidChange }
+                            } else { try observedAtom(key) }
+                        }
+                    }
+                }
+                func proof(_ id: NodePlacementID, node identity: NodeID) throws -> StructuralState.Placement {
+                    switch id {
+                    case .edit(let edit):
+                        guard edit.change.counter > 0, edit.change.counter <= 9_007_199_254_740_991,
+                              validToken(edit.change.actor), edit.index >= 0, edit.index <= 2_147_483_647,
+                              edit.change < change.id, cohort.contains(edit.change) else { throw EditorError.invalidChange }
+                    case .initial(let identity):
+                        if case .inserted(let creation, let path) = identity {
+                            guard !path.isEmpty, cohort.contains(creation.change) else { throw EditorError.invalidChange }
+                        }
+                        try selfReference(identity)
+                    case .role(let owner, let node):
+                        try selfReference(owner); try selfReference(node)
+                        guard let role = operations.compactMap({ operation -> WritingParagraphRole? in
+                            if case .retainParagraphRole(let role) = operation, role.owner == owner, role.node == node { return role }; return nil
+                        }).first, cohort.contains(role.retirement) else { throw EditorError.invalidChange }
+                        let exposure = try observedClosure(role.exposure, before: change.id, in: candidate)
+                        guard exposure.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                    }
+                    guard let old = raw.structure?.placements[id] else { throw WritingProjectionError.missingAtom }
+                    guard old.node == identity else { throw EditorError.invalidChange }; return old
+                }
+                func selfReference(_ identity: NodeID) throws { try node(identity) }
+                for identity in [splice.source.node, splice.destination.node] {
+                    if case .inserted(let creation, _) = identity, !cohort.contains(creation.change) { throw EditorError.invalidChange }
+                }
+                let source = try proof(splice.sourcePlacement, node: splice.source.node)
+                let ending = try proof(splice.endpointPlacement, node: splice.destination.node)
+                guard source.collection == ending.collection,
+                      raw.structure?.nodes[splice.source.node]?.kind == .block,
+                      raw.structure?.nodes[splice.destination.node]?.kind == .block else { throw EditorError.invalidChange }
+                // These are retained placement proofs, not a claim about
+                // currently winning sibling order. RGA moves can be siblings
+                // without an ancestor-after relation; the public range planner
+                // normalizes live order before producing this explicit edit.
+                var previous = source.id
+                for member in splice.members.dropLast() {
+                    try node(member)
+                    guard case .inserted(let creation, let path) = member, path.isEmpty, creation.change == change.id,
+                          let birth = raw.structure?.placements[.edit(creation)], birth.node == member,
+                          birth.collection == source.collection, birth.after == previous,
+                          raw.structure?.nodes[member]?.kind == .block, !explicitlyMoved.contains(member) else { throw EditorError.invalidChange }
+                    previous = birth.id
+                }
+                let endpointMoves = operations.filter {
+                    if case .structure(.moveNode(let identity, _, _, _)) = $0 { return identity == splice.destination.node }; return false
+                }
+                guard endpointMoves.count == 1, let moved = raw.structure?.placements[.edit(splice.destinationPlacement)],
+                      moved.node == splice.destination.node, moved.collection == source.collection,
+                      moved.after == previous else { throw EditorError.invalidChange }
+                if let before = splice.before {
+                    try node(before)
+                    if case .inserted(let birth, _) = before {
+                        guard birth.change < change.id, cohort.contains(birth.change) else { throw EditorError.invalidChange }
+                    }
+                    guard before != splice.source.node, !splice.members.contains(before),
+                          spliceCollections[before]?.contains(source.collection) == true else { throw EditorError.invalidChange }
+                }
+            }
             @inline(never) func validateText(_ mutation: WritingMutation) throws {
                 switch mutation {
                 case .insert(let atom):
@@ -1349,7 +1832,7 @@ public final class WritingSession {
                 case .spliceBoundary(let source, let destination, let boundary, let before, let members):
                     // The wire capability is explicit; old epochs cannot admit
                     // a group convention they have never projected.
-                    guard protocolVersion == 5 else { throw EditorError.invalidChange }
+                    guard protocolVersion == 5 || protocolVersion == 6 else { throw EditorError.invalidChange }
                     try field(source); try field(destination); try edge(boundary)
                     guard source != destination, source.name == "content", destination.name == "content",
                           (raw.structure?.nodes[source.node]?.birthKind == .block ||
@@ -1387,6 +1870,8 @@ public final class WritingSession {
                         guard before != source.node, !members.contains(before),
                               collection.map({ spliceCollections[before]?.contains($0) == true }) == true else { throw EditorError.invalidChange }
                     }
+                case .rangeSpliceBoundary(let splice): try validateRangeSplice(splice)
+                case .importBoundary(let boundary): try validateImportBoundary(boundary)
                 case .splitBoundary(let source, let destination, let boundary, let before):
                     try field(source); try field(destination); try edge(boundary)
                     if let before { try node(before); guard before != destination.node else { throw EditorError.invalidChange } }
@@ -1523,7 +2008,7 @@ public final class WritingSession {
                 for identity in retainedRoles { raw.structure?.nodes[identity] = beforeRoleNodes[identity] }
             }
         }
-        return try Self.projectState(raw: raw, changes: changes, births: usesRetainedOrigins ? births : nil)
+        return try Self.projectState(raw: raw, changes: changes, births: usesRetainedOrigins ? births : nil, protocolVersion: protocolVersion)
     }
 
     private static func project(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil) throws -> (StructuralState, WritingProjection, Document) {
@@ -1534,7 +2019,26 @@ public final class WritingSession {
         guard try document.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
         return (state.0, state.1, document)
     }
-    private static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+    private static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained)
+        let (structure, edits) = try orderedCuts(structure: inputs.structure, edits: inputs.edits,
+            seeds: inputs.seeds, active: inputs.active, fields: inputs.fields, births: inputs.births,
+            hidden: inputs.hidden, aliases: inputs.aliases, changes: changes,
+            retained: retained, protocolVersion: protocolVersion)
+        return try assembleProjection(structure: structure, edits: edits, inputs: inputs, retained: retained)
+    }
+    private struct ProjectionInputs {
+        let structure: StructuralState
+        let seeds: [WritingAtomSeed]
+        let fields: Set<WritingField>
+        let hidden: Set<WritingAtomKey>
+        let births: [WritingField: WritingFieldBirth]
+        let active: [ChangeID: Bool]
+        let edits: [WritingEdit]
+        let aliases: [WritingField: WritingField]
+    }
+    @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
+        births retained: [WritingField: WritingFieldBirth]?) throws -> ProjectionInputs {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
@@ -1760,26 +2264,81 @@ public final class WritingSession {
                 }
             }
         }
+        return ProjectionInputs(structure: structure, seeds: seeds, fields: fields, hidden: hidden,
+            births: births, active: active, edits: edits, aliases: aliases)
+    }
+    @inline(never) private static func assembleProjection(structure input: StructuralState,
+        edits: [WritingEdit], inputs: ProjectionInputs,
+        retained: [WritingField: WritingFieldBirth]?) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        var structure = input
+        let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
+        let hidden = inputs.hidden, aliases = inputs.aliases
+        let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
+        var values: [NodeID: [String: JSONValue]] = [:]
+        var baselineNodesByField: [WritingField: [JSONValue]] = [:]
+        for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
+        for field in fields {
+            let nodes = projection.nodes(in: field)
+            if retained != nil, field.name == "code", !nodes.allSatisfy({
+                $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
+                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
+            }) { throw EditorError.invalidDocument("Code conversion cannot flatten rich atoms") }
+            if !nodes.isEmpty { structure.touched.insert(field.node) }
+            // Preserve exact baseline JSON for untouched fields, including empty
+            // text runs and host extensions that have no visible scalar atoms.
+            let original = structure.nodes[field.node]!.fields[field.name]!
+            let baselineNodes = baselineNodesByField[field] ?? []
+            if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
+               retained == nil || original == births[field]?.value { continue }
+            var runs: [JSONValue] = []
+            for node in nodes {
+                if node["type"] == .string("text"), var last = runs.last?.object, last["type"] == .string("text") {
+                    var lhs = last, rhs = node.object!
+                    lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")
+                    if lhs == rhs {
+                        last["text"] = .string((last["text"]?.string ?? "") + (node["text"]?.string ?? ""))
+                        runs[runs.count - 1] = .object(last); continue
+                    }
+                }
+                runs.append(node)
+            }
+            values[field.node, default: [:]][field.name] = original.string == nil ? .array(runs) : .string(plainText(runs))
+        }
+        for field in projection.joinedSources {
+            if let node = structure.nodes[field.node], node.kind == .block,
+               Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {
+                structure.deleted.insert(field.node)
+            }
+        }
+        return (structure, projection, values)
+    }
+    @inline(never) private static func orderedCuts(structure input: StructuralState, edits inputEdits: [WritingEdit],
+        seeds: [WritingAtomSeed], active: [ChangeID: Bool], fields: Set<WritingField>, births: [WritingField: WritingFieldBirth],
+        hidden: Set<WritingAtomKey>, aliases: [WritingField: WritingField], changes: [WritingChange],
+        retained: [WritingField: WritingFieldBirth]?, protocolVersion: Int) throws -> (StructuralState, [WritingEdit]) {
+        var structure = input, edits = inputEdits
         // Concurrent cuts partition the observed suffix at each original boundary.
         // An ordinary last-writer transfer would erase a different author's cut,
         // and sibling creation timestamps could reverse paragraph text order.
-        struct Cut { let id: ChangeID; let source: WritingField; let destination: WritingField; let before: NodeID?; let rank: Int; let keys: Set<WritingAtomKey>; let members: [NodeID]? }
+        struct Cut { let id: ChangeID; let source: WritingField; let destination: WritingField; let before: NodeID?; let rank: Int; let keys: Set<WritingAtomKey>; let members: [NodeID]?; let range: WritingRangeSplice?; let imported: WritingImportBoundary? }
         let ancestryEdits = edits.map { edit in
             WritingEdit(id: edit.id, mutations: edit.mutations.filter {
-                switch $0 { case .transfer, .join, .splitBoundary, .spliceBoundary: return false; default: return true }
+                switch $0 { case .transfer, .join, .splitBoundary, .spliceBoundary, .rangeSpliceBoundary, .importBoundary: return false; default: return true }
             })
         }
         var ancestry: WritingProjection?
         var cuts: [WritingField: [Cut]] = [:]
         for edit in edits where active[edit.id] ?? true {
             for mutation in edit.mutations {
-                let descriptor: (WritingField, WritingField, WritingEdge, NodeID?, [NodeID]?)
+                let descriptor: (WritingField, WritingField, WritingEdge, NodeID?, [NodeID]?, WritingRangeSplice?, WritingImportBoundary?)
                 switch mutation {
-                case .splitBoundary(let source, let destination, let edge, let before): descriptor = (source, destination, edge, before, nil)
-                case .spliceBoundary(let source, let destination, let edge, let before, let members): descriptor = (source, destination, edge, before, members)
+                case .splitBoundary(let source, let destination, let edge, let before): descriptor = (source, destination, edge, before, nil, nil, nil)
+                case .spliceBoundary(let source, let destination, let edge, let before, let members): descriptor = (source, destination, edge, before, members, nil, nil)
+                case .rangeSpliceBoundary(let splice): descriptor = (splice.source, splice.destination, splice.edge, splice.before, splice.members, splice, nil)
+                case .importBoundary(let boundary): descriptor = (boundary.source, boundary.source, boundary.edge, boundary.before, boundary.members, nil, boundary)
                 default: continue
                 }
-                let (source, destination, edge, before, members) = descriptor
+                let (source, destination, edge, before, members, range, imported) = descriptor
                 do {
                     let rank: Int
                     let pin = retained == nil ? nil : edit.mutations.compactMap { mutation -> WritingAtomKey? in
@@ -1794,21 +2353,55 @@ public final class WritingSession {
                             if case .before = edge { return .before }; return .after
                         }())
                     } else { rank = 0 }
-                    let keys = edit.mutations.reduce(into: Set<WritingAtomKey>()) { span, mutation in
+                    let keys = imported.map { Set($0.sourceKeys) } ?? edit.mutations.reduce(into: Set<WritingAtomKey>()) { span, mutation in
                         if case .transfer(let keys, let target, _) = mutation, target == destination { span.formUnion(keys) }
                     }
                     let origin = aliases[source] ?? source
-                    cuts[origin, default: []].append(Cut(id: edit.id, source: origin, destination: destination, before: before, rank: rank, keys: keys, members: members))
+                    cuts[origin, default: []].append(Cut(id: edit.id, source: origin, destination: destination, before: before, rank: rank, keys: keys, members: members, range: range, imported: imported))
                 }
             }
         }
+        if protocolVersion == 6 {
+            // A later observed range can reuse an existing endpoint. Retire only
+            // the older claim to that endpoint; its earlier imported members and
+            // text routing remain retained history and reappear on author Undo.
+            let rangeHistory = Dictionary(uniqueKeysWithValues: changes.map { ($0.id, $0) })
+            let claims = Dictionary(grouping: cuts.values.flatMap { $0 }, by: \.destination)
+            var retired: [WritingField: Set<ChangeID>] = [:]
+            for (destination, group) in claims where group.count > 1 {
+                let ranges = group.filter { $0.range != nil }.sorted { $1.id < $0.id }
+                for later in ranges where retired[destination]?.contains(later.id) != true {
+                    // Only competing claims need a cohort. A causal chain is
+                    // covered by its newest surviving range's transitive cohort.
+                    guard group.contains(where: { $0.id < later.id && retired[destination]?.contains($0.id) != true }) else { continue }
+                    let observed = try observedClosure(rangeHistory[later.id]?.observed ?? [], before: later.id, in: rangeHistory)
+                    for prior in group where observed.contains(prior.id) {
+                        retired[destination, default: []].insert(prior.id)
+                    }
+                }
+            }
+            for origin in Array(cuts.keys) {
+                cuts[origin] = cuts[origin]!.map { cut in
+                    guard retired[cut.destination]?.contains(cut.id) == true else { return cut }
+                    return Cut(id: cut.id, source: cut.source, destination: cut.destination, before: cut.before,
+                        rank: cut.rank, keys: cut.keys, members: (cut.members ?? []).filter { $0 != cut.destination.node }, range: cut.range, imported: cut.imported)
+                }
+            }
+        }
+        let endpointClaims = cuts.values.flatMap { $0 }.filter { $0.members == nil || $0.members?.last == $0.destination.node }
         if retained != nil {
-            let destinations = cuts.values.flatMap { $0 }.map(\.destination)
-            guard Set(destinations).count == destinations.count else { throw EditorError.invalidChange }
+            let destinations = endpointClaims.map(\.destination)
+            guard Set(destinations).count == destinations.count else {
+                if protocolVersion == 6 { throw EditorError.invalidDocument("Overlapping retained splice endpoints") }
+                throw EditorError.invalidChange
+            }
         }
         let groupMembers = cuts.values.flatMap { $0 }.flatMap { $0.members ?? [] }
-        guard Set(groupMembers).count == groupMembers.count else { throw EditorError.invalidChange }
-        let cutByDestination = cuts.values.flatMap { $0 }.reduce(into: [WritingField: Cut]()) { $0[$1.destination] = $1 }
+        guard Set(groupMembers).count == groupMembers.count else {
+            if protocolVersion == 6 { throw EditorError.invalidDocument("Overlapping retained splice groups") }
+            throw EditorError.invalidChange
+        }
+        let cutByDestination = endpointClaims.reduce(into: [WritingField: Cut]()) { $0[$1.destination] = $1 }
         if retained == nil {
             edits = edits.map { edit in
                 WritingEdit(id: edit.id, mutations: edit.mutations.compactMap { mutation in
@@ -1825,6 +2418,9 @@ public final class WritingSession {
         } else {
             let history = Dictionary(uniqueKeysWithValues: changes.map { ($0.id, $0) })
             var observedBy: [ChangeID: Set<ChangeID>] = [:]
+            let endpointPins = endpointClaims.reduce(into: [WritingField: Set<WritingAtomKey>]()) {
+                if let range = $1.range { $0[range.destination, default: []].formUnion(range.endpointKeys) }
+            }
             func observed(_ id: ChangeID) -> Set<ChangeID> {
                 if let known = observedBy[id] { return known }
                 var pending = history[id]?.observed ?? [], known = Set<ChangeID>()
@@ -1837,6 +2433,23 @@ public final class WritingSession {
                 WritingEdit(id: edit.id, mutations: try edit.mutations.flatMap { mutation -> [WritingMutation] in
                     guard case .transfer(let keys, let destination, let edge) = mutation else { return [mutation] }
                     let origin = aliases[destination] ?? destination
+                    if protocolVersion == 6, let own = cutByDestination[destination], own.id == edit.id,
+                       own.range != nil, endpointPins[destination]?.isEmpty == false,
+                       keys.allSatisfy({ endpointPins[destination]?.contains($0) == true }) {
+                        let competitors = (cuts[origin] ?? []).filter { $0.id != edit.id && !observed(edit.id).contains($0.id) && !observed($0.id).contains(edit.id) }
+                        if !competitors.isEmpty, ancestry == nil {
+                            ancestry = try WritingProjection(seeds: seeds, edits: ancestryEdits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
+                        }
+                        var partitions: [WritingField: [WritingAtomKey]] = [:]
+                        for key in keys {
+                            let claiming = try competitors.filter { try ancestry!.follows(key, anyOf: $0.keys) }
+                            let winner = claiming.max { lhs, rhs in lhs.rank == rhs.rank ? lhs.id < rhs.id : lhs.rank < rhs.rank }
+                            partitions[winner?.destination ?? destination, default: []].append(key)
+                        }
+                        return partitions.keys.sorted { $0.key < $1.key }.map {
+                            .transfer(keys: partitions[$0]!, destination: $0, edge: $0 == destination ? edge : .start)
+                        }
+                    }
                     if case .start = edge, let own = cuts[origin]?.first(where: { $0.id == edit.id }) {
                         // Pins express the source atoms this author observed. Reserve
                         // truly concurrent suffix ownership, including birth-route
@@ -1865,100 +2478,113 @@ public final class WritingSession {
         }
         let selected = try structure.effectivePlacements()
         for (source, siblings) in cuts {
+            let physicalGroups = siblings.filter { $0.members?.isEmpty != true }
+            guard !physicalGroups.isEmpty else { continue }
             if retained != nil, siblings.count > 1 {
-                let containers = Set(siblings.compactMap { selected[$0.destination.node]?.collection })
+                let containers: Set<NodeCollection>
+                if protocolVersion == 6 {
+                    // A hierarchical import declares its own compatible target
+                    // collection. It does not claim the ordinary source tail's
+                    // physical container or require that tail to move with it.
+                    containers = Set(physicalGroups.filter { $0.imported == nil }.flatMap { cut in
+                        (cut.members ?? [cut.destination.node]).compactMap { member -> NodeCollection? in
+                            guard let placement = selected[member] else { return nil }
+                            if cut.members == nil, case .role(_, let node) = placement.id, node == member {
+                                // Ordinary item cuts can retain their proven
+                                // paragraph role after wrapper retirement.
+                                return placement.collection
+                            }
+                            let expected: NodePlacementID
+                            if let range = cut.range, member == range.destination.node { expected = .edit(range.destinationPlacement) }
+                            else if case .inserted(let creation, _) = member { expected = .edit(creation) }
+                            else { return nil }
+                            // A superseded endpoint or independent later move
+                            // does not belong to this physical birth group.
+                            return placement.id == expected ? placement.collection : nil
+                        }
+                    })
+                } else { containers = Set(siblings.compactMap { selected[$0.destination.node]?.collection }) }
                 guard containers.count <= 1 else { throw EditorError.invalidDocument("Concurrent conversion cuts require reconciliation") }
             }
-            guard let parent = selected[source.node] ?? aliases[source].flatMap({ selected[$0.node] }) else { throw EditorError.invalidPath }
-            var previous = parent.id
-            var ordered: [Cut] = []
-            let ranks = Dictionary(grouping: siblings, by: \.rank)
-            for rank in ranks.keys.sorted() {
-                let cuts = ranks[rank]!, byNode = Dictionary(uniqueKeysWithValues: cuts.flatMap { cut in
-                    (cut.members ?? [cut.destination.node]).map { ($0, cut) }
-                })
-                var predecessors: [NodeID: Int] = [:], followers: [NodeID: [NodeID]] = [:]
-                for cut in cuts {
-                    if let next = cut.before, let group = byNode[next] {
-                        predecessors[group.destination.node, default: 0] += 1
-                        followers[cut.destination.node, default: []].append(group.destination.node)
-                    }
-                }
-                var ready = cuts.filter { predecessors[$0.destination.node, default: 0] == 0 }.sorted { $1.id < $0.id }
-                var count = 0
-                while let cut = ready.popLast() {
-                    ordered.append(cut); count += 1
-                    for next in followers[cut.destination.node] ?? [] {
-                        predecessors[next, default: 0] -= 1
-                        if predecessors[next] == 0 { ready.append(byNode[next]!); ready.sort { $1.id < $0.id } }
-                    }
-                }
-                guard count == cuts.count else { throw WritingProjectionError.placementCycle }
-            }
-            for cut in ordered {
-                if let members = cut.members {
-                    for member in members {
-                        guard case .inserted(let creation, _) = member,
-                              let birth = structure.placements[.edit(creation)] else { throw EditorError.invalidChange }
-                        // A later independent placement stays authoritative. Only
-                        // the original birth participates in this cut ordering.
-                        guard let placement = selected[member], placement.id == birth.id else { continue }
-                        guard placement.collection == parent.collection else {
-                            throw EditorError.invalidDocument("Splice boundary ownership requires reconciliation")
+            guard let parent = selected[source.node] ?? aliases[source].flatMap({ selected[$0.node] }) ?? siblings.first(where: { $0.range != nil }).flatMap({ structure.placements[$0.range!.sourcePlacement] }) ?? siblings.first(where: { $0.imported != nil }).flatMap({ structure.placements[$0.imported!.sourcePlacement] }) else { throw EditorError.invalidPath }
+            let physicalGroupsByCollection: [[Cut]]
+            if protocolVersion == 6, physicalGroups.contains(where: { $0.imported != nil }) {
+                let grouped = Dictionary(grouping: physicalGroups) { $0.imported?.collection ?? parent.collection }
+                // Only physical birth chains are partitioned. All descriptors
+                // still share the source's retained rank/atom arbitration above.
+                physicalGroupsByCollection = grouped.keys.sorted {
+                    let lhs = ($0.owner?.key ?? "", $0.field), rhs = ($1.owner?.key ?? "", $1.field)
+                    return lhs < rhs
+                }.map { grouped[$0]! }
+            } else { physicalGroupsByCollection = [physicalGroups] }
+            for physicalGroup in physicalGroupsByCollection {
+                var previous: NodePlacementID? = parent.id
+                var currentCollection = parent.collection
+                var ordered: [Cut] = []
+                let ranks = Dictionary(grouping: physicalGroup, by: \.rank)
+                for rank in ranks.keys.sorted() {
+                    let cuts = ranks[rank]!, byNode = Dictionary(uniqueKeysWithValues: cuts.flatMap { cut in
+                        (cut.members ?? [(cut.members?.last ?? cut.destination.node)]).map { ($0, cut) }
+                    })
+                    var predecessors: [NodeID: Int] = [:], followers: [NodeID: [NodeID]] = [:]
+                    for cut in cuts {
+                        if let next = cut.before, let group = byNode[next] {
+                            predecessors[(group.members?.last ?? group.destination.node), default: 0] += 1
+                            followers[(cut.members?.last ?? cut.destination.node), default: []].append((group.members?.last ?? group.destination.node))
                         }
-                        structure.placements[placement.id] = StructuralState.Placement(id: placement.id, after: previous,
-                            node: placement.node, collection: placement.collection, active: placement.active)
-                        previous = placement.id
                     }
-                    continue
-                }
-                guard case .inserted(let creation, _) = cut.destination.node,
-                      let placement = selected[cut.destination.node],
-                      placement.id == .edit(creation) || (retained != nil && {
-                          if case .role(_, let node) = placement.id { return node == cut.destination.node }; return false
-                      }()),
-                      placement.collection == parent.collection else { continue }
-                structure.placements[placement.id] = StructuralState.Placement(id: placement.id, after: previous,
-                    node: placement.node, collection: placement.collection, active: placement.active)
-                previous = placement.id
-            }
-        }
-        let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
-        var values: [NodeID: [String: JSONValue]] = [:]
-        for field in fields {
-            let nodes = projection.nodes(in: field)
-            if retained != nil, field.name == "code", !nodes.allSatisfy({
-                $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
-                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
-            }) { throw EditorError.invalidDocument("Code conversion cannot flatten rich atoms") }
-            if !nodes.isEmpty { structure.touched.insert(field.node) }
-            // Preserve exact baseline JSON for untouched fields, including empty
-            // text runs and host extensions that have no visible scalar atoms.
-            let original = structure.nodes[field.node]!.fields[field.name]!
-            let baselineNodes = seeds.filter { $0.key.origin == field }.map(\.node)
-            if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
-               retained == nil || original == births[field]?.value { continue }
-            var runs: [JSONValue] = []
-            for node in nodes {
-                if node["type"] == .string("text"), var last = runs.last?.object, last["type"] == .string("text") {
-                    var lhs = last, rhs = node.object!
-                    lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")
-                    if lhs == rhs {
-                        last["text"] = .string((last["text"]?.string ?? "") + (node["text"]?.string ?? ""))
-                        runs[runs.count - 1] = .object(last); continue
+                    var ready = cuts.filter { predecessors[($0.members?.last ?? $0.destination.node), default: 0] == 0 }.sorted { $1.id < $0.id }
+                    var count = 0
+                    while let cut = ready.popLast() {
+                        ordered.append(cut); count += 1
+                        for next in followers[(cut.members?.last ?? cut.destination.node)] ?? [] {
+                            predecessors[next, default: 0] -= 1
+                            if predecessors[next] == 0 { ready.append(byNode[next]!); ready.sort { $1.id < $0.id } }
+                        }
                     }
+                    guard count == cuts.count else { throw WritingProjectionError.placementCycle }
                 }
-                runs.append(node)
+                for cut in ordered {
+                    let targetCollection = cut.imported?.collection ?? parent.collection
+                    if targetCollection != currentCollection {
+                        currentCollection = targetCollection
+                        previous = cut.imported?.after ?? parent.id
+                        if cut.imported != nil { previous = cut.imported!.after }
+                    }
+                    if let members = cut.members {
+                        for member in members {
+                            let birth: StructuralState.Placement
+                            if let range = cut.range, member == range.destination.node {
+                                guard let exact = structure.placements[.edit(range.destinationPlacement)] else { throw EditorError.invalidChange }; birth = exact
+                            } else {
+                                guard case .inserted(let creation, _) = member,
+                                      let exact = structure.placements[.edit(creation)] else { throw EditorError.invalidChange }; birth = exact
+                            }
+                            // A later independent placement stays authoritative. Only
+                            // the original birth participates in this cut ordering.
+                            guard let placement = selected[member], placement.id == birth.id else { continue }
+                            guard placement.collection == targetCollection else {
+                                throw EditorError.invalidDocument("Splice boundary ownership requires reconciliation")
+                            }
+                            structure.placements[placement.id] = StructuralState.Placement(id: placement.id, after: previous,
+                                node: placement.node, collection: placement.collection, active: placement.active)
+                            previous = placement.id
+                        }
+                        continue
+                    }
+                    guard case .inserted(let creation, _) = cut.destination.node,
+                          let placement = selected[cut.destination.node],
+                          placement.id == .edit(creation) || (retained != nil && {
+                              if case .role(_, let node) = placement.id { return node == cut.destination.node }; return false
+                          }()),
+                          placement.collection == parent.collection else { continue }
+                    structure.placements[placement.id] = StructuralState.Placement(id: placement.id, after: previous,
+                        node: placement.node, collection: placement.collection, active: placement.active)
+                    previous = placement.id
+                }
             }
-            values[field.node, default: [:]][field.name] = original.string == nil ? .array(runs) : .string(plainText(runs))
         }
-        for field in projection.joinedSources {
-            if let node = structure.nodes[field.node], node.kind == .block,
-               Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {
-                structure.deleted.insert(field.node)
-            }
-        }
-        return (structure, projection, values)
+        return (structure, edits)
     }
     private static func json<T: Encodable>(_ value: T) throws -> JSONValue { try JSONDecoder().decode(JSONValue.self, from: canonicalEncoder().encode(value)) }
 }

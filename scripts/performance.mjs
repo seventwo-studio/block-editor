@@ -5,7 +5,7 @@ export function performanceOptions(config, options = {}) {
   if (config.version !== 1) throw new Error('Unsupported performance workload');
   const profile = options.profile ?? 'baseline';
   if (!['baseline', 'smoke'].includes(profile)) throw new Error('Unknown performance profile');
-  const names = options.cases ?? (profile === 'smoke' ? ['ordinary-v1', 'ordinary-v2'] : config.cases.map(x => x.name));
+  const names = options.cases ?? (profile === 'smoke' ? config.smokeCases ?? ['ordinary-v1', 'ordinary-v2'] : config.cases.map(x => x.name));
   if (!names.length || new Set(names).size !== names.length) throw new Error('Empty/duplicated case selection');
   const cases = names.map(name => {
     const item = config.cases.find(x => x.name === name);
@@ -45,7 +45,8 @@ export async function runPerformanceCase(config, workload, repetition, call, now
     if (['create', 'restore'].includes(input.command)) sessions.add(input.session);
     return response.value;
   };
-  const create = (session, actorID) => request('create', { command: 'create', session, actorID, documentID: `performance-${workload.name}`, blocks: config.baseline, collaborationVersion: workload.version });
+  const epoch = `performance-writing-v${workload.version}`;
+  const create = (session, actorID) => request('create', { command: 'create', session, actorID, documentID: `performance-${workload.name}`, blocks: config.baseline, collaborationVersion: workload.version, ...(workload.version >= 3 ? { epoch } : {}) });
   const receive = (session, batch, phase = 'rejoin') => request(phase, { command: 'receive', session, batch });
   const assertContent = (snapshot, aCount, bCount) => {
     equal(snapshot.blocks.slice(1), config.baseline.slice(1), 'unrelated rich content and metadata');
@@ -96,6 +97,15 @@ export async function runPerformanceCase(config, workload, repetition, call, now
     equal((await receive(peer, combined, 'fullHistoryReceive')).blocks, finalA.blocks, 'fresh replica replay');
     const saved = await request('save', { command: 'save', session: a });
     const receipts = await request('receipts', { command: 'syncState', session: a });
+    if (workload.version >= 3) {
+      for (const value of [batchA, batchB, saved, receipts]) {
+        equal(value.version, workload.version, 'explicit writing protocol');
+        equal(value.epoch, epoch, 'explicit writing epoch');
+        equal(value.documentID, `performance-${workload.name}`, 'writing document identity');
+      }
+      equal(saved.localHistory?.actorID, 'a', 'persisted author history');
+      if (!Array.isArray(saved.localHistory?.undo) || !Array.isArray(saved.localHistory?.redo)) throw new Error('Missing writing author stacks');
+    }
     equal(saved.changes.length, workload.editsPerAuthor * 2 + 2, 'saved history size');
     equal(receipts.received.length, saved.changes.length, 'exact receipts');
     equal((await request('restore', { command: 'restore', session: reopened, actorID: 'a', snapshot: saved })).blocks, finalA.blocks, 'save/reopen');

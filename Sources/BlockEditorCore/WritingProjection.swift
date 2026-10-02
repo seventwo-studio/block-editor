@@ -34,6 +34,41 @@ public struct WritingAtomSeed: Codable, Equatable, Sendable {
         self.key = key; self.node = node; self.edge = edge; self.route = route
     }
 }
+/// Protocol 6 orders a fresh import chain ending in an observed retained owner.
+public struct WritingRangeSplice: Codable, Equatable, Sendable {
+    public let source: WritingField
+    public let destination: WritingField
+    public let edge: WritingEdge
+    public let before: NodeID?
+    public let members: [NodeID]
+    public let sourcePlacement: NodePlacementID
+    public let endpointPlacement: NodePlacementID
+    public let destinationPlacement: ElementID
+    public let endpointKeys: [WritingAtomKey]
+    public init(source: WritingField, destination: WritingField, edge: WritingEdge, before: NodeID?, members: [NodeID],
+                sourcePlacement: NodePlacementID, endpointPlacement: NodePlacementID, destinationPlacement: ElementID, endpointKeys: [WritingAtomKey]) {
+        self.source = source; self.destination = destination; self.edge = edge; self.before = before; self.members = members
+        self.sourcePlacement = sourcePlacement; self.endpointPlacement = endpointPlacement; self.destinationPlacement = destinationPlacement
+        self.endpointKeys = endpointKeys
+    }
+}
+/// Protocol 6 orders compatible fresh imports at a retained field boundary
+/// without moving, joining or hiding either original boundary owner.
+public struct WritingImportBoundary: Codable, Equatable, Sendable {
+    public let source: WritingField
+    public let edge: WritingEdge
+    public let sourcePlacement: NodePlacementID
+    public let collection: NodeCollection
+    public let after: NodePlacementID?
+    public let before: NodeID?
+    public let members: [NodeID]
+    public let sourceKeys: [WritingAtomKey]
+    public init(source: WritingField, edge: WritingEdge, sourcePlacement: NodePlacementID,
+                collection: NodeCollection, after: NodePlacementID?, before: NodeID?, members: [NodeID], sourceKeys: [WritingAtomKey]) {
+        self.source = source; self.edge = edge; self.sourcePlacement = sourcePlacement
+        self.collection = collection; self.after = after; self.before = before; self.members = members; self.sourceKeys = sourceKeys
+    }
+}
 public enum WritingMutation: Codable, Equatable, Sendable {
     case insert(WritingAtomSeed)
     case transfer(keys: [WritingAtomKey], destination: WritingField, edge: WritingEdge)
@@ -43,6 +78,8 @@ public enum WritingMutation: Codable, Equatable, Sendable {
     case splitBoundary(source: WritingField, destination: WritingField, edge: WritingEdge, before: NodeID?)
     /// Protocol 5 orders a complete same-edit birth chain at one retained cut.
     case spliceBoundary(source: WritingField, destination: WritingField, edge: WritingEdge, before: NodeID?, members: [NodeID])
+    case rangeSpliceBoundary(WritingRangeSplice)
+    case importBoundary(WritingImportBoundary)
 }
 public struct WritingEdit: Codable, Equatable, Sendable {
     public let id: ChangeID
@@ -67,6 +104,7 @@ struct WritingProjection {
     private var joins: [WritingField: (destination: WritingField, edge: WritingEdge)] = [:]
     private var fields: [WritingAtomKey: WritingField] = [:]
     private var order: [WritingAtomKey] = []
+    private var visibleByField: [WritingField: [WritingAtomKey]] = [:]
 
     init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:]) throws {
         hidden = hiddenSeeds
@@ -91,6 +129,8 @@ struct WritingProjection {
                 case .transfer(_, let destination, _): knownFields.insert(destination)
                 case .join(let source, let destination, _): knownFields.insert(source); knownFields.insert(destination)
                 case .splitBoundary(let source, let destination, _, _), .spliceBoundary(let source, let destination, _, _, _): knownFields.insert(source); knownFields.insert(destination)
+                case .rangeSpliceBoundary(let splice): knownFields.insert(splice.source); knownFields.insert(splice.destination)
+                case .importBoundary(let boundary): knownFields.insert(boundary.source)
                 case .insert(let atom): if case .field(let field) = atom.route { knownFields.insert(field) }
                 default: break
                 }
@@ -137,7 +177,7 @@ struct WritingProjection {
                     }
                 case .join(let source, let destination, let edge):
                     if enabled { joins[source] = (destination, edge) }
-                case .splitBoundary, .spliceBoundary: break
+                case .splitBoundary, .spliceBoundary, .rangeSpliceBoundary, .importBoundary: break
                 }
             }
         }
@@ -146,6 +186,12 @@ struct WritingProjection {
         }
         try resolveFields()
         try resolveOrder()
+        // Projection state is immutable after construction. Preserve global
+        // traversal order while indexing each field once, rather than scanning
+        // all document atoms for every field lookup.
+        for key in order where !hidden.contains(key) && key.element.index >= 0 {
+            if let field = fields[key] { visibleByField[field, default: []].append(key) }
+        }
     }
 
     private static func head(_ field: WritingField) -> WritingAtomKey {
@@ -154,7 +200,7 @@ struct WritingProjection {
     var joinedSources: Set<WritingField> { Set(joins.keys).subtracting(redirectSources) }
     var retainedKeys: Set<WritingAtomKey> { Set(nodes.keys.filter { $0.element.index >= 0 }) }
     func visibleKeys(in field: WritingField) -> [WritingAtomKey] {
-        order.filter { fields[$0] == field && !hidden.contains($0) && $0.element.index >= 0 }
+        visibleByField[field] ?? []
     }
     func nodes(in field: WritingField) -> [JSONValue] {
         visibleKeys(in: field).compactMap { nodes[$0] }

@@ -391,7 +391,7 @@ test("typed v5 epoch rejects mixed versions and inherits Unicode undo and recove
     b.replaceText(address, 1, 1, "R"); a.receive(b.changes()); a.receive(b.changes()); b.receive(a.changes());
     const accepted = a.save(), fourAccepted = four.save(), snapshot = a.getSnapshot().blocks, replica = b.getSnapshot().blocks;
     const errors = [];
-    for (const operation of [() => a.receive(four.changes()), () => four.receive(a.changes()), () => runtime.call({ command: "create", session: "unsupported-five", collaborationVersion: 6, documentID: "unknown", actorID: "a", epoch: "unknown", blocks: [] })]) {
+    for (const operation of [() => a.receive(four.changes()), () => four.receive(a.changes()), () => runtime.call({ command: "create", session: "unsupported-five", collaborationVersion: 7, documentID: "unknown", actorID: "a", epoch: "unknown", blocks: [] })]) {
       try { operation(); throw new Error("Missing version rejection"); } catch (error) { errors.push((error as Error).message); }
     }
     const mixedPreserved = JSON.stringify(a.save()) === JSON.stringify(accepted) && JSON.stringify(four.save()) === JSON.stringify(fourAccepted) && a.mergeRecovery() === null && four.mergeRecovery() === null;
@@ -424,7 +424,7 @@ test("typed v5 epoch rejects mixed versions and inherits Unicode undo and recove
   expect(result.snapshot).toEqual(expected("東京XCR")); expect(result.replica).toEqual(result.snapshot);
   expect(result.undo).toEqual(expected("東京CR")); expect(result.redo).toEqual(result.snapshot);
   expect(result.offset).toBe(3); expect(result.version).toBe(5); expect(result.receiptVersion).toBe(5);
-  expect(result.errors).toEqual(["unsupportedVersion(4)", "unsupportedVersion(5)", "unsupportedVersion(6)"]);
+  expect(result.errors).toEqual(["unsupportedVersion(4)", "unsupportedVersion(5)", "unsupportedVersion(7)"]);
   expect(result.mixedPreserved && result.pendingPreserved && result.failedRepair && result.failedPreserved && result.cleared).toBe(true);
   expect(result.recoveryVersion).toBe(5); expect(result.recoveryCount).toBe(3); expect(result.repairedVersion).toBe(5); expect(result.repairedCount).toBe(4);
   expect(result.repaired).toEqual([{ id: "math", type: "math", expression: "restored 😀", extension: { remote: true } }]);
@@ -821,5 +821,118 @@ test("typed v4 rejected author undo survives restart and permits explicit text o
     expect(result.repaired).toEqual([{ id: "math", type: "math", expression: result.repair === "redo" ? "x+y" : "restored x+y 😀", extension: { remote: true, later: 7 } }, { id: "rich", type: "paragraph", host: "keep", content: [{ type: "text", text: "café 😀", marks: [{ type: "bold" }] }, { type: "entity-ref", entityType: "note", entityId: "external", label: "Reference" }] }]);
     expect(result.replica).toEqual(result.repaired); expect(result.reopened).toEqual(result.repaired);
     expect(result.changeCount).toBe(5); expect(result.clear).toBeNull();
+  }
+});
+
+test("explicit external normalization retains rich text without relaxing live host policy", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const version of [4, 5]) {
+      const blocks = [{ id: "p", type: "paragraph", content: [{ type: "text", text: "AB", marks: [] }] }];
+      const options = { documentID: `normalize-${version}`, epoch: `normalize-${version}`, blocks };
+      const create = (actorID: string) => version === 4 ? runtime.createWritingV4({ ...options, actorID }) : runtime.createWritingV5({ ...options, actorID });
+      const a = create("a"), b = create("b"), address = { blockID: "p", path: ["content"] };
+      let reopened: ReturnType<typeof create> | undefined;
+      try {
+        const ref = { type: "entity-ref", entityType: "task", entityId: "original", label: "Mira", consumer: { id: "opaque-ref" } };
+        const external = { version: 1 as const, parts: [{ inline: { _0: [{ type: "text", text: "東京😀", marks: [{ type: "bold" }, { type: "link", href: "javascript:alert(1)" }, { type: "foreign-color" }] }, ref] } }] };
+        const before = JSON.stringify(a.save()), range = a.selectedText(address, 1, 1);
+        let strictRejected = false; try { a.pasteInline(external as any, range); } catch { strictRejected = true; }
+        const imported = a.normalizeForImport(external);
+        const normalizationPreserved = before === JSON.stringify(a.save());
+        b.replaceText(address, 2, 2, "R"); a.receive(b.changes());
+        a.pasteInline(imported.clipboard, range, imported.effectivePastePolicy);
+        b.receive(a.changes()); b.receive(a.changes());
+        const after = a.getSnapshot().blocks;
+        reopened = runtime.restoreWriting(a.save(), "a"); reopened.undo(); const undone = reopened.getSnapshot().blocks; reopened.redo(); const redone = reopened.getSnapshot().blocks;
+        a.setAllowedBlockTypes([]);
+        const accepted = JSON.stringify(a.save());
+        const fallback = a.normalizeForImport({ version: 1, parts: [{ node: { kind: "block", value: { id: "h", type: "heading", level: 2, content: [{ type: "text", text: "Title", marks: [] }] } } }] }, { allowedBlockTypes: ["heading"], allowAssetMetadata: false });
+        let hostRejected = false; try { a.pasteCollection(fallback.clipboard, { field: "blocks" }, undefined, fallback.effectivePastePolicy); } catch { hostRejected = true; }
+        const rejectedPreserved = accepted === JSON.stringify(a.save());
+        a.setAllowedBlockTypes(fallback.suggestedHostBlockTypes ?? null);
+        a.pasteCollection(fallback.clipboard, { field: "blocks" }, a.node({ blockID: "p", path: [] }), fallback.effectivePastePolicy);
+        results.push({ strictRejected, normalizationPreserved, imported: imported.clipboard, after, replica: b.getSnapshot().blocks, undone, redone,
+          hostRejected, rejectedPreserved, suggested: fallback.suggestedHostBlockTypes, fallback: a.getSnapshot().blocks[1] });
+      } finally { a.close(); b.close(); reopened?.close(); }
+    }
+    return results;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    expect(result.strictRejected && result.normalizationPreserved && result.hostRejected && result.rejectedPreserved).toBe(true);
+    expect(result.imported.parts).toEqual([{ inline: { _0: [
+      { type: "text", text: "東京😀", marks: [{ type: "bold" }] },
+      { type: "entity-ref", entityType: "task", entityId: "original", label: "Mira", consumer: { id: "opaque-ref" } },
+    ] } }]);
+    expect(result.after).toEqual(result.replica); expect(result.redone).toEqual(result.after);
+    const text = (block: any) => block.content.map((node: any) => node.text ?? node.label ?? "").join("");
+    expect(text(result.after[0])).toBe("A東京😀MiraBR"); expect(text(result.undone[0])).toBe("ABR");
+    expect(result.suggested).toEqual(["paragraph"]); expect(result.fallback).toMatchObject({ type: "paragraph", content: [{ type: "text", text: "Title", marks: [] }] });
+  }
+});
+
+test("typed v6 paste retains boundary owners, nested collections and remote author history", async ({ page }) => {
+  const { readFileSync } = await import("node:fs");
+  const fixture = JSON.parse(readFileSync(new URL("./BlockEditorCoreTests/Fixtures/paste6Commands.json", import.meta.url), "utf8"));
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async ({ root, cases }) => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const sample of cases) {
+      const documentID = `typed-${sample.id}`, epoch = "six";
+      const a = runtime.createWritingV6({ documentID, actorID: sample.actor, epoch, blocks: sample.blocks });
+      const b = runtime.createWritingV6({ documentID, actorID: "m", epoch, blocks: sample.blocks });
+      const range = { start: a.position(sample.start, 1), end: a.position(sample.end, 4) };
+      const owner = a.node({ blockID: sample.end.blockID, path: sample.end.path.slice(0, -1) });
+      a.setComposing(true);
+      const held = JSON.stringify(a.save()), heldReceipt = JSON.stringify(a.syncState());
+      let compositionError = "";
+      try { a.pasteSelection(sample.clipboard, range); } catch (error) { compositionError = (error as Error).message; }
+      const heldPreserved = JSON.stringify(a.save()) === held && JSON.stringify(a.syncState()) === heldReceipt;
+      a.setComposing(false);
+      const caret = a.pasteSelection(sample.clipboard, range), ownChanges = a.changes().changes.length;
+      if (sample.kind === "enter") b.enterListItem(sample.start, 1, 1, "tail");
+      else b.replaceText(sample.end, 6, 6, "R");
+      const own = a.changes(), peer = b.changes();
+      if (sample.reversedDelivery) { b.receive(own); a.receive(peer); }
+      else { a.receive(peer); b.receive(own); }
+      a.receive(peer); b.receive(own);
+      const accepted = a.getSnapshot().blocks, replica = b.getSnapshot().blocks, resolved = a.resolvePosition(caret);
+      const origin = a.node({ blockID: sample.end.blockID, path: sample.end.path.slice(0, -1) });
+      const restored = runtime.restoreWriting(a.save(), sample.actor);
+      const reopened = restored.getSnapshot().blocks;
+      restored.undo(); b.receive(restored.changes()); const undo = restored.getSnapshot().blocks, undoReplica = b.getSnapshot().blocks;
+      restored.redo(); b.receive(restored.changes()); b.receive(restored.changes());
+      const redo = restored.getSnapshot().blocks, redoReplica = b.getSnapshot().blocks;
+      const five = runtime.createWritingV5({ documentID, actorID: "old", epoch, blocks: sample.blocks });
+      const beforeFive = JSON.stringify(five.save()), receiptFive = JSON.stringify(five.syncState());
+      const protocolErrors = [];
+      for (const operation of [() => five.receive(restored.changes()), () => restored.receive(five.changes())]) {
+        try { operation(); protocolErrors.push(""); } catch (error) { protocolErrors.push((error as Error).message); }
+      }
+      const oldPreserved = JSON.stringify(five.save()) === beforeFive && JSON.stringify(five.syncState()) === receiptFive;
+      results.push({ id: sample.id, accepted, replica, reopened, undo, undoReplica, redo, redoReplica,
+        ownChanges, compositionError, heldPreserved, owner, origin, offset: resolved.offset, protocolErrors, oldPreserved,
+        recovery: a.mergeRecovery(), oldRecovery: five.mergeRecovery(), restoredRecovery: restored.mergeRecovery() });
+      a.close(); b.close(); restored.close(); five.close();
+    }
+    return results;
+  }, { root: `/block-editor/@fs${process.cwd()}`, cases: fixture.typedCases });
+  expect(results).toHaveLength(12);
+  for (const result of results) {
+    const sample = fixture.typedCases.find((value: { id: string }) => value.id === result.id);
+    const accepted = fixture.expectedBlocks[sample.accepted], undo = fixture.expectedBlocks[sample.undo];
+    expect(result.accepted).toEqual(accepted); expect(result.replica).toEqual(accepted); expect(result.reopened).toEqual(accepted);
+    expect(result.undo).toEqual(undo); expect(result.undoReplica).toEqual(undo); expect(result.redo).toEqual(accepted); expect(result.redoReplica).toEqual(accepted);
+    expect(result.ownChanges).toBe(1); expect(result.compositionError).toBe("compositionActive"); expect(result.heldPreserved).toBe(true);
+    expect(result.origin).toEqual(result.owner); expect(result.offset).toBe(sample.caretOffset);
+    expect(result.protocolErrors).toEqual(["unsupportedVersion(6)", "unsupportedVersion(5)"]); expect(result.oldPreserved).toBe(true);
+    expect(result.recovery).toBeNull(); expect(result.oldRecovery).toBeNull(); expect(result.restoredRecovery).toBeNull();
   }
 });

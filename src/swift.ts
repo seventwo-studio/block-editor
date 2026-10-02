@@ -45,9 +45,11 @@ export interface SwiftWritingCopy { nodes: unknown[]; text: InlineNode[][] }
 export type SwiftWritingClipboardPart = { inline: { _0: InlineNode[] } } | { node: { value: Record<string, unknown>; kind: "block" | "item" | "row" | "cell" } };
 export interface SwiftWritingClipboard { version: 1; parts: SwiftWritingClipboardPart[] }
 export interface SwiftWritingPastePolicy { allowedBlockTypes?: string[]; allowedMarkTypes?: string[]; allowAssetMetadata: boolean }
+export interface SwiftExternalWritingClipboard { version: number; parts: ({ inline: { _0: unknown[] } } | { node: { value: unknown; kind: string } })[] }
+export interface SwiftWritingImportResult { clipboard: SwiftWritingClipboard; effectivePastePolicy: SwiftWritingPastePolicy; suggestedHostBlockTypes?: string[] }
 export interface SwiftResolvedWritingPosition { address: TextAddress; offset: number }
-export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3 | 4 | 5; epoch: string }
-export interface SwiftWritingReceipt { version: 3 | 4 | 5; documentID: string; epoch: string; received: unknown[] }
+export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3 | 4 | 5 | 6; epoch: string }
+export interface SwiftWritingReceipt { version: 3 | 4 | 5 | 6; documentID: string; epoch: string; received: unknown[] }
 export interface SwiftWritingRecovery { reason: "identityConflict" | "schemaConstraint"; batch: SwiftWritingBatch }
 export class SwiftWritingRecoveryError extends Error {
   constructor(readonly recovery: SwiftWritingRecovery) { super("Writing recovery required"); this.name = "SwiftWritingRecoveryError"; }
@@ -68,6 +70,9 @@ type Exports = WebAssembly.Exports & {
 
 export class SwiftEditorRuntime {
   private constructor(private readonly exports: Exports) {}
+
+  /** Allocated WASM address space; excludes resident memory and host JS heap. */
+  get allocatedLinearMemoryBytes(): number { return this.exports.memory.buffer.byteLength; }
   /** No automatic network access: the host supplies the module bytes or a compiled module. */
   static async initialize(source: BufferSource | WebAssembly.Module): Promise<SwiftEditorRuntime> {
     const module = source instanceof WebAssembly.Module ? source : await WebAssembly.compile(source);
@@ -133,6 +138,11 @@ export class SwiftEditorRuntime {
     const handle = crypto.randomUUID();
     return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 5, ...options }));
   }
+  /** Explicit retained-endpoint splice epoch. Hosts stop/archive old writers first. */
+  createWritingV6(options: { documentID: string; actorID: string; epoch: string; blocks: Block[] }): SwiftWritingSession {
+    const handle = crypto.randomUUID();
+    return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 6, ...options }));
+  }
   restoreWriting(snapshot: SwiftWritingBatch, actorID: string): SwiftWritingSession {
     const handle = crypto.randomUUID();
     return new SwiftWritingSession(this, handle, this.call({ command: "restore", session: handle, snapshot, actorID }));
@@ -193,9 +203,16 @@ export class SwiftWritingSession {
       ? [{ inline: { _0: only.content } }]
       : blocks.map(block => ({ node: { value: block, kind: "block" as const } })) };
   }
+  normalizeForImport(clipboard: SwiftExternalWritingClipboard, policy?: SwiftWritingPastePolicy): SwiftWritingImportResult {
+    return this.call("normalizeForImport", { clipboard, policy });
+  }
   pasteInline(clipboard: SwiftWritingClipboard, range: SwiftWritingTextRange, policy?: SwiftWritingPastePolicy): SwiftWritingPosition {
     if (this.holds) throw new Error("Commit composition before pasting");
     return this.command("pasteInline", { clipboard, range, policy });
+  }
+  pasteSelection(clipboard: SwiftWritingClipboard, range: SwiftWritingTextRange, policy?: SwiftWritingPastePolicy): SwiftWritingPosition {
+    if (this.holds) throw new Error("Commit composition before pasting");
+    return this.command("pasteSelection", { clipboard, range, policy });
   }
   pasteBlocks(clipboard: SwiftWritingClipboard, range: SwiftWritingTextRange, policy?: SwiftWritingPastePolicy): SwiftWritingPosition {
     if (this.holds) throw new Error("Commit composition before pasting");

@@ -35,13 +35,14 @@ class PerformanceTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.context
         val args = InstrumentationRegistry.getArguments()
-        val bytes = context.assets.open("workloads.json").use { it.readBytes() }
+        val writing = args.getString("performanceWriting") == "true"
+        val bytes = context.assets.open(if (writing) "workloads-writing.json" else "workloads.json").use { it.readBytes() }
         val config = JSONObject(bytes.toString(Charsets.UTF_8))
         assertEquals(1, config.getInt("version"))
         val profile = args.getString("performanceProfile", "smoke")
         require(profile in listOf("smoke", "baseline"))
         val all = config.getJSONArray("cases")
-        val names = args.getString("performanceCases")?.split(',') ?: if (profile == "smoke") listOf("ordinary-v1", "ordinary-v2")
+        val names = args.getString("performanceCases")?.split(',') ?: if (profile == "smoke") if (writing) listOf("ordinary-v4", "ordinary-v5", "ordinary-v6") else listOf("ordinary-v1", "ordinary-v2")
             else (0 until all.length()).map { all.getJSONObject(it).getString("name") }
         require(names.isNotEmpty() && names.toSet().size == names.size)
         val cases = JSONArray()
@@ -62,12 +63,29 @@ class PerformanceTest {
                 "supportedAbis" to JSONArray(Build.SUPPORTED_ABIS.toList()), "processors" to Runtime.getRuntime().availableProcessors(),
                 "boundary" to "NativeEngine.call; Kotlin JSON/UTF-8, JNI copies and Swift included; rendering excluded"),
             "samples" to samples, "complete" to false)
-        fun publish() = File(output, "android.json").writeText(report.toString(2))
+        report.put("numericBudgets", "unagreed")
+        if (writing) {
+            val sourceTree = checkNotNull(args.getString("sourceTree"))
+            require(sourceTree.matches(Regex("[a-f0-9]{40}")))
+            val sourceDirty = checkNotNull(args.getString("sourceDirty"))
+            require(sourceDirty in listOf("true", "false"))
+            report.put("sourceTree", sourceTree).put("sourceDirty", sourceDirty == "true")
+        }
+        var maxPssBytes = 0L
+        var memorySamples = 0
+        fun sampleMemory() {
+            if (!writing) return
+            maxPssBytes = maxOf(maxPssBytes, android.os.Debug.getPss() * 1024L)
+            memorySamples++
+            report.put("memory", obj("maximumSampledProcessPssBytes" to maxPssBytes, "samples" to memorySamples,
+                "boundary" to "Whole instrumentation process PSS sampled after create/receive/save/restore; not a continuous peak or app-rendering budget"))
+        }
+        fun publish() = File(output, if (writing) "android-writing.json" else "android.json").writeText(report.toString(2))
         publish()
         try {
             // First access initializes NativeEngine and loads the selected JNI library.
             val firstCall = SystemClock.elapsedRealtimeNanos()
-            NativeEngine.call(obj("command" to "create", "session" to "startup", "actorID" to "startup", "documentID" to "startup", "blocks" to JSONArray()))
+            NativeEngine.call(obj("command" to "create", "session" to "startup", "actorID" to "startup", "documentID" to "startup", "blocks" to JSONArray()).also { if (writing) it.put("collaborationVersion", cases.getJSONObject(0).getInt("version")).put("epoch", "performance-writing-v${cases.getJSONObject(0).getInt("version")}") })
             report.put("initialization", obj("firstJniCallAndEmptySessionMs" to (SystemClock.elapsedRealtimeNanos() - firstCall) / 1e6,
                 "diskCaches" to "uncontrolled; fresh instrumentation process, not Activity or disk-cold startup"))
             NativeEngine.call(obj("command" to "close", "session" to "startup"))
@@ -94,7 +112,7 @@ class PerformanceTest {
             for (caseIndex in 0 until cases.length()) {
                 val workload = cases.getJSONObject(caseIndex)
                 for (repeat in -warmups until repetitions) {
-                    val sample = runCase(config, workload, repeat)
+                    val sample = runCase(config, workload, repeat, ::sampleMemory)
                     if (repeat >= 0) { samples.put(sample); publish() }
                 }
             }
@@ -103,7 +121,7 @@ class PerformanceTest {
         finally { publish() }
     }
 
-    private fun runCase(config: JSONObject, workload: JSONObject, repetition: Int): JSONObject {
+    private fun runCase(config: JSONObject, workload: JSONObject, repetition: Int, sampleMemory: () -> Unit): JSONObject {
         val name = workload.getString("name")
         val n = workload.getInt("editsPerAuthor")
         val version = workload.getInt("version")
@@ -120,10 +138,11 @@ class PerformanceTest {
             val response = NativeEngine.call(input)
             timings.getOrPut(phase) { mutableListOf() }.add((SystemClock.elapsedRealtimeNanos() - start) / 1e6)
             if (command in listOf("create", "restore")) sessions.add(session)
+            if (command in listOf("create", "receive", "save", "restore")) sampleMemory()
             return response.get("value")
         }
         fun create(session: String, actor: String) = request("create", "create", session, "actorID" to actor,
-            "documentID" to "performance-$name", "blocks" to baseline, "collaborationVersion" to version) as JSONObject
+            "documentID" to "performance-$name", "blocks" to baseline, "collaborationVersion" to version, *(if (version >= 3) arrayOf("epoch" to "performance-writing-v$version") else emptyArray())) as JSONObject
         fun receive(session: String, batch: JSONObject, phase: String = "rejoin") = request(phase, "receive", session, "batch" to batch) as JSONObject
         fun blocks(value: JSONObject) = value.getJSONArray("blocks")
         fun assertContent(snapshot: JSONObject, aCount: Int, bCount: Int) {
@@ -182,6 +201,14 @@ class PerformanceTest {
             assertEquals(normalize(blocks(finalA)), normalize(blocks(receive(peer, combined, "fullHistoryReceive"))))
             val saved = request("save", "save", a) as JSONObject
             val receipts = request("receipts", "syncState", a) as JSONObject
+            if (version >= 3) {
+                for (value in listOf(batchA, batchB, saved, receipts)) {
+                    assertEquals(version, value.getInt("version")); assertEquals("performance-writing-v$version", value.getString("epoch"))
+                    assertEquals("performance-$name", value.getString("documentID"))
+                }
+                val history = saved.getJSONObject("localHistory")
+                assertEquals("a", history.getString("actorID")); history.getJSONArray("undo"); history.getJSONArray("redo")
+            }
             assertEquals(n * 2 + 2, saved.getJSONArray("changes").length())
             assertEquals(n * 2 + 2, receipts.getJSONArray("received").length())
             val restored = request("restore", "restore", reopened, "actorID" to "a", "snapshot" to saved) as JSONObject

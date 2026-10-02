@@ -1,0 +1,2574 @@
+{
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "import-4-a",
+        "documentID": "import-4",
+        "actorID": "a",
+        "epoch": "import-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "owner-opaque"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "import-4-b",
+        "documentID": "import-4",
+        "actorID": "b",
+        "epoch": "import-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "owner-opaque"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "import-4-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1
+      },
+      "capture": "import-4-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-strict-before"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "import-4-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      },
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange",
+      "bindings": {
+        "range": "import-4-range"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-unsafe-after"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-4-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      },
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      },
+                      {
+                        "type": "external-color",
+                        "value": "red"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedMarkTypes": [
+            "italic",
+            "bold"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-4-normalized"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-normalize-after"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "import-4-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "import-4-b"
+      },
+      "capture": "import-4-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "import-4-a"
+      },
+      "bindings": {
+        "batch": "import-4-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-paste",
+      "bindings": {
+        "range": "import-4-range",
+        "clipboard": [
+          "import-4-normalized",
+          "clipboard"
+        ],
+        "policy": [
+          "import-4-normalized",
+          "effectivePastePolicy"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-receipt"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "import-4-b"
+      },
+      "bindings": {
+        "batch": "import-4-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "import-4-b"
+      },
+      "bindings": {
+        "batch": "import-4-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "import-4-b"
+      },
+      "capture": "import-4-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "import-4-restored",
+        "actorID": "a"
+      },
+      "capture": "import-4-reopened",
+      "bindings": {
+        "snapshot": "import-4-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "import-4-restored"
+      },
+      "capture": "import-4-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "import-4-restored"
+      },
+      "capture": "import-4-redo"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "import-4-a",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-composing-before"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-4-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      },
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      },
+                      {
+                        "type": "external-color",
+                        "value": "red"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedMarkTypes": [
+            "bold",
+            "italic"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-4-while-composing"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "import-4-a"
+      },
+      "error": "compositionActive",
+      "bindings": {
+        "range": "import-4-range",
+        "clipboard": [
+          "import-4-normalized",
+          "clipboard"
+        ],
+        "policy": [
+          "import-4-normalized",
+          "effectivePastePolicy"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-a"
+      },
+      "capture": "import-4-composing-after"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "import-4-a",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "import-4-host",
+        "documentID": "import-4-host",
+        "actorID": "a",
+        "epoch": "import-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "owner-opaque"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "allowedBlockTypes",
+        "session": "import-4-host",
+        "types": []
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "import-4-host",
+        "address": {
+          "blockID": "p",
+          "path": []
+        }
+      },
+      "capture": "import-4-owner"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-host"
+      },
+      "capture": "import-4-host-before"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-4-host",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "list",
+                  "type": "list",
+                  "style": "todo",
+                  "items": [
+                    {
+                      "id": "item",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "one",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "child",
+                          "content": [
+                            {
+                              "type": "entity-ref",
+                              "entityType": "task",
+                              "entityId": "task-original",
+                              "label": "Mira",
+                              "consumer": {
+                                "id": "opaque-ref"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            },
+            {
+              "node": {
+                "value": {
+                  "id": "table",
+                  "type": "table",
+                  "rows": [
+                    {
+                      "id": "r1",
+                      "cells": [
+                        {
+                          "id": "c1",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "A",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "c2",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "B",
+                              "marks": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "r2",
+                      "cells": [
+                        {
+                          "id": "c1",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "C",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "c2",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "D",
+                              "marks": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedBlockTypes": [],
+          "allowedMarkTypes": [
+            "italic",
+            "bold"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-4-fallback"
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "import-4-host",
+        "collection": {
+          "field": "blocks"
+        }
+      },
+      "error": "restrictedBlock(\"paragraph\")",
+      "bindings": {
+        "clipboard": [
+          "import-4-fallback",
+          "clipboard"
+        ],
+        "policy": [
+          "import-4-fallback",
+          "effectivePastePolicy"
+        ],
+        "after": "import-4-owner"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-4-host"
+      },
+      "capture": "import-4-host-rejected"
+    },
+    {
+      "request": {
+        "command": "allowedBlockTypes",
+        "session": "import-4-host",
+        "types": [
+          "toggle",
+          "callout"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-4-host",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "list",
+                  "type": "list",
+                  "style": "todo",
+                  "items": [
+                    {
+                      "id": "item",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "one",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "child",
+                          "content": [
+                            {
+                              "type": "entity-ref",
+                              "entityType": "task",
+                              "entityId": "task-original",
+                              "label": "Mira",
+                              "consumer": {
+                                "id": "opaque-ref"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedBlockTypes": [
+            "quote",
+            "heading"
+          ],
+          "allowedMarkTypes": [
+            "italic",
+            "bold"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-4-ordered-policy"
+    },
+    {
+      "request": {
+        "command": "allowedBlockTypes",
+        "session": "import-4-host"
+      },
+      "bindings": {
+        "types": [
+          "import-4-fallback",
+          "suggestedHostBlockTypes"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "import-4-host",
+        "collection": {
+          "field": "blocks"
+        }
+      },
+      "capture": "import-4-host-paste",
+      "bindings": {
+        "clipboard": [
+          "import-4-fallback",
+          "clipboard"
+        ],
+        "policy": [
+          "import-4-fallback",
+          "effectivePastePolicy"
+        ],
+        "after": "import-4-owner"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "import-4-host"
+      },
+      "capture": "import-4-host-accepted"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "import-4-host"
+      },
+      "capture": "import-4-host-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "import-4-host"
+      },
+      "capture": "import-4-host-redo"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-4-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "external",
+                  "type": "image",
+                  "src": "javascript:alert(1)",
+                  "alt": "Photo",
+                  "caption": [
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "task-original",
+                      "label": "Mira",
+                      "consumer": {
+                        "id": "opaque-ref"
+                      }
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowAssetMetadata": true
+        }
+      },
+      "capture": "import-4-unsafe-asset"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-4-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-4-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-4-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-4-host"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "import-5-a",
+        "documentID": "import-5",
+        "actorID": "a",
+        "epoch": "import-v5",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "owner-opaque"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "import-5-b",
+        "documentID": "import-5",
+        "actorID": "b",
+        "epoch": "import-v5",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "owner-opaque"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "import-5-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1
+      },
+      "capture": "import-5-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-strict-before"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "import-5-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      },
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "error": "invalidChange",
+      "bindings": {
+        "range": "import-5-range"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-unsafe-after"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-5-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      },
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      },
+                      {
+                        "type": "external-color",
+                        "value": "red"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedMarkTypes": [
+            "italic",
+            "bold"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-5-normalized"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-normalize-after"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "import-5-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "import-5-b"
+      },
+      "capture": "import-5-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "import-5-a"
+      },
+      "bindings": {
+        "batch": "import-5-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-paste",
+      "bindings": {
+        "range": "import-5-range",
+        "clipboard": [
+          "import-5-normalized",
+          "clipboard"
+        ],
+        "policy": [
+          "import-5-normalized",
+          "effectivePastePolicy"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-receipt"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "import-5-b"
+      },
+      "bindings": {
+        "batch": "import-5-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "import-5-b"
+      },
+      "bindings": {
+        "batch": "import-5-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "import-5-b"
+      },
+      "capture": "import-5-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "import-5-restored",
+        "actorID": "a"
+      },
+      "capture": "import-5-reopened",
+      "bindings": {
+        "snapshot": "import-5-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "import-5-restored"
+      },
+      "capture": "import-5-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "import-5-restored"
+      },
+      "capture": "import-5-redo"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "import-5-a",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-composing-before"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-5-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      },
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      },
+                      {
+                        "type": "external-color",
+                        "value": "red"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedMarkTypes": [
+            "bold",
+            "italic"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-5-while-composing"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "import-5-a"
+      },
+      "error": "compositionActive",
+      "bindings": {
+        "range": "import-5-range",
+        "clipboard": [
+          "import-5-normalized",
+          "clipboard"
+        ],
+        "policy": [
+          "import-5-normalized",
+          "effectivePastePolicy"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-a"
+      },
+      "capture": "import-5-composing-after"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "import-5-a",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "import-5-host",
+        "documentID": "import-5-host",
+        "actorID": "a",
+        "epoch": "import-v5",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "AB",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "owner-opaque"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "allowedBlockTypes",
+        "session": "import-5-host",
+        "types": []
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "import-5-host",
+        "address": {
+          "blockID": "p",
+          "path": []
+        }
+      },
+      "capture": "import-5-owner"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-host"
+      },
+      "capture": "import-5-host-before"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-5-host",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "list",
+                  "type": "list",
+                  "style": "todo",
+                  "items": [
+                    {
+                      "id": "item",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "one",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "child",
+                          "content": [
+                            {
+                              "type": "entity-ref",
+                              "entityType": "task",
+                              "entityId": "task-original",
+                              "label": "Mira",
+                              "consumer": {
+                                "id": "opaque-ref"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            },
+            {
+              "node": {
+                "value": {
+                  "id": "table",
+                  "type": "table",
+                  "rows": [
+                    {
+                      "id": "r1",
+                      "cells": [
+                        {
+                          "id": "c1",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "A",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "c2",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "B",
+                              "marks": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "r2",
+                      "cells": [
+                        {
+                          "id": "c1",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "C",
+                              "marks": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "c2",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "D",
+                              "marks": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedBlockTypes": [],
+          "allowedMarkTypes": [
+            "italic",
+            "bold"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-5-fallback"
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "import-5-host",
+        "collection": {
+          "field": "blocks"
+        }
+      },
+      "error": "restrictedBlock(\"paragraph\")",
+      "bindings": {
+        "clipboard": [
+          "import-5-fallback",
+          "clipboard"
+        ],
+        "policy": [
+          "import-5-fallback",
+          "effectivePastePolicy"
+        ],
+        "after": "import-5-owner"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "import-5-host"
+      },
+      "capture": "import-5-host-rejected"
+    },
+    {
+      "request": {
+        "command": "allowedBlockTypes",
+        "session": "import-5-host",
+        "types": [
+          "toggle",
+          "callout"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-5-host",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "list",
+                  "type": "list",
+                  "style": "todo",
+                  "items": [
+                    {
+                      "id": "item",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "one",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "child",
+                          "content": [
+                            {
+                              "type": "entity-ref",
+                              "entityType": "task",
+                              "entityId": "task-original",
+                              "label": "Mira",
+                              "consumer": {
+                                "id": "opaque-ref"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedBlockTypes": [
+            "quote",
+            "heading"
+          ],
+          "allowedMarkTypes": [
+            "italic",
+            "bold"
+          ],
+          "allowAssetMetadata": false
+        }
+      },
+      "capture": "import-5-ordered-policy"
+    },
+    {
+      "request": {
+        "command": "allowedBlockTypes",
+        "session": "import-5-host"
+      },
+      "bindings": {
+        "types": [
+          "import-5-fallback",
+          "suggestedHostBlockTypes"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "import-5-host",
+        "collection": {
+          "field": "blocks"
+        }
+      },
+      "capture": "import-5-host-paste",
+      "bindings": {
+        "clipboard": [
+          "import-5-fallback",
+          "clipboard"
+        ],
+        "policy": [
+          "import-5-fallback",
+          "effectivePastePolicy"
+        ],
+        "after": "import-5-owner"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "import-5-host"
+      },
+      "capture": "import-5-host-accepted"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "import-5-host"
+      },
+      "capture": "import-5-host-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "import-5-host"
+      },
+      "capture": "import-5-host-redo"
+    },
+    {
+      "request": {
+        "command": "normalizeForImport",
+        "session": "import-5-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "external",
+                  "type": "image",
+                  "src": "javascript:alert(1)",
+                  "alt": "Photo",
+                  "caption": [
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "task-original",
+                      "label": "Mira",
+                      "consumer": {
+                        "id": "opaque-ref"
+                      }
+                    }
+                  ]
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowAssetMetadata": true
+        }
+      },
+      "capture": "import-5-unsafe-asset"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-5-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-5-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-5-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "import-5-host"
+      }
+    }
+  ],
+  "equal": [
+    [
+      "import-4-strict-before",
+      "import-4-unsafe-after"
+    ],
+    [
+      "import-4-strict-before",
+      "import-4-normalize-after"
+    ],
+    [
+      "import-4-accepted",
+      "import-4-replica"
+    ],
+    [
+      "import-4-accepted",
+      "import-4-reopened"
+    ],
+    [
+      "import-4-redo",
+      "import-4-accepted"
+    ],
+    [
+      "import-4-normalized",
+      "import-4-while-composing"
+    ],
+    [
+      "import-4-composing-before",
+      "import-4-composing-after"
+    ],
+    [
+      "import-4-host-before",
+      "import-4-host-rejected"
+    ],
+    [
+      "import-4-host-accepted",
+      "import-4-host-redo"
+    ],
+    [
+      "import-5-strict-before",
+      "import-5-unsafe-after"
+    ],
+    [
+      "import-5-strict-before",
+      "import-5-normalize-after"
+    ],
+    [
+      "import-5-accepted",
+      "import-5-replica"
+    ],
+    [
+      "import-5-accepted",
+      "import-5-reopened"
+    ],
+    [
+      "import-5-redo",
+      "import-5-accepted"
+    ],
+    [
+      "import-5-normalized",
+      "import-5-while-composing"
+    ],
+    [
+      "import-5-composing-before",
+      "import-5-composing-after"
+    ],
+    [
+      "import-5-host-before",
+      "import-5-host-rejected"
+    ],
+    [
+      "import-5-host-accepted",
+      "import-5-host-redo"
+    ]
+  ],
+  "expectedBlocks": {
+    "import-4-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "consumer": {
+          "id": "owner-opaque"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "task-original",
+            "label": "Mira",
+            "consumer": {
+              "id": "opaque-ref"
+            }
+          },
+          {
+            "type": "text",
+            "text": "BR",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "import-4-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "consumer": {
+          "id": "owner-opaque"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ABR",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "import-4-host-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "AB",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "owner-opaque"
+        }
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "one",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "\n",
+            "marks": []
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "task-original",
+            "label": "Mira",
+            "consumer": {
+              "id": "opaque-ref"
+            }
+          }
+        ]
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "\t",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "B",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "\n",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "C",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "\t",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "D",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "import-4-host-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "AB",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "owner-opaque"
+        }
+      }
+    ],
+    "import-5-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "consumer": {
+          "id": "owner-opaque"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "task-original",
+            "label": "Mira",
+            "consumer": {
+              "id": "opaque-ref"
+            }
+          },
+          {
+            "type": "text",
+            "text": "BR",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "import-5-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "consumer": {
+          "id": "owner-opaque"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ABR",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "import-5-host-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "AB",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "owner-opaque"
+        }
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "one",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "\n",
+            "marks": []
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "task-original",
+            "label": "Mira",
+            "consumer": {
+              "id": "opaque-ref"
+            }
+          }
+        ]
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "\t",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "B",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "\n",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "C",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "\t",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "D",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "import-5-host-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "AB",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "owner-opaque"
+        }
+      }
+    ]
+  },
+  "expectedValues": {
+    "import-4-normalized": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "inline": {
+              "_0": [
+                {
+                  "type": "text",
+                  "text": "東京😀",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "entity-ref",
+                  "entityType": "task",
+                  "entityId": "task-original",
+                  "label": "Mira",
+                  "consumer": {
+                    "id": "opaque-ref"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowedMarkTypes": [
+          "bold",
+          "italic"
+        ],
+        "allowAssetMetadata": false
+      }
+    },
+    "import-4-receipt": {
+      "documentID": "import-4",
+      "epoch": "import-v4",
+      "version": 4,
+      "received": [
+        {
+          "counter": 1,
+          "actor": "b"
+        },
+        {
+          "counter": 2,
+          "actor": "a"
+        }
+      ]
+    },
+    "import-4-undo": {
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "consumer": {
+            "id": "owner-opaque"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "ABR",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "import-4-fallback": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-1",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "one",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          },
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-2",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\t",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\t",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "D",
+                    "marks": []
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowedBlockTypes": [
+          "paragraph"
+        ],
+        "allowedMarkTypes": [
+          "bold",
+          "italic"
+        ],
+        "allowAssetMetadata": false
+      },
+      "suggestedHostBlockTypes": [
+        "paragraph"
+      ]
+    },
+    "import-4-ordered-policy": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-1",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "one",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowedBlockTypes": [
+          "heading",
+          "paragraph",
+          "quote"
+        ],
+        "allowedMarkTypes": [
+          "bold",
+          "italic"
+        ],
+        "allowAssetMetadata": false
+      },
+      "suggestedHostBlockTypes": [
+        "callout",
+        "paragraph",
+        "toggle"
+      ]
+    },
+    "import-4-host-undo": {
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AB",
+              "marks": []
+            }
+          ],
+          "consumer": {
+            "id": "owner-opaque"
+          }
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "import-4-unsafe-asset": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-1",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Photo",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowAssetMetadata": true
+      }
+    },
+    "import-5-normalized": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "inline": {
+              "_0": [
+                {
+                  "type": "text",
+                  "text": "東京😀",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "entity-ref",
+                  "entityType": "task",
+                  "entityId": "task-original",
+                  "label": "Mira",
+                  "consumer": {
+                    "id": "opaque-ref"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowedMarkTypes": [
+          "bold",
+          "italic"
+        ],
+        "allowAssetMetadata": false
+      }
+    },
+    "import-5-receipt": {
+      "documentID": "import-5",
+      "epoch": "import-v5",
+      "version": 5,
+      "received": [
+        {
+          "counter": 1,
+          "actor": "b"
+        },
+        {
+          "counter": 2,
+          "actor": "a"
+        }
+      ]
+    },
+    "import-5-undo": {
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "consumer": {
+            "id": "owner-opaque"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "ABR",
+              "marks": []
+            }
+          ]
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "import-5-fallback": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-1",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "one",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          },
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-2",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\t",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "B",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\t",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "D",
+                    "marks": []
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowedBlockTypes": [
+          "paragraph"
+        ],
+        "allowedMarkTypes": [
+          "bold",
+          "italic"
+        ],
+        "allowAssetMetadata": false
+      },
+      "suggestedHostBlockTypes": [
+        "paragraph"
+      ]
+    },
+    "import-5-ordered-policy": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-1",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "one",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowedBlockTypes": [
+          "heading",
+          "paragraph",
+          "quote"
+        ],
+        "allowedMarkTypes": [
+          "bold",
+          "italic"
+        ],
+        "allowAssetMetadata": false
+      },
+      "suggestedHostBlockTypes": [
+        "callout",
+        "paragraph",
+        "toggle"
+      ]
+    },
+    "import-5-host-undo": {
+      "blocks": [
+        {
+          "id": "p",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "AB",
+              "marks": []
+            }
+          ],
+          "consumer": {
+            "id": "owner-opaque"
+          }
+        }
+      ],
+      "canUndo": false,
+      "canRedo": true
+    },
+    "import-5-unsafe-asset": {
+      "clipboard": {
+        "version": 1,
+        "parts": [
+          {
+            "node": {
+              "value": {
+                "id": "clipboard-import-1",
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Photo",
+                    "marks": []
+                  },
+                  {
+                    "type": "text",
+                    "text": "\n",
+                    "marks": []
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "task-original",
+                    "label": "Mira",
+                    "consumer": {
+                      "id": "opaque-ref"
+                    }
+                  }
+                ]
+              },
+              "kind": "block"
+            }
+          }
+        ]
+      },
+      "effectivePastePolicy": {
+        "allowAssetMetadata": true
+      }
+    }
+  }
+}

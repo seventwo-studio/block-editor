@@ -9,7 +9,7 @@ import subprocess
 
 
 LABELS = ("swift", "wasm", "android-api26-x86_64", "android-api35-x86_64", "android-api35-arm64-v8a")
-INPUTS = ("scripts/ci-inputs.json", "bun.lock", "benchmarks/workloads.json")
+INPUTS = ("scripts/ci-inputs.json", "bun.lock", "benchmarks/workloads.json", "benchmarks/workloads-writing.json", "benchmarks/resources-writing.json")
 
 
 def input_paths():

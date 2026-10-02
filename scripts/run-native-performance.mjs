@@ -7,9 +7,11 @@ import { resolve, dirname } from 'node:path';
 import { performanceOptions, runPerformance } from './performance.mjs';
 
 const binary = resolve(process.argv[2] ?? '.build/release/editor-bridge');
-const output = resolve(process.argv[3] ?? 'test-results/performance/performance-native.json');
-const source = readFileSync('benchmarks/workloads.json');
+const output = resolve(process.argv[3] ?? (process.env.PERFORMANCE_WRITING === 'true' ? 'test-results/performance/performance-writing-native.json' : 'test-results/performance/performance-native.json'));
+const writing = process.env.PERFORMANCE_WRITING === 'true';
+const source = readFileSync(writing ? 'benchmarks/workloads-writing.json' : 'benchmarks/workloads.json');
 const config = JSON.parse(source);
+if (writing && !['debug', 'release'].includes(process.env.PERFORMANCE_BINARY_CONFIGURATION)) throw new Error('Writing measurements require an explicit debug/release artifact configuration');
 const options = performanceOptions(config, {
   profile: process.env.PERFORMANCE_PROFILE,
   cases: process.env.PERFORMANCE_CASES?.split(','),
@@ -21,16 +23,20 @@ const report = {
   version: 1, workloadHash: createHash('sha256').update(source).digest('hex'), options,
   sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   sourceDirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
+  sourceTree: execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim(), numericBudgets: 'unagreed',
   runtime: { name: 'native', platform: platform(), architecture: arch(), osRelease: release(), cpu: cpus()[0]?.model, memoryBytes: totalmem(), hostRuntime: process.version, binary, boundary: 'editor-bridge process; JSON serialization, pipes and response parsing included' },
-  artifacts: [{ name: 'editor-bridge', rawBytes: statSync(binary).size, sha256: createHash('sha256').update(readFileSync(binary)).digest('hex'), configuration: 'caller-supplied binary; use release build for baseline measurements' }],
+  artifacts: [{ name: 'editor-bridge', rawBytes: statSync(binary).size, sha256: createHash('sha256').update(readFileSync(binary)).digest('hex'), configuration: writing ? process.env.PERFORMANCE_BINARY_CONFIGURATION : 'caller-supplied binary; use release build for baseline measurements' }],
   samples: [], complete: false,
 };
 const start = performance.now();
-const child = spawn(binary, [], { stdio: ['pipe', 'pipe', 'inherit'] });
+if (writing && platform() !== 'darwin') throw new Error('Writing peak-memory measurements require macOS /usr/bin/time -l');
+const child = spawn(writing ? '/usr/bin/time' : binary, writing ? ['-l', binary] : [], { stdio: ['pipe', 'pipe', writing ? 'pipe' : 'inherit'] });
+let resources = '';
+if (writing) { child.stderr.setEncoding('utf8'); child.stderr.on('data', chunk => { resources += chunk; }); }
 const lines = createInterface({ input: child.stdout })[Symbol.asyncIterator]();
 const terminated = new Promise((resolve, reject) => {
   child.on('error', reject);
-  child.on('exit', (code, signal) => code === 0 ? resolve() : reject(new Error(`Bridge exited ${code ?? signal}`)));
+  child.on('close', (code, signal) => code === 0 ? resolve() : reject(new Error(`Bridge exited ${code ?? signal}`)));
 });
 terminated.catch(() => {});
 const call = async input => {
@@ -44,7 +50,7 @@ const publish = () => writeFileSync(output, `${JSON.stringify(report, null, 2)}\
 publish();
 let failure;
 try {
-  const response = await call({ command: 'create', session: 'startup', actorID: 'startup', documentID: 'startup', blocks: [] });
+  const response = await call({ command: 'create', session: 'startup', actorID: 'startup', documentID: 'startup', blocks: [], ...(writing ? { collaborationVersion: options.cases[0].version, epoch: `performance-writing-v${options.cases[0].version}` } : {}) });
   if (!response.ok) throw new Error(response.error);
   report.initialization = { freshProcessToFirstEmptySessionMs: performance.now() - start, diskCaches: 'uncontrolled; not disk-cold startup' };
   await call({ command: 'close', session: 'startup' });
@@ -58,6 +64,13 @@ finally {
   child.stdin.end();
   try { await terminated; }
   catch (error) { failure ??= error; report.error = String(failure); report.complete = false; }
+  if (writing) {
+    writeFileSync(`${output}.resources.txt`, resources);
+    const rss = resources.match(/(?:^|\n)\s*(\d+)\s+maximum resident set size/);
+    if (!rss || !Number.isSafeInteger(Number(rss[1])) || Number(rss[1]) <= 0) {
+      failure ??= new Error('Missing valid native child peak memory'); report.error = String(failure); report.complete = false;
+    } else report.memory = { maximumResidentSetSizeBytes: Number(rss[1]), method: 'macOS /usr/bin/time -l', boundary: 'Peak editor-bridge child across measured workloads; rendering and parent runner excluded' };
+  }
   publish();
 }
 if (failure) throw failure;

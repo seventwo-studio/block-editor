@@ -10,9 +10,12 @@ test('measures verified editing and offline-history workloads through WASM', asy
   testInfo.setTimeout(1_800_000);
   const output = resolve(process.env.PERFORMANCE_OUTPUT ?? 'test-results/performance');
   mkdirSync(output, { recursive: true });
-  const source = readFileSync('benchmarks/workloads.json');
+  const writing = process.env.PERFORMANCE_WRITING === 'true';
+  const prefix = writing ? 'performance-writing' : 'performance';
+  const source = readFileSync(writing ? 'benchmarks/workloads-writing.json' : 'benchmarks/workloads.json');
   const wasm = readFileSync(process.env.BLOCK_EDITOR_WASM ?? 'dist/block-editor.wasm');
   const report: Record<string, unknown> = {
+    numericBudgets: 'unagreed', sourceTree: execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim(),
     version: 1, workloadHash: createHash('sha256').update(source).digest('hex'),
     sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     sourceDirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim().length > 0,
@@ -20,7 +23,7 @@ test('measures verified editing and offline-history workloads through WASM', asy
     artifacts: [{ name: 'block-editor.wasm', rawBytes: wasm.length, gzipBytes: gzipSync(wasm, { level: 9 }).length, sha256: createHash('sha256').update(wasm).digest('hex'), configuration: 'release, stripped debug; gzip level 9 is computed, not a delivery claim' }],
     samples: [], complete: false,
   };
-  const publish = () => writeFileSync(`${output}/performance-wasm-${testInfo.project.name}.json`, `${JSON.stringify(report, null, 2)}\n`);
+  const publish = () => writeFileSync(`${output}/${prefix}-wasm-${testInfo.project.name}.json`, `${JSON.stringify(report, null, 2)}\n`);
   publish();
   await page.exposeFunction('publishPerformanceSample', (sample: unknown) => { (report.samples as unknown[]).push(sample); publish(); });
   await page.route('**/engine.wasm', route => route.fulfill({ body: wasm, contentType: 'application/wasm' }));
@@ -36,14 +39,19 @@ test('measures verified editing and offline-history workloads through WASM', asy
       const startInstance = performance.now();
       const runtime = await SwiftEditorRuntime.initialize(module);
       const compiledModuleInstanceMs = performance.now() - startInstance;
+      const selected = performanceOptions(config, options);
       const firstCall = performance.now();
-      runtime.call({ command: 'create', session: 'startup', actorID: 'startup', documentID: 'startup', blocks: [] });
+      runtime.call({ command: 'create', session: 'startup', actorID: 'startup', documentID: 'startup', blocks: [], ...(config.smokeCases ? { collaborationVersion: selected.cases[0].version, epoch: `performance-writing-v${selected.cases[0].version}` } : {}) });
       const firstEmptySessionMs = performance.now() - firstCall;
       runtime.call({ command: 'close', session: 'startup' });
-      const selected = performanceOptions(config, options);
-      await runPerformance(config, selected, async (request: Record<string, unknown>) => ({ ok: true, value: runtime.call(request) }),
+      let linearMemoryHighWaterBytes = runtime.allocatedLinearMemoryBytes;
+      await runPerformance(config, selected, async (request: Record<string, unknown>) => {
+        const value = runtime.call(request);
+        linearMemoryHighWaterBytes = Math.max(linearMemoryHighWaterBytes, runtime.allocatedLinearMemoryBytes);
+        return { ok: true, value };
+      },
         (sample: unknown) => (window as unknown as { publishPerformanceSample: (sample: unknown) => Promise<void> }).publishPerformanceSample(sample));
-      return { options: selected, initialization: { compileMs, compiledModuleInstanceMs, firstEmptySessionMs, diskCaches: 'uncontrolled; fetched local bytes before timing; not disk-cold startup' }, environment: { userAgent: navigator.userAgent, hardwareConcurrency: navigator.hardwareConcurrency } };
+      return { memory: { linearMemoryHighWaterBytes, boundary: 'Maximum allocated WASM linear address space after calls; excludes resident pages, browser and JS heap' }, options: selected, initialization: { compileMs, compiledModuleInstanceMs, firstEmptySessionMs, diskCaches: 'uncontrolled; fetched local bytes before timing; not disk-cold startup' }, environment: { userAgent: navigator.userAgent, hardwareConcurrency: navigator.hardwareConcurrency } };
     }, { config: JSON.parse(source.toString()), root: `/block-editor/@fs${process.cwd()}`, options: {
       profile: process.env.PERFORMANCE_PROFILE,
       cases: process.env.PERFORMANCE_CASES?.split(','),
@@ -53,5 +61,5 @@ test('measures verified editing and offline-history workloads through WASM', asy
     Object.assign(report, metadata, { complete: true });
   } catch (error) { report.error = String(error); throw error; }
   finally { publish(); }
-  await testInfo.attach('performance', { path: `${output}/performance-wasm-${testInfo.project.name}.json`, contentType: 'application/json' });
+  await testInfo.attach('performance', { path: `${output}/${prefix}-wasm-${testInfo.project.name}.json`, contentType: 'application/json' });
 });

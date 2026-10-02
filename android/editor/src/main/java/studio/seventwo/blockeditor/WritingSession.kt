@@ -29,6 +29,8 @@ class WritingAddress internal constructor(value: JSONObject) {
     fun export(): JSONObject = JSONObject(wire.toString())
 }
 class WritingTextRange internal constructor(value: JSONObject) {
+    /** A shared range can span different nested fields in the same epoch. */
+    constructor(start: WritingPosition, end: WritingPosition) : this(JSONObject().put("start", start.export()).put("end", end.export()))
     internal val wire = JSONObject(value.toString())
     val start: WritingPosition get() = WritingPosition(wire.getJSONObject("start"))
     val end: WritingPosition get() = WritingPosition(wire.getJSONObject("end"))
@@ -60,10 +62,19 @@ data class WritingPastePolicy(val allowedBlockTypes: Set<String>? = null, val al
         allowedMarkTypes?.let { value.put("allowedMarkTypes", JSONArray(it.sorted())) }
     }
 }
+class WritingImportResult internal constructor(value: JSONObject) {
+    val clipboard = WritingClipboard.restore(value.getJSONObject("clipboard"))
+    private fun strings(value: JSONObject, key: String): Set<String>? = value.optJSONArray(key)?.let { array ->
+        (0 until array.length()).map { array.getString(it) }.toSet()
+    }
+    private val policy = value.getJSONObject("effectivePastePolicy")
+    val effectivePastePolicy = WritingPastePolicy(strings(policy, "allowedBlockTypes"), strings(policy, "allowedMarkTypes"), policy.getBoolean("allowAssetMetadata"))
+    val suggestedHostBlockTypes = strings(value, "suggestedHostBlockTypes")
+}
 data class ResolvedWritingPosition(val address: WritingAddress, val offset: Int)
 class WritingBatch private constructor(value: JSONObject) {
     internal val wire = JSONObject(value.toString())
-    init { require(wire.getInt("version") in setOf(3, 4, 5) && wire.getString("epoch").isNotEmpty()) }
+    init { require(wire.getInt("version") in setOf(3, 4, 5, 6) && wire.getString("epoch").isNotEmpty()) }
     val documentID: String get() = wire.getString("documentID")
     val epoch: String get() = wire.getString("epoch")
     fun export(): JSONObject = JSONObject(wire.toString())
@@ -93,6 +104,22 @@ class WritingSession private constructor(private val handle: String, initial: JS
     var onChange: ((JSONObject) -> Unit)? = null
     var onWillReceive: (() -> (() -> Unit)?)? = null
     private var closed = false
+    private var nativeInputOwner: Any? = null
+    internal fun acquireNativeInputOwner(owner: Any) {
+        check(!closed && nativeInputOwner == null) { "One native input owner per writing session" }
+        nativeInputOwner = owner
+    }
+    internal fun releaseNativeInputOwner(owner: Any) {
+        check(nativeInputOwner === owner); nativeInputOwner = null
+    }
+    private val listeners = linkedSetOf<() -> Unit>()
+    private val beforeReceive = linkedSetOf<() -> (() -> Unit)?>()
+    internal fun subscribe(listener: () -> Unit): () -> Unit {
+        check(!closed); listeners.add(listener); return { listeners.remove(listener); Unit }
+    }
+    internal fun subscribeBeforeReceive(listener: () -> (() -> Unit)?): () -> Unit {
+        check(!closed); beforeReceive.add(listener); return { beforeReceive.remove(listener); Unit }
+    }
     private var holds = 0
     private var draining = false
     private var reservedCount = 0
@@ -122,6 +149,14 @@ class WritingSession private constructor(private val handle: String, initial: JS
                 .put("collaborationVersion", 5).put("blocks", blocks)).getJSONObject("value")
             return WritingSession(handle, result)
         }
+        /** Explicit retained-endpoint splice epoch; archive and stop old writers first. */
+        fun createV6(documentID: String, actorID: String, epoch: String, blocks: JSONArray = JSONArray()): WritingSession {
+            val handle = UUID.randomUUID().toString()
+            val result = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
+                .put("documentID", documentID).put("actorID", actorID).put("epoch", epoch)
+                .put("collaborationVersion", 6).put("blocks", blocks)).getJSONObject("value")
+            return WritingSession(handle, result)
+        }
         fun restore(snapshot: WritingBatch, actorID: String): WritingSession {
             val handle = UUID.randomUUID().toString()
             return WritingSession(handle, NativeEngine.call(JSONObject().put("command", "restore").put("session", handle)
@@ -139,7 +174,7 @@ class WritingSession private constructor(private val handle: String, initial: JS
         check(!closed) { "Writing session is closed" }
         return NativeEngine.call(args.put("command", command).put("session", handle)).get("value")
     }
-    private fun publish(value: JSONObject) { snapshot = value; onChange?.invoke(value) }
+    private fun publish(value: JSONObject) { snapshot = value; listeners.toList().forEach { it() }; onChange?.invoke(value) }
     private fun command(name: String, args: JSONObject): WritingPosition {
         val result = call(name, args) as JSONObject
         publish(result.getJSONObject("snapshot"))
@@ -147,6 +182,11 @@ class WritingSession private constructor(private val handle: String, initial: JS
     }
     private fun range(address: WritingAddress, start: Int, end: Int) = JSONObject().put("address", address.wire).put("start", start).put("end", end)
     fun node(address: NodeAddress): NodeIdentity = NodeIdentity(call("node", JSONObject().put("address", address.wire())) as JSONObject)
+    fun nodeAddress(identity: NodeIdentity): NodeAddress {
+        val value = call("nodeAddress", JSONObject().put("identity", identity.wire)) as JSONObject
+        val path = value.getJSONArray("path")
+        return NodeAddress(value.getString("blockID"), (0 until path.length()).map { path.getString(it) })
+    }
     fun textAddress(identity: NodeIdentity, field: String = "content") = WritingAddress(call("textAddress", JSONObject().put("identity", identity.wire).put("field", field)) as JSONObject)
     fun position(address: WritingAddress, offset: Int, affinity: PositionAffinity = PositionAffinity.BEFORE) =
         WritingPosition(call("position", JSONObject().put("address", address.wire).put("offset", offset).put("affinity", affinity.wireValue)) as JSONObject)
@@ -164,9 +204,15 @@ class WritingSession private constructor(private val handle: String, initial: JS
     fun copySelection(selection: WritingSelection) = WritingCopy(call("copySelection", JSONObject().put("selection", selection.wire())) as JSONObject)
     fun copyClipboard(selection: WritingSelection) = WritingClipboard.restore(call("copyClipboard", JSONObject().put("selection", selection.wire())) as JSONObject)
     fun clipboardText(text: String, format: String = "inline") = WritingClipboard.restore(call("clipboardText", JSONObject().put("text", text).put("format", format)) as JSONObject)
+    fun normalizeForImport(clipboard: WritingClipboard, policy: WritingPastePolicy = WritingPastePolicy()) =
+        WritingImportResult(call("normalizeForImport", JSONObject().put("clipboard", clipboard.wire).put("policy", policy.wire())) as JSONObject)
     fun pasteInline(clipboard: WritingClipboard, range: WritingTextRange, policy: WritingPastePolicy = WritingPastePolicy()): WritingPosition {
         check(holds == 0) { "Commit composition before pasting" }
         return command("pasteInline", JSONObject().put("clipboard", clipboard.wire).put("range", range.wire).put("policy", policy.wire()))
+    }
+    fun pasteSelection(clipboard: WritingClipboard, range: WritingTextRange, policy: WritingPastePolicy = WritingPastePolicy()): WritingPosition {
+        check(holds == 0) { "Commit composition before pasting" }
+        return command("pasteSelection", JSONObject().put("clipboard", clipboard.wire).put("range", range.wire).put("policy", policy.wire()))
     }
     fun pasteBlocks(clipboard: WritingClipboard, range: WritingTextRange, policy: WritingPastePolicy = WritingPastePolicy()): WritingPosition {
         check(holds == 0) { "Commit composition before pasting" }
@@ -257,13 +303,18 @@ class WritingSession private constructor(private val handle: String, initial: JS
             check(deferred.size + reservedCount < 64 && bytes + reservedBytes + deferred.sumOf { it.toByteArray(Charsets.UTF_8).size } <= 64_000_000)
             deferred.add(packet); return
         }
-        val cleanup = onWillReceive?.invoke()
-        val result = try { call("receive", JSONObject().put("batch", batch.wire)) as JSONObject }
-        catch (error: Exception) { try { cleanup?.invoke() } catch (_: Exception) { }; throw error }
+        val cleanup = mutableListOf<() -> Unit>()
+        val result = try {
+            onWillReceive?.invoke()?.let { cleanup.add(it) }
+            beforeReceive.toList().forEach { it()?.let { rollback -> cleanup.add(rollback) } }
+            call("receive", JSONObject().put("batch", batch.wire)) as JSONObject
+        } catch (error: Exception) {
+            cleanup.asReversed().forEach { try { it() } catch (_: Exception) { } }; throw error
+        }
         publish(result)
     }
     override fun close() = close(pendingStateRetained = false)
     fun close(pendingStateRetained: Boolean) {
-        if (!closed) { check(!draining && (deferred.isEmpty() || pendingStateRetained)) { "Retain deferred changes before closing" }; call("close"); closed = true; onChange = null; onWillReceive = null }
+        if (!closed) { check(nativeInputOwner == null) { "Dispose the native writing input owner before closing its session" }; check(!draining && (deferred.isEmpty() || pendingStateRetained)) { "Retain deferred changes before closing" }; call("close"); closed = true; listeners.clear(); beforeReceive.clear(); onChange = null; onWillReceive = null }
     }
 }
