@@ -142,9 +142,10 @@ class WritingParagraphEditorState private constructor(val session: WritingSessio
         } catch (error: Exception) { currentError(error) }
     }
     val blocked = readOnly || request != null
-    Column {
-        // A replaced Foundation node cannot reauthorize retained native callbacks.
-        key(revision) {
+    // Retire the command semantics nodes with their immutable native binding.
+    // Material OnClick wrappers must not reauthorize an old action after handoff.
+    key(revision) {
+      Column {
             OutlinedTextField(value = input.value,
                 onValueChange = { if (!currentReadOnly) binding.update(it) }, readOnly = blocked,
                 modifier = Modifier.fillMaxWidth().focusRequester(focus)
@@ -168,7 +169,6 @@ class WritingParagraphEditorState private constructor(val session: WritingSessio
                     val rich = if (input.plainField) null else runCatching { input.readNodes() }.getOrNull()
                     TransformedText(if (!input.plainField && input.value.composition == null && plainText(rich) == text.text) styledInline(rich) else text, OffsetMapping.Identity)
                 })
-        }
         if (focused) Row {
             TextButton(enabled = !blocked, onClick = { invoke(0) }, modifier = Modifier.testTag("writing-enter")) { Text("Enter") }
             TextButton(enabled = !blocked, onClick = { invoke(1) }, modifier = Modifier.testTag("writing-soft-break")) { Text("Soft break") }
@@ -192,5 +192,6 @@ class WritingParagraphEditorState private constructor(val session: WritingSessio
             }
         }
         input.failedReason?.let { Text(it) }
+      }
     }
 }

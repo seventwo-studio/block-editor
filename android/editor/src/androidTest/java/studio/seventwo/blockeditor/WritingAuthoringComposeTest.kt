@@ -55,6 +55,8 @@ class WritingAuthoringComposeTest {
             compose.runOnIdle {assertEquals("A東京X😀TaskBMiraR",text(a));assertTrue(a.exportDeferredChanges().isEmpty());assertTrue(a.snapshot.toString().contains("paste-meta"));assertTrue(a.snapshot.toString().contains("opaque"))}
             val focused=compose.onNode(hasSetTextAction() and isFocused());focused.assertTextContains("A東京X😀TaskBMiraR")
             assertEquals(TextRange(10),focused.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            val freshPaste=checkNotNull(compose.onNodeWithTag("writing-paste").fetchSemanticsNode().config[SemanticsActions.OnClick].action)
+            assertNotSame("A native lease revision retires the rendered command node", stalePaste, freshPaste)
             compose.runOnIdle {val accepted=a.save().export().toString();stalePaste();assertEquals(accepted,a.save().export().toString());val reopened=WritingSession.restore(a.save(),"a");try{reopened.undo();assertEquals("A東京BMiraR",text(reopened));reopened.redo();assertEquals("A東京X😀TaskBMiraR",text(reopened))}finally{reopened.close()}}
         }finally {compose.runOnIdle{visible.value=false};compose.waitForIdle();compose.runOnIdle{a.close();b.close()}}
     }
