@@ -104,6 +104,14 @@ class WritingComposeInputTest {
             val acceptedBeforeSibling = compose.runOnIdle { a.save().export().toString() }
             phase = "deliberate-sibling-focus"
             fields[1].performClick(); fields[1].assertIsFocused()
+            // Deterministic native caret inside the displayed atomic label;
+            // API26 physical click produced this exact17/17 position.
+            fields[1].performTextInputSelection(TextRange(17))
+            assertEquals(TextRange(18), fields[1].fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            compose.runOnIdle {
+                assertEquals(acceptedBeforeSibling, a.save().export().toString())
+                assertTrue(owner.pendingDrafts().isEmpty())
+            }
             compose.waitUntil { connection != null }
             phase = "sibling-composition-finalization"
             compose.runOnIdle {

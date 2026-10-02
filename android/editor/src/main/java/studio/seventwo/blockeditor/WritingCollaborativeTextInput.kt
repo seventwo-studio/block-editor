@@ -87,8 +87,13 @@ internal class WritingCollaborativeTextInput(
     fun canAuthor(): Boolean = !closed && editable() && runCatching { liveAddress(); true }.getOrDefault(false)
     fun update(next: TextFieldValue) {
         if (!canAuthor()) return
-        if (next.selection != value.selection) { retained = null; anchors = null }
-        value = next
+        // Labels are displayed as text but remain one shared atom. Map only an
+        // accepted, clean native selection; edited/composing/failed drafts still
+        // go through strict shared validation and must never rewrite an atom.
+        val accepted = if (!plainField && !requiresCommit && next.composition == null && next.text == readText())
+            next.copy(selection = atomicSelection(next.selection)) else next
+        if (accepted.selection != value.selection) { retained = null; anchors = null }
+        value = accepted
         if (finishing) return
         if (next.composition != null) {
             if (release == null) release = session.deferRemoteChanges()
@@ -96,6 +101,26 @@ internal class WritingCollaborativeTextInput(
         }
         try { commit() } catch (error: Exception) { failedReason = error.message ?: error.javaClass.simpleName; report(error) }
     }
+    private fun atomicSelection(selection: TextRange): TextRange {
+        var offset = 0
+        var lower = selection.min; var upper = selection.max
+        val nodes = readNodes()
+        for (index in 0 until nodes.length()) {
+            val node = nodes.getJSONObject(index)
+            val end = offset + plainText(JSONArray().put(node)).length
+            if (node.optString("type") != "text") {
+                if (selection.collapsed && selection.start > offset && selection.start < end) {
+                    val edge = if (selection.start - offset < end - selection.start) offset else end
+                    return TextRange(edge)
+                }
+                if (lower > offset && lower < end) lower = offset
+                if (upper > offset && upper < end) upper = end
+            }
+            offset = end
+        }
+        return if (selection.reversed) TextRange(upper, lower) else TextRange(lower, upper)
+    }
+
     /** A real focus/InputConnection revocation may synchronously send corrections.
      * Capture that exact lease's final value before committing or releasing peers. */
     fun finish(revokeNativeInput: () -> Unit) {

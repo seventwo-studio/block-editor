@@ -48,6 +48,41 @@ class WritingInputTest {
         } finally { owner.close(); scope.cancel(); a.close(); b.close() }
     }
 
+    @Test fun cleanNativeReferenceCaretAndReversedSelectionPreserveAtomsPeerAndHistory() {
+        val blocks = JSONArray("""[{"id":"p","type":"paragraph","host":"keep","content":[{"type":"text","text":"Sibling😀","marks":[{"type":"italic"}]},{"type":"entity-ref","entityType":"person","entityId":"peer","label":"Reference","host":"opaque-reference"}]}]""")
+        val a = WritingSession.createV4("native-reference-caret", "a", "v4", blocks)
+        val b = WritingSession.createV4("native-reference-caret", "b", "v4", blocks)
+        val scope = CoroutineScope(SupervisorJob() + Dispatcher())
+        val owner = WritingEditorInputs(a, scope, { true }, { fail("No draft expected") }, { throw it })
+        val identity = a.node(NodeAddress("p")); val binding = owner.bind(identity)
+        owner.attach(binding); owner.focusChanged(binding, true)
+        try {
+            val accepted = receipt(a)
+            binding.update(TextFieldValue("Sibling😀Reference", TextRange(17)))
+            assertEquals(TextRange(18), binding.input.value.selection)
+            binding.update(TextFieldValue("Sibling😀Reference", TextRange(10)))
+            assertEquals(TextRange(9), binding.input.value.selection)
+            binding.update(TextFieldValue("Sibling😀Reference", TextRange(17, 10)))
+            assertEquals(TextRange(18, 9), binding.input.value.selection)
+            assertEquals(accepted, receipt(a)); assertTrue(owner.exportDrafts().isEmpty())
+            val copied = a.copyClipboard(WritingSelection(text = listOf(a.selectedText(a.textAddress(identity), 9, 18)))).export().toString()
+            assertTrue(copied.contains("entity-ref")); assertTrue(copied.contains("opaque-reference")); assertTrue(copied.contains("Reference"))
+            b.replaceText(b.textAddress(b.node(NodeAddress("p"))), 0, 0, "R"); a.receive(b.changes())
+            assertEquals(TextRange(19, 10), binding.input.value.selection)
+            assertEquals("RSibling😀Reference", binding.input.value.text); assertTrue(owner.exportDrafts().isEmpty())
+            binding.update(TextFieldValue("RSibling😀Reference", TextRange(18)))
+            assertEquals(TextRange(19), binding.input.value.selection)
+            owner.softBreak(binding) { binding.update(TextFieldValue("RSibling😀Reference", TextRange(18))) }
+            assertEquals(listOf("RSibling😀Reference\n"), text(a)); assertTrue(owner.exportDrafts().isEmpty())
+            assertTrue(a.snapshot.toString().contains("opaque-reference")); assertTrue(a.snapshot.toString().contains("italic"))
+            val reopened = WritingSession.restore(a.save(), "a")
+            try {
+                reopened.undo(); assertEquals(listOf("RSibling😀Reference"), text(reopened))
+                reopened.redo(); assertEquals(a.snapshot.toString(), reopened.snapshot.toString())
+            } finally { reopened.close() }
+        } finally { owner.close(); scope.cancel(); a.close(); b.close() }
+    }
+
     @Test fun cleanBlurSelectionKeepsReversedRichRangeAndRebasesHeldPeerBeforeFormat() {
         val a = WritingSession.createV4("native-clean-format", "a", "v4", seed())
         val b = WritingSession.createV4("native-clean-format", "b", "v4", seed())
