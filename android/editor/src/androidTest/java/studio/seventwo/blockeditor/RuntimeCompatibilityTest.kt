@@ -53,7 +53,7 @@ class RuntimeCompatibilityTest {
             if (response.getBoolean("ok") && input.getString("command") == "close") sessions.remove(handle)
             return response
         }
-        for (name in listOf("bridge", "structure", "recovery", "documents", "writing", "blockCommands", "schemaCommands", "roleCommands", "collectionCommands", "exitCommands", "pinCommands", "boundaryCommands", "undoRecoveryCommands")) {
+        for (name in listOf("bridge", "structure", "recovery", "documents", "writing", "blockCommands", "schemaCommands", "roleCommands", "collectionCommands", "exitCommands", "pinCommands", "boundaryCommands", "undoRecoveryCommands", "clipboardCommands", "spliceCommands")) {
             val bytes = context.assets.open("$name.json").use { it.readBytes() }
             fixtureHashes.put(name, MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) })
             val fixture = JSONObject(bytes.toString(Charsets.UTF_8))

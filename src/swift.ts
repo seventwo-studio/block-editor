@@ -41,9 +41,12 @@ export interface SwiftWritingPosition {
 export interface SwiftWritingTextRange { start: SwiftWritingPosition; end: SwiftWritingPosition }
 export interface SwiftWritingSelection { nodes: SwiftNodeID[]; text: SwiftWritingTextRange[] }
 export interface SwiftWritingCopy { nodes: unknown[]; text: InlineNode[][] }
+export type SwiftWritingClipboardPart = { inline: { _0: InlineNode[] } } | { node: { value: Record<string, unknown>; kind: "block" | "item" | "row" | "cell" } };
+export interface SwiftWritingClipboard { version: 1; parts: SwiftWritingClipboardPart[] }
+export interface SwiftWritingPastePolicy { allowedBlockTypes?: string[]; allowedMarkTypes?: string[]; allowAssetMetadata: boolean }
 export interface SwiftResolvedWritingPosition { address: TextAddress; offset: number }
-export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3 | 4; epoch: string }
-export interface SwiftWritingReceipt { version: 3 | 4; documentID: string; epoch: string; received: unknown[] }
+export interface SwiftWritingBatch extends SwiftChangeBatch { version: 3 | 4 | 5; epoch: string }
+export interface SwiftWritingReceipt { version: 3 | 4 | 5; documentID: string; epoch: string; received: unknown[] }
 export interface SwiftWritingRecovery { reason: "identityConflict" | "schemaConstraint"; batch: SwiftWritingBatch }
 export class SwiftWritingRecoveryError extends Error {
   constructor(readonly recovery: SwiftWritingRecovery) { super("Writing recovery required"); this.name = "SwiftWritingRecoveryError"; }
@@ -124,6 +127,11 @@ export class SwiftEditorRuntime {
     const handle = crypto.randomUUID();
     return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 4, ...options }));
   }
+  /** Explicit epoch reserved for structured splice. Archive old writers before starting v5; v3/v4 peers reject its batches. */
+  createWritingV5(options: { documentID: string; actorID: string; epoch: string; blocks: Block[] }): SwiftWritingSession {
+    const handle = crypto.randomUUID();
+    return new SwiftWritingSession(this, handle, this.call({ command: "create", session: handle, collaborationVersion: 5, ...options }));
+  }
   restoreWriting(snapshot: SwiftWritingBatch, actorID: string): SwiftWritingSession {
     const handle = crypto.randomUUID();
     return new SwiftWritingSession(this, handle, this.call({ command: "restore", session: handle, snapshot, actorID }));
@@ -134,7 +142,7 @@ export class SwiftEditorRuntime {
   }
 }
 
-/** Explicit v3 facade. Commit composition before structural commands and hold
+/** Explicit writing facade for separately created v3/v4/v5 epochs. Commit composition before structural commands and hold
  * remote delivery while the platform owns an uncommitted input buffer. */
 export class SwiftWritingSession {
   private listeners = new Set<() => void>();
@@ -170,6 +178,21 @@ export class SwiftWritingSession {
   selectedText(address: TextAddress, start: number, end: number): SwiftWritingTextRange { return this.call("selectedText", { address, start, end }); }
   selection(anchor: SwiftWritingPosition, focus: SwiftWritingPosition): SwiftWritingSelection { return this.call("writingSelection", { anchor, focus }); }
   copySelection(selection: SwiftWritingSelection): SwiftWritingCopy { return this.call("copySelection", { selection }); }
+  copyClipboard(selection: SwiftWritingSelection): SwiftWritingClipboard { return this.call("copyClipboard", { selection }); }
+  clipboardText(text: string, format: "inline" | "multiline" | "markdown" = "inline"): SwiftWritingClipboard { return this.call("clipboardText", { text, format }); }
+  pasteInline(clipboard: SwiftWritingClipboard, range: SwiftWritingTextRange, policy?: SwiftWritingPastePolicy): SwiftWritingPosition {
+    if (this.holds) throw new Error("Commit composition before pasting");
+    return this.command("pasteInline", { clipboard, range, policy });
+  }
+  pasteBlocks(clipboard: SwiftWritingClipboard, range: SwiftWritingTextRange, policy?: SwiftWritingPastePolicy): SwiftWritingPosition {
+    if (this.holds) throw new Error("Commit composition before pasting");
+    return this.command("pasteBlocks", { clipboard, range, policy });
+  }
+  pasteCollection(clipboard: SwiftWritingClipboard, collection: SwiftNodeCollection, after?: SwiftNodeID, policy?: SwiftWritingPastePolicy): SwiftWritingSelection {
+    if (this.holds) throw new Error("Commit composition before pasting");
+    const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>("pasteCollection", { clipboard, collection, after, policy });
+    this.publish(result.snapshot); return result.selection;
+  }
   deleteSelection(selection: SwiftWritingSelection): SwiftWritingSelection {
     const result = this.call<{ snapshot: SwiftSnapshot; selection: SwiftWritingSelection }>("deleteSelection", { selection });
     this.publish(result.snapshot); return result.selection;

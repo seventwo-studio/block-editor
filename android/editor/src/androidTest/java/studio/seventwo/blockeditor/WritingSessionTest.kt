@@ -7,6 +7,198 @@ import org.junit.Test
 
 /** Typed Kotlin consumer proof, separate from the shared raw JNI transcript. */
 class WritingSessionTest {
+    @Test fun typedV5WholeBlockPasteKeepsConcurrentCutGroupsAndOneAuthorUndo() {
+        val seed = JSONArray("""[{"id":"p","type":"paragraph","host":"boundary","content":[{"type":"text","text":"abcd","marks":[]}]}]""")
+        val clipboard = WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"node":{"value":{"id":"input","type":"paragraph","content":[{"type":"text","text":"東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"consumer-task","label":"Task","consumer":{"id":"reference-opaque"}}],"consumer":{"id":"opaque-owner","children":[{"id":"opaque-child"}]}},"kind":"block"}}]}"""))
+        for (actor in listOf("a", "z")) for (cut in listOf(1, 2)) {
+            val documentID = "typed-splice-$actor-$cut"
+            val a = WritingSession.createV5(documentID, actor, "five", seed)
+            val b = WritingSession.createV5(documentID, "m", "five", seed)
+            var reopened: WritingSession? = null
+            try {
+                val address = WritingAddress("p")
+                val range = a.selectedText(address, cut, cut)
+                val held = normalize(a.save().export())
+                val release = a.deferRemoteChanges()
+                try { a.pasteBlocks(clipboard, range); fail("Held input must block paste") }
+                catch (_: IllegalStateException) { }
+                assertEquals(held, normalize(a.save().export()))
+                release()
+                a.setComposing(true)
+                error("compositionActive") { a.pasteBlocks(clipboard, range) }
+                a.setComposing(false)
+                assertEquals(held, normalize(a.save().export()))
+
+                val caret = a.pasteBlocks(clipboard, range)
+                assertEquals(1, a.changes().export().getJSONArray("changes").length())
+                val importedID = "paste-$actor-1-1"
+                val tailID = "paste-$actor-1-2"
+                val imported = JSONObject(clipboard.export().getJSONArray("parts").getJSONObject(0)
+                    .getJSONObject("node").getJSONObject("value").toString()).put("id", importedID)
+                fun paragraph(id: String, text: String, host: Boolean = false) = JSONObject()
+                    .put("id", id).put("type", "paragraph")
+                    .put("content", JSONArray().put(JSONObject().put("type", "text").put("text", text).put("marks", JSONArray())))
+                    .also { if (host) it.put("host", "boundary") }
+                val expected = if (cut == 1) JSONArray().put(paragraph("p", "a", true)).put(imported)
+                    .put(paragraph(tailID, "b", true)).put(paragraph("peer-tail", "cd"))
+                    else JSONArray().put(paragraph("p", "a", true)).put(paragraph("peer-tail", "b"))
+                        .put(imported).put(paragraph(tailID, "cd", true))
+                b.splitParagraph(address, if (cut == 1) 2 else 1, if (cut == 1) 2 else 1, "peer-tail")
+                val own = a.changes()
+                val remote = b.changes()
+                a.receive(remote)
+                b.receive(own)
+                a.receive(remote)
+                b.receive(own)
+                assertEquals(normalize(expected), blocks(a))
+                assertEquals(blocks(a), blocks(b))
+                assertEquals(0, a.resolvePosition(caret).offset)
+                assertEquals(normalize(a.node(NodeAddress(tailID)).wire),
+                    normalize(a.resolvePosition(caret).address.export().getJSONObject("identity")))
+                val restored = WritingSession.restore(a.save(), actor)
+                reopened = restored
+                restored.undo()
+                b.receive(restored.changes())
+                val undo = if (cut == 1) JSONArray().put(paragraph("p", "ab", true)).put(paragraph("peer-tail", "cd"))
+                    else JSONArray().put(paragraph("p", "a", true)).put(paragraph("peer-tail", "bcd"))
+                assertEquals(normalize(undo), blocks(restored))
+                assertEquals(blocks(restored), blocks(b))
+                assertFalse(restored.snapshot.getBoolean("canUndo"))
+                assertTrue(restored.snapshot.getBoolean("canRedo"))
+                restored.redo()
+                b.receive(restored.changes())
+                b.receive(restored.changes())
+                assertEquals(normalize(expected), blocks(restored))
+                assertEquals(blocks(restored), blocks(b))
+            } finally { a.close(); b.close(); reopened?.close() }
+        }
+
+        val zero = WritingSession.createV5("typed-splice-zero", "a", "five", seed)
+        val four = WritingSession.createV4("typed-splice-zero", "old", "five", seed)
+        try {
+            val address = WritingAddress("p")
+            val caret = zero.pasteBlocks(clipboard, zero.selectedText(address, 0, 2))
+            val accepted = normalize(zero.save().export())
+            val acceptedBlocks = blocks(zero)
+            val suffix = zero.snapshot.getJSONArray("blocks").getJSONObject(1)
+            assertEquals(2, zero.snapshot.getJSONArray("blocks").length())
+            assertEquals("p", suffix.getString("id"))
+            assertEquals("boundary", suffix.getString("host"))
+            assertEquals("cd", suffix.getJSONArray("content").getJSONObject(0).getString("text"))
+            assertEquals(normalize(zero.node(NodeAddress("p")).wire),
+                normalize(zero.resolvePosition(caret).address.export().getJSONObject("identity")))
+            assertEquals(1, zero.changes().export().getJSONArray("changes").length())
+            val oldAccepted = normalize(four.save().export())
+            error("unsupportedVersion(4)") { four.pasteBlocks(clipboard, four.selectedText(address, 0, 0)) }
+            error("unsupportedVersion(4)") { zero.receive(four.changes()) }
+            error("unsupportedVersion(5)") { four.receive(zero.changes()) }
+            assertEquals(accepted, normalize(zero.save().export()))
+            assertEquals(oldAccepted, normalize(four.save().export()))
+            assertNull(zero.mergeRecovery())
+            assertNull(four.mergeRecovery())
+            val inline = zero.clipboardText("inline")
+            error("invalidPath") { zero.pasteBlocks(inline, zero.selectedText(address, 0, 0)) }
+            val across = zero.selection(zero.position(WritingAddress("paste-a-1-1"), 0), zero.position(address, 1))
+            val crossBlockRange = WritingTextRange(JSONObject().put("start", across.text.first().start.export())
+                .put("end", across.text.last().end.export()))
+            error("invalidPath") { zero.pasteBlocks(clipboard, crossBlockRange) }
+            assertEquals(accepted, normalize(zero.save().export()))
+            zero.undo()
+            assertEquals(normalize(seed), blocks(zero))
+            zero.redo()
+            assertEquals(acceptedBlocks, blocks(zero))
+        } finally { zero.close(); four.close() }
+    }
+
+    @Test fun typedV5EpochRejectsMixedVersionsAndInheritsUnicodeUndoAndRecovery() {
+        val seed = JSONArray("""[{"id":"p","type":"paragraph","host":"keep","content":[{"type":"text","text":"C","marks":[]}]}]""")
+        val a = WritingSession.createV5("typed-five", "a", "explicit-five", seed)
+        val b = WritingSession.createV5("typed-five", "b", "explicit-five", seed)
+        val four = WritingSession.createV4("typed-five", "four", "explicit-five", seed)
+        var reopened: WritingSession? = null
+        try {
+            val address = WritingAddress("p")
+            a.replaceText(address, 0, 0, "東京"); val caret = a.replaceText(address, 2, 2, "X")
+            assertEquals(3, a.resolvePosition(caret).offset)
+            b.replaceText(address, 1, 1, "R"); a.receive(b.changes()); a.receive(b.changes()); b.receive(a.changes())
+            val expected = normalize(JSONArray("""[{"id":"p","type":"paragraph","host":"keep","content":[{"type":"text","text":"東京XCR","marks":[]}]}]"""))
+            assertEquals(expected, blocks(a)); assertEquals(expected, blocks(b))
+            assertEquals(5, a.changes().export().getInt("version")); assertEquals(5, a.syncState().export().getInt("version"))
+            val saved = a.save(); val accepted = normalize(saved.export()); val fourAccepted = normalize(four.save().export())
+            error("unsupportedVersion(4)") { a.receive(four.changes()) }
+            error("unsupportedVersion(5)") { four.receive(a.changes()) }
+            assertEquals(accepted, normalize(a.save().export())); assertEquals(fourAccepted, normalize(four.save().export()))
+            assertNull(a.mergeRecovery()); assertNull(four.mergeRecovery())
+            try { WritingBatch.restore(saved.export().put("version", 6)); fail("Unknown version must be rejected") }
+            catch (_: IllegalArgumentException) { }
+            val restored = WritingSession.restore(saved, "a"); reopened = restored
+            restored.undo(); assertEquals("東京CR", restored.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONArray("content").getJSONObject(0).getString("text"))
+            restored.redo(); assertEquals(expected, blocks(restored)); assertEquals(5, restored.save().export().getInt("version"))
+        } finally { a.close(); b.close(); four.close(); reopened?.close() }
+
+        val recoveryA = WritingSession.createV5("typed-five-recovery", "a", "five-recovery")
+        val recoveryB = WritingSession.createV5("typed-five-recovery", "peer", "five-recovery")
+        var resumed: WritingSession? = null
+        fun recover(operation: () -> Unit): WritingRecovery {
+            try { operation() } catch (failure: WritingRecoveryException) { return failure.recovery }
+            throw AssertionError("Expected typed v5 recovery")
+        }
+        try {
+            val math = recoveryA.insertCollectionNodes(JSONArray("""[{"id":"math","type":"math","expression":"x+y","extension":{"remote":false}}]"""), NodeCollection.ROOT).nodes.single()
+            val birth = recoveryA.changes(); recoveryB.receive(birth)
+            val mutation = JSONObject().put("setNodeField", JSONObject().put("identity", math.wire).put("path", JSONArray(listOf("extension", "remote"))).put("value", true))
+            val body = JSONObject().put("edit", JSONObject().put("_0", JSONArray().put(JSONObject().put("structure", JSONObject().put("_0", mutation)))))
+            val change = JSONObject().put("id", JSONObject().put("counter", 2).put("actor", "peer"))
+                .put("observed", JSONArray().put(JSONObject().put("counter", 1).put("actor", "a"))).put("body", body)
+            recoveryB.receive(WritingBatch.restore(birth.export().put("changes", JSONArray().put(change)))); recoveryA.receive(recoveryB.changes())
+            val accepted = recoveryA.save(); val acceptedValue = normalize(accepted.export()); val receipts = normalize(recoveryA.syncState().export())
+            val pending = recover { recoveryA.undo() }; assertEquals(MergeRecoveryReason.SCHEMA_CONSTRAINT, pending.reason)
+            assertEquals(5, pending.batch.export().getInt("version")); assertEquals(3, pending.batch.export().getJSONArray("changes").length())
+            assertEquals(acceptedValue, normalize(recoveryA.save().export())); assertEquals(receipts, normalize(recoveryA.syncState().export()))
+            val restored = WritingSession.restore(accepted, "a"); resumed = restored
+            recover { restored.restoreRecovery(WritingRecovery.restore(pending.export())) }
+            error("invalidChange") { restored.repairText(math, "expression", "") }
+            assertEquals(acceptedValue, normalize(restored.save().export())); assertEquals(normalize(pending.export()), normalize(restored.mergeRecovery()!!.export()))
+            restored.repairText(math, "expression", "restored 😀"); assertNull(restored.mergeRecovery())
+            val expected = normalize(JSONArray("""[{"id":"math","type":"math","expression":"restored 😀","extension":{"remote":true}}]"""))
+            assertEquals(expected, blocks(restored)); assertEquals(4, restored.changes().export().getJSONArray("changes").length())
+            recoveryB.receive(restored.changes()); assertEquals(expected, blocks(recoveryB))
+        } finally { recoveryA.close(); recoveryB.close(); resumed?.close() }
+    }
+
+    @Test fun typedV4ClipboardPreservesUnicodeReferencesAndPeerUndoInOneAction() {
+        for (actor in listOf("a", "z")) {
+            val seed = JSONArray("""[{"id":"p","type":"paragraph","host":"retained","content":[{"type":"text","text":"ABC","marks":[]}]}]""")
+            val a = WritingSession.createV4("typed-clipboard-$actor", actor, "clipboard-v4", seed)
+            val b = WritingSession.createV4("typed-clipboard-$actor", "m", "clipboard-v4", seed)
+            var reopened: WritingSession? = null
+            try {
+                val address = WritingAddress("p"); val range = a.selectedText(address, 1, 2)
+                val clipboard = WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"inline":{"_0":[{"type":"text","text":"東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"external-id","label":"Task","consumer":{"id":"opaque"}}]}}]}"""))
+                b.replaceText(address, 3, 3, " peer"); a.receive(b.changes())
+                val release = a.deferRemoteChanges(); val held = normalize(a.save().export())
+                try { a.pasteInline(clipboard, range); fail("Held remote input must block paste") }
+                catch (_: IllegalStateException) { }
+                assertEquals(held, normalize(a.save().export())); release()
+                val count = a.changes().export().getJSONArray("changes").length()
+                val caret = a.pasteInline(clipboard, range)
+                assertEquals(9, a.resolvePosition(caret).offset)
+                assertEquals(count + 1, a.changes().export().getJSONArray("changes").length())
+                val expected = normalize(JSONArray("""[{"id":"p","type":"paragraph","host":"retained","content":[{"type":"text","text":"A","marks":[]},{"type":"text","text":"東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"external-id","label":"Task","consumer":{"id":"opaque"}},{"type":"text","text":"C peer","marks":[]}]}]"""))
+                assertEquals(expected, blocks(a)); b.receive(a.changes()); b.receive(a.changes()); assertEquals(expected, blocks(b))
+                val copied = a.copyClipboard(WritingSelection(text = listOf(a.selectedText(address, 1, 9)))).export()
+                val copiedValues = copied.getJSONArray("parts").getJSONObject(0).getJSONObject("inline").getJSONArray("_0")
+                val reference = copiedValues.getJSONObject(copiedValues.length() - 1)
+                assertEquals("external-id", reference.getString("entityId")); assertEquals("opaque", reference.getJSONObject("consumer").getString("id"))
+                val restored = WritingSession.restore(a.save(), actor); reopened = restored
+                restored.undo(); assertFalse(restored.snapshot.getBoolean("canUndo"))
+                assertEquals(normalize(JSONArray("""[{"id":"p","type":"paragraph","host":"retained","content":[{"type":"text","text":"ABC peer","marks":[]}]}]""")), blocks(restored))
+                restored.redo(); assertEquals(expected, blocks(restored))
+            } finally { a.close(); b.close(); reopened?.close() }
+        }
+    }
+
+
     private fun normalize(value: Any?): Any? = when (value) {
         is JSONObject -> value.keys().asSequence().associateWith { normalize(value.get(it)) }
         is JSONArray -> (0 until value.length()).map { normalize(value.get(it)) }

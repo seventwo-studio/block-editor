@@ -1,5 +1,224 @@
 import { test, expect } from "@playwright/test";
 
+test("typed v5 whole-block paste orders concurrent cut groups and preserves author history", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const seed = [{ id: "p", type: "paragraph", host: "boundary", content: [{ type: "text", text: "abcd", marks: [] }] }];
+    const imported = {
+      id: "input", type: "paragraph",
+      content: [{ type: "text", text: "東京😀", marks: [{ type: "bold" }] },
+        { type: "entity-ref", entityType: "task", entityId: "consumer-task", label: "Task", consumer: { id: "reference-opaque" } }],
+      consumer: { id: "opaque-owner", children: [{ id: "opaque-child" }] },
+    };
+    const clipboard = { version: 1, parts: [{ node: { value: imported, kind: "block" } }] };
+    const address = { blockID: "p", path: ["content"] };
+    const cases = [];
+    for (const actorID of ["a", "z"]) for (const cut of [1, 2]) {
+      const documentID = `typed-splice-${actorID}-${cut}`;
+      const a = runtime.createWritingV5({ documentID, actorID, epoch: "five", blocks: seed });
+      const b = runtime.createWritingV5({ documentID, actorID: "m", epoch: "five", blocks: seed });
+      const range = a.selectedText(address, cut, cut);
+      const held = JSON.stringify(a.save());
+      const release = a.deferRemoteChanges();
+      let heldError = "", compositionError = "";
+      try { a.pasteBlocks(clipboard, range); } catch (error) { heldError = (error as Error).message; }
+      const heldPreserved = JSON.stringify(a.save()) === held;
+      release();
+      a.setComposing(true);
+      try { a.pasteBlocks(clipboard, range); } catch (error) { compositionError = (error as Error).message; }
+      a.setComposing(false);
+      const compositionPreserved = JSON.stringify(a.save()) === held;
+      const caret = a.pasteBlocks(clipboard, range);
+      const authored = a.changes().changes.length;
+      const peerCut = cut === 1 ? 2 : 1;
+      b.splitParagraph(address, peerCut, peerCut, "peer-tail");
+      const own = a.changes(), remote = b.changes();
+      a.receive(remote);
+      b.receive(own);
+      a.receive(remote);
+      b.receive(own);
+      const accepted = a.getSnapshot().blocks, replica = b.getSnapshot().blocks;
+      const resolved = a.resolvePosition(caret), tail = a.node({ blockID: `paste-${actorID}-1-2`, path: [] });
+      const reopened = runtime.restoreWriting(a.save(), actorID);
+      reopened.undo();
+      b.receive(reopened.changes());
+      const undo = reopened.getSnapshot(), undoReplica = b.getSnapshot().blocks;
+      reopened.redo();
+      b.receive(reopened.changes());
+      b.receive(reopened.changes());
+      cases.push({ actorID, cut, authored, heldError, compositionError, heldPreserved, compositionPreserved,
+        accepted, replica, resolved, tail, undo, undoReplica, redo: reopened.getSnapshot().blocks, redoReplica: b.getSnapshot().blocks });
+      a.close(); b.close(); reopened.close();
+    }
+    const zero = runtime.createWritingV5({ documentID: "typed-splice-zero", actorID: "a", epoch: "five", blocks: seed });
+    const four = runtime.createWritingV4({ documentID: "typed-splice-zero", actorID: "old", epoch: "five", blocks: seed });
+    const caret = zero.pasteBlocks(clipboard, zero.selectedText(address, 0, 2));
+    const accepted = zero.getSnapshot().blocks, saved = JSON.stringify(zero.save()), oldSaved = JSON.stringify(four.save());
+    const errors = [];
+    const operations = [
+      () => four.pasteBlocks(clipboard, four.selectedText(address, 0, 0)),
+      () => zero.receive(four.changes()),
+      () => four.receive(zero.changes()),
+      () => zero.pasteBlocks(zero.clipboardText("inline"), zero.selectedText(address, 0, 0)),
+      () => zero.pasteBlocks(clipboard, {
+        start: zero.position({ blockID: "paste-a-1-1", path: ["content"] }, 0),
+        end: zero.position(address, 1),
+      }),
+    ];
+    for (const operation of operations) {
+      try { operation(); errors.push("missing rejection"); } catch (error) { errors.push((error as Error).message); }
+    }
+    const rejectedPreserved = JSON.stringify(zero.save()) === saved && JSON.stringify(four.save()) === oldSaved;
+    const recoveryEmpty = zero.mergeRecovery() === null && four.mergeRecovery() === null;
+    const resolved = zero.resolvePosition(caret), original = zero.node({ blockID: "p", path: [] });
+    const authored = zero.changes().changes.length;
+    zero.undo(); const undo = zero.getSnapshot().blocks;
+    zero.redo(); const redo = zero.getSnapshot().blocks;
+    zero.close(); four.close();
+    return { cases, zero: { accepted, resolved, original, authored, errors, rejectedPreserved, recoveryEmpty, undo, redo } };
+  }, `/block-editor/@fs${process.cwd()}`);
+
+  const paragraph = (id: string, text: string, host = false) => ({ id, type: "paragraph", content: [{ type: "text", text, marks: [] }], ...(host ? { host: "boundary" } : {}) });
+  const imported = (id: string) => ({
+    id, type: "paragraph", content: [{ type: "text", text: "東京😀", marks: [{ type: "bold" }] },
+      { type: "entity-ref", entityType: "task", entityId: "consumer-task", label: "Task", consumer: { id: "reference-opaque" } }],
+    consumer: { id: "opaque-owner", children: [{ id: "opaque-child" }] },
+  });
+  for (const sample of result.cases) {
+    const middle = imported(`paste-${sample.actorID}-1-1`), tail = `paste-${sample.actorID}-1-2`;
+    const expected = sample.cut === 1 ? [paragraph("p", "a", true), middle, paragraph(tail, "b", true), paragraph("peer-tail", "cd")]
+      : [paragraph("p", "a", true), paragraph("peer-tail", "b"), middle, paragraph(tail, "cd", true)];
+    const undo = sample.cut === 1 ? [paragraph("p", "ab", true), paragraph("peer-tail", "cd")]
+      : [paragraph("p", "a", true), paragraph("peer-tail", "bcd")];
+    expect(sample.authored).toBe(1);
+    expect(sample.heldError).toBe("Commit composition before pasting");
+    expect(sample.compositionError).toBe("compositionActive");
+    expect(sample.heldPreserved && sample.compositionPreserved).toBe(true);
+    expect(sample.accepted).toEqual(expected);
+    expect(sample.replica).toEqual(expected);
+    expect(sample.resolved.offset).toBe(0);
+    expect(sample.resolved.address.identity).toEqual(sample.tail);
+    expect(sample.undo.blocks).toEqual(undo);
+    expect(sample.undoReplica).toEqual(undo);
+    expect(sample.undo.canUndo).toBe(false);
+    expect(sample.undo.canRedo).toBe(true);
+    expect(sample.redo).toEqual(expected);
+    expect(sample.redoReplica).toEqual(expected);
+  }
+  expect(result.zero.accepted).toEqual([imported("paste-a-1-1"), paragraph("p", "cd", true)]);
+  expect(result.zero.resolved.address.identity).toEqual(result.zero.original);
+  expect(result.zero.authored).toBe(1);
+  expect(result.zero.errors).toEqual(["unsupportedVersion(4)", "unsupportedVersion(4)", "unsupportedVersion(5)", "invalidPath", "invalidPath"]);
+  expect(result.zero.rejectedPreserved && result.zero.recoveryEmpty).toBe(true);
+  expect(result.zero.undo).toEqual([paragraph("p", "abcd", true)]);
+  expect(result.zero.redo).toEqual(result.zero.accepted);
+});
+
+
+test("typed v5 epoch rejects mixed versions and inherits Unicode undo and recovery", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const result = await page.evaluate(async root => {
+    const { SwiftEditorRuntime, SwiftWritingRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const blocks = [{ id: "p", type: "paragraph", host: "keep", content: [{ type: "text", text: "C", marks: [] }] }];
+    const a = runtime.createWritingV5({ documentID: "typed-five", actorID: "a", epoch: "explicit-five", blocks });
+    const b = runtime.createWritingV5({ documentID: "typed-five", actorID: "b", epoch: "explicit-five", blocks });
+    const four = runtime.createWritingV4({ documentID: "typed-five", actorID: "four", epoch: "explicit-five", blocks });
+    const address = { blockID: "p", path: ["content"] };
+    a.replaceText(address, 0, 0, "東京"); const caret = a.replaceText(address, 2, 2, "X"), offset = a.resolvePosition(caret).offset;
+    b.replaceText(address, 1, 1, "R"); a.receive(b.changes()); a.receive(b.changes()); b.receive(a.changes());
+    const accepted = a.save(), fourAccepted = four.save(), snapshot = a.getSnapshot().blocks, replica = b.getSnapshot().blocks;
+    const errors = [];
+    for (const operation of [() => a.receive(four.changes()), () => four.receive(a.changes()), () => runtime.call({ command: "create", session: "unsupported-five", collaborationVersion: 6, documentID: "unknown", actorID: "a", epoch: "unknown", blocks: [] })]) {
+      try { operation(); throw new Error("Missing version rejection"); } catch (error) { errors.push((error as Error).message); }
+    }
+    const mixedPreserved = JSON.stringify(a.save()) === JSON.stringify(accepted) && JSON.stringify(four.save()) === JSON.stringify(fourAccepted) && a.mergeRecovery() === null && four.mergeRecovery() === null;
+    const restored = runtime.restoreWriting(accepted, "a"); restored.undo(); const undo = restored.getSnapshot().blocks;
+    restored.redo(); const redo = restored.getSnapshot().blocks, version = restored.save().version, receiptVersion = restored.syncState().version;
+    a.close(); b.close(); four.close(); restored.close();
+
+    const ra = runtime.createWritingV5({ documentID: "typed-five-recovery", actorID: "a", epoch: "five-recovery", blocks: [] });
+    const rb = runtime.createWritingV5({ documentID: "typed-five-recovery", actorID: "peer", epoch: "five-recovery", blocks: [] });
+    const math = ra.insertCollectionNodes([{ id: "math", type: "math", expression: "x+y", extension: { remote: false } }], { field: "blocks" }).nodes[0];
+    const birth = ra.changes(); rb.receive(birth);
+    rb.receive({ ...birth, changes: [{ id: { counter: 2, actor: "peer" }, observed: [{ counter: 1, actor: "a" }], body: { edit: { _0: [{ structure: { _0: { setNodeField: { identity: math, path: ["extension", "remote"], value: true } } } }] } } }] });
+    ra.receive(rb.changes()); const recoveryAccepted = ra.save(), receipt = JSON.stringify(ra.syncState());
+    const recover = (operation: () => void) => {
+      try { operation(); } catch (error) { if (error instanceof SwiftWritingRecoveryError) return error.recovery; throw error; }
+      throw new Error("Missing typed v5 recovery");
+    };
+    const pending = recover(() => ra.undo());
+    const pendingPreserved = JSON.stringify(ra.save()) === JSON.stringify(recoveryAccepted) && JSON.stringify(ra.syncState()) === receipt;
+    const resumed = runtime.restoreWriting(recoveryAccepted, "a"); recover(() => resumed.restoreRecovery(JSON.parse(JSON.stringify(pending))));
+    let failedRepair = false; try { resumed.repairText(math, "expression", ""); } catch (error) { failedRepair = (error as Error).message === "invalidChange"; }
+    const failedPreserved = JSON.stringify(resumed.save()) === JSON.stringify(recoveryAccepted) && JSON.stringify(resumed.mergeRecovery()) === JSON.stringify(pending);
+    resumed.repairText(math, "expression", "restored 😀"); rb.receive(resumed.changes());
+    const repaired = resumed.getSnapshot().blocks, repairedReplica = rb.getSnapshot().blocks, recoveryVersion = pending.batch.version, recoveryCount = pending.batch.changes.length;
+    const repairedVersion = resumed.save().version, repairedCount = resumed.changes().changes.length, cleared = resumed.mergeRecovery() === null;
+    ra.close(); rb.close(); resumed.close();
+    return { snapshot, replica, undo, redo, offset, errors, mixedPreserved, version, receiptVersion, pendingPreserved, failedRepair, failedPreserved, repaired, repairedReplica, recoveryVersion, recoveryCount, repairedVersion, repairedCount, cleared };
+  }, `/block-editor/@fs${process.cwd()}`);
+  const expected = (text: string) => [{ id: "p", type: "paragraph", host: "keep", content: [{ type: "text", text, marks: [] }] }];
+  expect(result.snapshot).toEqual(expected("東京XCR")); expect(result.replica).toEqual(result.snapshot);
+  expect(result.undo).toEqual(expected("東京CR")); expect(result.redo).toEqual(result.snapshot);
+  expect(result.offset).toBe(3); expect(result.version).toBe(5); expect(result.receiptVersion).toBe(5);
+  expect(result.errors).toEqual(["unsupportedVersion(4)", "unsupportedVersion(5)", "unsupportedVersion(6)"]);
+  expect(result.mixedPreserved && result.pendingPreserved && result.failedRepair && result.failedPreserved && result.cleared).toBe(true);
+  expect(result.recoveryVersion).toBe(5); expect(result.recoveryCount).toBe(3); expect(result.repairedVersion).toBe(5); expect(result.repairedCount).toBe(4);
+  expect(result.repaired).toEqual([{ id: "math", type: "math", expression: "restored 😀", extension: { remote: true } }]);
+  expect(result.repairedReplica).toEqual(result.repaired);
+});
+
+
+test("typed v4 clipboard keeps Unicode references and peer undo in one history action", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const actorID of ["a", "z"]) {
+      const blocks = [{ id: "p", type: "paragraph", host: "retained", content: [{ type: "text", text: "ABC", marks: [] }] }];
+      const a = runtime.createWritingV4({ documentID: "typed-clipboard-" + actorID, actorID, epoch: "clipboard-v4", blocks });
+      const b = runtime.createWritingV4({ documentID: "typed-clipboard-" + actorID, actorID: "m", epoch: "clipboard-v4", blocks });
+      const address = { blockID: "p", path: ["content"] }, range = a.selectedText(address, 1, 2);
+      const reference = { type: "entity-ref", entityType: "task", entityId: "external-id", label: "Task", consumer: { id: "opaque" } };
+      const clipboard = { version: 1, parts: [{ inline: { _0: [{ type: "text", text: "東京😀", marks: [{ type: "bold" }] }, reference] } }] };
+      b.replaceText(address, 3, 3, " peer"); a.receive(b.changes());
+      const release = a.deferRemoteChanges(), held = JSON.stringify(a.save()); let blocked = false;
+      try { a.pasteInline(clipboard, range); } catch { blocked = true; }
+      const heldPreserved = held === JSON.stringify(a.save()); release();
+      const count = a.changes().changes.length, caret = a.pasteInline(clipboard, range);
+      const offset = a.resolvePosition(caret).offset, added = a.changes().changes.length - count;
+      const accepted = a.getSnapshot().blocks; b.receive(a.changes()); b.receive(a.changes());
+      const copied = a.copyClipboard({ nodes: [], text: [a.selectedText(address, 1, 9)] });
+      const reopened = runtime.restoreWriting(a.save(), actorID);
+      reopened.undo(); const undo = reopened.getSnapshot(), canUndo = undo.canUndo;
+      reopened.redo(); const redo = reopened.getSnapshot().blocks;
+      results.push({ blocked, heldPreserved, offset, added, accepted, replica: b.getSnapshot().blocks, copied, undo: undo.blocks, canUndo, redo });
+      a.close(); b.close(); reopened.close();
+    }
+    return results;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    expect(result.blocked && result.heldPreserved).toBe(true);
+    expect(result.offset).toBe(9); expect(result.added).toBe(1); expect(result.canUndo).toBe(false);
+    expect(result.accepted).toEqual([{ id: "p", type: "paragraph", host: "retained", content: [
+      { type: "text", text: "A", marks: [] }, { type: "text", text: "東京😀", marks: [{ type: "bold" }] },
+      { type: "entity-ref", entityType: "task", entityId: "external-id", label: "Task", consumer: { id: "opaque" } },
+      { type: "text", text: "C peer", marks: [] },
+    ] }]);
+    expect(result.replica).toEqual(result.accepted); expect(result.redo).toEqual(result.accepted);
+    expect(result.undo).toEqual([{ id: "p", type: "paragraph", host: "retained", content: [{ type: "text", text: "ABC peer", marks: [] }] }]);
+    expect(result.copied.parts[0].inline._0.at(-1)).toMatchObject({ entityId: "external-id", consumer: { id: "opaque" } });
+  }
+});
+
+
 test("typed v4 sequential input follows observed Unicode and preserves peer undo", async ({ page }) => {
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");

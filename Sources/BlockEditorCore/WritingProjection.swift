@@ -41,6 +41,8 @@ public enum WritingMutation: Codable, Equatable, Sendable {
     case format(keys: [WritingAtomKey], type: String, mark: JSONValue?)
     case join(source: WritingField, destination: WritingField, edge: WritingEdge)
     case splitBoundary(source: WritingField, destination: WritingField, edge: WritingEdge, before: NodeID?)
+    /// Protocol 5 orders a complete same-edit birth chain at one retained cut.
+    case spliceBoundary(source: WritingField, destination: WritingField, edge: WritingEdge, before: NodeID?, members: [NodeID])
 }
 public struct WritingEdit: Codable, Equatable, Sendable {
     public let id: ChangeID
@@ -88,7 +90,7 @@ struct WritingProjection {
                 switch mutation {
                 case .transfer(_, let destination, _): knownFields.insert(destination)
                 case .join(let source, let destination, _): knownFields.insert(source); knownFields.insert(destination)
-                case .splitBoundary(let source, let destination, _, _): knownFields.insert(source); knownFields.insert(destination)
+                case .splitBoundary(let source, let destination, _, _), .spliceBoundary(let source, let destination, _, _, _): knownFields.insert(source); knownFields.insert(destination)
                 case .insert(let atom): if case .field(let field) = atom.route { knownFields.insert(field) }
                 default: break
                 }
@@ -135,7 +137,7 @@ struct WritingProjection {
                     }
                 case .join(let source, let destination, let edge):
                     if enabled { joins[source] = (destination, edge) }
-                case .splitBoundary: break
+                case .splitBoundary, .spliceBoundary: break
                 }
             }
         }

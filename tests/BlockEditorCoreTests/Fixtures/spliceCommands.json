@@ -1,0 +1,4170 @@
+{
+  "version": 5,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-a-1-author",
+        "documentID": "splice-a-1",
+        "actorID": "a",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-a-1-peer",
+        "documentID": "splice-a-1",
+        "actorID": "m",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-a-1-author",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1
+      },
+      "capture": "splice-a-1-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-before"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-a-1-author",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-a-1-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "splice-a-1-range"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-a-1-author",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-after-composition"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-a-1-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-a-1-paste",
+      "bindings": {
+        "range": "splice-a-1-range"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-one-change"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "splice-a-1-peer",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "peer-tail"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-own"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-1-peer"
+      },
+      "capture": "splice-a-1-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-author"
+      },
+      "bindings": {
+        "batch": "splice-a-1-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-1-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-1-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-author"
+      },
+      "bindings": {
+        "batch": "splice-a-1-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-1-peer"
+      },
+      "capture": "splice-a-1-replica"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-caret",
+      "bindings": {
+        "position": [
+          "splice-a-1-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-a-1-author"
+      },
+      "capture": "splice-a-1-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-a-1-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "splice-a-1-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-a-1-reopened"
+      },
+      "capture": "splice-a-1-undo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-1-reopened"
+      },
+      "capture": "splice-a-1-undo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-1-undo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-1-peer"
+      },
+      "capture": "splice-a-1-undo-replica"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-a-1-reopened"
+      },
+      "capture": "splice-a-1-redo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-1-reopened"
+      },
+      "capture": "splice-a-1-redo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-1-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-1-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-1-peer"
+      },
+      "capture": "splice-a-1-redo-replica"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-a-1-author"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-a-1-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-a-1-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-a-2-author",
+        "documentID": "splice-a-2",
+        "actorID": "a",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-a-2-peer",
+        "documentID": "splice-a-2",
+        "actorID": "m",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-a-2-author",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2
+      },
+      "capture": "splice-a-2-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-before"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-a-2-author",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-a-2-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "splice-a-2-range"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-a-2-author",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-after-composition"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-a-2-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-a-2-paste",
+      "bindings": {
+        "range": "splice-a-2-range"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-one-change"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "splice-a-2-peer",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "peer-tail"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-own"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-2-peer"
+      },
+      "capture": "splice-a-2-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-author"
+      },
+      "bindings": {
+        "batch": "splice-a-2-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-2-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-2-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-author"
+      },
+      "bindings": {
+        "batch": "splice-a-2-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-2-peer"
+      },
+      "capture": "splice-a-2-replica"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-caret",
+      "bindings": {
+        "position": [
+          "splice-a-2-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-a-2-author"
+      },
+      "capture": "splice-a-2-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-a-2-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "splice-a-2-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-a-2-reopened"
+      },
+      "capture": "splice-a-2-undo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-2-reopened"
+      },
+      "capture": "splice-a-2-undo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-2-undo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-2-peer"
+      },
+      "capture": "splice-a-2-undo-replica"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-a-2-reopened"
+      },
+      "capture": "splice-a-2-redo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-a-2-reopened"
+      },
+      "capture": "splice-a-2-redo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-2-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-a-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-a-2-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-a-2-peer"
+      },
+      "capture": "splice-a-2-redo-replica"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-a-2-author"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-a-2-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-a-2-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-z-1-author",
+        "documentID": "splice-z-1",
+        "actorID": "z",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-z-1-peer",
+        "documentID": "splice-z-1",
+        "actorID": "m",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-z-1-author",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1
+      },
+      "capture": "splice-z-1-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-before"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-z-1-author",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-z-1-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "splice-z-1-range"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-z-1-author",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-after-composition"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-z-1-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-z-1-paste",
+      "bindings": {
+        "range": "splice-z-1-range"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-one-change"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "splice-z-1-peer",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "newBlockID": "peer-tail"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-own"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-1-peer"
+      },
+      "capture": "splice-z-1-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-author"
+      },
+      "bindings": {
+        "batch": "splice-z-1-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-1-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-1-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-author"
+      },
+      "bindings": {
+        "batch": "splice-z-1-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-1-peer"
+      },
+      "capture": "splice-z-1-replica"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-caret",
+      "bindings": {
+        "position": [
+          "splice-z-1-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-z-1-author"
+      },
+      "capture": "splice-z-1-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-z-1-reopened",
+        "actorID": "z"
+      },
+      "bindings": {
+        "snapshot": "splice-z-1-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-z-1-reopened"
+      },
+      "capture": "splice-z-1-undo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-1-reopened"
+      },
+      "capture": "splice-z-1-undo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-1-undo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-1-peer"
+      },
+      "capture": "splice-z-1-undo-replica"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-z-1-reopened"
+      },
+      "capture": "splice-z-1-redo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-1-reopened"
+      },
+      "capture": "splice-z-1-redo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-1-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-1-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-1-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-1-peer"
+      },
+      "capture": "splice-z-1-redo-replica"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-z-1-author"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-z-1-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-z-1-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-z-2-author",
+        "documentID": "splice-z-2",
+        "actorID": "z",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-z-2-peer",
+        "documentID": "splice-z-2",
+        "actorID": "m",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-z-2-author",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2
+      },
+      "capture": "splice-z-2-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-before"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-z-2-author",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-z-2-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "splice-z-2-range"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "splice-z-2-author",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-after-composition"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-z-2-author",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-z-2-paste",
+      "bindings": {
+        "range": "splice-z-2-range"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-one-change"
+    },
+    {
+      "request": {
+        "command": "splitParagraph",
+        "session": "splice-z-2-peer",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "newBlockID": "peer-tail"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-own"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-2-peer"
+      },
+      "capture": "splice-z-2-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-author"
+      },
+      "bindings": {
+        "batch": "splice-z-2-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-2-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-2-own"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-author"
+      },
+      "bindings": {
+        "batch": "splice-z-2-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-merged"
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-2-peer"
+      },
+      "capture": "splice-z-2-replica"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-caret",
+      "bindings": {
+        "position": [
+          "splice-z-2-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-z-2-author"
+      },
+      "capture": "splice-z-2-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-z-2-reopened",
+        "actorID": "z"
+      },
+      "bindings": {
+        "snapshot": "splice-z-2-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-z-2-reopened"
+      },
+      "capture": "splice-z-2-undo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-2-reopened"
+      },
+      "capture": "splice-z-2-undo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-2-undo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-2-peer"
+      },
+      "capture": "splice-z-2-undo-replica"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-z-2-reopened"
+      },
+      "capture": "splice-z-2-redo"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-z-2-reopened"
+      },
+      "capture": "splice-z-2-redo-batch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-2-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-z-2-peer"
+      },
+      "bindings": {
+        "batch": "splice-z-2-redo-batch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-z-2-peer"
+      },
+      "capture": "splice-z-2-redo-replica"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-z-2-author"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-z-2-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-z-2-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-zero",
+        "documentID": "splice-zero",
+        "actorID": "a",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-zero",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0
+      },
+      "capture": "splice-zero-range"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-zero",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-zero-paste",
+      "bindings": {
+        "range": "splice-zero-range"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-zero"
+      },
+      "capture": "splice-zero-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-zero"
+      },
+      "capture": "splice-zero-one-change"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-zero"
+      },
+      "capture": "splice-zero-caret",
+      "bindings": {
+        "position": [
+          "splice-zero-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-zero"
+      },
+      "capture": "splice-zero-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-zero-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "splice-zero-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-zero-reopened"
+      },
+      "capture": "splice-zero-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-zero-reopened"
+      },
+      "capture": "splice-zero-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-zero"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-zero-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-zero-range",
+        "documentID": "splice-zero-range",
+        "actorID": "a",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-zero-range",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 2
+      },
+      "capture": "splice-zero-range-range"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-zero-range",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-zero-range-paste",
+      "bindings": {
+        "range": "splice-zero-range-range"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-one-change"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-caret",
+      "bindings": {
+        "position": [
+          "splice-zero-range-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-saved"
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-zero-range-four",
+        "documentID": "splice-zero-range",
+        "actorID": "old",
+        "epoch": "five",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-zero-range-four",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0
+      },
+      "capture": "splice-zero-range-four-range"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-zero-range-four"
+      },
+      "capture": "splice-zero-range-four-before"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-zero-range-four"
+      },
+      "capture": "splice-zero-range-four-batch"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-five-batch"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-zero-range-four",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "splice-zero-range-four-range"
+      },
+      "error": "unsupportedVersion(4)"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-zero-range"
+      },
+      "bindings": {
+        "batch": "splice-zero-range-four-batch"
+      },
+      "error": "unsupportedVersion(4)"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "splice-zero-range-four"
+      },
+      "bindings": {
+        "batch": "splice-zero-range-five-batch"
+      },
+      "error": "unsupportedVersion(5)"
+    },
+    {
+      "request": {
+        "command": "clipboardText",
+        "session": "splice-zero-range",
+        "text": "inline"
+      },
+      "capture": "splice-zero-range-inline"
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-zero-range",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0
+      },
+      "capture": "splice-zero-range-current-range"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-zero-range"
+      },
+      "bindings": {
+        "range": "splice-zero-range-current-range",
+        "clipboard": "splice-zero-range-inline"
+      },
+      "error": "invalidPath"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-after-rejections"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-zero-range-four"
+      },
+      "capture": "splice-zero-range-four-after"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "splice-zero-range"
+      },
+      "capture": "splice-zero-range-no-recovery"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "splice-zero-range-four"
+      },
+      "capture": "splice-zero-range-four-no-recovery"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-zero-range-four"
+      }
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-zero-range-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "splice-zero-range-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-zero-range-reopened"
+      },
+      "capture": "splice-zero-range-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-zero-range-reopened"
+      },
+      "capture": "splice-zero-range-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-zero-range"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-zero-range-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "splice-positive-range",
+        "documentID": "splice-positive-range",
+        "actorID": "a",
+        "epoch": "five",
+        "collaborationVersion": 5,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "abcd",
+                "marks": []
+              }
+            ],
+            "host": "boundary"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "splice-positive-range",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 2
+      },
+      "capture": "splice-positive-range-range"
+    },
+    {
+      "request": {
+        "command": "pasteBlocks",
+        "session": "splice-positive-range",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "node": {
+                "value": {
+                  "id": "input",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "東京😀",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entity-ref",
+                      "entityType": "task",
+                      "entityId": "consumer-task",
+                      "label": "Task",
+                      "consumer": {
+                        "id": "reference-opaque"
+                      }
+                    }
+                  ],
+                  "consumer": {
+                    "id": "opaque-owner",
+                    "children": [
+                      {
+                        "id": "opaque-child"
+                      }
+                    ]
+                  }
+                },
+                "kind": "block"
+              }
+            }
+          ]
+        }
+      },
+      "capture": "splice-positive-range-paste",
+      "bindings": {
+        "range": "splice-positive-range-range"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "splice-positive-range"
+      },
+      "capture": "splice-positive-range-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "splice-positive-range"
+      },
+      "capture": "splice-positive-range-one-change"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "splice-positive-range"
+      },
+      "capture": "splice-positive-range-caret",
+      "bindings": {
+        "position": [
+          "splice-positive-range-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "splice-positive-range"
+      },
+      "capture": "splice-positive-range-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "splice-positive-range-reopened",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "splice-positive-range-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "splice-positive-range-reopened"
+      },
+      "capture": "splice-positive-range-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "splice-positive-range-reopened"
+      },
+      "capture": "splice-positive-range-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-positive-range"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "splice-positive-range-reopened"
+      }
+    }
+  ],
+  "equal": [
+    [
+      "splice-a-1-before",
+      "splice-a-1-after-composition"
+    ],
+    [
+      "splice-a-2-before",
+      "splice-a-2-after-composition"
+    ],
+    [
+      "splice-z-1-before",
+      "splice-z-1-after-composition"
+    ],
+    [
+      "splice-z-2-before",
+      "splice-z-2-after-composition"
+    ],
+    [
+      "splice-zero-range-saved",
+      "splice-zero-range-after-rejections"
+    ],
+    [
+      "splice-zero-range-four-before",
+      "splice-zero-range-four-after"
+    ]
+  ],
+  "expectedBlocks": {
+    "splice-a-1-merged": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-1-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-1-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-1-undo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-1-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-1-redo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-2-merged": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-a-2-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-a-2-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-2-undo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-a-2-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-a-2-redo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-z-1-merged": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-1-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-1-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-1-undo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "ab",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-1-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-1-redo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-2-merged": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-z-2-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-z-2-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-2-undo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "bcd",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "splice-z-2-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-z-2-redo-replica": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "peer-tail",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "b",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-z-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-z-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-zero-accepted": [
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abcd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-zero-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abcd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-zero-redo": [
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abcd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-zero-range-accepted": [
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-zero-range-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abcd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-zero-range-redo": [
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-positive-range-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-positive-range-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "abcd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ],
+    "splice-positive-range-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "a",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      },
+      {
+        "id": "paste-a-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "consumer-task",
+            "label": "Task",
+            "consumer": {
+              "id": "reference-opaque"
+            }
+          }
+        ],
+        "consumer": {
+          "id": "opaque-owner",
+          "children": [
+            {
+              "id": "opaque-child"
+            }
+          ]
+        }
+      },
+      {
+        "id": "paste-a-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "cd",
+            "marks": []
+          }
+        ],
+        "host": "boundary"
+      }
+    ]
+  },
+  "expectedValues": {
+    "splice-a-1-one-change": {
+      "version": 5,
+      "documentID": "splice-a-1",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "a"
+        }
+      ]
+    },
+    "splice-a-1-caret": {
+      "address": {
+        "blockID": "@a/1/1",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 1,
+                "actor": "a"
+              },
+              "index": 1
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "splice-a-2-one-change": {
+      "version": 5,
+      "documentID": "splice-a-2",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "a"
+        }
+      ]
+    },
+    "splice-a-2-caret": {
+      "address": {
+        "blockID": "@a/1/1",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 1,
+                "actor": "a"
+              },
+              "index": 1
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "splice-z-1-one-change": {
+      "version": 5,
+      "documentID": "splice-z-1",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "z"
+        }
+      ]
+    },
+    "splice-z-1-caret": {
+      "address": {
+        "blockID": "@z/1/1",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 1,
+                "actor": "z"
+              },
+              "index": 1
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "splice-z-2-one-change": {
+      "version": 5,
+      "documentID": "splice-z-2",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "z"
+        }
+      ]
+    },
+    "splice-z-2-caret": {
+      "address": {
+        "blockID": "@z/1/1",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 1,
+                "actor": "z"
+              },
+              "index": 1
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "splice-zero-one-change": {
+      "version": 5,
+      "documentID": "splice-zero",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "a"
+        }
+      ]
+    },
+    "splice-zero-caret": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "splice-zero-range-one-change": {
+      "version": 5,
+      "documentID": "splice-zero-range",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "a"
+        }
+      ]
+    },
+    "splice-zero-range-caret": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    },
+    "splice-zero-range-no-recovery": null,
+    "splice-zero-range-four-no-recovery": null,
+    "splice-positive-range-one-change": {
+      "version": 5,
+      "documentID": "splice-positive-range",
+      "epoch": "five",
+      "received": [
+        {
+          "counter": 1,
+          "actor": "a"
+        }
+      ]
+    },
+    "splice-positive-range-caret": {
+      "address": {
+        "blockID": "@a/1/1",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "counter": 1,
+                "actor": "a"
+              },
+              "index": 1
+            },
+            "path": []
+          }
+        }
+      },
+      "offset": 0
+    }
+  }
+}

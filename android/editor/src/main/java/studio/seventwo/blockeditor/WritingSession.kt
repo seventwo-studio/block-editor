@@ -48,10 +48,22 @@ class WritingCopy internal constructor(value: JSONObject) {
     private val wire = JSONObject(value.toString())
     fun export(): JSONObject = JSONObject(wire.toString())
 }
+/** Inert ordered clipboard data. Core paste validates imported payloads. */
+class WritingClipboard private constructor(value: JSONObject) {
+    internal val wire = JSONObject(value.toString())
+    fun export(): JSONObject = JSONObject(wire.toString())
+    companion object { fun restore(value: JSONObject) = WritingClipboard(value) }
+}
+data class WritingPastePolicy(val allowedBlockTypes: Set<String>? = null, val allowedMarkTypes: Set<String>? = null, val allowAssetMetadata: Boolean = false) {
+    internal fun wire() = JSONObject().put("allowAssetMetadata", allowAssetMetadata).also { value ->
+        allowedBlockTypes?.let { value.put("allowedBlockTypes", JSONArray(it.sorted())) }
+        allowedMarkTypes?.let { value.put("allowedMarkTypes", JSONArray(it.sorted())) }
+    }
+}
 data class ResolvedWritingPosition(val address: WritingAddress, val offset: Int)
 class WritingBatch private constructor(value: JSONObject) {
     internal val wire = JSONObject(value.toString())
-    init { require(wire.getInt("version") in setOf(3, 4) && wire.getString("epoch").isNotEmpty()) }
+    init { require(wire.getInt("version") in setOf(3, 4, 5) && wire.getString("epoch").isNotEmpty()) }
     val documentID: String get() = wire.getString("documentID")
     val epoch: String get() = wire.getString("epoch")
     fun export(): JSONObject = JSONObject(wire.toString())
@@ -74,7 +86,7 @@ class WritingRecovery internal constructor(value: JSONObject) {
 }
 class WritingRecoveryException(val recovery: WritingRecovery) : IllegalStateException("Writing recovery required")
 
-/** Explicit v3 session; legacy EditorSession creation and restore are unchanged. */
+/** Explicit writing session for separately created v3/v4/v5 epochs; legacy EditorSession creation and restore are unchanged. */
 class WritingSession private constructor(private val handle: String, initial: JSONObject) : Closeable {
     var snapshot: JSONObject by mutableStateOf(initial)
         private set
@@ -100,6 +112,14 @@ class WritingSession private constructor(private val handle: String, initial: JS
             val result = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
                 .put("documentID", documentID).put("actorID", actorID).put("epoch", epoch)
                 .put("collaborationVersion", 4).put("blocks", blocks)).getJSONObject("value")
+            return WritingSession(handle, result)
+        }
+        /** Explicit epoch reserved for structured splice. Archive old writers first; never mix v3/v4 writers. */
+        fun createV5(documentID: String, actorID: String, epoch: String, blocks: JSONArray = JSONArray()): WritingSession {
+            val handle = UUID.randomUUID().toString()
+            val result = NativeEngine.call(JSONObject().put("command", "create").put("session", handle)
+                .put("documentID", documentID).put("actorID", actorID).put("epoch", epoch)
+                .put("collaborationVersion", 5).put("blocks", blocks)).getJSONObject("value")
             return WritingSession(handle, result)
         }
         fun restore(snapshot: WritingBatch, actorID: String): WritingSession {
@@ -142,6 +162,23 @@ class WritingSession private constructor(private val handle: String, initial: JS
     fun selectedText(address: WritingAddress, start: Int, end: Int) = WritingTextRange(call("selectedText", range(address, start, end)) as JSONObject)
     fun selection(anchor: WritingPosition, focus: WritingPosition) = WritingSelection.restore(call("writingSelection", JSONObject().put("anchor", anchor.wire).put("focus", focus.wire)) as JSONObject)
     fun copySelection(selection: WritingSelection) = WritingCopy(call("copySelection", JSONObject().put("selection", selection.wire())) as JSONObject)
+    fun copyClipboard(selection: WritingSelection) = WritingClipboard.restore(call("copyClipboard", JSONObject().put("selection", selection.wire())) as JSONObject)
+    fun clipboardText(text: String, format: String = "inline") = WritingClipboard.restore(call("clipboardText", JSONObject().put("text", text).put("format", format)) as JSONObject)
+    fun pasteInline(clipboard: WritingClipboard, range: WritingTextRange, policy: WritingPastePolicy = WritingPastePolicy()): WritingPosition {
+        check(holds == 0) { "Commit composition before pasting" }
+        return command("pasteInline", JSONObject().put("clipboard", clipboard.wire).put("range", range.wire).put("policy", policy.wire()))
+    }
+    fun pasteBlocks(clipboard: WritingClipboard, range: WritingTextRange, policy: WritingPastePolicy = WritingPastePolicy()): WritingPosition {
+        check(holds == 0) { "Commit composition before pasting" }
+        return command("pasteBlocks", JSONObject().put("clipboard", clipboard.wire).put("range", range.wire).put("policy", policy.wire()))
+    }
+    fun pasteCollection(clipboard: WritingClipboard, collection: NodeCollection, after: NodeIdentity? = null, policy: WritingPastePolicy = WritingPastePolicy()): WritingSelection {
+        check(holds == 0) { "Commit composition before pasting" }
+        val result = call("pasteCollection", JSONObject().put("clipboard", clipboard.wire).put("collection", collection.wire)
+            .put("after", after?.wire ?: JSONObject.NULL).put("policy", policy.wire())) as JSONObject
+        publish(result.getJSONObject("snapshot"))
+        return WritingSelection.restore(result.getJSONObject("selection"))
+    }
     fun deleteSelection(selection: WritingSelection): WritingSelection {
         val result = call("deleteSelection", JSONObject().put("selection", selection.wire())) as JSONObject
         publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
