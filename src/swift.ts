@@ -1,5 +1,6 @@
 import { WASI, File, OpenFile, ConsoleStdout } from "@bjorn3/browser_wasi_shim";
 import type { Block, Mark, InlineNode } from "./schema.js";
+import { parseClipboardHtml } from "./clipboard.js";
 
 export interface SwiftElementID { change: { counter: number; actor: string }; index: number }
 /** Origin identities are immutable. Hosts should obtain them from session.node(). */
@@ -180,6 +181,18 @@ export class SwiftWritingSession {
   copySelection(selection: SwiftWritingSelection): SwiftWritingCopy { return this.call("copySelection", { selection }); }
   copyClipboard(selection: SwiftWritingSelection): SwiftWritingClipboard { return this.call("copyClipboard", { selection }); }
   clipboardText(text: string, format: "inline" | "multiline" | "markdown" = "inline"): SwiftWritingClipboard { return this.call("clipboardText", { text, format }); }
+  /** Browser format adapter. The shared engine still validates import policy
+   * and authors the paste; the inert HTML parser never resolves external assets.
+   * A single paragraph becomes an inline replacement; other supported blocks
+   * retain their structure for pasteBlocks or pasteCollection.
+   */
+  clipboardHTML(html: string, doc: Document = document): SwiftWritingClipboard {
+    const blocks = parseClipboardHtml(html, doc);
+    const only = blocks.length === 1 ? blocks[0] : undefined;
+    return { version: 1, parts: only?.type === "paragraph"
+      ? [{ inline: { _0: only.content } }]
+      : blocks.map(block => ({ node: { value: block, kind: "block" as const } })) };
+  }
   pasteInline(clipboard: SwiftWritingClipboard, range: SwiftWritingTextRange, policy?: SwiftWritingPastePolicy): SwiftWritingPosition {
     if (this.holds) throw new Error("Commit composition before pasting");
     return this.command("pasteInline", { clipboard, range, policy });
