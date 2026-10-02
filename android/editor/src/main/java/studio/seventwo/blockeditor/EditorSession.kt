@@ -11,9 +11,12 @@ import java.util.UUID
 internal object NativeEngine {
     init { System.loadLibrary("BlockEditorJNI") }
     private external fun callNative(request: ByteArray): ByteArray?
+    // Keep the encoded request out of the response parsing scope. JNI still uses byte arrays.
+    private fun invoke(request: JSONObject): ByteArray =
+        checkNotNull(callNative(NativeJsonTransport.encode(request))) { "Swift engine returned no response" }
+
     @Synchronized fun call(request: JSONObject): JSONObject {
-        val bytes = checkNotNull(callNative(request.toString().toByteArray(Charsets.UTF_8))) { "Swift engine returned no response" }
-        val response = JSONObject(bytes.toString(Charsets.UTF_8))
+        val response = NativeJsonTransport.decode(invoke(request))
         if (!response.getBoolean("ok")) {
             if (response.optString("error") == "writingRecoveryRequired" && response.has("recovery"))
                 throw WritingRecoveryException(WritingRecovery(response.getJSONObject("recovery")))
@@ -29,15 +32,16 @@ enum class PositionAffinity(val wireValue: String) { BEFORE("before"), AFTER("af
 
 enum class MergeRecoveryReason { IDENTITY_CONFLICT, SCHEMA_CONSTRAINT }
 /** Store separately from save(); this union is not applied history or acknowledged changes. */
-class MergeRecovery internal constructor(private val wire: JSONObject) {
+class MergeRecovery internal constructor(value: JSONObject) {
+    private val wire = NativeJsonTransport.copy(value)
     val reason: MergeRecoveryReason = when (wire.getString("reason")) {
         "identityConflict" -> MergeRecoveryReason.IDENTITY_CONFLICT
         "schemaConstraint" -> MergeRecoveryReason.SCHEMA_CONSTRAINT
         else -> throw IllegalStateException("Unsupported recovery reason")
     }
-    val batch: JSONObject get() = JSONObject(wire.getJSONObject("batch").toString())
-    fun export(): JSONObject = JSONObject(wire.toString())
-    companion object { fun restore(value: JSONObject) = MergeRecovery(JSONObject(value.toString())) }
+    val batch: JSONObject get() = NativeJsonTransport.copy(wire.getJSONObject("batch"))
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
+    companion object { fun restore(value: JSONObject) = MergeRecovery(value) }
 }
 class MergeRecoveryException(val recovery: MergeRecovery) : IllegalStateException("Merge recovery required")
 sealed class MergeRepair {

@@ -140,11 +140,14 @@ def main():
                 if type(resource_pid) is not int or resource_pid <= 0 or resource_pid == previous_resource_pid:
                     raise RuntimeError("Resource case did not execute in a distinct installed testhost process")
                 previous_resource_pid = resource_pid
+        instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
         instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
         instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 11)
         for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),

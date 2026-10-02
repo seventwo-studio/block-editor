@@ -15,9 +15,10 @@ import java.io.Closeable
 /** One owner per rendered shared-writing surface; drafts belong to opaque fields. */
 internal class WritingEditorInputs(private val session: WritingSession, private val scope: CoroutineScope,
     private val editable: () -> Boolean, private val retainDrafts: (List<WritingInputDraft>) -> Unit,
-    private val report: (Exception) -> Unit) : Closeable {
+    private val report: (Exception) -> Unit,
+    private val pastePolicy: () -> WritingPastePolicy = { WritingPastePolicy() }) : Closeable {
     init {
-        require(session.save().export().getInt("version") == 4) { "Use an explicit v4 writing epoch" }
+        require(session.save().export().getInt("version") in setOf(4, 5, 6)) { "Use an explicit v4, v5 or v6 writing epoch" }
         session.acquireNativeInputOwner(this)
     }
     private class Entry(val input: WritingCollaborativeTextInput, var references: Int = 0,
@@ -185,6 +186,41 @@ internal class WritingEditorInputs(private val session: WritingSession, private 
         val index = roots.indexOfFirst { writingCanonical(it.wire) == writingCanonical(current.wire) }
         check(index > 0) { "No compatible previous root paragraph" }
         session.mergeParagraphs(roots[index - 1], current)
+    }
+    /** All range derivation happens after the current native lease commits and peers drain. */
+    fun paste(binding: Binding, revokeNative: () -> Unit, clipboard: WritingClipboard) = perform(binding, revokeNative) { input ->
+        val (address, selected) = checkNotNull(input).commandTarget()
+        val range = session.selectedText(address, selected.min, selected.max)
+        val imported = session.normalizeForImport(clipboard, pastePolicy())
+        if (session.save().export().getInt("version") == 4)
+            session.pasteInline(imported.clipboard, range, imported.effectivePastePolicy)
+        else session.pasteSelection(imported.clipboard, range, imported.effectivePastePolicy)
+    }
+    fun copy(binding: Binding, revokeNative: () -> Unit, deliver: (WritingClipboard) -> Unit) = perform(binding, revokeNative) { input ->
+        val (address, selected) = checkNotNull(input).commandTarget()
+        deliver(session.copyClipboard(WritingSelection(text = listOf(session.selectedText(address, selected.min, selected.max)))))
+        null
+    }
+    fun cut(binding: Binding, revokeNative: () -> Unit, deliver: (WritingClipboard) -> Unit) = perform(binding, revokeNative) { input ->
+        val (address, selected) = checkNotNull(input).commandTarget()
+        val range = session.selectedText(address, selected.min, selected.max)
+        val selection = WritingSelection(text = listOf(range))
+        deliver(session.copyClipboard(selection))
+        session.deleteSelection(selection).text.firstOrNull()?.start
+    }
+    fun format(binding: Binding, revokeNative: () -> Unit, type: String, mark: org.json.JSONObject?) = perform(binding, revokeNative) { input ->
+        val (address, selected) = checkNotNull(input).commandTarget()
+        session.format(address, selected.min, selected.max, type, mark)
+        null
+    }
+    fun convert(binding: Binding, revokeNative: () -> Unit, target: WritingBlockTarget) = perform(binding, revokeNative) { input ->
+        val (address, selected) = checkNotNull(input).commandTarget()
+        session.convertBlock(address, selected.min, target)
+    }
+    fun markdownShortcut(binding: Binding, revokeNative: () -> Unit) = perform(binding, revokeNative) { input ->
+        val (address, selected) = checkNotNull(input).commandTarget()
+        check(selected.collapsed) { "Markdown shortcut requires a caret" }
+        session.markdownShortcut(address, selected.min)
     }
     fun history(revokeNative: () -> Unit, redo: Boolean) = perform(null, revokeNative) {
         if (redo) session.redo() else session.undo(); null

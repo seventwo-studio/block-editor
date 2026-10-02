@@ -1,0 +1,17 @@
+# Android JNI JSON transport
+
+The JNI request and response ABI remains `byte[]`. Shared commands, protocol versions, document limits, and the application heap are unchanged.
+
+`NativeJsonTransport.encode` counts UTF-8 bytes through Android `JsonWriter`, then writes into one exact-size byte array. An 8 KiB character buffer and the UTF-8 encoder handle escaped strings and surrogate pairs without constructing a whole request string or growing/copying a byte-array output stream. The request must remain unchanged during this synchronous call, as with the existing session thread contract. A separate invocation scope ends before response parsing.
+
+Responses use Android `JsonReader` over the returned byte array. It constructs the required `JSONObject`/`JSONArray` graph without retaining an additional whole response string. Numeric tokens are read as strings, then classified as Int, Long, or Double using the existing Android JSONTokener preference for valid JSON numbers. This preserves integral values above 2^53. Literal strings remain strings and null remains `JSONObject.NULL`. Traversal uses explicit stacks, including legal generic JSON depth 100 plus bridge envelopes.
+
+Writer numbers use `JSONObject.numberToString` so its canonical number spelling is preserved. JsonWriter may spell a valid string escape differently from JSONStringer (for example U+2028/U+2029); the decoded Unicode value is unchanged. The wire contract is JSON value equality rather than request-byte equality. No response strings, numbers, nulls, or unknown metadata are substituted or omitted.
+
+Defensive Writing DTO and recovery exports copy every object/array container directly, sharing only immutable primitive strings and booleans. Numbers are frozen through the existing small JSONTokener numeric lexeme conversion, including mutable custom Number implementations. A shared input container receives separate copies at each occurrence. This preserves caller isolation while avoiding whole recovery/batch serialization solely to clone it.
+
+The removed production temporaries occur independently of the resource harness: API 26 attempted a 127,997,848-byte request string allocation, and API 35 x86 failed while parsing a whole response string. Harness lifetime improvements remain separately necessary. These changes reduce avoidable copies; they do not promise that every limit-size exchange fits every runtime until the actual 32/64 MB installed resource matrix passes. Individual large string values, required output containers, JNI arrays, and native bridge allocations still exist.
+
+The five mandatory `NativeJsonTransportTest` methods cover numeric classes and precision, Unicode/escaping/null/order, UTF-8 buffer boundaries and envelope depth, defensive nested copies and recovery exports, malformed responses, and packaged JNI epochs 1 through 6. Existing 19-group raw parity and actual resource tests retain their gates. Source review and compilation do not establish installed JNI success.
+
+References: [Android JsonReader](https://developer.android.com/reference/android/util/JsonReader), [Android JsonWriter](https://developer.android.com/reference/android/util/JsonWriter), [AOSP JsonWriter](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/java/android/util/JsonWriter.java), [AOSP JSONTokener](https://android.googlesource.com/platform/libcore/+/master/json/src/main/java/org/json/JSONTokener.java).

@@ -56,13 +56,13 @@ internal class WritingCollaborativeTextInput(
         val current = session.nodeAddress(identity)
         check(current.path.isEmpty()) { "Paragraph moved outside this root-only surface" }
         val node = fieldValue(session.snapshot, current.blockID, current.path) as? JSONObject
-        check(node?.optString("type") == "paragraph") { "This surface edits paragraphs only" }
+        check(node?.optString("type") in setOf("paragraph", "heading", "quote", "callout")) { "This surface edits rich inline blocks only" }
         return session.textAddress(identity)
     }
     fun readNodes(): JSONArray {
         liveAddress()
         val current = session.nodeAddress(identity)
-        return fieldValue(session.snapshot, current.blockID, current.path + "content") as? JSONArray ?: error("Paragraph content is not rich text")
+        return fieldValue(session.snapshot, current.blockID, current.path + "content") as? JSONArray ?: error("Inline block content is not rich text")
     }
     fun readText(): String = plainText(readNodes())
     fun canAuthor(): Boolean = !closed && editable() && runCatching { liveAddress(); true }.getOrDefault(false)

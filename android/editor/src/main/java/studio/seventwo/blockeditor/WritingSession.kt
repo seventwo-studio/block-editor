@@ -15,23 +15,23 @@ data class WritingBlockTarget(val type: String, val level: Int? = null, val styl
     }
 }
 class WritingPosition internal constructor(value: JSONObject) {
-    internal val wire = JSONObject(value.toString())
+    internal val wire = NativeJsonTransport.copy(value)
     val documentID: String get() = wire.getString("documentID")
     val epoch: String get() = wire.getString("epoch")
-    fun export(): JSONObject = JSONObject(wire.toString())
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
     companion object { fun restore(value: JSONObject) = WritingPosition(value) }
 }
 class WritingAddress internal constructor(value: JSONObject) {
-    internal val wire = JSONObject(value.toString())
+    internal val wire = NativeJsonTransport.copy(value)
     constructor(blockID: String, path: List<String> = listOf("content")) : this(JSONObject().put("blockID", blockID).put("path", JSONArray(path)))
     val blockID: String get() = wire.getString("blockID")
     val path: List<String> get() = wire.getJSONArray("path").let { values -> (0 until values.length()).map { values.getString(it) } }
-    fun export(): JSONObject = JSONObject(wire.toString())
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
 }
 class WritingTextRange internal constructor(value: JSONObject) {
     /** A shared range can span different nested fields in the same epoch. */
     constructor(start: WritingPosition, end: WritingPosition) : this(JSONObject().put("start", start.export()).put("end", end.export()))
-    internal val wire = JSONObject(value.toString())
+    internal val wire = NativeJsonTransport.copy(value)
     val start: WritingPosition get() = WritingPosition(wire.getJSONObject("start"))
     val end: WritingPosition get() = WritingPosition(wire.getJSONObject("end"))
 }
@@ -47,13 +47,13 @@ class WritingSelection(val nodes: List<NodeIdentity> = emptyList(), val text: Li
     }
 }
 class WritingCopy internal constructor(value: JSONObject) {
-    private val wire = JSONObject(value.toString())
-    fun export(): JSONObject = JSONObject(wire.toString())
+    private val wire = NativeJsonTransport.copy(value)
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
 }
 /** Inert ordered clipboard data. Core paste validates imported payloads. */
 class WritingClipboard private constructor(value: JSONObject) {
-    internal val wire = JSONObject(value.toString())
-    fun export(): JSONObject = JSONObject(wire.toString())
+    internal val wire = NativeJsonTransport.copy(value)
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
     companion object { fun restore(value: JSONObject) = WritingClipboard(value) }
 }
 data class WritingPastePolicy(val allowedBlockTypes: Set<String>? = null, val allowedMarkTypes: Set<String>? = null, val allowAssetMetadata: Boolean = false) {
@@ -73,26 +73,26 @@ class WritingImportResult internal constructor(value: JSONObject) {
 }
 data class ResolvedWritingPosition(val address: WritingAddress, val offset: Int)
 class WritingBatch private constructor(value: JSONObject) {
-    internal val wire = JSONObject(value.toString())
+    internal val wire = NativeJsonTransport.copy(value)
     init { require(wire.getInt("version") in setOf(3, 4, 5, 6) && wire.getString("epoch").isNotEmpty()) }
     val documentID: String get() = wire.getString("documentID")
     val epoch: String get() = wire.getString("epoch")
-    fun export(): JSONObject = JSONObject(wire.toString())
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
     companion object { fun restore(value: JSONObject) = WritingBatch(value) }
 }
 class WritingReceipt internal constructor(value: JSONObject) {
-    internal val wire = JSONObject(value.toString())
-    fun export(): JSONObject = JSONObject(wire.toString())
+    internal val wire = NativeJsonTransport.copy(value)
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
 }
 class WritingRecovery internal constructor(value: JSONObject) {
-    private val wire = JSONObject(value.toString())
+    private val wire = NativeJsonTransport.copy(value)
     val reason: MergeRecoveryReason = when (wire.getString("reason")) {
         "identityConflict" -> MergeRecoveryReason.IDENTITY_CONFLICT
         "schemaConstraint" -> MergeRecoveryReason.SCHEMA_CONSTRAINT
         else -> throw IllegalArgumentException("Unknown writing recovery reason")
     }
     val batch: WritingBatch get() = WritingBatch.restore(wire.getJSONObject("batch"))
-    fun export(): JSONObject = JSONObject(wire.toString())
+    fun export(): JSONObject = NativeJsonTransport.copy(wire)
     companion object { fun restore(value: JSONObject) = WritingRecovery(value) }
 }
 class WritingRecoveryException(val recovery: WritingRecovery) : IllegalStateException("Writing recovery required")
