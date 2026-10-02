@@ -335,33 +335,67 @@ public final class WritingSession {
         guard offset == 0 || offset == cursor else { throw EditorError.invalidRange }
         return WritingPosition(documentID: documentID, epoch: epoch, field: field, affinity: offset == 0 ? .after : .before)
     }
-    public func resolve(_ position: WritingPosition) throws -> ResolvedWritingPosition {
-        guard position.documentID == documentID, position.epoch == epoch else { throw WritingSessionError.incompatibleEpoch }
-        if let anchor = position.anchor { guard anchor.element.index >= 0 else { throw EditorError.invalidChange } }
-        let field = try position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: position.field)
-        _ = try structure.address(of: field.node)
-        let keys = projection.visibleKeys(in: field)
-        var offset = 0
-        guard let anchor = position.anchor else {
-            guard position.intraAtomOffset == nil else { throw EditorError.invalidRange }
-            if position.affinity == .before { offset = projection.text(in: field).utf16.count }
-            else { offset = try projection.startOffset(of: position.field) }
+    public func resolve(_ original: WritingPosition) throws -> ResolvedWritingPosition {
+        var position = original, retiredHeads = Set<WritingField>()
+        var retirementStates: [ChangeID: Bool]?
+        while true {
+            guard position.documentID == documentID, position.epoch == epoch else { throw WritingSessionError.incompatibleEpoch }
+            if let anchor = position.anchor { guard anchor.element.index >= 0 else { throw EditorError.invalidChange } }
+            let field = try position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: position.field)
+            do { _ = try structure.address(of: field.node) }
+            catch {
+                // A protocol-4 split birth retains its exact source boundary after
+                // author Undo retires the new node. Empty-field head positions have
+                // no text atom to follow; resolve them through that immutable birth.
+                // Deleted unrelated nodes and field-end sentinels keep failing.
+                guard protocolVersion == 4, position.anchor == nil, position.affinity == .after,
+                      position.intraAtomOffset == nil, !retiredHeads.contains(position.field),
+                      case .inserted(let creation, let path) = position.field.node, path.isEmpty,
+                      case .edit(let operations)? = log[creation.change]?.body else { throw error }
+                if retirementStates == nil {
+                    var winning: [ChangeID: (id: ChangeID, enabled: Bool)] = [:]
+                    for change in log.values {
+                        if case .setActive(let target, let enabled) = change.body,
+                           winning[target].map({ $0.id < change.id }) ?? true { winning[target] = (change.id, enabled) }
+                    }
+                    retirementStates = winning.mapValues(\.enabled)
+                }
+                guard retirementStates?[creation.change] == false else { throw error }
+                let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
+                    if case .text(.splitBoundary(let source, let destination, let edge, _)) = operation,
+                       destination == position.field { return (source, edge) }
+                    return nil
+                }
+                guard boundaries.count == 1, let (source, edge) = boundaries.first else { throw error }
+                let affinity: TextAffinity
+                switch edge { case .before: affinity = .before; case .after, .start: affinity = .after }
+                retiredHeads.insert(position.field)
+                position = WritingPosition(documentID: documentID, epoch: epoch, field: source, anchor: edge.anchor, affinity: affinity)
+                continue
+            }
+            let keys = projection.visibleKeys(in: field)
+            var offset = 0
+            guard let anchor = position.anchor else {
+                guard position.intraAtomOffset == nil else { throw EditorError.invalidRange }
+                if position.affinity == .before { offset = projection.text(in: field).utf16.count }
+                else { offset = try projection.startOffset(of: position.field) }
+                return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
+            }
+            if let interior = position.intraAtomOffset {
+                let value = try atom(anchor), label = plainText([value])
+                guard value["type"] != .string("text"), interior > 0, interior < label.utf16.count, writingScalarBoundary(interior, in: label) else { throw EditorError.invalidRange }
+                return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: try projection.offset(of: anchor, affinity: .before) + (keys.contains(anchor) ? interior : 0))
+            }
+            for key in keys {
+                if key == anchor, position.affinity == .before { break }
+                offset += plainText([try atom(key)]).utf16.count
+                if key == anchor { break }
+            }
+            // Deleted anchors still own a placement; nearest visible offset is resolved
+            // by the full tombstone order, not by a stale field-local atom number.
+            if !keys.contains(anchor) { offset = try projection.offset(of: anchor, affinity: position.affinity) }
             return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
         }
-        if let interior = position.intraAtomOffset {
-            let value = try atom(anchor), label = plainText([value])
-            guard value["type"] != .string("text"), interior > 0, interior < label.utf16.count, writingScalarBoundary(interior, in: label) else { throw EditorError.invalidRange }
-            return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: try projection.offset(of: anchor, affinity: .before) + (keys.contains(anchor) ? interior : 0))
-        }
-        for key in keys {
-            if key == anchor, position.affinity == .before { break }
-            offset += plainText([try atom(key)]).utf16.count
-            if key == anchor { break }
-        }
-        // Deleted anchors still own a placement; nearest visible offset is resolved
-        // by the full tombstone order, not by a stale field-local atom number.
-        if !keys.contains(anchor) { offset = try projection.offset(of: anchor, affinity: position.affinity) }
-        return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
     }
     @discardableResult public func replaceText(at address: TextAddress, range: Range<Int>, with text: String, marks: [JSONValue]? = nil) throws -> WritingPosition {
         let selected = try selection(address, range), id = try nextID()
@@ -382,7 +416,7 @@ public final class WritingSession {
         guard !isComposing else { throw WritingSessionError.compositionActive }
         try requireAuthoredType("paragraph")
         let selected = try selection(address, range), source = selected.field.node
-        guard selected.field.name == "content", structure.nodes[source]?.fields["type"] == .string("paragraph") else { throw EditorError.invalidPath }
+        guard selected.field.name == "content", protocolVersion == 4 ? ["paragraph", "heading", "quote", "callout"].contains(structure.nodes[source]?.fields["type"]?.string ?? "") : structure.nodes[source]?.fields["type"] == .string("paragraph") else { throw EditorError.invalidPath }
         let placements = try structure.effectivePlacements()
         guard let parent = placements[source] else { throw EditorError.invalidPath }
         let siblings = try structure.visibleOrder(in: parent.collection)
@@ -419,6 +453,20 @@ public final class WritingSession {
         let anchor = projection.visibleKeys(in: destination).last
         try perform(nextID(), retainedRoleOperations(for: [left, right]) + [.text(.join(source: source, destination: destination, edge: anchor.map(WritingEdge.after) ?? .start))])
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: anchor, affinity: .after)
+    }
+    /// Update scalar leaf metadata without replacing shared text or collections.
+    /// Conversion attributes use convertBlock; identity and document shape are immutable here.
+    public func setNodeField(_ identity: NodeID, path: [String], value: JSONValue) throws {
+        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        let protected = Set(["id", "type", "content", "summary", "caption", "code", "expression", "children", "items", "rows", "cells"])
+        guard !path.isEmpty, path.count <= 100, !path.contains(where: { protected.contains($0) }),
+              value.array == nil, value.object == nil,
+              path.count != 1 || !["style", "level", "variant", "language"].contains(path[0]) else { throw EditorError.invalidPath }
+        _ = try structure.address(of: identity)
+        let previous = structure.nodes[identity].map { JSONValue.object($0.fields).value(at: path) } ?? nil
+        guard previous?.array == nil, previous?.object == nil else { throw EditorError.invalidPath }
+        try perform(nextID(), retainedRoleOperations(for: [identity]) + [.structure(.setNodeField(identity: identity, path: path, value: value))])
     }
     public func selectedText(at address: TextAddress, range: Range<Int>) throws -> WritingTextRange {
         // Validate atomic references as well as Unicode scalar boundaries.
