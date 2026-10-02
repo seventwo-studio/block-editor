@@ -40,9 +40,15 @@ def main():
         return run(adb, "-s", serial, *command, **kwargs)
 
     def instrument(class_name, filename, expected_tests, extra_args=(), timeout=300):
-        result = device("shell", "am", "instrument", "-w", "-r", "-e", "class", class_name,
-                        "-e", "expectedAbi", args.abi, *extra_args, "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner",
-                        capture_output=True, text=True, timeout=timeout)
+        try:
+            result = device("shell", "am", "instrument", "-w", "-r", "-e", "class", class_name,
+                            "-e", "expectedAbi", args.abi, *extra_args, "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner",
+                            capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired as error:
+            def captured(value):
+                return value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
+            (output / filename).write_text(captured(error.stdout) + captured(error.stderr))
+            raise
         (output / filename).write_text(result.stdout + result.stderr)
         print(result.stdout, flush=True)
         # `am instrument` can exit zero even when its test process fails.
@@ -90,7 +96,10 @@ def main():
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
         device("install", "-r", "--abi", args.abi, apk)
-        instrument("studio.seventwo.blockeditor.RuntimeCompatibilityTest", "runtime-instrumentation.txt", 1)
+        # This one invocation executes the entire 17-group corpus, including
+        # 316 legal/over-depth commands under translated ARM64. Its watchdog is
+        # separate from individual typed/UI acceptance and performance limits.
+        instrument("studio.seventwo.blockeditor.RuntimeCompatibilityTest", "runtime-instrumentation.txt", 1, timeout=900)
         device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/android.json",
                stdout=(output / f"{label}.json").open("w"))
         device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/environment.json",
