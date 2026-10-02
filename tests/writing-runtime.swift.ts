@@ -1,5 +1,95 @@
 import { test, expect } from "@playwright/test";
 
+test("typed writing math thresholds preserve accepted state, peer atoms and recoverable author history", async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const samples = await page.evaluate(async root => {
+    const { SwiftEditorRuntime, SwiftWritingRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const rich = { id: "rich", type: "paragraph", host: "retained", content: [
+      { type: "text", text: "café 東京😀", marks: [{ type: "bold" }] },
+      { type: "entity-ref", entityType: "task", entityId: "outside", label: "Task", consumer: { id: "reference-opaque" } },
+    ] };
+    const samples = [];
+    const pending = (operation: () => unknown) => {
+      try { operation(); } catch (error) { if (error instanceof SwiftWritingRecoveryError) return error.recovery; throw error; }
+      throw new Error("Over-limit union must retain a proposal");
+    };
+    for (const version of [4, 5]) for (const actorID of ["a", "z"]) for (const length of [9_998, 9_999]) {
+      const math = { id: "math", type: "math", expression: "x".repeat(length), consumer: { id: "math-opaque", children: [{ id: "opaque-child" }] } };
+      const create = (writer: string) => {
+        const options = { documentID: `typed-threshold-${version}`, actorID: writer, epoch: `threshold-${version}`, blocks: [math, rich] };
+        return version === 4 ? runtime.createWritingV4(options) : runtime.createWritingV5(options);
+      };
+      const a = create(actorID), b = create("m"), address = { blockID: "math", path: ["expression"] };
+      const positionA = a.replaceText(address, length, length, "A"), positionB = b.replaceText(address, length, length, "B");
+      const own = a.changes(), remote = b.changes(), suffix = actorID === "z" ? "AB" : "BA";
+      if (length === 9_998) {
+        a.receive(remote); b.receive(own); a.receive(remote); b.receive(own);
+        const merged = a.getSnapshot().blocks, replica = b.getSnapshot().blocks;
+        const anchors = [a.resolvePosition(positionA).offset, a.resolvePosition(positionB).offset];
+        const reopened = runtime.restoreWriting(a.save(), actorID);
+        reopened.undo(); b.receive(reopened.changes()); const undo = reopened.getSnapshot().blocks;
+        reopened.redo(); b.receive(reopened.changes()); b.receive(reopened.changes());
+        samples.push({ version, actorID, length, merged, replica, anchors, undo, redo: reopened.getSnapshot().blocks, redoReplica: b.getSnapshot().blocks });
+        a.close(); b.close(); reopened.close(); continue;
+      }
+      const savedA = a.save(), savedB = b.save(), beforeA = JSON.stringify(savedA), beforeB = JSON.stringify(savedB);
+      const receiptA = JSON.stringify(a.syncState()), receiptB = JSON.stringify(b.syncState());
+      const proposalA = pending(() => a.receive(remote)), proposalB = pending(() => b.receive(own));
+      const repeated = [pending(() => a.receive(remote)), pending(() => a.receive(remote))];
+      pending(() => a.undo()); pending(() => a.replaceText(address, 0, 0, "blocked"));
+      const acceptedPreserved = JSON.stringify(a.save()) === beforeA && JSON.stringify(b.save()) === beforeB
+        && JSON.stringify(a.syncState()) === receiptA && JSON.stringify(b.syncState()) === receiptB;
+      const ra = runtime.restoreWriting(savedA, actorID), rb = runtime.restoreWriting(savedB, "m");
+      const restoredA = pending(() => ra.restoreRecovery(proposalA)), restoredB = pending(() => rb.restoreRecovery(proposalB));
+      const restartPreserved = JSON.stringify(ra.save()) === beforeA && JSON.stringify(rb.save()) === beforeB
+        && JSON.stringify(ra.syncState()) === receiptA && JSON.stringify(rb.syncState()) === receiptB;
+      const origin = ra.node({ blockID: "math", path: [] });
+      let failedRepair = "";
+      try { ra.repairText(origin, "expression", "x".repeat(9_999) + suffix); } catch (error) { failedRepair = (error as Error).message; }
+      const failedPreserved = JSON.stringify(ra.save()) === beforeA && JSON.stringify(ra.mergeRecovery()) === JSON.stringify(proposalA);
+      ra.repairText(origin, "expression", "x".repeat(9_998) + suffix);
+      const merged = ra.getSnapshot().blocks, anchors = [ra.resolvePosition(positionA).offset, ra.resolvePosition(positionB).offset];
+      const forward = ra.changes(), reverse = { ...forward, changes: [...forward.changes].reverse() };
+      rb.receive(reverse); rb.receive(forward); rb.receive(reverse);
+      const replica = rb.getSnapshot().blocks;
+      const reopened = runtime.restoreWriting(ra.save(), actorID), beforeUndo = JSON.stringify(reopened.save()), undoReceipt = JSON.stringify(reopened.syncState());
+      const pendingUndo = pending(() => reopened.undo());
+      const rejectedUndoPreserved = JSON.stringify(reopened.save()) === beforeUndo && JSON.stringify(reopened.syncState()) === undoReceipt;
+      reopened.repairRedo({ counter: 2, actor: actorID }); rb.receive(reopened.changes()); rb.receive(reopened.changes());
+      samples.push({ version, actorID, length, merged, replica, anchors, proposalA, proposalB, repeated, restoredA, restoredB,
+        acceptedPreserved, restartPreserved, failedRepair, failedPreserved, pendingUndo, rejectedUndoPreserved,
+        redo: reopened.getSnapshot().blocks, redoReplica: rb.getSnapshot().blocks, finalChanges: reopened.changes().changes.length });
+      a.close(); b.close(); ra.close(); rb.close(); reopened.close();
+    }
+    return samples;
+  }, `/block-editor/@fs${process.cwd()}`);
+  const rich = { id: "rich", type: "paragraph", host: "retained", content: [
+    { type: "text", text: "café 東京😀", marks: [{ type: "bold" }] },
+    { type: "entity-ref", entityType: "task", entityId: "outside", label: "Task", consumer: { id: "reference-opaque" } },
+  ] };
+  const expected = (suffix: string) => [{ id: "math", type: "math", expression: "x".repeat(9_998) + suffix,
+    consumer: { id: "math-opaque", children: [{ id: "opaque-child" }] } }, rich];
+  expect(samples).toHaveLength(8);
+  for (const sample of samples) {
+    const suffix = sample.actorID === "z" ? "AB" : "BA";
+    expect(sample.merged).toEqual(expected(suffix)); expect(sample.replica).toEqual(expected(suffix));
+    expect(sample.anchors).toEqual(sample.actorID === "z" ? [9_999, 10_000] : [10_000, 9_999]);
+    expect(sample.redo).toEqual(expected(suffix)); expect(sample.redoReplica).toEqual(expected(suffix));
+    if (sample.length === 9_998) { expect(sample.undo).toEqual(expected("B")); continue; }
+    expect(sample.proposalA).toEqual(sample.proposalB);
+    expect(sample.proposalA.reason).toBe("schemaConstraint"); expect(sample.proposalA.batch.version).toBe(sample.version);
+    expect(sample.proposalA.batch.changes).toHaveLength(2);
+    expect(sample.repeated).toEqual([sample.proposalA, sample.proposalA]);
+    expect(sample.restoredA).toEqual(sample.proposalA); expect(sample.restoredB).toEqual(sample.proposalB);
+    expect(sample.acceptedPreserved && sample.restartPreserved && sample.failedPreserved && sample.rejectedUndoPreserved).toBe(true);
+    expect(sample.failedRepair).toBe("invalidChange"); expect(sample.pendingUndo.reason).toBe("schemaConstraint");
+    expect(sample.pendingUndo.batch.changes).toHaveLength(4); expect(sample.finalChanges).toBe(5);
+  }
+});
+
 test("typed v5 whole-block paste orders concurrent cut groups and preserves author history", async ({ page }) => {
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");
