@@ -96,6 +96,8 @@ def main():
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
         device("install", "-r", "--abi", args.abi, apk)
+        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 8)
+        instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 4)
         # This one invocation executes the entire 19-group corpus, including
         # 316 legal/over-depth commands under translated ARM64. Its watchdog is
         # separate from individual typed/UI acceptance and performance limits.
@@ -144,8 +146,6 @@ def main():
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
         instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
-        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 8)
-        instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 4)
         instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
         instrument("studio.seventwo.blockeditor.WritingCollectionInputTest", "writing-collection-input-instrumentation.txt", 7)

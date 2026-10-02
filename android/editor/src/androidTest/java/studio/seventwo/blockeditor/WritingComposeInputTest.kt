@@ -110,6 +110,7 @@ class WritingComposeInputTest {
 
     @Test fun retainedRenderedSetTextCannotWriteAfterPermissionRevocation() {
         lateinit var a: WritingSession; val readonly = mutableStateOf(false)
+        var renderedOwner: WritingParagraphEditorState? = null
         val visible = mutableStateOf(true)
         val interceptor = PlatformTextInputInterceptor { request, _ ->
             val connection = request.createInputConnection(EditorInfo()); try { awaitCancellation() } finally { connection.closeConnection() }
@@ -118,7 +119,11 @@ class WritingComposeInputTest {
         try {
             compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { run {
                 val state = rememberWritingParagraphEditorState(a, ::retainedDrafts, reportError = { throw it })
-                androidx.compose.runtime.SideEffect { state.readOnly = readonly.value }
+                // Observe the requested permission during composition. A read
+                // only inside SideEffect does not subscribe this composition to
+                // changes of the host flag, leaving the real owner editable.
+                val requestedReadOnly = readonly.value
+                androidx.compose.runtime.SideEffect { state.readOnly = requestedReadOnly; renderedOwner = state }
                 if (visible.value) WritingParagraphEditor(state, reportError = { throw it })
             } } } }
             val field = compose.onNode(hasSetTextAction()); field.performClick()
@@ -126,9 +131,14 @@ class WritingComposeInputTest {
             val before = a.save().export().toString()
             compose.runOnIdle { readonly.value = true }
             compose.waitForIdle()
-            compose.runOnIdle { retained(AnnotatedString("retained overwrite")); assertEquals(before, a.save().export().toString()) }
+            compose.runOnIdle {
+                assertTrue("The real input owner must be revoked before invoking the retained callback", checkNotNull(renderedOwner).readOnly)
+                retained(AnnotatedString("retained overwrite")); assertEquals(before, a.save().export().toString())
+            }
             compose.runOnIdle { readonly.value = false }
-            field.performClick(); field.performTextInputSelection(TextRange(0)); field.performTextInput("X")
+            field.performClick()
+            compose.runOnIdle { assertFalse("The current owner must be editable for the fresh positive callback", checkNotNull(renderedOwner).readOnly) }
+            field.performTextInputSelection(TextRange(0)); field.performTextInput("X")
             compose.runOnIdle { assertEquals(listOf("XABMira"), texts(a)) }
         } finally {
             compose.runOnIdle { visible.value = false }; compose.waitForIdle()
