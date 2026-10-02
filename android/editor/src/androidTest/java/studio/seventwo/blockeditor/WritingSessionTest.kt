@@ -397,4 +397,52 @@ class WritingSessionTest {
             assertEquals(listOf("middle", "last", "first"), ids.take(3))
         } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
     }
+    @Test fun typedV4RejectedAuthorUndoRetainsRestartAndTextOrRedoRepair() {
+        for (actor in listOf("a", "z")) for (repair in listOf("redo", "text")) {
+            val rich = JSONObject("""{"id":"rich","type":"paragraph","host":"keep","content":[{"type":"text","text":"café 😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"note","entityId":"external","label":"Reference"}]}""")
+            val seed = JSONArray().put(rich)
+            val a = WritingSession.createV4("typed-undo-$actor-$repair", actor, "undo-v4", seed)
+            val b = WritingSession.createV4("typed-undo-$actor-$repair", "peer", "undo-v4", seed)
+            var resumed: WritingSession? = null; var reopened: WritingSession? = null
+            fun recovery(operation: () -> Unit): WritingRecovery {
+                try { operation() } catch (failure: WritingRecoveryException) { return failure.recovery }
+                throw AssertionError("Expected typed writing recovery")
+            }
+            try {
+                val math = a.insertCollectionNodes(JSONArray("""[{"id":"math","type":"math","expression":"x+y","extension":{"remote":false,"later":0}}]"""), NodeCollection.ROOT).nodes.single()
+                val birth = a.changes(); b.receive(birth)
+                val creation = JSONObject().put("counter", 1).put("actor", actor)
+                fun peer(counter: Int, key: String, value: Any, observed: JSONArray): WritingBatch {
+                    val mutation = JSONObject().put("setNodeField", JSONObject().put("identity", math.wire).put("path", JSONArray(listOf("extension", key))).put("value", value))
+                    val operation = JSONObject().put("structure", JSONObject().put("_0", mutation))
+                    val edit = JSONObject().put("edit", JSONObject().put("_0", JSONArray().put(operation)))
+                    val change = JSONObject().put("id", JSONObject().put("counter", counter).put("actor", "peer")).put("observed", observed).put("body", edit)
+                    return WritingBatch.restore(birth.export().put("changes", JSONArray().put(change)))
+                }
+                b.receive(peer(2, "remote", true, JSONArray().put(creation))); a.receive(b.changes())
+                val accepted = a.save(); val acceptedValue = normalize(accepted.export()); val receipts = normalize(a.syncState().wire)
+                val initial = recovery { a.undo() }; assertEquals(MergeRecoveryReason.SCHEMA_CONSTRAINT, initial.reason); assertEquals(3, initial.export().getJSONObject("batch").getJSONArray("changes").length())
+                recovery { a.redo() }
+                b.receive(peer(3, "later", 7, JSONArray().put(creation).put(JSONObject().put("counter", 2).put("actor", "peer"))))
+                val pending = recovery { a.receive(b.changes()) }; recovery { a.receive(b.changes()) }
+                assertEquals(4, pending.export().getJSONObject("batch").getJSONArray("changes").length())
+                assertEquals(acceptedValue, normalize(a.save().export())); assertEquals(receipts, normalize(a.syncState().wire))
+                val restored = WritingSession.restore(accepted, actor); resumed = restored
+                recovery { restored.restoreRecovery(pending) }
+                val pendingBefore = normalize(restored.mergeRecovery()!!.export())
+                error("invalidChange") { restored.repairRedo(2, "peer") }
+                error("invalidPath") { restored.repairText(math, "children", "bad") }
+                error("invalidRange") { restored.repairText(restored.node(NodeAddress("rich")), "content", "café 😀RefeXrence") }
+                error("invalidChange") { restored.repairText(math, "expression", "") }
+                assertEquals(acceptedValue, normalize(restored.save().export())); assertEquals(pendingBefore, normalize(restored.mergeRecovery()!!.export())); assertEquals(receipts, normalize(restored.syncState().wire))
+                if (repair == "redo") restored.repairRedo(1, actor) else restored.repairText(math, "expression", "restored x+y 😀")
+                val repairedMath = JSONObject().put("id", "math").put("type", "math").put("expression", if (repair == "redo") "x+y" else "restored x+y 😀").put("extension", JSONObject().put("remote", true).put("later", 7))
+                val expected = normalize(JSONArray().put(repairedMath).put(rich))
+                assertEquals(expected, blocks(restored)); assertEquals(5, restored.changes().export().getJSONArray("changes").length()); assertNull(restored.mergeRecovery())
+                b.receive(restored.changes()); b.receive(restored.changes()); assertEquals(expected, blocks(b))
+                reopened = WritingSession.restore(restored.save(), actor); assertEquals(expected, blocks(reopened!!))
+            } finally { a.close(); b.close(); resumed?.close(); reopened?.close() }
+        }
+    }
+
 }
