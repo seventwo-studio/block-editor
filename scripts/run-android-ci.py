@@ -96,7 +96,7 @@ def main():
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
         device("install", "-r", "--abi", args.abi, apk)
-        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 10)
+        instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 11)
         instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)

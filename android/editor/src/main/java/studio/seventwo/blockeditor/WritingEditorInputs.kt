@@ -104,7 +104,9 @@ internal class WritingEditorInputs(private val session: WritingSession, private 
             active = binding.key; focused = true
         } else if (active == binding.key && binding.hadFocus) {
             binding.hadFocus = false; focused = false
-            if (!acting) focusRequest = null // Intentional focus departure revokes deferred handoff.
+            // An outgoing source losing focus must not revoke the destination's
+            // pending caret. Only departure from that destination cancels it.
+            if (!acting && focusRequest?.key == binding.key) focusRequest = null
         }
     }
     private fun retire(key: String, entry: Entry) {

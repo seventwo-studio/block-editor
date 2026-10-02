@@ -83,6 +83,49 @@ class WritingInputTest {
         } finally { owner.close(); scope.cancel(); a.close(); b.close() }
     }
 
+    @Test fun outgoingNativeBlurKeepsEmptyTailRedoFocusAndOriginalCaretProvenance() {
+        val a = WritingSession.createV4("native-redo-focus", "a", "v4", seed())
+        val scope = CoroutineScope(SupervisorJob() + Dispatcher())
+        val owner = WritingEditorInputs(a, scope, { true }, { fail("No draft expected") }, { throw it })
+        val p = a.node(NodeAddress("p")); val original = owner.bind(p)
+        owner.attach(original); owner.focusChanged(original, true)
+        try {
+            original.update(TextFieldValue("AMiraB", TextRange(6)))
+            owner.enter(original, {}, "tail")
+            val enter = checkNotNull(owner.focusRequest)
+            val tailIdentity = a.node(NodeAddress("tail"))
+            val tail = owner.bind(tailIdentity); owner.attach(tail)
+            owner.consume(enter, tail); owner.focusChanged(tail, true)
+            owner.history({}, false)
+            val undo = checkNotNull(owner.focusRequest)
+            val head = owner.bind(p); owner.attach(head)
+            owner.consume(undo, head); owner.focusChanged(head, true)
+            assertEquals(TextRange(6), head.input.value.selection)
+            lateinit var outgoing: WritingEditorInputs.Binding
+            owner.history({
+                // A replacement native source may attach during finalization.
+                // Its later blur belongs to that source, not the returned tail.
+                outgoing = owner.bind(p); owner.attach(outgoing)
+                owner.focusChanged(outgoing, true)
+            }, true)
+            val redo = checkNotNull(owner.focusRequest)
+            assertEquals(writingKey(a.textAddress(tailIdentity)), writingKey(a.resolvePosition(redo.range.start).address))
+            assertEquals(0, a.resolvePosition(redo.range.start).offset)
+            owner.focusChanged(outgoing, false)
+            assertEquals("Outgoing source blur must preserve the returned tail", redo, owner.focusRequest)
+            val destination = owner.bind(tailIdentity); owner.attach(destination)
+            owner.consume(redo, destination); owner.focusChanged(destination, true)
+            assertNull(owner.focusRequest); assertEquals(TextRange(0), destination.input.value.selection)
+            assertTrue(owner.exportDrafts().isEmpty())
+            val reopened = WritingSession.restore(a.save(), "a")
+            try {
+                assertEquals(listOf("AMiraB", ""), text(reopened))
+                reopened.undo(); assertEquals(listOf("AMiraB"), text(reopened))
+                reopened.redo(); assertEquals(a.snapshot.toString(), reopened.snapshot.toString())
+            } finally { reopened.close() }
+        } finally { owner.close(); scope.cancel(); a.close() }
+    }
+
     @Test fun cleanBlurSelectionKeepsReversedRichRangeAndRebasesHeldPeerBeforeFormat() {
         val a = WritingSession.createV4("native-clean-format", "a", "v4", seed())
         val b = WritingSession.createV4("native-clean-format", "b", "v4", seed())
