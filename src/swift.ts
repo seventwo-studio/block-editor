@@ -202,6 +202,14 @@ export class SwiftWritingSession {
     if (this.holds) throw new Error("Commit composition before repairing writing");
     this.publish(this.call("repairWritingUndo", { target }));
   }
+  repairRedo(target: SwiftElementID["change"]): void {
+    if (this.holds) throw new Error("Commit composition before repairing writing");
+    this.publish(this.call("repairWritingRedo", { target }));
+  }
+  repairText(identity: SwiftNodeID, field: string, text: string): void {
+    if (this.holds) throw new Error("Commit composition before repairing writing");
+    this.publish(this.call("repairWritingText", { identity, field, text }));
+  }
   exportDeferredChanges(): SwiftWritingBatch[] { return this.deferred.map(value => JSON.parse(value) as SwiftWritingBatch); }
   deferRemoteChanges(): () => void {
     if (this.closed) throw new Error("Writing session is closed");

@@ -181,6 +181,14 @@ class WritingSession private constructor(private val handle: String, initial: JS
         check(holds == 0) { "Commit composition before repairing writing" }
         publish(call("repairWritingUndo", JSONObject().put("target", JSONObject().put("counter", counter).put("actor", actor))) as JSONObject)
     }
+    fun repairRedo(counter: Long, actor: String) {
+        check(holds == 0) { "Commit composition before repairing writing" }
+        publish(call("repairWritingRedo", JSONObject().put("target", JSONObject().put("counter", counter).put("actor", actor))) as JSONObject)
+    }
+    fun repairText(identity: NodeIdentity, field: String, text: String) {
+        check(holds == 0) { "Commit composition before repairing writing" }
+        publish(call("repairWritingText", JSONObject().put("identity", identity.wire).put("field", field).put("text", text)) as JSONObject)
+    }
     fun exportDeferredChanges(): List<WritingBatch> = deferred.map { WritingBatch.restore(JSONObject(it)) }
     fun deferRemoteChanges(): () -> Unit {
         check(!closed); holds++; var released = false

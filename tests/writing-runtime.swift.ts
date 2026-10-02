@@ -296,3 +296,53 @@ test("typed batch ranges retain remote text, identities and one reopened undo", 
   expect(result.order.slice(0, 3)).toEqual(["middle", "last", "first"]);
   expect(result.duplicateText).toMatchObject({ type: "paragraph", content: [{ type: "text", text: "R-ABC", marks: [] }] });
 });
+
+test("typed v4 rejected author undo survives restart and permits explicit text or redo repair", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime, SwiftWritingRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const outcomes = [];
+    for (const actor of ["a", "z"]) for (const repair of ["redo", "text"]) {
+      const rich = { id: "rich", type: "paragraph", host: "keep", content: [{ type: "text", text: "café 😀", marks: [{ type: "bold" }] }, { type: "entity-ref", entityType: "note", entityId: "external", label: "Reference" }] };
+      const blocks = [rich], documentID = `typed-undo-${actor}-${repair}`;
+      const a = runtime.createWritingV4({ documentID, actorID: actor, epoch: "undo-v4", blocks });
+      const b = runtime.createWritingV4({ documentID, actorID: "peer", epoch: "undo-v4", blocks });
+      const math = a.insertCollectionNodes([{ id: "math", type: "math", expression: "x+y", extension: { remote: false, later: 0 } }], { field: "blocks" }).nodes[0];
+      const creation = { counter: 1, actor }, birth = a.changes(); b.receive(birth);
+      const peer = (counter: number, key: string, value: unknown, observed: unknown[]) => ({ ...birth, changes: [{ id: { counter, actor: "peer" }, observed, body: { edit: { _0: [{ structure: { _0: { setNodeField: { identity: math, path: ["extension", key], value } } } }] } } }] });
+      b.receive(peer(2, "remote", true, [creation])); a.receive(b.changes());
+      const accepted = a.save(), receipts = JSON.stringify(a.syncState());
+      const recover = (operation: () => void) => {
+        try { operation(); } catch (error) { if (error instanceof SwiftWritingRecoveryError) return error.recovery; throw error; }
+        throw new Error("Expected typed writing recovery");
+      };
+      const initial = recover(() => a.undo()); recover(() => a.redo());
+      b.receive(peer(3, "later", 7, [creation, { counter: 2, actor: "peer" }]));
+      const pending = recover(() => a.receive(b.changes())); recover(() => a.receive(b.changes()));
+      const preserved = JSON.stringify(a.save()) === JSON.stringify(accepted) && JSON.stringify(a.syncState()) === receipts;
+      const resumed = runtime.restoreWriting(accepted, actor); recover(() => resumed.restoreRecovery(pending));
+      const pendingBefore = JSON.stringify(resumed.mergeRecovery());
+      for (const operation of [() => resumed.repairRedo({ counter: 2, actor: "peer" }), () => resumed.repairText(math, "children", "bad"), () => resumed.repairText({ baseline: { blockID: "rich", path: [] } }, "content", "café 😀RefeXrence"), () => resumed.repairText(math, "expression", "")]) {
+        let rejected = false; try { operation(); } catch { rejected = true; }
+        if (!rejected) throw new Error("Expected failed repair");
+      }
+      const failedPreserved = JSON.stringify(resumed.save()) === JSON.stringify(accepted) && JSON.stringify(resumed.mergeRecovery()) === pendingBefore && JSON.stringify(resumed.syncState()) === receipts;
+      if (repair === "redo") resumed.repairRedo(creation); else resumed.repairText(math, "expression", "restored x+y 😀");
+      b.receive(resumed.changes()); b.receive(resumed.changes());
+      const reopened = runtime.restoreWriting(resumed.save(), actor);
+      outcomes.push({ actor, repair, initial, pending, preserved, failedPreserved, repaired: resumed.getSnapshot().blocks, replica: b.getSnapshot().blocks, reopened: reopened.getSnapshot().blocks, changeCount: resumed.changes().changes.length, clear: resumed.mergeRecovery() });
+      a.close(); b.close(); resumed.close(); reopened.close();
+    }
+    return outcomes;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    expect(result.initial).toMatchObject({ reason: "schemaConstraint", batch: { version: 4, changes: expect.any(Array) } });
+    expect(result.initial.batch.changes).toHaveLength(3); expect(result.pending.batch.changes).toHaveLength(4);
+    expect(result.preserved && result.failedPreserved).toBe(true);
+    expect(result.repaired).toEqual([{ id: "math", type: "math", expression: result.repair === "redo" ? "x+y" : "restored x+y 😀", extension: { remote: true, later: 7 } }, { id: "rich", type: "paragraph", host: "keep", content: [{ type: "text", text: "café 😀", marks: [{ type: "bold" }] }, { type: "entity-ref", entityType: "note", entityId: "external", label: "Reference" }] }]);
+    expect(result.replica).toEqual(result.repaired); expect(result.reopened).toEqual(result.repaired);
+    expect(result.changeCount).toBe(5); expect(result.clear).toBeNull();
+  }
+});

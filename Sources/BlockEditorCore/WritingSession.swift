@@ -134,21 +134,79 @@ public final class WritingSession {
         let recovery = try JSONDecoder().decode(WritingRecovery.self, from: data)
         try receive(recovery.batch)
     }
-    /// Resolve a rejected union by explicitly disabling one accepted transaction
-    /// of this author. Remote atoms and every original change remain in the log.
-    public func repairUndo(_ target: ChangeID) throws {
-        guard !preparingReceive, remoteHolds == 0, !isComposing, let recovery = mergeRecovery,
-              target.actor == actorID, undoStack.contains(target) else { throw EditorError.invalidChange }
+    /// Resolve a rejected union by explicitly disabling an accepted transaction
+    /// of this author. Every original change remains in the retained history.
+    public func repairUndo(_ target: ChangeID) throws { try repairHistory(target, active: false) }
+    /// Explicitly cancel a rejected v4 undo by reactivating its original author
+    /// transaction. The failed undo remains in history; no proposal is discarded.
+    public func repairRedo(_ target: ChangeID) throws {
+        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        try repairHistory(target, active: true)
+    }
+    private func repairHistory(_ target: ChangeID, active: Bool) throws {
+        var candidate = try recoveryCandidate()
+        guard target.actor == actorID, undoStack.contains(target) || (protocolVersion == 4 && redoStack.contains(target)),
+              let original = log[target], case .edit = original.body else { throw EditorError.invalidChange }
+        let id = try recoveryID(candidate)
+        let change = WritingChange(id: id, body: .setActive(target: target, active: active), observed: protocolVersion == 4 ? observedFrontier(candidate) : nil)
+        candidate[id] = change
+        try admitRepair(candidate, change: change)
+    }
+    /// Repair a supported field of the rejected v4 union using a scalar-safe
+    /// minimal diff. Planning never exposes an invalid public document. Final
+    /// admission validates the whole union atomically before state publication.
+    public func repairText(node: NodeID, field: String, text: String) throws {
+        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        var candidate = try recoveryCandidate()
+        guard text.utf16.count <= 100_000 else { throw EditorError.invalidRange }
+        let plan = try replayProjection(candidate)
+        _ = try plan.0.address(of: node)
+        guard let value = plan.0.nodes[node], writingFields(value).contains(field) else { throw EditorError.invalidPath }
+        let destination = WritingField(node: node, name: field)
+        let old = plan.1.text(in: destination)
+        guard old.utf16.count <= 100_000 else { throw EditorError.invalidRange }
+        let before = Array(old.unicodeScalars), after = Array(text.unicodeScalars)
+        var prefix = 0, suffix = 0
+        while prefix < min(before.count, after.count), before[prefix] == after[prefix] { prefix += 1 }
+        while suffix < min(before.count, after.count) - prefix,
+              before[before.count - 1 - suffix] == after[after.count - 1 - suffix] { suffix += 1 }
+        var cursor = 0, deleted: [WritingAtomKey] = [], previous: WritingAtomKey?, next: WritingAtomKey?, marks: [JSONValue] = []
+        for key in plan.1.visibleKeys(in: destination) {
+            let payload = try plan.1.value(of: key), end = cursor + plainText([payload]).unicodeScalars.count
+            if end <= prefix { previous = key; marks = payload["marks"]?.array ?? [] }
+            else if cursor < before.count - suffix {
+                guard cursor >= prefix, end <= before.count - suffix else { throw EditorError.invalidRange }
+                deleted.append(key)
+                if prefix == 0, cursor == 0 { marks = payload["marks"]?.array ?? [] }
+            } else if next == nil { next = key }
+            cursor = end
+        }
+        let id = try recoveryID(candidate)
+        var operations: [WritingOperation] = deleted.isEmpty ? [] : [.text(.delete(keys: deleted))]
+        let edge: WritingEdge = previous.map(WritingEdge.after) ?? next.map(WritingEdge.before) ?? .start
+        operations += try inserted(String(String.UnicodeScalarView(after[prefix..<(after.count - suffix)])), id: id,
+                                   field: destination, edge: edge, marks: marks).0
+        guard !operations.isEmpty else { throw EditorError.invalidChange }
+        let change = WritingChange(id: id, body: .edit(operations), observed: observedFrontier(candidate))
+        candidate[id] = change
+        try admitRepair(candidate, change: change, authoredEdit: true)
+    }
+    private func recoveryCandidate() throws -> [ChangeID: WritingChange] {
+        guard !preparingReceive, remoteHolds == 0, !isComposing, let recovery = mergeRecovery else { throw EditorError.invalidChange }
         var candidate = log
         for change in recovery.batch.changes { candidate[change.id] = change }
+        return candidate
+    }
+    private func recoveryID(_ candidate: [ChangeID: WritingChange]) throws -> ChangeID {
         let clock = candidate.keys.map(\.counter).max() ?? counter
         guard clock < 9_007_199_254_740_991 else { throw EditorError.invalidChange }
-        let change = WritingChange(id: ChangeID(counter: clock + 1, actor: actorID), body: .setActive(target: target, active: false), observed: protocolVersion == 4 ? observedFrontier(candidate) : nil)
-        candidate[change.id] = change
+        return ChangeID(counter: clock + 1, actor: actorID)
+    }
+    private func admitRepair(_ candidate: [ChangeID: WritingChange], change: WritingChange, authoredEdit: Bool = false) throws {
         try capacity(candidate)
         let result = try replay(candidate)
         preparingReceive = true; onWillReceive?(); preparingReceive = false
-        accept(candidate, result, change: change)
+        accept(candidate, result, change: change, authoredEdit: authoredEdit)
     }
     public func changes(since receipt: WritingSyncState = WritingSyncState()) -> WritingBatch {
         let received = receipt.documentID == documentID && receipt.epoch == epoch && receipt.version == protocolVersion ? Set(receipt.received) : []
@@ -581,10 +639,18 @@ public final class WritingSession {
         }
     }
     public func undo() throws {
+        if protocolVersion == 4 {
+            guard !preparingReceive else { throw EditorError.invalidChange }
+            if let recovery = mergeRecovery { throw WritingSessionError.recoveryRequired(recovery) }
+        }
         guard let target = undoStack.last else { return }
         try toggle(target, false)
     }
     public func redo() throws {
+        if protocolVersion == 4 {
+            guard !preparingReceive else { throw EditorError.invalidChange }
+            if let recovery = mergeRecovery { throw WritingSessionError.recoveryRequired(recovery) }
+        }
         guard let target = redoStack.last else { return }
         try toggle(target, true)
     }
@@ -599,12 +665,21 @@ public final class WritingSession {
         guard !preparingReceive else { throw EditorError.invalidChange }
         guard mergeRecovery == nil else { throw WritingSessionError.recoveryRequired(mergeRecovery!) }
         let change = WritingChange(id: try nextID(), body: .setActive(target: target, active: active), observed: protocolVersion == 4 ? observedFrontier(log) : nil); var candidate = log; candidate[change.id] = change
-        try capacity(candidate); let result = try replay(candidate)
+        try capacity(candidate)
+        let result: (StructuralState, WritingProjection, Document)
+        do { result = try replay(candidate) }
+        catch let error as WritingProjectionError where protocolVersion == 4 {
+            try retain(candidate, reason: error == .missingAtom ? .schemaConstraint : .identityConflict)
+        } catch EditorError.invalidDocument where protocolVersion == 4 {
+            try retain(candidate, reason: .schemaConstraint)
+        } catch EditorError.structuralConflict where protocolVersion == 4 {
+            try retain(candidate, reason: .identityConflict)
+        }
         if active { redoStack.removeLast(); undoStack.append(target) }
         else { undoStack.removeLast(); redoStack.append(target) }
         accept(candidate, result, change: change)
     }
-    private func accept(_ candidate: [ChangeID: WritingChange], _ result: (StructuralState, WritingProjection, Document), change: WritingChange?) {
+    private func accept(_ candidate: [ChangeID: WritingChange], _ result: (StructuralState, WritingProjection, Document), change: WritingChange?, authoredEdit: Bool = false) {
         var winning: [ChangeID: (id: ChangeID, active: Bool)] = [:]
         for incoming in candidate.values {
             if case .setActive(let target, let enabled) = incoming.body,
@@ -614,6 +689,7 @@ public final class WritingSession {
             if !toggle.active, let index = undoStack.firstIndex(of: target) { undoStack.remove(at: index); redoStack.append(target) }
             if toggle.active, let index = redoStack.firstIndex(of: target) { redoStack.remove(at: index); undoStack.append(target) }
         }
+        if authoredEdit, let change { undoStack.append(change.id); redoStack.removeAll() }
         log = candidate; counter = candidate.keys.map(\.counter).max() ?? counter
         structure = result.0; projection = result.1; document = result.2; mergeRecovery = nil
         onChange?(document, change)
@@ -670,6 +746,11 @@ public final class WritingSession {
         return (operations, last.map { WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: $0, affinity: .after) })
     }
     private func replay(_ candidate: [ChangeID: WritingChange], trustedRoleChanges: Set<ChangeID> = []) throws -> (StructuralState, WritingProjection, Document) {
+        try Self.admitted(try replayProjection(candidate, trustedRoleChanges: trustedRoleChanges))
+    }
+    /// Private planning result only: protocol/role/atom checks remain enforced;
+    /// callers must use admitted() before publishing any accepted document.
+    private func replayProjection(_ candidate: [ChangeID: WritingChange], trustedRoleChanges: Set<ChangeID> = []) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
         let changes = candidate.values.sorted { $0.id < $1.id }
         var active: [ChangeID: Bool] = [:]
         var history: [ChangeID: Change] = [:]
@@ -1129,10 +1210,18 @@ public final class WritingSession {
                 for identity in retainedRoles { raw.structure?.nodes[identity] = beforeRoleNodes[identity] }
             }
         }
-        return try Self.project(raw: raw, changes: changes, births: protocolVersion == 4 ? births : nil)
+        return try Self.projectState(raw: raw, changes: changes, births: protocolVersion == 4 ? births : nil)
     }
 
     private static func project(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil) throws -> (StructuralState, WritingProjection, Document) {
+        try admitted(try projectState(raw: raw, changes: changes, births: retained))
+    }
+    private static func admitted(_ state: (StructuralState, WritingProjection, [NodeID: [String: JSONValue]])) throws -> (StructuralState, WritingProjection, Document) {
+        let document = try state.0.document(text: state.2)
+        guard try document.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
+        return (state.0, state.1, document)
+    }
+    private static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
@@ -1529,9 +1618,7 @@ public final class WritingSession {
                 structure.deleted.insert(field.node)
             }
         }
-        let document = try structure.document(text: values)
-        guard try document.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
-        return (structure, projection, document)
+        return (structure, projection, values)
     }
     private static func json<T: Encodable>(_ value: T) throws -> JSONValue { try JSONDecoder().decode(JSONValue.self, from: canonicalEncoder().encode(value)) }
 }

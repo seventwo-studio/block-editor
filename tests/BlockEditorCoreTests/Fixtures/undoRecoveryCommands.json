@@ -1,0 +1,3279 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "a-redo-a",
+        "documentID": "undo-a-redo",
+        "actorID": "a",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "a-redo-b",
+        "documentID": "undo-a-redo",
+        "actorID": "peer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "a-redo-observer",
+        "documentID": "undo-a-redo",
+        "actorID": "observer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "a-redo-a",
+        "values": [
+          {
+            "id": "math",
+            "type": "math",
+            "expression": "x+y",
+            "extension": {
+              "remote": false,
+              "later": 0
+            }
+          }
+        ],
+        "collection": {
+          "field": "blocks"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-birth"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-b"
+      },
+      "bindings": {
+        "batch": "a-redo-birth"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-a-redo",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 2
+              },
+              "observed": [
+                {
+                  "actor": "a",
+                  "counter": 1
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "a",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "remote"
+                            ],
+                            "value": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-redo-b"
+      },
+      "capture": "a-redo-peerInitial"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-a"
+      },
+      "bindings": {
+        "batch": "a-redo-peerInitial"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-receipts"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-initialPending",
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "a-redo-a"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-afterRejected"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-afterReceipts"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-a-redo",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 3
+              },
+              "observed": [
+                {
+                  "actor": "a",
+                  "counter": 1
+                },
+                {
+                  "actor": "peer",
+                  "counter": 2
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "a",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "later"
+                            ],
+                            "value": 7
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-redo-b"
+      },
+      "capture": "a-redo-peerLater"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "a-redo-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-a"
+      },
+      "capture": "a-redo-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "a-redo-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-observer"
+      },
+      "bindings": {
+        "batch": "a-redo-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-redo-observer"
+      },
+      "capture": "a-redo-observerAccepted"
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "a-redo-observer"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "a-redo-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "a-redo-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "a-redo-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-redo-observer"
+      },
+      "capture": "a-redo-observerAfter"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "a-redo-restored",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "a-redo-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "a-redo-restored"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "a-redo-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "repairWritingRedo",
+        "session": "a-redo-restored",
+        "target": {
+          "actor": "peer",
+          "counter": 2
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-redo-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "a",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "children",
+        "text": "bad"
+      },
+      "error": "invalidPath"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-redo-restored",
+        "identity": {
+          "baseline": {
+            "blockID": "rich",
+            "path": []
+          }
+        },
+        "field": "content",
+        "text": "café 😀RefeXrence"
+      },
+      "error": "invalidRange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-redo-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "a",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "expression",
+        "text": ""
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-failedPending"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-failedAccepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-failedReceipts"
+    },
+    {
+      "request": {
+        "command": "repairWritingRedo",
+        "session": "a-redo-restored",
+        "target": {
+          "actor": "a",
+          "counter": 1
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-repaired"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-repairedBatch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-b"
+      },
+      "bindings": {
+        "batch": "a-redo-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-redo-b"
+      },
+      "bindings": {
+        "batch": "a-redo-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a-redo-b"
+      },
+      "capture": "a-redo-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-repairedSave"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "a-redo-reopened",
+        "actorID": "a"
+      },
+      "capture": "a-redo-reopened",
+      "bindings": {
+        "snapshot": "a-redo-repairedSave"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-repairedReceipt"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "a-redo-restored"
+      },
+      "capture": "a-redo-clear"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-redo-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-redo-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-redo-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-redo-observer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-redo-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "a-text-a",
+        "documentID": "undo-a-text",
+        "actorID": "a",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "a-text-b",
+        "documentID": "undo-a-text",
+        "actorID": "peer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "a-text-observer",
+        "documentID": "undo-a-text",
+        "actorID": "observer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "a-text-a",
+        "values": [
+          {
+            "id": "math",
+            "type": "math",
+            "expression": "x+y",
+            "extension": {
+              "remote": false,
+              "later": 0
+            }
+          }
+        ],
+        "collection": {
+          "field": "blocks"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-birth"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-b"
+      },
+      "bindings": {
+        "batch": "a-text-birth"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-a-text",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 2
+              },
+              "observed": [
+                {
+                  "actor": "a",
+                  "counter": 1
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "a",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "remote"
+                            ],
+                            "value": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-text-b"
+      },
+      "capture": "a-text-peerInitial"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-a"
+      },
+      "bindings": {
+        "batch": "a-text-peerInitial"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-receipts"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-initialPending",
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "a-text-a"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-afterRejected"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-afterReceipts"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-a-text",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 3
+              },
+              "observed": [
+                {
+                  "actor": "a",
+                  "counter": 1
+                },
+                {
+                  "actor": "peer",
+                  "counter": 2
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "a",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "later"
+                            ],
+                            "value": 7
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-text-b"
+      },
+      "capture": "a-text-peerLater"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "a-text-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-a"
+      },
+      "capture": "a-text-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "a-text-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-observer"
+      },
+      "bindings": {
+        "batch": "a-text-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-text-observer"
+      },
+      "capture": "a-text-observerAccepted"
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "a-text-observer"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "a-text-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "a-text-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "a-text-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-text-observer"
+      },
+      "capture": "a-text-observerAfter"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "a-text-restored",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "a-text-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "a-text-restored"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "a-text-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "repairWritingRedo",
+        "session": "a-text-restored",
+        "target": {
+          "actor": "peer",
+          "counter": 2
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-text-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "a",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "children",
+        "text": "bad"
+      },
+      "error": "invalidPath"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-text-restored",
+        "identity": {
+          "baseline": {
+            "blockID": "rich",
+            "path": []
+          }
+        },
+        "field": "content",
+        "text": "café 😀RefeXrence"
+      },
+      "error": "invalidRange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-text-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "a",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "expression",
+        "text": ""
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-failedPending"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-failedAccepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-failedReceipts"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "a-text-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "a",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "expression",
+        "text": "restored x+y 😀"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-repaired"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-repairedBatch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-b"
+      },
+      "bindings": {
+        "batch": "a-text-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "a-text-b"
+      },
+      "bindings": {
+        "batch": "a-text-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "a-text-b"
+      },
+      "capture": "a-text-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-repairedSave"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "a-text-reopened",
+        "actorID": "a"
+      },
+      "capture": "a-text-reopened",
+      "bindings": {
+        "snapshot": "a-text-repairedSave"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-repairedReceipt"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "a-text-restored"
+      },
+      "capture": "a-text-clear"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-text-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-text-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-text-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-text-observer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "a-text-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "z-redo-a",
+        "documentID": "undo-z-redo",
+        "actorID": "z",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "z-redo-b",
+        "documentID": "undo-z-redo",
+        "actorID": "peer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "z-redo-observer",
+        "documentID": "undo-z-redo",
+        "actorID": "observer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "z-redo-a",
+        "values": [
+          {
+            "id": "math",
+            "type": "math",
+            "expression": "x+y",
+            "extension": {
+              "remote": false,
+              "later": 0
+            }
+          }
+        ],
+        "collection": {
+          "field": "blocks"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-birth"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-b"
+      },
+      "bindings": {
+        "batch": "z-redo-birth"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-z-redo",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 2
+              },
+              "observed": [
+                {
+                  "actor": "z",
+                  "counter": 1
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "z",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "remote"
+                            ],
+                            "value": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-redo-b"
+      },
+      "capture": "z-redo-peerInitial"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-a"
+      },
+      "bindings": {
+        "batch": "z-redo-peerInitial"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-receipts"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-initialPending",
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "z-redo-a"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-afterRejected"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-afterReceipts"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-z-redo",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 3
+              },
+              "observed": [
+                {
+                  "actor": "z",
+                  "counter": 1
+                },
+                {
+                  "actor": "peer",
+                  "counter": 2
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "z",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "later"
+                            ],
+                            "value": 7
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-redo-b"
+      },
+      "capture": "z-redo-peerLater"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "z-redo-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-a"
+      },
+      "capture": "z-redo-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "z-redo-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-observer"
+      },
+      "bindings": {
+        "batch": "z-redo-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-redo-observer"
+      },
+      "capture": "z-redo-observerAccepted"
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "z-redo-observer"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "z-redo-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "z-redo-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "z-redo-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-redo-observer"
+      },
+      "capture": "z-redo-observerAfter"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "z-redo-restored",
+        "actorID": "z"
+      },
+      "bindings": {
+        "snapshot": "z-redo-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "z-redo-restored"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "z-redo-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "repairWritingRedo",
+        "session": "z-redo-restored",
+        "target": {
+          "actor": "peer",
+          "counter": 2
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-redo-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "z",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "children",
+        "text": "bad"
+      },
+      "error": "invalidPath"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-redo-restored",
+        "identity": {
+          "baseline": {
+            "blockID": "rich",
+            "path": []
+          }
+        },
+        "field": "content",
+        "text": "café 😀RefeXrence"
+      },
+      "error": "invalidRange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-redo-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "z",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "expression",
+        "text": ""
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-failedPending"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-failedAccepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-failedReceipts"
+    },
+    {
+      "request": {
+        "command": "repairWritingRedo",
+        "session": "z-redo-restored",
+        "target": {
+          "actor": "z",
+          "counter": 1
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-repaired"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-repairedBatch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-b"
+      },
+      "bindings": {
+        "batch": "z-redo-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-redo-b"
+      },
+      "bindings": {
+        "batch": "z-redo-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "z-redo-b"
+      },
+      "capture": "z-redo-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-repairedSave"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "z-redo-reopened",
+        "actorID": "z"
+      },
+      "capture": "z-redo-reopened",
+      "bindings": {
+        "snapshot": "z-redo-repairedSave"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-repairedReceipt"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "z-redo-restored"
+      },
+      "capture": "z-redo-clear"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-redo-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-redo-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-redo-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-redo-observer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-redo-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "z-text-a",
+        "documentID": "undo-z-text",
+        "actorID": "z",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "z-text-b",
+        "documentID": "undo-z-text",
+        "actorID": "peer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "z-text-observer",
+        "documentID": "undo-z-text",
+        "actorID": "observer",
+        "epoch": "undo-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "rich",
+            "type": "paragraph",
+            "host": "keep",
+            "content": [
+              {
+                "type": "text",
+                "text": "café 😀",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              },
+              {
+                "type": "entity-ref",
+                "entityType": "note",
+                "entityId": "external",
+                "label": "Reference"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "insertCollectionNodes",
+        "session": "z-text-a",
+        "values": [
+          {
+            "id": "math",
+            "type": "math",
+            "expression": "x+y",
+            "extension": {
+              "remote": false,
+              "later": 0
+            }
+          }
+        ],
+        "collection": {
+          "field": "blocks"
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-birth"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-b"
+      },
+      "bindings": {
+        "batch": "z-text-birth"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-z-text",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 2
+              },
+              "observed": [
+                {
+                  "actor": "z",
+                  "counter": 1
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "z",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "remote"
+                            ],
+                            "value": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-text-b"
+      },
+      "capture": "z-text-peerInitial"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-a"
+      },
+      "bindings": {
+        "batch": "z-text-peerInitial"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-accepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-receipts"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-initialPending",
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "z-text-a"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-afterRejected"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-afterReceipts"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-b",
+        "batch": {
+          "version": 4,
+          "documentID": "undo-z-text",
+          "epoch": "undo-v4",
+          "baseline": {
+            "blocks": [
+              {
+                "id": "rich",
+                "type": "paragraph",
+                "host": "keep",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "café 😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "note",
+                    "entityId": "external",
+                    "label": "Reference"
+                  }
+                ]
+              }
+            ]
+          },
+          "changes": [
+            {
+              "id": {
+                "actor": "peer",
+                "counter": 3
+              },
+              "observed": [
+                {
+                  "actor": "z",
+                  "counter": 1
+                },
+                {
+                  "actor": "peer",
+                  "counter": 2
+                }
+              ],
+              "body": {
+                "edit": {
+                  "_0": [
+                    {
+                      "structure": {
+                        "_0": {
+                          "setNodeField": {
+                            "identity": {
+                              "inserted": {
+                                "creation": {
+                                  "change": {
+                                    "actor": "z",
+                                    "counter": 1
+                                  },
+                                  "index": 0
+                                },
+                                "path": []
+                              }
+                            },
+                            "path": [
+                              "extension",
+                              "later"
+                            ],
+                            "value": 7
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-text-b"
+      },
+      "capture": "z-text-peerLater"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "z-text-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-a"
+      },
+      "capture": "z-text-pending",
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "batch": "z-text-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-observer"
+      },
+      "bindings": {
+        "batch": "z-text-peerLater"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-text-observer"
+      },
+      "capture": "z-text-observerAccepted"
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "z-text-observer"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "z-text-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "z-text-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "z-text-observer"
+      },
+      "error": "writingRecoveryRequired"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-text-observer"
+      },
+      "capture": "z-text-observerAfter"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "z-text-restored",
+        "actorID": "z"
+      },
+      "bindings": {
+        "snapshot": "z-text-accepted"
+      }
+    },
+    {
+      "request": {
+        "command": "restoreRecovery",
+        "session": "z-text-restored"
+      },
+      "error": "writingRecoveryRequired",
+      "bindings": {
+        "recovery": "z-text-pending"
+      }
+    },
+    {
+      "request": {
+        "command": "repairWritingRedo",
+        "session": "z-text-restored",
+        "target": {
+          "actor": "peer",
+          "counter": 2
+        }
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-text-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "z",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "children",
+        "text": "bad"
+      },
+      "error": "invalidPath"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-text-restored",
+        "identity": {
+          "baseline": {
+            "blockID": "rich",
+            "path": []
+          }
+        },
+        "field": "content",
+        "text": "café 😀RefeXrence"
+      },
+      "error": "invalidRange"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-text-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "z",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "expression",
+        "text": ""
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-failedPending"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-failedAccepted"
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-failedReceipts"
+    },
+    {
+      "request": {
+        "command": "repairWritingText",
+        "session": "z-text-restored",
+        "identity": {
+          "inserted": {
+            "creation": {
+              "change": {
+                "actor": "z",
+                "counter": 1
+              },
+              "index": 0
+            },
+            "path": []
+          }
+        },
+        "field": "expression",
+        "text": "restored x+y 😀"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-repaired"
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-repairedBatch"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-b"
+      },
+      "bindings": {
+        "batch": "z-text-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "z-text-b"
+      },
+      "bindings": {
+        "batch": "z-text-repairedBatch"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "z-text-b"
+      },
+      "capture": "z-text-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-repairedSave"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "z-text-reopened",
+        "actorID": "z"
+      },
+      "capture": "z-text-reopened",
+      "bindings": {
+        "snapshot": "z-text-repairedSave"
+      }
+    },
+    {
+      "request": {
+        "command": "syncState",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-repairedReceipt"
+    },
+    {
+      "request": {
+        "command": "mergeRecovery",
+        "session": "z-text-restored"
+      },
+      "capture": "z-text-clear"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-text-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-text-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-text-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-text-observer"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "z-text-reopened"
+      }
+    }
+  ],
+  "equal": [
+    [
+      "a-redo-accepted",
+      "a-redo-afterRejected"
+    ],
+    [
+      "a-redo-receipts",
+      "a-redo-afterReceipts"
+    ],
+    [
+      "a-redo-observerAccepted",
+      "a-redo-observerAfter"
+    ],
+    [
+      "a-redo-pending",
+      "a-redo-failedPending"
+    ],
+    [
+      "a-redo-accepted",
+      "a-redo-failedAccepted"
+    ],
+    [
+      "a-redo-receipts",
+      "a-redo-failedReceipts"
+    ],
+    [
+      "a-text-accepted",
+      "a-text-afterRejected"
+    ],
+    [
+      "a-text-receipts",
+      "a-text-afterReceipts"
+    ],
+    [
+      "a-text-observerAccepted",
+      "a-text-observerAfter"
+    ],
+    [
+      "a-text-pending",
+      "a-text-failedPending"
+    ],
+    [
+      "a-text-accepted",
+      "a-text-failedAccepted"
+    ],
+    [
+      "a-text-receipts",
+      "a-text-failedReceipts"
+    ],
+    [
+      "z-redo-accepted",
+      "z-redo-afterRejected"
+    ],
+    [
+      "z-redo-receipts",
+      "z-redo-afterReceipts"
+    ],
+    [
+      "z-redo-observerAccepted",
+      "z-redo-observerAfter"
+    ],
+    [
+      "z-redo-pending",
+      "z-redo-failedPending"
+    ],
+    [
+      "z-redo-accepted",
+      "z-redo-failedAccepted"
+    ],
+    [
+      "z-redo-receipts",
+      "z-redo-failedReceipts"
+    ],
+    [
+      "z-text-accepted",
+      "z-text-afterRejected"
+    ],
+    [
+      "z-text-receipts",
+      "z-text-afterReceipts"
+    ],
+    [
+      "z-text-observerAccepted",
+      "z-text-observerAfter"
+    ],
+    [
+      "z-text-pending",
+      "z-text-failedPending"
+    ],
+    [
+      "z-text-accepted",
+      "z-text-failedAccepted"
+    ],
+    [
+      "z-text-receipts",
+      "z-text-failedReceipts"
+    ]
+  ],
+  "expectedBlocks": {
+    "a-redo-repaired": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "x+y",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "a-redo-replica": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "x+y",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "a-redo-reopened": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "x+y",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "a-text-repaired": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "restored x+y 😀",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "a-text-replica": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "restored x+y 😀",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "a-text-reopened": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "restored x+y 😀",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "z-redo-repaired": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "x+y",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "z-redo-replica": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "x+y",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "z-redo-reopened": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "x+y",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "z-text-repaired": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "restored x+y 😀",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "z-text-replica": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "restored x+y 😀",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ],
+    "z-text-reopened": [
+      {
+        "id": "math",
+        "type": "math",
+        "expression": "restored x+y 😀",
+        "extension": {
+          "remote": true,
+          "later": 7
+        }
+      },
+      {
+        "id": "rich",
+        "type": "paragraph",
+        "host": "keep",
+        "content": [
+          {
+            "type": "text",
+            "text": "café 😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "note",
+            "entityId": "external",
+            "label": "Reference"
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {
+    "a-redo-repairedReceipt": {
+      "version": 4,
+      "documentID": "undo-a-redo",
+      "epoch": "undo-v4",
+      "received": [
+        {
+          "actor": "a",
+          "counter": 1
+        },
+        {
+          "actor": "peer",
+          "counter": 2
+        },
+        {
+          "actor": "a",
+          "counter": 3
+        },
+        {
+          "actor": "peer",
+          "counter": 3
+        },
+        {
+          "actor": "a",
+          "counter": 4
+        }
+      ]
+    },
+    "a-redo-clear": null,
+    "a-text-repairedReceipt": {
+      "version": 4,
+      "documentID": "undo-a-text",
+      "epoch": "undo-v4",
+      "received": [
+        {
+          "actor": "a",
+          "counter": 1
+        },
+        {
+          "actor": "peer",
+          "counter": 2
+        },
+        {
+          "actor": "a",
+          "counter": 3
+        },
+        {
+          "actor": "peer",
+          "counter": 3
+        },
+        {
+          "actor": "a",
+          "counter": 4
+        }
+      ]
+    },
+    "a-text-clear": null,
+    "z-redo-repairedReceipt": {
+      "version": 4,
+      "documentID": "undo-z-redo",
+      "epoch": "undo-v4",
+      "received": [
+        {
+          "actor": "z",
+          "counter": 1
+        },
+        {
+          "actor": "peer",
+          "counter": 2
+        },
+        {
+          "actor": "peer",
+          "counter": 3
+        },
+        {
+          "actor": "z",
+          "counter": 3
+        },
+        {
+          "actor": "z",
+          "counter": 4
+        }
+      ]
+    },
+    "z-redo-clear": null,
+    "z-text-repairedReceipt": {
+      "version": 4,
+      "documentID": "undo-z-text",
+      "epoch": "undo-v4",
+      "received": [
+        {
+          "actor": "z",
+          "counter": 1
+        },
+        {
+          "actor": "peer",
+          "counter": 2
+        },
+        {
+          "actor": "peer",
+          "counter": 3
+        },
+        {
+          "actor": "z",
+          "counter": 3
+        },
+        {
+          "actor": "z",
+          "counter": 4
+        }
+      ]
+    },
+    "z-text-clear": null
+  }
+}

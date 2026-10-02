@@ -147,6 +147,8 @@ public final class EditorBridge {
         case "mergeRecovery": return try session.mergeRecovery.map { try encode($0) } ?? .null
         case "restoreRecovery": try session.restoreRecovery(canonicalEncoder().encode(input["recovery"] ?? .null))
         case "repairWritingUndo": try session.repairUndo(decode(input["target"], as: ChangeID.self))
+        case "repairWritingRedo": try session.repairRedo(decode(input["target"], as: ChangeID.self))
+        case "repairWritingText": try session.repairText(node: decode(input["identity"], as: NodeID.self), field: decode(input["field"], as: String.self), text: decode(input["text"], as: String.self))
         case "node": return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
         case "nodeAddress": return try encode(session.address(of: decode(input["identity"], as: NodeID.self)))
         case "textAddress": return try encode(session.textAddress(of: decode(input["identity"], as: NodeID.self), field: input["field"]?.string ?? "content"))
