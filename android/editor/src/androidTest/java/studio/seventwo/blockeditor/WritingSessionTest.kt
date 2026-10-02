@@ -7,6 +7,82 @@ import org.junit.Test
 
 /** Typed Kotlin consumer proof, separate from the shared raw JNI transcript. */
 class WritingSessionTest {
+    @Test fun typedWritingDepthBoundaryRetainsPeerOriginsAndExplicitRecoveryAcrossRestart() {
+        val reference = JSONObject("""{"type":"entity-ref","entityType":"task","entityId":"external-task","label":"Task","consumer":{"id":"opaque-reference"}}""")
+        val sibling = JSONObject("""{"id":"keep","type":"paragraph","consumer":{"id":"keep-opaque"}}""").put("content", JSONArray().put(reference))
+        fun path(prefix: String, levels: Int) = (1 until levels).flatMap { listOf("children", "$prefix-$it") }
+        fun chain(prefix: String, levels: Int, peerText: Boolean = false, nested: JSONObject? = null): JSONObject {
+            var value = JSONObject().put("id", "$prefix-leaf").put("type", "paragraph")
+                .put("content", JSONArray().put(JSONObject().put("type", "text").put("text", (if (peerText) "R" else "") + "café 東京😀")
+                    .put("marks", JSONArray("""[{"type":"bold"}]"""))).put(reference))
+                .put("consumer", JSONObject("""{"children":[{"opaque":{"value":{"text":"keep","id":"metadata-only"}}}]}"""))
+            for (index in (0 until levels).reversed()) {
+                val children = JSONArray()
+                if (index == levels - 1 && nested != null) children.put(nested)
+                children.put(value)
+                value = JSONObject().put("id", "$prefix-$index").put("type", "toggle")
+                    .put("summary", JSONArray().put(JSONObject().put("type", "text").put("text", "$prefix 東京😀").put("marks", JSONArray())))
+                    .put("children", children).put("host", JSONObject().put("id", "opaque-$prefix-$index"))
+            }
+            return value
+        }
+        fun pending(operation: () -> Unit): WritingRecovery {
+            try { operation() } catch (failure: WritingRecoveryException) { return failure.recovery }
+            throw AssertionError("Over-depth union must retain a proposal")
+        }
+        for (version in listOf(4, 5)) for (actor in listOf("a", "z")) for (levels in listOf(15, 16)) {
+            val seed = JSONArray().put(chain("A", 16)).put(chain("B", 16)).put(chain("C", levels)).put(sibling)
+            fun create(writer: String) = if (version == 4) WritingSession.createV4("typed-depth-$version-$actor-$levels", writer, "depth-$version", seed)
+                else WritingSession.createV5("typed-depth-$version-$actor-$levels", writer, "depth-$version", seed)
+            val a = create(actor); val b = create("m")
+            var restored: WritingSession? = null; var restarted: WritingSession? = null
+            try {
+                val originA = a.node(NodeAddress("A-0")); val originB = b.node(NodeAddress("B-0"))
+                val leaf = b.node(NodeAddress("A-0", path("A", 16) + listOf("children", "A-leaf")))
+                a.moveSelection(WritingSelection(nodes = listOf(originA)), NodeCollection.children(a.node(NodeAddress("B-0", path("B", 16)))))
+                b.moveSelection(WritingSelection(nodes = listOf(originB)), NodeCollection.children(b.node(NodeAddress("C-0", path("C", levels)))))
+                val position = b.replaceText(b.textAddress(leaf), 0, 0, "R")
+                val union = normalize(JSONArray().put(chain("C", levels, nested = chain("B", 16, nested = chain("A", 16, true)))).put(sibling))
+                val rollback = normalize(JSONArray().put(chain("A", 16, true)).put(chain("C", levels, nested = chain("B", 16))).put(sibling))
+                if (levels == 15) {
+                    a.receive(b.changes()); b.receive(a.changes()); a.receive(b.changes()); b.receive(a.changes())
+                    assertEquals(union, blocks(a)); assertEquals(union, blocks(b)); assertEquals(1, a.resolvePosition(position).offset)
+                    assertEquals(normalize(leaf.wire), normalize(a.resolvePosition(position).address.export().getJSONObject("identity")))
+                    val reopened = WritingSession.restore(a.save(), actor); restored = reopened
+                    reopened.undo(); b.receive(reopened.changes()); assertEquals(rollback, blocks(reopened)); assertEquals(rollback, blocks(b))
+                    reopened.redo(); b.receive(reopened.changes()); b.receive(reopened.changes()); assertEquals(union, blocks(reopened)); assertEquals(union, blocks(b))
+                    continue
+                }
+                val savedA = a.save(); val savedB = b.save(); val acceptedA = normalize(savedA.export()); val acceptedB = normalize(savedB.export())
+                val receiptA = normalize(a.syncState().export()); val receiptB = normalize(b.syncState().export())
+                val proposal = pending { a.receive(b.changes()) }; val peerProposal = pending { b.receive(a.changes()) }
+                assertEquals(MergeRecoveryReason.SCHEMA_CONSTRAINT, proposal.reason)
+                assertEquals(normalize(proposal.export()), normalize(peerProposal.export())); assertEquals(3, proposal.batch.export().getJSONArray("changes").length())
+                assertEquals(normalize(proposal.export()), normalize(pending { a.receive(b.changes()) }.export()))
+                assertEquals(acceptedA, normalize(a.save().export())); assertEquals(acceptedB, normalize(b.save().export()))
+                assertEquals(receiptA, normalize(a.syncState().export())); assertEquals(receiptB, normalize(b.syncState().export()))
+                val reopened = WritingSession.restore(savedA, actor); restored = reopened
+                assertEquals(normalize(proposal.export()), normalize(pending { reopened.restoreRecovery(WritingRecovery.restore(proposal.export())) }.export()))
+                assertEquals(acceptedA, normalize(reopened.save().export())); assertEquals(receiptA, normalize(reopened.syncState().export()))
+                reopened.repairUndo(1, actor); assertEquals(rollback, blocks(reopened)); assertNull(reopened.mergeRecovery())
+                assertEquals(normalize(originA.wire), normalize(reopened.node(NodeAddress("A-0")).wire))
+                assertEquals(normalize(originB.wire), normalize(reopened.node(NodeAddress("C-0", path("C", levels) + listOf("children", "B-0"))).wire))
+                assertEquals(1, reopened.resolvePosition(position).offset)
+                assertEquals(normalize(leaf.wire), normalize(reopened.resolvePosition(position).address.export().getJSONObject("identity")))
+                val forward = reopened.changes().export(); val values = forward.getJSONArray("changes")
+                val reverse = JSONObject(forward.toString()).put("changes", JSONArray((0 until values.length()).reversed().map { values.getJSONObject(it) }))
+                b.receive(WritingBatch.restore(reverse)); b.receive(reopened.changes()); b.receive(WritingBatch.restore(reverse)); assertEquals(rollback, blocks(b))
+                val accepted = reopened.save(); val receipt = normalize(reopened.syncState().export())
+                val redo = pending { reopened.redo() }; assertEquals(5, redo.batch.export().getJSONArray("changes").length())
+                assertEquals(normalize(accepted.export()), normalize(reopened.save().export())); assertEquals(receipt, normalize(reopened.syncState().export()))
+                val stopped = WritingSession.restore(accepted, actor); restarted = stopped
+                pending { stopped.restoreRecovery(WritingRecovery.restore(redo.export())) }
+                stopped.repairUndo(1, actor); assertEquals(rollback, blocks(stopped)); assertEquals(6, stopped.changes().export().getJSONArray("changes").length())
+                b.receive(stopped.changes()); b.receive(stopped.changes()); assertEquals(rollback, blocks(b)); assertEquals(1, b.resolvePosition(position).offset)
+            } finally { a.close(); b.close(); restored?.close(); restarted?.close() }
+        }
+    }
+
     @Test fun typedWritingMathThresholdRetainsBothAtomsAndSeparateRecoveryAcrossRestart() {
         val rich = JSONObject("""{"id":"rich","type":"paragraph","host":"retained","content":[{"type":"text","text":"café 東京😀","marks":[{"type":"bold"}]},{"type":"entity-ref","entityType":"task","entityId":"outside","label":"Task","consumer":{"id":"reference-opaque"}}]}""")
         for (version in listOf(4, 5)) for (actor in listOf("a", "z")) for (length in listOf(9_998, 9_999)) {
