@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
@@ -148,7 +149,11 @@ class WritingParagraphEditorState private constructor(val session: WritingSessio
       Column {
             OutlinedTextField(value = input.value,
                 onValueChange = { if (!currentReadOnly) binding.update(it) }, readOnly = blocked,
-                modifier = Modifier.fillMaxWidth().focusRequester(focus)
+                modifier = Modifier.fillMaxWidth().focusProperties {
+                    // A native node replacement must not give its pending caret
+                    // to a sibling and start an unrelated keyboard composition.
+                    canFocus = inputs.focusRequest?.key?.let { it == origin } ?: true
+                }.focusRequester(focus)
                     .onFocusChanged { focused = it.isFocused; inputs.focusChanged(binding, it.isFocused) }
                     .testTag("writing-text:${input.identity.wire.toString()}")
                     .onPreviewKeyEvent { event ->

@@ -96,6 +96,9 @@ internal class WritingEditorInputs(private val session: WritingSession, private 
     fun focusChanged(binding: Binding, hasFocus: Boolean) {
         if (!binding.current()) return
         if (hasFocus) {
+            // Focus callbacks from replacement/disposal cannot cancel an owned
+            // native caret handoff and authorize another field's IME draft.
+            if (focusRequest?.let { it.key != binding.key } == true) return
             binding.hadFocus = true
             if (focusRequest?.key != binding.key) focusRequest = null
             active = binding.key; focused = true

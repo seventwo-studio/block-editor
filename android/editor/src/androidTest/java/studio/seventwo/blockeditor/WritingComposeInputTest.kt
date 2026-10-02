@@ -30,6 +30,64 @@ class WritingComposeInputTest {
     }
     private fun retainedDrafts(drafts: List<WritingInputDraft>) { assertTrue("No pending draft in this test", drafts.isEmpty()) }
 
+    @Test fun sameFieldSoftBreakKeepsCaretOwnershipAgainstSiblingFocusDuringHandoff() {
+        lateinit var a: WritingSession; lateinit var b: WritingSession
+        lateinit var owner: WritingParagraphEditorState
+        val visible = mutableStateOf(true)
+        var connection: InputConnection? = null
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            val current = request.createInputConnection(EditorInfo()); connection = current
+            try { awaitCancellation() } finally { current.closeConnection(); if (connection === current) connection = null }
+        }
+        compose.runOnUiThread {
+            val blocks = seed().put(org.json.JSONObject("""{"id":"rich","type":"paragraph","content":[{"type":"text","text":"Sibling😀","marks":[{"type":"italic"}]},{"type":"entity-ref","entityType":"person","entityId":"peer","label":"Reference","host":"opaque-sibling"}]}"""))
+            a = WritingSession.createV4("compose-same-field-caret", "a", "v4", blocks)
+            b = WritingSession.createV4("compose-same-field-caret", "b", "v4", blocks)
+        }
+        try {
+            compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { run {
+                owner = rememberWritingParagraphEditorState(a, ::retainedDrafts, reportError = { throw it })
+                if (visible.value) WritingParagraphEditor(owner, reportError = { throw it })
+            } } } }
+            val fields = compose.onAllNodes(hasSetTextAction())
+            fields[0].performClick(); fields[0].performTextInputSelection(TextRange(1))
+            compose.waitUntil { connection != null }
+            compose.runOnIdle { assertTrue(checkNotNull(connection).setComposingText("東京", 1)) }
+            compose.runOnIdle {
+                b.replaceText(b.textAddress(b.node(NodeAddress("p"))), 6, 6, "R"); a.receive(b.changes())
+                assertEquals(1, a.exportDeferredChanges().size)
+            }
+            val command = checkNotNull(compose.onNodeWithTag("writing-soft-break").fetchSemanticsNode().config[SemanticsActions.OnClick].action)
+            val siblingFocus = checkNotNull(fields[1].fetchSemanticsNode().config[SemanticsActions.RequestFocus].action)
+            val siblingBefore = compose.runOnIdle { a.snapshot.getJSONArray("blocks").getJSONObject(1).toString() }
+            compose.runOnIdle {
+                command()
+                assertNotNull("Same-field caret must stay owned until its native node attaches", owner.inputs.focusRequest)
+                assertFalse("Sibling must not take pending native focus", siblingFocus())
+                assertNotNull(owner.inputs.focusRequest)
+                assertTrue(owner.pendingDrafts().isEmpty())
+            }
+            val focused = compose.onNode(hasSetTextAction() and isFocused())
+            focused.assertTextContains("A東京\nBMiraR")
+            assertEquals(TextRange(4), focused.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            compose.runOnIdle {
+                assertTrue(owner.pendingDrafts().isEmpty()); assertTrue(a.exportDeferredChanges().isEmpty())
+                assertEquals(siblingBefore, a.snapshot.getJSONArray("blocks").getJSONObject(1).toString())
+                val reopened = WritingSession.restore(a.save(), "a")
+                try {
+                    reopened.undo(); assertEquals("A東京BMiraR", texts(reopened)[0])
+                    reopened.redo(); assertEquals("A東京\nBMiraR", texts(reopened)[0])
+                    assertEquals(siblingBefore, reopened.snapshot.getJSONArray("blocks").getJSONObject(1).toString())
+                } finally { reopened.close() }
+            }
+            // After caret adoption, deliberate user focus on the sibling works.
+            fields[1].performClick(); fields[1].assertIsFocused()
+        } finally {
+            compose.runOnIdle { visible.value = false }; compose.waitForIdle()
+            compose.runOnIdle { a.close(); b.close() }
+        }
+    }
+
     @Test fun nativeMarkedTextAndHeldPeerCommitBeforeActualSharedEnter() {
         lateinit var a: WritingSession; lateinit var b: WritingSession
         val visible = mutableStateOf(true)
