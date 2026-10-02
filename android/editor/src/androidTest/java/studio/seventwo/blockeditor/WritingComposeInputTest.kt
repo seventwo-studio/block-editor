@@ -267,8 +267,37 @@ class WritingComposeInputTest {
         }
     }
 
+    private fun traceEmptyTail(stage: String, state: WritingParagraphEditorState,
+        captured: WritingEditorInputs.FocusRequest? = state.inputs.focusRequest) {
+        // Diagnostic reads only: retain the exact opaque anchors and owner
+        // bookkeeping when platform focus differs from the asserted caret.
+        try {
+            val owner = state.inputs
+            fun member(name: String) = owner.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(owner)
+            val entries = member("entries") as Map<*, *>
+            val inputs = JSONArray(entries.map { (key, entry) ->
+                val input = checkNotNull(entry).javaClass.getDeclaredField("input").apply { isAccessible = true }.get(entry) as WritingCollaborativeTextInput
+                val range = input.resolvedSelection()
+                org.json.JSONObject().put("key", key).put("text", input.value.text)
+                    .put("selection", input.value.selection.toString()).put("requiresCommit", input.requiresCommit)
+                    .put("anchor", range?.start?.export() ?: org.json.JSONObject.NULL)
+                    .put("resolved", range?.let { runCatching {
+                        val resolved = state.session.resolvePosition(it.start)
+                        org.json.JSONObject().put("key", writingKey(resolved.address)).put("offset", resolved.offset)
+                    }.getOrNull() } ?: org.json.JSONObject.NULL)
+            })
+            println("ST97_EMPTY_TAIL " + org.json.JSONObject().put("stage", stage)
+                .put("active", member("active") ?: org.json.JSONObject.NULL).put("focused", member("focused"))
+                .put("pending", captured?.let { org.json.JSONObject().put("key", it.key).put("anchor", it.range.start.export())
+                    .put("offset", runCatching { state.session.resolvePosition(it.range.start).offset }.getOrNull()) } ?: org.json.JSONObject.NULL)
+                .put("inputs", inputs).put("snapshot", state.session.snapshot))
+        } catch (diagnostic: Exception) { println("ST97_EMPTY_TAIL_DIAGNOSTIC ${diagnostic.message}") }
+    }
+
     @Test fun nativeEmptyTailUndoRedoKeepsOriginalRetainedHeadSelection() {
         lateinit var a: WritingSession
+        lateinit var renderedOwner: WritingParagraphEditorState
+        var phase = "initial"
         val visible = mutableStateOf(true)
         val interceptor = PlatformTextInputInterceptor { request, _ ->
             val connection = request.createInputConnection(EditorInfo()); try { awaitCancellation() } finally { connection.closeConnection() }
@@ -277,17 +306,24 @@ class WritingComposeInputTest {
         try {
             compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { run {
                 val state = rememberWritingParagraphEditorState(a, ::retainedDrafts, reportError = { throw it })
+                val pending = state.inputs.focusRequest
+                androidx.compose.runtime.SideEffect { renderedOwner = state; traceEmptyTail(phase, state, pending) }
                 if (visible.value) WritingParagraphEditor(state, reportError = { throw it })
             } } } }
             val original = compose.onNode(hasSetTextAction()); original.performClick(); original.performTextInputSelection(TextRange(6))
+            phase = "enter"
             compose.onNodeWithTag("writing-enter").performClick()
             compose.onNode(hasSetTextAction() and isFocused()).assertTextContains("")
             compose.runOnIdle { assertEquals(listOf("ABMira", ""), texts(a)) }
+            phase = "undo"
             compose.onNodeWithTag("writing-undo").performClick()
             compose.onNode(hasSetTextAction() and isFocused()).assertTextContains("ABMira")
             assertEquals(TextRange(6), compose.onNode(hasSetTextAction() and isFocused()).fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            compose.runOnIdle { traceEmptyTail("after-undo", renderedOwner) }
+            phase = "redo"
             compose.onNodeWithTag("writing-redo").performClick()
             compose.runOnIdle { assertEquals(listOf("ABMira", ""), texts(a)) }
+            compose.runOnIdle { traceEmptyTail("after-redo", renderedOwner) }
             assertEquals(TextRange(0), compose.onNode(hasSetTextAction() and isFocused()).fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
         } finally {
             compose.runOnIdle { visible.value = false }; compose.waitForIdle()
