@@ -59,6 +59,11 @@ import UIKit
         }
         func textViewDidChange(_ textView: UITextView) { changed() }
         func textViewDidChangeSelection(_ textView: UITextView) { if !rendering, !input.model.focus.restoringFocus, !((textView as? WritingUIKitTextView)?.nativeEditing ?? false) { input.selectionChangedByUser(textView.selectedRange); input.selection = textView.selectedRange } }
+        func textView(_ textView: UITextView, editMenuForTextInRanges ranges: [NSValue], suggestedActions: [UIMenuElement]) -> UIMenu? {
+            guard ranges.count <= 1, textView === view, input.canReceiveKey else { return nil }
+            let markdown = UIAction(title: "Paste Markdown") { [weak view = self.view] _ in view?.pasteMarkdown(nil) }
+            return UIMenu(children: suggestedActions + [markdown])
+        }
         private func changed() { guard !rendering, let view, !view.nativeEditing else { return }; input.update(text: view.text, selection: view.selectedRange, composing: view.markedTextRange != nil) }
         func render() {
             guard !rendering, let view, view.markedTextRange == nil, !input.composing else { return }
@@ -111,6 +116,11 @@ import UIKit
         let board = UIPasteboard.general
         if let data = board.data(forPasteboardType: WritingNativeClipboard.identifier) { _ = pasteSharedClipboard(.structured(data)) }
         else if let text = board.string { _ = pasteSharedClipboard(.text(text)) }
+    }
+    /// Reads only the actual text representation after an explicit menu choice.
+    @objc func pasteMarkdown(_ sender: Any?) {
+        guard isEditable, let pasteSharedClipboard, let text = UIPasteboard.general.string else { return }
+        _ = pasteSharedClipboard(.markdown(text))
     }
     override var keyCommands: [UIKeyCommand]? {
         [UIKeyCommand(input: "\r", modifierFlags: .shift, action: #selector(softBreak)),

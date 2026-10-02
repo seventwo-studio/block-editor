@@ -124,6 +124,16 @@ authority is insufficient.
 
 ## Execution sequence after the reviewed decision
 
+The source change prepared in [PR #64](https://github.com/seventwo-studio/block-editor/pull/64)
+replaces the old release workflow with local candidate validation. It retains
+version, type, test, build and tarball checks, uses only `contents: read`, and
+removes registry publication, registry authentication and the spending-approval
+checkbox. Until this PR is delivered, the live default workflow retains its old
+behavior. This change does not establish private package recovery: inventory,
+the exact removal/access/publication decision, the $0 cap with Stop usage and
+clean private consumer acceptance remain required. No replacement identity or
+hosting contract is selected by the source change.
+
 1. Link the accepted proposal revision, identity, publisher, exposed-package
    treatment and administrator in ST-34. A documentation merge is not this
    decision. Preserve the issue's native prerequisites and unchecked criteria.
@@ -139,7 +149,7 @@ authority is insufficient.
    maintainers before any artifact upload. Keep its publication workflow manually
    dispatched on a protected reviewed revision. Fetch the public engine by exact
    commit, with no cross-repository credential or mutable branch dependency.
-4. Review a separate implementation PR for manifest identity, provenance,
+4. Review the delivery implementation for manifest identity, provenance,
    publication guards and checks. Replace all hard-coded old-identity checks;
    don't dispatch the existing source publication workflow. Build a local packed
    candidate and inspect its file inventory, size, checksums and exports. No

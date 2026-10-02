@@ -143,6 +143,25 @@ import SwiftUI
         if let data = board.data(forType: NSPasteboard.PasteboardType(WritingNativeClipboard.identifier)) { _ = pasteSharedClipboard(.structured(data)) }
         else if let text = board.string(forType: .string) { _ = pasteSharedClipboard(.text(text)) }
     }
+    /// Opt-in interpretation of the actual plain-text clipboard companion.
+    /// Ordinary Paste retains structured DTO precedence and stays literal.
+    @objc func pasteMarkdown(_ sender: Any?) {
+        guard isEditable, let pasteSharedClipboard,
+              let text = NSPasteboard.general.string(forType: .string) else { return }
+        _ = pasteSharedClipboard(.markdown(text))
+    }
+    func pasteMarkdownMenuItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "Paste Markdown", action: #selector(pasteMarkdown(_:)), keyEquivalent: "")
+        item.target = self; item.isEnabled = isEditable && pasteSharedClipboard != nil
+        return item
+    }
+    override func menu(for event: NSEvent) -> NSMenu? {
+        guard let menu = super.menu(for: event) else { return nil }
+        // The standard menu may be reused; replace only our own action.
+        for item in menu.items where item.target === self && item.action == #selector(pasteMarkdown(_:)) { menu.removeItem(item) }
+        menu.addItem(pasteMarkdownMenuItem())
+        return menu
+    }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         guard isEditable else { return super.performKeyEquivalent(with: event) }
         if event.modifierFlags.contains(.command), event.charactersIgnoringModifiers?.lowercased() == "z" { history?(event.modifierFlags.contains(.shift)); return true }

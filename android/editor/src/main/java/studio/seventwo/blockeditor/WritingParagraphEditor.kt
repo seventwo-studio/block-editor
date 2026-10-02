@@ -26,12 +26,21 @@ import java.util.UUID
 /** The host retains this owner across disposal failures, and closes the native
  * surface before closing its session. A failed retention callback leaves drafts,
  * held packets and the owner lease available through pendingDrafts()/close(). */
-class WritingParagraphEditorState(val session: WritingSession, scope: kotlinx.coroutines.CoroutineScope,
-    retainDrafts: (List<WritingInputDraft>) -> Unit, private val report: (Exception) -> Unit = {},
+class WritingParagraphEditorState private constructor(val session: WritingSession, scope: kotlinx.coroutines.CoroutineScope,
+    retainDrafts: (List<WritingInputDraft>) -> Unit, private val report: (Exception) -> Unit,
+    enableCollections: Boolean,
 ) : java.io.Closeable {
+    constructor(session: WritingSession, scope: kotlinx.coroutines.CoroutineScope,
+        retainDrafts: (List<WritingInputDraft>) -> Unit, report: (Exception) -> Unit = {},
+    ) : this(session, scope, retainDrafts, report, false)
+    companion object {
+        internal fun forCollections(session: WritingSession, scope: kotlinx.coroutines.CoroutineScope,
+            retainDrafts: (List<WritingInputDraft>) -> Unit, report: (Exception) -> Unit,
+        ) = WritingParagraphEditorState(session, scope, retainDrafts, report, true)
+    }
     var readOnly by mutableStateOf(false)
     var pastePolicy by mutableStateOf(WritingPastePolicy())
-    internal val inputs = WritingEditorInputs(session, scope, { !readOnly }, retainDrafts, report, { pastePolicy })
+    internal val inputs = WritingEditorInputs(session, scope, { !readOnly }, retainDrafts, report, { pastePolicy }, enableCollections)
     private var surfaceAttached = false
     internal fun attachSurface() { check(!surfaceAttached) { "One native surface per input owner" }; surfaceAttached = true }
     internal fun detachSurface() { surfaceAttached = false; try { close() } catch (error: Exception) { report(error) } }
@@ -82,13 +91,14 @@ class WritingParagraphEditorState(val session: WritingSession, scope: kotlinx.co
     }
 }
 
-@Composable private fun WritingTextField(session: WritingSession, inputs: WritingEditorInputs,
-    identity: NodeIdentity, readOnly: Boolean, report: (Exception) -> Unit) {
+@Composable internal fun WritingTextField(session: WritingSession, inputs: WritingEditorInputs,
+    identity: NodeIdentity, readOnly: Boolean, report: (Exception) -> Unit,
+    field: String = "content", label: String = "Paragraph", blockConversions: Boolean = true) {
     val currentReadOnly by rememberUpdatedState(readOnly)
     val currentError by rememberUpdatedState(report)
-    val origin = writingKey(session.textAddress(identity))
+    val origin = writingKey(session.textAddress(identity, field))
     val revision = inputs.revision(origin)
-    val binding = remember(inputs, origin, revision) { inputs.bind(identity) }
+    val binding = remember(inputs, origin, revision) { inputs.bind(identity, field) }
     val input = binding.input
     val focus = remember(input) { FocusRequester() }
     val nativeFocus = LocalFocusManager.current
@@ -122,11 +132,12 @@ class WritingParagraphEditorState(val session: WritingSession, scope: kotlinx.co
                 2 -> inputs.mergePrevious(binding, revoke)
                 3 -> inputs.copy(binding, revoke) { WritingNativeClipboard.write(clipboard, it) }
                 4 -> inputs.cut(binding, revoke) { WritingNativeClipboard.write(clipboard, it) }
-                5 -> WritingNativeClipboard.read(clipboard, session)?.let { inputs.paste(binding, revoke, it) }
+                5 -> WritingNativeClipboard.read(clipboard, session, input.plainField)?.let { inputs.paste(binding, revoke, it) }
                 6 -> inputs.format(binding, revoke, "bold", org.json.JSONObject().put("type", "bold"))
                 7 -> inputs.format(binding, revoke, "italic", org.json.JSONObject().put("type", "italic"))
                 8 -> inputs.convert(binding, revoke, WritingBlockTarget("heading", level = 2))
                 9 -> inputs.convert(binding, revoke, WritingBlockTarget("paragraph"))
+                10 -> if (!input.plainField) WritingNativeClipboard.readMarkdown(clipboard, session)?.let { inputs.paste(binding, revoke, it) }
             }
         } catch (error: Exception) { currentError(error) }
     }
@@ -145,23 +156,23 @@ class WritingParagraphEditorState(val session: WritingSession, scope: kotlinx.co
                             event.isCtrlPressed && event.key == Key.C -> { invoke(3); true }
                             event.isCtrlPressed && event.key == Key.X -> { invoke(4); true }
                             event.isCtrlPressed && event.key == Key.V -> { invoke(5); true }
-                            event.isCtrlPressed && event.key == Key.B -> { invoke(6); true }
-                            event.isCtrlPressed && event.key == Key.I -> { invoke(7); true }
+                            !input.plainField && event.isCtrlPressed && event.key == Key.B -> { invoke(6); true }
+                            !input.plainField && event.isCtrlPressed && event.key == Key.I -> { invoke(7); true }
                             event.key == Key.Enter -> { invoke(if (event.isShiftPressed) 1 else 0); true }
-                            event.key == Key.Backspace -> if (input.value.selection.collapsed && input.value.selection.min == 0) { invoke(2); true } else false
+                            event.key == Key.Backspace -> if (inputs.mergesParagraph(binding) && input.value.selection.collapsed && input.value.selection.min == 0) { invoke(2); true } else false
                             else -> false
                         }
-                    }, label = { Text("Paragraph") }, textStyle = MaterialTheme.typography.bodyLarge,
+                    }, label = { Text(label) }, textStyle = MaterialTheme.typography.bodyLarge,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next), keyboardActions = KeyboardActions(onNext = { invoke(0) }),
                 visualTransformation = VisualTransformation { text ->
-                    val rich = runCatching { input.readNodes() }.getOrNull()
-                    TransformedText(if (input.value.composition == null && plainText(rich) == text.text) styledInline(rich) else text, OffsetMapping.Identity)
+                    val rich = if (input.plainField) null else runCatching { input.readNodes() }.getOrNull()
+                    TransformedText(if (!input.plainField && input.value.composition == null && plainText(rich) == text.text) styledInline(rich) else text, OffsetMapping.Identity)
                 })
         }
         if (focused) Row {
             TextButton(enabled = !blocked, onClick = { invoke(0) }, modifier = Modifier.testTag("writing-enter")) { Text("Enter") }
             TextButton(enabled = !blocked, onClick = { invoke(1) }, modifier = Modifier.testTag("writing-soft-break")) { Text("Soft break") }
-            TextButton(enabled = !blocked && input.value.selection.collapsed && input.value.selection.min == 0,
+            TextButton(enabled = !blocked && inputs.mergesParagraph(binding) && input.value.selection.collapsed && input.value.selection.min == 0,
                 onClick = { invoke(2) }, modifier = Modifier.testTag("writing-merge")) { Text("Merge previous") }
         }
         if (focused) Column {
@@ -169,12 +180,13 @@ class WritingParagraphEditorState(val session: WritingSession, scope: kotlinx.co
                 TextButton(enabled = !blocked, onClick = { invoke(3) }, modifier = Modifier.testTag("writing-copy")) { Text("Copy") }
                 TextButton(enabled = !blocked, onClick = { invoke(4) }, modifier = Modifier.testTag("writing-cut")) { Text("Cut") }
                 TextButton(enabled = !blocked, onClick = { invoke(5) }, modifier = Modifier.testTag("writing-paste")) { Text("Paste") }
+                if (!input.plainField) TextButton(enabled = !blocked, onClick = { invoke(10) }, modifier = Modifier.testTag("writing-paste-markdown")) { Text("Paste Markdown") }
             }
-            Row {
+            if (!input.plainField) Row {
                 TextButton(enabled = !blocked, onClick = { invoke(6) }, modifier = Modifier.testTag("writing-bold")) { Text("Bold") }
                 TextButton(enabled = !blocked, onClick = { invoke(7) }, modifier = Modifier.testTag("writing-italic")) { Text("Italic") }
             }
-            Row {
+            if (blockConversions && !input.plainField) Row {
                 TextButton(enabled = !blocked, onClick = { invoke(8) }, modifier = Modifier.testTag("writing-heading")) { Text("Heading") }
                 TextButton(enabled = !blocked, onClick = { invoke(9) }, modifier = Modifier.testTag("writing-paragraph")) { Text("Paragraph") }
             }

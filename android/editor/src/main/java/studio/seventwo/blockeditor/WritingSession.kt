@@ -246,6 +246,11 @@ class WritingSession private constructor(private val handle: String, initial: JS
             .put("after", after?.wire ?: JSONObject.NULL)) as JSONObject
         publish(result.getJSONObject("snapshot")); return WritingSelection.restore(result.getJSONObject("selection"))
     }
+    /** Scalar metadata only; the shared engine rejects text, identities and collection replacement. */
+    fun setNodeField(identity: NodeIdentity, path: List<String>, value: Any?) {
+        publish(call("setNodeField", JSONObject().put("identity", identity.wire).put("path", JSONArray(path))
+            .put("value", value ?: JSONObject.NULL)) as JSONObject)
+    }
     fun setAllowedBlockTypes(types: Set<String>?) { publish(call("allowedBlockTypes", JSONObject().put("types", types?.let { JSONArray(it.toList()) } ?: JSONObject.NULL)) as JSONObject) }
     fun convertBlock(address: WritingAddress, offset: Int, target: WritingBlockTarget): WritingPosition = command("convertBlock", JSONObject().put("address", address.wire).put("offset", offset).put("target", target.wire()))
     fun markdownShortcut(address: WritingAddress, offset: Int): WritingPosition = command("markdownShortcut", JSONObject().put("address", address.wire).put("offset", offset))

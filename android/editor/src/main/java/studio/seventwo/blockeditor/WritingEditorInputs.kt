@@ -16,7 +16,8 @@ import java.io.Closeable
 internal class WritingEditorInputs(private val session: WritingSession, private val scope: CoroutineScope,
     private val editable: () -> Boolean, private val retainDrafts: (List<WritingInputDraft>) -> Unit,
     private val report: (Exception) -> Unit,
-    private val pastePolicy: () -> WritingPastePolicy = { WritingPastePolicy() }) : Closeable {
+    private val pastePolicy: () -> WritingPastePolicy = { WritingPastePolicy() },
+    private val collections: Boolean = false) : Closeable {
     init {
         require(session.save().export().getInt("version") in setOf(4, 5, 6)) { "Use an explicit v4, v5 or v6 writing epoch" }
         session.acquireNativeInputOwner(this)
@@ -69,12 +70,12 @@ internal class WritingEditorInputs(private val session: WritingSession, private 
         }
     }
     fun revision(key: String) = revisions[key] ?: 0
-    fun bind(identity: NodeIdentity): Binding {
+    fun bind(identity: NodeIdentity, field: String = "content"): Binding {
         check(!closed)
-        val key = writingKey(session.textAddress(identity))
+        val key = writingKey(session.textAddress(identity, field))
         val capturedAddress = session.nodeAddress(identity)
         fun locationCurrent() = runCatching { session.nodeAddress(identity) == capturedAddress }.getOrDefault(false)
-        val entry = entries.getOrPut(key) { Entry(WritingCollaborativeTextInput(session, identity, { !closed && editable() }, ::composing, report)) }
+        val entry = entries.getOrPut(key) { Entry(WritingCollaborativeTextInput(session, identity, { !closed && editable() }, ::composing, report, field, collections)) }
         entry.retirement?.cancel(); entry.retirement = null; entry.reservations++
         val generation = ++entry.serial
         return Binding(key, entry.input,
@@ -172,29 +173,63 @@ internal class WritingEditorInputs(private val session: WritingSession, private 
     }
     fun enter(binding: Binding, revokeNative: () -> Unit, newBlockID: String) = perform(binding, revokeNative) { input ->
         val (address, selected) = checkNotNull(input).commandTarget()
-        session.splitParagraph(address, selected.min, selected.max, newBlockID)
+        val current = NodeIdentity(address.export().getJSONObject("identity"))
+        val location = session.nodeAddress(current)
+        val node = writingNodeValue(session, current)
+        if (collections && node.optString("type").isEmpty() && location.path.dropLast(1).lastOrNull() in setOf("items", "children"))
+            session.enterListItem(address, selected.min, selected.max, newBlockID)
+        else if (collections && (address.path.last() != "content" || location.path.dropLast(1).lastOrNull() == "cells"))
+            session.softBreak(address, selected.min, selected.max)
+        else session.splitParagraph(address, selected.min, selected.max, newBlockID)
     }
     fun softBreak(binding: Binding, revokeNative: () -> Unit) = perform(binding, revokeNative) { input ->
         val (address, selected) = checkNotNull(input).commandTarget()
         session.softBreak(address, selected.min, selected.max)
     }
-    fun mergePrevious(binding: Binding, revokeNative: () -> Unit) = perform(binding, revokeNative) { input ->
-        val (address, selected) = checkNotNull(input).commandTarget()
-        check(selected.collapsed && selected.min == 0)
-        val current = NodeIdentity(address.export().getJSONObject("identity"))
-        val roots = session.collectionNodes(NodeCollection.ROOT)
-        val index = roots.indexOfFirst { writingCanonical(it.wire) == writingCanonical(current.wire) }
-        check(index > 0) { "No compatible previous root paragraph" }
-        session.mergeParagraphs(roots[index - 1], current)
+    fun mergesParagraph(binding: Binding): Boolean = !collections || runCatching {
+        binding.input.field == "content" && writingNodeValue(session, binding.input.identity).optString("type") == "paragraph"
+    }.getOrDefault(false)
+    fun mergePrevious(binding: Binding, revokeNative: () -> Unit) {
+        check(!binding.input.plainField) { "Paragraph merge is unavailable in plain fields" }
+        perform(binding, revokeNative) { input ->
+            val (address, selected) = checkNotNull(input).commandTarget()
+            check(selected.collapsed && selected.min == 0)
+            val current = NodeIdentity(address.export().getJSONObject("identity"))
+            val roots = session.collectionNodes(if (collections) writingParentCollection(session, current) else NodeCollection.ROOT)
+            val index = roots.indexOfFirst { writingCanonical(it.wire) == writingCanonical(current.wire) }
+            check(index > 0) { "No compatible previous paragraph" }
+            session.mergeParagraphs(roots[index - 1], current)
+        }
     }
     /** All range derivation happens after the current native lease commits and peers drain. */
-    fun paste(binding: Binding, revokeNative: () -> Unit, clipboard: WritingClipboard) = perform(binding, revokeNative) { input ->
-        val (address, selected) = checkNotNull(input).commandTarget()
-        val range = session.selectedText(address, selected.min, selected.max)
-        val imported = session.normalizeForImport(clipboard, pastePolicy())
-        if (session.save().export().getInt("version") == 4)
-            session.pasteInline(imported.clipboard, range, imported.effectivePastePolicy)
-        else session.pasteSelection(imported.clipboard, range, imported.effectivePastePolicy)
+    fun paste(binding: Binding, revokeNative: () -> Unit, clipboard: WritingClipboard) {
+        // Reject rich/structural content before finalizing a plain-field draft.
+        if (binding.input.plainField) validatePlainPaste(clipboard)
+        perform(binding, revokeNative) { input ->
+            val live = checkNotNull(input)
+            val (address, selected) = live.commandTarget()
+            val range = session.selectedText(address, selected.min, selected.max)
+            val imported = session.normalizeForImport(clipboard, pastePolicy())
+            if (live.plainField || session.save().export().getInt("version") == 4)
+                session.pasteInline(imported.clipboard, range, imported.effectivePastePolicy)
+            else session.pasteSelection(imported.clipboard, range, imported.effectivePastePolicy)
+        }
+    }
+    private fun validatePlainPaste(clipboard: WritingClipboard) {
+        val wire = clipboard.export()
+        val parts = wire.optJSONArray("parts")
+        check(wire.optInt("version") == 1 && parts != null && parts.length() == 1) { "Plain fields require one inline text fragment" }
+        val part = parts.getJSONObject(0)
+        val values = part.optJSONObject("inline")?.optJSONArray("_0")
+        check(values != null && !part.has("node")) { "Structural paste is unsupported in plain fields" }
+        for (index in 0 until values.length()) {
+            val value = values.optJSONObject(index)
+            check(value != null && value.optString("type") == "text" && value.opt("text") is String &&
+                value.keys().asSequence().all { it in setOf("type", "text", "marks") } &&
+                (!value.has("marks") || (value.opt("marks") is org.json.JSONArray && value.getJSONArray("marks").length() == 0))) {
+                "Rich marks, references and metadata are unsupported in plain fields"
+            }
+        }
     }
     fun copy(binding: Binding, revokeNative: () -> Unit, deliver: (WritingClipboard) -> Unit) = perform(binding, revokeNative) { input ->
         val (address, selected) = checkNotNull(input).commandTarget()
@@ -208,19 +243,106 @@ internal class WritingEditorInputs(private val session: WritingSession, private 
         deliver(session.copyClipboard(selection))
         session.deleteSelection(selection).text.firstOrNull()?.start
     }
-    fun format(binding: Binding, revokeNative: () -> Unit, type: String, mark: org.json.JSONObject?) = perform(binding, revokeNative) { input ->
-        val (address, selected) = checkNotNull(input).commandTarget()
-        session.format(address, selected.min, selected.max, type, mark)
-        null
+    fun format(binding: Binding, revokeNative: () -> Unit, type: String, mark: org.json.JSONObject?) {
+        check(!binding.input.plainField) { "Formatting is unavailable in plain fields" }
+        perform(binding, revokeNative) { input ->
+            val (address, selected) = checkNotNull(input).commandTarget()
+            session.format(address, selected.min, selected.max, type, mark)
+            null
+        }
     }
-    fun convert(binding: Binding, revokeNative: () -> Unit, target: WritingBlockTarget) = perform(binding, revokeNative) { input ->
-        val (address, selected) = checkNotNull(input).commandTarget()
-        session.convertBlock(address, selected.min, target)
+    fun convert(binding: Binding, revokeNative: () -> Unit, target: WritingBlockTarget) {
+        check(!binding.input.plainField) { "Conversion is unavailable in plain fields" }
+        perform(binding, revokeNative) { input ->
+            val (address, selected) = checkNotNull(input).commandTarget()
+            session.convertBlock(address, selected.min, target)
+        }
     }
-    fun markdownShortcut(binding: Binding, revokeNative: () -> Unit) = perform(binding, revokeNative) { input ->
-        val (address, selected) = checkNotNull(input).commandTarget()
-        check(selected.collapsed) { "Markdown shortcut requires a caret" }
-        session.markdownShortcut(address, selected.min)
+    fun markdownShortcut(binding: Binding, revokeNative: () -> Unit) {
+        check(!binding.input.plainField) { "Markdown shortcuts are unavailable in plain fields" }
+        perform(binding, revokeNative) { input ->
+            val (address, selected) = checkNotNull(input).commandTarget()
+            check(selected.collapsed) { "Markdown shortcut requires a caret" }
+            session.markdownShortcut(address, selected.min)
+        }
+    }
+    /** Targets are opaque origins; resolve collection order only after composition and peers finish. */
+    fun insert(revokeNative: () -> Unit, values: org.json.JSONArray, collection: NodeCollection, after: NodeIdentity? = null) {
+        session.collectionNodes(collection) // Preflight a retired owner before committing a draft.
+        after?.let { session.nodeAddress(it) }
+        perform(null, revokeNative) {
+            writingFirstPosition(session, session.insertCollectionNodes(values, collection, after).nodes.firstOrNull())
+        }
+    }
+    fun append(revokeNative: () -> Unit, values: () -> org.json.JSONArray, collection: NodeCollection) {
+        session.collectionNodes(collection)
+        perform(null, revokeNative) {
+            val after = session.collectionNodes(collection).lastOrNull()
+            writingFirstPosition(session, session.insertCollectionNodes(values(), collection, after).nodes.firstOrNull())
+        }
+    }
+    fun indent(revokeNative: () -> Unit, identity: NodeIdentity) {
+        check(writingSiblingIndex(session, identity).first > 0) { "No preceding list item" }
+        perform(null, revokeNative) {
+            val siblings = session.collectionNodes(writingParentCollection(session, identity))
+            val index = siblings.indexOfFirst { writingCanonical(it.wire) == writingCanonical(identity.wire) }
+            check(index > 0) { "No preceding list item" }
+            val owner = siblings[index - 1]
+            val target = NodeCollection.children(owner)
+            session.moveSelection(WritingSelection(nodes = listOf(identity)), target, session.collectionNodes(target).lastOrNull())
+            null
+        }
+    }
+    fun outdent(revokeNative: () -> Unit, identity: NodeIdentity) {
+        check(writingMayOutdent(session, identity)) { "Not a nested list item" }
+        perform(null, revokeNative) {
+            val address = session.nodeAddress(identity)
+            check(address.path.dropLast(1).lastOrNull() == "children") { "Not a nested list item" }
+            val owner = session.node(NodeAddress(address.blockID, address.path.dropLast(2)))
+            check(writingNodeValue(session, owner).optString("type").isEmpty()) { "Parent is not a list item" }
+            session.moveSelection(WritingSelection(nodes = listOf(identity)), writingParentCollection(session, owner), owner)
+            null
+        }
+    }
+    fun listStyle(revokeNative: () -> Unit, identity: NodeIdentity, style: String) {
+        session.nodeAddress(identity)
+        perform(null, revokeNative) {
+            val first = session.collectionNodes(NodeCollection.items(identity)).firstOrNull() ?: error("List has no item")
+            session.convertBlock(session.textAddress(first), 0, WritingBlockTarget("list", style = style))
+            null
+        }
+    }
+    fun move(revokeNative: () -> Unit, identity: NodeIdentity, direction: Int) {
+        val (beforeIndex, beforeCount) = writingSiblingIndex(session, identity)
+        check(direction in setOf(-1, 1) && beforeIndex >= 0 && beforeIndex + direction in 0 until beforeCount) { "Already at collection boundary" }
+        perform(null, revokeNative) {
+            val collection = writingParentCollection(session, identity)
+            val siblings = session.collectionNodes(collection)
+            val index = siblings.indexOfFirst { writingCanonical(it.wire) == writingCanonical(identity.wire) }
+            check(index >= 0 && direction in setOf(-1, 1))
+            val destination = index + direction
+            check(destination in siblings.indices) { "Already at collection boundary" }
+            val after = if (direction < 0) siblings.getOrNull(index - 2) else siblings[destination]
+            session.moveSelection(WritingSelection(nodes = listOf(identity)), collection, after)
+            null
+        }
+    }
+    fun duplicate(revokeNative: () -> Unit, identity: NodeIdentity) {
+        session.nodeAddress(identity)
+        perform(null, revokeNative) {
+            writingFirstPosition(session, session.duplicateSelection(WritingSelection(nodes = listOf(identity)),
+                writingParentCollection(session, identity), identity).nodes.firstOrNull())
+        }
+    }
+    fun delete(revokeNative: () -> Unit, identity: NodeIdentity) {
+        session.nodeAddress(identity)
+        perform(null, revokeNative) {
+            session.deleteSelection(WritingSelection(nodes = listOf(identity))).text.firstOrNull()?.start
+        }
+    }
+    fun checked(revokeNative: () -> Unit, identity: NodeIdentity, value: Boolean) {
+        session.nodeAddress(identity)
+        perform(null, revokeNative) { session.setNodeField(identity, listOf("checked"), value); null }
     }
     fun history(revokeNative: () -> Unit, redo: Boolean) = perform(null, revokeNative) {
         if (redo) session.redo() else session.undo(); null

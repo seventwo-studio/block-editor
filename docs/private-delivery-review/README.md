@@ -50,6 +50,14 @@ Fixtures and a documentation merge cannot establish that decision. Human approva
 of the recovery mechanism also does not establish fresh CI/review, package
 privacy, budget availability, platform compatibility or consumer acceptance.
 
+PR #64 also prepares retirement of the public source workflow's publication
+path: `.github/workflows/package.yml` becomes manual candidate validation with
+only `contents: read`, the existing version/type/test/build/tarball checks and
+no registry publication or spending checkbox. This remains a source candidate
+until reviewed delivery; historical package evidence and the current exposed
+publication are unchanged. The recovery decision and private-host execution
+steps below still require exact approval.
+
 ## Concrete change set after approval
 
 1. Retire the old source publication workflow through a reviewed source PR. Remove

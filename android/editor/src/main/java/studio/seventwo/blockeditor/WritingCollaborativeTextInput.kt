@@ -31,8 +31,10 @@ internal class WritingCollaborativeTextInput(
     private val session: WritingSession, val identity: NodeIdentity,
     private val editable: () -> Boolean, private val compositionChanged: () -> Unit,
     private val report: (Exception) -> Unit,
+    val field: String = "content", private val collections: Boolean = false,
 ) {
-    val address: WritingAddress = session.textAddress(identity)
+    val address: WritingAddress = session.textAddress(identity, field)
+    val plainField: Boolean get() = this.field == "code" || this.field == "expression"
     var value by mutableStateOf(TextFieldValue(readText()))
         private set
     var failedReason by mutableStateOf<String?>(null)
@@ -54,17 +56,34 @@ internal class WritingCollaborativeTextInput(
     private val unsubscribe = session.subscribe { refresh() }
     fun liveAddress(): WritingAddress {
         val current = session.nodeAddress(identity)
-        check(current.path.isEmpty()) { "Paragraph moved outside this root-only surface" }
         val node = fieldValue(session.snapshot, current.blockID, current.path) as? JSONObject
-        check(node?.optString("type") in setOf("paragraph", "heading", "quote", "callout")) { "This surface edits rich inline blocks only" }
-        return session.textAddress(identity)
+            ?: error("Shared field origin is retired")
+        val type = node.optString("type")
+        if (!collections) {
+            check(current.path.isEmpty()) { "Paragraph moved outside this root-only surface" }
+            check(field == "content" && type in setOf("paragraph", "heading", "quote", "callout")) { "This surface edits root rich inline blocks only" }
+        } else {
+            val childKind = current.path.dropLast(1).lastOrNull()
+            val supported = if (field == "summary") type == "toggle"
+                else if (field == "caption") type == "image"
+                else field == "content" && (type in setOf("paragraph", "heading", "quote", "callout") ||
+                    (type.isEmpty() && childKind in setOf("items", "children", "cells")))
+            val supportedPlain = (field == "code" && type == "code") || (field == "expression" && type == "math")
+            check((supported && node.opt(field) is JSONArray) || (supportedPlain && node.opt(field) is String)) { "This surface edits registered shared text fields only" }
+        }
+        return session.textAddress(identity, field)
     }
     fun readNodes(): JSONArray {
         liveAddress()
         val current = session.nodeAddress(identity)
-        return fieldValue(session.snapshot, current.blockID, current.path + "content") as? JSONArray ?: error("Inline block content is not rich text")
+        return fieldValue(session.snapshot, current.blockID, current.path + field) as? JSONArray ?: error("Shared field is not rich text")
     }
-    fun readText(): String = plainText(readNodes())
+    fun readText(): String {
+        if (!plainField) return plainText(readNodes())
+        liveAddress()
+        val current = session.nodeAddress(identity)
+        return fieldValue(session.snapshot, current.blockID, current.path + field) as? String ?: error("Shared plain field is absent")
+    }
     fun canAuthor(): Boolean = !closed && editable() && runCatching { liveAddress(); true }.getOrDefault(false)
     fun update(next: TextFieldValue) {
         if (!canAuthor()) return
@@ -164,6 +183,11 @@ internal class WritingCollaborativeTextInput(
             // A different origin is delivered to its own controller by the owner.
             if (writingKey(resolved.first.address) == writingKey(address) && canAuthor()) {
                 value = TextFieldValue(readText(), TextRange(resolved.first.offset, resolved.second.offset))
+            } else if (runCatching { liveAddress() }.isSuccess) {
+                // Keep the exact foreign-field anchors for the owner handoff, but
+                // this clean native field must display its own accepted prefix.
+                val text = readText()
+                value = TextFieldValue(text, TextRange(value.selection.start.coerceIn(0, text.length), value.selection.end.coerceIn(0, text.length)))
             }
         } else if (runCatching { liveAddress() }.isSuccess) {
             val text = readText()

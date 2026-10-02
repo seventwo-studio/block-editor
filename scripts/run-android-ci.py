@@ -148,6 +148,10 @@ def main():
         instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 4)
         instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
+        instrument("studio.seventwo.blockeditor.WritingCollectionInputTest", "writing-collection-input-instrumentation.txt", 7)
+        instrument("studio.seventwo.blockeditor.WritingCollectionComposeTest", "writing-collection-compose-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.WritingMarkdownInputTest", "writing-markdown-input-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.WritingPlainInputTest", "writing-plain-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 11)
         for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),

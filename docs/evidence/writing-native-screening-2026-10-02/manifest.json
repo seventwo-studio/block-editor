@@ -1,0 +1,37 @@
+{
+  "kind": "native-writing-release-screening",
+  "qualifiedReleaseMatrix": false,
+  "numericBudgets": "unagreed",
+  "completeSource": "4af7806ca3a11398915755095841169a9020f9af",
+  "completeTree": "3a681b8532291e321f99778f71147cef773db5ca",
+  "incompleteSource": "c396e8fbe683666447dcb1a614bc6448a9f48040",
+  "incompleteTree": "dd707b7b8770b82114363f774d9a36943a802dab",
+  "samplesPerReport": 12,
+  "repetitions": 1,
+  "excludedWarmups": 0,
+  "protocols": [
+    4,
+    5,
+    6
+  ],
+  "editsPerAuthor": [
+    32,
+    128,
+    512,
+    2048
+  ],
+  "peakRSSBytes": 323059712,
+  "boundary": "Peak editor-bridge child across measured workloads; rendering and parent runner excluded",
+  "artifact": {
+    "name": "editor-bridge",
+    "rawBytes": 3476160,
+    "sha256": "ad0c03c26e0b76785b5e0c53fdf92f6f15464472d8de9b7c9d978ff9c351af50",
+    "configuration": "release"
+  },
+  "fileSHA256": {
+    "native-release-complete.json": "31ce5fb84d579e1074fc7458d874615357325c39d28da87012f9ea064324e955",
+    "native-release-complete.resources.txt": "b67d49f01d003530719a7c952aca59ca9a8a8fbcde5813a078757fea4728502a",
+    "native-release-memory-incomplete.json": "849f19e6fb0fe8fbf46e3ce1bf61253a0d1746d793053ac32b905692e6f7509f",
+    "native-release-memory-incomplete.resources.txt": "b0438527abf5343afd18396444d91731dfc0a7f4c525767ee0e5e05fdcd04d6e"
+  }
+}

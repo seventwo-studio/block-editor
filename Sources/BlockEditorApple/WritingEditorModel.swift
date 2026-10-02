@@ -26,6 +26,8 @@ public struct WritingPendingDraft {
     @ObservationIgnored public let session: WritingSession
     @ObservationIgnored public var onChange: ((BlockEditorCore.Document, WritingChange?) -> Void)?
     @ObservationIgnored private var inputs: [UUID: (before: () -> Void, after: () -> Void, commit: () throws -> Void, caret: (WritingPosition) -> Void)] = [:]
+    @ObservationIgnored private var renderedSiblingBounds: [NodeCollection: [NodeID: (index: Int, count: Int)]] = [:]
+    @ObservationIgnored private var renderedOrigins: [UUID: () -> Bool] = [:]
     @ObservationIgnored private var compositions = Set<UUID>()
     @ObservationIgnored var pendingCaret: WritingPosition?
     @ObservationIgnored var pendingCaretInput: UUID?
@@ -42,10 +44,23 @@ public struct WritingPendingDraft {
         session.onWillReceive = { [weak self] in guard let self else { return }; Array(self.inputs.values).forEach { $0.before() } }
         session.onChange = { [weak self] document, change in
             guard let self else { return }
+            self.renderedSiblingBounds.removeAll()
+            let renderSnapshot = self.renderedOrigins
+            for (id, refresh) in renderSnapshot where !refresh() {
+                self.renderedOrigins.removeValue(forKey: id)
+            }
             self.document = document; self.canUndo = self.session.canUndo; self.canRedo = self.session.canRedo
             if !self.performingCommand { Array(self.inputs.values).forEach { $0.after() } }; self.onChange?(document, change)
         }
     }
+    /// Weak render observers invalidate immediately, including a move/Undo
+    /// round trip that occurs before SwiftUI renders the intermediate location.
+    func observeRenderedOrigin(_ refresh: @escaping () -> Bool) -> UUID {
+        let id = UUID()
+        renderedOrigins[id] = refresh
+        return id
+    }
+    func removeRenderedOrigin(_ id: UUID) { renderedOrigins.removeValue(forKey: id) }
     func observeInput(id: UUID, before: @escaping () -> Void, after: @escaping () -> Void,
                       commit: @escaping () throws -> Void, caret: @escaping (WritingPosition) -> Void) -> () -> Void {
         inputs[id] = (before, after, commit, caret)
@@ -129,6 +144,16 @@ public struct WritingPendingDraft {
         guard let block = document.blocks.first(where: { $0.id == live.blockID }),
               let value = JSONValue.object(block.fields).value(at: live.path + [field]) else { throw EditorError.invalidPath }
         return value
+    }
+    /// One observed collection snapshot serves every visible sibling. Commands
+    /// still query current order again after composition and held peers drain.
+    func siblingBounds(_ identity: NodeID) throws -> (index: Int, count: Int)? {
+        let collection = try collection(containing: identity)
+        if renderedSiblingBounds[collection] == nil {
+            let nodes = try session.collectionNodes(in: collection)
+            renderedSiblingBounds[collection] = Dictionary(uniqueKeysWithValues: nodes.enumerated().map { ($0.element, (index: $0.offset, count: nodes.count)) })
+        }
+        return renderedSiblingBounds[collection]?[identity]
     }
     func collection(containing identity: NodeID) throws -> NodeCollection {
         let address = try session.address(of: identity)

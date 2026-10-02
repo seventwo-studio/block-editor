@@ -50,13 +50,38 @@ internal object WritingNativeClipboard {
         // normalizer owns schema, payload depth, policy and unknown metadata.
         return WritingClipboard.restore(JSONObject(encoded))
     }
-    fun plain(session: WritingSession, text: String): WritingClipboard {
+    private fun normalizedText(text: String): String {
         val normalized = bounded(text).replace("\r\n", "\n").replace('\r', '\n')
         require(normalized.count { it == '\n' } < 10_000) { "Clipboard has too many lines" }
-        val version = session.save().export().getInt("version")
-        return session.clipboardText(normalized, if (version == 4 || !normalized.contains('\n')) "inline" else "multiline")
+        return normalized
     }
-    fun read(manager: ClipboardManager, session: WritingSession): WritingClipboard? {
+    fun plain(session: WritingSession, text: String, plainField: Boolean = false): WritingClipboard {
+        val normalized = normalizedText(text)
+        val version = session.save().export().getInt("version")
+        return session.clipboardText(normalized, if (plainField || version == 4 || !normalized.contains('\n')) "inline" else "multiline")
+    }
+    /** Explicit shared Markdown dialect; ordinary paste never guesses it. */
+    fun markdown(session: WritingSession, text: String): WritingClipboard {
+        val parsed = session.clipboardText(normalizedText(text), "markdown")
+        if (session.save().export().getInt("version") != 4) return parsed
+        val parts = parsed.export().getJSONArray("parts")
+        val node = if (parts.length() == 1) parts.getJSONObject(0).optJSONObject("node") else null
+        val paragraph = node?.optJSONObject("value")
+        // Protocol4 has inline paste but no structural paste command. Only the
+        // one parsed paragraph can safely become inline without discarding shape.
+        if (node?.optString("kind") == "block" && paragraph?.optString("type") == "paragraph")
+            return WritingClipboard.restore(JSONObject().put("version", 1).put("parts", JSONArray().put(
+                JSONObject().put("inline", JSONObject().put("_0", paragraph.getJSONArray("content"))))))
+        throw IllegalStateException("Structural Markdown requires an explicit protocol5 or protocol6 session")
+    }
+    fun readMarkdown(manager: ClipboardManager, session: WritingSession): WritingClipboard? {
+        val data = manager.primaryClip ?: return null
+        // Explicit Markdown uses the inert plain companion even when a typed
+        // DTO is present; never coerce URI/Intent data through a provider.
+        val text = if (data.itemCount > 0) data.getItemAt(0).text?.toString() else null
+        return text?.let { markdown(session, it) }
+    }
+    fun read(manager: ClipboardManager, session: WritingSession, plainField: Boolean = false): WritingClipboard? {
         val data = manager.primaryClip ?: return null
         if (data.description.hasMimeType(MIME)) {
             require(data.itemCount == 2) { "Malformed structured clipboard" }
@@ -66,7 +91,7 @@ internal object WritingNativeClipboard {
         // Item.text is inert. coerceToText may access a ContentProvider/URI and
         // is deliberately excluded from this editor's clipboard boundary.
         val text = if (data.itemCount > 0) data.getItemAt(0).text?.toString() else null
-        return text?.let { plain(session, it) }
+        return text?.let { plain(session, it, plainField) }
     }
     fun write(manager: ClipboardManager, clipboard: WritingClipboard) {
         val value = clipboard.export(); val parts = value.getJSONArray("parts")

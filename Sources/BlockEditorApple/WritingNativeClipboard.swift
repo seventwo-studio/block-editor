@@ -3,7 +3,7 @@ import BlockEditorCore
 import Foundation
 
 /// Native clipboard input is inert data. Hosts remain responsible for assets.
-enum WritingNativeClipboardPayload { case structured(Data), text(String) }
+enum WritingNativeClipboardPayload { case structured(Data), text(String), markdown(String) }
 
 enum WritingNativeClipboard {
     static let identifier = "studio.seventwo.blockeditor.writing-clipboard"
@@ -25,6 +25,23 @@ enum WritingNativeClipboard {
                 return WritingClipboard.plainText(normalized)
             }
             return try WritingClipboard.multilineText(text)
+        case .markdown(let text):
+            // Explicit user action, using exactly the shared document dialect.
+            // No automatic interpretation of ordinary plain-text Paste.
+            guard text.utf16.count <= 1_000_000 else { throw EditorError.invalidRange }
+            let normalized = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
+            guard normalized.components(separatedBy: "\n").count <= 10_000 else { throw EditorError.invalidRange }
+            let clipboard = try WritingClipboard.markdown(normalized)
+            if protocolVersion == 4 {
+                // v4 can author an inline field, not a fresh structural chain.
+                // A parsed paragraph keeps its rich data; other types reject.
+                guard clipboard.parts.count == 1,
+                      case .node(let value, let kind) = clipboard.parts[0],
+                      kind == "block", value["type"] == .string("paragraph"),
+                      let content = value["content"]?.array else { throw EditorError.invalidChange }
+                return WritingClipboard(parts: [.inline(content)])
+            }
+            return clipboard
         case .structured(let data):
             guard data.count <= 32_000_000 else { throw EditorError.invalidRange }
             // Check unknown wire nesting before recursive typed decoding. The

@@ -1,0 +1,9 @@
+# Android explicit Markdown paste
+
+“Paste Markdown” reads only the first native clipboard item's inert text companion and uses the existing shared Markdown dialect. It deliberately ignores a structured DTO's second item. Ordinary Paste and Ctrl+V retain their existing DTO priority and literal plain-text behavior. No URI/Intent coercion, HTML/RTF parsing, asset download or automatic protocol upgrade is added.
+
+The adapter normalizes CRLF/CR and rejects more than 1,000,000 UTF-16 units or 10,000 lines before shared parsing. For protocol4, one parsed paragraph becomes a shared inline fragment; structural or multiple-block Markdown rejects at the adapter before native finalization, preserving any marked draft and held peer packets. Explicit5/6 use their shared selection paste. Host normalization and authored-type policy continue to control accepted shapes. The Markdown dialect is the repository's documented interchange projection, including headings, lists/checklists, tables and code; inline emphasis remains the existing parser's literal text behavior.
+
+The command uses the same live native lease as Paste: commit final composition, drain held peer changes, recompute current opaque selection, normalize under current host policy and perform one shared paste. Undo removes the paste while retaining accepted composition and peer text; a returned caret is adopted by a fresh native field. Read-only, stale, disposed and failed-draft behavior remains owned by the existing input controller.
+
+Four mandatory typed/native clipboard witnesses cover4/5/6: actual foreground clipboard companion versus DTO priority, final composition/Unicode/reference/held peer/caret/Undo/reopen, fresh structured IDs plus host restriction and protocol4 rejection, and preparse bounds preserving marked drafts and remote holds. Source and compilation are separate from actual installed JNI, rendered action and installed keyboard/device/accessibility acceptance.
