@@ -34,8 +34,8 @@ public final class EditorBridge {
     private func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
-        if (command == "create" && [.number(3), .number(4)].contains(input["collaborationVersion"])) ||
-           (command == "restore" && [.number(3), .number(4)].contains(input["snapshot"]?["version"])) || command == "cutoverToV3" {
+        if (command == "create" && [.number(3), .number(4), .number(5)].contains(input["collaborationVersion"])) ||
+           (command == "restore" && [.number(3), .number(4), .number(5)].contains(input["snapshot"]?["version"])) || command == "cutoverToV3" {
             guard !handle.isEmpty, sessions[handle] == nil, writingSessions[handle] == nil,
                   let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             let writing: WritingSession
@@ -50,7 +50,7 @@ public final class EditorBridge {
                 guard let documentID = input["documentID"]?.string, let epoch = input["epoch"]?.string else { throw EditorError.invalidChange }
                 writing = try WritingSession(documentID: documentID, actorID: actor, epoch: epoch,
                     document: Document(json: canonicalEncoder().encode(input["blocks"] ?? .array([]))),
-                    protocolVersion: input["collaborationVersion"] == .number(4) ? 4 : 3)
+                    protocolVersion: decode(input["collaborationVersion"], as: Int.self))
             }
             writingSessions[handle] = writing
             return try writingSnapshot(writing)
@@ -180,6 +180,30 @@ public final class EditorBridge {
             return try encode(session.selectedText(at: decode(input["address"], as: TextAddress.self), range: start..<end))
         case "writingSelection": return try encode(session.selection(from: decode(input["anchor"], as: WritingPosition.self), to: decode(input["focus"], as: WritingPosition.self)))
         case "copySelection": return try encode(session.copy(decode(input["selection"], as: WritingSelection.self)))
+        case "copyClipboard": return try encode(session.copyClipboard(decode(input["selection"], as: WritingSelection.self)))
+        case "clipboardText":
+            guard let text = input["text"]?.string, text.utf16.count <= 1_000_000 else { throw EditorError.invalidRange }
+            let clipboard: WritingClipboard
+            switch input["format"]?.string ?? "inline" {
+            case "inline": clipboard = .plainText(text)
+            case "multiline": clipboard = try .multilineText(text)
+            case "markdown": clipboard = try .markdown(text)
+            default: throw EditorError.invalidChange
+            }
+            return try encode(clipboard)
+        case "pasteBlocks":
+            let policy = input["policy"] == nil ? WritingPastePolicy() : try decode(input["policy"], as: WritingPastePolicy.self)
+            let position = try session.pasteBlocks(decode(input["clipboard"], as: WritingClipboard.self), replacing: decode(input["range"], as: WritingTextRange.self), policy: policy)
+            return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+        case "pasteInline":
+            let policy = input["policy"] == nil ? WritingPastePolicy() : try decode(input["policy"], as: WritingPastePolicy.self)
+            let position = try session.pasteInline(decode(input["clipboard"], as: WritingClipboard.self), replacing: decode(input["range"], as: WritingTextRange.self), policy: policy)
+            return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+        case "pasteCollection":
+            let policy = input["policy"] == nil ? WritingPastePolicy() : try decode(input["policy"], as: WritingPastePolicy.self)
+            let after = input["after"] == nil || input["after"] == .null ? nil : try decode(input["after"], as: NodeID.self)
+            let selection = try session.pasteCollection(decode(input["clipboard"], as: WritingClipboard.self), into: decode(input["collection"], as: NodeCollection.self), after: after, policy: policy)
+            return .object(["snapshot": try writingSnapshot(session), "selection": try encode(selection)])
         case "deleteSelection":
             let selected = try session.delete(decode(input["selection"], as: WritingSelection.self))
             return .object(["snapshot": try writingSnapshot(session), "selection": try encode(selected)])

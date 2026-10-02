@@ -47,7 +47,7 @@ public enum WritingChangeBody: Codable, Equatable, Sendable {
 public struct WritingChange: Codable, Equatable, Sendable {
     public let id: ChangeID
     public let body: WritingChangeBody
-    /// Protocol 4 records the maximal observed change for each actor. Recursive
+    /// Protocols 4 and 5 record the maximal observed change for each actor. Recursive
     /// predecessor closure identifies exact observed history despite clock holes.
     public let observed: [ChangeID]?
     public init(id: ChangeID, body: WritingChangeBody, observed: [ChangeID]? = nil) {
@@ -82,7 +82,7 @@ public enum WritingSessionError: Error, Equatable, Sendable {
 }
 
 /// Experimental writing facade. Protocol 3 is the default; identity-preserving
-/// schema conversion requires an explicitly created protocol 4 epoch. It shares
+/// schema conversion requires an explicitly created protocol 4 or 5 epoch. It shares
 /// document validation and structural replay with the core; v1/v2 are unchanged.
 /// Confine it to one executor and keep pending recovery separate from save().
 public final class WritingSession {
@@ -91,6 +91,8 @@ public final class WritingSession {
     public let epoch: String
     public let protocolVersion: Int
     public let baseline: Document
+    // Only these explicitly supported epochs inherit retained-origin writing semantics.
+    private var usesRetainedOrigins: Bool { protocolVersion == 4 || protocolVersion == 5 }
     public var onChange: ((Document, WritingChange?) -> Void)?
     public var onWillReceive: (() -> Void)?
     public var isComposing = false
@@ -112,7 +114,7 @@ public final class WritingSession {
     public private(set) var document: Document
 
     public init(documentID: String, actorID: String, epoch: String, document: Document, protocolVersion: Int = 3) throws {
-        guard [3, 4].contains(protocolVersion) else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard [3, 4, 5].contains(protocolVersion) else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !documentID.isEmpty, validToken(actorID), validToken(epoch) else { throw EditorError.invalidChange }
         let validated = try Document(blocks: document.blocks)
         guard try validated.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
@@ -140,15 +142,15 @@ public final class WritingSession {
     /// Explicitly cancel a rejected v4 undo by reactivating its original author
     /// transaction. The failed undo remains in history; no proposal is discarded.
     public func repairRedo(_ target: ChangeID) throws {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         try repairHistory(target, active: true)
     }
     private func repairHistory(_ target: ChangeID, active: Bool) throws {
         var candidate = try recoveryCandidate()
-        guard target.actor == actorID, undoStack.contains(target) || (protocolVersion == 4 && redoStack.contains(target)),
+        guard target.actor == actorID, undoStack.contains(target) || (usesRetainedOrigins && redoStack.contains(target)),
               let original = log[target], case .edit = original.body else { throw EditorError.invalidChange }
         let id = try recoveryID(candidate)
-        let change = WritingChange(id: id, body: .setActive(target: target, active: active), observed: protocolVersion == 4 ? observedFrontier(candidate) : nil)
+        let change = WritingChange(id: id, body: .setActive(target: target, active: active), observed: usesRetainedOrigins ? observedFrontier(candidate) : nil)
         candidate[id] = change
         try admitRepair(candidate, change: change)
     }
@@ -156,7 +158,7 @@ public final class WritingSession {
     /// minimal diff. Planning never exposes an invalid public document. Final
     /// admission validates the whole union atomically before state publication.
     public func repairText(node: NodeID, field: String, text: String) throws {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         var candidate = try recoveryCandidate()
         guard text.utf16.count <= 100_000 else { throw EditorError.invalidRange }
         let plan = try replayProjection(candidate)
@@ -257,7 +259,7 @@ public final class WritingSession {
     public static func restore(_ snapshot: Data, actorID: String) throws -> WritingSession {
         guard snapshot.count <= 64_000_000 else { throw EditorError.recoveryCapacityExceeded }
         let batch = try JSONDecoder().decode(WritingBatch.self, from: snapshot)
-        guard [3, 4].contains(batch.version) else { throw EditorError.unsupportedVersion(batch.version) }
+        guard [3, 4, 5].contains(batch.version) else { throw EditorError.unsupportedVersion(batch.version) }
         let session = try WritingSession(documentID: batch.documentID, actorID: actorID, epoch: batch.epoch, document: batch.baseline, protocolVersion: batch.version)
         try session.receive(batch)
         if let local = try JSONDecoder().decode(JSONValue.self, from: snapshot)["localHistory"], local["actorID"] == .string(actorID) {
@@ -348,7 +350,7 @@ public final class WritingSession {
                 // author Undo retires the new node. Empty-field head positions have
                 // no text atom to follow; resolve them through that immutable birth.
                 // Deleted unrelated nodes and field-end sentinels keep failing.
-                guard protocolVersion == 4, position.anchor == nil, position.affinity == .after,
+                guard usesRetainedOrigins, position.anchor == nil, position.affinity == .after,
                       position.intraAtomOffset == nil, !retiredHeads.contains(position.field),
                       case .inserted(let creation, let path) = position.field.node, path.isEmpty,
                       case .edit(let operations)? = log[creation.change]?.body else { throw error }
@@ -362,9 +364,12 @@ public final class WritingSession {
                 }
                 guard retirementStates?[creation.change] == false else { throw error }
                 let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
-                    if case .text(.splitBoundary(let source, let destination, let edge, _)) = operation,
-                       destination == position.field { return (source, edge) }
-                    return nil
+                    switch operation {
+                    case .text(.splitBoundary(let source, let destination, let edge, _)),
+                         .text(.spliceBoundary(let source, let destination, let edge, _, _)):
+                        return destination == position.field ? (source, edge) : nil
+                    default: return nil
+                    }
                 }
                 guard boundaries.count == 1, let (source, edge) = boundaries.first else { throw error }
                 let affinity: TextAffinity
@@ -416,7 +421,7 @@ public final class WritingSession {
         guard !isComposing else { throw WritingSessionError.compositionActive }
         try requireAuthoredType("paragraph")
         let selected = try selection(address, range), source = selected.field.node
-        guard selected.field.name == "content", protocolVersion == 4 ? ["paragraph", "heading", "quote", "callout"].contains(structure.nodes[source]?.fields["type"]?.string ?? "") : structure.nodes[source]?.fields["type"] == .string("paragraph") else { throw EditorError.invalidPath }
+        guard selected.field.name == "content", usesRetainedOrigins ? ["paragraph", "heading", "quote", "callout"].contains(structure.nodes[source]?.fields["type"]?.string ?? "") : structure.nodes[source]?.fields["type"] == .string("paragraph") else { throw EditorError.invalidPath }
         let placements = try structure.effectivePlacements()
         guard let parent = placements[source] else { throw EditorError.invalidPath }
         let siblings = try structure.visibleOrder(in: parent.collection)
@@ -432,7 +437,7 @@ public final class WritingSession {
         // Observed prefix atoms can themselves be anchored before a suffix atom.
         // Pin those known atoms to the source before moving the suffix, so native
         // committed composition does not follow its old anchor into the new field.
-        if protocolVersion == 4 {
+        if usesRetainedOrigins {
             let prefix = try selection(address, 0..<range.lowerBound).keys
             if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
         }
@@ -457,7 +462,7 @@ public final class WritingSession {
     /// Update scalar leaf metadata without replacing shared text or collections.
     /// Conversion attributes use convertBlock; identity and document shape are immutable here.
     public func setNodeField(_ identity: NodeID, path: [String], value: JSONValue) throws {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !isComposing else { throw WritingSessionError.compositionActive }
         let protected = Set(["id", "type", "content", "summary", "caption", "code", "expression", "children", "items", "rows", "cells"])
         guard !path.isEmpty, path.count <= 100, !path.contains(where: { protected.contains($0) }),
@@ -523,6 +528,120 @@ public final class WritingSession {
             return value
         }
         return try WritingCopy(nodes: values, text: parts.map { try $0.map { try atom($0) } })
+    }
+    /// Unlike the legacy copy shape, this preserves interleaving of partial
+    /// fields and whole subtrees in current visible document order.
+    public func copyClipboard(_ input: WritingSelection) throws -> WritingClipboard {
+        let selected = try normalizedSelection(input), keys = try selectedParts(selected)
+        var ordered: [NodeID] = [], stack = Array(try structure.visibleOrder(in: .root).reversed())
+        while let identity = stack.popLast() {
+            ordered.append(identity)
+            guard let node = structure.nodes[identity] else { throw EditorError.invalidPath }
+            for name in StructuralState.collectionFields(node.kind, node.fields).keys.sorted().reversed() {
+                stack += try structure.visibleOrder(in: NodeCollection(owner: identity, field: name)).reversed()
+            }
+        }
+        let rank = Dictionary(uniqueKeysWithValues: ordered.enumerated().map { ($0.element, $0.offset) })
+        var parts: [(node: Int, field: Int, offset: Int, part: WritingClipboardPart)] = []
+        for identity in selected.nodes {
+            let address = try structure.address(of: identity)
+            guard let value = document.blocks.first(where: { $0.id == address.blockID })?.value(at: address.path),
+                  let node = structure.nodes[identity], let index = rank[identity] else { throw EditorError.invalidPath }
+            parts.append((index, -1, 0, .node(value: value, kind: node.kind.rawValue)))
+        }
+        for (span, atoms) in zip(selected.text, keys) {
+            let start = try resolve(span.start), owner = try field(start.address)
+            guard let node = structure.nodes[owner.node], let index = rank[owner.node],
+                  let fieldIndex = writingFields(node).firstIndex(of: owner.name) else { throw EditorError.invalidPath }
+            parts.append((index, fieldIndex, start.offset, .inline(try atoms.map { try atom($0) })))
+        }
+        parts.sort { ($0.node, $0.field, $0.offset) < ($1.node, $1.field, $1.offset) }
+        return WritingClipboard(parts: parts.map(\.part))
+    }
+    /// A rich field replacement is exactly one local-author transaction. Raw
+    /// formats are normalized by adapters before entering this inert contract.
+    @discardableResult public func pasteInline(_ clipboard: WritingClipboard, replacing range: WritingTextRange, policy: WritingPastePolicy = WritingPastePolicy()) throws -> WritingPosition {
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        try clipboard.validate(policy: policy, hostBlockTypes: allowedBlockTypes)
+        guard clipboard.parts.count == 1, case .inline(let values) = clipboard.parts[0] else { throw EditorError.invalidRange }
+        let start = try resolve(range.start), end = try resolve(range.end)
+        guard start.address == end.address else { throw EditorError.invalidRange }
+        let selected = try selection(start.address, min(start.offset, end.offset)..<max(start.offset, end.offset))
+        if selected.field.name == "code" || selected.field.name == "expression" {
+            guard values.allSatisfy({ $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
+                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"]) }) else { throw EditorError.invalidChange }
+        }
+        let id = try nextID()
+        var operations: [WritingOperation] = [], edge = selected.edge, last: WritingAtomKey?, index = 0
+        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
+        for value in values {
+            let atoms: [JSONValue]
+            if value["type"] == .string("text") {
+                atoms = (value["text"]?.string ?? "").unicodeScalars.map { scalar in
+                    var fields = value.object!; fields["text"] = .string(String(scalar)); return .object(fields)
+                }
+            } else {
+                guard !plainText([value]).isEmpty else { throw EditorError.invalidChange }
+                atoms = [value]
+            }
+            for atom in atoms {
+                let key = WritingAtomKey(origin: selected.field, element: ElementID(change: id, index: index))
+                index += 1
+                let route = edge.anchor.map(WritingRoute.follow) ?? .field(selected.field)
+                operations.append(.text(.insert(WritingAtomSeed(key: key, node: atom, edge: edge, route: route))))
+                edge = .after(key); last = key
+            }
+        }
+        if !operations.isEmpty { try perform(id, operations) }
+        return last.map { WritingPosition(documentID: documentID, epoch: epoch, field: selected.field, anchor: $0, affinity: .after) } ?? selected.position
+    }
+    /// Paste complete schema nodes or copied partial fields at a collection
+    /// boundary. Fresh labels are generated only for schema identities; opaque
+    /// consumer/reference metadata is retained. No existing array is replaced.
+    @discardableResult public func pasteCollection(_ clipboard: WritingClipboard, into collection: NodeCollection, after: NodeID? = nil, policy: WritingPastePolicy = WritingPastePolicy()) throws -> WritingSelection {
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        try clipboard.validate(policy: policy, hostBlockTypes: allowedBlockTypes)
+        let kind = try structure.kind(in: collection)
+        if let owner = collection.owner { _ = try structure.address(of: owner) }
+        var values: [JSONValue] = []
+        for part in clipboard.parts {
+            switch part {
+            case .node(let value, let sourceKind):
+                guard sourceKind == kind.rawValue else { throw EditorError.invalidPath }
+                values.append(value)
+            case .inline(let nodes):
+                guard kind == .block else { throw EditorError.invalidPath }
+                try requireAuthoredType("paragraph")
+                guard policy.allowedBlockTypes?.contains("paragraph") ?? true else { throw EditorError.restrictedBlock("paragraph") }
+                values.append(.object(["id": .string("clipboard"), "type": .string("paragraph"), "content": .array(nodes)]))
+            }
+        }
+        let id = try nextID()
+        var reserved = Set(structure.nodes.values.map(\.label)), serial = 0
+        func fresh(_ value: JSONValue, kind: NodeKind) throws -> JSONValue {
+            guard var fields = value.object else { throw EditorError.invalidPath }
+            var label: String
+            repeat { serial += 1; label = "paste-\(actorID)-\(id.counter)-\(serial)" } while reserved.contains(label)
+            reserved.insert(label); fields["id"] = .string(label)
+            for (field, childKind) in StructuralState.collectionFields(kind, fields) {
+                if let children = fields[field]?.array { fields[field] = .array(try children.map { try fresh($0, kind: childKind) }) }
+            }
+            return .object(fields)
+        }
+        var edge = try selectionPlacement(after, in: collection), identities: [NodeID] = []
+        var operations = try retainedRoleOperations(for: [after].compactMap { $0 })
+        for (index, value) in values.enumerated() {
+            let value = try fresh(value, kind: kind)
+            try validateNode(value, kind: kind)
+            let placement = ElementID(change: id, index: index), identity = NodeID.inserted(creation: placement, path: [])
+            identities.append(identity)
+            operations.append(.structure(.insertNode(value: value, identity: identity, collection: collection, placement: placement, after: edge)))
+            edge = .edit(placement)
+        }
+        try perform(id, operations)
+        return WritingSelection(nodes: identities)
     }
     /// A mixed range deletion is one transaction. Only observed atoms and nodes
     /// are removed; undo retains independent remote writes in surviving origins.
@@ -602,6 +721,74 @@ public final class WritingSession {
         try perform(id, operations)
         return WritingSelection(nodes: identities)
     }
+    /// Replace a range in a paragraph with complete imported blocks. Imported
+    /// nodes remain complete; inline absorption and cross-block ranges use a
+    /// separate planner. Protocol 5 records the complete cut group explicitly.
+    @discardableResult public func pasteBlocks(_ clipboard: WritingClipboard, replacing range: WritingTextRange,
+                                                policy: WritingPastePolicy = WritingPastePolicy()) throws -> WritingPosition {
+        guard protocolVersion == 5 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard !isComposing else { throw WritingSessionError.compositionActive }
+        try clipboard.validate(policy: policy, hostBlockTypes: allowedBlockTypes)
+        let start = try resolve(range.start), end = try resolve(range.end)
+        let source = try field(start.address)
+        guard source == (try field(end.address)), source.name == "content",
+              let original = structure.nodes[source.node], original.kind == .block,
+              original.fields["type"] == .string("paragraph") else { throw EditorError.invalidPath }
+        let lower = min(start.offset, end.offset), upper = max(start.offset, end.offset)
+        let selected = try selection(start.address, lower..<upper)
+        let placements = try structure.effectivePlacements()
+        guard let parent = placements[source.node] else { throw EditorError.invalidPath }
+        let siblings = try structure.visibleOrder(in: parent.collection)
+        guard let sourceIndex = siblings.firstIndex(of: source.node) else { throw EditorError.invalidPath }
+        let before = sourceIndex + 1 < siblings.count ? siblings[sourceIndex + 1] : nil
+        let values = try clipboard.parts.map { part -> JSONValue in
+            guard case .node(let value, let kind) = part, kind == "block" else { throw EditorError.invalidPath }
+            return value
+        }
+        let id = try nextID()
+        var serial = 0, reserved = Set(structure.nodes.values.map(\.label))
+        func fresh(_ value: JSONValue, kind: NodeKind) throws -> JSONValue {
+            guard var fields = value.object else { throw EditorError.invalidPath }
+            var label: String
+            repeat { serial += 1; label = "paste-\(actorID)-\(id.counter)-\(serial)" } while reserved.contains(label)
+            reserved.insert(label); fields["id"] = .string(label)
+            for (name, childKind) in StructuralState.collectionFields(kind, fields) {
+                if let children = fields[name]?.array { fields[name] = .array(try children.map { try fresh($0, kind: childKind) }) }
+            }
+            return .object(fields)
+        }
+        var operations = try retainedRoleOperations(for: [source.node]), members: [NodeID] = []
+        // Offset zero retains the original suffix owner and its opaque metadata.
+        // Positive offsets retain the original prefix and create a fresh tail.
+        var after = lower == 0 ? parent.after : parent.id
+        for (index, value) in values.enumerated() {
+            let placement = ElementID(change: id, index: index), identity = NodeID.inserted(creation: placement, path: [])
+            let imported = try fresh(value, kind: .block)
+            try validateNode(imported, kind: .block)
+            operations.append(.structure(.insertNode(value: imported, identity: identity, collection: parent.collection, placement: placement, after: after)))
+            members.append(identity); after = .edit(placement)
+        }
+        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
+        var destination = source, suffix: [WritingAtomKey] = []
+        if lower > 0 {
+            try requireAuthoredType("paragraph")
+            guard policy.allowedBlockTypes?.contains("paragraph") ?? true else { throw EditorError.restrictedBlock("paragraph") }
+            let placement = ElementID(change: id, index: values.count), identity = NodeID.inserted(creation: placement, path: [])
+            var tail = original.fields
+            tail["content"] = .array([])
+            let tailValue = try fresh(.object(tail), kind: .block)
+            operations.append(.structure(.insertNode(value: tailValue, identity: identity, collection: parent.collection, placement: placement, after: after)))
+            members.append(identity); destination = WritingField(node: identity, name: "content")
+            operations.append(.text(.spliceBoundary(source: source, destination: destination, edge: selected.edge, before: before, members: members)))
+            let prefix = try selection(start.address, 0..<lower).keys
+            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: source, edge: .start))) }
+            suffix = try selection(start.address, upper..<projection.text(in: source).utf16.count).keys
+            if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
+        }
+        try perform(id, operations)
+        return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: suffix.first,
+                               affinity: suffix.isEmpty ? .after : .before)
+    }
     /// Read stable identities from a schema-defined collection. Paths are used
     /// only for lookup; consumers keep these identities across later moves.
     public func collectionNodes(in collection: NodeCollection) throws -> [NodeID] {
@@ -613,7 +800,7 @@ public final class WritingSession {
     /// Collection values are inserted individually; existing arrays are never
     /// replaced. Schema IDs remain scoped and unknown payload stays untouched.
     @discardableResult public func insertCollectionNodes(_ values: [JSONValue], into collection: NodeCollection, after: NodeID? = nil) throws -> WritingSelection {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !isComposing else { throw WritingSessionError.compositionActive }
         guard !values.isEmpty, values.count <= 100_000 else { throw EditorError.invalidRange }
         let kind = try structure.kind(in: collection)
@@ -687,7 +874,7 @@ public final class WritingSession {
         }
     }
     public func undo() throws {
-        if protocolVersion == 4 {
+        if usesRetainedOrigins {
             guard !preparingReceive else { throw EditorError.invalidChange }
             if let recovery = mergeRecovery { throw WritingSessionError.recoveryRequired(recovery) }
         }
@@ -695,7 +882,7 @@ public final class WritingSession {
         try toggle(target, false)
     }
     public func redo() throws {
-        if protocolVersion == 4 {
+        if usesRetainedOrigins {
             guard !preparingReceive else { throw EditorError.invalidChange }
             if let recovery = mergeRecovery { throw WritingSessionError.recoveryRequired(recovery) }
         }
@@ -705,22 +892,22 @@ public final class WritingSession {
     private func perform(_ id: ChangeID, _ operations: [WritingOperation]) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         guard mergeRecovery == nil else { throw WritingSessionError.recoveryRequired(mergeRecovery!) }
-        let change = WritingChange(id: id, body: .edit(operations), observed: protocolVersion == 4 ? observedFrontier(log) : nil); var candidate = log; candidate[id] = change
+        let change = WritingChange(id: id, body: .edit(operations), observed: usesRetainedOrigins ? observedFrontier(log) : nil); var candidate = log; candidate[id] = change
         try capacity(candidate); let result = try replay(candidate)
         undoStack.append(id); redoStack.removeAll(); accept(candidate, result, change: change)
     }
     private func toggle(_ target: ChangeID, _ active: Bool) throws {
         guard !preparingReceive else { throw EditorError.invalidChange }
         guard mergeRecovery == nil else { throw WritingSessionError.recoveryRequired(mergeRecovery!) }
-        let change = WritingChange(id: try nextID(), body: .setActive(target: target, active: active), observed: protocolVersion == 4 ? observedFrontier(log) : nil); var candidate = log; candidate[change.id] = change
+        let change = WritingChange(id: try nextID(), body: .setActive(target: target, active: active), observed: usesRetainedOrigins ? observedFrontier(log) : nil); var candidate = log; candidate[change.id] = change
         try capacity(candidate)
         let result: (StructuralState, WritingProjection, Document)
         do { result = try replay(candidate) }
-        catch let error as WritingProjectionError where protocolVersion == 4 {
+        catch let error as WritingProjectionError where usesRetainedOrigins {
             try retain(candidate, reason: error == .missingAtom ? .schemaConstraint : .identityConflict)
-        } catch EditorError.invalidDocument where protocolVersion == 4 {
+        } catch EditorError.invalidDocument where usesRetainedOrigins {
             try retain(candidate, reason: .schemaConstraint)
-        } catch EditorError.structuralConflict where protocolVersion == 4 {
+        } catch EditorError.structuralConflict where usesRetainedOrigins {
             try retain(candidate, reason: .identityConflict)
         }
         if active { redoStack.removeLast(); undoStack.append(target) }
@@ -779,7 +966,7 @@ public final class WritingSession {
         // before the same right anchor would sort ahead of the previous run.
         // Preserve baseline-boundary right affinity and exact version-3 wire.
         let edge: WritingEdge
-        if protocolVersion == 4, let previous, previous.element.change.counter > 0 { edge = .after(previous) }
+        if usesRetainedOrigins, let previous, previous.element.change.counter > 0 { edge = .after(previous) }
         else { edge = next.map(WritingEdge.before) ?? previous.map(WritingEdge.after) ?? .start }
         return (field, selected, edge, marks, WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: next ?? previous, affinity: next == nil ? .after : .before))
     }
@@ -804,7 +991,7 @@ public final class WritingSession {
         var history: [ChangeID: Change] = [:]
         for change in changes {
             guard change.id.counter > 0, change.id.counter <= 9_007_199_254_740_991, validToken(change.id.actor) else { throw EditorError.invalidChange }
-            if protocolVersion == 4 {
+            if usesRetainedOrigins {
                 guard let observed = change.observed else { throw EditorError.invalidChange }
                 try validateObservedFrontier(observed, before: change.id)
                 for dependency in observed where candidate[dependency] == nil { throw WritingProjectionError.missingAtom }
@@ -814,7 +1001,7 @@ public final class WritingSession {
                 guard !operations.isEmpty, operations.count <= 100_000 else { throw EditorError.invalidChange }
                 history[change.id] = Change(id: change.id, body: .edit(operations.compactMap {
                     if case .structure(let mutation) = $0 { return mutation }
-                    if protocolVersion == 4, case .schemaConvert(let conversion) = $0,
+                    if usesRetainedOrigins, case .schemaConvert(let conversion) = $0,
                        conversion.type == "list", let creation = conversion.creation, let itemID = conversion.itemID {
                         var fields: [String: JSONValue] = ["id": .string(itemID), "content": .array([])]
                         if conversion.attributes["style"] == .string("todo") { fields["checked"] = .bool(false) }
@@ -832,9 +1019,9 @@ public final class WritingSession {
             }
         }
         var raw = Materialized.seed(baseline, version: 2)
-        var births = protocolVersion == 4 ? retainedWritingFields(raw.structure!) : [:]
+        var births = usesRetainedOrigins ? retainedWritingFields(raw.structure!) : [:]
         var collectionBirths: [NodeCollection: NodeKind] = [:]
-        if protocolVersion == 4 {
+        if usesRetainedOrigins {
             for (identity, value) in raw.structure!.nodes {
                 for (name, kind) in StructuralState.collectionFields(value.kind, value.fields) {
                     collectionBirths[NodeCollection(owner: identity, field: name)] = kind
@@ -843,7 +1030,7 @@ public final class WritingSession {
         }
         func validationShape(_ original: Materialized, mutations: [Mutation], retainedRoles: Set<NodeID> = [], inactive: Bool = false) -> Materialized {
             var copy = original
-            guard protocolVersion == 4 else { return copy }
+            guard usesRetainedOrigins else { return copy }
             for mutation in mutations {
                 let collection: NodeCollection
                 switch mutation {
@@ -896,7 +1083,7 @@ public final class WritingSession {
             }
         }
         func retainRole(_ role: WritingParagraphRole, change: WritingChange) throws {
-            guard protocolVersion == 4, role.retirement.counter > 0, role.retirement.counter <= 9_007_199_254_740_991,
+            guard usesRetainedOrigins, role.retirement.counter > 0, role.retirement.counter <= 9_007_199_254_740_991,
                   validToken(role.retirement.actor), role.retirement < change.id,
                   !role.exposure.isEmpty, role.exposure.count <= 100_000 else { throw EditorError.invalidChange }
             let owner = try roleNode(role.owner, before: change.id)
@@ -993,7 +1180,7 @@ public final class WritingSession {
                     guard !passedRolePrefix else { throw EditorError.invalidChange }
                     try retainRole(role, change: change)
                 } else if case .exitListItem(let identity, let owner, let source, let after) = operation {
-                    guard !passedRolePrefix, protocolVersion == 4 else { throw EditorError.invalidChange }
+                    guard !passedRolePrefix, usesRetainedOrigins else { throw EditorError.invalidChange }
                     try roleAnchor(after, before: change.id); try roleAnchor(source, before: change.id)
                     guard let original = raw.structure?.placements[source] else { throw WritingProjectionError.missingAtom }
                     guard original.node == identity, original.collection == NodeCollection(owner: owner, field: "items") else { throw EditorError.invalidChange }
@@ -1043,6 +1230,41 @@ public final class WritingSession {
                 do { try validate(structural, version: 2, structure: validating.structure, history: history, seedState: validating) }
                 catch EditorError.invalidDocument { throw EditorError.invalidChange }
             }
+            if protocolVersion == 5 {
+                // Descriptor ownership is a packet invariant, including retained
+                // inactive edits. Undo cannot legalize a duplicate group.
+                var grouped = Set<NodeID>(), destinations = Set<NodeID>()
+                for operation in operations {
+                    switch operation {
+                    case .text(.splitBoundary(_, let destination, _, _)):
+                        guard !grouped.contains(destination.node), destinations.insert(destination.node).inserted else { throw EditorError.invalidChange }
+                    case .text(.spliceBoundary(_, let destination, _, _, let members)):
+                        guard Set(members).count == members.count, grouped.isDisjoint(with: members),
+                              destinations.isDisjoint(with: members), destinations.insert(destination.node).inserted else { throw EditorError.invalidChange }
+                        grouped.formUnion(members)
+                    default: break
+                    }
+                }
+            }
+            // Index declared placements once. Node/field validation below still
+            // requires that each referenced origin exists at this operation.
+            var spliceCollections: [NodeID: Set<NodeCollection>] = [:]
+            if protocolVersion == 5 {
+                for placement in raw.structure?.placements.values ?? Dictionary<NodePlacementID, StructuralState.Placement>().values {
+                    spliceCollections[placement.node, default: []].insert(placement.collection)
+                }
+                for operation in operations {
+                    switch operation {
+                    case .structure(.insertNode(_, let identity, let collection, _, _)),
+                         .structure(.moveNode(let identity, let collection, _, _)):
+                        spliceCollections[identity, default: []].insert(collection)
+                    default: break
+                    }
+                }
+            }
+            let explicitlyMoved = Set(operations.compactMap { operation -> NodeID? in
+                if case .structure(.moveNode(let identity, _, _, _)) = operation { return identity }; return nil
+            })
             var introduced = Set<ElementID>()
             func node(_ identity: NodeID) throws {
                 switch identity {
@@ -1061,7 +1283,7 @@ public final class WritingSession {
             }
             func field(_ field: WritingField) throws {
                 try node(field.node)
-                guard protocolVersion == 4 ? births[field] != nil : writingFields(raw.structure!.nodes[field.node]!).contains(field.name) else { throw EditorError.invalidPath }
+                guard usesRetainedOrigins ? births[field] != nil : writingFields(raw.structure!.nodes[field.node]!).contains(field.name) else { throw EditorError.invalidPath }
             }
             func reference(_ key: WritingAtomKey) throws {
                 let id = key.element
@@ -1079,11 +1301,112 @@ public final class WritingSession {
                 guard !keys.isEmpty, keys.count <= 100_000, Set(keys).count == keys.count else { throw EditorError.invalidChange }
                 for key in keys { try reference(key) }
             }
+            @inline(never) func validateText(_ mutation: WritingMutation) throws {
+                switch mutation {
+                case .insert(let atom):
+                    try field(atom.key.origin); try edge(atom.edge)
+                    switch atom.route {
+                    case .field(let origin):
+                        try field(origin)
+                        guard origin == atom.key.origin, atom.edge == .start else { throw EditorError.invalidChange }
+                    case .follow(let anchor):
+                        try reference(anchor)
+                        guard atom.edge.anchor == anchor else { throw EditorError.invalidChange }
+                    }
+                    guard atom.key.element.change == change.id, atom.key.element.index >= 0,
+                          atom.key.element.index <= 2_147_483_647,
+                          introduced.insert(atom.key.element).inserted, available.insert(atom.key).inserted else { throw EditorError.invalidChange }
+                    do { try Validation.inline(.array([atom.node])) } catch { throw EditorError.invalidChange }
+                    for mark in atom.node["marks"]?.array ?? [] where mark["type"] == .string("link") {
+                        guard let scheme = mark["href"]?.string.flatMap({ URL(string: $0)?.scheme?.lowercased() }), ["http", "https", "mailto"].contains(scheme) else { throw EditorError.invalidChange }
+                    }
+                    if atom.node["type"] == .string("text") {
+                        guard atom.node["text"]?.string?.unicodeScalars.count == 1 else { throw EditorError.invalidChange }
+                    } else { guard !plainText([atom.node]).isEmpty else { throw EditorError.invalidChange } }
+                case .transfer(let span, let destination, let boundary):
+                    try keys(span); try field(destination); try edge(boundary)
+                    guard boundary.anchor.map({ !span.contains($0) }) ?? true else { throw EditorError.invalidChange }
+                case .delete(let span): try keys(span)
+                case .format(let span, let type, let mark):
+                    try keys(span)
+                    guard ["bold", "italic", "strikethrough", "code", "link"].contains(type), mark == nil || mark?["type"] == .string(type) else { throw EditorError.invalidChange }
+                    if let mark {
+                        do { try Validation.mark(mark) } catch { throw EditorError.invalidChange }
+                        if type == "link" {
+                            guard let scheme = mark["href"]?.string.flatMap({ URL(string: $0)?.scheme?.lowercased() }), ["http", "https", "mailto"].contains(scheme) else { throw EditorError.invalidChange }
+                        }
+                    }
+                case .join(let source, let destination, let boundary):
+                    try field(source); try field(destination); try edge(boundary)
+                    let sourceNode = raw.structure?.nodes[source.node], destinationNode = raw.structure?.nodes[destination.node]
+                    let inline = ["paragraph", "heading", "quote", "callout"]
+                    let paragraphs = usesRetainedOrigins
+                        ? (inline.contains(sourceNode?.fields["type"]?.string ?? "") || (sourceNode?.kind == .block && births[source] != nil)) &&
+                          (inline.contains(destinationNode?.fields["type"]?.string ?? "") || (destinationNode?.kind == .block && births[destination] != nil))
+                        : sourceNode?.fields["type"] == .string("paragraph") && destinationNode?.fields["type"] == .string("paragraph")
+                    let exit = usesRetainedOrigins && sourceNode?.kind == .item && destinationNode?.fields["type"] == .string("paragraph")
+                    guard source != destination, source.name == "content", destination.name == "content", paragraphs || exit else { throw EditorError.invalidChange }
+                case .spliceBoundary(let source, let destination, let boundary, let before, let members):
+                    // The wire capability is explicit; old epochs cannot admit
+                    // a group convention they have never projected.
+                    guard protocolVersion == 5 else { throw EditorError.invalidChange }
+                    try field(source); try field(destination); try edge(boundary)
+                    guard source != destination, source.name == "content", destination.name == "content",
+                          (raw.structure?.nodes[source.node]?.birthKind == .block ||
+                           (retainedRoles.contains(source.node) && raw.structure?.nodes[source.node]?.kind == .block)),
+                          raw.structure?.nodes[destination.node]?.birthKind == .block,
+                          raw.structure?.nodes[destination.node]?.fields["type"] == .string("paragraph"),
+                          !members.isEmpty, members.count <= 10_000,
+                          Set(members).count == members.count, members.last == destination.node,
+                          !members.contains(source.node) else { throw EditorError.invalidChange }
+                    var collection: NodeCollection?, previous: NodePlacementID?
+                    for member in members {
+                        try node(member)
+                        guard case .inserted(let creation, let path) = member, path.isEmpty,
+                              creation.change == change.id,
+                              let birth = raw.structure?.placements[.edit(creation)], birth.node == member,
+                              raw.structure?.nodes[member]?.birthKind == .block else { throw EditorError.invalidChange }
+                        if let previous {
+                            guard birth.collection == collection, birth.after == previous else { throw EditorError.invalidChange }
+                        } else {
+                            guard let anchor = birth.after, let owner = raw.structure?.placements[anchor],
+                                  owner.node == source.node, owner.collection == birth.collection else { throw EditorError.invalidChange }
+                            collection = birth.collection
+                        }
+                        guard !explicitlyMoved.contains(member) else { throw EditorError.invalidChange }
+                        previous = birth.id
+                    }
+                    if let before {
+                        try node(before)
+                        // The outer neighbor was observed before this edit.
+                        // New same-edit groups cannot encode reciprocal hints
+                        // that Undo would hide until a later Redo.
+                        if case .inserted(let birth, _) = before {
+                            guard birth.change < change.id else { throw EditorError.invalidChange }
+                        }
+                        guard before != source.node, !members.contains(before),
+                              collection.map({ spliceCollections[before]?.contains($0) == true }) == true else { throw EditorError.invalidChange }
+                    }
+                case .splitBoundary(let source, let destination, let boundary, let before):
+                    try field(source); try field(destination); try edge(boundary)
+                    if let before { try node(before); guard before != destination.node else { throw EditorError.invalidChange } }
+                    let sourceNode = raw.structure?.nodes[source.node], destinationNode = raw.structure?.nodes[destination.node]
+                    // A concurrent lossless conversion keeps the source content
+                    // origin valid; a split authored on its paragraph birth
+                    // must still replay after that conversion.
+                    let paragraphs = (sourceNode?.fields["type"] == .string("paragraph") ||
+                        (usesRetainedOrigins && sourceNode?.kind == .block && births[source] != nil)) && destinationNode?.fields["type"] == .string("paragraph")
+                    let items = usesRetainedOrigins && sourceNode?.kind == .item && destinationNode?.kind == .item
+                    guard source != destination, source.name == "content", destination.name == "content", paragraphs || items || (usesRetainedOrigins && sourceNode?.kind == .item && destinationNode?.fields["type"] == .string("paragraph")),
+                          case .inserted(let creation, let path) = destination.node,
+                          creation.change == change.id, path.isEmpty else { throw EditorError.invalidChange }
+                }
+            }
             for operation in operations {
                 switch operation {
                 case .retainParagraphRole, .exitListItem: break // Validated/materialized before structural validation.
                 case .schemaConvert(let conversion):
-                    guard protocolVersion == 4 else { throw EditorError.invalidChange }
+                    guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(conversion.node); try field(conversion.source)
                     guard conversion.source.node == conversion.node || conversion.type != "list",
                           let original = raw.structure?.nodes[conversion.node], original.kind == .block,
@@ -1154,12 +1477,12 @@ public final class WritingSession {
                         if conversion.source.node != conversion.node { raw.structure?.deleted.insert(conversion.source.node) }
                     }
                 case .convertBlock(let identity, let type, let attributes):
-                    guard protocolVersion == 4 else { throw EditorError.invalidChange }
+                    guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(identity)
                     guard var value = raw.structure?.nodes[identity], value.kind == .block else { throw EditorError.invalidChange }
                     let original = value.fields["type"]?.string ?? ""
                     let inline = ["paragraph", "heading", "quote", "callout"]
-                    let retiredList = protocolVersion == 4 && original != "list" && type == "list" &&
+                    let retiredList = usesRetainedOrigins && original != "list" && type == "list" &&
                         collectionBirths[NodeCollection(owner: identity, field: "items")] == .item
                     guard (inline.contains(original) && inline.contains(type)) || (original == "list" && type == "list") || retiredList else { throw EditorError.invalidChange }
                     let allowed: Set<String> = type == "heading" ? ["level"] : type == "callout" ? ["variant"] : type == "list" ? ["style"] : []
@@ -1183,7 +1506,7 @@ public final class WritingSession {
                     case .setNodeField, .deleteNodes: break
                     default: throw EditorError.invalidChange
                     }
-                    if protocolVersion == 4 {
+                    if usesRetainedOrigins {
                         let validating = validationShape(raw, mutations: [mutation], retainedRoles: retainedRoles, inactive: !(active[change.id] ?? true))
                         let originalNodes = raw.structure?.nodes ?? [:]
                         let adjusted = validating.structure?.nodes.filter { originalNodes[$0.key]?.fields != $0.value.fields || originalNodes[$0.key]?.kind != $0.value.kind } ?? [:]
@@ -1193,72 +1516,14 @@ public final class WritingSession {
                         for (field, birth) in retainedWritingFields(raw.structure!) where births[field] == nil { births[field] = birth }
                     } else { try apply([mutation], enabled: active[change.id] ?? true, to: &raw) }
                     available.formUnion(seededKeys(raw.structure!))
-                case .text(let mutation):
-                    switch mutation {
-                    case .insert(let atom):
-                        try field(atom.key.origin); try edge(atom.edge)
-                        switch atom.route {
-                        case .field(let origin):
-                            try field(origin)
-                            guard origin == atom.key.origin, atom.edge == .start else { throw EditorError.invalidChange }
-                        case .follow(let anchor):
-                            try reference(anchor)
-                            guard atom.edge.anchor == anchor else { throw EditorError.invalidChange }
-                        }
-                        guard atom.key.element.change == change.id, atom.key.element.index >= 0,
-                              atom.key.element.index <= 2_147_483_647,
-                              introduced.insert(atom.key.element).inserted, available.insert(atom.key).inserted else { throw EditorError.invalidChange }
-                        do { try Validation.inline(.array([atom.node])) } catch { throw EditorError.invalidChange }
-                        for mark in atom.node["marks"]?.array ?? [] where mark["type"] == .string("link") {
-                            guard let scheme = mark["href"]?.string.flatMap({ URL(string: $0)?.scheme?.lowercased() }), ["http", "https", "mailto"].contains(scheme) else { throw EditorError.invalidChange }
-                        }
-                        if atom.node["type"] == .string("text") {
-                            guard atom.node["text"]?.string?.unicodeScalars.count == 1 else { throw EditorError.invalidChange }
-                        } else { guard !plainText([atom.node]).isEmpty else { throw EditorError.invalidChange } }
-                    case .transfer(let span, let destination, let boundary):
-                        try keys(span); try field(destination); try edge(boundary)
-                        guard boundary.anchor.map({ !span.contains($0) }) ?? true else { throw EditorError.invalidChange }
-                    case .delete(let span): try keys(span)
-                    case .format(let span, let type, let mark):
-                        try keys(span)
-                        guard ["bold", "italic", "strikethrough", "code", "link"].contains(type), mark == nil || mark?["type"] == .string(type) else { throw EditorError.invalidChange }
-                        if let mark {
-                            do { try Validation.mark(mark) } catch { throw EditorError.invalidChange }
-                            if type == "link" {
-                                guard let scheme = mark["href"]?.string.flatMap({ URL(string: $0)?.scheme?.lowercased() }), ["http", "https", "mailto"].contains(scheme) else { throw EditorError.invalidChange }
-                            }
-                        }
-                    case .join(let source, let destination, let boundary):
-                        try field(source); try field(destination); try edge(boundary)
-                        let sourceNode = raw.structure?.nodes[source.node], destinationNode = raw.structure?.nodes[destination.node]
-                        let inline = ["paragraph", "heading", "quote", "callout"]
-                        let paragraphs = protocolVersion == 4
-                            ? (inline.contains(sourceNode?.fields["type"]?.string ?? "") || (sourceNode?.kind == .block && births[source] != nil)) &&
-                              (inline.contains(destinationNode?.fields["type"]?.string ?? "") || (destinationNode?.kind == .block && births[destination] != nil))
-                            : sourceNode?.fields["type"] == .string("paragraph") && destinationNode?.fields["type"] == .string("paragraph")
-                        let exit = protocolVersion == 4 && sourceNode?.kind == .item && destinationNode?.fields["type"] == .string("paragraph")
-                        guard source != destination, source.name == "content", destination.name == "content", paragraphs || exit else { throw EditorError.invalidChange }
-                    case .splitBoundary(let source, let destination, let boundary, let before):
-                        try field(source); try field(destination); try edge(boundary)
-                        if let before { try node(before); guard before != destination.node else { throw EditorError.invalidChange } }
-                        let sourceNode = raw.structure?.nodes[source.node], destinationNode = raw.structure?.nodes[destination.node]
-                        // A concurrent lossless conversion keeps the source content
-                        // origin valid; a split authored on its paragraph birth
-                        // must still replay after that conversion.
-                        let paragraphs = (sourceNode?.fields["type"] == .string("paragraph") ||
-                            (protocolVersion == 4 && sourceNode?.kind == .block && births[source] != nil)) && destinationNode?.fields["type"] == .string("paragraph")
-                        let items = protocolVersion == 4 && sourceNode?.kind == .item && destinationNode?.kind == .item
-                        guard source != destination, source.name == "content", destination.name == "content", paragraphs || items || (protocolVersion == 4 && sourceNode?.kind == .item && destinationNode?.fields["type"] == .string("paragraph")),
-                              case .inserted(let creation, let path) = destination.node,
-                              creation.change == change.id, path.isEmpty else { throw EditorError.invalidChange }
-                    }
+                case .text(let mutation): try validateText(mutation)
                 }
             }
             if !(active[change.id] ?? true) {
                 for identity in retainedRoles { raw.structure?.nodes[identity] = beforeRoleNodes[identity] }
             }
         }
-        return try Self.projectState(raw: raw, changes: changes, births: protocolVersion == 4 ? births : nil)
+        return try Self.projectState(raw: raw, changes: changes, births: usesRetainedOrigins ? births : nil)
     }
 
     private static func project(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil) throws -> (StructuralState, WritingProjection, Document) {
@@ -1498,17 +1763,24 @@ public final class WritingSession {
         // Concurrent cuts partition the observed suffix at each original boundary.
         // An ordinary last-writer transfer would erase a different author's cut,
         // and sibling creation timestamps could reverse paragraph text order.
-        struct Cut { let id: ChangeID; let source: WritingField; let destination: WritingField; let before: NodeID?; let rank: Int; let keys: Set<WritingAtomKey> }
+        struct Cut { let id: ChangeID; let source: WritingField; let destination: WritingField; let before: NodeID?; let rank: Int; let keys: Set<WritingAtomKey>; let members: [NodeID]? }
         let ancestryEdits = edits.map { edit in
             WritingEdit(id: edit.id, mutations: edit.mutations.filter {
-                switch $0 { case .transfer, .join, .splitBoundary: return false; default: return true }
+                switch $0 { case .transfer, .join, .splitBoundary, .spliceBoundary: return false; default: return true }
             })
         }
         var ancestry: WritingProjection?
         var cuts: [WritingField: [Cut]] = [:]
         for edit in edits where active[edit.id] ?? true {
             for mutation in edit.mutations {
-                if case .splitBoundary(let source, let destination, let edge, let before) = mutation {
+                let descriptor: (WritingField, WritingField, WritingEdge, NodeID?, [NodeID]?)
+                switch mutation {
+                case .splitBoundary(let source, let destination, let edge, let before): descriptor = (source, destination, edge, before, nil)
+                case .spliceBoundary(let source, let destination, let edge, let before, let members): descriptor = (source, destination, edge, before, members)
+                default: continue
+                }
+                let (source, destination, edge, before, members) = descriptor
+                do {
                     let rank: Int
                     let pin = retained == nil ? nil : edit.mutations.compactMap { mutation -> WritingAtomKey? in
                         if case .transfer(let keys, let target, .start) = mutation, target == source { return keys.last }; return nil
@@ -1526,7 +1798,7 @@ public final class WritingSession {
                         if case .transfer(let keys, let target, _) = mutation, target == destination { span.formUnion(keys) }
                     }
                     let origin = aliases[source] ?? source
-                    cuts[origin, default: []].append(Cut(id: edit.id, source: origin, destination: destination, before: before, rank: rank, keys: keys))
+                    cuts[origin, default: []].append(Cut(id: edit.id, source: origin, destination: destination, before: before, rank: rank, keys: keys, members: members))
                 }
             }
         }
@@ -1534,6 +1806,8 @@ public final class WritingSession {
             let destinations = cuts.values.flatMap { $0 }.map(\.destination)
             guard Set(destinations).count == destinations.count else { throw EditorError.invalidChange }
         }
+        let groupMembers = cuts.values.flatMap { $0 }.flatMap { $0.members ?? [] }
+        guard Set(groupMembers).count == groupMembers.count else { throw EditorError.invalidChange }
         let cutByDestination = cuts.values.flatMap { $0 }.reduce(into: [WritingField: Cut]()) { $0[$1.destination] = $1 }
         if retained == nil {
             edits = edits.map { edit in
@@ -1600,12 +1874,14 @@ public final class WritingSession {
             var ordered: [Cut] = []
             let ranks = Dictionary(grouping: siblings, by: \.rank)
             for rank in ranks.keys.sorted() {
-                let cuts = ranks[rank]!, byNode = Dictionary(uniqueKeysWithValues: cuts.map { ($0.destination.node, $0) })
+                let cuts = ranks[rank]!, byNode = Dictionary(uniqueKeysWithValues: cuts.flatMap { cut in
+                    (cut.members ?? [cut.destination.node]).map { ($0, cut) }
+                })
                 var predecessors: [NodeID: Int] = [:], followers: [NodeID: [NodeID]] = [:]
                 for cut in cuts {
-                    if let next = cut.before, byNode[next] != nil {
-                        predecessors[next, default: 0] += 1
-                        followers[cut.destination.node, default: []].append(next)
+                    if let next = cut.before, let group = byNode[next] {
+                        predecessors[group.destination.node, default: 0] += 1
+                        followers[cut.destination.node, default: []].append(group.destination.node)
                     }
                 }
                 var ready = cuts.filter { predecessors[$0.destination.node, default: 0] == 0 }.sorted { $1.id < $0.id }
@@ -1620,6 +1896,22 @@ public final class WritingSession {
                 guard count == cuts.count else { throw WritingProjectionError.placementCycle }
             }
             for cut in ordered {
+                if let members = cut.members {
+                    for member in members {
+                        guard case .inserted(let creation, _) = member,
+                              let birth = structure.placements[.edit(creation)] else { throw EditorError.invalidChange }
+                        // A later independent placement stays authoritative. Only
+                        // the original birth participates in this cut ordering.
+                        guard let placement = selected[member], placement.id == birth.id else { continue }
+                        guard placement.collection == parent.collection else {
+                            throw EditorError.invalidDocument("Splice boundary ownership requires reconciliation")
+                        }
+                        structure.placements[placement.id] = StructuralState.Placement(id: placement.id, after: previous,
+                            node: placement.node, collection: placement.collection, active: placement.active)
+                        previous = placement.id
+                    }
+                    continue
+                }
                 guard case .inserted(let creation, _) = cut.destination.node,
                       let placement = selected[cut.destination.node],
                       placement.id == .edit(creation) || (retained != nil && {
@@ -1746,11 +2038,11 @@ extension WritingSession {
         return .convertBlock(node: owner, type: target.type, attributes: attributes)
     }
     @discardableResult public func convertBlock(at address: TextAddress, offset: Int, to target: WritingBlockTarget) throws -> WritingPosition {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !isComposing else { throw WritingSessionError.compositionActive }
         let caret = try position(at: address, offset: offset)
         let source = try field(address)
-        if protocolVersion == 4,
+        if usesRetainedOrigins,
            target.type == "code" || (target.type == "list" && structure.nodes[source.node]?.kind == .block) ||
            (structure.nodes[source.node]?.fields["type"] == .string("code")) ||
            (structure.nodes[source.node]?.kind == .item && target.type != "list") {
@@ -1765,7 +2057,7 @@ extension WritingSession {
     /// Apply a recognized prefix in one author transaction. Unsupported list and
     /// code prefixes leave the paragraph, history and caret untouched.
     @discardableResult public func markdownShortcut(at address: TextAddress, offset: Int) throws -> WritingPosition {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !isComposing else { throw WritingSessionError.compositionActive }
         let prefix = try selection(address, 0..<offset)
         guard structure.nodes[prefix.field.node]?.fields["type"] == .string("paragraph"),
@@ -1777,15 +2069,15 @@ extension WritingSession {
         case "## ": target = WritingBlockTarget(type: "heading", level: 2)
         case "### ": target = WritingBlockTarget(type: "heading", level: 3)
         case "> ": target = WritingBlockTarget(type: "quote")
-        case "- " where protocolVersion == 4: target = WritingBlockTarget(type: "list", style: "unordered")
-        case "1. " where protocolVersion == 4: target = WritingBlockTarget(type: "list", style: "ordered")
-        case "[ ] " where protocolVersion == 4: target = WritingBlockTarget(type: "list", style: "todo")
-        case "- [ ] " where protocolVersion == 4: target = WritingBlockTarget(type: "list", style: "todo")
-        case "```" where protocolVersion == 4: target = WritingBlockTarget(type: "code")
+        case "- " where usesRetainedOrigins: target = WritingBlockTarget(type: "list", style: "unordered")
+        case "1. " where usesRetainedOrigins: target = WritingBlockTarget(type: "list", style: "ordered")
+        case "[ ] " where usesRetainedOrigins: target = WritingBlockTarget(type: "list", style: "todo")
+        case "- [ ] " where usesRetainedOrigins: target = WritingBlockTarget(type: "list", style: "todo")
+        case "```" where usesRetainedOrigins: target = WritingBlockTarget(type: "code")
         default: throw EditorError.invalidChange
         }
         let id = try nextID(), caret = try position(at: address, offset: offset)
-        let operation: WritingOperation = protocolVersion == 4 && ["list", "code"].contains(target.type)
+        let operation: WritingOperation = usesRetainedOrigins && ["list", "code"].contains(target.type)
             ? .schemaConvert(try schemaConversion(at: address, target: target, id: id))
             : try conversion(at: address, target: target)
         try perform(id, retainedRoleOperations(for: [prefix.field.node]) + [operation, .text(.delete(keys: prefix.keys))])
@@ -1795,7 +2087,7 @@ extension WritingSession {
     /// An empty final root item can exit after prior items without replacing the
     /// list owner's identity or discarding its extension metadata.
     @discardableResult public func enterListItem(at address: TextAddress, range: Range<Int>, newItemID: String) throws -> WritingPosition {
-        guard protocolVersion == 4 else { throw EditorError.unsupportedVersion(protocolVersion) }
+        guard usesRetainedOrigins else { throw EditorError.unsupportedVersion(protocolVersion) }
         guard !isComposing else { throw WritingSessionError.compositionActive }
         let selected = try selection(address, range), source = selected.field.node
         guard selected.field.name == "content", let value = structure.nodes[source], value.kind == .item else { throw EditorError.invalidPath }
@@ -1813,7 +2105,7 @@ extension WritingSession {
                 try perform(id, [.structure(.moveNode(identity: source, collection: outer.collection, placement: placement, after: outer.id))])
                 return selected.position
             }
-            if protocolVersion == 4, siblings.count == 1 {
+            if usesRetainedOrigins, siblings.count == 1 {
                 let id = try nextID(), operation = try schemaConversion(at: address, target: WritingBlockTarget(type: "paragraph"), id: id)
                 try perform(id, [.schemaConvert(operation)])
                 return selected.position
@@ -1850,7 +2142,7 @@ extension WritingSession {
             try perform(id, operations)
             return selected.position
         }
-        if protocolVersion == 4 { try requireAuthoredType("list") }
+        if usesRetainedOrigins { try requireAuthoredType("list") }
         guard !newItemID.isEmpty, !siblings.contains(where: { structure.nodes[$0]?.label == newItemID }) else { throw EditorError.invalidChange }
         let id = try nextID(), creation = ElementID(change: id, index: 0), destinationNode = NodeID.inserted(creation: creation, path: [])
         let destination = WritingField(node: destinationNode, name: "content")
@@ -1864,7 +2156,7 @@ extension WritingSession {
         // Observed prefix atoms can themselves be anchored before a suffix atom.
         // Pin those known atoms to the source before moving the suffix, so native
         // committed composition does not follow its old anchor into the new field.
-        if protocolVersion == 4 {
+        if usesRetainedOrigins {
             let prefix = try selection(address, 0..<range.lowerBound).keys
             if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
         }
@@ -1911,7 +2203,7 @@ private func retainedWritingFields(_ structure: StructuralState) -> [WritingFiel
 }
 extension WritingSession {
     private func schemaConversion(at address: TextAddress, target: WritingBlockTarget, id: ChangeID) throws -> WritingSchemaConversion {
-        guard protocolVersion == 4 else { throw EditorError.invalidChange }
+        guard usesRetainedOrigins else { throw EditorError.invalidChange }
         try requireAuthoredType(target.type)
         let source = try field(address)
         let root = structure.nodes[source.node]?.kind == .item ? try listOwner(of: source.node) : source.node
@@ -1993,7 +2285,7 @@ private func retirement(_ change: WritingChange, belongsTo owner: NodeID, node: 
 }
 extension WritingSession {
     private func retainedRoleOperations(for identities: [NodeID]) throws -> [WritingOperation] {
-        guard protocolVersion == 4 else { return [] }
+        guard usesRetainedOrigins else { return [] }
         let selected = try structure.effectivePlacements()
         var visiting = Set<NodeID>(), done = Set<NodeID>(), result: [WritingOperation] = []
         func visit(_ identity: NodeID) throws {

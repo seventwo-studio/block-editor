@@ -1,0 +1,1635 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "rich-a-a",
+        "documentID": "rich-a",
+        "actorID": "a",
+        "epoch": "clipboard-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "host": "retained",
+            "content": [
+              {
+                "type": "text",
+                "text": "ABC",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "rich-a-b",
+        "documentID": "rich-a",
+        "actorID": "m",
+        "epoch": "clipboard-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "host": "retained",
+            "content": [
+              {
+                "type": "text",
+                "text": "ABC",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "rich-a-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 2
+      },
+      "capture": "rich-a-range"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "rich-a-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "text": " peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "rich-a-b"
+      },
+      "capture": "rich-a-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "rich-a-a"
+      },
+      "bindings": {
+        "batch": "rich-a-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-a-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "capture": "rich-a-paste",
+      "bindings": {
+        "range": "rich-a-range"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "rich-a-a"
+      },
+      "capture": "rich-a-accepted"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "rich-a-a"
+      },
+      "capture": "rich-a-resolved",
+      "bindings": {
+        "position": [
+          "rich-a-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "rich-a-a"
+      },
+      "capture": "rich-a-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "rich-a-b"
+      },
+      "bindings": {
+        "batch": "rich-a-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "rich-a-b"
+      },
+      "bindings": {
+        "batch": "rich-a-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "rich-a-b"
+      },
+      "capture": "rich-a-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-a-a"
+      },
+      "capture": "rich-a-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "rich-a-restored",
+        "actorID": "a"
+      },
+      "bindings": {
+        "snapshot": "rich-a-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-policy-before"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-a-restored",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "bad",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "rich-a-range"
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-unsafe-after"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-a-restored",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedMarkTypes": [],
+          "allowAssetMetadata": false
+        }
+      },
+      "bindings": {
+        "range": "rich-a-range"
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-mark-after"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-a-restored",
+        "clipboard": {
+          "version": 2,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "rich-a-range"
+      },
+      "error": "unsupportedVersion(2)"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-version-after"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "rich-a-restored",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-a-restored",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "rich-a-range"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "rich-a-restored",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-a-restored"
+      },
+      "capture": "rich-a-composition-after"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "rich-a-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "rich-a-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "rich-a-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "rich-z-a",
+        "documentID": "rich-z",
+        "actorID": "z",
+        "epoch": "clipboard-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "host": "retained",
+            "content": [
+              {
+                "type": "text",
+                "text": "ABC",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "rich-z-b",
+        "documentID": "rich-z",
+        "actorID": "m",
+        "epoch": "clipboard-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "host": "retained",
+            "content": [
+              {
+                "type": "text",
+                "text": "ABC",
+                "marks": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "selectedText",
+        "session": "rich-z-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 2
+      },
+      "capture": "rich-z-range"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "rich-z-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 3,
+        "end": 3,
+        "text": " peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "rich-z-b"
+      },
+      "capture": "rich-z-remote"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "rich-z-a"
+      },
+      "bindings": {
+        "batch": "rich-z-remote"
+      }
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-z-a",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "capture": "rich-z-paste",
+      "bindings": {
+        "range": "rich-z-range"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "rich-z-a"
+      },
+      "capture": "rich-z-accepted"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "rich-z-a"
+      },
+      "capture": "rich-z-resolved",
+      "bindings": {
+        "position": [
+          "rich-z-paste",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "rich-z-a"
+      },
+      "capture": "rich-z-changes"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "rich-z-b"
+      },
+      "bindings": {
+        "batch": "rich-z-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "rich-z-b"
+      },
+      "bindings": {
+        "batch": "rich-z-changes"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "rich-z-b"
+      },
+      "capture": "rich-z-replica"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-z-a"
+      },
+      "capture": "rich-z-save"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "rich-z-restored",
+        "actorID": "z"
+      },
+      "bindings": {
+        "snapshot": "rich-z-save"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-redo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-policy-before"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-z-restored",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "bad",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "href": "javascript:alert(1)"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "rich-z-range"
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-unsafe-after"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-z-restored",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "policy": {
+          "allowedMarkTypes": [],
+          "allowAssetMetadata": false
+        }
+      },
+      "bindings": {
+        "range": "rich-z-range"
+      },
+      "error": "invalidChange"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-mark-after"
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-z-restored",
+        "clipboard": {
+          "version": 2,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "rich-z-range"
+      },
+      "error": "unsupportedVersion(2)"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-version-after"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "rich-z-restored",
+        "active": true
+      }
+    },
+    {
+      "request": {
+        "command": "pasteInline",
+        "session": "rich-z-restored",
+        "clipboard": {
+          "version": 1,
+          "parts": [
+            {
+              "inline": {
+                "_0": [
+                  {
+                    "type": "text",
+                    "text": "東京😀",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "entity-ref",
+                    "entityType": "task",
+                    "entityId": "external-id",
+                    "label": "Task",
+                    "consumer": {
+                      "id": "opaque"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "bindings": {
+        "range": "rich-z-range"
+      },
+      "error": "compositionActive"
+    },
+    {
+      "request": {
+        "command": "composition",
+        "session": "rich-z-restored",
+        "active": false
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "rich-z-restored"
+      },
+      "capture": "rich-z-composition-after"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "rich-z-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "rich-z-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "rich-z-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "collection-markdown",
+        "documentID": "collection-markdown",
+        "actorID": "markdown",
+        "epoch": "clipboard-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "keep",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "external"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "collection-markdown",
+        "address": {
+          "blockID": "p",
+          "path": []
+        }
+      },
+      "capture": "collection-markdown-root"
+    },
+    {
+      "request": {
+        "command": "clipboardText",
+        "session": "collection-markdown",
+        "format": "markdown",
+        "text": "# Title\n\n---\n\n**東京😀**"
+      },
+      "capture": "collection-markdown-clipboard"
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "collection-markdown",
+        "collection": {
+          "field": "blocks"
+        }
+      },
+      "capture": "collection-markdown-paste",
+      "bindings": {
+        "clipboard": "collection-markdown-clipboard",
+        "after": "collection-markdown-root"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "collection-markdown"
+      },
+      "capture": "collection-markdown-document"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "collection-markdown"
+      },
+      "capture": "collection-markdown-before"
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "collection-markdown",
+        "collection": {
+          "field": "blocks"
+        },
+        "policy": {
+          "allowedBlockTypes": [],
+          "allowAssetMetadata": false
+        }
+      },
+      "bindings": {
+        "clipboard": "collection-markdown-clipboard",
+        "after": "collection-markdown-root"
+      },
+      "error": "restrictedBlock(\"heading\")"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "collection-markdown"
+      },
+      "capture": "collection-markdown-after"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "collection-markdown"
+      },
+      "capture": "collection-markdown-undo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "collection-markdown"
+      },
+      "capture": "collection-markdown-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "collection-markdown-restored",
+        "actorID": "markdown"
+      },
+      "bindings": {
+        "snapshot": "collection-markdown-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "collection-markdown-restored"
+      },
+      "capture": "collection-markdown-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "collection-markdown"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "collection-markdown-restored"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "collection-multiline",
+        "documentID": "collection-multiline",
+        "actorID": "multiline",
+        "epoch": "clipboard-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "keep",
+                "marks": []
+              }
+            ],
+            "consumer": {
+              "id": "external"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "node",
+        "session": "collection-multiline",
+        "address": {
+          "blockID": "p",
+          "path": []
+        }
+      },
+      "capture": "collection-multiline-root"
+    },
+    {
+      "request": {
+        "command": "clipboardText",
+        "session": "collection-multiline",
+        "format": "multiline",
+        "text": "東京\r\n😀\r\n"
+      },
+      "capture": "collection-multiline-clipboard"
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "collection-multiline",
+        "collection": {
+          "field": "blocks"
+        }
+      },
+      "capture": "collection-multiline-paste",
+      "bindings": {
+        "clipboard": "collection-multiline-clipboard",
+        "after": "collection-multiline-root"
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "collection-multiline"
+      },
+      "capture": "collection-multiline-document"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "collection-multiline"
+      },
+      "capture": "collection-multiline-before"
+    },
+    {
+      "request": {
+        "command": "pasteCollection",
+        "session": "collection-multiline",
+        "collection": {
+          "field": "blocks"
+        },
+        "policy": {
+          "allowedBlockTypes": [],
+          "allowAssetMetadata": false
+        }
+      },
+      "bindings": {
+        "clipboard": "collection-multiline-clipboard",
+        "after": "collection-multiline-root"
+      },
+      "error": "restrictedBlock(\"paragraph\")"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "collection-multiline"
+      },
+      "capture": "collection-multiline-after"
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "collection-multiline"
+      },
+      "capture": "collection-multiline-undo"
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "collection-multiline"
+      },
+      "capture": "collection-multiline-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "collection-multiline-restored",
+        "actorID": "multiline"
+      },
+      "bindings": {
+        "snapshot": "collection-multiline-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "collection-multiline-restored"
+      },
+      "capture": "collection-multiline-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "collection-multiline"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "collection-multiline-restored"
+      }
+    }
+  ],
+  "equal": [
+    [
+      "rich-a-accepted",
+      "rich-a-replica"
+    ],
+    [
+      "rich-a-policy-before",
+      "rich-a-unsafe-after"
+    ],
+    [
+      "rich-a-policy-before",
+      "rich-a-mark-after"
+    ],
+    [
+      "rich-a-policy-before",
+      "rich-a-version-after"
+    ],
+    [
+      "rich-a-policy-before",
+      "rich-a-composition-after"
+    ],
+    [
+      "rich-z-accepted",
+      "rich-z-replica"
+    ],
+    [
+      "rich-z-policy-before",
+      "rich-z-unsafe-after"
+    ],
+    [
+      "rich-z-policy-before",
+      "rich-z-mark-after"
+    ],
+    [
+      "rich-z-policy-before",
+      "rich-z-version-after"
+    ],
+    [
+      "rich-z-policy-before",
+      "rich-z-composition-after"
+    ],
+    [
+      "collection-markdown-before",
+      "collection-markdown-after"
+    ],
+    [
+      "collection-multiline-before",
+      "collection-multiline-after"
+    ]
+  ],
+  "expectedBlocks": {
+    "rich-a-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "host": "retained",
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "external-id",
+            "label": "Task",
+            "consumer": {
+              "id": "opaque"
+            }
+          },
+          {
+            "type": "text",
+            "text": "C peer",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "rich-a-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "host": "retained",
+        "content": [
+          {
+            "type": "text",
+            "text": "ABC peer",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "rich-a-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "host": "retained",
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "external-id",
+            "label": "Task",
+            "consumer": {
+              "id": "opaque"
+            }
+          },
+          {
+            "type": "text",
+            "text": "C peer",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "rich-z-accepted": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "host": "retained",
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "external-id",
+            "label": "Task",
+            "consumer": {
+              "id": "opaque"
+            }
+          },
+          {
+            "type": "text",
+            "text": "C peer",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "rich-z-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "host": "retained",
+        "content": [
+          {
+            "type": "text",
+            "text": "ABC peer",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "rich-z-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "host": "retained",
+        "content": [
+          {
+            "type": "text",
+            "text": "A",
+            "marks": []
+          },
+          {
+            "type": "text",
+            "text": "東京😀",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          },
+          {
+            "type": "entity-ref",
+            "entityType": "task",
+            "entityId": "external-id",
+            "label": "Task",
+            "consumer": {
+              "id": "opaque"
+            }
+          },
+          {
+            "type": "text",
+            "text": "C peer",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "collection-markdown-document": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "keep",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "external"
+        }
+      },
+      {
+        "id": "paste-markdown-1-1",
+        "type": "heading",
+        "level": 1,
+        "content": [
+          {
+            "type": "text",
+            "text": "Title",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-markdown-1-2",
+        "type": "divider"
+      },
+      {
+        "id": "paste-markdown-1-3",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "**東京😀**",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "collection-markdown-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "keep",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "external"
+        }
+      }
+    ],
+    "collection-markdown-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "keep",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "external"
+        }
+      },
+      {
+        "id": "paste-markdown-1-1",
+        "type": "heading",
+        "level": 1,
+        "content": [
+          {
+            "type": "text",
+            "text": "Title",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-markdown-1-2",
+        "type": "divider"
+      },
+      {
+        "id": "paste-markdown-1-3",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "**東京😀**",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "collection-multiline-document": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "keep",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "external"
+        }
+      },
+      {
+        "id": "paste-multiline-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-multiline-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "😀",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-multiline-1-3",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "collection-multiline-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "keep",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "external"
+        }
+      }
+    ],
+    "collection-multiline-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "keep",
+            "marks": []
+          }
+        ],
+        "consumer": {
+          "id": "external"
+        }
+      },
+      {
+        "id": "paste-multiline-1-1",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-multiline-1-2",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "😀",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "id": "paste-multiline-1-3",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "",
+            "marks": []
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {
+    "rich-a-resolved": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      },
+      "offset": 9
+    },
+    "rich-z-resolved": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      },
+      "offset": 9
+    }
+  }
+}

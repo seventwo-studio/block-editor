@@ -1,6 +1,6 @@
 // One fixture contract for native Swift and actual browser WASM execution.
 // Android emits the same raw-response transcript through packaged JNI.
-export const fixtureNames = ['bridge', 'structure', 'recovery', 'documents', 'writing', 'blockCommands', 'schemaCommands', 'roleCommands', 'collectionCommands', 'exitCommands', 'pinCommands', 'boundaryCommands', 'undoRecoveryCommands'];
+export const fixtureNames = ['bridge', 'structure', 'recovery', 'documents', 'writing', 'blockCommands', 'schemaCommands', 'roleCommands', 'collectionCommands', 'exitCommands', 'pinCommands', 'boundaryCommands', 'undoRecoveryCommands', 'clipboardCommands', 'spliceCommands'];
 
 export function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
