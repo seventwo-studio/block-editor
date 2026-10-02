@@ -18,12 +18,22 @@ import UIKit
     let block = input.model.document.blocks.first { $0.id == address.blockID }
     let value = block.flatMap { JSONValue.object($0.fields).value(at: address.path) }
     let container = block.flatMap { JSONValue.object($0.fields).value(at: Array(address.path.dropLast())) }
-    let heading = container?["type"]?.string == "heading"
-    let level = container?["level"]
     let nodes = value?.array ?? [.object(["type": .string("text"), "text": .string(input.text)])]
+    return nativeRichAttributedText(nodes, container: container, address: address)
+}
+
+@MainActor func nativeWritingAttributedText(_ input: WritingCollaborativeInput) -> NSAttributedString {
+    let value = try? input.model.field(input.effectiveAddress)
+    let identity = try? input.model.session.position(at: input.effectiveAddress, offset: 0).field.node
+    let container = identity.flatMap { try? input.model.nodeValue($0) }
+    return nativeRichAttributedText(value?.array ?? [.object(["type": .string("text"), "text": .string(input.text)])], container: container, address: input.effectiveAddress)
+}
+
+@MainActor private func nativeRichAttributedText(_ nodes: [JSONValue], container: JSONValue?, address: TextAddress) -> NSAttributedString {
+    let heading = container?["type"]?.string == "heading", level = container?["level"]
     let result = NSMutableAttributedString(string: "")
     for node in nodes {
-        var bold = heading || container?["header"] == .bool(true), italic = false, code = input.address.path.last == "code"
+        var bold = heading || container?["header"] == .bool(true), italic = false, code = address.path.last == "code"
         var attributes: [NSAttributedString.Key: Any] = [:]
         for mark in node["marks"]?.array ?? [] {
             switch mark["type"]?.string {

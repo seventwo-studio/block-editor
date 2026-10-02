@@ -150,6 +150,7 @@ public final class EditorBridge {
         case "repairWritingRedo": try session.repairRedo(decode(input["target"], as: ChangeID.self))
         case "repairWritingText": try session.repairText(node: decode(input["identity"], as: NodeID.self), field: decode(input["field"], as: String.self), text: decode(input["text"], as: String.self))
         case "node": return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
+        case "setNodeField": try session.setNodeField(decode(input["identity"], as: NodeID.self), path: decode(input["path"], as: [String].self), value: input["value"] ?? .null)
         case "nodeAddress": return try encode(session.address(of: decode(input["identity"], as: NodeID.self)))
         case "textAddress": return try encode(session.textAddress(of: decode(input["identity"], as: NodeID.self), field: input["field"]?.string ?? "content"))
         case "position": return try encode(session.position(at: decode(input["address"], as: TextAddress.self), offset: decode(input["offset"], as: Int.self), affinity: input["affinity"] == nil ? .before : decode(input["affinity"], as: TextAffinity.self)))
