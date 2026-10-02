@@ -100,10 +100,12 @@ def main():
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 17)
-        instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 3)
-        instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 4)
+        instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 11)
         for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),
-                                        ("RetainedAuthoringActionsTest", "retained-authoring-actions")):
+                                        ("RetainedAuthoringActionsTest", "retained-authoring-actions"),
+                                        ("RetainedReadonlyLinkTest", "retained-readonly-link"),
+                                        ("RetainedStructuralActionsTest", "retained-structural-actions")):
             authoring_source = Path(f"android/editor/src/androidTest/java/studio/seventwo/blockeditor/{class_name}.kt")
             authoring = {"included": authoring_source.is_file(), "passed": False,
                          "scope": "Rendered component/semantics input; separate from installed IME, TalkBack and full authoring acceptance"}

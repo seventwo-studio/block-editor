@@ -1,10 +1,15 @@
 package studio.seventwo.blockeditor
 
+import android.os.Bundle
+import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONObject
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.PlatformTextInputInterceptor
@@ -125,4 +130,172 @@ class ComposeInputTest {
             field.assertTextContains("RHello")
         } finally { compose.runOnIdle { a.close(); b.close() } }
     }
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test fun unchangedNativeRecompositionEndsBeforeHistoryAndRevokesOldCallbacks() {
+        lateinit var a: EditorSession
+        lateinit var b: EditorSession
+        var connection: InputConnection? = null
+        var nextConnectionSerial = 0
+        var currentConnectionSerial: Int? = null
+        val connectionEvents = JSONArray()
+        val closedConnections = mutableSetOf<Int>()
+        var originalConnection: InputConnection? = null
+        var originalSerial: Int? = null
+        fun receiptIDs(received: JSONArray): Set<Pair<Long, String>> = buildSet {
+            for (index in 0 until received.length()) {
+                val id = received.getJSONObject(index)
+                add(id.getLong("counter") to id.getString("actor"))
+            }
+        }
+        fun acceptedState(): JSONObject = JSONObject().put("snapshot", JSONObject(a.snapshot.toString()))
+            .put("receipt", runCatching { JSONObject(a.syncState().toString()) }
+                .getOrElse { JSONObject().put("unavailable", it.toString()) })
+        val beforeComposition = setOf(1L to "a", 2L to "a")
+        // Own the actual Compose InputConnection for a deterministic component
+        // witness. BuiltinImeTest still drives the installed keyboard and taps.
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            val current = request.createInputConnection(EditorInfo())
+            val serial = ++nextConnectionSerial
+            connectionEvents.put(JSONObject().put("event", "created").put("serial", serial)
+                .put("objectIdentity", System.identityHashCode(current)).put("replacedSerial", currentConnectionSerial ?: JSONObject.NULL)
+                .put("accepted", acceptedState()))
+            connection = current; currentConnectionSerial = serial
+            try { awaitCancellation() }
+            finally {
+                current.closeConnection(); closedConnections.add(serial)
+                connectionEvents.put(JSONObject().put("event", "closed").put("serial", serial)
+                    .put("wasLatest", connection === current).put("currentSerial", currentConnectionSerial ?: JSONObject.NULL)
+                    .put("accepted", acceptedState()))
+                if (connection === current) { connection = null; currentConnectionSerial = null }
+            }
+        }
+        compose.runOnUiThread {
+            val blocks = JSONArray("""[{"id":"c","type":"code","code":"R","language":"swift","host":{"opaque":true}}]""")
+            a = EditorSession.create("native-history", "a", blocks)
+            b = EditorSession.create("native-history", "b", blocks)
+            a.setText("c", "Rcat ", listOf("code")); a.undo()
+            // A receipt acknowledges every accepted change, including this
+            // author's original edit and Undo; it is not a remote-only count.
+            assertEquals(beforeComposition, receiptIDs(a.syncState().getJSONArray("received")))
+        }
+        try {
+            compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { BlockEditor(a) } } }
+            val field = compose.onNode(hasSetTextAction())
+            field.performClick().performTextInputSelection(TextRange(1))
+            compose.waitUntil(5_000) { connection != null }
+            originalConnection = connection; originalSerial = currentConnectionSerial
+            fun diagnose(stage: String, failure: String? = null) {
+                val fieldSemantics = runCatching { field.fetchSemanticsNode().config }.getOrNull()
+                val redoSemantics = runCatching { compose.onNodeWithText("Redo").fetchSemanticsNode().config }.getOrNull()
+                val focused = fieldSemantics?.let { if (it.contains(SemanticsProperties.Focused)) it[SemanticsProperties.Focused] else false }
+                val selection = fieldSemantics?.let { if (it.contains(SemanticsProperties.TextSelectionRange)) it[SemanticsProperties.TextSelectionRange].toString() else null }
+                val displayed = fieldSemantics?.let { if (it.contains(SemanticsProperties.EditableText)) it[SemanticsProperties.EditableText].text else null }
+                compose.runOnIdle {
+                    val evidence = JSONObject().put("stage", stage).put("failure", failure ?: JSONObject.NULL)
+                        .put("scope", "Owned Compose InputConnection; physical history touch; installed-IME acceptance separate")
+                        .put("originalSerial", originalSerial ?: JSONObject.NULL)
+                        .put("originalClosed", originalSerial?.let { it in closedConnections } ?: false)
+                        .put("currentSerial", currentConnectionSerial ?: JSONObject.NULL)
+                        .put("currentIsOriginal", connection != null && connection === originalConnection)
+                        .put("currentIsNull", connection == null).put("connectionEvents", JSONArray(connectionEvents.toString()))
+                        .put("snapshot", JSONObject(a.snapshot.toString())).put("receipt", JSONObject(a.syncState().toString()))
+                        .put("fieldFocused", focused ?: JSONObject.NULL).put("fieldSelection", selection ?: JSONObject.NULL)
+                        .put("displayedText", displayed ?: JSONObject.NULL)
+                        .put("redoDisabled", redoSemantics?.contains(SemanticsProperties.Disabled) ?: JSONObject.NULL)
+                    val instrumentation = InstrumentationRegistry.getInstrumentation()
+                    instrumentation.targetContext.filesDir.resolve("native-history-connection-$stage.json").writeText(evidence.toString(2))
+                    instrumentation.sendStatus(2, Bundle().apply { putString("stream", "\nNATIVE_HISTORY_CONNECTION " + evidence.toString() + "\n") })
+                }
+            }
+            val oldSetText = checkNotNull(field.fetchSemanticsNode().config[SemanticsActions.SetText].action)
+            compose.runOnIdle {
+                assertTrue(checkNotNull(connection).setComposingRegion(0, 1))
+            }
+            compose.waitForIdle()
+            compose.runOnIdle {
+                b.setText("c", "BR", listOf("code")); a.receive(b.changes())
+                assertEquals("The peer edit must remain unacknowledged while composing", beforeComposition,
+                    receiptIDs(a.syncState().getJSONArray("received")))
+                assertTrue(a.snapshot.getBoolean("canRedo"))
+            }
+            field.assertTextContains("R")
+            diagnose("before-redo")
+            compose.onNodeWithText("Redo").assertIsEnabled().performTouchInput { click() }
+            try { compose.waitUntil(5_000) { connection == null } }
+            catch (failure: Throwable) {
+                try { diagnose("connection-timeout", failure.toString()) } catch (diagnostic: Throwable) { failure.addSuppressed(diagnostic) }
+                throw failure
+            }
+            diagnose("after-redo")
+            compose.runOnIdle {
+                assertEquals("BRcat ", a.snapshot.getJSONArray("blocks").getJSONObject(0).getString("code"))
+                assertEquals(beforeComposition + setOf(1L to "b", 3L to "a"),
+                    receiptIDs(a.syncState().getJSONArray("received")))
+                // Original edit, Undo, remote edit, Redo; ending unchanged native
+                // composition must not manufacture another author edit.
+                assertEquals(4, a.changes().getJSONArray("changes").length())
+                assertTrue(a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONObject("host").getBoolean("opaque"))
+                val accepted = a.save().toString()
+                oldSetText(androidx.compose.ui.text.AnnotatedString("late old callback"))
+                assertEquals(accepted, a.save().toString())
+                assertEquals(beforeComposition + setOf(1L to "b", 3L to "a"),
+                    receiptIDs(a.syncState().getJSONArray("received")))
+            }
+            field.assertTextContains("BRcat ")
+            val oldUndo = checkNotNull(compose.onNodeWithText("Undo").fetchSemanticsNode().config[SemanticsActions.OnClick].action)
+            field.performClick().performTextInputSelection(TextRange(0))
+            compose.waitUntil(5_000) { connection != null }
+            lateinit var accepted: String
+            compose.runOnIdle {
+                accepted = a.save().toString()
+                assertTrue(checkNotNull(connection).setComposingText("draft", 1))
+            }
+            compose.waitForIdle()
+            compose.onNodeWithText("Undo").assertIsNotEnabled()
+            compose.runOnIdle {
+                oldUndo()
+                assertEquals("A changed native draft must block retained history actions", accepted, a.save().toString())
+            }
+            field.assertTextContains("draftBRcat ")
+        } finally { compose.runOnIdle { a.close(); b.close() } }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test fun retainedNativeTextCallbackHonorsLiveReadOnlyPermission() {
+        lateinit var a: EditorSession
+        var connection: InputConnection? = null
+        val readOnly = mutableStateOf(false)
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            val current = request.createInputConnection(EditorInfo())
+            connection = current
+            try { awaitCancellation() }
+            finally { current.closeConnection(); if (connection === current) connection = null }
+        }
+        compose.runOnUiThread {
+            a = EditorSession.create("native-readonly", "a", JSONArray("""[{"id":"c","type":"code","code":"P","language":"swift"}]"""))
+        }
+        try {
+            compose.setContent { InterceptPlatformTextInput(interceptor) { MaterialTheme { BlockEditor(a, readOnly = readOnly.value) } } }
+            val field = compose.onNode(hasSetTextAction())
+            field.performClick().performTextInputSelection(TextRange(1))
+            compose.waitUntil(5_000) { connection != null }
+            val retainedSetText = checkNotNull(field.fetchSemanticsNode().config[SemanticsActions.SetText].action)
+            compose.runOnIdle { readOnly.value = true }
+            compose.waitForIdle()
+            compose.onNodeWithText("Paragraph").assertIsNotEnabled()
+            compose.runOnIdle {
+                val accepted = a.save().toString(); val receipt = a.syncState().toString()
+                retainedSetText(androidx.compose.ui.text.AnnotatedString("late editable callback"))
+                assertEquals("Retained editable callback must honor current read-only permission", accepted, a.save().toString())
+                assertEquals(receipt, a.syncState().toString())
+            }
+            compose.onNodeWithText("P").assertExists()
+            compose.runOnIdle { readOnly.value = false }
+            compose.waitForIdle()
+            field.performClick().performTextInputSelection(TextRange(1))
+            field.performTextInput("X")
+            compose.runOnIdle { assertEquals("PX", a.snapshot.getJSONArray("blocks").getJSONObject(0).getString("code")) }
+        } finally { compose.runOnIdle { a.close() } }
+    }
+
 }

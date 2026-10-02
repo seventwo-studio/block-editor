@@ -138,6 +138,30 @@ class BuiltinImeTest {
                 })
             } }
             val field = { compose.onAllNodes(hasSetTextAction())[0] }
+            val controlStates = JSONArray()
+            fun historyControlState(phase: String): JSONObject {
+                val snapshot = compose.runOnIdle { JSONObject(local.snapshot.toString()) }
+                val fieldConfig = field().fetchSemanticsNode().config
+                val selection = fieldConfig[SemanticsProperties.TextSelectionRange]
+                val undoEnabled = !compose.onNodeWithText("Undo").fetchSemanticsNode().config.contains(SemanticsProperties.Disabled)
+                val redoEnabled = !compose.onNodeWithText("Redo").fetchSemanticsNode().config.contains(SemanticsProperties.Disabled)
+                val state = JSONObject().put("phase", phase).put("uptimeMillis", SystemClock.uptimeMillis())
+                    .put("snapshotCanUndo", snapshot.getBoolean("canUndo"))
+                    .put("snapshotCanRedo", snapshot.getBoolean("canRedo"))
+                    .put("fieldText", fieldConfig[SemanticsProperties.EditableText].text)
+                    .put("selectionStart", selection.start).put("selectionEnd", selection.end)
+                    .put("undoEnabled", undoEnabled).put("redoEnabled", redoEnabled)
+                    .put("snapshot", snapshot)
+                controlStates.put(state)
+                File(instrumentation.targetContext.filesDir, "system-ime-control-states.json").writeText(controlStates.toString())
+                return state
+            }
+            fun requireEnabled(label: String, state: JSONObject) {
+                try { compose.onNodeWithText(label).assertIsEnabled() }
+                catch (error: AssertionError) {
+                    throw AssertionError("Actual installed-IME $label control is disabled before its physical tap: $state", error)
+                }
+            }
             field().performTouchInput { click() }
             field().assertIsFocused()
             capture("plain-keyboard")
@@ -179,13 +203,20 @@ class BuiltinImeTest {
                 remote.receive(local.changes())
                 assertEquals(remote.snapshot.getJSONArray("blocks").toString(), local.snapshot.getJSONArray("blocks").toString())
             }
+            val beforeUndo = historyControlState("before-physical-undo")
+            requireEnabled("Undo", beforeUndo)
             compose.onNodeWithText("Undo").performTouchInput { click() }
+            historyControlState("after-physical-undo")
             compose.runOnIdle {
                 assertEquals(proof.getJSONArray("remoteOnlyBlocks").toString(), local.snapshot.getJSONArray("blocks").toString())
                 proof.put("undoSnapshot", local.snapshot)
             }
             capture("author-undo")
+            val beforeRedo = historyControlState("before-physical-redo")
+            capture("author-redo-before")
+            requireEnabled("Redo", beforeRedo)
             compose.onNodeWithText("Redo").performTouchInput { click() }
+            historyControlState("after-physical-redo")
             compose.runOnIdle {
                 assertEquals(proof.getJSONObject("committedSnapshot").getJSONArray("blocks").toString(), local.snapshot.getJSONArray("blocks").toString())
                 File(instrumentation.targetContext.filesDir, "system-ime-proof.json").writeText(proof.toString())
