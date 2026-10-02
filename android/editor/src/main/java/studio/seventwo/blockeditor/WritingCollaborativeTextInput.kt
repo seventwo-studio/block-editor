@@ -109,6 +109,7 @@ internal class WritingCollaborativeTextInput(
     private fun commit() {
         check(canAuthor())
         committing = true
+        var accepted = false
         try {
             if (blockedDrain) {
                 check(value.text == committedBeforeDrain) { "Retain the changed draft before resolving failed remote delivery" }
@@ -123,6 +124,7 @@ internal class WritingCollaborativeTextInput(
                     value = TextFieldValue(readText(), TextRange(selected.first.offset, selected.second.offset))
                 }
                 anchors = saved
+                accepted = true
                 return
             }
             val live = liveAddress(); val text = readText()
@@ -145,7 +147,15 @@ internal class WritingCollaborativeTextInput(
             failedReason = null
             val finish = release; release = null; compositionChanged()
             try { finish?.invoke() } catch (error: Exception) { blockedDrain = true; committedBeforeDrain = value.text; throw error }
-        } finally { committing = false; if (!requiresCommit) refresh() }
+            accepted = true
+        } finally {
+            committing = false
+            // A successful peer drain can change the accepted field text while
+            // notifications are suppressed by committing. That difference is
+            // not an uncommitted native draft; rebase the retained selection.
+            // Failed local commits and failed drains keep their exact draft.
+            if (accepted) refresh()
+        }
     }
     private fun nativeRange(address: WritingAddress, start: Int, end: Int): WritingTextRange {
         val range = session.selectedText(address, minOf(start, end), maxOf(start, end))

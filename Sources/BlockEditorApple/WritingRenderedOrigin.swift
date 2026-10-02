@@ -49,6 +49,46 @@ import SwiftUI
             return try session.convertBlock(at: target, offset: 0, to: WritingBlockTarget(type: type))
         }
     }
+    /// An explicit Add action may create an absent children collection through
+    /// the shared command. Merely rendering or checking availability never does.
+    private func listInsertionContext(nested: Bool) throws -> (NodeCollection, Bool) {
+        guard canAuthor, let model, model.allowedBlockTypes?.contains("list") != false else { throw EditorError.invalidRange }
+        let value = try model.nodeValue(identity)
+        if !nested {
+            guard value["type"] == .string("list") else { throw EditorError.invalidRange }
+            let collection = NodeCollection(owner: identity, field: "items")
+            return (collection, value["style"] == .string("todo"))
+        }
+        guard value["type"] == nil else { throw EditorError.invalidRange }
+        let destination = NodeCollection(owner: identity, field: "children")
+        var current = identity, visited = Set<NodeID>()
+        while visited.insert(current).inserted {
+            let collection = try model.collection(containing: current)
+            guard let owner = collection.owner else { throw EditorError.invalidRange }
+            let parent = try model.nodeValue(owner)
+            if collection.field == "items", parent["type"] == .string("list") {
+                return (destination, parent["style"] == .string("todo"))
+            }
+            guard collection.field == "children", parent["type"] == nil else { throw EditorError.invalidRange }
+            current = owner
+        }
+        throw EditorError.invalidRange
+    }
+    func canAddListItem(nested: Bool) -> Bool { (try? listInsertionContext(nested: nested)) != nil }
+    @discardableResult func addListItem(nested: Bool) -> Bool {
+        guard canAddListItem(nested: nested), let model else { return false }
+        return model.performCommand(on: identity) { session in
+            // Resolve style, siblings, policy and the exact render location again
+            // after native composition and any queued peer changes have drained.
+            let (collection, todo) = try self.listInsertionContext(nested: nested)
+            var fields: [String: JSONValue] = ["id": .string(UUID().uuidString), "content": .array([])]
+            if todo { fields["checked"] = .bool(false) }
+            let inserted = try session.insertCollectionNodes([.object(fields)], into: collection,
+                                                              after: session.collectionNodes(in: collection).last)
+            guard let fresh = inserted.nodes.first else { throw EditorError.invalidRange }
+            return try session.position(at: fresh.textAddressForApple("content"), offset: 0)
+        }
+    }
     func checkedSetter() -> (Bool) -> Void {
         { [weak self] value in
             guard let self else { return }

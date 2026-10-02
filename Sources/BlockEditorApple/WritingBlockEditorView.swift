@@ -66,6 +66,9 @@ import SwiftUI
             field("content").accessibilityAddTraits(block.type == "heading" ? .isHeader : [])
         case "list":
             WritingListItems(model: model, rootID: rootID, items: block.fields["items"]?.array ?? [], path: path + ["items"], style: block.fields["style"]?.string ?? "unordered", authorCollection: true)
+            #if !os(watchOS) && !os(tvOS)
+            Button("Add item") { lease.addListItem(nested: false) }.disabled(!lease.canAddListItem(nested: false))
+            #endif
         case "toggle":
             HStack { Button(expanded ? "Collapse toggle" : "Expand toggle", systemImage: expanded ? "chevron.down" : "chevron.right") { expanded.toggle() }.labelStyle(.iconOnly); field("summary", label: "Toggle title") }
             if expanded {
@@ -143,6 +146,11 @@ import SwiftUI
                 if let children = item["children"]?.array, !children.isEmpty {
                     WritingListItems(model: model, rootID: rootID, items: children, path: path + [item.selfID, "children"], style: style, authorCollection: authorCollection).padding(.leading, 20)
                 }
+                #if !os(watchOS) && !os(tvOS)
+                if authorCollection {
+                    Button("Add nested item") { lease.addListItem(nested: true) }.disabled(!lease.canAddListItem(nested: true))
+                }
+                #endif
                 #if os(watchOS)
                 WritingActionGroup("Item actions", systemImage: "ellipsis") { WritingNodeActions(model: model, lease: lease) }
                 #endif
