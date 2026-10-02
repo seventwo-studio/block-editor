@@ -1,5 +1,79 @@
 import { test, expect } from "@playwright/test";
 
+test("HTML clipboard adapter authors sanitized inert data through shared writing", async ({ page }) => {
+  const requests: string[] = [];
+  page.on("request", request => { if (request.url().includes("paste.invalid")) requests.push(request.url()); });
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const version of [4, 5]) {
+      const reference = { type: "entity-ref", entityType: "task", entityId: "external", label: "Task", consumer: { id: "opaque-reference" } };
+      const blocks = [{ id: "p", type: "paragraph", consumer: { id: "opaque-host" }, content: [{ type: "text", text: "AB", marks: [] }, reference] }];
+      const options = { documentID: `html-${version}`, epoch: `html-${version}`, blocks };
+      const create = (actorID: string) => version === 4 ? runtime.createWritingV4({ ...options, actorID }) : runtime.createWritingV5({ ...options, actorID });
+      const a = create("a"), b = create("b"), address = { blockID: "p", path: ["content"] };
+      const range = a.selectedText(address, 1, 2);
+      b.replaceText(address, 6, 6, " peer"); a.receive(b.changes());
+      const clipboard = a.clipboardHTML('<script>globalThis.pasteExecuted=true</script><style>evil</style><iframe src="https://paste.invalid/frame"></iframe><svg><text>hidden</text></svg><p onclick="globalThis.pasteExecuted=true"><strong>東京😀</strong><a href="javascript:alert(1)">bad</a><a href="https://example.com/help">safe</a><img src="https://paste.invalid/image" onerror="globalThis.pasteExecuted=true" alt="Image"></p>');
+      const before = JSON.stringify(a.save()), receipt = JSON.stringify(a.syncState());
+      const failures = [];
+      for (const operation of [
+        () => a.pasteInline(clipboard, range, { allowedMarkTypes: [], allowAssetMetadata: false }),
+        () => a.pasteInline(a.clipboardHTML("<p>x</p>".repeat(5001)), range),
+        () => a.pasteInline(a.clipboardHTML("<span>".repeat(150) + "deep" + "</span>".repeat(150)), range),
+        () => a.pasteInline(a.clipboardHTML("x".repeat(1_000_001)), range),
+      ]) {
+        let rejected = false;
+        try { operation(); } catch { rejected = true; }
+        failures.push({ rejected, acceptedUnchanged: before === JSON.stringify(a.save()), receiptUnchanged: receipt === JSON.stringify(a.syncState()) });
+      }
+      const count = a.changes().changes.length;
+      const caret = a.pasteInline(clipboard, range), offset = a.resolvePosition(caret).offset;
+      const after = a.getSnapshot().blocks, pasteActions = a.changes().changes.length - count;
+      b.receive(a.changes()); b.receive(a.changes());
+      const reopened = runtime.restoreWriting(a.save(), "a");
+      reopened.undo(); const undone = reopened.getSnapshot().blocks, canUndo = reopened.getSnapshot().canUndo;
+      reopened.redo(); const redone = reopened.getSnapshot().blocks;
+      const structured = a.clipboardHTML("<h2>Title</h2><blockquote>Quote</blockquote><pre><code>a\n b</code><script>evil</script></pre><hr>");
+      const restrictedBefore = JSON.stringify(a.save()); let blockRejected = false;
+      try { a.pasteCollection(structured, { field: "blocks" }, a.node({ blockID: "p", path: [] }), { allowedBlockTypes: ["paragraph"], allowAssetMetadata: false }); } catch { blockRejected = true; }
+      const blockPreserved = restrictedBefore === JSON.stringify(a.save());
+      const n = a.changes().changes.length, selection = a.pasteCollection(structured, { field: "blocks" }, a.node({ blockID: "p", path: [] }));
+      const collectionActions = a.changes().changes.length - n, collection = a.getSnapshot().blocks.slice(1);
+      a.undo(); const collectionUndo = a.getSnapshot().blocks;
+      results.push({ clipboard, failures, after, replica: b.getSnapshot().blocks, offset, pasteActions, undone, canUndo, redone, structured, blockRejected, blockPreserved, collectionActions, collection, selection, collectionUndo,
+        executed: (globalThis as unknown as { pasteExecuted?: boolean }).pasteExecuted ?? false });
+      a.close(); b.close(); reopened.close();
+    }
+    return results;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    expect(result.executed).toBe(false);
+    expect(JSON.stringify(result.clipboard)).not.toMatch(/javascript:|paste.invalid|onclick|onerror|hidden|evil/);
+    expect(result.failures).toEqual(Array(4).fill({ rejected: true, acceptedUnchanged: true, receiptUnchanged: true }));
+    expect(result.pasteActions).toBe(1); expect(result.offset).toBe(17);
+    expect(result.after).toEqual([{ id: "p", type: "paragraph", consumer: { id: "opaque-host" }, content: [
+      { type: "text", text: "A", marks: [] }, { type: "text", text: "東京😀", marks: [{ type: "bold" }] },
+      { type: "text", text: "bad", marks: [] }, { type: "text", text: "safe", marks: [{ type: "link", href: "https://example.com/help" }] },
+      { type: "text", text: "Image", marks: [] }, { type: "entity-ref", entityType: "task", entityId: "external", label: "Task", consumer: { id: "opaque-reference" } },
+      { type: "text", text: " peer", marks: [] },
+    ] }]);
+    expect(result.replica).toEqual(result.after); expect(result.redone).toEqual(result.after); expect(result.canUndo).toBe(false);
+    expect(result.undone).toEqual([{ id: "p", type: "paragraph", consumer: { id: "opaque-host" }, content: [
+      { type: "text", text: "AB", marks: [] }, { type: "entity-ref", entityType: "task", entityId: "external", label: "Task", consumer: { id: "opaque-reference" } }, { type: "text", text: " peer", marks: [] },
+    ] }]);
+    expect(result.blockRejected && result.blockPreserved).toBe(true); expect(result.collectionActions).toBe(1);
+    expect(result.collection.map((block: any) => block.type)).toEqual(["heading", "quote", "code", "divider"]);
+    expect(result.collection[0]).toMatchObject({ level: 2 }); expect(result.collection[2]).toMatchObject({ code: "a\n b" });
+    expect(result.collection.map((block: any) => block.id)).not.toEqual(result.structured.parts.map((part: any) => part.node.value.id));
+    expect(result.selection.nodes).toHaveLength(4); expect(result.collectionUndo).toEqual(result.after);
+  }
+  expect(requests).toEqual([]);
+});
+
 test("typed writing math thresholds preserve accepted state, peer atoms and recoverable author history", async ({ page }) => {
   test.setTimeout(180_000);
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
