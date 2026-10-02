@@ -221,7 +221,11 @@ class ComposeInputTest {
             field.assertTextContains("R")
             diagnose("before-redo")
             compose.onNodeWithText("Redo").assertIsEnabled().performTouchInput { click() }
-            try { compose.waitUntil(5_000) { connection == null } }
+            // Android may reopen input for the still-focused field. The retired
+            // connection must close; a fresh connection need not stay absent.
+            try { compose.waitUntil(5_000) {
+                checkNotNull(originalSerial) in closedConnections && connection !== originalConnection
+            } }
             catch (failure: Throwable) {
                 try { diagnose("connection-timeout", failure.toString()) } catch (diagnostic: Throwable) { failure.addSuppressed(diagnostic) }
                 throw failure
@@ -236,12 +240,16 @@ class ComposeInputTest {
                 assertEquals(4, a.changes().getJSONArray("changes").length())
                 assertTrue(a.snapshot.getJSONArray("blocks").getJSONObject(0).getJSONObject("host").getBoolean("opaque"))
                 val accepted = a.save().toString()
+                checkNotNull(originalConnection).setComposingText("late retired composition", 1)
+                checkNotNull(originalConnection).commitText("late retired commit", 1)
+                checkNotNull(originalConnection).finishComposingText()
                 oldSetText(androidx.compose.ui.text.AnnotatedString("late old callback"))
                 assertEquals(accepted, a.save().toString())
                 assertEquals(beforeComposition + setOf(1L to "b", 3L to "a"),
                     receiptIDs(a.syncState().getJSONArray("received")))
             }
             field.assertTextContains("BRcat ")
+            assertEquals("BRcat ", field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
             val oldUndo = checkNotNull(compose.onNodeWithText("Undo").fetchSemanticsNode().config[SemanticsActions.OnClick].action)
             field.performClick().performTextInputSelection(TextRange(0))
             compose.waitUntil(5_000) { connection != null }
