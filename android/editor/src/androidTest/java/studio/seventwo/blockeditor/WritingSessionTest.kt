@@ -22,6 +22,45 @@ class WritingSessionTest {
         catch (failure: IllegalStateException) { assertEquals(message, failure.message) }
     }
 
+    @Test fun typedV4SequentialInputFollowsObservedUnicodeAndPreservesPeerUndo() {
+        for (list in listOf(false, true)) for (actor in listOf("a", "z")) {
+            val seed = if (list) JSONArray("""[{"id":"p","type":"list","style":"todo","host":"owner","items":[{"id":"i","content":[{"type":"text","text":"C","marks":[{"type":"bold"}]}],"checked":true,"host":"item"}]}]""")
+                else JSONArray("""[{"id":"p","type":"paragraph","content":[{"type":"text","text":"C","marks":[{"type":"bold"}]}],"host":"original"}]""")
+            val a = WritingSession.createV4("typed-boundary-$list-$actor", actor, "boundary-v4", seed)
+            val b = WritingSession.createV4("typed-boundary-$list-$actor", "m", "boundary-v4", seed)
+            var reopened: WritingSession? = null
+            fun nodes(session: WritingSession): JSONArray {
+                val roots = session.snapshot.getJSONArray("blocks")
+                return if (list) roots.getJSONObject(0).getJSONArray("items") else roots
+            }
+            fun texts(session: WritingSession): List<String> {
+                val items = nodes(session)
+                return (0 until items.length()).map { index ->
+                    val content = items.getJSONObject(index).getJSONArray("content")
+                    (0 until content.length()).joinToString("") { content.getJSONObject(it).getString("text") }
+                }
+            }
+            try {
+                val address = if (list) WritingAddress("p", listOf("items", "i", "content")) else WritingAddress("p")
+                a.replaceText(address, 0, 0, "東京")
+                val caret = a.replaceText(address, 2, 2, "X")
+                assertEquals(3, a.resolvePosition(caret).offset)
+                assertEquals(listOf("東京XC"), texts(a))
+                b.replaceText(address, 1, 1, "R"); val remote = b.changes()
+                a.receive(remote); a.receive(remote); b.receive(a.changes())
+                val restored = WritingSession.restore(a.save(), actor); reopened = restored
+                assertEquals(listOf("東京XCR"), texts(restored)); assertEquals(blocks(b), blocks(restored))
+                restored.undo(); assertEquals(listOf("東京CR"), texts(restored))
+                restored.redo(); assertEquals(blocks(a), blocks(restored))
+                val item = nodes(restored).getJSONObject(0)
+                assertEquals(if (list) "item" else "original", item.getString("host"))
+                if (list) assertEquals(true, item.getBoolean("checked"))
+                val content = item.getJSONArray("content")
+                for (run in 0 until content.length()) assertEquals(normalize(JSONArray("""[{"type":"bold"}]""")), normalize(content.getJSONObject(run).getJSONArray("marks")))
+            } finally { reopened?.close(pendingStateRetained = true); a.close(pendingStateRetained = true); b.close(pendingStateRetained = true) }
+        }
+    }
+
     @Test fun typedV4SplitPinsCommittedPrefixAndKeepsRemoteTailThroughReopenedUndo() {
         for (list in listOf(false, true)) for (swap in listOf(false, true)) {
             val seed = if (list) JSONArray("""[{"id":"p","type":"list","style":"todo","items":[{"id":"i","content":[{"type":"text","text":"AB","marks":[{"type":"bold"}]}],"checked":true,"host":"item"}]}]""")

@@ -651,7 +651,12 @@ public final class WritingSession {
             offset += length; boundaries.insert(offset)
         }
         guard range.lowerBound >= 0, boundaries.contains(range.lowerBound), boundaries.contains(range.upperBound) else { throw EditorError.invalidRange }
-        let edge = next.map(WritingEdge.before) ?? previous.map(WritingEdge.after) ?? .start
+        // Continue an observed inserted run after its last atom. A new sibling
+        // before the same right anchor would sort ahead of the previous run.
+        // Preserve baseline-boundary right affinity and exact version-3 wire.
+        let edge: WritingEdge
+        if protocolVersion == 4, let previous, previous.element.change.counter > 0 { edge = .after(previous) }
+        else { edge = next.map(WritingEdge.before) ?? previous.map(WritingEdge.after) ?? .start }
         return (field, selected, edge, marks, WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: next ?? previous, affinity: next == nil ? .after : .before))
     }
     private func inserted(_ text: String, id: ChangeID, field: WritingField, edge: WritingEdge, marks: [JSONValue]) throws -> ([WritingOperation], WritingPosition?) {

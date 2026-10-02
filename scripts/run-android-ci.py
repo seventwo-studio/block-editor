@@ -99,7 +99,7 @@ def main():
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
-        instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 11)
+        instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 12)
         instrument("studio.seventwo.blockeditor.ComposeInputTest", "compose-input-instrumentation.txt", 3)
         instrument("studio.seventwo.blockeditor.CollaborativeInputTest", "collaborative-input-instrumentation.txt", 4)
         for class_name, report_name in (("AuthoringControlsTest", "authoring-controls"),

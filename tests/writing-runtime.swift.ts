@@ -1,5 +1,48 @@
 import { test, expect } from "@playwright/test";
 
+test("typed v4 sequential input follows observed Unicode and preserves peer undo", async ({ page }) => {
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const results = await page.evaluate(async root => {
+    const { SwiftEditorRuntime } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const results = [];
+    for (const list of [false, true]) for (const actorID of ["a", "z"]) {
+      const content = [{ type: "text", text: "C", marks: [{ type: "bold" }] }];
+      const blocks = list ? [{ id: "p", type: "list", style: "todo", host: "owner", items: [{ id: "i", content, checked: true, host: "item" }] }]
+        : [{ id: "p", type: "paragraph", content, host: "original" }];
+      const documentID = `typed-boundary-${list}-${actorID}`;
+      const a = runtime.createWritingV4({ documentID, actorID, epoch: "boundary-v4", blocks });
+      const b = runtime.createWritingV4({ documentID, actorID: "m", epoch: "boundary-v4", blocks });
+      const address = { blockID: "p", path: list ? ["items", "i", "content"] : ["content"] };
+      a.replaceText(address, 0, 0, "東京");
+      const caret = a.replaceText(address, 2, 2, "X"), offset = a.resolvePosition(caret).offset;
+      const typed = a.getSnapshot().blocks;
+      b.replaceText(address, 1, 1, "R"); const remote = b.changes(); a.receive(remote); a.receive(remote);
+      b.receive(a.changes()); const replica = b.getSnapshot().blocks;
+      const reopened = runtime.restoreWriting(a.save(), actorID), accepted = reopened.getSnapshot().blocks;
+      reopened.undo(); const undo = reopened.getSnapshot().blocks;
+      reopened.redo(); const redo = reopened.getSnapshot().blocks;
+      results.push({ list, offset, typed, replica, accepted, undo, redo });
+      reopened.close(); a.close(); b.close();
+    }
+    return results;
+  }, `/block-editor/@fs${process.cwd()}`);
+  for (const result of results) {
+    const nodes = (blocks: typeof result.typed) => result.list ? blocks[0].items! : blocks;
+    const texts = (blocks: typeof result.typed) => nodes(blocks).map(node => node.content!.map(run => run.type === "text" ? run.text : "").join(""));
+    expect(result.offset).toBe(3);
+    expect(texts(result.typed)).toEqual(["東京XC"]);
+    expect(texts(result.accepted)).toEqual(["東京XCR"]);
+    expect(result.replica).toEqual(result.accepted);
+    expect(texts(result.undo)).toEqual(["東京CR"]);
+    expect(result.redo).toEqual(result.accepted);
+    for (const node of nodes(result.redo)) for (const run of node.content!) expect(run).toMatchObject({ marks: [{ type: "bold" }] });
+    if (result.list) expect(nodes(result.redo)[0]).toMatchObject({ checked: true, host: "item" });
+    else expect(nodes(result.redo)[0]).toMatchObject({ host: "original" });
+  }
+});
+
 test("typed v4 splits pin committed prefix and preserve remote tail through reopened undo", async ({ page }) => {
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
   await page.goto("/");

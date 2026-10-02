@@ -1,0 +1,1441 @@
+{
+  "version": 4,
+  "steps": [
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-False-a-a",
+        "documentID": "boundary-False-a",
+        "actorID": "a",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-False-a-b",
+        "documentID": "boundary-False-a",
+        "actorID": "m",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-False-a-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-False-a-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      },
+      "capture": "boundary-False-a-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "boundary-False-a-a"
+      },
+      "capture": "boundary-False-a-resolved",
+      "bindings": {
+        "position": [
+          "boundary-False-a-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "boundary-False-a-a"
+      },
+      "capture": "boundary-False-a-typed"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-False-a-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-False-a-b"
+      },
+      "capture": "boundary-False-a-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-False-a-a"
+      },
+      "bindings": {
+        "batch": "boundary-False-a-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-False-a-a"
+      },
+      "capture": "boundary-False-a-duplicate",
+      "bindings": {
+        "batch": "boundary-False-a-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-False-a-a"
+      },
+      "capture": "boundary-False-a-all"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-False-a-b"
+      },
+      "capture": "boundary-False-a-replica",
+      "bindings": {
+        "batch": "boundary-False-a-all"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "boundary-False-a-a"
+      },
+      "capture": "boundary-False-a-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "boundary-False-a-reopened",
+        "actorID": "a"
+      },
+      "capture": "boundary-False-a-reopened",
+      "bindings": {
+        "snapshot": "boundary-False-a-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "boundary-False-a-reopened"
+      },
+      "capture": "boundary-False-a-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "boundary-False-a-reopened"
+      },
+      "capture": "boundary-False-a-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-False-a-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-False-a-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-False-a-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-False-z-a",
+        "documentID": "boundary-False-z",
+        "actorID": "z",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-False-z-b",
+        "documentID": "boundary-False-z",
+        "actorID": "m",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "C",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "host": "original"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-False-z-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-False-z-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      },
+      "capture": "boundary-False-z-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "boundary-False-z-a"
+      },
+      "capture": "boundary-False-z-resolved",
+      "bindings": {
+        "position": [
+          "boundary-False-z-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "boundary-False-z-a"
+      },
+      "capture": "boundary-False-z-typed"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-False-z-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-False-z-b"
+      },
+      "capture": "boundary-False-z-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-False-z-a"
+      },
+      "bindings": {
+        "batch": "boundary-False-z-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-False-z-a"
+      },
+      "capture": "boundary-False-z-duplicate",
+      "bindings": {
+        "batch": "boundary-False-z-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-False-z-a"
+      },
+      "capture": "boundary-False-z-all"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-False-z-b"
+      },
+      "capture": "boundary-False-z-replica",
+      "bindings": {
+        "batch": "boundary-False-z-all"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "boundary-False-z-a"
+      },
+      "capture": "boundary-False-z-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "boundary-False-z-reopened",
+        "actorID": "z"
+      },
+      "capture": "boundary-False-z-reopened",
+      "bindings": {
+        "snapshot": "boundary-False-z-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "boundary-False-z-reopened"
+      },
+      "capture": "boundary-False-z-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "boundary-False-z-reopened"
+      },
+      "capture": "boundary-False-z-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-False-z-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-False-z-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-False-z-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-True-a-a",
+        "documentID": "boundary-True-a",
+        "actorID": "a",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-True-a-b",
+        "documentID": "boundary-True-a",
+        "actorID": "m",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-True-a-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-True-a-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      },
+      "capture": "boundary-True-a-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "boundary-True-a-a"
+      },
+      "capture": "boundary-True-a-resolved",
+      "bindings": {
+        "position": [
+          "boundary-True-a-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "boundary-True-a-a"
+      },
+      "capture": "boundary-True-a-typed"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-True-a-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-True-a-b"
+      },
+      "capture": "boundary-True-a-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-True-a-a"
+      },
+      "bindings": {
+        "batch": "boundary-True-a-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-True-a-a"
+      },
+      "capture": "boundary-True-a-duplicate",
+      "bindings": {
+        "batch": "boundary-True-a-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-True-a-a"
+      },
+      "capture": "boundary-True-a-all"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-True-a-b"
+      },
+      "capture": "boundary-True-a-replica",
+      "bindings": {
+        "batch": "boundary-True-a-all"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "boundary-True-a-a"
+      },
+      "capture": "boundary-True-a-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "boundary-True-a-reopened",
+        "actorID": "a"
+      },
+      "capture": "boundary-True-a-reopened",
+      "bindings": {
+        "snapshot": "boundary-True-a-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "boundary-True-a-reopened"
+      },
+      "capture": "boundary-True-a-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "boundary-True-a-reopened"
+      },
+      "capture": "boundary-True-a-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-True-a-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-True-a-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-True-a-reopened"
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-True-z-a",
+        "documentID": "boundary-True-z",
+        "actorID": "z",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "create",
+        "session": "boundary-True-z-b",
+        "documentID": "boundary-True-z",
+        "actorID": "m",
+        "epoch": "boundary-v4",
+        "collaborationVersion": 4,
+        "blocks": [
+          {
+            "id": "p",
+            "type": "list",
+            "style": "todo",
+            "host": "owner",
+            "items": [
+              {
+                "id": "i",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "C",
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ]
+                  }
+                ],
+                "checked": true,
+                "host": "item"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-True-z-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 0,
+        "end": 0,
+        "text": "東京"
+      }
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-True-z-a",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 2,
+        "end": 2,
+        "text": "X"
+      },
+      "capture": "boundary-True-z-caret"
+    },
+    {
+      "request": {
+        "command": "resolvePosition",
+        "session": "boundary-True-z-a"
+      },
+      "capture": "boundary-True-z-resolved",
+      "bindings": {
+        "position": [
+          "boundary-True-z-caret",
+          "position"
+        ]
+      }
+    },
+    {
+      "request": {
+        "command": "document",
+        "session": "boundary-True-z-a"
+      },
+      "capture": "boundary-True-z-typed"
+    },
+    {
+      "request": {
+        "command": "replaceText",
+        "session": "boundary-True-z-b",
+        "address": {
+          "blockID": "p",
+          "path": [
+            "items",
+            "i",
+            "content"
+          ]
+        },
+        "start": 1,
+        "end": 1,
+        "text": "R"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-True-z-b"
+      },
+      "capture": "boundary-True-z-peer"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-True-z-a"
+      },
+      "bindings": {
+        "batch": "boundary-True-z-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-True-z-a"
+      },
+      "capture": "boundary-True-z-duplicate",
+      "bindings": {
+        "batch": "boundary-True-z-peer"
+      }
+    },
+    {
+      "request": {
+        "command": "changes",
+        "session": "boundary-True-z-a"
+      },
+      "capture": "boundary-True-z-all"
+    },
+    {
+      "request": {
+        "command": "receive",
+        "session": "boundary-True-z-b"
+      },
+      "capture": "boundary-True-z-replica",
+      "bindings": {
+        "batch": "boundary-True-z-all"
+      }
+    },
+    {
+      "request": {
+        "command": "save",
+        "session": "boundary-True-z-a"
+      },
+      "capture": "boundary-True-z-saved"
+    },
+    {
+      "request": {
+        "command": "restore",
+        "session": "boundary-True-z-reopened",
+        "actorID": "z"
+      },
+      "capture": "boundary-True-z-reopened",
+      "bindings": {
+        "snapshot": "boundary-True-z-saved"
+      }
+    },
+    {
+      "request": {
+        "command": "undo",
+        "session": "boundary-True-z-reopened"
+      },
+      "capture": "boundary-True-z-undo"
+    },
+    {
+      "request": {
+        "command": "redo",
+        "session": "boundary-True-z-reopened"
+      },
+      "capture": "boundary-True-z-redo"
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-True-z-a"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-True-z-b"
+      }
+    },
+    {
+      "request": {
+        "command": "close",
+        "session": "boundary-True-z-reopened"
+      }
+    }
+  ],
+  "expectedBlocks": {
+    "boundary-False-a-typed": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XC",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-a-duplicate": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XCR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-a-reopened": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XCR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-a-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京CR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-a-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XCR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-z-typed": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XC",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-z-duplicate": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XCR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-z-reopened": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XCR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-z-undo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京CR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-False-z-redo": [
+      {
+        "id": "p",
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "東京XCR",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ]
+          }
+        ],
+        "host": "original"
+      }
+    ],
+    "boundary-True-a-typed": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XC",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-a-duplicate": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XCR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-a-reopened": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XCR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-a-undo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京CR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-a-redo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XCR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-z-typed": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XC",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-z-duplicate": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XCR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-z-reopened": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XCR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-z-undo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京CR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ],
+    "boundary-True-z-redo": [
+      {
+        "id": "p",
+        "type": "list",
+        "style": "todo",
+        "host": "owner",
+        "items": [
+          {
+            "id": "i",
+            "content": [
+              {
+                "type": "text",
+                "text": "東京XCR",
+                "marks": [
+                  {
+                    "type": "bold"
+                  }
+                ]
+              }
+            ],
+            "checked": true,
+            "host": "item"
+          }
+        ]
+      }
+    ]
+  },
+  "expectedValues": {
+    "boundary-False-a-resolved": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      },
+      "offset": 3
+    },
+    "boundary-False-z-resolved": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": []
+          }
+        }
+      },
+      "offset": 3
+    },
+    "boundary-True-a-resolved": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "items",
+          "i",
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": [
+              "items",
+              "i"
+            ]
+          }
+        }
+      },
+      "offset": 3
+    },
+    "boundary-True-z-resolved": {
+      "address": {
+        "blockID": "p",
+        "path": [
+          "items",
+          "i",
+          "content"
+        ],
+        "identity": {
+          "baseline": {
+            "blockID": "p",
+            "path": [
+              "items",
+              "i"
+            ]
+          }
+        }
+      },
+      "offset": 3
+    }
+  },
+  "equal": [
+    [
+      "boundary-False-a-duplicate",
+      "boundary-False-a-replica"
+    ],
+    [
+      "boundary-False-z-duplicate",
+      "boundary-False-z-replica"
+    ],
+    [
+      "boundary-True-a-duplicate",
+      "boundary-True-a-replica"
+    ],
+    [
+      "boundary-True-z-duplicate",
+      "boundary-True-z-replica"
+    ]
+  ]
+}
