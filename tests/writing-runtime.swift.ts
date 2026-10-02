@@ -74,6 +74,100 @@ test("HTML clipboard adapter authors sanitized inert data through shared writing
   expect(requests).toEqual([]);
 });
 
+test("typed writing depth boundary preserves peer origins and recoverable author history", async ({ page }) => {
+  const reference = { type: "entity-ref", entityType: "task", entityId: "external-task", label: "Task", consumer: { id: "opaque-reference" } };
+  const sibling = { id: "keep", type: "paragraph", content: [reference], consumer: { id: "keep-opaque" } };
+  function chain(prefix: string, levels: number, peer = false, nested?: any): any {
+    let value: any = { id: `${prefix}-leaf`, type: "paragraph", content: [
+      { type: "text", text: (peer ? "R" : "") + "café 東京😀", marks: [{ type: "bold" }] }, reference,
+    ], consumer: { children: [{ opaque: { value: { text: "keep", id: "metadata-only" } } }] } };
+    for (let index = levels - 1; index >= 0; index--) {
+      const children = index === levels - 1 && nested ? [nested, value] : [value];
+      value = { id: `${prefix}-${index}`, type: "toggle", summary: [{ type: "text", text: `${prefix} 東京😀`, marks: [] }], children, host: { id: `opaque-${prefix}-${index}` } };
+    }
+    return value;
+  }
+  const cases = [];
+  for (const version of [4, 5]) for (const actorID of ["a", "z"]) for (const levels of [15, 16]) cases.push({ version, actorID, levels,
+    baseline: [chain("A", 16), chain("B", 16), chain("C", levels), sibling],
+    union: [chain("C", levels, false, chain("B", 16, false, chain("A", 16, true))), sibling],
+    repaired: [chain("A", 16, true), chain("C", levels, false, chain("B", 16)), sibling],
+  });
+  await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));
+  await page.goto("/");
+  const samples = await page.evaluate(async ({ root, cases }) => {
+    const { SwiftEditorRuntime, SwiftWritingRecoveryError } = await import(/* @vite-ignore */ `${root}/src/swift.ts`);
+    const runtime = await SwiftEditorRuntime.initialize(await (await fetch("writing-engine.wasm")).arrayBuffer());
+    const path = (prefix: string, levels: number) => Array.from({ length: levels - 1 }, (_, index) => ["children", `${prefix}-${index + 1}`]).flat();
+    const pending = (operation: () => unknown) => {
+      try { operation(); } catch (error) { if (error instanceof SwiftWritingRecoveryError) return error.recovery; throw error; }
+      throw new Error("Over-depth union must retain a proposal");
+    };
+    const samples = [];
+    for (const item of cases) {
+      const { version, actorID, levels } = item;
+      const create = (writer: string) => {
+        const options = { documentID: `typed-depth-${version}-${actorID}-${levels}`, actorID: writer, epoch: `depth-${version}`, blocks: item.baseline };
+        return version === 4 ? runtime.createWritingV4(options) : runtime.createWritingV5(options);
+      };
+      const a = create(actorID), b = create("m");
+      const A = a.node({ blockID: "A-0", path: [] }), B = b.node({ blockID: "B-0", path: [] });
+      const leaf = b.node({ blockID: "A-0", path: [...path("A", 16), "children", "A-leaf"] });
+      a.moveSelection({ nodes: [A], text: [] }, { owner: a.node({ blockID: "B-0", path: path("B", 16) }), field: "children" });
+      b.moveSelection({ nodes: [B], text: [] }, { owner: b.node({ blockID: "C-0", path: path("C", levels) }), field: "children" });
+      const position = b.replaceText(b.textAddress(leaf), 0, 0, "R");
+      if (levels === 15) {
+        a.receive(b.changes()); b.receive(a.changes()); a.receive(b.changes()); b.receive(a.changes());
+        const merged = a.getSnapshot().blocks, replica = b.getSnapshot().blocks, offset = a.resolvePosition(position).offset;
+        const origin = a.node(a.nodeAddress(leaf)), reopened = runtime.restoreWriting(a.save(), actorID);
+        reopened.undo(); b.receive(reopened.changes()); const undo = reopened.getSnapshot().blocks, undoReplica = b.getSnapshot().blocks;
+        reopened.redo(); b.receive(reopened.changes()); b.receive(reopened.changes());
+        samples.push({ merged, replica, offset, origin, expectedOrigin: leaf, undo, undoReplica, redo: reopened.getSnapshot().blocks, redoReplica: b.getSnapshot().blocks });
+        a.close(); b.close(); reopened.close(); continue;
+      }
+      const savedA = a.save(), savedB = b.save(), receiptA = a.syncState(), receiptB = b.syncState();
+      const proposal = pending(() => a.receive(b.changes())), peerProposal = pending(() => b.receive(a.changes()));
+      const repeated = pending(() => a.receive(b.changes()));
+      const acceptedUnchanged = JSON.stringify(savedA) === JSON.stringify(a.save()) && JSON.stringify(savedB) === JSON.stringify(b.save());
+      const receiptsUnchanged = JSON.stringify(receiptA) === JSON.stringify(a.syncState()) && JSON.stringify(receiptB) === JSON.stringify(b.syncState());
+      const reopened = runtime.restoreWriting(savedA, actorID), restored = pending(() => reopened.restoreRecovery(proposal));
+      const restartUnchanged = JSON.stringify(savedA) === JSON.stringify(reopened.save()) && JSON.stringify(receiptA) === JSON.stringify(reopened.syncState());
+      reopened.repairUndo({ counter: 1, actor: actorID });
+      const repaired = reopened.getSnapshot().blocks, offset = reopened.resolvePosition(position).offset;
+      const origin = reopened.node(reopened.nodeAddress(leaf));
+      const identities = JSON.stringify(reopened.node({ blockID: "A-0", path: [] })) === JSON.stringify(A)
+        && JSON.stringify(reopened.node({ blockID: "C-0", path: [...path("C", levels), "children", "B-0"] })) === JSON.stringify(B);
+      const forward = reopened.changes(), reversed = { ...forward, changes: [...forward.changes].reverse() };
+      b.receive(reversed); b.receive(forward); b.receive(reversed);
+      const replica = b.getSnapshot().blocks, accepted = reopened.save(), receipt = reopened.syncState();
+      const rejectedRedo = pending(() => reopened.redo());
+      const redoUnchanged = JSON.stringify(accepted) === JSON.stringify(reopened.save()) && JSON.stringify(receipt) === JSON.stringify(reopened.syncState());
+      const stopped = runtime.restoreWriting(accepted, actorID), restartRedo = pending(() => stopped.restoreRecovery(rejectedRedo));
+      stopped.repairUndo({ counter: 1, actor: actorID }); b.receive(stopped.changes()); b.receive(stopped.changes());
+      samples.push({ proposal, peerProposal, repeated, restored, acceptedUnchanged, receiptsUnchanged, restartUnchanged, repaired, replica, offset, origin, expectedOrigin: leaf, identities,
+        rejectedRedo, restartRedo, redoUnchanged, final: stopped.getSnapshot().blocks, finalReplica: b.getSnapshot().blocks, finalCount: stopped.changes().changes.length, finalOffset: b.resolvePosition(position).offset });
+      a.close(); b.close(); reopened.close(); stopped.close();
+    }
+    return samples;
+  }, { root: `/block-editor/@fs${process.cwd()}`, cases });
+  for (const [index, sample] of samples.entries()) {
+    const item = cases[index];
+    expect(sample.offset).toBe(1); expect(sample.origin).toEqual(sample.expectedOrigin);
+    if (item.levels === 15) {
+      expect(sample.merged).toEqual(item.union); expect(sample.replica).toEqual(item.union);
+      expect(sample.undo).toEqual(item.repaired); expect(sample.undoReplica).toEqual(item.repaired);
+      expect(sample.redo).toEqual(item.union); expect(sample.redoReplica).toEqual(item.union);
+      continue;
+    }
+    expect(sample.proposal?.reason).toBe("schemaConstraint"); expect(sample.proposal?.batch.changes).toHaveLength(3);
+    expect(sample.peerProposal).toEqual(sample.proposal); expect(sample.repeated).toEqual(sample.proposal); expect(sample.restored).toEqual(sample.proposal);
+    expect(sample.acceptedUnchanged && sample.receiptsUnchanged && sample.restartUnchanged && sample.identities).toBe(true);
+    expect(sample.repaired).toEqual(item.repaired); expect(sample.replica).toEqual(item.repaired);
+    expect(sample.rejectedRedo?.batch.changes).toHaveLength(5); expect(sample.restartRedo).toEqual(sample.rejectedRedo); expect(sample.redoUnchanged).toBe(true);
+    expect(sample.final).toEqual(item.repaired); expect(sample.finalReplica).toEqual(item.repaired); expect(sample.finalCount).toBe(6); expect(sample.finalOffset).toBe(1);
+  }
+});
+
 test("typed writing math thresholds preserve accepted state, peer atoms and recoverable author history", async ({ page }) => {
   test.setTimeout(180_000);
   await page.route("**/writing-engine.wasm", route => route.fulfill({ path: process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm", contentType: "application/wasm" }));

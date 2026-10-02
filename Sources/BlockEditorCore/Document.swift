@@ -15,15 +15,30 @@ public enum JSONValue: Codable, Equatable, Sendable {
     }
 
     public func encode(to encoder: any Encoder) throws {
-        var value = encoder.singleValueContainer()
         switch self {
-        case .null: try value.encodeNil()
-        case .bool(let v): try value.encode(v)
-        case .number(let v): try value.encode(v)
-        case .string(let v): try value.encode(v)
-        case .array(let v): try value.encode(v)
-        case .object(let v): try value.encode(v)
+        case .null:
+            var value = encoder.singleValueContainer(); try value.encodeNil()
+        case .bool(let v):
+            var value = encoder.singleValueContainer(); try value.encode(v)
+        case .number(let v):
+            var value = encoder.singleValueContainer(); try value.encode(v)
+        case .string(let v):
+            var value = encoder.singleValueContainer(); try value.encode(v)
+        case .array(let elements):
+            var values = encoder.unkeyedContainer()
+            for element in elements { try values.encode(element) }
+        case .object(let fields):
+            var values = encoder.container(keyedBy: ObjectKey.self)
+            for (key, element) in fields { try values.encode(element, forKey: ObjectKey(key)) }
         }
+    }
+
+    private struct ObjectKey: CodingKey {
+        let stringValue: String
+        var intValue: Int? { nil }
+        init(_ value: String) { stringValue = value }
+        init?(stringValue: String) { self.init(stringValue) }
+        init?(intValue: Int) { self.init(String(intValue)) }
     }
 
     public var string: String? { if case .string(let v) = self { return v }; return nil }
