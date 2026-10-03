@@ -69,7 +69,10 @@ import UIKit
             guard !rendering, let view, view.markedTextRange == nil, !input.composing else { return }
             rendering = true; defer { rendering = false }
             let text = nativeWritingAttributedText(input)
-            if !view.attributedText.isEqual(to: text) { view.attributedText = text }
+            if !view.attributedText.isEqual(to: text) {
+                view.attributedText = text
+                view.textStorage.fixAttributes(in: NSRange(location: 0, length: view.textStorage.length))
+            }
             view.selectedRange = input.selection; view.invalidateIntrinsicContentSize()
         }
         func close() {
