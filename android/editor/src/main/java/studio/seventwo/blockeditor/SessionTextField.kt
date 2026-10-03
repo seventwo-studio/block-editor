@@ -86,7 +86,9 @@ import java.util.Locale
             // A retained semantics/InputConnection node reads its latest callback;
             // reusing that node would silently attach the old native lease again.
             key(bindingRevision) {
-                OutlinedTextField(value = input.value, onValueChange = { value -> if (!currentReadOnly) binding.update(value) }, readOnly = readOnly,
+                OutlinedTextField(value = input.value, onValueChange = { value ->
+                    if (currentReadOnly) binding.select(value) else binding.update(value)
+                }, readOnly = readOnly,
                 modifier = Modifier.fillMaxWidth().focusRequester(focus).onFocusChanged { inputs.focusChanged(binding, it.isFocused) }
                     .testTag("editor-text:$inputKey").semantics { contentDescription = label }
                     .onPreviewKeyEvent { event ->

@@ -291,6 +291,18 @@ class ComposeInputTest {
             compose.runOnIdle { readOnly.value = true }
             compose.waitForIdle()
             compose.onNodeWithText("Paragraph").assertIsNotEnabled()
+            lateinit var acceptedBeforeSelection: String
+            lateinit var receiptBeforeSelection: String
+            compose.runOnIdle {
+                acceptedBeforeSelection = a.save().toString()
+                receiptBeforeSelection = a.syncState().toString()
+            }
+            field.performTextInputSelection(TextRange(0, 1))
+            assertEquals(TextRange(0, 1), field.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            compose.runOnIdle {
+                assertEquals(acceptedBeforeSelection, a.save().toString())
+                assertEquals(receiptBeforeSelection, a.syncState().toString())
+            }
             compose.runOnIdle {
                 val accepted = a.save().toString(); val receipt = a.syncState().toString()
                 retainedSetText(androidx.compose.ui.text.AnnotatedString("late editable callback"))

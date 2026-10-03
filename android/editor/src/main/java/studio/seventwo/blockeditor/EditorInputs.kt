@@ -92,6 +92,9 @@ internal class EditorInputs(private val session: EditorSession, private val scop
         fun update(value: TextFieldValue) {
             if (current() || (!retired && attached && finalValueValid() && input.acceptsFinalNativeValue)) input.update(value)
         }
+        fun select(value: TextFieldValue) {
+            if (current()) input.select(value)
+        }
     }
     fun bindingRevision(key: String): Int = bindingRevisions[key] ?: 0
     fun bind(key: String, identity: NodeIdentity?, address: NodeAddress): Binding {

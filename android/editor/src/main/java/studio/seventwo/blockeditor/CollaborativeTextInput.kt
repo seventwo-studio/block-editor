@@ -67,6 +67,10 @@ internal class CollaborativeTextInput(
             try { finish?.invoke() } catch (error: Exception) { reportError(error) }
         }
     }
+    fun select(next: TextFieldValue) {
+        if (closed || next.text != value.text || next.composition != value.composition) return
+        value = value.copy(selection = next.selection)
+    }
     /** Finish only a native recomposition of already accepted text. A changed
      * draft must be committed through the ordinary input path first. */
     internal fun finishUnchangedComposition(revokeNativeInput: () -> Unit) {
