@@ -38,8 +38,6 @@ class WritingAuthoringComposeTest {
         }
         compose.runOnUiThread {
             a=WritingSession.createV6("compose-native-paste","a","six",seed());b=WritingSession.createV6("compose-native-paste","b","six",seed())
-            val manager=compose.activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            WritingNativeClipboard.write(manager,WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"inline":{"_0":[{"type":"text","text":"X😀","marks":[{"type":"italic"}]},{"type":"entity-ref","entityType":"task","entityId":"task","label":"Task","host":"paste-meta"}]}}]}""")))
         }
         try {
             compose.setContent {InterceptPlatformTextInput(interceptor){MaterialTheme{run{
@@ -48,9 +46,19 @@ class WritingAuthoringComposeTest {
             }}}}
             val field=compose.onNode(hasSetTextAction());field.performClick();field.performTextInputSelection(TextRange(1))
             compose.waitUntil {connection!=null}
+            // Compose idleness does not wait for Android's window transition.
+            // Clipboard reads require real foreground focus, including under ARM translation.
+            compose.waitUntil {compose.activity.hasWindowFocus()}
+            compose.runOnIdle {
+                val manager=compose.activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipboard=WritingClipboard.restore(JSONObject("""{"version":1,"parts":[{"inline":{"_0":[{"type":"text","text":"X😀","marks":[{"type":"italic"}]},{"type":"entity-ref","entityType":"task","entityId":"task","label":"Task","host":"paste-meta"}]}}]}"""))
+                WritingNativeClipboard.write(manager,clipboard)
+                assertEquals(writingCanonical(clipboard.export()),writingCanonical(checkNotNull(WritingNativeClipboard.read(manager,a)).export()))
+            }
             compose.runOnIdle {assertTrue(checkNotNull(connection).setComposingText("東京",1))}
             compose.runOnIdle {b.replaceText(b.textAddress(b.node(NodeAddress("p"))),6,6,"R");a.receive(b.changes());assertEquals("ABMira",text(a));assertEquals(1,a.exportDeferredChanges().size)}
             val stalePaste=checkNotNull(compose.onNodeWithTag("writing-paste").fetchSemanticsNode().config[SemanticsActions.OnClick].action)
+            compose.waitUntil {compose.activity.hasWindowFocus()}
             compose.onNodeWithTag("writing-paste").assertIsEnabled().performClick()
             compose.runOnIdle {assertEquals("A東京X😀TaskBMiraR",text(a));assertTrue(a.exportDeferredChanges().isEmpty());assertTrue(a.snapshot.toString().contains("paste-meta"));assertTrue(a.snapshot.toString().contains("opaque"))}
             val focused=compose.onNode(hasSetTextAction() and isFocused());focused.assertTextContains("A東京X😀TaskBMiraR")
