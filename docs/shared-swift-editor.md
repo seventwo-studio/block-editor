@@ -7,6 +7,10 @@ limits. Default sessions remain v1; production React migration is still pending.
 
 ## Accepted direction
 
+The [modern editing decisions confirmed on 2 October 2026](modern-editing-decisions.md)
+extend this direction with native/reference delivery, shared title and appearance,
+fresh-session migration and modern-surface acceptance requirements.
+
 One platform-independent Swift engine serves Therein, Foliostrate, Parqeet and an
 unnamed local-only document editor. Deliver the engine, native interfaces, then the
 React/WASM replacement. Naming a consumer neither enables collaboration nor changes

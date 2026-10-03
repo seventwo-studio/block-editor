@@ -13,6 +13,10 @@ every Notion feature is implemented or part of the shared engine.
 
 ## Everyday writing
 
+The [modern editing decisions confirmed on 2 October 2026](modern-editing-decisions.md)
+define the title, appearance, internal-link trigger, delivery and acceptance scope
+that accompanies this behavior contract.
+
 - Clicking or tapping text edits it in place. An empty document immediately offers
   a focused paragraph. Block controls and formatting tools appear in context;
   ordinary writing does not require a separate form or persistent buttons on every line.

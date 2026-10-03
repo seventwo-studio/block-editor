@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - codex/initial-extract
   workflow_dispatch:
 
 permissions:
