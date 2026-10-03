@@ -1,0 +1,11 @@
+test_completed_cases_cannot_pass_without_verified_final_settings (android_writing_ime_runner_test.WritingImeFailureEvidenceTest) ... OK (1 test)
+
+OK (1 test)
+
+ok
+test_original_instrumentation_failure_survives_failed_settings_and_collection (android_writing_ime_runner_test.WritingImeFailureEvidenceTest) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.011s
+
+OK
