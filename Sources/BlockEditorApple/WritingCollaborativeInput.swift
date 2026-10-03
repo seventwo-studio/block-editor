@@ -118,7 +118,16 @@ import AppKit
         #endif
     }
     private func adoptCommandCaret(_ caret: WritingPosition) {
-        saveSourceSelection()
+        if caret.field.node == address.identity, caret.field.name == address.path.last {
+            // A command returning to this field owns the new caret after layout.
+            sourceSelection = nil
+            #if os(macOS)
+            sourceAffinity = nil
+            #endif
+        } else {
+            saveSourceSelection()
+        }
+        anchors = nil; retainedSelection = nil
         if let resolved = try? model.session.resolve(caret) { selection = NSRange(location: resolved.offset, length: 0) }
     }
     func retainSelection(_ start: WritingPosition, _ end: WritingPosition) { retainedSelection = (start, end) }

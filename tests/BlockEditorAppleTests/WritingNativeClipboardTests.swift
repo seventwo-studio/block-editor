@@ -17,13 +17,18 @@ func writingNativeClipboardKeepsExplicitProtocolAndEpoch(version: Int) throws {
 
 /// Native component callbacks do not establish installed OS IME/clipboard acceptance.
 @MainActor @Test(arguments: [4, 5, 6])
-func writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version: Int) throws {
+func writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version: Int) async throws {
+    _ = NSApplication.shared
     let document = try Document(blocks: [.paragraph(id: "p", text: "AB")])
     let a = try WritingSession(documentID: "native-clipboard", actorID: "a", epoch: "v\(version)", document: document, protocolVersion: version)
     let b = try WritingSession(documentID: "native-clipboard", actorID: "b", epoch: "v\(version)", document: document, protocolVersion: version)
     let model = try WritingEditorModel(session: a)
     let coordinator = WritingMacTextInput.Coordinator(model: model, address: TextAddress("p"))
-    let view = WritingMacTextView(); coordinator.connect(view); defer { coordinator.close() }
+    let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 500, height: 300), styleMask: [.titled], backing: .buffered, defer: false)
+    window.isReleasedWhenClosed = false
+    let view = WritingMacTextView(); coordinator.connect(view); window.contentView?.addSubview(view)
+    defer { coordinator.close(); window.contentView = nil; window.close() }
+    #expect(window.makeFirstResponder(view))
     view.setMarkedText("東京", selectedRange: NSRange(location: 2, length: 0), replacementRange: NSRange(location: 1, length: 0))
     _ = try b.replaceText(at: TextAddress("p"), range: 2..<2, with: "R"); try a.receive(b.changes())
     #expect(a.isComposing && a.document.blocks[0].text == "AB")
@@ -31,7 +36,10 @@ func writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(v
     let clipboard = WritingClipboard(parts: [.inline([textNode("X😀", marks: [.object(["type": .string("italic")])]), reference])])
     let callback = try #require(view.pasteSharedClipboard)
     #expect(try callback(.structured(WritingNativeClipboard.encode(clipboard))))
+    try await Task.sleep(for: .milliseconds(50))
     #expect(!a.isComposing && model.error == nil && a.document.blocks[0].text == "A東京X😀TASKBR")
+    #expect(view.string == "A東京X😀TASKBR")
+    #expect(view.selectedRange() == NSRange(location: 10, length: 0))
     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
     try b.receive(a.changes()); #expect(a.document == b.document)
@@ -111,16 +119,26 @@ func writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version: Int
     #expect(try reopened.text(at: TextAddress("p")) == "LA")
     #expect(try reopened.text(at: tail.textAddressForApple("content")) == (emptyTail ? "" : "B"))
 }
-@MainActor @Test(arguments: [4, 5, 6])
-func writingNativePlainPasteUsesExistingSharedInlineCommand(version: Int) throws {
+@MainActor @Test(arguments: [4, 5, 6], [false, true])
+func writingNativePlainPasteUsesExistingSharedInlineCommand(version: Int, replacingSelection: Bool) async throws {
+    _ = NSApplication.shared
     let a = try WritingSession(documentID: "native-plain-paste", actorID: "a", epoch: "v\(version)", document: Document(blocks: [.paragraph(id: "p", text: "A")]), protocolVersion: version)
     let model = try WritingEditorModel(session: a)
     let coordinator = WritingMacTextInput.Coordinator(model: model, address: TextAddress("p"))
-    let view = WritingMacTextView(); coordinator.connect(view); defer { coordinator.close() }
-    view.setSelectedRange(NSRange(location: 1, length: 0)); coordinator.input.selection = view.selectedRange()
+    let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 500, height: 300), styleMask: [.titled], backing: .buffered, defer: false)
+    window.isReleasedWhenClosed = false
+    let view = WritingMacTextView(); coordinator.connect(view); window.contentView?.addSubview(view)
+    defer { coordinator.close(); window.contentView = nil; window.close() }
+    #expect(window.makeFirstResponder(view))
+    let range = replacingSelection ? NSRange(location: 0, length: 1) : NSRange(location: 1, length: 0)
+    view.setSelectedRange(range); coordinator.input.selection = view.selectedRange()
     let callback = try #require(view.pasteSharedClipboard)
     #expect(callback(.text("café😀")))
-    #expect(model.error == nil && a.document.blocks.map(\.text) == ["Acafé😀"])
+    try await Task.sleep(for: .milliseconds(50))
+    let expected = replacingSelection ? "café😀" : "Acafé😀"
+    #expect(model.error == nil && a.document.blocks.map(\.text) == [expected])
+    #expect(view.string == expected)
+    #expect(view.selectedRange() == NSRange(location: expected.utf16.count, length: 0))
     #expect(a.changes().changes.count == 1)
     let reopened = try WritingSession.restore(a.save(), actorID: "a")
     #expect(reopened.protocolVersion == version && reopened.epoch == "v\(version)")
