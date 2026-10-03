@@ -158,7 +158,8 @@ jobs:
 
   android-runtime:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    # ARM translation needs time for all 15 cases; per-case watchdogs stay intact.
+    timeout-minutes: ${{ matrix.abi == 'arm64-v8a' && 120 || 60 }}
     strategy:
       fail-fast: false
       matrix:
