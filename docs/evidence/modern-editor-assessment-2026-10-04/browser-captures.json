@@ -1,0 +1,53 @@
+{
+  "sourceCommit": "01a0e35cceace2e6cd0ae2366621caf305bfd169",
+  "sourceTree": "98e79d53caa0e178d281826733e7e62d6fd06451",
+  "localDate": "2026-10-04",
+  "captures": [
+    {
+      "browser": "chromium",
+      "version": "153.0.8010.12",
+      "engine": "existing TypeScript/React CRDT, no WASM",
+      "viewport": {
+        "desktop": [
+          1440,
+          1000
+        ],
+        "narrow": [
+          390,
+          844
+        ]
+      },
+      "interactions": [
+        "Meadow initial render",
+        "Midnight theme",
+        "Meadow theme",
+        "paragraph typing",
+        "narrow viewport"
+      ],
+      "qualification": "headless desktop browser; no physical touch or assistive technology acceptance"
+    },
+    {
+      "browser": "webkit",
+      "version": "26.6",
+      "engine": "existing TypeScript/React CRDT, no WASM",
+      "viewport": {
+        "desktop": [
+          1440,
+          1000
+        ],
+        "narrow": [
+          390,
+          844
+        ]
+      },
+      "interactions": [
+        "Meadow initial render",
+        "Midnight theme",
+        "Meadow theme",
+        "paragraph typing",
+        "narrow viewport"
+      ],
+      "qualification": "headless desktop browser; no physical touch or assistive technology acceptance"
+    }
+  ]
+}

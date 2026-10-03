@@ -1,0 +1,62 @@
+# Current editor assessment
+
+4 October 2026 (Europe/Amsterdam). Owner: [ST-116](https://linear.app/seventwo/issue/ST-116). Delivery source: [P-ST-85](https://linear.app/seventwo/project/turn-block-editor-into-a-modern-editing-experience-7132996e2816) and its [approved plan](https://linear.app/seventwo/document/delivery-plan-milestones-dependencies-and-acceptance-01951ee8b64f).
+
+Reuse the shared engine and native input safeguards, adapt the contextual surface, and add the approved shared title/appearance, attachments/previews and bounded columns. There is no evidence for an engine rewrite. This assessment does not select a new visual direction, migration representation or protocol version.
+
+## Source and evidence
+
+Inspected source `01a0e35cceace2e6cd0ae2366621caf305bfd169`, tree `98e79d53caa0e178d281826733e7e62d6fd06451`. The primary checkout was clean on `main`; work uses `codex/modern-editor-assessment`. Current repository search returned no open PRs. Historical auxiliary checkouts remain in the preserved recovery archive and were not edited.
+
+`Sources`, `android`, `src` and `tests` have identical subtree identities at accepted foundation `17516897b701a4948f8fa626f09ebe00f44e34b1` and inspected source. Foundation evidence remains reusable with its original artifact/runtime qualifications; it is not a fresh run or modern acceptance.
+
+| Evidence | Boundary |
+| --- | --- |
+| Source inspection | Swift document/writing/structure/migration; Apple writing/input/focus/controls; Kotlin/Compose collections; TypeScript schema/React and Swift wrapper; delivery manifests |
+| Current checks/captures | [Assessment evidence](evidence/modern-editor-assessment-2026-10-04/README.md): original logs, versions, screenshots and short typing recordings |
+| Browser rendering | Existing TypeScript/React CRDT demo, headless Chromium 153.0.8010.12 and WebKit 26.6, desktop light/dark and narrow width. It is not the modern shared WASM surface. |
+| Native reuse | [ST-102](https://linear.app/seventwo/issue/ST-102)/[PR #67](https://github.com/seventwo-studio/block-editor/pull/67) retain actual Mac/iPhone/iPad foundation workflows, source, observer-host identities and archive hashes. Original recordings were not reproduced here. |
+| Android/relay reuse | [ST-103](https://linear.app/seventwo/issue/ST-103), [ST-105](https://linear.app/seventwo/issue/ST-105), [ST-48](https://linear.app/seventwo/issue/ST-48), retaining API/ABI, emulator, process and artifact qualifications |
+| Physical/assistive technology | No new physical-device or assistive-technology evidence. Simulator/emulator/component evidence cannot substitute for the required hardware matrix. |
+
+ST-116 remains unfinished: Computer Use is unavailable, preventing fresh native Mac screenshot/interaction capture through the permitted interface. Source-equivalent foundation evidence helps assess reuse but does not complete the requested current-host capture deliverable. This blocks ST-117/ST-118 through existing native prerequisites; no acceptance requirement is removed.
+
+## Capability and gap matrix
+
+Reuse identifies usable implementation with qualified foundation evidence. Improve means an existing mechanism needs the agreed surface or coverage. Missing means the inspected public authoring path lacks the required capability. Unknown identifies missing evidence, not a proven failure. Assessment scenario IDs below describe reproductions; they are not the reviewed ST-140 fixture contract and cannot unlock ST-122.
+
+| Target / classification | Existing capability | Reproduction and remaining gap | Existing owner |
+| --- | --- | --- | --- |
+| Canvas / improve | Apple scrolling lazy stack, Compose collection surface, browser editable blocks | ASSESS-01: blank/mixed documents at desktop/narrow widths. Modern hierarchy/gutter/contextual layout remains unreviewed. | ST-119, ST-121, ST-123 |
+| Shared title / missing | `Document` owns blocks; headings and demo header are not shared document title | ASSESS-02: title edit, peer receive, local title Undo, reopen and Enter-to-body. No shared-title API/path. | ST-117, ST-120, ST-122, ST-123 |
+| Input/IME / reuse + improve | Apple native inputs/focus/pending drafts; Kotlin writing inputs; retained positions/composition deferral; ST-102/ST-103 | ASSESS-03: Unicode composition, deferred peer, structural action, commit/cancel, reopen. Revalidate after title/columns/new controls. Retain iOS 26 CJK glyph qualification. | ST-124, ST-143 |
+| Caret/text selection / reuse + improve | Core positions/traversal, native caret restoration and foundation tests | ASSESS-04: partial endpoints across nested fields, peer move, paste/delete/Undo. Modern cross-block presentation and new endpoints need coverage. | ST-120, ST-124, ST-126 |
+| Block/multi-selection / improve | `WritingSelection`, core move/duplicate/delete/clipboard | ASSESS-05: keyboard/touch range, actions, cancel with useful focus. Native modern selection affordances incomplete. | ST-126, ST-128 |
+| Insertion/catalog / improve | Native/Compose insertion commands; existing React slash filtering/restriction tests | ASSESS-06: native caret picker, search, insert, Escape. Searchable contextual native picker and complete agreed catalog need adaptation. | ST-127 |
+| Formatting/shortcuts / reuse + improve | Rich atoms/marks, native formatting/Markdown, browser inline tests | ASSESS-07: marked text/reference selection, format, caret, peer edit, author Undo. Modern contextual tools need coverage. | ST-129 |
+| Conversion/actions/links / improve | Core/native conversion and opaque node/rendered leases | ASSESS-08: convert marked paragraph, duplicate nested node, delete/Undo after peer edit. Full availability/copy-link host resolution/multi-selection need adaptation. | ST-128 |
+| Lists/toggles/quotes/callouts / reuse + improve | Nested list/checklist/toggle content and native collection controls | ASSESS-09: list continue/exit, toggle/checklist edit, peer edit/Undo. Preserve old nested content and list/toggle containment; exclude general block indentation. Column containment is new. | ST-130, ST-122 |
+| Reorder / improve | Core collection moves, native Move up/down and existing browser controls | ASSESS-10: keyboard/pointer/touch move, drag cancel, peer edit/Undo. Modern insertion targets and column moves missing. | ST-131 |
+| Two resizable columns / missing | Structure collections cover lists/toggles/tables; table `columnWidths` is unrelated | ASSESS-11: create exactly two, move mixed/nested content, resize, rejoin/Undo/reopen, stack left then right. Representation, shared split, controls and watch/TV preservation need contracts/fixtures first. | ST-117, ST-120, ST-140, ST-122, ST-123, ST-131, ST-137 |
+| Links/suggestions / improve | Link marks/scheme checks, references and host callbacks | ASSESS-12: `[[`, host lookup, delayed cancellation, Link action, preserved selection. Native caret-anchored suggestions missing. `@` keeps host mention role. | ST-132 |
+| Images/files/previews / improve + missing | Image fields/host callbacks, inert embed metadata, browser upload/error/restriction tests | ASSESS-13: image/file metadata/reopen, delayed host failure/cancel, URL link/preview choice. File authoring and generic preview workflow missing. Keep assets host-owned. | ST-133 |
+| Code / reuse + improve | Literal code fields/native editing; browser language selector | ASSESS-14: tabs/leading spaces/blank lines, copy/Undo/reopen. Required native language/copy controls and dark/narrow presentation need work; never trim code. | ST-134 |
+| Simple tables / reuse + improve | Stable rows/cells, core collection authoring, native grid/table paths | ASSESS-15: marked cells, rows/cells, keyboard/narrow layout, peer/Undo. Header/controls/responsive acceptance outstanding; no spreadsheet expansion. | ST-135 |
+| Appearance/colors / missing + improve | Native system appearance, demo themes/callout colors; core marks currently bold/italic/strike/code/link | ASSESS-16: shared sans/serif/mono, size/width, semantic emphasis, peer/Undo/reopen. Host-local CSS is not synchronized document appearance. | ST-117, ST-122, ST-136 |
+| Touch / improve | UIKit/Compose input and qualified native foundation interactions | ASSESS-17: insertion/format/reorder/resize with keyboard and large text. Modern accessory/panel/columns need actual touch evidence. | ST-137 |
+| Outline/focus/navigation / missing | Existing host boundaries; no complete writing-adapter surface found | ASSESS-18: headings, focus mode, host navigation and caret preservation. Keep outline/focus personal; title/appearance shared. | ST-138 |
+| Accessibility / unknown + improve | Labels/heading traits/native controls and prior scoped checks | ASSESS-19: keyboard-only, VoiceOver/TalkBack, zoom/large text, light/dark and accessible resize on all agreed families. Modern matrix incomplete. | ST-139 (Backlog), ST-143 |
+| History/clipboard/persistence / reuse + improve | Author-specific edits, save/restore/receipts, clipboard/import and fresh-epoch cutover scaffolding; ST-48/ST-105 | ASSESS-20: clipboard/composition/offline peer, Undo/Redo/process reopen, protocol/transport rejection with new metadata/columns. Existing cutover does not define modern migration. | ST-125, ST-117, ST-141 |
+| Performance / unknown | Engine/adapter methods and retained workloads reusable | ASSESS-21: 1,000 mixed blocks on representative hardware, edit-to-display p95 ≤50 ms, menu p95 ≤100 ms; resized/stacked layouts and larger-document preservation. Engine smoke is a separate boundary. | ST-142, ST-143 |
+| Browser shared integration / improve, gated | Opt-in `src/swift-react.tsx`; default demo is TypeScript CRDT | ASSESS-22: modern React/WASM commands then Chromium/WebKit/Firefox migration/recovery/accessibility/performance. ST-143 must pass first. | ST-47, ST-104 |
+| Distribution/recovery / incomplete | Candidate-only workflow/manifests/inactive recovery fixtures | ASSESS-23: enumerate package versions/grants, exact recovery approval, then private installs after acceptance. Current metadata read denied. | ST-168, ST-34, ST-106 |
+
+## Constraints and delivery coverage
+
+Reuse opaque origins, scoped stable IDs, retained author changes, unknown metadata, literal code, references and nested content. Wholesale nested JSON replacement bypasses merge/Undo safeguards. Keep restored protocols/epochs explicit. Hosts own storage/assets/suggestions/transport/credentials/publication; retain Apple rendered leases and composition/deferred-peer safeguards.
+
+ST-117/ST-120 must specify modern title/appearance/columns and archive/fresh-session migration. No schema is selected here. Preserve unsupported old nested content even when new controls are restricted. Exactly two columns, persisted shared split, logical reading order, narrow stacking and author Undo are fixed; arbitrary nesting/general document indentation are excluded. Existing math/embed/image content remains committed even where insertion controls omit it. Visual-library examples do not authorize AI, templates, extra blocks/services/dependencies.
+
+The matrix covers ST-122–ST-138 and aggregate ST-139/ST-141–ST-143. ST-117 establishes compatibility/hardware, ST-118 sizes remaining gaps/capacity, ST-119/ST-120/ST-121 settle visual/interaction/prototype, ST-140 provides reviewed expectations, ST-115 is Done. ST-47/ST-104 browser, ST-168/ST-34/ST-106 private delivery and ST-144/ST-145 staged/product acceptance keep their native gates. No assignments/estimates/dates/edges are invented.
+
+Only ST-116 and independent ST-168 are eligible unfinished work. All other Todo issues have unfinished prerequisites; ST-139 remains a required Backlog gate. Complete native capture through Computer Use or review preserved captures before closing the baseline. Package inventory needs an authorized read channel, then exact remote recovery approval. Later physical-device/assistive-technology, prototype review, representative performance and private-host/access requirements remain visible; they cannot reduce the platform matrix.

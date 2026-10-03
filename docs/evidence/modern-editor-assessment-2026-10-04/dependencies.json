@@ -1,0 +1,340 @@
+{
+  "localDate": "2026-10-04",
+  "project": "P-ST-85",
+  "issues": [
+    {
+      "id": "ST-118",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-117",
+        "ST-116"
+      ]
+    },
+    {
+      "id": "ST-140",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-117",
+        "ST-120"
+      ]
+    },
+    {
+      "id": "ST-123",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-119",
+        "ST-122"
+      ]
+    },
+    {
+      "id": "ST-34",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-104",
+        "ST-168",
+        "ST-143"
+      ]
+    },
+    {
+      "id": "ST-132",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-127",
+        "ST-129"
+      ]
+    },
+    {
+      "id": "ST-129",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-124",
+        "ST-122"
+      ]
+    },
+    {
+      "id": "ST-168",
+      "status": "In Progress",
+      "blockedBy": []
+    },
+    {
+      "id": "ST-145",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-144"
+      ]
+    },
+    {
+      "id": "ST-144",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-106",
+        "ST-118",
+        "ST-143"
+      ]
+    },
+    {
+      "id": "ST-106",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-93",
+        "ST-34",
+        "ST-39"
+      ]
+    },
+    {
+      "id": "ST-104",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-47",
+        "ST-45",
+        "ST-46"
+      ]
+    },
+    {
+      "id": "ST-47",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-143",
+        "ST-122",
+        "ST-139",
+        "ST-93",
+        "ST-45",
+        "ST-46"
+      ]
+    },
+    {
+      "id": "ST-143",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-142",
+        "ST-141",
+        "ST-139",
+        "ST-138",
+        "ST-137",
+        "ST-136",
+        "ST-135",
+        "ST-134",
+        "ST-140",
+        "ST-125",
+        "ST-133",
+        "ST-132",
+        "ST-128",
+        "ST-131"
+      ]
+    },
+    {
+      "id": "ST-142",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-137",
+        "ST-131",
+        "ST-133",
+        "ST-135",
+        "ST-126",
+        "ST-140",
+        "ST-124"
+      ]
+    },
+    {
+      "id": "ST-141",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-135",
+        "ST-134",
+        "ST-132",
+        "ST-130",
+        "ST-140",
+        "ST-133",
+        "ST-125",
+        "ST-128"
+      ]
+    },
+    {
+      "id": "ST-139",
+      "status": "Backlog",
+      "blockedBy": [
+        "ST-138",
+        "ST-137",
+        "ST-134",
+        "ST-136",
+        "ST-131",
+        "ST-133",
+        "ST-132",
+        "ST-135"
+      ]
+    },
+    {
+      "id": "ST-138",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-123",
+        "ST-130"
+      ]
+    },
+    {
+      "id": "ST-137",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-129",
+        "ST-130",
+        "ST-128",
+        "ST-124",
+        "ST-127",
+        "ST-126"
+      ]
+    },
+    {
+      "id": "ST-136",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-129",
+        "ST-123",
+        "ST-119"
+      ]
+    },
+    {
+      "id": "ST-135",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-127",
+        "ST-122",
+        "ST-126"
+      ]
+    },
+    {
+      "id": "ST-134",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-124",
+        "ST-127",
+        "ST-125"
+      ]
+    },
+    {
+      "id": "ST-133",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-127",
+        "ST-128"
+      ]
+    },
+    {
+      "id": "ST-131",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-128",
+        "ST-126",
+        "ST-130"
+      ]
+    },
+    {
+      "id": "ST-130",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-127",
+        "ST-122",
+        "ST-124"
+      ]
+    },
+    {
+      "id": "ST-128",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-127",
+        "ST-126"
+      ]
+    },
+    {
+      "id": "ST-127",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-124",
+        "ST-122"
+      ]
+    },
+    {
+      "id": "ST-126",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-124",
+        "ST-122"
+      ]
+    },
+    {
+      "id": "ST-125",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-124",
+        "ST-122"
+      ]
+    },
+    {
+      "id": "ST-124",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-123",
+        "ST-122"
+      ]
+    },
+    {
+      "id": "ST-122",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-140",
+        "ST-121",
+        "ST-120"
+      ]
+    },
+    {
+      "id": "ST-121",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-120",
+        "ST-119"
+      ]
+    },
+    {
+      "id": "ST-120",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-118",
+        "ST-117"
+      ]
+    },
+    {
+      "id": "ST-119",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-118",
+        "ST-115"
+      ]
+    },
+    {
+      "id": "ST-117",
+      "status": "Todo",
+      "blockedBy": [
+        "ST-116"
+      ]
+    },
+    {
+      "id": "ST-116",
+      "status": "In Progress",
+      "blockedBy": [
+        "ST-48"
+      ]
+    },
+    {
+      "id": "ST-115",
+      "status": "Done",
+      "blockedBy": []
+    }
+  ],
+  "prerequisiteOutsideProject": [
+    {
+      "id": "ST-48",
+      "status": "Done",
+      "verifiedFrom": "live Linear issue"
+    }
+  ],
+  "qualification": "Native relations read before work and refreshed after assessment; no dependency mutations."
+}
