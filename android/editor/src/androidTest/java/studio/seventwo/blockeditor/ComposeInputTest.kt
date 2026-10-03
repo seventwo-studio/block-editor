@@ -297,8 +297,9 @@ class ComposeInputTest {
                 acceptedBeforeSelection = a.save().toString()
                 receiptBeforeSelection = a.syncState().toString()
             }
-            field.performTextInputSelection(TextRange(0, 1))
-            assertEquals(TextRange(0, 1), field.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
+            val selectableField = compose.onNodeWithTag("editor-text:c:code")
+            selectableField.performTextInputSelection(TextRange(0, 1))
+            assertEquals(TextRange(0, 1), selectableField.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange])
             compose.runOnIdle {
                 assertEquals(acceptedBeforeSelection, a.save().toString())
                 assertEquals(receiptBeforeSelection, a.syncState().toString())
