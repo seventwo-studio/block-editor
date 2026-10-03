@@ -1,0 +1,2 @@
+Verified 2 complete measurement reports with matching workloads and preserved documents; no numeric performance budget is asserted.
+Explicit archived source: e787146c432e649e71a1a6423fe4a24c55e21f5c; this does not verify measurements of the current checkout.

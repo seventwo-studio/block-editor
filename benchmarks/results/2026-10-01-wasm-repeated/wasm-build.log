@@ -1,0 +1,6 @@
+Building for production...
+[Planning deferred tasks]
+[6 / 9] BlockEditorCore
+[12 / 16] BlockEditorABI
+[22 / 22] block-editor-wasm-product
+Build complete! (11.33 sec)
