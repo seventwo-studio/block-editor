@@ -1,0 +1,87 @@
+# Modern editor platform and compatibility contract
+
+Draft, 4 October 2026. Owner: [ST-117](https://linear.app/seventwo/issue/ST-117). Requirements come from the [approved delivery plan](https://linear.app/seventwo/document/delivery-plan-milestones-dependencies-and-acceptance-01951ee8b64f), its fixed scope and the [technical decision record](modern-editing-decisions.md). Source inspection is pinned to `da0505771898308da100432638b11b463b4fa952`. This contract is proposed behavior, not a shipped format or device acceptance.
+
+ST-116's [assessment](modern-editor-assessment.md) supplies reuse and gaps. ST-117 defines compatibility and availability; ST-120 specifies command/result and concurrency rules; ST-140 reviews fixtures before ST-122 implementation. No new platform, block capability, transport service or consumer work is added.
+
+## Supported hosts and available evidence
+
+| Committed host | Authoring responsibility | Source runtime floor / current evidence | Physical availability |
+| --- | --- | --- | --- |
+| macOS | Full authoring, keyboard/pointer and accessible controls | Package minimum 26; isolated native reference UI typing/reopen/history passes | Device model, OS and validation access awaiting confirmation |
+| iPhone | Full authoring, touch/system keyboard and accessible controls; narrow columns stack | Package iOS minimum 26; retained iOS 27 simulator reference UI scenarios | Awaiting confirmation |
+| iPad | Full authoring, touch/hardware keyboard and accessible controls; width-dependent columns | Package iOS minimum 26; retained iOS 27 simulator reference UI scenarios | Awaiting confirmation separately from iPhone |
+| Android | Full authoring through Compose/JNI, installed IME and accessible controls | minSdk 26, target/compile 35; packaged arm64-v8a/x86_64; API26/35 emulator CI and qualified media | Device/API/ABI, keyboard and validation access awaiting confirmation; hosted ARM64 is not physical evidence |
+| visionOS | Full authoring with native focus/input and accessible controls | Package minimum 26; OS26 simulator reference rendering/model history; gestures and keyboard unverified | Vision Pro and input/accessibility access awaiting confirmation |
+| watchOS | Reading, text, checklist and reorder; preserve richer content and stacked columns | Package minimum 26; OS27 simulator baseline; fit/scrolling unknown ASSESS-24 | Watch/paired phone and validation access awaiting confirmation |
+| tvOS | Reading, text, checklist and reorder; preserve richer content and stacked columns | Package minimum 26; OS27 simulator focus/checklist baseline | TV/remote/keyboard and validation access awaiting confirmation |
+| React/WASM, later | Same shared semantics and full authoring after native acceptance | Chromium/WebKit/Firefox required; current default TypeScript demo and opt-in Swift adapter remain distinct; assessment baseline Chromium 153.0.8010.12 / WebKit 26.6 | Browser/OS/input versions will be pinned in ST-104; no additional platform |
+
+These source floors do not claim minimum-runtime interaction acceptance. A later OS simulator does not accept a minimum OS device. No exploratory adapter is promoted to committed delivery. All seven native families complete before browser integration; both iPhone and iPad require separate evidence.
+
+Availability is unknown, not proof that hardware is absent. Luca's device/runtime confirmation is needed to complete the availability plan. Record model, OS/build, access owner and available native input/assistive technology for each family. Missing required access stays visible for ST-139/ST-142/ST-143; it does not change supported scope. No procurement, spending, invented dates or new planning records are authorized by this draft.
+
+## Existing representations and boundaries
+
+| Area | Inspected behavior | Compatibility obligation |
+| --- | --- | --- |
+| Materialized document | `Document.swift` retains arbitrary block fields as `JSONValue`; public `Document.json()` encodes the block array. Codable document objects use `blocks`. The TypeScript `Content` schema is a closed block union. | Identify array, document object and session snapshot explicitly; never treat these as interchangeable. Preserve unknown fields/types without routing originals through a stripping typed projection. |
+| Identity and structure | `Structure.swift` uses origin-aware `NodeID`, stable collection owners and placements; visible paths are lookup addresses. List items, toggle children and table rows/cells are recognized collections. | Preserve existing IDs and containing scopes; operations follow origin identities across moves. New columns require genuine collections, not whole nested JSON replacement or table `columnWidths`. |
+| Text and selection | Writing positions include document/epoch, stable field identity, atom anchor and affinity. Literal code, rich marks and atomic references remain distinct. | Preserve scalar-safe text, marks, references and pending composition. A move must not retarget input when another node reuses its old visible path. |
+| Sessions and collaboration | Legacy `EditorSession` v1/v2 and `WritingSession` v3–v6 have explicit version admission. Writing batches/receipts bind document, epoch and version. Saved accepted state and pending recovery are distinct. | Modern persisted format and wire capability/version must be explicit. Existing numeric protocols are historical behavior, not a selected modern protocol. Reject incompatible writers before applying/acknowledging data. |
+| Existing cutover | `WritingMigration.swift` requires stopped old writers, durable archive and acknowledged history reset, validates retained legacy packets against reconciled history, then starts a fresh writing session. | Reuse these admission principles. Current cutover does not implement modern title/appearance/columns migration. Pending/unacknowledged edits must be reconciled or retained for recovery. |
+| Import/export | Native Markdown is an intentionally limited projection; JSON/session archives retain richer content. Clipboard import allocates new identities, unlike migration. | Label Markdown/clipboard as interchange. Neither can substitute for an archival migration or rollback. Preserve literal whitespace and supported metadata. |
+| Limits | Swift materialized document: 10,000 root blocks, 32 MB JSON and depth 100; TypeScript `Content`: 5,000 blocks. | Surface the existing mismatch for ST-120/ST-141, rather than silently imposing a lower limit or clipping valid documents. Larger valid content remains recoverable. |
+
+Source references: `Sources/BlockEditorCore/{Document,Structure,WritingSession,WritingMigration,ProtocolMigration,Markdown,WritingClipboard}.swift`, `src/schema.ts`, `src/swift.ts`, `src/swift-react.tsx`, `Package.swift`, `android/editor/build.gradle.kts`. The browser default's typed schema must not become the canonical lossless migration path. Kotlin/JNI and React/WASM expose shared Swift behavior rather than reimplementing it.
+
+## Proposed modern representation
+
+Use a versioned document envelope containing stable document identity, plain-text title, appearance presets and ordered blocks. Keep document-format revision distinct from collaboration protocol and epoch. The names here describe semantic fields; exact ABI tags and a collision-free protocol number are selected in ST-120 after cross-runtime review, before implementation.
+
+Title is a shared concurrent text field with the same author history as body edits. A legacy document without title receives empty title; never infer it by deleting or consuming a heading. Appearance stores only native font family (`sans`, `serif`, `monospace`), size (`small`, `default`, `large`) and width (`readable`, `wide`) presets; legacy defaults are sans/default/readable. Semantic text/background colors are preserved shared content. Outline visibility, focus mode and local presentation state stay personal. A narrow stacked presentation must not overwrite the shared split or width preset.
+
+Represent each new layout as one stable layout node containing exactly two stable column containers, ordered logically first then second. Each container owns an ordered block collection using origin-aware identities. Split is a single shared scalar ratio between the columns, never two independently inconsistent widths; it is persisted, synchronized and author-undoable. Default is equal split. ST-120 specifies valid bounds, resize transactions and concurrent resolution; ST-119 supplies accessible visual constraints. Pixel geometry and transient drag previews remain adapter state.
+
+New layouts may contain the agreed catalog, supported lists and toggles. Do not permit additional columns, nested column layouts or general document-block indentation. Preserve legacy nested/unsupported content without exposing creation controls for it. Any historical content outside current authoring capabilities remains retained and exportable; rejecting a new command must not erase received content.
+
+Create/remove/move operations preserve existing node origins, content IDs, text atoms, marks and metadata. Removing a layout flattens first-column content then second-column content into the parent without copying or relabeling existing content. Author Undo restores the layout, order and split while retaining peer changes. Moving blocks into/out of a column uses shared structural commands and updates anchored selections; whole-array replacement is forbidden. Commands commit or safely defer active input before restructuring, with failure leaving the document unchanged. ST-120 resolves transaction/concurrency edge cases; ST-140 reviews independent expected results.
+
+## Host responsibilities
+
+The engine owns validation, shared metadata, structural/text edits, author Undo/Redo, stable positions and version/epoch admission. Apple, Compose/JNI and React/WASM adapters own native rendering, focus, caret, composition, input routing and accessible contextual controls. They must preserve unknown content and expose the same command outcomes. watchOS/tvOS keep their smaller authoring surface while preserving layout/title/appearance and richer blocks during text/checklist/reorder edits.
+
+The host owns durable storage, autosave, assets/uploads/previews, link/suggestion resolution, transport, authentication/authorization and publication. Local editing must work without network, account or relay. Optional reference collaboration uses existing host boundaries; no production service is added. Runtime/packages must pair the reviewed shared source with the actual JNI/WASM artifact; packaging and private-installation acceptance stay separate.
+
+## Migration, activation and recovery contract
+
+1. Identify the original format/session versions and document identity. Quiesce every old writer, settle composition, collect accepted snapshots, pending recovery and all unacknowledged/offline histories. Refuse activation when retained inputs cannot be reconciled safely; provide archive/export and retry.
+2. Persist an immutable archive of original documents, session snapshots, pending/unacknowledged data and prior author histories, with original identities, versions and checksums. Read it back successfully before replacing any active pointer. Preserve original bytes separately from materialized comparison.
+3. Materialize reconciled content once. Preserve document and existing scoped node IDs, order, Unicode, marks, references, literal code, nested structures and unknown fields. Add empty title/default appearance only when absent. Existing documents do not acquire columns automatically. Allocate identities only for genuinely new metadata/layout objects.
+4. Validate the proposed versioned envelope and independently compare preserved semantic content/identity to the source. Start a fresh explicitly versioned collaboration epoch with empty Undo/Redo and fresh transport receipts. Do not reinterpret old operation logs, receipt IDs or undo transactions in the new epoch.
+5. Durably save/read back the new document/session, then atomically activate it. A failure before activation leaves the old archive and active state recoverable. Incompatible peers reject before acknowledgment; no silent downgrade or stripping metadata/columns.
+6. Reopen and verify the new epoch. New edits enter new author history. Recovery can restore the archived original as its own old-format session; reverting after new edits first archives the new state, so neither history is lost. Recovery never mixes old/new epochs or promises automatic reverse migration.
+
+These steps specify behavior, not an implemented storage transaction. ST-120 defines bridge/version admission and command contracts; ST-122 implements them; ST-141 verifies complete preservation/recovery. Hosts must implement their own durable archive and activation mechanism under this contract.
+
+## Required compatibility fixtures and reproduction expectations
+
+These `COMPAT-*` planning labels are inputs to ST-140, not accepted fixture IDs or runtime passes.
+
+| Scenario | Required expected result | Acceptance owner |
+| --- | --- | --- |
+| COMPAT-01: legacy mixed document with duplicate local IDs in different valid scopes | Preserve text, rich marks, atomic references, scoped identities, list/toggle/table structure, literal code and opaque metadata; add only empty title/default appearance | ST-140, ST-141 |
+| COMPAT-02: rejected history + offline unacknowledged edits at cutover | Retain both accepted and rejected histories; reconcile or refuse activation without overwriting; archive/export/retry survives restart | ST-120, ST-141 |
+| COMPAT-03: shared title/appearance edit, concurrent peer, author Undo and reopen | Shared title and presets survive; Undo affects this author's edit without erasing peer body/title changes; personal focus/outline stays local | ST-123, ST-136, ST-141 |
+| COMPAT-04: create two columns around marked/nested content, resize, move and remove | Existing origins and selections follow moves; exactly two containers; split survives peer/reopen and author Undo; flatten in logical order | ST-120, ST-122, ST-123, ST-131, ST-141 |
+| COMPAT-05: narrow presentation and reduced-host editing | Stack first then second; preserve shared split/layout and richer content through text/checklist/reorder; native reading/assistive order matches logical order | ST-137, ST-139, ST-143 |
+| COMPAT-06: old/unsupported peer opens a new document | Explicit incompatibility/preservation path; no acknowledgment of incompatible state, no metadata loss or silent flattening | ST-120, ST-141 |
+| COMPAT-07: archive/write/readback/activation failure and restart | Original archive remains usable; accepted state and pending recovery remain separate; restore/export/retry preserves both old and new edits | ST-141 |
+| COMPAT-08: bounded new nesting plus unknown/old nested content | New forbidden layouts/indentation reject without mutation; archived/received valid unknown content remains preserved and exportable | ST-130, ST-141 |
+| COMPAT-09: complete native matrix and later three browser engines | Identical materialized content and shared commands across pinned actual artifacts; real input and assistive evidence qualified separately | ST-143, ST-104 |
+
+## Review and remaining inputs
+
+Source review establishes the listed current representations and identifies title/appearance/column gaps; none is claimed implemented. Requirements review checked the committed native/browser scope, shared/personal ownership, two-column boundary, fresh-history migration and existing dependency sequence against current Linear records. The linked Notion decision page currently returns a deleted-page marker and historical content; current approved Linear scope and the repository technical implications remain available. No Notion mutation or restoration is part of this work.
+
+This draft remains for ST-117 review. Physical device/runtime/input/access availability is awaiting Luca's response. Exact modern wire tags/version and resize/transaction rules belong to the downstream ST-120 contract, with reviewed ST-140 fixtures before implementation; no implementation may ship while those contracts are unresolved. The ST-117 plan can record missing validation access explicitly without inventing a physical pass or reducing scope.
