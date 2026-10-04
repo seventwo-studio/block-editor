@@ -1,0 +1,82 @@
+name: ModernInteractionPrototype
+packages:
+  BlockEditor:
+    path: ../..
+targetTemplates:
+  ReviewApp:
+    type: application
+    sources:
+      - App
+      - path: ../AppleDemo/Fixtures/rich-blocks.json
+        buildPhase: resources
+    dependencies:
+      - package: BlockEditor
+        product: BlockEditorCore
+    settings:
+      base:
+        SWIFT_VERSION: 6.0
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: '-'
+targets:
+  ModernPrototypeMac:
+    templates: [ReviewApp]
+    platform: macOS
+    deploymentTarget: '26.0'
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.st121.mac
+  ModernPrototypePhone:
+    templates: [ReviewApp]
+    platform: iOS
+    deploymentTarget: '26.0'
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.st121.ios
+        TARGETED_DEVICE_FAMILY: '1,2'
+    info:
+      path: Generated/ModernPrototypePhone-Info.plist
+      properties:
+        UILaunchScreen: {}
+  ModernPrototypeMacTests:
+    type: bundle.ui-testing
+    platform: macOS
+    deploymentTarget: '26.0'
+    sources: [UITests]
+    dependencies: [{target: ModernPrototypeMac}]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.st121.mac.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: 6.0
+        CODE_SIGN_IDENTITY: '-'
+  ModernPrototypePhoneTests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: '26.0'
+    sources: [UITests]
+    dependencies: [{target: ModernPrototypePhone}]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.seventwo.blockeditor.st121.ios.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: 6.0
+schemes:
+  ModernPrototypeMac:
+    build:
+      targets: {ModernPrototypeMac: all}
+    test:
+      targets: [ModernPrototypeMacTests]
+      captureScreenshotsAutomatically: true
+      deleteScreenshotsWhenEachTestSucceeds: false
+      preferredScreenCaptureFormat: screenRecording
+      systemAttachmentLifetime: keepAlways
+  ModernPrototypePhone:
+    build:
+      targets: {ModernPrototypePhone: all}
+    test:
+      targets: [ModernPrototypePhoneTests]
+      captureScreenshotsAutomatically: true
+      deleteScreenshotsWhenEachTestSucceeds: false
+      preferredScreenCaptureFormat: screenRecording
+      systemAttachmentLifetime: keepAlways

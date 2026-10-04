@@ -1,0 +1,178 @@
+{
+  "qualification": "Isolated native interaction prototype; protocol-6 body, local title/columns. No modern shared/physical/assistive acceptance.",
+  "capturedAt": "2026-10-05",
+  "baseCommit": "fdb667e6ede9176556bd57a352b8fc42f01b0ea2",
+  "captures": [
+    {
+      "file": "mac-columns-plain-document-in-focus-mode.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Plain document in focus mode",
+      "originalExport": "FBEE4153-0A95-4CE5-A79A-95E4C6D18283.png",
+      "sha256": "5eef93077055e85820767f1ffaf60d4f1165fd78276658a9252ec66a0fd6685c",
+      "bytes": 233684
+    },
+    {
+      "file": "mac-columns-keyboard-adjusted-split.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Keyboard adjusted split",
+      "originalExport": "3D7D4F6E-8B93-45DD-8FE6-96F3DF86DD49.png",
+      "sha256": "02b5357824bb0ef3cb96e2a056cad34cfca9952a17230dbcd0490bc4dcd279d7",
+      "bytes": 241617
+    },
+    {
+      "file": "mac-columns-moved-origin-into-second-column.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Moved origin into second column",
+      "originalExport": "9DB2DF4B-FCA4-48A1-861E-6FB12A7FCBF9.png",
+      "sha256": "543f7423b3fd2492d305ec3cfad9c5f40ec1fb20cf15cfca55fe5cedff782fe3",
+      "bytes": 242058
+    },
+    {
+      "file": "mac-columns-created-two-columns.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Created two columns",
+      "originalExport": "77CDAA00-05BC-4C1E-88CE-AAB042AEC1C6.png",
+      "sha256": "1fe6c6cd155c41c1fa125b3ae59b76aa59cec3b93bcafb3021e128a66abd2181",
+      "bytes": 227782
+    },
+    {
+      "file": "mac-columns-walkthrough.mp4",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Screen Recording 2026-10-05 at 01.41.32 AM.mp4",
+      "originalExport": "69FCEA47-062C-4CB1-8030-899E1C96B456.mp4",
+      "sha256": "24c727f8ec3ccfa50ef695a351aa8e0c94cf4069d9779cfb8085571d2d6a404f",
+      "bytes": 6723240
+    },
+    {
+      "file": "mac-writing-inserted-heading-with-direct-title.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Inserted heading with direct title",
+      "originalExport": "880E4A4F-257E-4121-8087-1F19504DA16C.png",
+      "sha256": "c376f3e86d85267798d752cd107ce9208b039c6470c47f416ca6688dbe7fcbfb",
+      "bytes": 215711
+    },
+    {
+      "file": "mac-writing-cancelled-query-retains-content.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Cancelled query retains content",
+      "originalExport": "F693DD03-5ADB-4A50-817D-0B13E76D397F.png",
+      "sha256": "80b86aebf8e8e280c726d7a51c7e3e73581932fec656cb331e6752ba456af74b",
+      "bytes": 215828
+    },
+    {
+      "file": "mac-writing-contextual-slash-query.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Contextual slash query",
+      "originalExport": "4EB11BC7-DEE0-442B-9320-F7AD7EB9C952.png",
+      "sha256": "3fa26cee9dd849f40021999cd530c46ae398fc60291cca357a30f28b981eedf5",
+      "bytes": 218798
+    },
+    {
+      "file": "mac-writing-walkthrough.mp4",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Screen Recording 2026-10-05 at 01.41.48 AM.mp4",
+      "originalExport": "BA8F0AD7-A7DF-4B5D-A20F-C00EFDFB5CC0.mp4",
+      "sha256": "581e2db664a3e06ed70f103951ebb918b9c1186843e75f801bd9d7d768dd96ee",
+      "bytes": 5675130
+    },
+    {
+      "file": "iphone-simulator-columns-plain-document-in-focus-mode.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Plain document in focus mode",
+      "originalExport": "47AB33A6-CAEF-4A5B-905F-4BD198623BDB.png",
+      "sha256": "d156a5d0ae23e54bdc9bab383897a100676974d70ed37a336077e963f0a2725a",
+      "bytes": 298150
+    },
+    {
+      "file": "iphone-simulator-columns-moved-origin-into-second-column.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Moved origin into second column",
+      "originalExport": "42F876FC-0F32-46F3-BEED-A333559CFD8E.png",
+      "sha256": "5f23d5604b3a4f288b2ac711f7d08b42ce1403a6834278c3dc3c7bcf1b8a4455",
+      "bytes": 471008
+    },
+    {
+      "file": "iphone-simulator-columns-created-two-columns.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Created two columns",
+      "originalExport": "63ED2250-680A-4AF1-B318-936B050108CB.png",
+      "sha256": "102ed6d38ab9425df0ffef7c044b73ba553683b5dec434603aad4cf02379d3fe",
+      "bytes": 455487
+    },
+    {
+      "file": "iphone-simulator-columns-walkthrough.mp4",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "label": "Screen Recording 2026-10-05 at 01.41.32 AM.mp4",
+      "originalExport": "ADD9B1E1-2D28-4E12-A541-20102A00691F.mp4",
+      "sha256": "fd3f8307efe848125628f2432ddc26b75fca17ef94c53f66af10506bcbc7456d",
+      "bytes": 5613945
+    },
+    {
+      "file": "iphone-simulator-writing-inserted-heading-with-direct-title.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Inserted heading with direct title",
+      "originalExport": "FEF88A78-46C1-48C2-AFAA-F5B8C56C1AF1.png",
+      "sha256": "7c13cc1da866e7972f6859fd2a75b6912253c9046a8ace58310736e3e01d2062",
+      "bytes": 439817
+    },
+    {
+      "file": "iphone-simulator-writing-cancelled-query-retains-content.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Cancelled query retains content",
+      "originalExport": "E058B221-EFDD-49E7-9F68-D6792A8ABB19.png",
+      "sha256": "710671bcdd8da1c0596267231751a028db6ff5e9506bea92c3c147796796d80c",
+      "bytes": 454273
+    },
+    {
+      "file": "iphone-simulator-writing-contextual-slash-query.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Contextual slash query",
+      "originalExport": "454851C1-F99A-4239-A8F4-543174DB8A7B.png",
+      "sha256": "721ea962315aaad80e2112fceb4bcc5029e1a51ec5db89fbbec5a0dc26661952",
+      "bytes": 545385
+    },
+    {
+      "file": "iphone-simulator-writing-walkthrough.mp4",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "label": "Screen Recording 2026-10-05 at 01.41.47 AM.mp4",
+      "originalExport": "F307EC44-3227-4519-AC14-318C6DD05B0F.mp4",
+      "sha256": "5ef3f93ef5710ceaf2e96f16de19f87cd3d35d6b406b00a3e3c3029cef20fa0f",
+      "bytes": 10906947
+    }
+  ],
+  "tests": [
+    {
+      "platform": "mac",
+      "result": "Passed",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "runtime": "27.0.1",
+      "runtimeWarnings": [
+        {
+          "issueType": "Runtime Warning",
+          "message": "[Internal] Thread running at User-interactive quality-of-service class waiting on a lower QoS thread running at Default quality-of-service class. Investigate ways to avoid priority inversions"
+        }
+      ]
+    },
+    {
+      "platform": "iphone-simulator",
+      "result": "Passed",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "runtime": "27.0",
+      "runtimeWarnings": []
+    }
+  ],
+  "sourceHashes": {
+    "Examples/ModernInteractionPrototype/App/ReviewApp.swift": "0a11cb24f6a300f878d61ddf0d9567803c1826fd7ba8456c63ee1748b83b9bab",
+    "Examples/ModernInteractionPrototype/App/ReviewInput.swift": "ba65dbeeed0865ff58078f28c56a16869d8998faf83418bf3a0c1cc0af98dbb8",
+    "Examples/ModernInteractionPrototype/App/ReviewModel.swift": "2bc21f914b4b00776a6b59edafc493bac00e598194d29fb106e624a2f0a50d48",
+    "Examples/ModernInteractionPrototype/UITests/InteractionReviewTests.swift": "9e6fc2da0cee20439e2731a2a3911dc77b2069904dddfc50450bbffc8df939fb",
+    "Examples/ModernInteractionPrototype/Package.swift": "f57602e9cf140883615dacd73b31895a0800b1e57a1f232feb05656930b92bde",
+    "Examples/ModernInteractionPrototype/project.yml": "d46b1492a3fb0f6e6ab519145a7406dd34caa64e68493b683fe472f46aec4f69",
+    "Examples/AppleDemo/Fixtures/rich-blocks.json": "f9c7395bf059b452673a2f9edcaa58adb1554dbb34efa8a4dd3a2f9f4e4e9342",
+    "script/build_and_run.sh": "aa0b26244c1e01f106218dd8d808053f6640e90c10ffd1729df3f03ee0bd2849"
+  }
+}
