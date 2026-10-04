@@ -1,0 +1,55 @@
+{
+  "observedAtUTC": "2026-10-04T22:23:10.646612+00:00",
+  "sourceCommit": "a0004fe33a22275aa3f61902637d7768e4660bac",
+  "purpose": "ST-117 physical availability planning; no app interaction or device acceptance",
+  "mac": {
+    "model": "Mac Studio",
+    "productType": "Mac16,9",
+    "chip": "Apple M4 Max",
+    "memory": "36 GB",
+    "os": "27.0.1",
+    "build": "26A434",
+    "scope": "current physical development host; input and assistive interaction not established"
+  },
+  "appleDevices": [
+    {
+      "family": "iPhone",
+      "model": "iPhone 16 Pro Max",
+      "productType": "iPhone17,2",
+      "reality": "physical",
+      "os": "27.0",
+      "build": "24A437",
+      "developerMode": "enabled",
+      "transport": "localNetwork",
+      "tunnel": "connected",
+      "readOnlyDetailsSucceeded": true,
+      "scope": "live read-only device details"
+    },
+    {
+      "family": "iPad",
+      "model": "iPad Pro (12.9-inch) (6th generation)",
+      "productType": "iPad14,5",
+      "reality": "physical",
+      "os": "27.0",
+      "build": "24A435",
+      "developerMode": "disabled",
+      "transport": null,
+      "tunnel": "unavailable",
+      "readOnlyDetailsSucceeded": false,
+      "scope": "paired inventory only; access unavailable"
+    }
+  ],
+  "unobservedFamilies": [
+    "Android",
+    "visionOS",
+    "watchOS",
+    "tvOS"
+  ],
+  "limits": [
+    "Device enumeration includes simulators; only hardwareProperties.reality=physical entries are retained",
+    "A cached paired-device record does not establish present access",
+    "Read-only metadata success does not establish app installation, real input or assistive-technology acceptance",
+    "No serial, UDID, personal device name or network address is retained",
+    "Missing adb executable does not establish absence of an Android device"
+  ]
+}
