@@ -1,0 +1,171 @@
+{
+  "sourceCommit": "01a0e35cceace2e6cd0ae2366621caf305bfd169",
+  "sourceTree": "98e79d53caa0e178d281826733e7e62d6fd06451",
+  "files": [
+    {
+      "name": "README.md",
+      "bytes": 8864,
+      "sha256": "5a83ce153a83fc1ca068d7ff498f7e8cd092471084697e9792684bcf6265c3be"
+    },
+    {
+      "name": "browser-captures.json",
+      "bytes": 1283,
+      "sha256": "e8dbe64958bd406f8d412ad9258280de966cedab471a21a122e15773e05a18a6"
+    },
+    {
+      "name": "browser-tests.log",
+      "bytes": 6057,
+      "sha256": "6edf9aecef8635ff23bc4ed3bb527d25aadd871f17be27167b641bc9265df9bb"
+    },
+    {
+      "name": "capture.mjs",
+      "bytes": 2182,
+      "sha256": "f853e0bca0effcf4976640130f7ed643d1bed2dbbe41e36e1617c8e4fa1053a2"
+    },
+    {
+      "name": "chromium-desktop-dark.png",
+      "bytes": 323612,
+      "sha256": "51fad88651871341cf50593c2b935526ba2bb049d7d38c27a7525fcfd9f891ae"
+    },
+    {
+      "name": "chromium-desktop-light.png",
+      "bytes": 349104,
+      "sha256": "225f6df997ca33685141eb5992a2a97804ed6468f6f2c3a593a6cb77e6841132"
+    },
+    {
+      "name": "chromium-narrow.png",
+      "bytes": 360479,
+      "sha256": "eb275a8ddbfe0e1a319ec96b80b566377a3667231dedddd8ed473e7382c5e2e2"
+    },
+    {
+      "name": "chromium-typing.png",
+      "bytes": 430430,
+      "sha256": "1cebadc4108be074f4abb02354c2faf31e7b1693a3e45418787a491314ed9866"
+    },
+    {
+      "name": "chromium-typing.webm",
+      "bytes": 184633,
+      "sha256": "c2379ec10fd488ab050e390f617e6603f30be8104d7c72285409f6eb2880ec6f"
+    },
+    {
+      "name": "ci-android-api26-attempt1.txt",
+      "bytes": 4263,
+      "sha256": "67c24644576c23d9e6a46beae4df108fe5a3592ca764962ace68aef8d92ce3e9"
+    },
+    {
+      "name": "ci-android-api35-x86-fixtures-attempt1.json",
+      "bytes": 2954,
+      "sha256": "97d0fa19c331ecbfcd40e2fc29e5941b9ea7e74ed70e400409c0c3901bdfb96d"
+    },
+    {
+      "name": "ci-android-api35-x86-provenance-attempt1.json",
+      "bytes": 7338,
+      "sha256": "8a2e076a3a31046ffd745fa02841dd16f7e81e2d211e265f685b2da4b3b806be"
+    },
+    {
+      "name": "ci-android-arm-attempt1.txt",
+      "bytes": 3882,
+      "sha256": "5c5e97c665a88696ca0ed6b41c05e0a271f8c9e2dc25ef54292815fe24717904"
+    },
+    {
+      "name": "ci-parity-attempt1.txt",
+      "bytes": 1039,
+      "sha256": "4f8b1c992f0340c289be8754d760857f1e30ba698753f318e2bc5fc1c33b7a49"
+    },
+    {
+      "name": "ci-swift-provenance-attempt1.json",
+      "bytes": 4284,
+      "sha256": "fc19950c7e6b62a78502ef6d8237e2e87424b813f981b5d3447837b4bc2b53c6"
+    },
+    {
+      "name": "ci-swift-summary-attempt1.json",
+      "bytes": 5238,
+      "sha256": "7503ee62a80eeb710dba6d944ce38cf775bc2114725662bdfd2edf83c613c714"
+    },
+    {
+      "name": "ci-test-attempt1.log",
+      "bytes": 155557,
+      "sha256": "87fb633adb63915b1122c7731c209c69c86d09ea134ad7e2bfaaf19652e43c36"
+    },
+    {
+      "name": "ci-wasm-provenance-attempt1.json",
+      "bytes": 4623,
+      "sha256": "8eee2c1943bcac0e3e467530406dc368d33aa6899c1ab23dae762abb7f1cf45d"
+    },
+    {
+      "name": "ci-wasm-summary-attempt1.json",
+      "bytes": 21250,
+      "sha256": "26eb037485ff2ccd3708612676b15a35c91b109a7c0683ba1f497f6ba4898215"
+    },
+    {
+      "name": "demo-typecheck.log",
+      "bytes": 37,
+      "sha256": "d42ddb35f252547cb36b04a31fa474868f6947a84e4a82ae61d08474276a701a"
+    },
+    {
+      "name": "dependencies.json",
+      "bytes": 5466,
+      "sha256": "d45e4b87d1acbd762ce8652a8eb423d83cd5126b6324f46679ffa1f948128260"
+    },
+    {
+      "name": "ime-runner-after-test.log",
+      "bytes": 409,
+      "sha256": "2ad8be7bafd9cb94887337561562c75ad2dfcf81a637f470e89a2d71a66cdf41"
+    },
+    {
+      "name": "ime-runner-before-test.log",
+      "bytes": 1446,
+      "sha256": "783275aaa8c288c4baa7a48e68fbc7e97ed9e41c93939cd53b5ab8f17bacdd6e"
+    },
+    {
+      "name": "swift-test.log",
+      "bytes": 149865,
+      "sha256": "c4a2a4d69c62a911afa973e27f0d5a22c395387a63162416e0cafa04b7c4409a"
+    },
+    {
+      "name": "typecheck.log",
+      "bytes": 15,
+      "sha256": "8366207267355d3e3d5bf3bf6e8c94c5f93f6078c34f08973fa2b38cdda6cc92"
+    },
+    {
+      "name": "typescript-test.log",
+      "bytes": 8198,
+      "sha256": "327607ed133bbb510d83edf6535c3f337f23f3a6c108b28c6e2bdb7029da8bf7"
+    },
+    {
+      "name": "webkit-composition-repeat.log",
+      "bytes": 1715,
+      "sha256": "fe0732e2081b74d0d4a3f1604f950e75c080eaea37e66b82ceb12c3b5f95fccf"
+    },
+    {
+      "name": "webkit-desktop-dark.png",
+      "bytes": 470860,
+      "sha256": "15c05d5bf2e01cdcd2af5c25e3865da5c1124b54d5aac59f84d1fe77efcb5e87"
+    },
+    {
+      "name": "webkit-desktop-light.png",
+      "bytes": 484146,
+      "sha256": "341fca525b367b2466af2286669d25b179d522dbb0ffb01df508678d4fa480d8"
+    },
+    {
+      "name": "webkit-narrow.png",
+      "bytes": 460900,
+      "sha256": "df71a612620619cffa45691b2a663814db50086ced03dcffcc2af1c052c815f7"
+    },
+    {
+      "name": "webkit-typing.png",
+      "bytes": 599092,
+      "sha256": "cea73f1f6d7c6c61338069a3d9411167584c97f872c21c729d9fc36775413139"
+    },
+    {
+      "name": "webkit-typing.webm",
+      "bytes": 240572,
+      "sha256": "e742dcdb1769cc36a3f2fa8fde7da009c32f6e151fe12a3deff691f9fc882dfe"
+    }
+  ],
+  "followupHelperPatch": {
+    "scripts/test-android-writing-builtin-ime.py": "3fd2176137ee3881dd7730185861adbc9a0d09be66e9089c33948ebb83812901",
+    "tests/android_writing_ime_runner_test.py": "9f2036fc54652b11e663862825b1665e1dc8c84d216877d2a5e2c032f58a8469",
+    ".github/workflows/ci.yml": "1ee4045485d8fa1ba62a3051076e5e3f442e23617eb87005ba4597d6c339c37b"
+  }
+}

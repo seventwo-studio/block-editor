@@ -1,0 +1,18 @@
+Run 37162111767 attempt 1; job 111327194023.
+Sanitized complete log SHA256: 1d6d6901b7517d12aa698a4bf223c91e605d4ad33ce726f6a15d4e91a1e26c28; bytes: 22827.
+Failure is prerequisite result verification; parity comparison did not run.
+
+2026-10-04T00:35:40.8065582Z ##[group]Run test "$SWIFT_RESULT" = success
+2026-10-04T00:35:40.8065978Z test "$SWIFT_RESULT" = success
+2026-10-04T00:35:40.8066303Z test "$WASM_RESULT" = success
+2026-10-04T00:35:40.8066621Z test "$ANDROID_RESULT" = success
+2026-10-04T00:35:40.8126985Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-04T00:35:40.8127364Z env:
+2026-10-04T00:35:40.8127591Z   SWIFT_RESULT: success
+2026-10-04T00:35:40.8128029Z   WASM_RESULT: success
+2026-10-04T00:35:40.8128280Z   ANDROID_RESULT: failure
+2026-10-04T00:35:40.8128538Z ##[endgroup]
+2026-10-04T00:35:40.8216366Z ##[error]Process completed with exit code 1.
+2026-10-04T00:35:40.8357563Z Post job cleanup.
+2026-10-04T00:35:40.9169503Z [command]/usr/bin/git version
+2026-10-04T00:35:40.9207117Z git version 2.55.0

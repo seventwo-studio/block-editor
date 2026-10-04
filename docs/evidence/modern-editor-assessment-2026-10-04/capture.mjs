@@ -1,0 +1,31 @@
+import { chromium, webkit } from 'playwright';
+import { writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+const output = fileURLToPath(new URL('.', import.meta.url));
+const results = [];
+for (const [name, type] of [['chromium', chromium], ['webkit', webkit]]) {
+  const browser = await type.launch({headless: true});
+  const context = await browser.newContext({viewport: {width: 1440, height: 1000}, recordVideo: {dir: output, size: {width: 1440, height: 1000}}});
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:42781/block-editor/');
+  await page.locator('[contenteditable=true]').first().waitFor();
+  await page.screenshot({path: `${output}/${name}-desktop-light.png`, fullPage: true});
+  await page.getByRole('button', {name: 'Midnight', exact: true}).click();
+  await page.screenshot({path: `${output}/${name}-desktop-dark.png`, fullPage: true});
+  await page.getByRole('button', {name: 'Meadow', exact: true}).click();
+  const input = page.locator('[contenteditable=true]').nth(1);
+  await input.click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' Assessment typing.');
+  await page.screenshot({path: `${output}/${name}-typing.png`, fullPage: true});
+  await page.setViewportSize({width: 390, height: 844});
+  await page.screenshot({path: `${output}/${name}-narrow.png`, fullPage: true});
+  results.push({browser: name, version: browser.version(), engine: 'existing TypeScript/React CRDT, no WASM', viewport: {desktop:[1440,1000], narrow:[390,844]}, interactions: ['Meadow initial render','Midnight theme','Meadow theme','paragraph typing','narrow viewport'], qualification: 'headless desktop browser; no physical touch or assistive technology acceptance'});
+  const video = page.video();
+  await context.close();
+  await video.saveAs(`${output}/${name}-typing.webm`);
+  await video.delete();
+  await browser.close();
+}
+await writeFile(`${output}/browser-captures.json`, JSON.stringify({sourceCommit:'01a0e35cceace2e6cd0ae2366621caf305bfd169', sourceTree:'98e79d53caa0e178d281826733e7e62d6fd06451', localDate:'2026-10-04', captures: results}, null, 2)+'\n');
+console.log(JSON.stringify(results));

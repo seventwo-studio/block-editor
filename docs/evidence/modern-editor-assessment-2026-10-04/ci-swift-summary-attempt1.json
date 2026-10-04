@@ -1,0 +1,164 @@
+{
+  "workflowRun": "37162111767",
+  "workflowAttempt": 1,
+  "jobID": 111317513363,
+  "jobConclusion": "success",
+  "artifactID": 11288414337,
+  "artifactName": "runtime-swift",
+  "source": {
+    "commit": "9fd633d80814b20ba668318a831aa7a8990d58de",
+    "tree": "0c63cf1c6356a47d24c3b816a86556d797fcf3b4"
+  },
+  "swiftTests": {
+    "passedCounts": [
+      8,
+      273,
+      76
+    ],
+    "total": 357,
+    "logSHA256": "c8bc6ee1aecaf93831a4112081bcd5d728e070c52dc75960852a436226828875"
+  },
+  "productionResourceReports": [
+    {
+      "name": "resource-writing-native-v4-document-exact.json",
+      "complete": true,
+      "protocol": 4,
+      "case": "document-exact",
+      "bytes": 1286,
+      "sha256": "257ae8ad7feb2aac3daf09a32c451263c144cda746eb5727cb9129527aeb6f5b"
+    },
+    {
+      "name": "resource-writing-native-v4-document-over.json",
+      "complete": true,
+      "protocol": 4,
+      "case": "document-over",
+      "bytes": 1300,
+      "sha256": "f4412689192d266d05523141e64fd0cab47e50c13453945140a912e672c82aa7"
+    },
+    {
+      "name": "resource-writing-native-v4-retained-exact-over.json",
+      "complete": true,
+      "protocol": 4,
+      "case": "retained-exact-over",
+      "bytes": 1618,
+      "sha256": "4275e49867391ad4841c7fb2d0935a13fa5a6876ea5eb5bffe39588af950f63b"
+    },
+    {
+      "name": "resource-writing-native-v4-roots-exact.json",
+      "complete": true,
+      "protocol": 4,
+      "case": "roots-exact",
+      "bytes": 1490,
+      "sha256": "c688f3da4fd9c04bb5e2abc74f3e284da0ff94b0fba901972f124f6387f7f850"
+    },
+    {
+      "name": "resource-writing-native-v4-roots-over.json",
+      "complete": true,
+      "protocol": 4,
+      "case": "roots-over",
+      "bytes": 1631,
+      "sha256": "a4c48a2caf40df045bdd48e320b56f54dfa6db7f3cff0b88f9cfe73f5f97567c"
+    },
+    {
+      "name": "resource-writing-native-v5-document-exact.json",
+      "complete": true,
+      "protocol": 5,
+      "case": "document-exact",
+      "bytes": 1286,
+      "sha256": "cdffb55561d04299ca5a150d18df9ec6a3f17b2215dfcd0b6821ec0995bb8e01"
+    },
+    {
+      "name": "resource-writing-native-v5-document-over.json",
+      "complete": true,
+      "protocol": 5,
+      "case": "document-over",
+      "bytes": 1300,
+      "sha256": "c374ccd27e5875e84a09b77e6ed7f1f4cf09fb19bbc6e8ba8d2e90b9e1ae63f1"
+    },
+    {
+      "name": "resource-writing-native-v5-retained-exact-over.json",
+      "complete": true,
+      "protocol": 5,
+      "case": "retained-exact-over",
+      "bytes": 1618,
+      "sha256": "8e68489a0615cba2123c966bb0ab17ea1580928d86fb3f86c2a2e3770ab8b2d5"
+    },
+    {
+      "name": "resource-writing-native-v5-roots-exact.json",
+      "complete": true,
+      "protocol": 5,
+      "case": "roots-exact",
+      "bytes": 1490,
+      "sha256": "f3a220777b0e461e4f5c97620313dc81e0a31cd59240479fedc5b013814ca2ac"
+    },
+    {
+      "name": "resource-writing-native-v5-roots-over.json",
+      "complete": true,
+      "protocol": 5,
+      "case": "roots-over",
+      "bytes": 1631,
+      "sha256": "1dc9431b57cfc18dc54826ae93e53dd8d532354401bff92e9cd52daef8cb0a69"
+    },
+    {
+      "name": "resource-writing-native-v6-document-exact.json",
+      "complete": true,
+      "protocol": 6,
+      "case": "document-exact",
+      "bytes": 1286,
+      "sha256": "8362c882962a6fb06d4e51a8b6b8bcc2c135ca5d48cee3edef4812e91ba2c797"
+    },
+    {
+      "name": "resource-writing-native-v6-document-over.json",
+      "complete": true,
+      "protocol": 6,
+      "case": "document-over",
+      "bytes": 1300,
+      "sha256": "53262c4f9514d2043b42313301b1c856a91a70d4ef65fcac2db63d5e4f2919f4"
+    },
+    {
+      "name": "resource-writing-native-v6-retained-exact-over.json",
+      "complete": true,
+      "protocol": 6,
+      "case": "retained-exact-over",
+      "bytes": 1618,
+      "sha256": "3e2d363c8c0c6a2558bb63b94084ae5da3b45dbd79b2dd988feb131d125ecff8"
+    },
+    {
+      "name": "resource-writing-native-v6-roots-exact.json",
+      "complete": true,
+      "protocol": 6,
+      "case": "roots-exact",
+      "bytes": 1490,
+      "sha256": "d310d0ee7e456884bdc2c42e0bd4e8bc5be5401772dc45527d113ce66e5cda4e"
+    },
+    {
+      "name": "resource-writing-native-v6-roots-over.json",
+      "complete": true,
+      "protocol": 6,
+      "case": "roots-over",
+      "bytes": 1631,
+      "sha256": "94accf84f276476ef7a437b3a31721948f162819cfc0aacd80c2c6bb16ea5eb7"
+    }
+  ],
+  "measurementReports": [
+    {
+      "name": "performance-native.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 2,
+      "bytes": 28959,
+      "sha256": "1211de298b58f6319808f82663e197dec838bb638c428eececdfe8192b6abbe0"
+    },
+    {
+      "name": "performance-writing-native.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 3,
+      "bytes": 43367,
+      "sha256": "9935083d6fe6378aed697aa03222f1ad1fa3462f11f25a191434b4b61c73b734"
+    }
+  ],
+  "qualification": "Existing engine/native component baseline and process resource proofs. Smoke engine measurements do not prove modern host/UI performance, physical-device, input interaction or accessibility acceptance. Complete transcripts/reports remain in the downloaded artifact."
+}

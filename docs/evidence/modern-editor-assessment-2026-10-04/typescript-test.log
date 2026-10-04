@@ -1,0 +1,131 @@
+$ bun test src
+bun test v1.4.2 (744846f84)
+
+src/model.test.ts:
+(pass) plainText > extracts text from text nodes [2.65ms]
+(pass) plainText > extracts text from mixed inline nodes [0.76ms]
+(pass) plainText > returns empty string for empty array [0.03ms]
+(pass) getBlockText / setBlockText > gets and sets paragraph text [3.85ms]
+(pass) getBlockText / setBlockText > gets and sets heading text [1.05ms]
+(pass) getBlockText / setBlockText > gets and sets code block text [0.01ms]
+(pass) getBlockText / setBlockText > gets divider text as empty string
+(pass) makeBlock > creates paragraph with content
+(pass) makeBlock > creates heading with correct level [0.01ms]
+(pass) makeBlock > creates unordered list [0.32ms]
+(pass) makeBlock > creates ordered list
+(pass) makeBlock > creates todo list
+(pass) makeBlock > creates code block
+(pass) makeBlock > creates divider
+(pass) makeBlock > creates table with header + body row
+(pass) makeBlock > generates unique ids [0.01ms]
+(pass) transformShortcut > transforms # to heading1 [0.94ms]
+(pass) transformShortcut > transforms ## to heading2 [0.16ms]
+(pass) transformShortcut > transforms - to bullet list [0.37ms]
+(pass) transformShortcut > transforms 1. to ordered list [0.02ms]
+(pass) transformShortcut > transforms [] to todo list [0.01ms]
+(pass) transformShortcut > transforms > to quote
+(pass) transformShortcut > transforms ``` to code
+(pass) transformShortcut > transforms --- to divider
+(pass) transformShortcut > returns null when transforming a heading to the same level [0.60ms]
+(pass) transformShortcut > switches heading levels [0.03ms]
+(pass) transformShortcut > preserves trailing content when heading prefix is typed before existing text [0.01ms]
+(pass) transformShortcut > returns null for non-shortcut text [0.03ms]
+(pass) transformShortcut > returns null for non-paragraph, non-heading blocks [0.34ms]
+(pass) getEnterBehavior > inserts paragraph after paragraph [0.98ms]
+(pass) getEnterBehavior > continues bullet list when item has content [0.15ms]
+(pass) getEnterBehavior > exits list on empty item [0.52ms]
+(pass) getEnterBehavior > continues ordered list
+(pass) getEnterBehavior > continues todo list
+(pass) toSimpleType > maps heading levels [0.02ms]
+(pass) toSimpleType > maps list styles
+(pass) toSimpleType > maps basic types [0.01ms]
+(pass) getConvertibleTypes > returns text types for text blocks [0.05ms]
+(pass) getConvertibleTypes > returns list types for list blocks
+(pass) getConvertibleTypes > returns empty for standalone blocks
+(pass) getPlaceholder > returns type-specific placeholders [0.01ms]
+(pass) getPlaceholder > returns fallback for paragraph
+(pass) blockClasses > returns border class for quote [0.18ms]
+(pass) blockClasses > returns callout classes
+(pass) blockClasses > returns empty for paragraph
+(pass) slash commands > getSlashQuery extracts query from slash text [0.01ms]
+(pass) slash commands > getSlashQuery returns null for non-slash
+(pass) slash commands > filterSlashCommands filters by query [0.17ms]
+(pass) slash commands > filterSlashCommands returns all for empty query
+(pass) slash commands > filterSlashCommands returns empty for null
+(pass) array operations > replaceBlockInArray replaces the right block [0.02ms]
+(pass) array operations > insertAfter inserts after the given block [0.03ms]
+(pass) array operations > removeFromArray keeps at least one block
+(pass) array operations > removeFromArray removes the correct block [0.14ms]
+(pass) getListPrefix > returns bullet for unordered list [0.02ms]
+(pass) getListPrefix > returns 1. for ordered list
+(pass) getListPrefix > returns empty string for todo list
+(pass) getListPrefix > returns null for non-list blocks
+(pass) isBlockEmpty > detects empty paragraph
+(pass) isBlockEmpty > detects non-empty paragraph
+(pass) isBlockEmpty > divider is always empty
+(pass) serializeBlocksToMarkdown > serializes paragraphs [0.05ms]
+(pass) serializeBlocksToMarkdown > serializes headings [0.02ms]
+(pass) serializeBlocksToMarkdown > serializes bullet list [0.02ms]
+(pass) serializeBlocksToMarkdown > serializes ordered list
+(pass) serializeBlocksToMarkdown > serializes todo list with checked state [0.01ms]
+(pass) serializeBlocksToMarkdown > serializes quote with multiple lines [1.24ms]
+(pass) serializeBlocksToMarkdown > serializes code block with language [0.01ms]
+(pass) serializeBlocksToMarkdown > serializes divider
+(pass) serializeBlocksToMarkdown > separates blocks with blank line [0.21ms]
+(pass) serializeBlocksToMarkdown > serializes a table [1.56ms]
+(pass) serializeBlocksToMarkdown > serializes a callout with variant tag [0.01ms]
+(pass) parseMarkdownToBlocks > parses a paragraph [1.99ms]
+(pass) parseMarkdownToBlocks > parses headings of various levels [0.53ms]
+(pass) parseMarkdownToBlocks > parses bullet list with multiple items [0.64ms]
+(pass) parseMarkdownToBlocks > parses ordered list [0.02ms]
+(pass) parseMarkdownToBlocks > parses todo list and checked state [0.02ms]
+(pass) parseMarkdownToBlocks > parses fenced code block with language [0.01ms]
+(pass) parseMarkdownToBlocks > parses divider
+(pass) parseMarkdownToBlocks > parses quote [0.01ms]
+(pass) parseMarkdownToBlocks > parses callout with variant
+(pass) parseMarkdownToBlocks > parses a table [1.19ms]
+(pass) parseMarkdownToBlocks > returns a single empty paragraph for empty input [0.01ms]
+(pass) parseMarkdownToBlocks > ignores leading and trailing blank lines
+(pass) markdown round-trip > preserves paragraphs [0.01ms]
+(pass) markdown round-trip > preserves a mixed document [0.04ms]
+(pass) markdown round-trip > preserves a callout [0.01ms]
+
+src/image-source.test.ts:
+(pass) stored asset identifiers never become implicit image requests [0.25ms]
+(pass) explicit image resolution rejects active or ambiguous URL schemes [1.04ms]
+
+src/sync.test.ts:
+(pass) BlockEditor sync — loop prevention > no loop when parent echoes the same reference [0.02ms]
+(pass) BlockEditor sync — loop prevention > no loop when parent reconstructs identical content [0.01ms]
+(pass) BlockEditor sync — loop prevention > syncs when parent provides genuinely new content
+(pass) BlockEditor sync — loop prevention > syncs when parent replaces with completely different blocks [0.16ms]
+(pass) BlockEditor sync — loop prevention > no loop with empty blocks
+(pass) BlockEditor mount-cycle prevention > skips both emit and sync effects on mount [0.01ms]
+(pass) BlockEditor mount-cycle prevention > allows emit and sync after mount [0.01ms]
+(pass) BlockEditor mount-cycle prevention > prevents loop when value=[] and blocks=[paragraph] on mount
+
+src/compatibility.test.ts:
+(pass) migration corpus reflects the canonical legacy schema and explicit future extensions [4.88ms]
+(pass) legacy cutover preserves rich documents and source archives and rejects ambiguous clocks [197.88ms]
+
+src/inline-edit.test.ts:
+(pass) format-preserving plain text updates > preserves formatting outside an edit and inherits the edited span's marks [0.07ms]
+(pass) format-preserving plain text updates > keeps untouched mentions and dates while editing nearby text [0.04ms]
+(pass) format-preserving plain text updates > does not keep a stale reference when its label is edited [0.01ms]
+(pass) format-preserving plain text updates > does not split surrogate pairs when replacing emoji [0.03ms]
+(pass) format-preserving plain text updates > handles deletion across differently marked spans, empty input and no-op identity [0.03ms]
+(pass) format-preserving plain text updates > preserves links through edits and wires the behavior into block text updates [0.03ms]
+
+src/authoring.test.ts:
+(pass) host authoring block controls > preserves the default command set and a paragraph fallback for empty restrictions [0.06ms]
+(pass) host authoring block controls > normalizes only newly imported unsupported blocks without losing their text or identity [0.40ms]
+
+src/crdt.test.ts:
+(pass) block editor CRDT state > applies inserts, updates, moves, and deletes through operations [0.18ms]
+(pass) block editor CRDT state > merges concurrent replicas deterministically [0.24ms]
+(pass) block editor CRDT state > round-trips operation payloads [0.82ms]
+
+ 110 pass
+ 0 fail
+ 278 expect() calls
+Ran 110 tests across 7 files. [303.00ms]

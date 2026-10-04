@@ -1,0 +1,35 @@
+2026-10-03T23:39:29.4175077Z 
+2026-10-03T23:39:29.4246827Z FAILURE: Build failed with an exception.
+2026-10-03T23:39:29.4307744Z 
+2026-10-03T23:39:29.4324803Z * What went wrong:
+2026-10-03T23:39:29.4364568Z A problem occurred configuring root project 'BlockEditor'.
+2026-10-03T23:39:29.4394706Z > Could not resolve all artifacts for configuration 'classpath'.
+2026-10-03T23:39:29.4434776Z    > Could not resolve org.jetbrains.kotlin:kotlin-reflect:2.0.20.
+2026-10-03T23:39:29.4484301Z      Required by:
+2026-10-03T23:39:29.4564459Z          root project :
+2026-10-03T23:39:29.4617270Z       > Could not resolve org.jetbrains.kotlin:kotlin-reflect:2.0.20.
+2026-10-03T23:39:29.4625178Z          > Could not get resource 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/2.0.20/kotlin-reflect-2.0.20.pom'.
+2026-10-03T23:39:29.4655306Z             > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/2.0.20/kotlin-reflect-2.0.20.pom'. Received status code 429 from server: Too Many Requests
+2026-10-03T23:39:29.4684458Z       > Could not resolve org.jetbrains.kotlin:kotlin-reflect:2.0.20.
+2026-10-03T23:39:29.4714943Z          > Could not get resource 'https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-reflect/2.0.20/kotlin-reflect-2.0.20.pom'.
+2026-10-03T23:39:29.4717128Z             > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/2.0.20/kotlin-reflect-2.0.20.pom'. Received status code 429 from server: Too Many Requests
+2026-10-03T23:39:29.4718740Z    > Could not resolve org.jetbrains:annotations:13.0.
+2026-10-03T23:39:29.4719749Z      Required by:
+2026-10-03T23:39:29.4720155Z          root project :
+2026-10-03T23:39:29.4720736Z       > Could not resolve org.jetbrains:annotations:13.0.
+2026-10-03T23:39:29.4721884Z          > Could not get resource 'https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.pom'.
+2026-10-03T23:39:29.4724071Z             > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.pom'. Received status code 429 from server: Too Many Requests
+2026-10-03T23:39:29.4725655Z       > Could not resolve org.jetbrains:annotations:13.0.
+2026-10-03T23:39:29.4726763Z          > Could not get resource 'https://plugins.gradle.org/m2/org/jetbrains/annotations/13.0/annotations-13.0.pom'.
+2026-10-03T23:39:29.4728640Z             > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.pom'. Received status code 429 from server: Too Many Requests
+2026-10-03T23:39:29.4730148Z    > Could not resolve org.jetbrains.kotlin:kotlin-stdlib:2.0.20.
+2026-10-03T23:39:29.4730872Z      Required by:
+2026-10-03T23:39:29.4731233Z          root project :
+2026-10-03T23:39:29.4731790Z       > Could not resolve org.jetbrains.kotlin:kotlin-stdlib:2.0.20.
+2026-10-03T23:39:29.4733077Z          > Could not get resource 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.0.20/kotlin-stdlib-2.0.20.pom'.
+2026-10-03T23:39:29.4735398Z             > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.0.20/kotlin-stdlib-2.0.20.pom'. Received status code 429 from server: Too Many Requests
+2026-10-03T23:39:29.4774785Z       > Could not resolve org.jetbrains.kotlin:kotlin-stdlib:2.0.20.
+2026-10-03T23:39:29.4814841Z          > Could not get resource 'https://plugins.gradle.org/m2/org/jetbrains/kotlin/kotlin-stdlib/2.0.20/kotlin-stdlib-2.0.20.pom'.
+2026-10-03T23:39:29.4845152Z             > Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.0.20/kotlin-stdlib-2.0.20.pom'. Received status code 429 from server: Too Many Requests
+
+Full raw job log retained locally with SHA256 bd9cbaa776032395063066eb70bf5e6524a8534e5e69f02c042b4515479df899
