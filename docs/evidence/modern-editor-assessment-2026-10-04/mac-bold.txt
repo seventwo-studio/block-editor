@@ -1,0 +1,7 @@
+The following is a diff from the previous accessibility tree for Window: "Local editor lab" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						25 text entry area (settable) Description: Block text, Value: ST116 **native Mac** assessment
+Selected text: ```
+native Mac
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).

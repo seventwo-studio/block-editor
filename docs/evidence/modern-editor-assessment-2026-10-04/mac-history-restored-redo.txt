@@ -1,0 +1,33 @@
+Window: "Local editor lab", App: ST116 Native Assessment.
+0 standard window Local editor lab, Secondary Actions: Raise, ID: SwiftUI.WindowGroup<SwiftUI.ModifiedContent<BlockEditorDemoApple.EditorDemoView, SwiftUI._FlexFrameLayout>>-1-AppWindow-1
+	1 container
+		2 text Local document Saved locally
+		3 button Undo
+		4 button (disabled) Redo
+		5 menu button Insert block, Help: Choose a block type permitted by this editor, ID: plus
+		6 scroll area
+			7 list Secondary Actions: AXScrollToTop, AXScrollToBottom
+				8 scroll area
+					9 text entry area (settable) Description: Block text, Value: ST116 **native Mac** assessment
+				10 container
+					11 checkbox Description: Completed, Value: 1
+					12 scroll area
+						13 text entry area (settable) Description: List item, Value: Review native baseline
+				14 scroll area
+					15 scroll area
+						16 text entry area (settable) Description: Row 1, column 1, Value: Table cell A
+					17 scroll area
+						18 text entry area (settable) Description: Row 1, column 2, Value: Table cell B
+	19 close button
+	20 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	21 minimize button
+	22 text Local editor lab
+23 menu bar
+	24 ST116 Native Assessment
+	25 File
+	26 Edit
+	27 View
+	28 Window
+	29 Help
+
+The focused UI element is 0 standard window Local editor lab, Secondary Actions: Raise, ID: SwiftUI.WindowGroup<SwiftUI.ModifiedContent<BlockEditorDemoApple.EditorDemoView, SwiftUI._FlexFrameLayout>>-1-AppWindow-1
