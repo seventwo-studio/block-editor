@@ -15,27 +15,27 @@
   "inputInterface": "Computer Use via node_repl and bundled @oai/sky macOS client",
   "captures": [
     {
-      "name": "mac-typed.png",
+      "name": "mac-typed.jpg",
       "accessibilityReceipt": "mac-typed.txt",
       "sha256": "3823cc3b2178b62daeb88118032dc3d8f46c9a246394abb6414f7a7ad38043f5"
     },
     {
-      "name": "mac-bold.png",
+      "name": "mac-bold.jpg",
       "accessibilityReceipt": "mac-bold.txt",
       "sha256": "0e3f2386ac27885c854b60eed622c1aacd2dcf844972476dced1fb2b08f0ea8c"
     },
     {
-      "name": "mac-rich-restored.png",
+      "name": "mac-rich-restored.jpg",
       "accessibilityReceipt": "mac-rich-restored.txt",
       "sha256": "adb545217b24d909259850c35d1958660a9e8a1c8bf47bfad10c58e08cb6b5e9"
     },
     {
-      "name": "mac-history-restored-undo.png",
+      "name": "mac-history-restored-undo.jpg",
       "accessibilityReceipt": "mac-history-restored-undo.txt",
       "sha256": "26f899b04ab4cbd3892ff383c89cf2fa04c5aadcb1c84a20e1df4387de068fab"
     },
     {
-      "name": "mac-history-restored-redo.png",
+      "name": "mac-history-restored-redo.jpg",
       "accessibilityReceipt": "mac-history-restored-redo.txt",
       "sha256": "f8a70b0a44cea33e0ed74cbf58e182a4c839176fec5f0b0099cf7dc5ca919cbd"
     }

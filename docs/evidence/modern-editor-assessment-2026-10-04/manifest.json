@@ -4,8 +4,8 @@
   "files": [
     {
       "name": "README.md",
-      "bytes": 15269,
-      "sha256": "38a87498fdbf885015bb2cf7e7e25ba80dab17cd8bc700e0fb144be77c4ffed0"
+      "bytes": 17917,
+      "sha256": "2f16056e4fa3878230b7ad2c29f78fb293b2fe2111947ef2b79a847a9d0d31a3"
     },
     {
       "name": "android-api26-input-enter-control-states.json",
@@ -233,7 +233,7 @@
       "sha256": "81eb63649e847540b3830b20bdafdb338f51f2a1c7b09e405866342ea082ce99"
     },
     {
-      "name": "mac-bold.png",
+      "name": "mac-bold.jpg",
       "bytes": 69609,
       "sha256": "0e3f2386ac27885c854b60eed622c1aacd2dcf844972476dced1fb2b08f0ea8c"
     },
@@ -243,7 +243,7 @@
       "sha256": "7c688b362547d2cee9cafb91995cd213ebc51933ef7c7645a731cc15f07bb4dd"
     },
     {
-      "name": "mac-history-restored-redo.png",
+      "name": "mac-history-restored-redo.jpg",
       "bytes": 72516,
       "sha256": "f8a70b0a44cea33e0ed74cbf58e182a4c839176fec5f0b0099cf7dc5ca919cbd"
     },
@@ -253,7 +253,7 @@
       "sha256": "8b53d68cac90b259bc6feee61a3d5aaaeec11b290fb336ddb6c30665ad39dce6"
     },
     {
-      "name": "mac-history-restored-undo.png",
+      "name": "mac-history-restored-undo.jpg",
       "bytes": 71277,
       "sha256": "26f899b04ab4cbd3892ff383c89cf2fa04c5aadcb1c84a20e1df4387de068fab"
     },
@@ -265,10 +265,10 @@
     {
       "name": "mac-native-capture-provenance.json",
       "bytes": 4047,
-      "sha256": "9fdece8c697bffeb748730eaa6664cdfe466d9fd0c004e6c38785b2909546374"
+      "sha256": "a3cc58361e4708e842029e8ff1935180323a45f11139edf136fab50c6693824b"
     },
     {
-      "name": "mac-rich-restored.png",
+      "name": "mac-rich-restored.jpg",
       "bytes": 72832,
       "sha256": "adb545217b24d909259850c35d1958660a9e8a1c8bf47bfad10c58e08cb6b5e9"
     },
@@ -278,7 +278,7 @@
       "sha256": "8b53d68cac90b259bc6feee61a3d5aaaeec11b290fb336ddb6c30665ad39dce6"
     },
     {
-      "name": "mac-typed.png",
+      "name": "mac-typed.jpg",
       "bytes": 59153,
       "sha256": "3823cc3b2178b62daeb88118032dc3d8f46c9a246394abb6414f7a7ad38043f5"
     },
@@ -288,9 +288,29 @@
       "sha256": "50c29e0c50339240bc6b0b88332bfe3dd35928901e3de2801b9b74fba0f06e5a"
     },
     {
+      "name": "remaining-apple-capture-provenance.json",
+      "bytes": 10410,
+      "sha256": "e1a20a1e7d41d8afe22174e67b697fd24565dac33b2f3a86acb8742d2a078b1c"
+    },
+    {
       "name": "swift-test.log",
       "bytes": 149865,
       "sha256": "c4a2a4d69c62a911afa973e27f0d5a22c395387a63162416e0cafa04b7c4409a"
+    },
+    {
+      "name": "tvos-reference-checklist.jpg",
+      "bytes": 127943,
+      "sha256": "eb1d051b74ea85f064af3869a1dcff9c279e2feb789ca2a777383ce40a04dcaf"
+    },
+    {
+      "name": "tvos-reference-interaction.mp4",
+      "bytes": 156134,
+      "sha256": "37286dbd7c5ef2d2b872dc172dae2503df7f9e2ea0036af375fb58aa995911f1"
+    },
+    {
+      "name": "tvos-reference-restored.jpg",
+      "bytes": 133292,
+      "sha256": "0292483338081120bdb05d3fce6d0b8b93afb5ccbb2bab24bfadeb8c04b9c494"
     },
     {
       "name": "typecheck.log",
@@ -301,6 +321,41 @@
       "name": "typescript-test.log",
       "bytes": 8198,
       "sha256": "327607ed133bbb510d83edf6535c3f337f23f3a6c108b28c6e2bdb7029da8bf7"
+    },
+    {
+      "name": "visionos-assessment-host-wrapper.swift",
+      "bytes": 2159,
+      "sha256": "79c71405a816e52199c67321560bcb276a10435fe437503e77c7e9e47016b080"
+    },
+    {
+      "name": "visionos-reference-canvas.jpg",
+      "bytes": 193486,
+      "sha256": "0f58485c56cdbf4e7a1f70ff72486c64ee946d7e27b18f64d14f38f3cf9e9ae6"
+    },
+    {
+      "name": "visionos-reference-canvas.txt",
+      "bytes": 1539,
+      "sha256": "3e4ebe976e38f3219b2b4f982e351c8920a5e3cea14f547d5a0a6377ea7aa8b5"
+    },
+    {
+      "name": "visionos-reference-launch.jpg",
+      "bytes": 199500,
+      "sha256": "1186d92a46dba68b6ea23d2597ec210955528597a0d8150f0c0bfeaba4efddd9"
+    },
+    {
+      "name": "visionos-reference-launch.txt",
+      "bytes": 1539,
+      "sha256": "3e4ebe976e38f3219b2b4f982e351c8920a5e3cea14f547d5a0a6377ea7aa8b5"
+    },
+    {
+      "name": "watchos-reference-canvas.jpg",
+      "bytes": 40723,
+      "sha256": "e0f9aa88c7d708469096c0d58b06fe3e21c56299cea89e6bd8efc4378db9e529"
+    },
+    {
+      "name": "watchos-reference-interaction.mp4",
+      "bytes": 51530,
+      "sha256": "289d8d92d306a49c98693a53f5e789fb9f11639d0618dc8c2a601013415e2f99"
     },
     {
       "name": "webkit-composition-repeat.log",
@@ -369,5 +424,10 @@
     "wrapperSHA256": "81eb63649e847540b3830b20bdafdb338f51f2a1c7b09e405866342ea082ce99",
     "scope": "Actual native Mac reference canvas stills and scoped interaction/restoration receipts. Isolated host wrapper only; production Sources unchanged. No modern shared title/appearance/columns, IME, exact caret, physical-device, assistive-technology, performance, minimum-OS or complete platform-matrix acceptance.",
     "provenance": "mac-native-capture-provenance.json"
+  },
+  "remainingAppleCaptureSource": {
+    "provenance": "remaining-apple-capture-provenance.json",
+    "sourceCommit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
+    "scope": "TV/watch native captures and qualified visionOS host-only wrapper rendering; no modern, physical, assistive or complete interaction acceptance."
   }
 }
