@@ -1,0 +1,447 @@
+{
+  "sourceCommit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
+  "sourceTree": "84662caba4bec7876c9a7a787984a6812491552b",
+  "archiveSHA256": "701d406a88ab25dd7adb313382063b780d3d8f331caaba699fc6c800734c2c2c",
+  "root": "/private/tmp/block-editor-native-assessment-ntz96ybc",
+  "scope": "Existing default Apple reference host, standalone restoration/history, table/toggle/nested-list edits and wrapped text. Native iOS simulator captures, not modern Writing protocol acceptance, physical device, IME/CJK/caret correctness, accessibility, performance, or Mac UI evidence.",
+  "ownedSimulators": {
+    "iphone": {
+      "uuid": "7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A",
+      "type": "com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro",
+      "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-27-0"
+    },
+    "ipad": {
+      "uuid": "17520D10-81FB-4109-865C-B2FFB9CB6045",
+      "type": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB",
+      "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-27-0"
+    }
+  },
+  "host": "arm64 macOS 27.0.1 (26A434)",
+  "toolchain": {
+    "xcode": "Xcode 27.0\nBuild version 27A266a",
+    "xcodegen": "Version: 2.46.0",
+    "simulatorSDK": "27.0"
+  },
+  "tests": [
+    "LocalEditingTests/testStandaloneTypingAndHistorySurviveRestart",
+    "RichBlockTests/testTableAndNestedToggleEditsSurviveRestart",
+    "TextLayoutTests/testWrappedParagraphGrowsAndRestoresItsHeight"
+  ],
+  "buildConfiguration": "EditorLab-iOS build-for-testing; CODE_SIGNING_ALLOWED=NO; immutable git archive; test-without-building, exact task-owned UUID, parallel testing disabled; no relay credentials",
+  "captures": {
+    "iphone": {
+      "attachments": [
+        {
+          "testIdentifier": "LocalEditingTests/testStandaloneTypingAndHistorySurviveRestart()",
+          "attachment": {
+            "configurationName": "Test Scheme Action",
+            "deviceId": "7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A",
+            "deviceName": "ST116-baseline-iPhone-01a10410",
+            "exportedFileName": "F15BC7B5-28EB-45F7-A831-A38CD27C9529.png",
+            "isAssociatedWithFailure": false,
+            "suggestedHumanReadableName": "Restored standalone document_0_0C59A5F4-A262-482E-BA1E-679FDA26ACC3.png",
+            "timestamp": 1791077105.616
+          },
+          "retainedFile": "iphone-os27-standalone.png",
+          "sha256": "95a1e541023f2e9a90c1c92cfb27623f1fdd864720ca982ddb8f8ae68419398c"
+        },
+        {
+          "testIdentifier": "RichBlockTests/testTableAndNestedToggleEditsSurviveRestart()",
+          "attachment": {
+            "configurationName": "Test Scheme Action",
+            "deviceId": "7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A",
+            "deviceName": "ST116-baseline-iPhone-01a10410",
+            "exportedFileName": "1F95D152-CDE4-46EC-B13C-64B9F838750B.png",
+            "isAssociatedWithFailure": false,
+            "suggestedHumanReadableName": "Restored rich blocks_0_976B96C9-56CD-48A9-8F97-EB81744CDC4F.png",
+            "timestamp": 1791077121.125
+          },
+          "retainedFile": "iphone-os27-rich-blocks.png",
+          "sha256": "3e95b7d38f8cb021974495cbc771f84b4be065b4c6b35bbcfe09f7793b832904"
+        },
+        {
+          "testIdentifier": "TextLayoutTests/testWrappedParagraphGrowsAndRestoresItsHeight()",
+          "attachment": {
+            "configurationName": "Test Scheme Action",
+            "deviceId": "7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A",
+            "deviceName": "ST116-baseline-iPhone-01a10410",
+            "exportedFileName": "858C87D0-3919-4DE0-A6FB-4FD734A4A489.png",
+            "isAssociatedWithFailure": false,
+            "suggestedHumanReadableName": "Restored wrapped paragraph_0_1C8A0FF5-57FA-486D-8E4D-5DDE38E40BE1.png",
+            "timestamp": 1791077160.121
+          },
+          "retainedFile": "iphone-os27-wrapped-paragraph.png",
+          "sha256": "cbefb881128a598f426242dc318b18e38ac25d6a8517a9a3274ef6234c7764cc"
+        }
+      ],
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A",
+              "deviceName": "ST116-baseline-iPhone-01a10410",
+              "modelName": "iPhone 18 Pro",
+              "osBuildNumber": "24A434",
+              "osVersion": "27.0",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 3,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "EditorLab-iOS \u00b7 Built with macOS 27.0.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1791077160.729,
+        "passedTests": 3,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1791077084.626,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - EditorLab-iOS",
+        "topInsights": [],
+        "totalTestCount": 3
+      },
+      "rawVideo": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/iphone-tests-raw.mp4",
+        "bytes": 41729920,
+        "sha256": "e0cae0ce4bc89b785bc3f5c832587ac4b8e1fa3ce1d37de5565384f4759676c4",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "width": 1206,
+              "height": 2622,
+              "nb_frames": "1359"
+            }
+          ],
+          "format": {
+            "duration": "238.436667",
+            "size": "41729920",
+            "tags": {
+              "creation_time": "2026-10-04T01:24:39.000000Z"
+            }
+          }
+        }
+      },
+      "retainedVideo": {
+        "file": "iphone-os27-rich-interaction.mp4",
+        "sha256": "ad8f13bb63df18e65f44498071203c7effe00e63c5e3740d08f9beb9be4f201f",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "width": 604,
+              "height": 1314,
+              "nb_frames": "50"
+            }
+          ],
+          "format": {
+            "duration": "14.014048",
+            "size": "441811",
+            "tags": {}
+          }
+        },
+        "operation": {
+          "startSeconds": 30,
+          "requestedDurationSeconds": 14,
+          "scaleWidth": 604,
+          "codec": "libx264",
+          "crf": 22,
+          "preset": "fast",
+          "audio": "none",
+          "content": "Continuous excerpt of real native simctl recording, no overlay or reconstructed frames; variable frame timing retained."
+        }
+      },
+      "rawResultBundle": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/iphone.xcresult",
+        "fileCount": 42,
+        "receipt": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/iphone-resultbundle-file-hashes.json",
+          "bytes": 9232,
+          "sha256": "f56712e2f9d09c796a042a77eb478a5e4c7733fdba33569afd7c250d80fb8052"
+        }
+      },
+      "testLog": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/iphone-tests.log",
+        "bytes": 19513,
+        "sha256": "6978ea4bc831e1b319afdc8dad60746b8eb06b913b5e4da3ad4f0b8215c22072"
+      }
+    },
+    "ipad": {
+      "attachments": [
+        {
+          "testIdentifier": "LocalEditingTests/testStandaloneTypingAndHistorySurviveRestart()",
+          "attachment": {
+            "configurationName": "Test Scheme Action",
+            "deviceId": "17520D10-81FB-4109-865C-B2FFB9CB6045",
+            "deviceName": "ST116-baseline-iPad-01a10410",
+            "exportedFileName": "5A125F44-E20B-470F-B03A-5719800C0F40.png",
+            "isAssociatedWithFailure": false,
+            "suggestedHumanReadableName": "Restored standalone document_0_980132D8-4081-4314-AAE4-59E85DB3382D.png",
+            "timestamp": 1791077348.872
+          },
+          "retainedFile": "ipad-os27-standalone.png",
+          "sha256": "8b5a6a95da6c870031923e5fc34d6e24c66680b16f77776f7583686beed79339"
+        },
+        {
+          "testIdentifier": "RichBlockTests/testTableAndNestedToggleEditsSurviveRestart()",
+          "attachment": {
+            "configurationName": "Test Scheme Action",
+            "deviceId": "17520D10-81FB-4109-865C-B2FFB9CB6045",
+            "deviceName": "ST116-baseline-iPad-01a10410",
+            "exportedFileName": "8C363A95-A3C1-4263-A707-82DFB18B044C.png",
+            "isAssociatedWithFailure": false,
+            "suggestedHumanReadableName": "Restored rich blocks_0_2203EFD5-901F-455E-A966-01994B1192F6.png",
+            "timestamp": 1791077364.739
+          },
+          "retainedFile": "ipad-os27-rich-blocks.png",
+          "sha256": "779bc0becaac23474d6aec340b9f9caa05669fcdf632e1d7a79b31c2689e95d0"
+        },
+        {
+          "testIdentifier": "TextLayoutTests/testWrappedParagraphGrowsAndRestoresItsHeight()",
+          "attachment": {
+            "configurationName": "Test Scheme Action",
+            "deviceId": "17520D10-81FB-4109-865C-B2FFB9CB6045",
+            "deviceName": "ST116-baseline-iPad-01a10410",
+            "exportedFileName": "9330043F-DF85-463E-B062-3A44051AF09E.png",
+            "isAssociatedWithFailure": false,
+            "suggestedHumanReadableName": "Restored wrapped paragraph_0_C3BDD59B-F473-42A8-91E2-184422074292.png",
+            "timestamp": 1791077400.964
+          },
+          "retainedFile": "ipad-os27-wrapped-paragraph.png",
+          "sha256": "43cb6ea3ccdb362ab6e3d49abdca8c2b4100219be54abbefad28f5dbdab945c2"
+        }
+      ],
+      "summary": {
+        "devicesAndConfigurations": [
+          {
+            "device": {
+              "architecture": "arm64",
+              "deviceId": "17520D10-81FB-4109-865C-B2FFB9CB6045",
+              "deviceName": "ST116-baseline-iPad-01a10410",
+              "modelName": "iPad Pro 11-inch (M5)",
+              "osBuildNumber": "24A434",
+              "osVersion": "27.0",
+              "platform": "iOS Simulator"
+            },
+            "expectedFailures": 0,
+            "failedTests": 0,
+            "passedTests": 3,
+            "skippedTests": 0,
+            "testPlanConfiguration": {
+              "configurationId": "1",
+              "configurationName": "Test Scheme Action"
+            }
+          }
+        ],
+        "environmentDescription": "EditorLab-iOS \u00b7 Built with macOS 27.0.1",
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "finishTime": 1791077401.51,
+        "passedTests": 3,
+        "result": "Passed",
+        "runtimeWarnings": [],
+        "skippedTests": 0,
+        "startTime": 1791077328.301,
+        "statistics": [],
+        "testFailures": [],
+        "title": "Test - EditorLab-iOS",
+        "topInsights": [],
+        "totalTestCount": 3
+      },
+      "rawVideo": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/ipad-tests-raw.mp4",
+        "bytes": 82556030,
+        "sha256": "eb861714d2c92f90c533fa08371966e27fae2c343e609e7b8e4d5d7949839fc2",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "width": 1668,
+              "height": 2420,
+              "nb_frames": "1686"
+            }
+          ],
+          "format": {
+            "duration": "580.751667",
+            "size": "82556030",
+            "tags": {
+              "creation_time": "2026-10-04T01:28:42.000000Z"
+            }
+          }
+        }
+      },
+      "retainedVideo": {
+        "file": "ipad-os27-rich-interaction.mp4",
+        "sha256": "44e42e426d8c6970b24777009a1c2664ded5050fc6eb784f98cfab9de9058a92",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "width": 900,
+              "height": 1306,
+              "nb_frames": "34"
+            }
+          ],
+          "format": {
+            "duration": "14.284810",
+            "size": "467588",
+            "tags": {}
+          }
+        },
+        "operation": {
+          "startSeconds": 30,
+          "requestedDurationSeconds": 14,
+          "scaleWidth": 900,
+          "codec": "libx264",
+          "crf": 22,
+          "preset": "fast",
+          "audio": "none",
+          "content": "Continuous excerpt of real native simctl recording, no overlay or reconstructed frames; variable frame timing retained."
+        }
+      },
+      "rawResultBundle": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/ipad.xcresult",
+        "fileCount": 42,
+        "receipt": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/ipad-resultbundle-file-hashes.json",
+          "bytes": 9232,
+          "sha256": "273de86b2db0cfc1fdf6ff4b7c208236b22469a246e938ba717c0fe15a5466f0"
+        }
+      },
+      "testLog": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/ipad-tests.log",
+        "bytes": 20914,
+        "sha256": "8c7f8b5cbb6ea68ce6db0a8ee6fbdab9bac327911db529ba720556b0a4649d01"
+      }
+    }
+  },
+  "sourceInputs": {
+    "Examples/AppleDemo/project.yml": "ea0931c3bcb9c48e0b434c6e7017e56563b2773de9a44b5d9c5a069a6e2d3d0e",
+    "Package.swift": "801cfd78cc232e10489572f0622cab91929aad6ea89d2fd6674ae94101bb7504",
+    "Examples/AppleDemo/UITests/CollaborativeEditingTests.swift": "8192a260c66a9a81b50304bb2ffcdec1a2e75bd68f2c025bca232e77c604c71d",
+    "Examples/AppleDemo/UITests/LocalEditingTests.swift": "ffaa00c60a64ba1f9b8410e20ac04121139c5f51555c7d267a262f772bbe21f1",
+    "Examples/AppleDemo/UITests/MergeRecoveryTests.swift": "b897c4ce220b8602685d0098c85c1e313fb725dae8671480687bed2f02fc2e02",
+    "Examples/AppleDemo/UITests/RichBlockTests.swift": "c9530285c80eb8499c7057d2e4110c2de8857f5cf9ded07647196b25f076f327",
+    "Examples/AppleDemo/UITests/TextLayoutTests.swift": "3f0209564bb8105b7fcab3d1a4331789e4d0a51e258f3d5da9088ed898f04ddd",
+    "Examples/AppleDemo/UITests/TransportCapacityUiTests.swift": "31800c54b19fb76d5638dba124dfeb9cad0ffa62fb3b27747993286c8f49447f"
+  },
+  "binaries": [
+    {
+      "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/Info.plist",
+      "bytes": 10934,
+      "sha256": "1e6668744da9164a681c7cbcfdbc7a14492243f83f319f98a205cc37992fe100"
+    },
+    {
+      "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/EditorLab-UITests",
+      "bytes": 11124080,
+      "sha256": "c245e60dfa8be71853e176324ae39f52a80b9320d04ceaba97f931c7e9835c64"
+    },
+    {
+      "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/Info.plist",
+      "bytes": 727,
+      "sha256": "80c81dd17985ddc38f83bff0ddc13657eb58a180ad7708021716d5bcb9bf5515"
+    },
+    {
+      "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/EditorLab-iOS",
+      "bytes": 72992,
+      "sha256": "448e56479e31a0062401cb114c59ac81ec06250202c62686be1e12b6bbe9c0eb"
+    },
+    {
+      "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/Info.plist",
+      "bytes": 1096,
+      "sha256": "03365bb2576c986927d1be17cb128326fb3f4b7ec50d98ff52d55af86342f665"
+    }
+  ],
+  "buildLog": {
+    "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/build.log",
+    "bytes": 508750,
+    "sha256": "aeb56fa1f9c54c2be82c91fc4dc8d47038d1a53226151e4b147d188043dd6283"
+  },
+  "cleanup": {
+    "taskOwnedSimulatorUUIDs": [
+      "7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A",
+      "17520D10-81FB-4109-865C-B2FFB9CB6045"
+    ],
+    "shutdownAndDeleted": true,
+    "verifiedRemaining": [],
+    "existingSimulatorChanges": "none"
+  },
+  "sourceEquivalence": {
+    "Sources": {
+      "files": 42,
+      "archiveMatchesWorkingTree": true
+    },
+    "Examples/AppleDemo": {
+      "files": 14,
+      "archiveMatchesWorkingTree": true
+    }
+  },
+  "additionalReferenceHostBuilds": {
+    "watchOS": {
+      "result": "BUILD SUCCEEDED",
+      "scope": "Existing simulator app compiled only; no runtime interaction, screenshot, physical or modern acceptance.",
+      "log": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/watchOS-build.log",
+        "bytes": 433929,
+        "sha256": "4b5036f6330db2ca9849b9b11fa389d8ba836f75cb0048450368d80130239c89"
+      },
+      "executable": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived-watchOS/Build/Products/Debug-watchsimulator/EditorLab-watchOS.app/EditorLab-watchOS",
+        "sha256": "074bf09269577ceb4d373b2cd0e7d91d6e65e7613e79c68f6a91bd5d3f7f4306"
+      },
+      "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-watchOS",
+      "platform": "watchsimulator",
+      "sdk": "watchsimulator27.0",
+      "minimumOS": "26.0"
+    },
+    "tvOS": {
+      "result": "BUILD SUCCEEDED",
+      "scope": "Existing simulator app compiled only; no runtime interaction, screenshot, physical or modern acceptance.",
+      "log": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/tvOS-build.log",
+        "bytes": 426086,
+        "sha256": "433e0f2720352afb908f4c30c16d7adffb650802d5847c7def050905fd73e312"
+      },
+      "executable": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived-tvOS/Build/Products/Debug-appletvsimulator/EditorLab-tvOS.app/EditorLab-tvOS",
+        "sha256": "441d3114f5a541eb67d0c65461c32609558a4e888e0a4318401ef53096abe7d0"
+      },
+      "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-tvOS",
+      "platform": "appletvsimulator",
+      "sdk": "appletvsimulator27.0",
+      "minimumOS": "26.0"
+    },
+    "visionOS": {
+      "result": "BUILD SUCCEEDED",
+      "scope": "Existing simulator app compiled only; no runtime interaction, screenshot, physical or modern acceptance.",
+      "log": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/visionOS-build.log",
+        "bytes": 441074,
+        "sha256": "43a7dafc0852a07ea467b0194915cfbce3af68c0912f3448ba64e6b66a9d8c19"
+      },
+      "executable": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived-visionOS/Build/Products/Debug-xrsimulator/EditorLab-visionOS.app/EditorLab-visionOS",
+        "sha256": "ce3ae46507980108767c9cec59d3a49e0b52b0cbe1b546d9f453d81779c3b91d"
+      },
+      "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-visionOS",
+      "platform": "xrsimulator",
+      "sdk": "xrsimulator27.0",
+      "minimumOS": "26.0"
+    }
+  }
+}

@@ -4,8 +4,58 @@
   "files": [
     {
       "name": "README.md",
-      "bytes": 8864,
-      "sha256": "5a83ce153a83fc1ca068d7ff498f7e8cd092471084697e9792684bcf6265c3be"
+      "bytes": 13521,
+      "sha256": "88783da6083f797a770880e573baa0b674d610716bf2f7130fea23c346f51c5e"
+    },
+    {
+      "name": "android-api26-input-enter-control-states.json",
+      "bytes": 121892,
+      "sha256": "cfd93f39051591ab920a9fcf1034f697bdb89cafcdb9ae98931f75b95a25b536"
+    },
+    {
+      "name": "android-api26-input-enter-final-history.png",
+      "bytes": 35385,
+      "sha256": "57ee5c291ff72028850c14a6fdab3504d62344401ba97c523f11f66ed953719b"
+    },
+    {
+      "name": "android-api26-input-enter-held-composing.png",
+      "bytes": 39655,
+      "sha256": "14ecdf811aea9be45625fd04848802a25536c82174980c1b8000133beeceab38"
+    },
+    {
+      "name": "android-api26-input-enter-proof.json",
+      "bytes": 156476,
+      "sha256": "99baecdfd0e7f043f6d8d7f3b090248608f75c98643cda8b89e7750d017f684d"
+    },
+    {
+      "name": "android-api26-input-environment.json",
+      "bytes": 7966,
+      "sha256": "939f5724d5d0de81206cf07ca90638b2ba19b57f572bfb408d4acb8ccfd9c567"
+    },
+    {
+      "name": "android-api26-input-provenance.json",
+      "bytes": 7338,
+      "sha256": "759970e26627f1e5d7350929fdf7dbe64ad2b661254d5f36aa9333a2d6c39814"
+    },
+    {
+      "name": "android-api26-input-soft-break-control-states.json",
+      "bytes": 101149,
+      "sha256": "3b20943a62a26264a1822a6f200edf3fa3ff527a84a7acde1c5ab4f022604d54"
+    },
+    {
+      "name": "android-api26-input-soft-break-final-history.png",
+      "bytes": 39330,
+      "sha256": "819fc6bf60d2806f8fbef8fa67330653f36cccf93d5310ef3c3ad66f4e0b4864"
+    },
+    {
+      "name": "android-api26-input-soft-break-proof.json",
+      "bytes": 131784,
+      "sha256": "7ab7273f5a9b3650d43bb390f6b301fa0d342cb1de00b18e81431ea69bc287a3"
+    },
+    {
+      "name": "apple-ios-native-capture-provenance.json",
+      "bytes": 18826,
+      "sha256": "738d6198a1c770b0f4d8a2786f5207ad29deec2ee15cc65b7f933dd37fb565ef"
     },
     {
       "name": "browser-captures.json",
@@ -118,6 +168,66 @@
       "sha256": "783275aaa8c288c4baa7a48e68fbc7e97ed9e41c93939cd53b5ab8f17bacdd6e"
     },
     {
+      "name": "ipad-os27-rich-blocks.png",
+      "bytes": 112011,
+      "sha256": "779bc0becaac23474d6aec340b9f9caa05669fcdf632e1d7a79b31c2689e95d0"
+    },
+    {
+      "name": "ipad-os27-rich-interaction.mp4",
+      "bytes": 467588,
+      "sha256": "44e42e426d8c6970b24777009a1c2664ded5050fc6eb784f98cfab9de9058a92"
+    },
+    {
+      "name": "ipad-os27-standalone.png",
+      "bytes": 92709,
+      "sha256": "8b5a6a95da6c870031923e5fc34d6e24c66680b16f77776f7583686beed79339"
+    },
+    {
+      "name": "ipad-os27-summary.json",
+      "bytes": 1031,
+      "sha256": "f3889d4936e40939477bb4e47bc7ec8242278588df891c794cad2b4500e4231c"
+    },
+    {
+      "name": "ipad-os27-tests.log",
+      "bytes": 20914,
+      "sha256": "8c7f8b5cbb6ea68ce6db0a8ee6fbdab9bac327911db529ba720556b0a4649d01"
+    },
+    {
+      "name": "ipad-os27-wrapped-paragraph.png",
+      "bytes": 124508,
+      "sha256": "43cb6ea3ccdb362ab6e3d49abdca8c2b4100219be54abbefad28f5dbdab945c2"
+    },
+    {
+      "name": "iphone-os27-rich-blocks.png",
+      "bytes": 117141,
+      "sha256": "3e95b7d38f8cb021974495cbc771f84b4be065b4c6b35bbcfe09f7793b832904"
+    },
+    {
+      "name": "iphone-os27-rich-interaction.mp4",
+      "bytes": 441811,
+      "sha256": "ad8f13bb63df18e65f44498071203c7effe00e63c5e3740d08f9beb9be4f201f"
+    },
+    {
+      "name": "iphone-os27-standalone.png",
+      "bytes": 88929,
+      "sha256": "95a1e541023f2e9a90c1c92cfb27623f1fdd864720ca982ddb8f8ae68419398c"
+    },
+    {
+      "name": "iphone-os27-summary.json",
+      "bytes": 1026,
+      "sha256": "521b85b72d37e47b1a36d6f3f3007e2fbdf0772d229fcfdefa968a0ce307badc"
+    },
+    {
+      "name": "iphone-os27-tests.log",
+      "bytes": 19513,
+      "sha256": "6978ea4bc831e1b319afdc8dad60746b8eb06b913b5e4da3ad4f0b8215c22072"
+    },
+    {
+      "name": "iphone-os27-wrapped-paragraph.png",
+      "bytes": 195561,
+      "sha256": "cbefb881128a598f426242dc318b18e38ac25d6a8517a9a3274ef6234c7764cc"
+    },
+    {
       "name": "swift-test.log",
       "bytes": 149865,
       "sha256": "c4a2a4d69c62a911afa973e27f0d5a22c395387a63162416e0cafa04b7c4409a"
@@ -167,5 +277,26 @@
     "scripts/test-android-writing-builtin-ime.py": "3fd2176137ee3881dd7730185861adbc9a0d09be66e9089c33948ebb83812901",
     "tests/android_writing_ime_runner_test.py": "9f2036fc54652b11e663862825b1665e1dc8c84d216877d2a5e2c032f58a8469",
     ".github/workflows/ci.yml": "1ee4045485d8fa1ba62a3051076e5e3f442e23617eb87005ba4597d6c339c37b"
+  },
+  "nativeInputCaptureSource": {
+    "workflowRun": "37165611200",
+    "workflowAttempt": 1,
+    "jobID": 111327770165,
+    "artifactID": 11289349433,
+    "artifactName": "runtime-android-api26-x86_64",
+    "prHead": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
+    "source": {
+      "commit": "2168b3b17ae12a1a9ad124b3d2d4104af2457257",
+      "tree": "84662caba4bec7876c9a7a787984a6812491552b"
+    },
+    "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+    "scope": "API26 x86_64 installed-IME native input test host; stills and raw proofs only, no full reference-canvas/interaction-video/physical/accessibility or modern native acceptance."
+  },
+  "nativeAppleCaptureSource": {
+    "commit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
+    "tree": "84662caba4bec7876c9a7a787984a6812491552b",
+    "archiveSHA256": "701d406a88ab25dd7adb313382063b780d3d8f331caaba699fc6c800734c2c2c",
+    "provenance": "apple-ios-native-capture-provenance.json",
+    "scope": "Existing default Apple reference host, standalone restoration/history, table/toggle/nested-list edits and wrapped text. Native iOS simulator captures, not modern Writing protocol acceptance, physical device, IME/CJK/caret correctness, accessibility, performance, or Mac UI evidence."
   }
 }

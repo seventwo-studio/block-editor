@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-04T00:48:10.672861+00:00",
+  "runID": "13189d0c-bafc-47aa-9efc-320a1481e79e",
+  "serial": "emulator-5554",
+  "settingsBefore": {
+    "default_input_method": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+    "selected_input_method_subtype": "-921088104",
+    "enabled_accessibility_services": "null"
+  },
+  "api": "26",
+  "abi": "x86_64",
+  "fingerprint": "Android/sdk_gphone_x86_64/generic_x86_64:8.0.0/OSR1.180418.026/6741039:userdebug/dev-keys",
+  "sourceCommit": "2168b3b17ae12a1a9ad124b3d2d4104af2457257",
+  "sourceTree": "84662caba4bec7876c9a7a787984a6812491552b",
+  "runnerSHA256": "3fd2176137ee3881dd7730185861adbc9a0d09be66e9089c33948ebb83812901",
+  "sourceDirty": false,
+  "apkSHA256": "47f93c484db58d9c8cba231a3b97e64babb79000124fccb286dae1c474b3a83f",
+  "scope": "Installed API26 LatinIME; explicit WritingSession v4 owner, physical Enter/Softbreak commits held draft and remote packet, mapped focus/caret, one-command author Undo/Redo and offline typed restore. Original Unicode/rich reference preservation; no process restart, structured paste, assets, TalkBack, general authoring or failed-repair acceptance.",
+  "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+  "testSourcesSHA256": {
+    "SystemImeTest.kt": "ae1ef9d5ce7c5332278cc20ee32ed0464781f57a7828cf90ae2f64eb2237c4d6",
+    "WritingBuiltinImeTest.kt": "9d754309c7acdcaaa0026da89eee14d3cfa03deb93801a55ac8b9a7c95903fea",
+    "BuiltinImeTest.kt": "6618365fa241ac56a4cb09067726f049e1139abb2be667003707f5d281bf4b42"
+  },
+  "packagedJNI_SHA256": {
+    "lib/x86_64/libBlockEditorBridge.so": "206220175396b7728089000ca72319e09348915b9fa3b7aba301ad4cbdc1a358",
+    "lib/x86_64/libBlockEditorJNI.so": "725df8a1c6d97362dc22265f25be0551fd1664f332f13693e86a9f05f054a410",
+    "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+    "lib/x86_64/libc++_shared.so": "7918ebd0b8074c312d0c610205d49760b98c008026e6b817cd92103a3e12241b"
+  },
+  "keyboardPackage": "com.google.android.inputmethod.latin",
+  "installedTarget": "Receiver Resolver Table:\n  Non-Data Actions:\n      androidx.profileinstaller.action.SAVE_PROFILE:\n        5c0804a studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter 4f880ee\n          Action: \"androidx.profileinstaller.action.SAVE_PROFILE\"\n      androidx.profileinstaller.action.INSTALL_PROFILE:\n        5c0804a studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter 24968f0\n          Action: \"androidx.profileinstaller.action.INSTALL_PROFILE\"\n      androidx.profileinstaller.action.SKIP_FILE:\n        5c0804a studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter dafe69\n          Action: \"androidx.profileinstaller.action.SKIP_FILE\"\n      androidx.profileinstaller.action.BENCHMARK_OPERATION:\n        5c0804a studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter b2b998f\n          Action: \"androidx.profileinstaller.action.BENCHMARK_OPERATION\"\n\nPermissions:\n  Permission [studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (d495bbb):\n    sourcePackage=studio.seventwo.blockeditor.test\n    uid=10077 gids=null type=0 prot=signature\n    perm=Permission{fd138d8 studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}\n    packageSetting=PackageSetting{a773431 studio.seventwo.blockeditor.test/10077}\n\nRegistered ContentProviders:\n  studio.seventwo.blockeditor.test/androidx.startup.InitializationProvider:\n    Provider{58e5716 studio.seventwo.blockeditor.test/androidx.startup.InitializationProvider}\n\nContentProvider Authorities:\n  [studio.seventwo.blockeditor.test.androidx-startup]:\n    Provider{58e5716 studio.seventwo.blockeditor.test/androidx.startup.InitializationProvider}\n      applicationInfo=ApplicationInfo{d27f897 studio.seventwo.blockeditor.test}\n\nKey Set Manager:\n  [studio.seventwo.blockeditor.test]\n      Signing KeySets: 21\n\nPackages:\n  Package [studio.seventwo.blockeditor.test] (a773431):\n    userId=10077\n    pkg=Package{38d0a84 studio.seventwo.blockeditor.test}\n    codePath=/data/app/studio.seventwo.blockeditor.test-rr7JuWuvq8uqKHkwdLeynQ==\n    resourcePath=/data/app/studio.seventwo.blockeditor.test-rr7JuWuvq8uqKHkwdLeynQ==\n    legacyNativeLibraryDir=/data/app/studio.seventwo.blockeditor.test-rr7JuWuvq8uqKHkwdLeynQ==/lib\n    primaryCpuAbi=x86_64\n    secondaryCpuAbi=null\n    versionCode=0 minSdk=26 targetSdk=35\n    versionName=null\n    splits=[base]\n    apkSigningVersion=2\n    applicationInfo=ApplicationInfo{d27f897 studio.seventwo.blockeditor.test}\n    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]\n    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ]\n    dataDir=/data/user/0/studio.seventwo.blockeditor.test\n    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]\n    usesLibraries:\n      android.test.runner\n    usesLibraryFiles:\n      /system/framework/android.test.runner.jar\n    timeStamp=2026-10-04 00:45:41\n    firstInstallTime=2026-10-04 00:46:01\n    lastUpdateTime=2026-10-04 00:46:01\n    signatures=PackageSignatures{259e26d [e5fcf3a3]}\n    installPermissionsFixed=true installStatus=1\n    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]\n    declared permissions:\n      studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature, INSTALLED\n    requested permissions:\n      android.permission.REORDER_TASKS\n      studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\n    install permissions:\n      studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true\n      android.permission.REORDER_TASKS: granted=true\n    User 0: ceDataInode=122986 installed=true hidden=false suspended=false stopped=false notLaunched=false enabled=0 instant=false\n      runtime permissions:\n\nPackage Changes:\n  Sequence number=326\n  User 0:\n    seq=0, package=com.google.android.apps.inputmethod.hindi\n    seq=1, package=com.google.android.inputmethod.pinyin\n    seq=2, package=com.google.android.webview\n    seq=4, package=com.google.android.setupwizard\n    seq=5, package=com.google.android.sdksetup\n    seq=6, package=com.google.android.inputmethod.latin\n    seq=79, package=com.google.android.partnersetup\n    seq=87, package=com.google.android.apps.messaging\n    seq=100, package=com.android.settings\n    seq=128, package=com.google.android.calendar\n    seq=131, package=com.android.camera2\n    seq=172, package=com.google.android.gsf\n    seq=209, package=com.google.android.googlequicksearchbox\n    seq=226, package=com.google.android.gm\n    seq=311, package=studio.seventwo.blockeditor.test\n    seq=313, package=com.google.android.videos\n    seq=314, package=com.google.android.apps.maps\n    seq=315, package=com.android.vending\n    seq=316, package=com.google.android.youtube\n    seq=325, package=com.google.android.gms\n\n\nDexopt state:\n  [studio.seventwo.blockeditor.test]\n    Instruction Set: x86_64\n      path: /data/app/studio.seventwo.blockeditor.test-rr7JuWuvq8uqKHkwdLeynQ==/base.apk\n      status: /data/app/studio.seventwo.blockeditor.test-rr7JuWuvq8uqKHkwdLeynQ==/oat/x86_64/base.odex[status=kOatUpToDa\n      te, compilation_filter=quicken]\n\n\nCompiler stats:\n  [studio.seventwo.blockeditor.test]\n     base.apk - 19067",
+  "installedAPK_SHA256": "47f93c484db58d9c8cba231a3b97e64babb79000124fccb286dae1c474b3a83f",
+  "executedTests": 2,
+  "settingsAfter": {
+    "default_input_method": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+    "selected_input_method_subtype": "-921088104",
+    "enabled_accessibility_services": "null"
+  },
+  "diagnosticCollectionFailures": []
+}
