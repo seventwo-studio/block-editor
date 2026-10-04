@@ -110,6 +110,8 @@ try {
   await page.locator('#size').evaluate(element=>{element.add(new Option('Enlarged · 34','34'));element.value='34';element.dispatchEvent(new Event('change'));});
   assert.equal(await page.locator('.columns').getAttribute('data-stacked'),'true');
   assert.equal(await page.locator('#split').inputValue(),'50');
+  manifest.enlargedTextCheck = await page.evaluate(()=>({viewportWidth:innerWidth,bodySize:34,stacked:document.querySelector('.columns').dataset.stacked==='true',storedSplit:document.querySelector('#split').value,bodyOverflow:document.documentElement.scrollWidth>innerWidth,qualification:'Doubled document font; not browser zoom or native text-scaling acceptance'}));
+  assert.equal(manifest.enlargedTextCheck.bodyOverflow,false);
   await page.close();
   const safari = await webkit.launch({headless:true}); browsers.push(safari);
   for(const [scenario,theme,viewport] of [['long','dark',desktop],['contextual','dark',narrow],['table','light',narrow],['columns','dark',desktop]]) await capture(safari,'webkit',scenario,theme,viewport);

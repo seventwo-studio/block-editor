@@ -1,10 +1,10 @@
 {
-  "recordedAt": "2026-10-04T22:57:52.534Z",
+  "recordedAt": "2026-10-04T23:12:53.478Z",
   "qualification": "Headless design-reference HTML; no shared editor, native input, device, assistive technology or production WASM acceptance.",
   "sources": [
     {
       "path": "docs/design/modern-editor-visual-preview.html",
-      "sha256": "1447a7faef6793cbbb5cad81910efb988aeade7ae0efce9338c1b18e6363cdce"
+      "sha256": "5cc409527a0db941b96902a4cafa190773504163c01274626f97a7914c28dbeb"
     },
     {
       "path": "docs/design/modern-editor-tokens.json",
@@ -16,7 +16,7 @@
     },
     {
       "path": "scripts/capture-modern-editor-visual.mjs",
-      "sha256": "7f8dc99b48886d306706e2f05c3de1da11ad4c1f599a9f2cd84ec066690954ba"
+      "sha256": "13e9f57b08ea029abd2537ea7e49b808a053c454e6a1187ca9edd125a4a12605"
     }
   ],
   "contrast": [
@@ -1610,7 +1610,7 @@
     },
     {
       "file": "chromium-contextual-light-1440.png",
-      "sha256": "6aeafd395a25be4b0ab9d99b3eed25a805e66534dbed03b536a6ad8cebf7844e",
+      "sha256": "31a4b43e9fbc2f55d788f507b563c2d6736b089dceb73fcda39cabb9bc78e003",
       "engine": "chromium",
       "browserVersion": "153.0.8010.12",
       "scenario": "contextual",
@@ -1639,7 +1639,7 @@
     },
     {
       "file": "chromium-contextual-light-390.png",
-      "sha256": "efbb22dab04aad76d75047768bda673e48109c90a3bfb16d197b5ff2bef232f0",
+      "sha256": "ab316cc058b0d88600c4355be7e1b848d03b5eaa700ebdebb7a2d9ea10a110d1",
       "engine": "chromium",
       "browserVersion": "153.0.8010.12",
       "scenario": "contextual",
@@ -1669,7 +1669,7 @@
     },
     {
       "file": "chromium-contextual-dark-1440.png",
-      "sha256": "9302585b37ca617e19f54912a542895c9a01bc35239d44d68464f5d41bba2771",
+      "sha256": "0aafc54b836eec2e9c32f7b898152d13dfafecc2813fe76545f92a2e7c441b42",
       "engine": "chromium",
       "browserVersion": "153.0.8010.12",
       "scenario": "contextual",
@@ -1698,7 +1698,7 @@
     },
     {
       "file": "chromium-contextual-dark-390.png",
-      "sha256": "7c7a55f31a1c49a79f31150650b5fb0e979016f9fea97bf292c3e0de88ccb132",
+      "sha256": "f333968e3c527a989bf2f2ab4efca2537fb3045212530dafd98bab997788aba7",
       "engine": "chromium",
       "browserVersion": "153.0.8010.12",
       "scenario": "contextual",
@@ -2418,7 +2418,7 @@
     },
     {
       "file": "webkit-contextual-dark-390.png",
-      "sha256": "395748c98b502f61317d04b497305e9385cb69a594c85a26b306003ad03e16bd",
+      "sha256": "4947862dce9e0400ed5bd7c31e3d54d71d74b29f970495e16b966bc829fe3dc4",
       "engine": "webkit",
       "browserVersion": "26.6",
       "scenario": "contextual",
@@ -2828,5 +2828,13 @@
       "storedSplit": "70",
       "bodyOverflow": false
     }
-  ]
+  ],
+  "enlargedTextCheck": {
+    "viewportWidth": 1100,
+    "bodySize": 34,
+    "stacked": true,
+    "storedSplit": "50",
+    "bodyOverflow": false,
+    "qualification": "Doubled document font; not browser zoom or native text-scaling acceptance"
+  }
 }
