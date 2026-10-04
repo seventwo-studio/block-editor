@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modern editor — visual contract</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--canvas); color:var(--text); font-family:var(--sans); font-size:var(--body-size); line-height:1.65; }
+    button, select, input { font:inherit; color:inherit; }
+    button, select { min-height:44px; border:1px solid var(--controlBorder); border-radius:8px; background:var(--raised); padding:8px 12px; cursor:pointer; }
+    button:hover, select:hover { background:var(--surface); }
+    :focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+    button:disabled { cursor:default; color:var(--muted); border-style:dashed; background:var(--surface); }
+    a { color:var(--accent); text-underline-offset:3px; }
+    ::selection { background:var(--selection); color:var(--text); }
+    .study { padding:16px 24px; background:var(--surface); border-bottom:1px solid var(--line); font-size:14px; }
+    .study strong { display:block; margin-bottom:10px; }
+    .choices { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+    .choices label { display:flex; align-items:center; gap:8px; }
+    .qualifier { color:var(--muted); margin:10px 0 0; font-size:13px; }
+    main { padding:48px 48px 80px; }
+    .document { max-width:var(--reading-width); margin:auto; font-family:var(--document-font); }
+    .document-header { display:flex; align-items:center; gap:16px; padding-bottom:24px; border-bottom:1px solid var(--line); margin-bottom:32px; }
+    .document-header .byline { flex:1; color:var(--muted); font:14px/1.5 var(--sans); }
+    h1 { font-size:2.1em; line-height:1.25; font-weight:700; letter-spacing:-.025em; margin:0 0 24px; overflow-wrap:anywhere; }
+    h2 { font-size:1.55em; line-height:1.25; font-weight:650; margin:32px 0 16px; letter-spacing:-.015em; }
+    h3 { font-size:1.2em; line-height:1.25; margin:24px 0 12px; }
+    p { margin:0 0 16px; overflow-wrap:anywhere; }
+    .lead { color:var(--muted); font-size:1.1em; }
+    .block { position:relative; margin:0 0 16px; border-radius:6px; }
+    .gutter { position:absolute; left:-44px; top:0; width:44px; padding:0; border:0; color:var(--muted); background:transparent; opacity:0; }
+    .block:hover>.gutter, .block:focus-within>.gutter, .block.selected>.gutter { opacity:1; }
+    .selected { background:var(--selection); outline:2px solid var(--accent); outline-offset:4px; }
+    .empty { min-height:180px; }
+    .placeholder { color:var(--muted); padding:12px 0; }
+    ul, ol { padding-left:28px; margin:12px 0 20px; }
+    li { margin-bottom:8px; }
+    li ul { margin:8px 0; }
+    details { border-left:2px solid var(--controlBorder); padding:0 0 0 16px; margin-bottom:24px; }
+    summary { min-height:44px; cursor:pointer; font-weight:600; }
+    blockquote { margin:24px 0; border-left:3px solid var(--accent); padding:8px 20px; color:var(--muted); }
+    hr { border:0; border-top:1px solid var(--line); margin:32px 0; }
+    .scroll { overflow-x:auto; border:1px solid var(--controlBorder); border-radius:8px; margin:20px 0; }
+    table { border-collapse:collapse; min-width:100%; font-size:.94em; }
+    th, td { padding:12px 16px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
+    th { background:var(--surface); font-weight:650; }
+    tr:last-child td { border-bottom:0; }
+    .media { margin:24px 0; }
+    .media svg { width:100%; height:auto; display:block; border-radius:8px; background:var(--surface); }
+    figcaption { font-size:.88em; color:var(--muted); margin:8px 0 0; }
+    .attachment { display:flex; gap:12px; align-items:center; padding:16px; border:1px solid var(--controlBorder); border-radius:8px; }
+    .attachment small { color:var(--muted); display:block; }
+    .attachment .name { flex:1; overflow-wrap:anywhere; }
+    .context { position:relative; padding-top:8px; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:4px; padding:8px; border:1px solid var(--controlBorder); border-radius:12px; background:var(--raised); box-shadow:0 8px 24px #00000012; margin:0 0 20px; font-family:var(--sans); }
+    .toolbar button { border:0; min-width:44px; }
+    [aria-pressed=true] { background:var(--accentSurface)!important; color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent); }
+    .check { font-size:14px; margin-left:6px; }
+    .menu { width:min(288px,100%); padding:8px; border:1px solid var(--controlBorder); border-radius:12px; background:var(--raised); box-shadow:0 12px 32px #00000018; font:15px/1.5 var(--sans); }
+    .menu button { width:100%; display:flex; justify-content:space-between; border:0; text-align:left; margin-bottom:4px; }
+    .menu .hint { font-size:13px; color:var(--muted); margin:8px; }
+    .menu .danger { color:var(--error); }
+    .status { padding:12px 16px; border-radius:8px; margin:16px 0; border:1px solid var(--controlBorder); }
+    .status.error { background:var(--errorSurface); border-color:var(--error); color:var(--error); }
+    .status.warning { background:var(--warningSurface); border-color:var(--warning); color:var(--warning); }
+    .states { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+    .forced-hover { background:var(--surface); text-decoration:underline; text-underline-offset:4px; }
+    .forced-focus { outline:3px solid var(--focus); outline-offset:3px; }
+    .columns { display:grid; gap:24px; position:relative; }
+    .column { min-width:0; }
+    .column h2 { margin-top:0; }
+    .resize { position:absolute; top:0; bottom:0; width:24px; transform:translateX(-50%); display:flex; justify-content:center; align-items:center; }
+    .resize::before { content:''; width:2px; height:100%; background:var(--controlBorder); }
+    .resize span { position:absolute; background:var(--raised); color:var(--accent); border:1px solid var(--controlBorder); border-radius:6px; padding:4px; }
+    .split-control { font:14px/1.5 var(--sans); display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:24px; }
+    .split-control input { accent-color:var(--accent); width:160px; min-height:44px; }
+    .stack-note { color:var(--muted); font-size:.88em; margin-bottom:24px; }
+    code { font-family:var(--mono); font-size:.9em; background:var(--surface); border-radius:4px; padding:2px 5px; overflow-wrap:anywhere; }
+    @media(max-width:700px) { main { padding:32px 20px 64px 52px; } .study { padding:16px; } .document-header { gap:8px; } h1 { font-size:1.8em; } }
+    @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <aside class="study" aria-label="Visual study controls">
+    <strong>Modern editor · visual study ST-119</strong>
+    <div class="choices">
+      <label>Document <select id="case"><option>long</option><option>blank</option><option>nested</option><option>media</option><option>table</option><option>contextual</option><option>columns</option><option>states</option></select></label>
+      <label>Appearance <select id="theme"><option>light</option><option>dark</option></select></label>
+      <label>Width <select id="width"><option value="680">Compact · 680</option><option value="720">Comfortable · 720</option><option value="760">Generous · 760</option><option value="960">Wide · 960</option></select></label>
+      <label>Text <select id="size"><option value="15">Small · 15</option><option value="16">Comparison · 16</option><option value="17">Default · 17</option><option value="20">Large · 20</option></select></label>
+      <label>Font <select id="font"><option>sans</option><option>serif</option><option>mono</option></select></label>
+    </div>
+    <p class="qualifier">Design reference. Sample controls demonstrate appearance; shared editing, sync and native input are evaluated in later issues.</p>
+  </aside>
+  <main><article class="document" aria-label="Document preview"></article></main>
+  <script type="module">
+    const tokens = await (await fetch('./modern-editor-tokens.json')).json();
+    const mixed = await (await fetch('../../Examples/AppleDemo/Fixtures/rich-blocks.json')).json();
+    const params = new URLSearchParams(location.search);
+    const choices = ['case','theme','width','size','font'];
+    const defaults = {case:'long',theme:'light',width:'680',size:'17',font:'sans'};
+    for (const key of choices) document.getElementById(key).value = params.get(key) || defaults[key];
+    const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const inline = runs => (runs || []).map(run => esc(run.text || '')).join('');
+    const block = content => `<section class="block"><button class="gutter" aria-label="Block actions">⋮⋮</button>${content}</section>`;
+    const listItem = item => `<li>${inline(item.content)}${item.children?.length ? `<ul>${item.children.map(listItem).join('')}</ul>` : ''}</li>`;
+    const renderFixture = item => {
+      if(item.type === 'paragraph') return block(`<p>${inline(item.content)}</p>`);
+      if(item.type === 'list') return block(`<ul>${item.items.map(listItem).join('')}</ul>`);
+      if(item.type === 'toggle') return `<details open><summary>${inline(item.summary)}</summary>${item.children.map(renderFixture).join('')}</details>`;
+      if(item.type === 'table') return `<div class="scroll" tabindex="0" aria-label="Mixed fixture table"><table>${item.rows.map(row => `<tr>${row.cells.map(cell => `<${cell.header ? 'th scope="col"' : 'td'}>${inline(cell.content)}</${cell.header ? 'th' : 'td'}>`).join('')}</tr>`).join('')}</table></div>`;
+      throw new Error(`Unsupported fixture type ${item.type}`);
+    };
+    const fixture = mixed.map(renderFixture).join('');
+    const table = `<p class="lead">A wide table keeps its columns readable. Scroll within the table when space is limited.</p><div class="scroll" tabindex="0" aria-label="Delivery table"><table><thead><tr><th>Document</th><th>Owner</th><th>Review</th><th>Format</th><th>Last edited</th><th>Reference</th></tr></thead><tbody>${['Field notes','Launch outline','Meeting notes','Content inventory'].map((name,i)=>`<tr><td>${name}</td><td>Studio</td><td>${i%2 ? 'Ready for review' : 'Draft'}</td><td>Mixed blocks</td><td>5 October</td><td>DOC-${i+101}</td></tr>`).join('')}</tbody></table></div><h2>Existing mixed fixture</h2>${fixture}`;
+    const media = `<p class="lead">Media belongs in the document rhythm, with a readable caption and nearby actions.</p><figure class="media"><svg viewBox="0 0 800 320" role="img" aria-label="Illustration of a coastal landscape"><rect width="800" height="320" fill="var(--surface)"/><path d="M0 235 Q200 145 405 218 T800 165 V320 H0Z" fill="var(--selection)"/><path d="M0 285 Q240 205 470 270 T800 225 V320 H0Z" fill="var(--accentSurface)"/><path d="M40 195 Q220 155 370 178" stroke="var(--accent)" stroke-width="3" fill="none"/><circle cx="650" cy="80" r="32" fill="var(--accent)"/></svg><figcaption>Coastline study · representative local illustration, no external media dependency.</figcaption></figure><div class="attachment"><span aria-hidden="true">▤</span><div class="name">Research notes.pdf<small>PDF · 240 KB · sample file appearance</small></div><button type="button">Open</button></div>`;
+    const contextual = `<div class="toolbar" role="toolbar" aria-label="Selection formatting"><button aria-pressed="true" aria-label="Bold"><b>B</b><span class="check">✓</span></button><button aria-pressed="false" aria-label="Italic"><i>I</i></button><button aria-pressed="false" aria-label="Underline"><u>U</u></button><button>Link</button><button>Text color</button></div><section class="block selected"><button class="gutter" aria-label="Block actions">⋮⋮</button><p><strong>A selected paragraph keeps its place in the document.</strong> Contextual tools remain near the selection.</p></section><div class="menu" aria-label="Block actions appearance"><button aria-pressed="true">Paragraph <span>✓</span></button><button>Heading 2</button><button>Bulleted list</button><hr><button>Duplicate <span aria-hidden="true">⌘D</span></button><button disabled>Move to other column <span>No layout</span></button><button class="danger">Delete block</button><p class="hint">Selected format uses a checkmark and outline. Native hosts provide their own menu interaction.</p></div>`;
+    const states = `<p class="lead">State cues preserve text contrast and use labels, outlines and symbols alongside color.</p><div class="states"><button>Default</button><button class="forced-hover">Hover</button><button class="forced-focus">Focus</button><button aria-pressed="true">Selected ✓</button><button disabled>Unavailable</button></div><div class="states" style="margin-top:24px">${[["text","surface","Neutral"],["accent","accentSurface","Green"],["blue","blueSurface","Blue"],["purple","purpleSurface","Purple"],["warning","warningSurface","Amber"],["error","errorSurface","Red"]].map(([ink,fill,label])=>`<span style="padding:8px 12px;color:var(--${ink});background:var(--${fill});border:1px solid var(--${ink});border-radius:6px">${label}</span>`).join("")}</div><div class="status" role="status">◌ Loading attachment…</div><div class="status error" role="alert">! Attachment unavailable. <u>Retry</u></div><div class="status warning">! Unsaved changes remain on this device.</div><p><a href="#reference">Underlined link</a> · <code>Code uses a native monospace font</code></p>`;
+    const long = `<p class="lead">A calm surface for thinking, drafting and returning to the work.</p>${block('<p>Start with the document. The title, text and block hierarchy share a readable column; controls become visible when they help with the next action.</p>')}<h2>A place for the details</h2>${block('<p>Short paragraphs leave space for the reader. Longer passages need comfortable line length, clear headings and a reliable rhythm between sections. Reading width is a preference, not a promise that every viewport can contain the same line length.</p>')}<ul><li>Keep the reading order stable.</li><li>Make selected formatting visible with a shape and label.</li><li>Give large media and tables room without widening every paragraph.</li></ul><blockquote>Context belongs near the action, while the document remains the center of attention.</blockquote><h2>Structured notes</h2>${fixture}<hr><h2>Continue writing</h2>${block('<p>A returning author should find the same title and content, with focus restored only when the host can do so reliably. The visual language should stay quiet while the editing model handles history and concurrent changes.</p>')}<h3>Next steps</h3><p>Review this rhythm at a small width, with larger text and in dark appearance. Native hosts will translate these roles into their own fonts, focus and controls.</p>`;
+    const columns = `<div class="split-control"><label for="split">Column split</label><input id="split" type="range" min="30" max="70" value="50" aria-label="Column split percentage"><output for="split">50 / 50</output></div><p class="stack-note"></p><div class="columns"><section class="column" aria-label="First column"><h2>Field notes</h2><p>The first container keeps its place before the second when the view stacks.</p>${fixture}</section><section class="column" aria-label="Second column"><h2>References</h2>${media}</section><div class="resize" aria-hidden="true"><span>↔</span></div></div>`;
+    const docs = {long:['Studio field notes',long],blank:['Untitled',`<section class="block empty"><button class="gutter" aria-label="Insert block">+</button><p class="placeholder">Start writing, or use the insert command…</p></section>`],nested:['Notes with structure',`<p class="lead">Real table, toggle and nested list content from the existing Apple demo fixture.</p>${fixture}<blockquote>Hierarchy uses indentation and a rule, without introducing a card for each paragraph.</blockquote>`],media:['A visual notebook',media],table:['Content inventory',table],contextual:['Editing in context',contextual],columns:['One document, two columns',columns],states:['Readable in every state',states]};
+    function layoutColumns() {
+      const element = document.querySelector('.columns'); if(!element) return;
+      const size = Number(document.getElementById('size').value), min = tokens.layout.minimumColumnEm * size, gap = tokens.layout.columnGap;
+      const usable = element.getBoundingClientRect().width-gap;
+      const split = document.getElementById('split'), requested = Number(split.value)/100;
+      const stacked = usable < min*2;
+      const ratio = stacked ? requested : Math.max(min/usable,Math.min(1-min/usable,requested));
+      element.style.gridTemplateColumns = stacked ? 'minmax(0,1fr)' : `minmax(0,${ratio}fr) minmax(0,${1-ratio}fr)`;
+      element.dataset.stacked = String(stacked);
+      element.dataset.minimum = min;
+      document.querySelector('.resize').style.display = stacked ? 'none' : 'flex';
+      document.querySelector('.resize').style.left = `${(ratio*usable+gap/2)/element.clientWidth*100}%`;
+      split.disabled = stacked;
+      document.querySelector('output').textContent = `${split.value} / ${100-Number(split.value)}`;
+      document.querySelector('.stack-note').textContent = stacked ? 'Columns stack in document order at this width. The shared split value stays unchanged.' : 'Two readable columns. Presentation clamps the divider when a column reaches its minimum; the shared split value stays unchanged.';
+    }
+    function render() {
+      const values = Object.fromEntries(choices.map(key => [key,document.getElementById(key).value]));
+      for(const [key,value] of Object.entries(tokens[values.theme])) document.documentElement.style.setProperty(`--${key}`,value);
+      for(const key of ['sans','serif','mono']) document.documentElement.style.setProperty(`--${key}`,tokens.typography[key]);
+      document.documentElement.style.setProperty('--body-size',`${values.size}px`);
+      document.documentElement.style.setProperty('--reading-width',`${values.width}px`);
+      document.documentElement.style.setProperty('--document-font',tokens.typography[values.font]);
+      const [title,content] = docs[values.case];
+      document.querySelector('article').innerHTML = `<div class="document-header"><span class="byline">Studio notes · document preview</span><button type="button" aria-label="Document appearance">Aa</button></div><h1>${title}</h1>${content}`;
+      document.querySelector('#split')?.addEventListener('input',layoutColumns);
+      document.querySelectorAll('.toolbar [aria-pressed]').forEach(button=>button.addEventListener('click',()=>{const selected=button.getAttribute('aria-pressed')==='true';button.setAttribute('aria-pressed',String(!selected));let check=button.querySelector('.check');if(selected)check?.remove();else button.insertAdjacentHTML('beforeend','<span class="check">✓</span>');}));
+      layoutColumns();
+      history.replaceState(null,'',`?${new URLSearchParams(values)}`);
+      window.visualStudyReady = true;
+    }
+    choices.forEach(key=>document.getElementById(key).addEventListener('change',render));
+    window.addEventListener('resize',layoutColumns);
+    window.visualStudyTokens = tokens;
+    render();
+  </script>
+</body>
+</html>
