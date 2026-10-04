@@ -1,0 +1,73 @@
+{
+  "name": "AssessmentCapture",
+  "packages": {
+    "BlockEditor": {
+      "path": ".."
+    }
+  },
+  "targets": {
+    "AssessmentMac": {
+      "type": "application",
+      "platform": "macOS",
+      "deploymentTarget": "26.0",
+      "sources": [
+        "MacHost.swift"
+      ],
+      "dependencies": [
+        {
+          "package": "BlockEditor",
+          "product": "BlockEditorDemoApple"
+        }
+      ],
+      "settings": {
+        "base": {
+          "PRODUCT_BUNDLE_IDENTIFIER": "studio.seventwo.blockeditor.st116.automation.mac",
+          "GENERATE_INFOPLIST_FILE": "YES",
+          "SWIFT_VERSION": "6.0",
+          "CODE_SIGN_STYLE": "Automatic",
+          "CODE_SIGN_IDENTITY": "-"
+        }
+      }
+    },
+    "AssessmentMacUITests": {
+      "type": "bundle.ui-testing",
+      "platform": "macOS",
+      "deploymentTarget": "26.0",
+      "sources": [
+        "NativeMacTests.swift"
+      ],
+      "dependencies": [
+        {
+          "target": "AssessmentMac"
+        }
+      ],
+      "settings": {
+        "base": {
+          "PRODUCT_BUNDLE_IDENTIFIER": "studio.seventwo.blockeditor.st116.automation.mac.tests",
+          "GENERATE_INFOPLIST_FILE": "YES",
+          "SWIFT_VERSION": "6.0",
+          "CODE_SIGN_STYLE": "Automatic",
+          "CODE_SIGN_IDENTITY": "-"
+        }
+      }
+    }
+  },
+  "schemes": {
+    "AssessmentMac": {
+      "build": {
+        "targets": {
+          "AssessmentMac": "all"
+        }
+      },
+      "test": {
+        "targets": [
+          "AssessmentMacUITests"
+        ],
+        "captureScreenshotsAutomatically": true,
+        "deleteScreenshotsWhenEachTestSucceeds": false,
+        "preferredScreenCaptureFormat": "screenRecording",
+        "systemAttachmentLifetime": "keepAlways"
+      }
+    }
+  }
+}

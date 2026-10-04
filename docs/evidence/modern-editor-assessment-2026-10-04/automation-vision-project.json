@@ -1,0 +1,78 @@
+{
+  "name": "AssessmentCapture",
+  "packages": {
+    "BlockEditor": {
+      "path": ".."
+    }
+  },
+  "targets": {
+    "AssessmentVision": {
+      "type": "application",
+      "platform": "visionOS",
+      "deploymentTarget": "26.0",
+      "sources": [
+        "VisionHost.swift",
+        {
+          "path": "../Examples/AppleDemo/Fixtures",
+          "buildPhase": "resources"
+        }
+      ],
+      "dependencies": [
+        {
+          "package": "BlockEditor",
+          "product": "BlockEditorApple"
+        },
+        {
+          "package": "BlockEditor",
+          "product": "BlockEditorCore"
+        }
+      ],
+      "settings": {
+        "base": {
+          "PRODUCT_BUNDLE_IDENTIFIER": "studio.seventwo.blockeditor.st116.automation.vision",
+          "PRODUCT_MODULE_NAME": "AssessmentVision",
+          "GENERATE_INFOPLIST_FILE": "YES",
+          "SWIFT_VERSION": "6.0"
+        }
+      }
+    },
+    "AssessmentVisionTests": {
+      "type": "bundle.unit-test",
+      "platform": "visionOS",
+      "deploymentTarget": "26.0",
+      "sources": [
+        "NativeVisionTests.swift"
+      ],
+      "dependencies": [
+        {
+          "target": "AssessmentVision"
+        },
+        {
+          "package": "BlockEditor",
+          "product": "BlockEditorCore"
+        }
+      ],
+      "settings": {
+        "base": {
+          "PRODUCT_BUNDLE_IDENTIFIER": "studio.seventwo.blockeditor.st116.automation.vision.tests",
+          "GENERATE_INFOPLIST_FILE": "YES",
+          "SWIFT_VERSION": "6.0"
+        }
+      }
+    }
+  },
+  "schemes": {
+    "AssessmentVision": {
+      "build": {
+        "targets": {
+          "AssessmentVision": "all"
+        }
+      },
+      "test": {
+        "targets": [
+          "AssessmentVisionTests"
+        ]
+      }
+    }
+  }
+}

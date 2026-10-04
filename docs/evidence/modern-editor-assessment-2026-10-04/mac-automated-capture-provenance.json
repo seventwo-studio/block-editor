@@ -1,0 +1,136 @@
+{
+  "sourceCommit": "71c914f585bce7515eaa8d370e4977783f43e371",
+  "sourceArchiveSHA256": "815ec6079528626abc6bae157e4a01f55e44d5fdedd252e6b3b08c499012cd07",
+  "userAuthorization": "Automated test capture authorized in this session; temporary test host and unique documents.",
+  "testIdentifier": "LocalEditingTests/testStandaloneTypingAndHistorySurviveRestart()",
+  "testResult": {
+    "devicesAndConfigurations": [
+      {
+        "device": {
+          "architecture": "arm64",
+          "deviceId": "00006041-001030201E50801C",
+          "deviceName": "My Mac",
+          "modelName": "Mac Studio",
+          "osBuildNumber": "26A434",
+          "osVersion": "27.0.1",
+          "platform": "macOS"
+        },
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "passedTests": 1,
+        "skippedTests": 0,
+        "testPlanConfiguration": {
+          "configurationId": "1",
+          "configurationName": "Test Scheme Action"
+        }
+      }
+    ],
+    "environmentDescription": "AssessmentMac \u00b7 Built with macOS 27.0.1",
+    "expectedFailures": 0,
+    "failedTests": 0,
+    "finishTime": 1791123629.758,
+    "passedTests": 1,
+    "result": "Passed",
+    "runtimeWarnings": [],
+    "skippedTests": 0,
+    "startTime": 1791123619.191,
+    "statistics": [],
+    "testFailures": [],
+    "title": "Test - AssessmentMac",
+    "topInsights": [],
+    "totalTestCount": 1
+  },
+  "scope": "Native Mac XCTest click/type input, saved-file reopen and persisted Undo/Redo. Existing public EditorDemoView; isolated host only. No modern, IME, exact caret, physical/assistive or complete platform acceptance.",
+  "rawResultBundle": "/private/tmp/block-editor-automated-capture-5sfcs01z/mac-test-window.xcresult",
+  "rawRecording": {
+    "path": "/private/tmp/block-editor-automated-capture-5sfcs01z/mac-window-attachments/DE0567E3-2198-4FA8-B9BC-30B606AA564C.mp4",
+    "sha256": "3398c532a93d1933a78fdbf5e91e638450b7b8ef9263c1225b34e250e6da8e30",
+    "qualification": "Automatic Xcode video records the desktop; retained clips crop inside the task-owned window and omit the app-closed interval. Full recording is local only."
+  },
+  "log": {
+    "path": "/private/tmp/block-editor-automated-capture-5sfcs01z/mac-test-window.log",
+    "sha256": "da87f838f716ea53149a27f290e7ba42eb378bb2eb6f698388dcc1f68cc537d9"
+  },
+  "hostBinary": {
+    "path": "/private/tmp/block-editor-automated-capture-5sfcs01z/mac-derived/Build/Products/Debug/AssessmentMac.app/Contents/MacOS/AssessmentMac",
+    "sha256": "54abc276244428955bf13b9f629ff5936ab341b2c0674c286f02dcec76706fef"
+  },
+  "harness": {
+    "MacHost.swift": "8b288f69d4d365f70ca53b852db7f67b42e10605abb730a1733161dce59f6b29",
+    "NativeMacTests.swift": "2b0033a02b782feff4390c9274cc35b492441e3697f4e95696e2d04af233d462",
+    "project.json": "8fea5992dadb3a685991fe496baacdd53326d5e20f12c126af078df297e9b6ca"
+  },
+  "windowBounds": {
+    "logical": [
+      798,
+      469,
+      900,
+      532
+    ],
+    "videoScaleFromLogical": 1.6,
+    "contentCropPixels": [
+      1290,
+      804,
+      1400,
+      780
+    ]
+  },
+  "retainedVideos": {
+    "mac-automated-typing.mp4": {
+      "sha256": "ee16d36c2ebedbeaeaa283e0ed37ab801dc1666ec91b9e30558d7a2021afa7f5",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1400,
+            "height": 780,
+            "nb_frames": "84"
+          }
+        ],
+        "format": {
+          "duration": "2.800000",
+          "size": "35455"
+        }
+      },
+      "sourceIntervalSeconds": [
+        0.7,
+        3.5
+      ],
+      "operation": "App-content crop, fps=30, libx264 CRF20 yuv420p; continuous original recording excerpts, no overlays or reconstructed state."
+    },
+    "mac-automated-history.mp4": {
+      "sha256": "07281e02a9c0b4d91a50b47fd8cd856591fac88ff9c263b38f5bd37904659a7f",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1400,
+            "height": 780,
+            "nb_frames": "92"
+          }
+        ],
+        "format": {
+          "duration": "3.066667",
+          "size": "33740"
+        }
+      },
+      "sourceIntervalSeconds": [
+        5.3,
+        8.35
+      ],
+      "operation": "App-content crop, fps=30, libx264 CRF20 yuv420p; continuous original recording excerpts, no overlays or reconstructed state."
+    }
+  },
+  "retainedHarness": {
+    "automation-MacHost.swift": "8b288f69d4d365f70ca53b852db7f67b42e10605abb730a1733161dce59f6b29",
+    "automation-NativeMacTests.swift": "2b0033a02b782feff4390c9274cc35b492441e3697f4e95696e2d04af233d462",
+    "automation-project.json": "8fea5992dadb3a685991fe496baacdd53326d5e20f12c126af078df297e9b6ca"
+  },
+  "retainedHarnessQualification": "Standalone Mac-only project spec preserves tested Mac target and capture settings; separate original combined spec hash retained above.",
+  "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+  "productionFileCount": 60
+}

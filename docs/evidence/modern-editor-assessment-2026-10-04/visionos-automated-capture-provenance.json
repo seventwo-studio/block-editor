@@ -1,0 +1,96 @@
+{
+  "sourceCommit": "71c914f585bce7515eaa8d370e4977783f43e371",
+  "archive": {
+    "path": "/private/tmp/block-editor-automated-capture-5sfcs01z/source.tar",
+    "bytes": 32675840,
+    "sha256": "815ec6079528626abc6bae157e4a01f55e44d5fdedd252e6b3b08c499012cd07"
+  },
+  "scope": "Native visionOS simulator hosted unit test drives model commands in real BlockEditorView; no gesture or keyboard UI automation.",
+  "testIdentifier": "NativeVisionModelCaptureTests/testRenderedTableCommandsAndSavedHistory",
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "testDurationSeconds": 8.25,
+  "runtime": "visionOS 26.0",
+  "deviceUUID": "02560FE7-F58D-421C-862C-06E88408FB02",
+  "applicationID": "studio.seventwo.blockeditor.st116.automation.vision",
+  "binary": {
+    "path": "/private/tmp/block-editor-automated-capture-5sfcs01z/vision-derived/Build/Products/Debug-xrsimulator/AssessmentVision.app/AssessmentVision",
+    "bytes": 40176,
+    "sha256": "b250bf9965a6a93a919901531b29619840855f586400db81ff3dc793317f4202"
+  },
+  "rawRecording": {
+    "path": "/private/tmp/block-editor-automated-capture-5sfcs01z/vision-test-raw.mp4",
+    "bytes": 43264909,
+    "sha256": "b3d6b6629b243675a3aba951401dd2fce6ed790d0b9ffbd2453359bf27452f97"
+  },
+  "rawRecordingProbe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 3840,
+        "height": 2160,
+        "nb_frames": "1435"
+      }
+    ],
+    "format": {
+      "duration": "23.920000",
+      "size": "43264909"
+    }
+  },
+  "resultBundleLocalPath": "/private/tmp/block-editor-automated-capture-5sfcs01z/vision-test.xcresult",
+  "retainedClip": {
+    "path": "docs/evidence/modern-editor-assessment-2026-10-04/visionos-automated-model-history.mp4",
+    "bytes": 359319,
+    "sha256": "91450e8021bd626df463591f023272a2ab9388e9df1a11ee873e33aac416b847"
+  },
+  "clipTransform": {
+    "continuousRawIntervalSeconds": [
+      14.5,
+      23.2
+    ],
+    "scale": [
+      1920,
+      1080
+    ],
+    "fps": 30,
+    "audio": false,
+    "overlays": false,
+    "inventedStates": false
+  },
+  "frameAttachment": {
+    "file": "visionos-automated-edited-frame.png",
+    "rawTimestampSeconds": 22,
+    "transform": "Unscaled PNG decode of native video frame; not an XCTest screenshot attachment."
+  },
+  "warnings": "Passing hosted test logs report duplicate BlockEditorCore Objective-C classes from package/test linkage. No crash or failed assertion observed; warning remains in retained log.",
+  "unverified": [
+    "gesture input",
+    "native typing/IME",
+    "picker activation",
+    "process restart",
+    "physical device",
+    "assistive technology",
+    "modern shared writing surface"
+  ],
+  "productionSourcesChanged": false,
+  "cleanup": {
+    "deletedDevice": "02560FE7-F58D-421C-862C-06E88408FB02",
+    "verifiedName": "ST116-automated-visionOS-5sfcs01z",
+    "remainingIdentitiesPreserved": 41,
+    "absentAfterCleanup": true
+  },
+  "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+  "productionFileCount": 60,
+  "seedFixture": {
+    "archivePath": "Examples/AppleDemo/Fixtures/rich-blocks.json",
+    "sha256": "f9c7395bf059b452673a2f9edcaa58adb1554dbb34efa8a4dd3a2f9f4e4e9342"
+  },
+  "harness": {
+    "automation-VisionHost.swift": "c1464684add6e97b7b54b3e9119604690b72f5bc473243de9bab5d788dc2d8a8",
+    "automation-NativeVisionTests.swift": "4e2c19fb2b975e3e5f158cd2ccec3eea0f8cff075a32caf582b5a4b00a6081f7",
+    "automation-vision-project.json": "c152547849d3f5d8281a8ef39718b94921a23c82671ab996718ea9d05bd69442"
+  }
+}

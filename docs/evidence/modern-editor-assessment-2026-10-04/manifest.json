@@ -4,8 +4,8 @@
   "files": [
     {
       "name": "README.md",
-      "bytes": 17917,
-      "sha256": "2f16056e4fa3878230b7ad2c29f78fb293b2fe2111947ef2b79a847a9d0d31a3"
+      "bytes": 21947,
+      "sha256": "41d5a3d1566b389fa45e5acdb0b2b29b6eb16e891746c5f5f45a2f547afac7c7"
     },
     {
       "name": "android-api26-input-enter-control-states.json",
@@ -56,6 +56,36 @@
       "name": "apple-ios-native-capture-provenance.json",
       "bytes": 18826,
       "sha256": "738d6198a1c770b0f4d8a2786f5207ad29deec2ee15cc65b7f933dd37fb565ef"
+    },
+    {
+      "name": "automation-MacHost.swift",
+      "bytes": 461,
+      "sha256": "8b288f69d4d365f70ca53b852db7f67b42e10605abb730a1733161dce59f6b29"
+    },
+    {
+      "name": "automation-NativeMacTests.swift",
+      "bytes": 1623,
+      "sha256": "2b0033a02b782feff4390c9274cc35b492441e3697f4e95696e2d04af233d462"
+    },
+    {
+      "name": "automation-NativeVisionTests.swift",
+      "bytes": 1562,
+      "sha256": "4e2c19fb2b975e3e5f158cd2ccec3eea0f8cff075a32caf582b5a4b00a6081f7"
+    },
+    {
+      "name": "automation-VisionHost.swift",
+      "bytes": 902,
+      "sha256": "c1464684add6e97b7b54b3e9119604690b72f5bc473243de9bab5d788dc2d8a8"
+    },
+    {
+      "name": "automation-project.json",
+      "bytes": 1759,
+      "sha256": "8fea5992dadb3a685991fe496baacdd53326d5e20f12c126af078df297e9b6ca"
+    },
+    {
+      "name": "automation-vision-project.json",
+      "bytes": 1768,
+      "sha256": "c152547849d3f5d8281a8ef39718b94921a23c82671ab996718ea9d05bd69442"
     },
     {
       "name": "browser-captures.json",
@@ -233,6 +263,31 @@
       "sha256": "81eb63649e847540b3830b20bdafdb338f51f2a1c7b09e405866342ea082ce99"
     },
     {
+      "name": "mac-automated-capture-provenance.json",
+      "bytes": 5094,
+      "sha256": "a935cc959f3a734453afdc792b55f34b012bd79673cde06567a7e07a08a38e51"
+    },
+    {
+      "name": "mac-automated-history.mp4",
+      "bytes": 33740,
+      "sha256": "07281e02a9c0b4d91a50b47fd8cd856591fac88ff9c263b38f5bd37904659a7f"
+    },
+    {
+      "name": "mac-automated-restored.png",
+      "bytes": 78228,
+      "sha256": "cc1afafc78b7db11a55fdc0d2466b4250ca939413ad8b6b00efc4ecf85486d95"
+    },
+    {
+      "name": "mac-automated-typing.mp4",
+      "bytes": 35455,
+      "sha256": "ee16d36c2ebedbeaeaa283e0ed37ab801dc1666ec91b9e30558d7a2021afa7f5"
+    },
+    {
+      "name": "mac-automated-window-bounds.txt",
+      "bytes": 36,
+      "sha256": "9e24d7af9183ad05cca0a1aa58daca72ef350b44429cec16379bc0f0a7d93978"
+    },
+    {
       "name": "mac-bold.jpg",
       "bytes": 69609,
       "sha256": "0e3f2386ac27885c854b60eed622c1aacd2dcf844972476dced1fb2b08f0ea8c"
@@ -276,6 +331,11 @@
       "name": "mac-rich-restored.txt",
       "bytes": 1511,
       "sha256": "8b53d68cac90b259bc6feee61a3d5aaaeec11b290fb336ddb6c30665ad39dce6"
+    },
+    {
+      "name": "mac-test-summary.json",
+      "bytes": 982,
+      "sha256": "4ea550de13fba6107da5fdf453da12a1b5ec0b19dd55557b8a1c0590e4cef6fc"
     },
     {
       "name": "mac-typed.jpg",
@@ -326,6 +386,36 @@
       "name": "visionos-assessment-host-wrapper.swift",
       "bytes": 2159,
       "sha256": "79c71405a816e52199c67321560bcb276a10435fe437503e77c7e9e47016b080"
+    },
+    {
+      "name": "visionos-automated-capture-provenance.json",
+      "bytes": 3576,
+      "sha256": "252cd3c5173324491e095bc7a83334652edd4975dc46b23e0169f77959fafda8"
+    },
+    {
+      "name": "visionos-automated-cleanup.json",
+      "bytes": 185,
+      "sha256": "44e5da5073a5415accd96bbc41b23c53da40ed848b6e5274b090d1300e8ab358"
+    },
+    {
+      "name": "visionos-automated-edited-frame.png",
+      "bytes": 2556374,
+      "sha256": "7985797d615937bb7a23861e92e5fdc85f4cb9621b1e7b6e309d1585e6adb60f"
+    },
+    {
+      "name": "visionos-automated-model-history.mp4",
+      "bytes": 359319,
+      "sha256": "91450e8021bd626df463591f023272a2ab9388e9df1a11ee873e33aac416b847"
+    },
+    {
+      "name": "visionos-automated-test-summary.json",
+      "bytes": 1043,
+      "sha256": "2d99dbb21228954d6c9c0ce7ab59b73ebc0153ca6fb6362f1a8d4e3d599cbb2c"
+    },
+    {
+      "name": "visionos-automated-test.log",
+      "bytes": 5073,
+      "sha256": "680b0b17b5c7b67294f668c990c3cd2e5732a433f3fecaefe0479f8a873f887b"
     },
     {
       "name": "visionos-reference-canvas.jpg",
@@ -429,5 +519,6 @@
     "provenance": "remaining-apple-capture-provenance.json",
     "sourceCommit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
     "scope": "TV/watch native captures and qualified visionOS host-only wrapper rendering; no modern, physical, assistive or complete interaction acceptance."
-  }
+  },
+  "automatedAppleCaptureSourceCommit": "71c914f585bce7515eaa8d370e4977783f43e371"
 }
