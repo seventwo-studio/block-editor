@@ -1,0 +1,663 @@
+{
+  "workflowRun": "37162111767",
+  "workflowAttempt": 1,
+  "jobID": 111317513422,
+  "jobConclusion": "success",
+  "artifactID": 11288723480,
+  "artifactName": "runtime-wasm",
+  "source": {
+    "commit": "9fd633d80814b20ba668318a831aa7a8990d58de",
+    "tree": "0c63cf1c6356a47d24c3b816a86556d797fcf3b4"
+  },
+  "checks": [
+    {
+      "name": "playwright.txt",
+      "stats": {
+        "startTime": "2026-10-03T23:35:41.637Z",
+        "duration": 540868.387,
+        "expected": 164,
+        "skipped": 7,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "bytes": 6761341,
+      "sha256": "ed73b0063f39c02a8cccc77b9ab8e1befad1aed9b783c93afd5893a180648910"
+    },
+    {
+      "name": "resource-playwright.txt",
+      "stats": {
+        "startTime": "2026-10-03T23:44:43.267Z",
+        "duration": 2738254.1939999997,
+        "expected": 45,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "bytes": 500450,
+      "sha256": "9651574fda6adde57597ab8ceda5f23a5ddb620949f37a6423b72074c9dcbe8f"
+    },
+    {
+      "name": "performance-playwright.txt",
+      "stats": {
+        "startTime": "2026-10-04T00:30:22.178Z",
+        "duration": 21953.325,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "bytes": 433862,
+      "sha256": "29e87f5e17a179296878381d6d4dcbe293f12c11e1d663639af46e606a896f1d"
+    },
+    {
+      "name": "performance-writing-playwright.txt",
+      "stats": {
+        "startTime": "2026-10-04T00:30:44.706Z",
+        "duration": 34992.36,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "bytes": 433863,
+      "sha256": "fa9bf2ad1bd96b3dc7c72c985b968d300e01e4ba91eae9affed0c433c7b575f1"
+    },
+    {
+      "name": "relay-playwright.json",
+      "stats": {
+        "startTime": "2026-10-04T00:31:20.327Z",
+        "duration": 123459.307,
+        "expected": 42,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "bytes": 474108,
+      "sha256": "edf5b6d1a3d86e88102768686a97529a62213ef01d6c6693b81fc02324fed9ec"
+    },
+    {
+      "name": "relay-restart-playwright.json",
+      "stats": {
+        "startTime": "2026-10-04T00:33:24.425Z",
+        "duration": 120287.253,
+        "expected": 9,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "bytes": 532976,
+      "sha256": "f702b8fc51b3eb7c623bd3edf1de5aeb803093f8655933e2aa4e88046aeab91f"
+    }
+  ],
+  "skippedCases": [
+    {
+      "title": "Chromium IME input commits before applying a concurrent remote insertion",
+      "project": "webkit",
+      "annotations": [
+        {
+          "type": "skip",
+          "description": "The Chromium IME protocol is unavailable in WebKit",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-selection.spec.ts",
+            "line": 90,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "Code Chromium composition converges and undo preserves remote edits",
+      "project": "webkit",
+      "annotations": [
+        {
+          "type": "skip",
+          "description": "The Chromium IME protocol is unavailable in WebKit",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-selection.spec.ts",
+            "line": 176,
+            "column": 10
+          }
+        }
+      ]
+    },
+    {
+      "title": "Math Chromium composition converges and undo preserves remote edits",
+      "project": "webkit",
+      "annotations": [
+        {
+          "type": "skip",
+          "description": "The Chromium IME protocol is unavailable in WebKit",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-selection.spec.ts",
+            "line": 176,
+            "column": 10
+          }
+        }
+      ]
+    },
+    {
+      "title": "Chromium IME input commits before applying a concurrent remote insertion",
+      "project": "firefox",
+      "annotations": [
+        {
+          "type": "skip",
+          "description": "The Chromium IME protocol is unavailable in WebKit",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-selection.spec.ts",
+            "line": 90,
+            "column": 8
+          }
+        }
+      ]
+    },
+    {
+      "title": "Code Chromium composition converges and undo preserves remote edits",
+      "project": "firefox",
+      "annotations": [
+        {
+          "type": "skip",
+          "description": "The Chromium IME protocol is unavailable in WebKit",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-selection.spec.ts",
+            "line": 176,
+            "column": 10
+          }
+        }
+      ]
+    },
+    {
+      "title": "Math Chromium composition converges and undo preserves remote edits",
+      "project": "firefox",
+      "annotations": [
+        {
+          "type": "skip",
+          "description": "The Chromium IME protocol is unavailable in WebKit",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-selection.spec.ts",
+            "line": 176,
+            "column": 10
+          }
+        }
+      ]
+    },
+    {
+      "title": "reference reconnects, shows ephemeral presence and reopens a saved file offline",
+      "project": "webkit",
+      "annotations": [
+        {
+          "type": "fixme",
+          "description": "File.text() returns NotReadableError in offline WebKit automation, including byte-backed uploads; file reopen acceptance remains open.",
+          "location": {
+            "file": "/home/runner/work/block-editor/block-editor/tests/swift-wasm.spec.ts",
+            "line": 234,
+            "column": 8
+          }
+        }
+      ]
+    }
+  ],
+  "productionResourceReports": [
+    {
+      "name": "resource-writing-wasm-chromium-v4-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 4,
+      "case": "document-exact",
+      "bytes": 1288,
+      "sha256": "72dc891d3042731b909b0e05befda7ee5f0ee515116e139acb3e0ccef4722167"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v4-document-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 4,
+      "case": "document-over",
+      "bytes": 1302,
+      "sha256": "0d0852ba2c3f9014786aedca8505d89c9f1f5cf415d2bbf7f5f92b0cefd17ca3"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v4-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 4,
+      "case": "retained-exact-over",
+      "bytes": 1620,
+      "sha256": "4b00627564d6b0c5068a17e111635b114ea60ab5be19f85b1586f5bf94719f49"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v4-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 4,
+      "case": "roots-exact",
+      "bytes": 1492,
+      "sha256": "9283db52b9a3d262bb765e39c8cc1258e83b6eb867dce4356984f99ea6fafc4d"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v4-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 4,
+      "case": "roots-over",
+      "bytes": 1633,
+      "sha256": "ba44e48a75e138769fc0a4dacb82c2cbb10f339eaa476855942af378ca4fa332"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v5-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 5,
+      "case": "document-exact",
+      "bytes": 1288,
+      "sha256": "f0d80565df85317ff8d62a2326049d975e8bd2c4811ff6808d0aabb099e2dedf"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v5-document-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 5,
+      "case": "document-over",
+      "bytes": 1302,
+      "sha256": "09105ef5c16d7c5568e90a641a274970b9b36e94a8643cf3f18f49f47dfa0f36"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v5-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 5,
+      "case": "retained-exact-over",
+      "bytes": 1620,
+      "sha256": "1eb368854e45b998fb5d286a300e636dcec3c5e78bc751e4a9d5d73812ec02fb"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v5-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 5,
+      "case": "roots-exact",
+      "bytes": 1492,
+      "sha256": "44c1ea35ec25cc248e4d0516a0d3a7892bd3c2e40c2da562f54190d58c25a878"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v5-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 5,
+      "case": "roots-over",
+      "bytes": 1633,
+      "sha256": "773bfb5f99307865c61699142d74e3c382046b498a0983c6dacd224aed544b09"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v6-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 6,
+      "case": "document-exact",
+      "bytes": 1288,
+      "sha256": "eb28709e06ea0bdeeb8beb3bd57b2e369fb0b8629911a9915a1976016cc2d1f4"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v6-document-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 6,
+      "case": "document-over",
+      "bytes": 1302,
+      "sha256": "9833fb6ae3457e0fae9ce4b6b61cca3f8bf5285480698cefaa5885a069cc1b2e"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v6-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 6,
+      "case": "retained-exact-over",
+      "bytes": 1620,
+      "sha256": "b30848ab13612d8a93b642fa7e89dc71b5940418c95793360bbe5d68ca49ab0f"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v6-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 6,
+      "case": "roots-exact",
+      "bytes": 1492,
+      "sha256": "83749fe83c42d96cce1c23bef970d0edb5b4cedac1652858fb9b57f2380b3b47"
+    },
+    {
+      "name": "resource-writing-wasm-chromium-v6-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-chromium",
+      "protocol": 6,
+      "case": "roots-over",
+      "bytes": 1633,
+      "sha256": "d5a954796980e966aec5aeaa2ca2a0f58bad06aad141d89a027b5041a8be658a"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v4-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 4,
+      "case": "document-exact",
+      "bytes": 1287,
+      "sha256": "9434fb164f6d1b6c2712cc6f18723d31af94c69e6b1fd31f6becb1a2e9fffca2"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v4-document-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 4,
+      "case": "document-over",
+      "bytes": 1301,
+      "sha256": "d061e1892d7b96d190c62c7378c74ada0fa143ac573c3bf481fb51c0f625938a"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v4-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 4,
+      "case": "retained-exact-over",
+      "bytes": 1619,
+      "sha256": "938512963a30dd91181f9a3d4cd2b0906a990d6227b83eedce89542f589b379c"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v4-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 4,
+      "case": "roots-exact",
+      "bytes": 1491,
+      "sha256": "b56df4294bf97cffdc25e71f0e952a87469623e93e372c4655343300428cd4ed"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v4-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 4,
+      "case": "roots-over",
+      "bytes": 1632,
+      "sha256": "3b2846d76e90c0948f54aa63ca3b8d92cb2cab508c815ee43c19fba244d60b52"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v5-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 5,
+      "case": "document-exact",
+      "bytes": 1287,
+      "sha256": "5127a2b91d888399ae498c636a016fa549a17c773cf26cd808d222ce4d6ba113"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v5-document-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 5,
+      "case": "document-over",
+      "bytes": 1301,
+      "sha256": "80fb1e9128ddc5d961ab7b21f81bd422ca4191f04b8340ea0c667f9649b66c10"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v5-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 5,
+      "case": "retained-exact-over",
+      "bytes": 1619,
+      "sha256": "b6567463f396e041ed5fea15b5993aea92416f8dbbcefbf76e411c42c3536ffd"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v5-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 5,
+      "case": "roots-exact",
+      "bytes": 1491,
+      "sha256": "a4298b703362341b2beb9a6a4cae591e2e588b2724f5e559248f53d03e6b133b"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v5-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 5,
+      "case": "roots-over",
+      "bytes": 1632,
+      "sha256": "8a7caf558686e8539ad8d1699d2c4966593d79204de84a9ee5078f766e8cd893"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v6-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 6,
+      "case": "document-exact",
+      "bytes": 1287,
+      "sha256": "517ad0d5fe99e2c919e451cf05fa487df44b66d12978c58b61061dc3e20c962c"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v6-document-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 6,
+      "case": "document-over",
+      "bytes": 1301,
+      "sha256": "2c0a508b2e778ce5d7228cba42df0ed6d11441e487a15eb04628b51a5cfbb3c4"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v6-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 6,
+      "case": "retained-exact-over",
+      "bytes": 1619,
+      "sha256": "4a3d8aa5f0a81c9f9b3e1353c2035ceda1ac7a9a72c0211f784219171b2d8dfb"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v6-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 6,
+      "case": "roots-exact",
+      "bytes": 1491,
+      "sha256": "4e234cd3d7772c0f458b2ee658944da912cd40d467a716c708b21d144fb94793"
+    },
+    {
+      "name": "resource-writing-wasm-firefox-v6-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-firefox",
+      "protocol": 6,
+      "case": "roots-over",
+      "bytes": 1632,
+      "sha256": "28b4d2484af6d7c7375b43cc431bec940276a249dfa4d9717969469a25a6c679"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v4-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 4,
+      "case": "document-exact",
+      "bytes": 1286,
+      "sha256": "07e9d7237f6f05195e92ba906a4cf8806f8bd6f7e4898d0832437e1646b18cbf"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v4-document-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 4,
+      "case": "document-over",
+      "bytes": 1300,
+      "sha256": "a0a42c93ccc951f500d35d157055515592ad90b0970919644a1e24c62b04f767"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v4-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 4,
+      "case": "retained-exact-over",
+      "bytes": 1618,
+      "sha256": "bc0595ea92fe3c9af0e82be5c9ac2b2cda8223cccb9dd2aefa5092ea43803829"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v4-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 4,
+      "case": "roots-exact",
+      "bytes": 1490,
+      "sha256": "430633c7413f4e95dfc30e2c3ecd99d343f8a4d85f6727f301dc0224975731cf"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v4-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 4,
+      "case": "roots-over",
+      "bytes": 1631,
+      "sha256": "000ef9cbb2a1e92ed135912187f67d3a73eef6be2bc45929749c95aef2118e34"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v5-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 5,
+      "case": "document-exact",
+      "bytes": 1286,
+      "sha256": "2f8afb569f3bcc5bab122f7c1825e323e12b72551fb1e4df90851fd18f8590e3"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v5-document-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 5,
+      "case": "document-over",
+      "bytes": 1300,
+      "sha256": "f529efb16d58910557f289dfc591b2305703a3bae1a2beeead75530d7010399b"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v5-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 5,
+      "case": "retained-exact-over",
+      "bytes": 1618,
+      "sha256": "761d0229380382a83e557dbbb29d1f85ecd24b49823435c8f0aa8a6f8e01cba6"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v5-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 5,
+      "case": "roots-exact",
+      "bytes": 1490,
+      "sha256": "3002afeb922e4c8cf7b897bf4c400bcdb199255c40268fa2e4906aff5e80888e"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v5-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 5,
+      "case": "roots-over",
+      "bytes": 1631,
+      "sha256": "1ccfb02fafbba9222a32dd1d209c317ab86a0610cb7a1446aa6a812926125c69"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v6-document-exact.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 6,
+      "case": "document-exact",
+      "bytes": 1286,
+      "sha256": "f8df3a88ffd2ae69cd890e186d448a55878eff4fff93f3680c610dec60c267ee"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v6-document-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 6,
+      "case": "document-over",
+      "bytes": 1300,
+      "sha256": "4b730da3da77be60aa5e4ec4da6fa572abf4348d2dacc236041fb9e2f6d76eb9"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v6-retained-exact-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 6,
+      "case": "retained-exact-over",
+      "bytes": 1618,
+      "sha256": "f41223fbce1c323a9aae800429cffd1dd05bdbd5d500d5f413556ff7b93f07b8"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v6-roots-exact.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 6,
+      "case": "roots-exact",
+      "bytes": 1490,
+      "sha256": "ebd6c62f6b919ec98c4bf81bc709884bc6f38efc0dd6c41a82cebbb0b5643956"
+    },
+    {
+      "name": "resource-writing-wasm-webkit-v6-roots-over.json",
+      "complete": true,
+      "runtime": "wasm-webkit",
+      "protocol": 6,
+      "case": "roots-over",
+      "bytes": 1631,
+      "sha256": "49aa65883b358a0a98821d07a37ce891d06108d879c3eeca5dbd347c36098c61"
+    }
+  ],
+  "measurementReports": [
+    {
+      "name": "performance-wasm-chromium.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 2,
+      "bytes": 28981,
+      "sha256": "775299a13e34eb6b472aeb02584f451e9e3f2c91da03318667ecbdb1bc26f832"
+    },
+    {
+      "name": "performance-wasm-firefox.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 2,
+      "bytes": 26397,
+      "sha256": "cc93a59fbc7b5f08560dd26e4500d47c15ad6c5ad844fa3d432b9f9f63efb9b4"
+    },
+    {
+      "name": "performance-wasm-webkit.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 2,
+      "bytes": 26437,
+      "sha256": "1750924f3496857ef03891fd452d219376e820def738d5e1f299f898b721dd40"
+    },
+    {
+      "name": "performance-writing-wasm-chromium.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 3,
+      "bytes": 42917,
+      "sha256": "5384e6498d2529330e1b92e9e4052511bbca00aca98d6b04770266b5bb72fcac"
+    },
+    {
+      "name": "performance-writing-wasm-firefox.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 3,
+      "bytes": 39266,
+      "sha256": "524b044e177d1fef64e0b4d91a82d139bb7a38e71942d207dedf8964d46d9945"
+    },
+    {
+      "name": "performance-writing-wasm-webkit.json",
+      "complete": true,
+      "profile": "smoke",
+      "numericBudgets": "unagreed",
+      "samples": 3,
+      "bytes": 39293,
+      "sha256": "4afa8e6f31445585586337e483862b4c9c8d123ddf26a92ec117d27278954e98"
+    }
+  ],
+  "qualification": "Existing WASM engine/adapter, process/resource/relay baseline. Six Chromium-protocol IME rows skipped in WebKit/Firefox; offline saved-file reopen remains fixme in WebKit. Smoke measurements are not modern rendered host performance or physical/accessibility acceptance. Complete reports remain in the downloaded artifact with hashes here."
+}

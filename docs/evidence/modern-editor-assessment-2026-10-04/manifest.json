@@ -4,8 +4,8 @@
   "files": [
     {
       "name": "README.md",
-      "bytes": 6844,
-      "sha256": "556dcd5398e4f8bf6ede951444cc7720fc890e4b4a4d62c1f6372ba478530e26"
+      "bytes": 8864,
+      "sha256": "5a83ce153a83fc1ca068d7ff498f7e8cd092471084697e9792684bcf6265c3be"
     },
     {
       "name": "browser-captures.json",
@@ -68,9 +68,34 @@
       "sha256": "5c5e97c665a88696ca0ed6b41c05e0a271f8c9e2dc25ef54292815fe24717904"
     },
     {
+      "name": "ci-parity-attempt1.txt",
+      "bytes": 1039,
+      "sha256": "4f8b1c992f0340c289be8754d760857f1e30ba698753f318e2bc5fc1c33b7a49"
+    },
+    {
+      "name": "ci-swift-provenance-attempt1.json",
+      "bytes": 4284,
+      "sha256": "fc19950c7e6b62a78502ef6d8237e2e87424b813f981b5d3447837b4bc2b53c6"
+    },
+    {
+      "name": "ci-swift-summary-attempt1.json",
+      "bytes": 5238,
+      "sha256": "7503ee62a80eeb710dba6d944ce38cf775bc2114725662bdfd2edf83c613c714"
+    },
+    {
       "name": "ci-test-attempt1.log",
       "bytes": 155557,
       "sha256": "87fb633adb63915b1122c7731c209c69c86d09ea134ad7e2bfaaf19652e43c36"
+    },
+    {
+      "name": "ci-wasm-provenance-attempt1.json",
+      "bytes": 4623,
+      "sha256": "8eee2c1943bcac0e3e467530406dc368d33aa6899c1ab23dae762abb7f1cf45d"
+    },
+    {
+      "name": "ci-wasm-summary-attempt1.json",
+      "bytes": 21250,
+      "sha256": "26eb037485ff2ccd3708612676b15a35c91b109a7c0683ba1f497f6ba4898215"
     },
     {
       "name": "demo-typecheck.log",
