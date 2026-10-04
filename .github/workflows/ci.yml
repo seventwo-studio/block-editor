@@ -192,7 +192,7 @@ jobs:
           test -e /dev/kvm
           sudo chown "$USER" /dev/kvm
           input_checks=()
-          if [ '${{ matrix.api }}' = '26' ]; then input_checks+=(--system-ime); fi
+          if [ '${{ matrix.api }}' = '26' ]; then input_checks+=(--system-ime --reference-capture); fi
           python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' --performance-profile smoke "${input_checks[@]}" 2>&1 | tee test-results/compatibility/android-run.txt
       - name: Record exact JNI build provenance
         run: |
@@ -211,6 +211,7 @@ jobs:
             test-results/resource
             test-results/system-input
             test-results/writing-system-input
+            test-results/reference-capture
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             android/editor/build/reports/androidTests
           if-no-files-found: error

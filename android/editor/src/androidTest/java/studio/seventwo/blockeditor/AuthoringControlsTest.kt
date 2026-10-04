@@ -1,6 +1,10 @@
 package studio.seventwo.blockeditor
 
 import android.view.inputmethod.EditorInfo
+import android.graphics.Bitmap
+import android.os.SystemClock
+import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -28,6 +32,22 @@ import org.junit.Test
 @OptIn(ExperimentalTestApi::class)
 class AuthoringControlsTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
+
+    /** Optional baseline media from the same asserted component scenario. */
+    private fun assessmentCapture(name: String) {
+        if (InstrumentationRegistry.getArguments().getString("assessmentCapture") != "true") return
+        compose.waitForIdle()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val directory = File(instrumentation.targetContext.filesDir, "assessment-capture").apply { mkdirs() }
+        val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+        try {
+            File(directory, "$name.png").outputStream().use {
+                check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it))
+            }
+        } finally { bitmap.recycle() }
+        // Keep each verified state readable in the optional native recording.
+        SystemClock.sleep(800)
+    }
 
     @OptIn(ExperimentalComposeUiApi::class)
     private fun componentContent(content: @Composable () -> Unit) {
@@ -231,6 +251,7 @@ class AuthoringControlsTest {
         val prefix = "日本語 👩🏽‍💻 "
         try {
             componentContent { MaterialTheme { BlockEditor(host.value) } }
+            assessmentCapture("mixed-document")
             val initial = JSONArray(session.snapshot.getJSONArray("blocks").toString())
             val field = compose.onNodeWithTag("editor-text:toggle:children/child/content")
             field.performScrollTo().performClick().performTextInputSelection(TextRange(0))
@@ -247,6 +268,7 @@ class AuthoringControlsTest {
                 assertEquals(initial.getJSONObject(2).toString(), afterText.getJSONObject(2).toString())
             }
             val checkbox = compose.onNodeWithTag("editor-check:tasks:items/task")
+            assessmentCapture("nested-text-edited")
             checkbox.performScrollTo().performTouchInput { click() }
             lateinit var afterCheck: JSONArray
             compose.runOnIdle {
@@ -261,6 +283,7 @@ class AuthoringControlsTest {
             }
             compose.onNodeWithText("Undo").performTouchInput { click() }
             compose.runOnIdle { assertEquals(afterText.toString(), session.snapshot.getJSONArray("blocks").toString()) }
+            assessmentCapture("checklist-undone")
             compose.onNodeWithText("Undo").performTouchInput { click() }
             compose.runOnIdle { assertEquals(initial.toString(), session.snapshot.getJSONArray("blocks").toString()) }
             // Exercise the rendered authoring command through semantics. Screen
@@ -271,6 +294,7 @@ class AuthoringControlsTest {
             compose.runOnIdle { assertEquals(afterText.toString(), session.snapshot.getJSONArray("blocks").toString()) }
             compose.onNodeWithText("Redo").assertIsEnabled().performClick()
             compose.runOnIdle { assertEquals(afterCheck.toString(), session.snapshot.getJSONArray("blocks").toString()) }
+            assessmentCapture("history-restored")
         } finally { compose.runOnIdle { session.close() } }
     }
 
