@@ -4,8 +4,8 @@
   "files": [
     {
       "name": "README.md",
-      "bytes": 21947,
-      "sha256": "41d5a3d1566b389fa45e5acdb0b2b29b6eb16e891746c5f5f45a2f547afac7c7"
+      "bytes": 25016,
+      "sha256": "c4225dfa312b85611968fa9fb1cb2e30d20c04e6ad7424ce71389045a05b73bf"
     },
     {
       "name": "android-api26-input-enter-control-states.json",
@@ -51,6 +51,51 @@
       "name": "android-api26-input-soft-break-proof.json",
       "bytes": 131784,
       "sha256": "7ab7273f5a9b3650d43bb390f6b301fa0d342cb1de00b18e81431ea69bc287a3"
+    },
+    {
+      "name": "android-automated-baseline-video-frame.png",
+      "bytes": 35859,
+      "sha256": "52329f758267864a89e9c51c9559da93c5a0a6c6f785f4e7a9ebf6e4fcd07ed5"
+    },
+    {
+      "name": "android-automated-baseline.png",
+      "bytes": 23340,
+      "sha256": "df218d8fdd541b4f7a043a8a293d651cca27d4500b382044ce7f61a34194c5ac"
+    },
+    {
+      "name": "android-automated-capture-provenance.json",
+      "bytes": 4063,
+      "sha256": "9addef403a62d94cc9f81fac162b512dfc370c4e4c29efbb40b76c1867e1b5f7"
+    },
+    {
+      "name": "android-automated-checklist-undone.png",
+      "bytes": 26255,
+      "sha256": "1717996b2a9c72ba4dd0c4b4363ae0196609fd72593e39507a0e7717d5bc2369"
+    },
+    {
+      "name": "android-automated-environment.json",
+      "bytes": 1040,
+      "sha256": "3110447427f56bc409299abcb5d325a405a0c97dfc51f9a8c9a9925b42500979"
+    },
+    {
+      "name": "android-automated-history-restored.png",
+      "bytes": 26705,
+      "sha256": "951d295e859738fe142fdb5988a93262adb430e5e83d4dce184332a8919c98b8"
+    },
+    {
+      "name": "android-automated-instrumentation.txt",
+      "bytes": 819,
+      "sha256": "7493344add7351035ef4b000cc24cc768186210c49dde336edf8784b769ad256"
+    },
+    {
+      "name": "android-automated-mixed-history.mp4",
+      "bytes": 29249,
+      "sha256": "fb43c706f5c7bd015f65b2cfe7b450697bda8587e7064c63fc96ef365fab7fe2"
+    },
+    {
+      "name": "android-automated-runtime-provenance.json",
+      "bytes": 7338,
+      "sha256": "088fe20f3ce293499a95f0b1ffd47b61937890e50cd23d9099a8e017c0cb8f54"
     },
     {
       "name": "apple-ios-native-capture-provenance.json",
@@ -520,5 +565,11 @@
     "sourceCommit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
     "scope": "TV/watch native captures and qualified visionOS host-only wrapper rendering; no modern, physical, assistive or complete interaction acceptance."
   },
-  "automatedAppleCaptureSourceCommit": "71c914f585bce7515eaa8d370e4977783f43e371"
+  "automatedAppleCaptureSourceCommit": "71c914f585bce7515eaa8d370e4977783f43e371",
+  "automatedAndroidCapture": {
+    "pullRequestHead": "ebb7ac7a86f2ade785a882179a8c103d1a6e8b99",
+    "actualMergeCommit": "9830e787f163d9dd10898c58402884dcf15c1be7",
+    "workflowRun": 37209315355,
+    "artifact": 11307025308
+  }
 }
