@@ -26,12 +26,17 @@ final class InteractionReviewTests:XCTestCase {
         return condition()
     }
     @MainActor func expectValue(_ element:XCUIElement,contains text:String) async {
-        let matched = await waitUntil {
-            let value = element.value
-            let plain = (value as? String) ?? (value as? NSAttributedString)?.string
-            return plain?.contains(text) == true
-        }
-        XCTAssertTrue(matched,"Native value: \(String(describing:element.value))")
+        _ = await waitUntil { self.plainValue(element.value)?.contains(text) == true }
+        // One final native snapshot supplies both assertion and diagnostic. A
+        // second diagnostic fetch can otherwise show a value the poll never saw.
+        let value = element.value
+        XCTAssertTrue(plainValue(value)?.contains(text) == true,"Native value: \(String(describing:value)); type: \(value.map { String(reflecting:type(of:$0)) } ?? "nil")")
+    }
+    func plainValue(_ value:Any?) -> String? {
+        if let string = value as? String { return string }
+        if let attributed = value as? NSAttributedString { return attributed.string }
+        if let attributed = value as? AttributedString { return String(attributed.characters) }
+        return nil
     }
     @MainActor func testTitleWritingAndContextualPicker() async throws {
         continueAfterFailure = false

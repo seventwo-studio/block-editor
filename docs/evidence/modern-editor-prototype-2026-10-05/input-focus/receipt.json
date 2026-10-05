@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-05",
+  "baseCommit": "e7dcf5d98a88b1ea78631be528860e86a6e89a9e",
+  "coreSourceCommit": "da0505771898308da100432638b11b463b4fa952",
+  "scope": "Isolated protocol-6 interaction prototype; modern protocol-7 implementation and final platform acceptance are separate.",
+  "finalSourceHashes": {
+    "Examples/ModernInteractionPrototype/App/ReviewApp.swift": "f09db880b6140bd81e6b208f60f6877a4acbdc1f3eeba318d29ddbdf5ec4a930",
+    "Examples/ModernInteractionPrototype/App/ReviewInput.swift": "c02e466d440d68fe42487cc691d9e3fda1ea665905e6ffa649f69783438f38c5",
+    "Examples/ModernInteractionPrototype/App/ReviewModel.swift": "c113c6e1eba11db3597d28b90e41e490c2ae8361e5b89fb092795803d165a8a2",
+    "Examples/ModernInteractionPrototype/UITests/InteractionReviewTests.swift": "21eaa5d2857b22ff3587c554b4f365f134613b113dc808e460b067d641f42cf6",
+    "Examples/ModernInteractionPrototype/project.yml": "d46b1492a3fb0f6e6ab519145a7406dd34caa64e68493b683fe472f46aec4f69"
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "source": "attempt-1-source.json",
+      "log": "attempt-1.log",
+      "loggedPassed": 1,
+      "loggedFailed": 2,
+      "processExit": 143,
+      "qualification": "All three outcomes logged; owned stalled coordinator stopped. Incomplete xcresult; no completed summary."
+    },
+    {
+      "number": 2,
+      "source": "attempt-2-source.json",
+      "log": "attempt-2.log",
+      "loggedPassed": 1,
+      "loggedFailed": 2,
+      "processExit": 143,
+      "qualification": "All three outcomes logged; owned stalled coordinator stopped. Incomplete xcresult; no completed summary."
+    },
+    {
+      "number": 3,
+      "source": "attempt-3-source.json",
+      "log": "attempt-3.log",
+      "processExit": 0,
+      "summary": "attempt-3-summary.json",
+      "result": "Passed",
+      "passed": 3,
+      "failed": 0,
+      "tests": [
+        "testColumnFocusOrderAndContainment",
+        "testKeyboardTitleToBodyAndSlashAcceptance",
+        "testMultipleLayoutsAndBoundaryWriting"
+      ],
+      "qualification": "Complete native execution before final outline-dismissal change. All original full-text, order, containment and focus assertions retained."
+    },
+    {
+      "number": 4,
+      "source": "attempt-4-source.json",
+      "log": "attempt-4.log",
+      "loggedPassed": 3,
+      "loggedFailed": 1,
+      "processExit": 143,
+      "tests": [
+        "testBlockRangeColumnsAndPersonalViews: passed",
+        "testFormattingConversionAndNestedInput: failed closing-outline hit assertion",
+        "testRichFieldInputAndLiteralPreservation: passed",
+        "testTitleWritingAndContextualPicker: passed"
+      ],
+      "qualification": "Same source as attempt 3. All four outcomes logged; owned stalled coordinator stopped. Incomplete xcresult; no completed summary."
+    },
+    {
+      "number": 5,
+      "source": "attempt-5-source.json",
+      "log": "attempt-5.log",
+      "processExit": 0,
+      "summary": "attempt-5-summary.json",
+      "result": "Passed",
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        "testFormattingConversionAndNestedInput"
+      ],
+      "qualification": "Final source reruns only the failed navigation path after moving narrow outline navigation to sheet onDismiss. Includes formatting, conversion, nested toggle/list typing and the closing jump."
+    }
+  ],
+  "acceptance": "Seven walkthroughs have passing observations across attempts 3\u20135, with distinct pinned revisions. This is not one final-source seven-test run or full native acceptance. Mac automation remains open in ST-143; final review remains ST-121 in the finishing project.",
+  "artifactHashes": {
+    "attempt-1-source.json": {
+      "sha256": "e9e36d7ef02cc2d02f0a58b5bcaa85729935163791ddb1164d99d2abfc7d0a50",
+      "bytes": 661
+    },
+    "attempt-1.log": {
+      "sha256": "c41b18dc3f181e0d2294193258f6848d6d05719f6a04dde3e2195c7d5b756a76",
+      "bytes": 691678
+    },
+    "attempt-1.patch": {
+      "sha256": "a40b843b7c9e1e94c77f1490248ad4004e60064c1a985ff8dca3b7320d02d773",
+      "bytes": 16125
+    },
+    "attempt-2-source.json": {
+      "sha256": "7b7c5bc7ccb38dc1ccd750a7ada82ea9f86aa96e7dfecf229da8dd1037cfccd2",
+      "bytes": 661
+    },
+    "attempt-2.log": {
+      "sha256": "0e0cbab6cee8ad97c27ec3fe32a1a014716cf4049d4be3a4fbea8c58e5d5ae97",
+      "bytes": 242772
+    },
+    "attempt-2.patch": {
+      "sha256": "88dd8e058bfc73f7af2773dd0d63e8210471226a8bcec8ab03213a4884333e83",
+      "bytes": 17521
+    },
+    "attempt-3-attachments-manifest.json": {
+      "sha256": "ba6aa76d5d313c76859bc4888bcb25e34cfece622160ad2465b01e2e26370dc0",
+      "bytes": 38344
+    },
+    "attempt-3-media/0D14826B-D6A4-4594-9B8F-E8465B537D25.mp4": {
+      "sha256": "3d0d0fe3ea8d01ca4cf2559a5a05aa18b3875523c208bd259c08f7d6534f3b18",
+      "bytes": 17193876
+    },
+    "attempt-3-media/44848632-A636-433D-8DDB-86148F095F8A.mp4": {
+      "sha256": "5340d4d2387904897586d3d7afe5891412ae6650e2a0b800819fe69141d76dbf",
+      "bytes": 25923636
+    },
+    "attempt-3-media/5EBD2D4F-FAA2-4BFE-8E15-48134DEB7425.png": {
+      "sha256": "dd38a1112d957e5e21fa018c208e560dfaacbba772cbb628ebcaf9a00c70d4d9",
+      "bytes": 465547
+    },
+    "attempt-3-media/8E205191-81D9-4EFF-8816-C136F69A6463.png": {
+      "sha256": "c9a778fc0339710d02702fb5c032153caa42cec9f89c6ccdd398b93b7c23cbcb",
+      "bytes": 443638
+    },
+    "attempt-3-media/8F013109-05A0-4236-B7F6-B7DCC3CE9749.png": {
+      "sha256": "558f0b5ede31b5c2d92f80a0ef81694bb8dc586f61db003ff30e9afdb9cfd007",
+      "bytes": 481755
+    },
+    "attempt-3-media/911A2922-769D-4735-A503-B2F51177ED6F.mp4": {
+      "sha256": "acbb18b072630597ec020f41fa0ba1021e496b04ba634b4b9e32b52333aa45a8",
+      "bytes": 10948120
+    },
+    "attempt-3-media/9220FE01-44F0-480A-8852-D1BA1BB12015.png": {
+      "sha256": "6f5e46ef2cb6915c8e2a27d0da1a99a38a121501e33afd8e3ad6e78b06060a51",
+      "bytes": 445635
+    },
+    "attempt-3-media/DABFCBF6-5F1E-43DA-A4DA-01CB2FC48C76.png": {
+      "sha256": "19677f8bf1b884f2b65983f487648d54e9096b571005cdb5e757c3355c467069",
+      "bytes": 431253
+    },
+    "attempt-3-media/EBEB6FF4-414B-4FD5-B7EF-3B6978748D20.png": {
+      "sha256": "8e25c6340b6de26dc160b916a6cf880f1745320576ad57bbbca09e35ac01fbd4",
+      "bytes": 442110
+    },
+    "attempt-3-source.json": {
+      "sha256": "46939a6e6ba2630b25bb332149fa339484d8eedfac2d5892128afbb89e912a09",
+      "bytes": 661
+    },
+    "attempt-3-summary.json": {
+      "sha256": "d50b0ca947906726c25dadd4b70a2c533953669f77cdad8a212710285631c803",
+      "bytes": 1042
+    },
+    "attempt-3.log": {
+      "sha256": "c4cac37f6a8a904d52259c83bf900fdd6703b416ed82a66a41468878864ff399",
+      "bytes": 99295
+    },
+    "attempt-4-source.json": {
+      "sha256": "46939a6e6ba2630b25bb332149fa339484d8eedfac2d5892128afbb89e912a09",
+      "bytes": 661
+    },
+    "attempt-4.log": {
+      "sha256": "314a995d94b79b7d0d51b01970a0e77e47e5f2992b3336f69229e79c5a4bcfe0",
+      "bytes": 37405
+    },
+    "attempt-4.patch": {
+      "sha256": "70b978fe67b6a72d8c47d5db41fea94c777adabd092f48b0cf13b715b2f231a6",
+      "bytes": 21128
+    },
+    "attempt-5-attachments-manifest.json": {
+      "sha256": "c6eb7f22be1e4e5d34dd6de4ade91433276674154637e0e66b5345c9fb6a9d9f",
+      "bytes": 13537
+    },
+    "attempt-5-media/34292E81-28D9-4968-893B-73DBFC66DBB6.png": {
+      "sha256": "08625ae3b0e39376e5723c22c0972ef0084a4455e1f89334b7801883773eed86",
+      "bytes": 432806
+    },
+    "attempt-5-media/6A41BB38-1037-4CC5-86E8-93D1FC0B962A.png": {
+      "sha256": "6aa55aea8095edf49765241973d1e89a19da3ea1060cbbd6751be12ffbf138e1",
+      "bytes": 416374
+    },
+    "attempt-5-media/C78C45F1-F8DF-49D4-A88C-59E1055F14EF.png": {
+      "sha256": "e43d8c587ef26147139d5220b3850e740201ba44a09e7e644191d8b9f450ee22",
+      "bytes": 437368
+    },
+    "attempt-5-media/D0C3C0E1-B2A2-4B82-94EC-83CD0AD2DCCC.mp4": {
+      "sha256": "0cd802c18f04e11886560a3df611618056321d05d0a7e3cd5fa1fd53617a6486",
+      "bytes": 25575982
+    },
+    "attempt-5-media/FCFD3639-B161-4B3E-9C2A-8C3EF30B5337.png": {
+      "sha256": "3a23d4ea16338d5ad1cadcef70876fcfe0a651dcbd7af938a3a90c6e4a8f00f2",
+      "bytes": 441731
+    },
+    "attempt-5-source.json": {
+      "sha256": "115bf00244a7d52d151983d9356a9091ac7993d746526a1bb66e683e5efe113f",
+      "bytes": 661
+    },
+    "attempt-5-summary.json": {
+      "sha256": "f54751cfb43705eab179bb8670e3ceddcfc79e7d8eacea20bd0b8aaac674fbef",
+      "bytes": 1042
+    },
+    "attempt-5.log": {
+      "sha256": "7f7ddcb60332fbe1aeab056b82172a5f6dae3b7210994b367142f5d91dd19aae",
+      "bytes": 46765
+    }
+  }
+}

@@ -11,7 +11,7 @@ import Observation
     var selected: [NodeID] = []
     var activeField: ReviewField?
     var activeRange = NSRange(location: 0, length: 0)
-    var requestedFocus: String?
+    var requestedFocus: ReviewFocusRequest?
     var pickerTarget: NodeID?
     var pickerOpen = false
     var pickerQuery = ""
@@ -38,6 +38,7 @@ import Observation
     var splitPreview: Double?
     var trace: [String] = []
     var jumpTarget: String?
+    var pendingOutlineTarget: String?
     var jumpSerial = 0
     var actionRevision = 0
     @ObservationIgnored var session: WritingSession
@@ -70,7 +71,21 @@ import Observation
     }
     func text(_ field: ReviewField) -> String { (try? session.text(at: session.textAddress(of: field.node, field: field.name))) ?? "" }
     func record(_ action: String) { actionRevision += 1; trace.append(action); if trace.count > 100 { trace.removeFirst() } }
-    func navigate(to id: String) { jumpTarget = id; jumpSerial += 1; record("Navigate outline to \(id)") }
+    func navigate(to id: String, afterOutlineDismissal: Bool = false) {
+        if afterOutlineDismissal {
+            pendingOutlineTarget = id
+            showOutline = false
+        } else {
+            jumpTarget = id
+            jumpSerial += 1
+            record("Navigate outline to \(id)")
+        }
+    }
+    func outlineDidDismiss() {
+        guard let target = pendingOutlineTarget else { return }
+        pendingOutlineTarget = nil
+        navigate(to: target)
+    }
     func isActive(_ rootID:String) -> Bool { activeField.flatMap { try? session.address(of:$0.node).blockID } == rootID }
     var reviewRows: [ReviewRow] {
         let members = Set(layouts.flatMap(\.members))
@@ -87,9 +102,17 @@ import Observation
     func chooseLayout(_ id:String) { activeLayoutID = id; record("Choose column layout") }
     func submitTitle() {
         guard let first = orderedOrigins.first else { return }
-        activeField = ReviewField(node:first,name:"content"); activeRange = NSRange(location:0,length:0)
-        requestedFocus = activeField?.key; record("Title Enter to body")
+        requestFocus(ReviewField(node:first,name:"content"),range:NSRange(location:0,length:0))
+        record("Title Enter to body")
     }
+    // A pending transfer owns its intended range. UIKit may report selection from
+    // the outgoing view while SwiftUI moves/replaces the native input.
+    func requestFocus(_ field:ReviewField,range:NSRange? = nil) {
+        let targetRange = range ?? (activeField == field ? activeRange : NSRange(location:0,length:0))
+        requestedFocus = ReviewFocusRequest(field:field,range:targetRange)
+        activeField = field; activeRange = targetRange
+    }
+    func restoreActiveFocus() { if let field = activeField { requestFocus(field) } }
     func perform(_ name: String, _ operation: () throws -> Void) {
         do { try operation(); error = nil; record(name) } catch { self.error = String(describing: error); record("Rejected \(name)") }
     }
@@ -121,14 +144,14 @@ import Observation
         perform("Format \(type)") {
             let address = try session.textAddress(of: field.node, field: field.name)
             try session.format(at: address, range: activeRange.location..<(activeRange.location+activeRange.length), markType: type, mark: .object(["type": .string(type)]))
-            requestedFocus = field.key
+            requestFocus(field)
         }
     }
     func convert(_ node: NodeID, to type: String) {
         perform("Convert \(type)") {
             let address = try session.textAddress(of: node)
             _ = try session.convertBlock(at: address, offset: 0, to: WritingBlockTarget(type: type, level: type == "heading" ? 2 : nil))
-            requestedFocus = ReviewField(node: node, name: "content").key
+            requestFocus(ReviewField(node: node, name: "content"))
         }
     }
     func moveSelected(down: Bool) {
@@ -142,7 +165,7 @@ import Observation
             guard (down && lastIndex < nodes.count-1) || (!down && firstIndex > 0) else { return }
             nodes.removeAll { selected.contains($0) }; nodes.insert(contentsOf:moving,at:destination)
             if isSecond { layouts[index].second = nodes } else { layouts[index].first = nodes }
-            requestedFocus = activeField?.key; record(down ? "Move range down" : "Move range up"); return
+            restoreActiveFocus(); record(down ? "Move range down" : "Move range up"); return
         }
         let order = orderedOrigins
         if down && b+1 < order.count { perform("Move range down") { _ = try session.move(WritingSelection(nodes: selected), into: .root, after: order[b+1]) } }
@@ -166,7 +189,7 @@ import Observation
         serial += 1
         let columns = ReviewLayout(id:"layout-\(serial)",leading:leading,first:selection,second:[],split:0.5)
         layouts.append(columns); activeLayoutID = columns.id
-        requestedFocus = activeField?.key
+        restoreActiveFocus()
         record("Create two-column review layout"); selected = []; pickerOpen = false; slashRange = nil
     }
     func moveToColumn(_ second:Bool) {
@@ -175,7 +198,7 @@ import Observation
         for index in layouts.indices { layouts[index].first.removeAll { moving.contains($0) }; layouts[index].second.removeAll { moving.contains($0) } }
         guard let index = layouts.firstIndex(where:{$0.id == target.id}) else { return }
         if second { layouts[index].second += moving } else { layouts[index].first += moving }
-        requestedFocus = activeField?.key
+        restoreActiveFocus()
         record(second ? "Move selected into second column" : "Move selected into first column")
     }
     func moveOutOfColumns() {
@@ -185,7 +208,7 @@ import Observation
         for index in layouts.indices { layouts[index].first.removeAll { moving.contains($0) }; layouts[index].second.removeAll { moving.contains($0) } }
         perform("Move selected out of columns") {
             _ = try session.move(WritingSelection(nodes:moving),into:.root,after:destination)
-            requestedFocus = activeField?.key
+            restoreActiveFocus()
         }
     }
     func writeEmptyColumn(_ id:String,second:Bool,text:String) {
@@ -198,7 +221,7 @@ import Observation
             let result = try session.insertCollectionNodes([.object(block.fields)],into:.root,after:before)
             guard let node = result.nodes.first else { return }
             if second { layouts[index].second.append(node) } else { layouts[index].first.append(node) }
-            activeField = ReviewField(node:node,name:"content"); activeRange = NSRange(location:text.utf16.count,length:0); requestedFocus = activeField?.key
+            requestFocus(ReviewField(node:node,name:"content"),range:NSRange(location:text.utf16.count,length:0))
         }
     }
     func removeColumns(_ id:String? = nil) {
@@ -211,7 +234,7 @@ import Observation
             // Local study flattens through existing body moves; atomic protocol-7 ownership/Undo remains ST-122.
             for node in children { _ = try session.move(WritingSelection(nodes:[node]),into:.root,after:previous); previous = node }
             layouts.removeAll { $0.id == columns.id }; splitPreview = nil; splitPreviewLayoutID = nil
-            selected = children; requestedFocus = activeField?.key
+            selected = children; restoreActiveFocus()
         }
     }
     func previewSplit(_ value:Double,layoutID:String? = nil) {
@@ -229,7 +252,7 @@ import Observation
     func cancelSplit() { splitPreview = nil; splitPreviewLayoutID = nil; showResizePanel = false; record("Cancel resize preview") }
     func openResize(_ id:String) { activeLayoutID = id; showResizePanel = true; record("Open resize panel") }
     func openPicker(after node: NodeID?) { pickerTarget = node; pickerOpen = true; pickerQuery = ""; pickerIndex = 0; slashRange = nil; record("Open contextual insert picker") }
-    func closePicker() { pickerOpen = false; slashRange = nil; record("Dismiss picker without deleting query"); if let field = activeField { requestedFocus = field.key } }
+    func closePicker() { pickerOpen = false; slashRange = nil; record("Dismiss picker without deleting query"); restoreActiveFocus() }
     func detectSlash(_ field: ReviewField) {
         guard field.name == "content", activeRange.length == 0 else { return }
         let string = text(field) as NSString, end = min(activeRange.location,string.length)
@@ -286,13 +309,14 @@ import Observation
                 default: field = ReviewField(node:node,name:"content")
                 }
                 selected = field == nil ? [node] : []
-                if let field { activeField = field; activeRange = NSRange(location:0,length:0); requestedFocus = field.key }
+                if let field { requestFocus(field,range:NSRange(location:0,length:0)) }
             }
             pickerOpen = false; slashRange = nil
         }
     }
 }
 struct ReviewField: Equatable { let node: NodeID; let name: String; var key: String { "\(node)-\(name)" } }
+struct ReviewFocusRequest:Equatable { let field:ReviewField; let range:NSRange }
 struct ReviewLayout { let id: String; let leading:NodeID?; var first: [NodeID]; var second: [NodeID]; var split: Double; var members: [NodeID] { first+second } }
 enum ReviewKey { case up, down, enter, escape }
 
