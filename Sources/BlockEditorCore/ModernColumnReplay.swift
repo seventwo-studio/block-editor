@@ -58,7 +58,9 @@ func modernColumnPlacementShape(_ placement: NodePlacementID) throws {
         try modernStructuralIdentityShape(layout); try modernStructuralIdentityShape(node)
         try modernStructuralIdentityShape(.inserted(creation: slot, path: []))
         guard slot.index == 0 else { throw EditorError.invalidChange }
-    case .role: throw EditorError.invalidChange
+    case .role(let owner, let node):
+        try modernStructuralIdentityShape(owner); try modernStructuralIdentityShape(node)
+        guard owner != node else { throw EditorError.invalidChange }
     }
 }
 func modernColumnPlacementReference(_ placement: NodePlacementID, change: ChangeID, cohort: Set<ChangeID>, registry: StructuralState) throws {
@@ -70,7 +72,9 @@ func modernColumnPlacementReference(_ placement: NodePlacementID, change: Change
         try modernReference(layout, before: change, cohort: cohort, registry: registry)
         try modernReference(node, before: change, cohort: cohort, registry: registry)
         guard cohort.contains(slot.change) else { throw EditorError.invalidChange }
-    case .role: throw EditorError.invalidChange
+    case .role(let owner, let node):
+        try modernReference(owner, before: change, cohort: cohort, registry: registry)
+        try modernReference(node, before: change, cohort: cohort, registry: registry)
     }
 }
 

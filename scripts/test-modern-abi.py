@@ -394,11 +394,46 @@ def main():
     assert rejected_opaque['status'] == 'unavailable' and rejected_opaque['transaction'] is None
     assert rejected_opaque['document'] == opaque_code_document
     assert success('modernSave', 'schema-opaque') == opaque_saved
+    # Retired peer roles remain authorable through the native command envelope.
+    retained_field = schema_cut['focus']['field']
+    retained_range = success('modernCaptureTextRange', 'schema-list-a', field=retained_field, start=1, end=1)
+    headed = command('schema-list-a', 'convertBlock', retained_range, type='heading', level=2)
+    expected_heading = dict(id='schema-tail', type='heading', level=2, checked=False, content=[dict(type='text', text='BC')])
+    assert headed['status'] == 'applied' and headed['document']['blocks'][1] == expected_heading
+    assert success('modernReceive', 'schema-list-b', batch=success('modernChanges', 'schema-list-a'))['document'] == headed['document']
+    role_saved = success('modernSave', 'schema-list-a')
+    success('restoreModern', 'role-reopened', actorID='schema-list-a', snapshot=role_saved)
+    assert command('role-reopened', 'undo')['document']['blocks'][1] == dict(id='schema-tail', type='paragraph', checked=False, content=[dict(type='text', text='BC')])
+    assert command('role-reopened', 'redo')['document']['blocks'][1] == expected_heading
+    # First/middle/last empty root exits use independently written literal plans.
+    for index in range(3):
+        items = [dict(id=f'i{i}', checked=(i == 0), content=[] if i == index else [dict(type='text', text=f'I{i}')]) for i in range(3)]
+        list_block = dict(id='list', type='list', style='todo', consumer='keep', items=items)
+        enter_document = dict(baseline, blocks=[list_block])
+        handle = f'enter-{index}'
+        column_session(handle, enter_document)
+        empty_field = dict(node=dict(baseline=dict(blockID='list', path=['items', f'i{index}'])), name='content')
+        target = success('modernCaptureTextRange', handle, field=empty_field, start=0, end=0)
+        exited = command(handle, 'splitBlock', target, newBlockID='tail')
+        paragraph = dict(id=f'i{index}', type='paragraph', checked=(index == 0), content=[])
+        if index == 0:
+            expected = [paragraph, dict(list_block, items=items[1:])]
+        elif index == 1:
+            expected = [dict(list_block, items=items[:1]), paragraph, dict(list_block, id='tail', items=items[2:])]
+        else:
+            expected = [dict(list_block, items=items[:2]), paragraph]
+        assert exited['status'] == 'applied' and exited['document']['blocks'] == expected
+        assert success('modernResolvePosition', handle, position=exited['focus'])['address']['identity'] == empty_field['node']
+        saved = success('modernSave', handle)
+        reopened = handle + '-reopened'
+        success('restoreModern', reopened, actorID=handle, snapshot=saved)
+        assert command(reopened, 'undo')['document'] == enter_document
+        assert command(reopened, 'redo')['document']['blocks'] == expected
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Remaining empty-list/list-role transitions, list structure, clipboard, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. General list structure, clipboard, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

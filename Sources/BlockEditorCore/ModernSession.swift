@@ -7,7 +7,9 @@ public enum ModernOperation: Codable, Equatable, Sendable {
     case removeColumns(layout: NodeID, source: NodePlacementID)
     case resizeColumns(layout: NodeID, splitBasisPoints: Int)
     case convertBlock(node: NodeID, type: String, attributes: [String: JSONValue])
+    case retainParagraphRole(WritingParagraphRole)
     case schemaConvert(WritingSchemaConversion)
+    case enterListItem(ModernListEnter)
     case splitBlock(ModernBlockSplit)
     case mergeBlocks(ModernBlockJoin)
     case structure(Mutation)
@@ -431,7 +433,14 @@ public final class ModernSession {
     func performReturning<Result>(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil,
         result makeResult: ((WritingProjection, ModernDocument, StructuralState), [ChangeID]) throws -> Result) throws -> Result {
         try authoringAllowed()
-        let change = ModernChange(id: id, observed: frontier(log), body: .edit(operations))
+        let roles = try planWritingParagraphRoles(for: modernRoleTargets(operations), structure: structure,
+            changes: modernProjectionChanges(Array(log.values)), frontier: frontier(log)) {
+                modernRetirement(log[$0]!, owner: $1, node: $2, changes: log)
+            }.map { operation -> ModernOperation in
+                guard case .retainParagraphRole(let role) = operation else { preconditionFailure() }
+                return .retainParagraphRole(role)
+            }
+        let change = ModernChange(id: id, observed: frontier(log), body: .edit(roles + operations))
         var candidate = log; candidate[id] = change; try capacity(candidate)
         let result = try replay(candidate), outcome = try makeResult(result, frontier(candidate))
         if let group, group == typingGroup, !undoStack.isEmpty { undoStack[undoStack.count - 1].append(id) }
@@ -515,7 +524,9 @@ public final class ModernSession {
         let schemaFields = Set(ordered.flatMap { change -> [WritingField] in
             guard case .edit(let operations) = change.body else { return [] }
             return operations.flatMap { operation -> [WritingField] in
-                if case .schemaConvert(let conversion) = operation { return [conversion.source, conversion.destination] }; return []
+                if case .schemaConvert(let conversion) = operation { return [conversion.source, conversion.destination] }
+                if case .enterListItem(let enter) = operation { return enter.operations.flatMap { if case .schemaConvert(let conversion) = $0 { return [conversion.source, conversion.destination] }; return [] } }
+                return []
             }
         })
         let registeredSeeds = seedWritingAtoms(registeredBirths)
@@ -528,6 +539,7 @@ public final class ModernSession {
         var routes: [ModernColumnRoute] = []
         var appearance = baseline.fields["appearance"]!.object!
         var previousAuthor: [String: ChangeID] = [:]
+        var exposures: [[ChangeID]: StructuralState] = [:]
         for change in ordered {
             guard validModernChangeID(change.id) else { throw EditorError.invalidChange }
             let cohort = try closure(change.observed, before: change.id, in: candidate)
@@ -543,6 +555,8 @@ public final class ModernSession {
             case .edit(let operations):
                 guard !operations.isEmpty, operations.count <= 100_000 else { throw EditorError.invalidChange }
                 var introduced = Set<ElementID>(), registers = Set<String>()
+                let beforeRoleNodes = raw.structure!.nodes
+                var retainedRoles = Set<NodeID>(), passedRolePrefix = false
                 var causalTextProjection: WritingProjection?
                 func reference(_ key: WritingAtomKey) throws {
                     try modernReference(key.origin.node, before: change.id, cohort: cohort, registry: registry)
@@ -557,7 +571,47 @@ public final class ModernSession {
                     for key in keys { try reference(key) }
                 }
                 for operation in operations {
+                    if case .retainParagraphRole = operation { guard !passedRolePrefix else { throw EditorError.invalidChange } }
+                    else { passedRolePrefix = true }
                     switch operation {
+                    case .retainParagraphRole(let role):
+                        try validateModernRoleShape(role, change: change.id)
+                        guard retainedRoles.insert(role.node).inserted else { throw EditorError.invalidChange }
+                        try modernReference(role.owner, before: change.id, cohort: cohort, registry: registry)
+                        try modernReference(role.node, before: change.id, cohort: cohort, registry: registry)
+                        if let after = role.after { try modernColumnPlacementReference(after, change: change.id, cohort: cohort, registry: registry) }
+                        let exposedIDs = try closure(role.exposure, before: change.id, in: candidate)
+                        guard exposedIDs.isSubset(of: cohort), exposedIDs.contains(role.retirement),
+                              let proof = candidate[role.retirement], modernRetirement(proof, owner: role.owner, node: role.node, changes: candidate),
+                              raw.structure!.nodes[role.owner]?.kind == .block,
+                              let value = raw.structure!.nodes[role.node], value.birthKind == .item,
+                              births[WritingField(node: role.node, name: "content")] != nil,
+                              value.kind == .item || (value.kind == .block && raw.structure!.placements[.role(owner: role.owner, node: role.node)] != nil) else { throw EditorError.invalidChange }
+                        if case .inserted(let creation, _) = role.node { guard exposedIDs.contains(creation.change) else { throw EditorError.invalidChange } }
+                        let exposure: StructuralState
+                        if let cached = exposures[role.exposure] { exposure = cached }
+                        else { exposure = try causalWritingReplay(exposedIDs, in: candidate).1; exposures[role.exposure] = exposure }
+                        let selected = try exposure.effectivePlacements()
+                        guard exposure.visibleNodes(selected).contains(role.node), exposure.nodes[role.node]?.kind == .block,
+                              exposure.nodes[role.node]?.fields["type"] == .string("paragraph"),
+                              selected[role.node]?.id == .role(owner: role.owner, node: role.node) else { throw EditorError.invalidChange }
+                        var itemOwners = Set<NodeID>()
+                        for prior in ordered where cohort.contains(prior.id) {
+                            guard case .edit(let shared) = modernProjectionChanges([prior])[0].body else { continue }
+                            for operation in shared {
+                                if case .schemaConvert(let conversion) = operation, conversion.node == role.owner {
+                                    if conversion.type == "list" { itemOwners.insert(conversion.destination.node) }
+                                    if conversion.source.node != conversion.node { itemOwners.insert(conversion.source.node) }
+                                }
+                            }
+                        }
+                        guard raw.structure!.placements.values.contains(where: {
+                            $0.node == role.node && ($0.collection == NodeCollection(owner: role.owner, field: "items") ||
+                                ($0.collection.field == "children" && $0.collection.owner.map { itemOwners.contains($0) } == true) ||
+                                $0.id == .role(owner: role.owner, node: role.node))
+                        }) else { throw EditorError.invalidChange }
+                        try applyWritingParagraphRole(node: role.node, owner: role.owner, after: role.after,
+                            enabled: active[change.id] ?? true, raw: &raw, placementShape: projectModernColumnRoutes(raw.structure!, routes: routes))
                     case .structure(let mutation):
                         try validateModernStructure(mutation, change: change.id, cohort: cohort, registry: registry, structure: projectModernColumnRoutes(raw.structure!, routes: routes), introduced: &introduced)
                         try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
@@ -611,6 +665,22 @@ public final class ModernSession {
                         try validateModernSchemaConversion(conversion, change: change.id, structure: authored.1, projection: authored.0)
                         try applyWritingSchemaConversion(conversion, change: change.id, enabled: active[change.id] ?? true,
                             raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced, modern: true)
+                    case .enterListItem(let enter):
+                        for node in modernEnterTransitions(enter) { guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange } }
+                        try validateTargetScope(enter.range.start.documentID, enter.range.start.epoch)
+                        try validateTargetScope(enter.range.end.documentID, enter.range.end.epoch)
+                        let capturedIDs = try closure(enter.range.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        let capturedChanges = ordered.filter { capturedIDs.contains($0.id) }
+                        for position in [enter.range.start, enter.range.end] {
+                            if let anchor = position.anchor { guard modernRelatedFields(anchor.origin, position.field, changes: capturedChanges) else { throw EditorError.invalidChange } }
+                        }
+                        let captured = try causalWritingReplay(capturedIDs, in: candidate), authored = try causalWritingReplay(cohort, in: candidate)
+                        guard try enter == planModernEmptyEnter(range: enter.range, newBlockID: enter.newBlockID, change: change.id, captured: captured, authored: authored) else { throw EditorError.invalidChange }
+                        let roles = try applyModernEmptyEnter(enter, change: change.id, enabled: active[change.id] ?? true, raw: &raw,
+                            births: &births, collectionBirths: &collectionBirths, introduced: &introduced,
+                            placementShape: projectModernColumnRoutes(raw.structure!, routes: routes))
+                        retainedRoles.formUnion(roles)
                     case .splitBlock(let split):
                         try validateTargetScope(split.range.start.documentID, split.range.start.epoch)
                         try validateTargetScope(split.range.end.documentID, split.range.end.epoch)
@@ -679,6 +749,7 @@ public final class ModernSession {
                         }
                     }
                 }
+                if !(active[change.id] ?? true) { for node in retainedRoles { raw.structure!.nodes[node] = beforeRoleNodes[node] } }
             }
         }
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(ordered), births: births,
@@ -702,8 +773,14 @@ public final class ModernSession {
         for change in subset.values.sorted(by: { $0.id < $1.id }) {
             guard case .edit(let operations) = change.body else { continue }
             let enabled = active[change.id] ?? true
+            let beforeRoleNodes = raw.structure!.nodes
+            var retainedRoles = Set<NodeID>()
             for operation in operations {
                 switch operation {
+                case .retainParagraphRole(let role):
+                    retainedRoles.insert(role.node)
+                    try applyWritingParagraphRole(node: role.node, owner: role.owner, after: role.after, enabled: enabled,
+                        raw: &raw, placementShape: projectModernColumnRoutes(raw.structure!, routes: routes))
                 case .structure(let mutation):
                     try apply([mutation], enabled: enabled, to: &raw)
                     retainModernFieldBirths(in: raw.structure!, births: &births)
@@ -726,6 +803,12 @@ public final class ModernSession {
                     var introduced = Set<ElementID>()
                     try applyWritingSchemaConversion(conversion, change: change.id, enabled: enabled,
                         raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced, modern: true)
+                case .enterListItem(let enter):
+                    var introduced = Set<ElementID>()
+                    let roles = try applyModernEmptyEnter(enter, change: change.id, enabled: enabled, raw: &raw,
+                        births: &births, collectionBirths: &collectionBirths, introduced: &introduced,
+                        placementShape: projectModernColumnRoutes(raw.structure!, routes: routes))
+                    retainedRoles.formUnion(roles)
                 case .splitBlock(let split):
                     try applyModernSplitBirth(split, enabled: enabled, raw: &raw, collectionBirths: collectionBirths)
                     retainModernFieldBirths(in: raw.structure!, births: &births)
@@ -735,6 +818,7 @@ public final class ModernSession {
                 case .setAppearance: break
                 }
             }
+            if !enabled { for node in retainedRoles { raw.structure!.nodes[node] = beforeRoleNodes[node] } }
         }
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(subset.values.sorted { $0.id < $1.id }),
             births: births, protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
@@ -751,11 +835,13 @@ public final class ModernSession {
             case .edit(let operations):
                 guard operations.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
                 for operation in operations {
+                    if case .retainParagraphRole(let role) = operation { try validateModernRoleShape(role, change: change.id) }
                     if case .schemaConvert(let conversion) = operation {
                         try inspectModernPayload(.object(conversion.attributes))
                         try inspectModernPayload(.object(conversion.preservedItemFields))
                         try validateModernSchemaShape(conversion, change: change.id)
                     }
+                    if case .enterListItem(let enter) = operation { try validateModernEnterShape(enter, change: change.id) }
                     if case .splitBlock(let split) = operation {
                         try inspectModernPayload(split.value); try validateModernSplitShape(split, change: change.id)
                     }
@@ -829,14 +915,36 @@ public final class ModernSession {
                 guard !targets.isEmpty, Set(targets).count == targets.count, targets.allSatisfy({ validModernChangeID($0) && $0.actor == change.id.actor && $0 < change.id }) else { throw EditorError.invalidChange }
             case .edit(let operations):
                 guard !operations.isEmpty else { throw EditorError.invalidChange }
-                var elements = Set<ElementID>(), registers = Set<String>()
+                var elements = Set<ElementID>(), registers = Set<String>(), roles = Set<NodeID>()
+                var passedRolePrefix = false
                 for operation in operations {
+                    if case .retainParagraphRole = operation { guard !passedRolePrefix else { throw EditorError.invalidChange } }
+                    else { passedRolePrefix = true }
                     switch operation {
+                    case .retainParagraphRole(let role):
+                        try validateModernRoleShape(role, change: change.id)
+                        guard roles.insert(role.node).inserted else { throw EditorError.invalidChange }
                     case .schemaConvert(let conversion):
                         try validateModernSchemaShape(conversion, change: change.id)
                         try fieldShape(conversion.source)
                         if let creation = conversion.creation { guard elements.insert(creation).inserted else { throw EditorError.invalidChange } }
                         guard registers.insert("convert:" + conversion.node.key).inserted else { throw EditorError.invalidChange }
+                    case .enterListItem(let enter):
+                        for node in modernEnterTransitions(enter) { guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange } }
+                        try validateModernEnterShape(enter, change: change.id)
+                        try validateTargetScope(enter.range.start.documentID, enter.range.start.epoch)
+                        try validateTargetScope(enter.range.end.documentID, enter.range.end.epoch)
+                        try fieldShape(enter.range.start.field)
+                        for position in [enter.range.start, enter.range.end] { if let anchor = position.anchor { try referenceShape(anchor) } }
+                        for operation in enter.operations {
+                            if case .structure(let mutation) = operation {
+                                switch mutation {
+                                case .insertNode(_, _, _, let element, _), .moveNode(_, _, let element, _):
+                                    guard elements.insert(element).inserted else { throw EditorError.invalidChange }
+                                default: throw EditorError.invalidChange
+                                }
+                            }
+                        }
                     case .splitBlock(let split):
                         try validateModernSplitShape(split, change: change.id)
                         try validateTargetScope(split.range.start.documentID, split.range.start.epoch)
@@ -955,7 +1063,7 @@ private func decodeModernBatch(_ value: JSONValue) throws -> ModernBatch {
     return ModernBatch(documentID: wire.documentID, epoch: wire.epoch, baseline: try ModernDocument(fields: baseline), changes: wire.changes, version: wire.version)
 }
 
-private func inspectModernPayload(_ value: JSONValue) throws {
+func inspectModernPayload(_ value: JSONValue) throws {
     var pending = [(value, 0)]
     while let (value, depth) = pending.popLast() {
         guard depth <= 100 else { throw EditorError.invalidChange }

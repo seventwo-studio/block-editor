@@ -33,7 +33,7 @@ public struct ModernBlockJoin: Codable, Equatable, Sendable {
 func validateModernSplitShape(_ split: ModernBlockSplit, change: ChangeID) throws {
     guard split.creation.change == change, split.creation.index >= 0, split.creation.index <= 2_147_483_647,
           split.range.start.field == split.range.end.field, split.source.name == "content",
-          split.range.start.field.name == "content", split.range.observed.count <= 100_000,
+          ["content", "code"].contains(split.range.start.field.name), split.range.observed.count <= 100_000,
           split.value["id"]?.string?.isEmpty == false else { throw EditorError.invalidChange }
     try modernStructuralIdentityShape(split.source.node)
     try modernStructuralIdentityShape(split.range.start.field.node)
@@ -78,7 +78,6 @@ func planModernSplit(range: ModernTextRange, creation: ElementID, label: String,
           !siblings.contains(where: { authored.1.nodes[$0]?.label == label }) else { throw EditorError.invalidChange }
     var fields: [String: JSONValue]
     if original.kind == .item {
-        if captured.0.text(in: capturedField).isEmpty && lower == upper { throw ModernSessionError.unavailable("emptyListEnterPending") }
         fields = original.fields; fields["id"] = .string(label); fields["content"] = .array([])
         if original.collections.contains("children") { fields["children"] = .array([]) }
         var owner = parent.collection.owner
@@ -114,6 +113,9 @@ func modernRelatedFields(_ first: WritingField, _ second: WritingField, changes:
             let pair: (WritingField, WritingField)
             switch operation {
             case .schemaConvert(let conversion): pair = (conversion.source, conversion.destination)
+            case .enterListItem(let enter):
+                guard let conversion = enter.operations.compactMap({ if case .schemaConvert(let value) = $0 { return value }; return nil }).first else { continue }
+                pair = (conversion.source, conversion.destination)
             case .splitBlock(let split): pair = (split.source, split.destination)
             case .mergeBlocks(let join) where join.selection.nodes.count == 2: pair = (join.source, join.destination)
             default: continue
@@ -138,17 +140,12 @@ extension ModernSession {
         if first.address == last.address, first.offset == last.offset {
             let caret = try modernCapturedCaret(range), source = caret.field
             if structure.nodes[source.node]?.kind == .item,
-               modernCurrentReplay.0.nodes(in: source).isEmpty,
-               let parent = try structure.effectivePlacements()[source.node],
-               parent.collection.field == "items", let owner = parent.collection.owner,
-               structure.nodes[owner]?.kind == .block, structure.nodes[owner]?.fields["type"] == .string("list"),
-               try structure.visibleOrder(in: parent.collection) == [source.node] {
+               modernCurrentReplay.0.nodes(in: source).allSatisfy({ $0["type"] == .string("text") && ($0["text"]?.string ?? "").isEmpty }) {
                 let id = try nextID()
-                let conversion = try planWritingSchemaConversion(source: source, target: WritingBlockTarget(type: "paragraph"),
-                    id: id, structure: structure, projection: modernCurrentReplay.0)
-                try validateModernSchemaShape(conversion, change: id)
+                let enter = try planModernEmptyEnter(range: range, newBlockID: newBlockID, change: id,
+                    captured: (captured.0, captured.2), authored: (modernCurrentReplay.0, structure))
                 endTypingGroup()
-                return try performReturning(id, [.schemaConvert(conversion)]) { _, _ in
+                return try performReturning(id, [.enterListItem(enter)]) { _, _ in
                     ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
                 }
             }

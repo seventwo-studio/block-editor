@@ -165,16 +165,19 @@ import Testing
         try a.redo(); try a.redo(); try a.delete(head.field.node)
         #expect(throws: EditorError.self) { try a.resolve(head) }
     }
-    @Test func nestedEmptyChecklistEnterRemainsExplicitlyUnavailableWithoutLosingPeerContent() throws {
+    @Test func nestedEmptyChecklistEnterOutdentsAndRetainsHistory() throws {
         let a = try session("a","mixed"), f = try field(a,NodeAddress("toggle",path:["children","todo","items","same"]))
         try a.replaceText(in:f,range:0..<10,with:"")
         _ = try a.splitBlock(in:a.captureTextRange(in:f,start:0,end:0),newBlockID:"unused")
         try a.undo()
-        // A sole root exit is implemented; nested and multi-item roles remain.
+        // A nested item outdents while retaining its origin and child history.
         let nested = try field(a,NodeAddress("toggle",path:["children","todo","items","same","children","child"]))
         try a.replaceText(in:nested,range:0..<11,with:"")
-        let saved = try a.save()
-        #expect(throws: ModernSessionError.unavailable("emptyListEnterPending")) { try a.splitBlock(in:a.captureTextRange(in:nested,start:0,end:0),newBlockID:"unused") }
-        #expect(try a.save() == saved)
+        let before = a.document
+        _ = try a.splitBlock(in:a.captureTextRange(in:nested,start:0,end:0),newBlockID:"unused")
+        #expect(try a.node(at:NodeAddress("toggle",path:["children","todo","items","child"])) == nested.node)
+        let reopened = try ModernSession.restore(a.save(),actorID:"a")
+        try reopened.undo(); #expect(reopened.document == before)
+        try reopened.redo(); #expect(reopened.document == a.document)
     }
 }

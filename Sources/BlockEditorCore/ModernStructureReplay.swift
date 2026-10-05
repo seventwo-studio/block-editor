@@ -53,6 +53,22 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                     registry.register(.object(item), identity: conversion.destination.node, kind: .item, active: true)
                 }
                 births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: conversion.type == "code" ? .string("") : .array([]), active: true)
+            case .enterListItem(let enter):
+                try validateModernEnterShape(enter, change: change.id)
+                for operation in enter.operations {
+                    if case .schemaConvert(let conversion) = operation {
+                        births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: .array([]), active: true)
+                    }
+                    if case .structure(let mutation) = operation {
+                        switch mutation {
+                        case .insertNode(let value, let identity, _, let placement, _):
+                            guard introduced.insert(placement).inserted, registry.nodes[identity] == nil else { throw EditorError.invalidChange }
+                            registry.register(value, identity: identity, kind: .block, active: true)
+                        case .moveNode(_, _, let placement, _): guard introduced.insert(placement).inserted else { throw EditorError.invalidChange }
+                        default: throw EditorError.invalidChange
+                        }
+                    }
+                }
             case .splitBlock(let split):
                 try validateModernSplitShape(split, change: change.id)
                 guard introduced.insert(split.creation).inserted, registry.nodes[split.identity] == nil else { throw EditorError.invalidChange }
@@ -65,7 +81,7 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
             default: break
             }
             switch operation {
-            case .structure(.insertNode), .createColumns, .splitBlock: retainModernFieldBirths(in: registry, births: &births)
+            case .structure(.insertNode), .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
             default: break
             }
         }

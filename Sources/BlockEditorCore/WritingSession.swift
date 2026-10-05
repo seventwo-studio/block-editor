@@ -1355,7 +1355,7 @@ public final class WritingSession {
                   validToken(role.retirement.actor), role.retirement < change.id,
                   !role.exposure.isEmpty, role.exposure.count <= 100_000 else { throw EditorError.invalidChange }
             let owner = try roleNode(role.owner, before: change.id)
-            var value = try roleNode(role.node, before: change.id)
+            let value = try roleNode(role.node, before: change.id)
             try roleAnchor(role.after, before: change.id)
             let cohort = try observedClosure(role.exposure, before: change.id, in: candidate)
             guard cohort.contains(role.retirement) else { throw EditorError.invalidChange }
@@ -1392,36 +1392,8 @@ public final class WritingSession {
                     ($0.collection.field == "children" && $0.collection.owner.map { itemOwners.contains($0) } == true) ||
                     $0.id == .role(owner: role.owner, node: role.node))
             }) else { throw EditorError.invalidChange }
-            guard value.kind != .item || value.fields["type"] == nil || value.fields["type"] == .string("paragraph") else {
-                throw EditorError.invalidDocument("Peer item role metadata collision")
-            }
-            let selected = try raw.structure!.effectivePlacements()
-            guard let root = selected[role.owner] else { throw EditorError.invalidDocument("Retired role owner is unavailable") }
-            let id = NodePlacementID.role(owner: role.owner, node: role.node)
-            let priority = raw.structure?.placements[id]?.rolePriority
-            let origin = raw.structure?.placements[id]?.roleOrigin
-            guard role.after != id else { throw EditorError.invalidChange }
-            if let after = role.after {
-                guard let anchor = raw.structure?.placements[after] else { throw WritingProjectionError.missingAtom }
-                guard anchor.collection == root.collection else { throw EditorError.invalidDocument("Retained role anchor moved between collections") }
-            }
-            if let existing = raw.structure?.placements[id], existing.collection != root.collection {
-                throw EditorError.invalidDocument("Retired role owner moved between collections")
-            }
-            let enabled = active[change.id] ?? true
-            if value.kind == .item { value.kind = .block; value.fields["type"] = .string("paragraph") }
-            raw.structure?.nodes[role.node] = value
-            if enabled {
-                raw.structure?.touched.insert(role.node)
-                for (key, old) in raw.structure!.placements where old.node == role.node && old.active {
-                    raw.structure?.placements[key] = StructuralState.Placement(id: old.id, after: old.after,
-                        node: old.node, collection: old.collection, active: false, rolePriority: old.rolePriority, roleOrigin: old.roleOrigin)
-                }
-            }
-            if enabled || raw.structure?.placements[id] == nil {
-                raw.structure?.placements[id] = StructuralState.Placement(id: id, after: role.after,
-                    node: role.node, collection: root.collection, active: enabled, rolePriority: priority, roleOrigin: origin)
-            }
+            try applyWritingParagraphRole(node: role.node, owner: role.owner, after: role.after,
+                enabled: active[change.id] ?? true, raw: &raw)
         }
         var available = Set<WritingAtomKey>()
         func seededKeys(_ shape: StructuralState) -> Set<WritingAtomKey> {
@@ -1453,34 +1425,13 @@ public final class WritingSession {
                     guard let original = raw.structure?.placements[source] else { throw WritingProjectionError.missingAtom }
                     guard original.node == identity, original.collection == NodeCollection(owner: owner, field: "items") else { throw EditorError.invalidChange }
                     let wrapper = try roleNode(owner, before: change.id)
-                    var item = try roleNode(identity, before: change.id)
+                    let item = try roleNode(identity, before: change.id)
                     guard wrapper.kind == .block, item.birthKind == .item,
                           births[WritingField(node: identity, name: "content")] != nil,
                           raw.structure!.placements.values.contains(where: { $0.node == identity && $0.collection == NodeCollection(owner: owner, field: "items") }),
                           item.kind == .item || raw.structure?.placements[.role(owner: owner, node: identity)] != nil else { throw EditorError.invalidChange }
-                    guard item.kind != .item || item.fields["type"] == nil else { throw EditorError.invalidDocument("Exited item type metadata collision") }
-                    let placements = try raw.structure!.effectivePlacements()
-                    guard let root = placements[owner] else { throw EditorError.invalidDocument("Exited item owner unavailable") }
-                    let placement = NodePlacementID.role(owner: owner, node: identity)
-                    guard after != placement else { throw EditorError.invalidChange }
-                    if let after {
-                        guard let anchor = raw.structure?.placements[after] else { throw WritingProjectionError.missingAtom }
-                        guard anchor.collection == root.collection else { throw EditorError.invalidChange }
-                    }
-                    if item.kind == .item { item.kind = .block; item.fields["type"] = .string("paragraph") }
-                    raw.structure?.nodes[identity] = item
-                    let enabled = active[change.id] ?? true
-                    if enabled {
-                        raw.structure?.touched.insert(identity)
-                        for (key, old) in raw.structure!.placements where old.node == identity && old.active {
-                            raw.structure?.placements[key] = StructuralState.Placement(id: old.id, after: old.after, node: old.node, collection: old.collection, active: false, rolePriority: old.rolePriority, roleOrigin: old.roleOrigin)
-                        }
-                    }
-                    if enabled || raw.structure?.placements[placement] == nil {
-                        raw.structure?.placements[placement] = StructuralState.Placement(id: placement, after: after,
-                            node: identity, collection: root.collection, active: enabled,
-                            rolePriority: ElementID(change: change.id, index: 0), roleOrigin: source)
-                    }
+                    try applyWritingListExit(node: identity, owner: owner, source: source, after: after,
+                        change: change.id, enabled: active[change.id] ?? true, raw: &raw)
                 } else { passedRolePrefix = true }
             }
             if operations.contains(where: { if case .retainParagraphRole = $0 { return true }; return false }) {
@@ -2524,48 +2475,14 @@ extension WritingSession {
         guard let index = siblings.firstIndex(of: source) else { throw EditorError.invalidPath }
         let empty = projection.nodes(in: selected.field).allSatisfy { $0["type"] == .string("text") && ($0["text"]?.string ?? "").isEmpty }
         if empty, range.isEmpty {
-            if let immediate = parent.collection.owner, structure.nodes[immediate]?.kind == .item {
-                guard let outer = placements[immediate] else { throw EditorError.invalidPath }
-                guard !(try structure.visibleOrder(in: outer.collection)).contains(where: { $0 != source && structure.nodes[$0]?.label == value.label }) else { throw EditorError.invalidChange }
-                let id = try nextID(), placement = ElementID(change: id, index: 0)
-                try perform(id, [.structure(.moveNode(identity: source, collection: outer.collection, placement: placement, after: outer.id))])
-                return selected.position
+            let nested = parent.collection.owner.flatMap { structure.nodes[$0]?.kind } == .item
+            if !nested {
+                try requireAuthoredType("paragraph")
+                if siblings.count > 1, index > 0, index + 1 < siblings.count { try requireAuthoredType("list") }
             }
-            if usesRetainedOrigins, siblings.count == 1 {
-                let id = try nextID(), operation = try schemaConversion(at: address, target: WritingBlockTarget(type: "paragraph"), id: id)
-                try perform(id, [.schemaConvert(operation)])
-                return selected.position
-            }
-            guard siblings.count > 1, let listPlacement = placements[owner] else { throw EditorError.invalidChange }
-            try requireAuthoredType("paragraph")
-            guard !value.fields.keys.contains("type"),
-                  !structure.placements.values.contains(where: { $0.collection == listPlacement.collection && $0.node != owner && $0.node != source && structure.nodes[$0.node]?.label == value.label }) else { throw EditorError.invalidChange }
-            let id = try nextID(), role = NodePlacementID.role(owner: owner, node: source)
-            var operations: [WritingOperation] = [.exitListItem(node: source, owner: owner, source: parent.id,
-                after: listPlacement.id)]
-            if index == 0 {
-                // Keep the original list owner as the tail, and move its root
-                // placement after the exiting first item's retained role.
-                operations.append(.structure(.moveNode(identity: owner, collection: listPlacement.collection,
-                    placement: ElementID(change: id, index: 0), after: role)))
-            } else if index + 1 < siblings.count {
-                try requireAuthoredType("list")
-                guard !newItemID.isEmpty, newItemID != value.label,
-                      !structure.placements.values.contains(where: { $0.collection == listPlacement.collection && structure.nodes[$0.node]?.label == newItemID }) else { throw EditorError.invalidChange }
-                let creation = ElementID(change: id, index: 0), tail = NodeID.inserted(creation: creation, path: [])
-                var fields = structure.nodes[owner]!.fields
-                fields["id"] = .string(newItemID); fields["items"] = .array([])
-                operations.append(.structure(.insertNode(value: .object(fields), identity: tail,
-                    collection: listPlacement.collection, placement: creation, after: role)))
-                var after: NodePlacementID?
-                for (offset, item) in siblings[(index + 1)...].enumerated() {
-                    let placement = ElementID(change: id, index: offset + 1)
-                    operations.append(.structure(.moveNode(identity: item, collection: NodeCollection(owner: tail, field: "items"),
-                        placement: placement, after: after)))
-                    after = .edit(placement)
-                }
-            }
-            try perform(id, operations)
+            let id = try nextID()
+            try perform(id, planWritingEmptyListEnter(source: selected.field, id: id, newItemID: newItemID,
+                structure: structure, projection: projection))
             return selected.position
         }
         if usesRetainedOrigins { try requireAuthoredType("list") }
@@ -2644,45 +2561,18 @@ public struct WritingParagraphRole: Codable, Equatable, Sendable {
 private func retirement(_ change: WritingChange, belongsTo owner: NodeID, node: NodeID? = nil, in changes: [ChangeID: WritingChange]) -> Bool {
     switch change.body {
     case .edit(let operations):
-        return operations.contains { operation in
-            if case .schemaConvert(let conversion) = operation { return conversion.node == owner && conversion.type != "list" && conversion.source.node != owner }
-            if case .exitListItem(let exited, let wrapper, _, _) = operation { return wrapper == owner && exited == node }
-            return false
-        }
+        return writingRetirementOperations(operations, owner: owner, node: node)
     case .setActive(let target, let enabled):
         guard !enabled, let original = changes[target], case .edit(let operations) = original.body else { return false }
-        return operations.contains { operation in
-            if case .schemaConvert(let conversion) = operation { return conversion.node == owner && conversion.type == "list" }
-            return false
-        }
+        return writingListCreationOperations(operations, owner: owner)
     }
 }
 extension WritingSession {
     private func retainedRoleOperations(for identities: [NodeID]) throws -> [WritingOperation] {
         guard usesRetainedOrigins else { return [] }
-        let selected = try structure.effectivePlacements()
-        var visiting = Set<NodeID>(), done = Set<NodeID>(), result: [WritingOperation] = []
-        func visit(_ identity: NodeID) throws {
-            guard !done.contains(identity), let placement = selected[identity], case .role(let owner, let node) = placement.id else { return }
-            guard visiting.insert(identity).inserted else { throw EditorError.invalidChange }
-            guard node == identity, let proof = log.values.sorted(by: { $1.id < $0.id }).first(where: {
-                      retirement($0, belongsTo: owner, node: identity, in: log)
-                  }) else { throw EditorError.invalidChange }
-            let after = placement.after
-            if let after, case .role(_, let predecessor) = after, selected[predecessor]?.id == after { try visit(predecessor) }
-            let prior = log.values.sorted(by: { $1.id < $0.id }).compactMap { change -> WritingParagraphRole? in
-                guard case .edit(let operations) = change.body else { return nil }
-                return operations.compactMap { operation -> WritingParagraphRole? in
-                    if case .retainParagraphRole(let role) = operation, role.node == identity, role.owner == owner { return role }
-                    return nil
-                }.first
-            }.first
-            result.append(.retainParagraphRole(WritingParagraphRole(node: identity, owner: owner,
-                retirement: prior?.retirement ?? proof.id, exposure: prior?.exposure ?? observedFrontier(log), after: after)))
-            visiting.remove(identity); done.insert(identity)
+        return try planWritingParagraphRoles(for: identities, structure: structure, changes: Array(log.values), frontier: observedFrontier(log)) {
+            retirement(log[$0]!, belongsTo: $1, node: $2, in: log)
         }
-        for identity in Set(identities).sorted(by: { $0.key < $1.key }) { try visit(identity) }
-        return result
     }
 }
 
