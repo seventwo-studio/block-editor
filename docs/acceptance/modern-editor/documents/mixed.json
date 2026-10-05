@@ -1,0 +1,167 @@
+{
+  "format": "seventwo.block-editor.document",
+  "formatVersion": 1,
+  "documentID": "st140-mixed",
+  "title": "Field notes",
+  "appearance": {
+    "fontFamily": "sans",
+    "fontSize": "default",
+    "pageWidth": "readable"
+  },
+  "blocks": [
+    {
+      "id": "A",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Bold ",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "italic",
+          "marks": [
+            {
+              "type": "italic"
+            }
+          ]
+        },
+        {
+          "type": "entity-ref",
+          "label": "世界😀",
+          "entityId": "consumer:world",
+          "entityType": "fixture-page"
+        },
+        {
+          "type": "text",
+          "text": " link",
+          "marks": [
+            {
+              "type": "link",
+              "href": "https://example.org/notes"
+            }
+          ]
+        }
+      ],
+      "consumer": {
+        "opaque": "retain-A"
+      }
+    },
+    {
+      "id": "toggle",
+      "type": "toggle",
+      "summary": [
+        {
+          "type": "text",
+          "text": "Details"
+        }
+      ],
+      "children": [
+        {
+          "id": "child",
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Nested paragraph"
+            }
+          ]
+        },
+        {
+          "id": "todo",
+          "type": "list",
+          "style": "todo",
+          "items": [
+            {
+              "id": "same",
+              "checked": false,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Check this"
+                }
+              ],
+              "children": [
+                {
+                  "id": "child",
+                  "checked": true,
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Nested task"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "consumer": {
+        "opaque": "keep-toggle"
+      }
+    },
+    {
+      "id": "list",
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        {
+          "id": "same",
+          "content": [
+            {
+              "type": "text",
+              "text": "Parent item"
+            }
+          ],
+          "children": [
+            {
+              "id": "child",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Nested list item"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "code",
+      "type": "code",
+      "language": "swift",
+      "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n"
+    },
+    {
+      "id": "media",
+      "type": "image",
+      "src": "asset://st140/coast",
+      "alt": "Local coastline image",
+      "caption": [
+        {
+          "type": "text",
+          "text": "Caption"
+        }
+      ],
+      "consumer": {
+        "assetID": "fixture-only"
+      }
+    },
+    {
+      "id": "opaque",
+      "type": "consumer-card",
+      "payload": {
+        "id": "do-not-freshen",
+        "text": "Untyped original"
+      },
+      "contentVersion": 42
+    }
+  ]
+}

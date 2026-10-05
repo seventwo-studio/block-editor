@@ -1,0 +1,146 @@
+{
+  "contractVersion": 1,
+  "hosts": {
+    "macOS": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "full",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "keyboard/pointer"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": null
+    },
+    "iPhone": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "full",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "touch/system keyboard",
+        "hardware keyboard where supported"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": null
+    },
+    "iPad": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "full",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "touch/system keyboard",
+        "hardware keyboard where supported"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": null
+    },
+    "Android": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "full",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "touch/system keyboard",
+        "hardware keyboard where supported"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": null
+    },
+    "visionOS": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "full",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "native focus/input; gestures and keyboard verified separately"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": null
+    },
+    "ReactWASM": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "full",
+      "requiredRuntimes": [
+        "Chromium",
+        "WebKit",
+        "Firefox"
+      ],
+      "interaction": [
+        "keyboard/pointer/touch where supported"
+      ],
+      "acceptanceOwner": "ST-104",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": null
+    },
+    "watchOS": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "reading/text/checklist/reorder; rich/layout metadata preserved",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "native touch/crown/focus"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": "Full creation/conversion/column resize absent by agreed reduced-host policy; preservation and permitted edits still required."
+    },
+    "tvOS": {
+      "sharedSemanticFixtures": "All admitted modern/preservation scenarios, including reduced-host incoming content",
+      "authoring": "reading/text/checklist/reorder; rich/layout metadata preserved",
+      "requiredRuntimes": [
+        "source minimum runtime and a recorded current supported runtime"
+      ],
+      "interaction": [
+        "native remote/focus/keyboard"
+      ],
+      "acceptanceOwner": "ST-143",
+      "assistiveOwner": "ST-139",
+      "physicalPerformanceOwner": "ST-142",
+      "runtimeAcceptance": "pending",
+      "notApplicableReason": "Full creation/conversion/column resize absent by agreed reduced-host policy; preservation and permitted edits still required."
+    }
+  },
+  "deliveryOrder": "All seven native families accepted before React/WASM integration; three browsers remain separate later runs.",
+  "evidenceKinds": {
+    "sharedSemantics": "Run actual core and paired shipped bridges; exact full document, origin, history, save/receipt comparisons",
+    "hostInteraction": "Real native/browser input, composition, focus, pointer/touch/keyboard recording",
+    "rendering": "Original captured pixels with runtime/theme/viewport/font settings",
+    "assistive": "Real named assistive tool navigation/actions, not inferred from render/tree",
+    "physicalInput": "Real device/IME/keyboard/focus recording; simulator qualification kept distinct",
+    "physicalPerformance": "Raw traces, actual hardware/runtime, measured timings and explicit threshold decision"
+  },
+  "pendingChecks": [
+    "ST-170 physical access",
+    "ST-139 accessibility",
+    "ST-142 performance",
+    "ST-143 native matrix",
+    "ST-104 three browsers"
+  ]
+}

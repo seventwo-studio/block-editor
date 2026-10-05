@@ -1,0 +1,5104 @@
+{
+  "contractVersion": 1,
+  "qualification": "Independent authored expected documents and interactions; every runtimeStatus remains pending",
+  "scenarios": [
+    {
+      "id": "ACC-01",
+      "title": "Blank document first input / author history",
+      "fixture": "blank",
+      "owner": "ST-122",
+      "commands": [
+        "replaceText",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Capture empty-body insertion position; type Hello 世界😀 as one reviewed input group, allocate new-A once",
+        "Undo author a once",
+        "Redo author a once"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "written",
+          "document": "documents/blank-written.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "new-A",
+            "field": "content",
+            "offsetUTF16": 10,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "new-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undone",
+          "document": "documents/blank.json",
+          "selection": {
+            "kind": "bodyInsertion"
+          },
+          "focus": {
+            "kind": "bodyInsertion"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redone",
+          "document": "documents/blank-written.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "new-A",
+            "field": "content",
+            "offsetUTF16": 10,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "new-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/blank.json",
+        "selection": {
+          "kind": "bodyInsertion"
+        },
+        "focus": {
+          "kind": "bodyInsertion"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-02",
+      "title": "Anchored delete preserves concurrent prefix",
+      "fixture": "unicode",
+      "owner": "ST-122",
+      "commands": [
+        "replaceText",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "a captures A content [1,3) = BC",
+        "b inserts R- at A offset 0; deliver b to a",
+        "a deletes captured atoms; Undo a; Redo a"
+      ],
+      "peerSchedule": {
+        "mode": "ordered",
+        "actors": [
+          "a",
+          "b"
+        ],
+        "events": [
+          "a captures BC before b insertion",
+          "b prefix delivered before a deletion"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "deleted",
+          "document": "documents/unicode-deleted.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/unicode-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 5,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/unicode-deleted.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "textRange",
+          "origin": "A",
+          "field": "content",
+          "startUTF16": 1,
+          "endUTF16": 3,
+          "direction": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-03",
+      "title": "Surrogate and atomic-reference interior rejection",
+      "fixture": "unicode",
+      "owner": "ST-122",
+      "commands": [
+        "replaceText",
+        "move"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Request mutation of unicode at UTF-16 [4,5), inside 😀 pair",
+        "Request duplicate/ancestor-overlapping node selection; compare accepted save and history bytes"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "rejected",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "unicode",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "unicode",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "forward/backward invalid ranges unchanged",
+        "repeat admission after reopen unchanged"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "unicode",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "unicode",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-04",
+      "title": "IME commit with queued peer and captured menu target",
+      "fixture": "unicode",
+      "owner": "ST-124",
+      "commands": [
+        "replaceText",
+        "move"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Focus A offset 3, start marked 日本 draft",
+        "Capture menu origin A; peer moves A after rtl while input is held",
+        "Commit composition once, drain peer, resolve captured A; inspect text at its new placement"
+      ],
+      "peerSchedule": {
+        "mode": "held-then-drain",
+        "events": [
+          "move A after rtl while composing",
+          "drain after successful commit"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "marked draft",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "nativeDraft": "日本",
+          "heldPeer": "move A after rtl",
+          "sharedHistoryAdded": false
+        },
+        {
+          "label": "composition committed",
+          "document": "documents/unicode-composed.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 5,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "checkpointBeforePeerDrain": true
+        },
+        {
+          "label": "drained peer move",
+          "document": "documents/unicode-composed-moved.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 5,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction",
+        "physicalInput"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "commit failure retains 日本 draft and accepted unicode snapshot; command does not run",
+        "remote deletion retains/export draft rather than retargeting by visible label"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 3,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "inputs": {
+        "markedDraft": "日本",
+        "commitText": "日本",
+        "insertAtUTF16": 3
+      }
+    },
+    {
+      "id": "ACC-05",
+      "title": "IME cancellation / personal focus generation",
+      "fixture": "unicode",
+      "owner": "ST-124",
+      "commands": [
+        "replaceText"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Start marked 日本 at A offset 3",
+        "Cancel using native composition API; release held input",
+        "Open then dismiss menu; deliberately focus unicode before an old restoration callback"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "cancel",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "stale focus callback",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "unicode",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "unicode",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "hostInteraction",
+        "physicalInput"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "focus/background interrupt preserves or settles native draft explicitly",
+        "repeat with RTL input and an installed IME"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 3,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-06",
+      "title": "Concurrent title and independent appearance registers",
+      "fixture": "unicode",
+      "owner": "ST-122",
+      "commands": [
+        "replaceTitle",
+        "setAppearance",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "a prefixes Studio to title; b appends space2026 independently",
+        "a sets fontSize large; b sets pageWidth wide; merge both actors",
+        "Undo a size, then a title; Redo a title then a size"
+      ],
+      "peerSchedule": {
+        "mode": "all-delivery-permutations",
+        "actors": [
+          "a",
+          "b"
+        ],
+        "events": [
+          "a title prefix Studio ",
+          "b title suffix 2026",
+          "a fontSize large",
+          "b pageWidth wide"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "both",
+          "document": "documents/unicode-title-size-both.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "$document",
+            "field": "title",
+            "offsetUTF16": 7,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "$document",
+            "field": "title"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 2,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo size",
+          "document": "documents/unicode-title-both.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "$document",
+            "field": "title",
+            "offsetUTF16": 7,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "$document",
+            "field": "title"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo title",
+          "document": "documents/unicode-title-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "$document",
+            "field": "title",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "$document",
+            "field": "title"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 2
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo both",
+          "document": "documents/unicode-title-size-both.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "$document",
+            "field": "title",
+            "offsetUTF16": 7,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "$document",
+            "field": "title"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 2,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "$document",
+          "field": "title",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "$document",
+          "field": "title"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-07",
+      "title": "Slash keyboard insertion is one action",
+      "fixture": "unicode",
+      "owner": "ST-127",
+      "commands": [
+        "insertBlock",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "At A offset 3 type space /hea; select Heading using arrows",
+        "Return consumes only captured space-excluded /hea and inserts new-heading after A",
+        "Undo insertion/query consumption together; Redo together"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "query",
+          "document": "documents/unicode-query.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 8,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "menu": "Heading",
+          "capturedQueryUTF16": [
+            4,
+            8
+          ]
+        },
+        {
+          "label": "inserted",
+          "document": "documents/unicode-inserted-heading.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "new-heading",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "new-heading",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 2,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo command",
+          "document": "documents/unicode-query.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 8,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/unicode-inserted-heading.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "new-heading",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "new-heading",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 2,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 3,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "inputs": {
+        "typedText": " /hea",
+        "selectedOption": "Heading",
+        "acceptKey": "Return",
+        "queryRangeUTF16": [
+          4,
+          8
+        ]
+      }
+    },
+    {
+      "id": "ACC-08",
+      "title": "Picker Escape / touch dismissal keeps typed text",
+      "fixture": "unicode",
+      "owner": "ST-127",
+      "commands": [
+        "insertBlock"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Type space /hea at A end",
+        "Escape on keyboard or dismiss touch picker; restore saved live caret"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "dismissed",
+          "document": "documents/unicode-query.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 8,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "menu": "closed",
+          "historyAddedByDismissal": false
+        }
+      ],
+      "requiredEvidence": [
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "no selection moves when another control deliberately took focus",
+        "no-menu body typing remains available"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 3,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-09",
+      "title": "Range formatting / Undo retains selected atoms",
+      "fixture": "unicode",
+      "owner": "ST-129",
+      "commands": [
+        "format",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select A [1,3) forward then repeat backward from fresh fixture",
+        "Apply bold through contextual tool; Undo a; Redo a"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "formatted",
+          "document": "documents/unicode-bold.json",
+          "selection": {
+            "kind": "textRange",
+            "origin": "A",
+            "field": "content",
+            "startUTF16": 1,
+            "endUTF16": 3,
+            "direction": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "textRange",
+            "origin": "A",
+            "field": "content",
+            "startUTF16": 1,
+            "endUTF16": 3,
+            "direction": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/unicode-bold.json",
+          "selection": {
+            "kind": "textRange",
+            "origin": "A",
+            "field": "content",
+            "startUTF16": 1,
+            "endUTF16": 3,
+            "direction": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "backward direction preserved while mutation normalizes same atom range",
+        "caret formatting is local pending style and adds no history until text insertion"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "textRange",
+          "origin": "A",
+          "field": "content",
+          "startUTF16": 1,
+          "endUTF16": 3,
+          "direction": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-10",
+      "title": "Conversion retains concurrent suffix / origins",
+      "fixture": "unicode",
+      "owner": "ST-128",
+      "commands": [
+        "convertBlock",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "a converts A paragraph to heading level2; b appends space remote to original A atoms",
+        "Merge; Undo a conversion; Redo a conversion"
+      ],
+      "peerSchedule": {
+        "mode": "all-delivery-permutations",
+        "events": [
+          "a converts A",
+          "b edits retained A origin"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "converted",
+          "document": "documents/unicode-peer-heading.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/unicode-peer-suffix.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/unicode-peer-heading.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 3,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-11",
+      "title": "Move range preserves scoped nested identities",
+      "fixture": "nested",
+      "owner": "ST-131",
+      "commands": [
+        "move",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Select root A; move before toggle using stable root boundary",
+        "Undo a, then Redo a; resolve nested child identities in toggle/list separately"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "moved",
+          "document": "documents/nested-moved.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/nested.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/nested-moved.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "text caret inside moving A remains A content offset0",
+        "multi-block range uses logical origins without ancestor/descendant overlap"
+      ],
+      "initialState": {
+        "document": "documents/nested.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "A"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-12",
+      "title": "Duplicate freshens schema IDs, preserves reference/opaque data",
+      "fixture": "mixed",
+      "owner": "ST-128",
+      "commands": [
+        "duplicate",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Duplicate A after itself; allocate copy-A only for schema identity",
+        "Undo a duplicate; Redo a duplicate; retain reference consumer:world and consumer opaque fields byte-equivalent"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "copy",
+          "document": "documents/mixed-duplicated.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "copy-A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "copy-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/mixed.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/mixed-duplicated.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "copy-A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "copy-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/mixed.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "A"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-13",
+      "title": "List-only hierarchy, toggle disclosure and containment",
+      "fixture": "nested",
+      "owner": "ST-130",
+      "commands": [
+        "listStructure",
+        "createColumns",
+        "modernCopy"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Open toggle personally; verify descendant child and checklist",
+        "Request general block indent/outdent and additional/nested layout through list/toggle descendant; reject before mutation",
+        "Toggle disclosure closed; copy logical content including hidden children"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "personal disclosure",
+          "document": "documents/nested.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "toggle/child",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "toggle/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "invalid structure",
+          "document": "documents/nested.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "toggle/child",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "toggle/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "copiedLogicalOrigins": [
+            "toggle",
+            "toggle/child",
+            "toggle/todo/same",
+            "toggle/todo/same/child",
+            "list/same",
+            "list/same/child",
+            "A"
+          ]
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "valid list-item indentation stays inside list hierarchy; expected child origins retained",
+        "third column insertion and independent column deletion/swap reject unchanged"
+      ],
+      "initialState": {
+        "document": "documents/nested.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "toggle/child",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "toggle/child",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-14",
+      "title": "Literal code whitespace remains exact",
+      "fixture": "mixed",
+      "owner": "ST-134",
+      "commands": [
+        "paste",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Paste tab// tail plus two spaces and trailing newline at code end as one group",
+        "Undo a paste; Redo a paste; save/reopen as literal code"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "pasted",
+          "document": "documents/mixed-code-paste.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "code",
+            "field": "code",
+            "offsetUTF16": 49,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "code",
+            "field": "code"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/mixed.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "code",
+            "field": "code",
+            "offsetUTF16": 38,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "code",
+            "field": "code"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/mixed-code-paste.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "code",
+            "field": "code",
+            "offsetUTF16": 49,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "code",
+            "field": "code"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/mixed.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "code",
+          "field": "code",
+          "offsetUTF16": 38,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "code",
+          "field": "code"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-15",
+      "title": "Late async result never targets replacement document",
+      "fixture": "mixed",
+      "owner": "ST-133",
+      "commands": [
+        "completeAsyncBlock"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Capture media origin and document/epoch for inert fixture-only provider request",
+        "Switch to unicode document before completion; receive successful local result",
+        "Reject mutation into replacement; retain explicit retry/copy result; cancellation leaves accepted documents untouched"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "completion ignored",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "originatingDocument": "documents/mixed.json",
+          "originatingDocumentUnchanged": true,
+          "providerResult": "retained for explicit retry/copy",
+          "pendingReceiptAcknowledged": false
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "delete original target before provider completes; never recreate deleted target",
+        "failed provider and interrupted reopen retain pending/error state; no upload/network required"
+      ],
+      "initialState": {
+        "document": "documents/mixed.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "media",
+          "field": "caption",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "media",
+          "field": "caption"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-16",
+      "title": "Create two stable columns around marked/nested origins",
+      "fixture": "before-columns",
+      "owner": "ST-122",
+      "commands": [
+        "createColumns",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select contiguous roots A,B; create layout and first-column/second-column at existing boundary, split5000",
+        "Undo a; Redo a; keep existing scoped child origins and metadata"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "created",
+          "document": "documents/columns-created.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/before-columns.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-created.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "empty boundary creation persists empty containers and no fake paragraphs",
+        "cancel creation before admission leaves before-columns/history unchanged"
+      ],
+      "initialState": {
+        "document": "documents/before-columns.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "A",
+            "B"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        },
+        "savedTextCaret": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 1,
+          "affinity": "forward"
+        }
+      }
+    },
+    {
+      "id": "ACC-17",
+      "title": "Move across columns retains content and caret",
+      "fixture": "columns-3000",
+      "owner": "ST-122",
+      "commands": [
+        "move",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select origin B; move first-column to start of second-column before C",
+        "Undo a; Redo a; follow caret in B/child"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "moved",
+          "document": "documents/columns-moved.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "B/child",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "B/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "B/child",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "B/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-moved.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "B/child",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "B/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "B"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "B/child",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        },
+        "savedTextCaret": {
+          "kind": "caret",
+          "origin": "B/child",
+          "field": "content",
+          "offsetUTF16": 2,
+          "affinity": "forward"
+        }
+      }
+    },
+    {
+      "id": "ACC-18",
+      "title": "Remove columns routes offline child and peer text",
+      "fixture": "columns-3000",
+      "owner": "ST-122",
+      "commands": [
+        "removeColumns",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "a removes layout, flatten first [A,B] then second [C] at old root boundary",
+        "offline b appends D to second-column after C and adds space remote to A",
+        "Rejoin and merge both; Undo a removal; Redo a removal"
+      ],
+      "peerSchedule": {
+        "mode": "offline-all-delivery-permutations",
+        "events": [
+          "a remove layout",
+          "b insert D into captured second-column",
+          "b edit A before receiving removal"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "local remove",
+          "document": "documents/columns-flattened.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "rejoin",
+          "document": "documents/columns-flat-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo remove",
+          "document": "documents/columns-peer-child.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-flat-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "two concurrent removals yield every A,B,C,D once; no duplicated flattening",
+        "b explicitly moves D to another parent; retained ownership route must not override that move"
+      ],
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-19",
+      "title": "Undo layout creation retains peer-created child",
+      "fixture": "before-columns",
+      "owner": "ST-122",
+      "commands": [
+        "createColumns",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "a creates layout around A,B",
+        "b inserts D into second-column; deliver to a",
+        "Undo a layout creation; Redo a creation"
+      ],
+      "peerSchedule": {
+        "mode": "ordered",
+        "events": [
+          "observe a created containers",
+          "b adds D",
+          "a undo then redo birth"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "peer inserted",
+          "document": "documents/columns-create-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo birth",
+          "document": "documents/columns-create-undone-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo birth",
+          "document": "documents/columns-create-peer.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/before-columns.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-20",
+      "title": "Concurrent split winner and author-local Undo",
+      "fixture": "columns-5000",
+      "owner": "ST-122",
+      "commands": [
+        "resizeColumns",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "a counter1 writes6000, b counter1 writes4000 concurrently; merge",
+        "Undo b resize; Undo a resize; Redo a then b"
+      ],
+      "peerSchedule": {
+        "mode": "all-delivery-permutations",
+        "changeIDs": [
+          {
+            "actor": "a",
+            "counter": 1
+          },
+          {
+            "actor": "b",
+            "counter": 1
+          }
+        ],
+        "ordering": "Lamport then UTF-8 actor; b wins tie"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "merged b wins",
+          "document": "documents/columns-split-b.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "b",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo b reveals a",
+          "document": "documents/columns-split-a.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "b",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo a baseline",
+          "document": "documents/columns-5000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo both",
+          "document": "documents/columns-split-b.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "b",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/columns-5000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-21",
+      "title": "Local resize cancellation reveals latest peer split",
+      "fixture": "columns-5000",
+      "owner": "ST-123",
+      "commands": [
+        "resizeColumns"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "a begins preview7000; b commits4000 and delivers while preview remains personal",
+        "Escape/cancel a preview; no a resize admitted; inspect latest shared4000",
+        "Narrow viewport stacks first then second; increase text scale; no shared split mutation"
+      ],
+      "peerSchedule": {
+        "mode": "deliver-during-preview",
+        "events": [
+          "b commits split4000"
+        ]
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "preview",
+          "document": "documents/columns-split-b.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "localPreviewBasisPoints": 7000,
+          "aHistoryAdded": false
+        },
+        {
+          "label": "cancel",
+          "document": "documents/columns-split-b.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "localPreviewBasisPoints": null,
+          "presentation": "stacked first then second"
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction",
+        "rendering"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/columns-5000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-22",
+      "title": "Column clipboard / explicit flattened fallback",
+      "fixture": "columns-3000",
+      "owner": "ST-125",
+      "commands": [
+        "modernCopy",
+        "paste"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Copy whole layout rich payload; retain both containers and all child metadata in logical order",
+        "Attempt rich paste below existing layout, including indirect list/toggle descendant: reject unchanged",
+        "Explicitly choose flattened copy fallback; use fresh schema IDs and preserve reference/opaque data"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "copy",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "layout"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "clipboardLogicalOrigins": [
+            "A",
+            "B",
+            "B/child",
+            "B/todo/same",
+            "B/todo/same/child",
+            "C"
+          ]
+        },
+        {
+          "label": "nested paste rejected",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "layout"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "root rich paste allocates fresh layout/container/descendant identities, not consumer IDs",
+        "clipboard publication failure prevents cut deletion; delayed publication rechecks captured target",
+        "Exact root paste and flattened fallback states are independently specified in ACC-37/38."
+      ],
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "layout"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-23",
+      "title": "Layout and split invalid admission is unchanged",
+      "fixture": "columns-3000",
+      "owner": "ST-122",
+      "commands": [
+        "resizeColumns",
+        "createColumns",
+        "move"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "From fresh fixture for each input request split999/split9001/fractional5000.5",
+        "Request third column, delete/swap one container, direct nested layout, indirect nested layout under B/todo",
+        "Compare accepted save/history before and after each rejection"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "rejected",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "ancestor/descendant overlapping selection rejects atomically",
+        "general block indent/outdent unavailable; no capability expansion on reduced hosts"
+      ],
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-24",
+      "title": "Save/reopen preserves shared state, not personal panels",
+      "fixture": "columns-7000",
+      "owner": "ST-141",
+      "commands": [
+        "modernDocument",
+        "restoreModern"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Capture caret A offset1; show outline/focus locally; persist accepted session",
+        "Destroy/recreate host session from saved data; restore caret explicitly into same epoch",
+        "Replay already accepted batch and verify no second receipt/history change"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "reopened",
+          "document": "documents/columns-7000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "outline": "default host state, not shared payload",
+          "focusMode": "default host state, not shared payload",
+          "receiptAfterDuplicate": "unchanged"
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "fresh-epoch cutover must remap caret instead of reusing old anchors",
+        "save separately retains accepted snapshot, unacknowledged packets, native draft and rejected recovery"
+      ],
+      "initialState": {
+        "document": "documents/columns-7000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-25",
+      "title": "Migration archives original before fresh epoch activation",
+      "fixture": "legacy-mixed",
+      "owner": "ST-141",
+      "commands": [
+        "cutoverToModern"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Quiesce old writers and reconcile pending histories; archive exact original bytes",
+        "Materialize modern envelope once with empty title/default appearance; preserve every original block and scoped ID",
+        "Write/readback new snapshot, atomically activate new epoch; old Undo/receipts stay in archive"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "activated",
+          "document": "documents/migrated-mixed.json",
+          "selection": {
+            "kind": "none"
+          },
+          "focus": {
+            "kind": "bodyInsertion"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "epoch": "new distinct reviewed epoch",
+          "historyReset": true,
+          "archive": "original legacy-mixed bytes and old histories checksum-equal"
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "archive/write/readback/activation failure leaves old active pointer and original recoverable",
+        "rollback after new edits first archives modern state; never mixes histories/epochs"
+      ],
+      "initialState": {
+        "document": "documents/legacy-mixed.json",
+        "selection": {
+          "kind": "none"
+        },
+        "focus": {
+          "kind": "bodyInsertion"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-26",
+      "title": "Reserved-tag collision and unknown inline preservation",
+      "fixture": "legacy-collision",
+      "owner": "ST-141",
+      "commands": [
+        "cutoverToModern"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Attempt modern migration from legacy-collision; refuse opaque columns reinterpretation",
+        "Repeat from unsupported-inline; preserve original bytes and explicit read-only/export state"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "collision refusal",
+          "document": "documents/legacy-collision.json",
+          "selection": {
+            "kind": "none"
+          },
+          "focus": {
+            "kind": "readOnly"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "activation": "not performed",
+          "archive": "original unchanged"
+        },
+        {
+          "label": "inline refusal",
+          "document": "documents/unsupported-inline.json",
+          "selection": {
+            "kind": "none"
+          },
+          "focus": {
+            "kind": "readOnly"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "activation": "not performed",
+          "archive": "original unchanged",
+          "sourceFixture": "unsupported-inline"
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "old client opening modern protocol7 rejects without ACK or downgrade",
+        "unknown admitted block payload remains retained, rather than stripped by typed host projection"
+      ],
+      "initialState": {
+        "document": "documents/legacy-collision.json",
+        "selection": {
+          "kind": "none"
+        },
+        "focus": {
+          "kind": "readOnly"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "additionalFixtures": [
+        "unsupported-inline"
+      ]
+    },
+    {
+      "id": "ACC-27",
+      "title": "Document limits preserve larger valid legacy input",
+      "fixture": "legacy-5001",
+      "owner": "ST-141",
+      "commands": [
+        "cutoverToModern",
+        "restoreModern"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Migrate 5001 valid Swift-sized root blocks without passing originals through old TypeScript 5000-block projection",
+        "Archive and reopen modern representation; compare all root IDs/text"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "migrated",
+          "document": "documents/migrated-5001.json",
+          "selection": {
+            "kind": "none"
+          },
+          "focus": {
+            "kind": "bodyInsertion"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "rootBlockCount": 5001,
+          "historyReset": true
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "document near existing 32MB/100-depth limits preserves source obligations; no newly tighter clipping",
+        "unadmittable resource exhaustion rejects before activation, not partial truncation"
+      ],
+      "initialState": {
+        "document": "documents/legacy-5001.json",
+        "selection": {
+          "kind": "none"
+        },
+        "focus": {
+          "kind": "bodyInsertion"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-28",
+      "title": "Read-only/loading/error screens do not edit content",
+      "fixture": "mixed",
+      "owner": "ST-137",
+      "commands": [
+        "insertBlock",
+        "format",
+        "resizeColumns"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Load same fixture with host loading/read-only/error policy separately",
+        "Attempt insert/format/resize while unavailable; UI explains policy and retains document",
+        "Recover loading/error into ready state without replacement of existing content"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "policy unchanged",
+          "document": "documents/mixed.json",
+          "selection": {
+            "kind": "none"
+          },
+          "focus": {
+            "kind": "readOnly"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "historyAdded": false,
+          "originalRetained": true
+        }
+      ],
+      "requiredEvidence": [
+        "hostInteraction",
+        "rendering",
+        "assistive"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "delayed host operation retains captured request and explicit retry/cancel",
+        "local no-network body editing remains usable after recoverable transport failure"
+      ],
+      "initialState": {
+        "document": "documents/mixed.json",
+        "selection": {
+          "kind": "none"
+        },
+        "focus": {
+          "kind": "readOnly"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-29",
+      "title": "Light/dark, RTL and large text reference rendering",
+      "fixture": "unicode",
+      "owner": "ST-143",
+      "commands": [
+        "setAppearance"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Render unicode, mixed, wide-table and columns-3000/5000/7000 in light and dark",
+        "Use default/large text and wide/narrow viewport; retain readable body and direct title",
+        "Follow original logical reading order and RTL editing caret, no shared geometry rewrite"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "presentation only",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "rtl",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "rtl",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "sharedStateMutation": false
+        }
+      ],
+      "requiredEvidence": [
+        "rendering",
+        "hostInteraction",
+        "assistive"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "native font changes are shared only after explicit preset command; OS text scaling is presentation",
+        "wide table has reachable horizontal scroll and code keeps literal whitespace",
+        "Repeat complete matrix on columns-rich, including local media, nested content and wide table."
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "rtl",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "rtl",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "additionalFixtures": [
+        "mixed",
+        "wide-table",
+        "columns-3000",
+        "columns-5000",
+        "columns-7000",
+        "columns-rich"
+      ]
+    },
+    {
+      "id": "ACC-30",
+      "title": "Assistive logical order and adjustable split",
+      "fixture": "columns-3000",
+      "owner": "ST-139",
+      "commands": [
+        "resizeColumns",
+        "undo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Use native assistive navigation and keyboard/touch accessible split control",
+        "Read title, first A and B descendants, second C, then E in both side-by-side/stacked presentation",
+        "Adjust split to7000 as one action; Undo restores3000; focus stays on adjustable control"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "adjusted",
+          "document": "documents/columns-7000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "control",
+            "name": "Column split"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "control",
+            "name": "Column split"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "assistive",
+        "hostInteraction",
+        "physicalInput"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "reduced watch/TV expose logical reading/text/checklist/reorder only; preserve split without resize authoring",
+        "no assistive acceptance from static contrast or accessibility-tree dump alone"
+      ],
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 1,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "control",
+          "name": "Column split"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-31",
+      "title": "Reduced-host edits preserve rich modern representation",
+      "fixture": "columns-7000",
+      "owner": "ST-137",
+      "commands": [
+        "insertBlock",
+        "convertBlock",
+        "resizeColumns"
+      ],
+      "hosts": [
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Open on watch/TV and read first then second",
+        "Reject insert/convert/layout resize outside reduced authoring surface",
+        "Save/reopen same shared document with richer blocks/title/split/appearance intact"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "preserved",
+          "document": "documents/columns-7000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction",
+        "rendering",
+        "assistive"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "text/checklist/reorder allowed through existing supported policy",
+        "incoming valid richer content does not gain full creation controls or get stripped"
+      ],
+      "initialState": {
+        "document": "documents/columns-7000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-32",
+      "title": "Protocol/epoch/change-ID and hold-limit recovery",
+      "fixture": "unicode",
+      "owner": "ST-141",
+      "commands": [
+        "restoreModern",
+        "modernCommand"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Deliver unsupported version/format, mismatched document/epoch, conflicting same ChangeID payload and exhausted held-packet limit as separate inputs",
+        "Reject before ACK/publication; persist accepted unicode snapshot separately from retained rejected/held packets",
+        "Restart; explicit recovery/export remains available; retry duplicate accepted packet unchanged"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "recoverable rejection",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "recoveryRequired",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "receiptAdvance": false,
+          "acceptedSnapshotReplaced": false,
+          "rejectedUnion": "retained separately with original payload",
+          "unacknowledgedPackets": "retained separately"
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "no empty-document substitution after recoverable parse/transport error",
+        "old protocol3-6 writer explicitly refused, never metadata/column stripping"
+      ],
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-33",
+      "title": "Long document input / outline / performance evidence",
+      "fixture": "long",
+      "owner": "ST-142",
+      "commands": [
+        "replaceText"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "Open 1000 blocks / 10 headings; jump outline to note-900 and back; retain origin caret",
+        "Measure actual native input and rendering on recorded hardware/runtime/IME, including large text and two-column presentation",
+        "Report timings/raw traces and threshold decision under ST-142, not inferred from static render"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "navigation unchanged",
+          "document": "documents/long.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "note-901",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "note-901",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "outlineTarget": "note-900",
+          "sharedStateMutation": false
+        }
+      ],
+      "requiredEvidence": [
+        "hostInteraction",
+        "rendering",
+        "physicalPerformance"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "repeat save/reopen and scroll with preserved caret and original full document",
+        "no invented timing pass or simulator substituted for physical performance"
+      ],
+      "initialState": {
+        "document": "documents/long.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "note-901",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "note-901",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-34",
+      "title": "Named semantic ink/fill mixed-state and reset",
+      "fixture": "semantic-colors",
+      "owner": "ST-136",
+      "commands": [
+        "setSemanticColor",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Inspect green block ink/fill and mixed selection over green and blue",
+        "Reset green block and inline ink/fill explicitly; Undo reset; Redo reset",
+        "Render all six roles in light/dark with selected/mixed-state indicator beyond color"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "reset",
+          "document": "documents/colors-reset.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "green",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "green",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/semantic-colors.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "green",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "green",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/colors-reset.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "green",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "green",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "rendering",
+        "assistive"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen current accepted state; compare full expected document and origin bindings",
+        "replay duplicate delivered batch; no extra mutation/history/receipt advancement"
+      ],
+      "initialState": {
+        "document": "documents/semantic-colors.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "green",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "green",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-35",
+      "title": "Unsafe link policy / atomic reference mutation",
+      "fixture": "mixed",
+      "owner": "ST-132",
+      "commands": [
+        "setLink",
+        "replaceText"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select entity-ref label 世界😀 as one atomic reference; reject interior deletion",
+        "Submit javascript:alert(1) or stale-origin URL editor; reject unchanged without network fetch",
+        "Cancel valid link editor; restore live captured selection without Undo entry"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "rejected",
+          "document": "documents/mixed.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "cancelled",
+          "document": "documents/mixed.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "validated inert https link metadata admitted only into captured live field",
+        "entity consumer ID and label remain exact through copying and author Undo"
+      ],
+      "initialState": {
+        "document": "documents/mixed.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "A"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-36",
+      "title": "Interrupted resize / composition failure keeps accepted state",
+      "fixture": "columns-3000",
+      "owner": "ST-123",
+      "commands": [
+        "resizeColumns"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Begin local split preview7000; fail composition commit before structural/resize admission",
+        "Retain native draft and visible error; cancel preview; reveal accepted3000",
+        "Background/reopen with accepted snapshot and draft/pending recovery separately retained"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "failed admission",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "nativeDraft": "retained verbatim",
+          "localPreviewBasisPoints": 7000,
+          "acceptedHistoryAdded": false
+        },
+        {
+          "label": "cancel",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization.",
+          "localPreviewBasisPoints": null
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "stale menu invocation cannot steal newer document/control focus",
+        "Escape before admission and author Undo after admission remain distinct"
+      ],
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      }
+    },
+    {
+      "id": "ACC-37",
+      "title": "Root rich layout paste allocates scoped identities",
+      "fixture": "columns-3000",
+      "owner": "ST-125",
+      "commands": [
+        "modernCopy",
+        "paste",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Copy layout into internal protocol7 rich payload",
+        "Paste at root after layout, allocate reviewed copy-* schema IDs only",
+        "Undo a paste; Redo a paste; preserve consumer opaque fields"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "layout"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "pasted",
+          "document": "documents/columns-root-copy.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "copy-layout"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "copy-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "layout"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-root-copy.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "copy-layout"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "copy-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ]
+    },
+    {
+      "id": "ACC-38",
+      "title": "Explicit flattened rich fallback / exact plain multiline",
+      "fixture": "columns-3000",
+      "owner": "ST-125",
+      "commands": [
+        "paste",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Copy layout; nested rich paste into first-column rejects",
+        "Explicitly choose flattened content fallback, allocate copy-A/copy-B/copy-C and nested copy-* IDs",
+        "Undo a fallback; Redo a fallback; original references and metadata remain"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "layout"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "fallback",
+          "document": "documents/columns-flattened-paste.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "copy-A",
+              "copy-B",
+              "copy-C"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "copy-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "layout"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-flattened-paste.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "copy-A",
+              "copy-B",
+              "copy-C"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "copy-A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ]
+    },
+    {
+      "id": "ACC-39",
+      "title": "Plain multiline paste keeps empty/trailing paragraphs",
+      "fixture": "blank",
+      "owner": "ST-125",
+      "commands": [
+        "paste",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "At empty body position paste exact text newlineHello/newline/newline as one group",
+        "Allocate paste-0/1/2/3 for four logical lines including both trailing empty lines",
+        "Undo a paste; Redo a paste"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/blank.json",
+        "selection": {
+          "kind": "bodyInsertion"
+        },
+        "focus": {
+          "kind": "bodyInsertion"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "pasted",
+          "document": "documents/blank-plain-paste.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "paste-3",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "paste-3",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/blank.json",
+          "selection": {
+            "kind": "bodyInsertion"
+          },
+          "focus": {
+            "kind": "bodyInsertion"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/blank-plain-paste.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "paste-3",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "paste-3",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ],
+      "inputs": {
+        "plainText": "\nHello\n\n",
+        "freshSchemaIDs": [
+          "paste-0",
+          "paste-1",
+          "paste-2",
+          "paste-3"
+        ]
+      }
+    },
+    {
+      "id": "ACC-40",
+      "title": "Within-column reorder and move back to root",
+      "fixture": "columns-with-child",
+      "owner": "ST-131",
+      "commands": [
+        "move",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select D; move before C within second-column",
+        "Undo a; Redo a; do not change origin IDs or split3000"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/columns-with-child.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "D"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "D",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "moved",
+          "document": "documents/columns-within-moved.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "D"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "D",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/columns-with-child.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "D"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "D",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-within-moved.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "D"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "D",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ]
+    },
+    {
+      "id": "ACC-41",
+      "title": "Move column block outside without flattening layout",
+      "fixture": "columns-3000",
+      "owner": "ST-131",
+      "commands": [
+        "move",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select B and preserve caret B/child offset2",
+        "Move B to root after layout before E",
+        "Undo a; Redo a; wrapper/containers/split and text origins unchanged"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/columns-3000.json",
+        "selection": {
+          "kind": "nodes",
+          "origins": [
+            "B"
+          ],
+          "order": "logical"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "B/child",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "out",
+          "document": "documents/columns-moved-out.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "B/child",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "B/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/columns-3000.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "B/child",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "B/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/columns-moved-out.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "B/child",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "B/child",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ]
+    },
+    {
+      "id": "ACC-42",
+      "title": "Permitted list indent is scoped to list hierarchy",
+      "fixture": "nested-list-tail",
+      "owner": "ST-130",
+      "commands": [
+        "listStructure",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Select list/tail, indent under preceding list/same as last child",
+        "Undo a indent; Redo a indent; toggle/todo same/child scope remains distinct"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/nested-list-tail.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "list/tail",
+          "field": "content",
+          "offsetUTF16": 0,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "list/tail",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "indented",
+          "document": "documents/nested-list-indented.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "list/tail",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "list/tail",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "undo",
+          "document": "documents/nested-list-tail.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "list/tail",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "list/tail",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "redo",
+          "document": "documents/nested-list-indented.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "list/tail",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "list/tail",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ],
+      "originBindings": {
+        "list/tail": {
+          "initialPath": "list/tail",
+          "checkpointPaths": {
+            "indented": "list/same/tail",
+            "redo": "list/same/tail"
+          }
+        }
+      }
+    },
+    {
+      "id": "ACC-43",
+      "title": "Title Enter settles input and moves directly into body",
+      "fixture": "unicode",
+      "owner": "ST-123",
+      "commands": [
+        "replaceTitle"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM"
+      ],
+      "actions": [
+        "Focus title at end; press Enter with native composition settled",
+        "Body A caret0 receives focus; title/document/history unchanged",
+        "External title paste of Field notes newline next explicitly normalizes line break to space; direct newline mutation rejects unchanged"
+      ],
+      "peerSchedule": {
+        "mode": "none"
+      },
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "$document",
+          "field": "title",
+          "offsetUTF16": 11,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "$document",
+          "field": "title"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "Enter",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 0
+          },
+          "status": "noop",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "external paste",
+          "document": "documents/unicode-title-paste.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "$document",
+            "field": "title",
+            "offsetUTF16": 16,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "$document",
+            "field": "title"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "direct newline rejected",
+          "document": "documents/unicode-title-paste.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "$document",
+            "field": "title",
+            "offsetUTF16": 16,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "$document",
+            "field": "title"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "unavailable",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction",
+        "physicalInput"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ],
+      "inputs": {
+        "externalTitlePaste": "Field notes\nnext",
+        "replacementRangeUTF16": [
+          0,
+          11
+        ],
+        "rejectedDirectTitleText": "\n"
+      }
+    },
+    {
+      "id": "ACC-44",
+      "title": "Soft break and multi-block delete preserve peer text",
+      "fixture": "unicode",
+      "owner": "ST-125",
+      "commands": [
+        "softBreak",
+        "delete",
+        "undo",
+        "redo"
+      ],
+      "hosts": [
+        "macOS",
+        "iPhone",
+        "iPad",
+        "Android",
+        "visionOS",
+        "ReactWASM",
+        "watchOS",
+        "tvOS"
+      ],
+      "actions": [
+        "At A offset1 perform softBreak and inspect literal newline; Undo to unicode",
+        "From fresh fixture select roots A/unicode; peer appends space remote to rtl",
+        "Delete selected whole origins, caret falls back to rtl0; Undo a then Redo a"
+      ],
+      "peerSchedule": {
+        "mode": "ordered after fresh fixture reset",
+        "events": [
+          "b appends remote to unselected rtl before a deletion"
+        ]
+      },
+      "initialState": {
+        "document": "documents/unicode.json",
+        "selection": {
+          "kind": "caret",
+          "origin": "A",
+          "field": "content",
+          "offsetUTF16": 1,
+          "affinity": "forward"
+        },
+        "focus": {
+          "kind": "input",
+          "origin": "A",
+          "field": "content"
+        },
+        "history": {
+          "author": "a",
+          "availableUndoGroups": 0,
+          "availableRedoGroups": 0
+        }
+      },
+      "expectedCheckpoints": [
+        {
+          "label": "softBreak",
+          "document": "documents/unicode-soft-break.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 2,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "softBreak undo",
+          "document": "documents/unicode.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "A",
+            "field": "content",
+            "offsetUTF16": 1,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "delete",
+          "document": "documents/unicode-range-deleted.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "rtl",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "rtl",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "delete undo",
+          "document": "documents/unicode-peer-rtl.json",
+          "selection": {
+            "kind": "nodes",
+            "origins": [
+              "A",
+              "unicode"
+            ],
+            "order": "logical"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "A",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 0,
+            "availableRedoGroups": 1
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        },
+        {
+          "label": "delete redo",
+          "document": "documents/unicode-range-deleted.json",
+          "selection": {
+            "kind": "caret",
+            "origin": "rtl",
+            "field": "content",
+            "offsetUTF16": 0,
+            "affinity": "forward"
+          },
+          "focus": {
+            "kind": "input",
+            "origin": "rtl",
+            "field": "content"
+          },
+          "history": {
+            "author": "a",
+            "availableUndoGroups": 1,
+            "availableRedoGroups": 0
+          },
+          "status": "applied",
+          "preservation": "Every unspecified field, scoped identity and existing origin equals the named full expected snapshot; no implicit normalization."
+        }
+      ],
+      "requiredEvidence": [
+        "sharedSemantics",
+        "hostInteraction"
+      ],
+      "runtimeStatus": "pending",
+      "variants": [
+        "save/reopen; exact full document and stable origin comparison",
+        "replay duplicate accepted packets; no added history/receipt change"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "format": "seventwo.block-editor.document",
+  "formatVersion": 1,
+  "documentID": "st140-colors",
+  "title": "Field notes",
+  "appearance": {
+    "fontFamily": "sans",
+    "fontSize": "default",
+    "pageWidth": "readable"
+  },
+  "blocks": [
+    {
+      "id": "neutral",
+      "type": "paragraph",
+      "semanticColor": "neutral",
+      "semanticBackground": "neutral",
+      "content": [
+        {
+          "type": "text",
+          "text": "neutral text",
+          "marks": [
+            {
+              "type": "semantic-color",
+              "value": "neutral"
+            },
+            {
+              "type": "semantic-background",
+              "value": "neutral"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "green",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "green text"
+        }
+      ]
+    },
+    {
+      "id": "blue",
+      "type": "paragraph",
+      "semanticColor": "blue",
+      "semanticBackground": "blue",
+      "content": [
+        {
+          "type": "text",
+          "text": "blue text",
+          "marks": [
+            {
+              "type": "semantic-color",
+              "value": "blue"
+            },
+            {
+              "type": "semantic-background",
+              "value": "blue"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "purple",
+      "type": "paragraph",
+      "semanticColor": "purple",
+      "semanticBackground": "purple",
+      "content": [
+        {
+          "type": "text",
+          "text": "purple text",
+          "marks": [
+            {
+              "type": "semantic-color",
+              "value": "purple"
+            },
+            {
+              "type": "semantic-background",
+              "value": "purple"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "amber",
+      "type": "paragraph",
+      "semanticColor": "amber",
+      "semanticBackground": "amber",
+      "content": [
+        {
+          "type": "text",
+          "text": "amber text",
+          "marks": [
+            {
+              "type": "semantic-color",
+              "value": "amber"
+            },
+            {
+              "type": "semantic-background",
+              "value": "amber"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "red",
+      "type": "paragraph",
+      "semanticColor": "red",
+      "semanticBackground": "red",
+      "content": [
+        {
+          "type": "text",
+          "text": "red text",
+          "marks": [
+            {
+              "type": "semantic-color",
+              "value": "red"
+            },
+            {
+              "type": "semantic-background",
+              "value": "red"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "format": "seventwo.block-editor.document",
+  "formatVersion": 1,
+  "documentID": "st140-unicode",
+  "title": "Field notes",
+  "appearance": {
+    "fontFamily": "sans",
+    "fontSize": "default",
+    "pageWidth": "readable"
+  },
+  "blocks": [
+    {
+      "id": "unicode",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "é 😀 👩🏽‍💻 世界"
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "مرحبا بالعالم — עברית 123"
+        }
+      ]
+    },
+    {
+      "id": "A",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "ABC日本"
+        }
+      ]
+    }
+  ]
+}
