@@ -314,6 +314,7 @@ public final class WritingSession {
     }
     public func node(at address: NodeAddress) throws -> NodeID { try structure.node(at: address) }
     public func address(of node: NodeID) throws -> NodeAddress { try structure.address(of: node) }
+    func cutoverAddresses() throws -> [NodeID: NodeAddress] { try structure.cutoverAddresses() }
     public func textAddress(of node: NodeID, field: String = "content") throws -> TextAddress {
         _ = try structure.address(of: node)
         guard let value = structure.nodes[node], writingFields(value).contains(field) else { throw EditorError.invalidPath }

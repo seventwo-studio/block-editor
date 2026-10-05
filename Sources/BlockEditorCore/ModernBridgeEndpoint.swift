@@ -8,6 +8,7 @@ final class ModernBridgeEndpoint {
     private struct CutPublication { let preparation: ModernCutPreparation; let bytes: Int }
     private var cuts: [String: [String: CutPublication]] = [:]
     private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "paste", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "completeAsyncBlock", "undo", "redo"]
+    private let cutover = ModernCutoverBridge()
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -19,7 +20,7 @@ final class ModernBridgeEndpoint {
         if command == "modernCapabilities" {
             try allowed(input, ["command", "session"])
             var values: [String: JSONValue] = ["protocolVersion": .number(7), "format": .string(ModernDocument.format), "formatVersion": .number(1),
-                "commands": .array(commands.map(JSONValue.string)), "cutoverToModern": .bool(false)]
+                "commands": .array(commands.map(JSONValue.string)), "cutoverToModern": .bool(true)]
             if let session = sessions[handle] {
                 values["commands"] = .array(commands.filter { session.allowedCommands?.contains($0) ?? true }.map(JSONValue.string))
                 values["canUndo"] = .bool(session.canUndo); values["canRedo"] = .bool(session.canRedo)
@@ -56,7 +57,12 @@ final class ModernBridgeEndpoint {
             if let policy = input["allowedListActions"] { session.allowedListActions = try listPolicy(policy) }
             sessions[handle] = session; return try snapshot(session)
         }
-        if command == "cutoverToModern" { throw EditorError.invalidChange }
+        if cutover.handles(command) {
+            if command == "cutoverToModern" { guard !handle.isEmpty, sessions[handle] == nil else { throw EditorError.invalidChange } }
+            return try cutover.dispatch(input) { session in
+                let result = try self.snapshot(session); self.sessions[handle] = session; return result
+            }
+        }
         guard let session = sessions[handle] else { throw EditorError.invalidChange }
         if ["modernCaptureLocalNodes", "modernSetLocalSelection", "modernLocalSelection", "modernExportHistorySelection", "modernRestoreHistorySelection"].contains(command) {
             return try localSelectionCommand(input, session: session, command: command)

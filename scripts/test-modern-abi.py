@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise modern JSON endpoints through the compiled C ABI and independent fixtures."""
 import argparse
+import base64
 import ctypes
 import hashlib
 import json
@@ -70,7 +71,7 @@ def main():
         assert created['document'] == baseline and created['canUndo'] is False
     capabilities = success('modernCapabilities')
     assert capabilities['protocolVersion'] == 7 and capabilities['formatVersion'] == 1
-    assert capabilities['cutoverToModern'] is False
+    assert capabilities['cutoverToModern'] is True
     assert all(name in capabilities['commands'] for name in ('createColumns', 'removeColumns', 'resizeColumns'))
     title = {'node': {'document': {'documentID': document_id}}, 'name': 'title'}
     document_origin = title['node']
@@ -1031,12 +1032,172 @@ def main():
                 command='delete', target=dict(nodes=selected, ranges=[]), arguments={}))['ok'] is False
     assert success('modernSave', 'history-table') == stable
 
+    # Cutover is explicit local archival preparation, never a legacy receive.
+    def encoded(value):
+        return json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()
+
+    def b64(data):
+        return base64.b64encode(data).decode()
+
+    def cutover_archive(doc_id, source, originals=()):
+        return dict(version=1, documentID=doc_id, epoch='cutover-new', source=source,
+                    originals=[b64(value) for value in originals])
+
+    def cutover_flags(archive_id):
+        return dict(archiveID=archive_id, actorID='cutover-author', oldWritersStopped=True,
+                    archivePersisted=True, resetUndoAcknowledged=True)
+
+    def archive_readback(handle, ready, expected):
+        archive_id, count = ready['archiveID'], ready['byteCount']
+        assert call('cutoverToModern', handle, **cutover_flags(archive_id))['ok'] is False
+        data = b''
+        for offset in range(0, count, 8_000_000):
+            part = success('modernCutoverArchiveBytes', handle, archiveID=archive_id,
+                           offset=offset, length=min(8_000_000, count - offset))
+            chunk = base64.b64decode(part['bytes']); data += chunk
+            result = success('modernVerifyCutoverReadback', handle, archiveID=archive_id,
+                             offset=offset, bytes=part['bytes'])
+            assert result['verifiedBytes'] == len(data) and 'document' not in result
+        assert json.loads(data) == expected
+        for flag in ('oldWritersStopped', 'archivePersisted', 'resetUndoAcknowledged'):
+            fields = cutover_flags(archive_id); fields[flag] = False
+            assert call('cutoverToModern', handle, **fields)['ok'] is False
+        return data
+
+    for name in ('mixed', '5001'):
+        handle = 'migration-' + name
+        fixture('legacy-' + name)
+        raw = (fixtures / ('legacy-' + name + '.json')).read_bytes()
+        expected = fixture('migrated-' + name)
+        archive = cutover_archive(expected['documentID'], dict(document=dict(format='documentObject', bytes=b64(raw))), [raw])
+        if name == 'mixed':
+            upload = encoded(archive)
+            started = success('modernBeginCutoverArchive', handle, byteCount=len(upload))
+            archive_id = started['archiveID']
+            assert call('modernAppendCutoverArchive', handle, archiveID=archive_id, offset=1, bytes=b64(upload[:37]))['ok'] is False
+            fields = dict(archiveID=archive_id, offset=0, bytes=b64(upload[:37]))
+            assert success('modernAppendCutoverArchive', handle, **fields)['receivedBytes'] == 37
+            assert success('modernAppendCutoverArchive', handle, **fields)['receivedBytes'] == 37
+            assert call('modernAppendCutoverArchive', handle, **dict(fields, bytes=b64(b'wrong')))['ok'] is False
+            assert call('modernPrepareCutover', handle, archiveID=archive_id)['ok'] is False
+            success('modernAppendCutoverArchive', handle, archiveID=archive_id, offset=37, bytes=b64(upload[37:]))
+            ready = success('modernPrepareCutover', handle, archiveID=archive_id)
+            assert call('modernVerifyCutoverReadback', handle, archiveID=archive_id, offset=1, bytes=b64(b'wrong'))['ok'] is False
+            assert success('modernPrepareCutover', handle, archiveID=archive_id)['verifiedBytes'] == 0
+        else:
+            ready = success('modernPrepareCutover', handle, archive=archive)
+        assert ready['status'] == 'prepared' and ready['document'] == expected
+        assert len([entry for entry in ready['originMapping'] if not entry['address']['path']]) == len(expected['blocks'])
+        archive_readback(handle, ready, archive)
+        result = success('cutoverToModern', handle, **cutover_flags(ready['archiveID']))
+        assert result['document'] == expected and result['version'] == 7 and result['canUndo'] is False
+        assert success('modernChanges', handle)['changes'] == []
+        saved = success('modernSave', handle)
+        assert call('cutoverToModern', handle + '-duplicate', **cutover_flags(ready['archiveID']))['ok'] is False
+        assert success('modernSave', handle) == saved
+        success('restoreModern', handle + '-reopen', actorID='cutover-author', snapshot=saved)
+        assert success('modernDocument', handle + '-reopen') == expected
+        success('modernForgetCutoverArchive', handle, archiveID=ready['archiveID'])
+
+    for name in ('legacy-collision', 'unsupported-inline'):
+        fixture(name); raw = (fixtures / (name + '.json')).read_bytes()
+        archive = cutover_archive('d', dict(document=dict(format='documentObject', bytes=b64(raw))))
+        ready = success('modernPrepareCutover', 'migration-refused', archive=archive)
+        assert ready['status'] == 'unavailable' and ready['reason'] == 'incompatibleLegacyRepresentation'
+        count = success('modernCutoverArchiveBytes', archiveID=ready['archiveID'], offset=0, length=0)['byteCount']
+        part = success('modernCutoverArchiveBytes', archiveID=ready['archiveID'], offset=0, length=count)
+        # Swift canonicalizes the outer archive; the source bytes remain exact.
+        assert json.loads(base64.b64decode(part['bytes'])) == archive
+        assert call('cutoverToModern', 'migration-refused', **cutover_flags(ready['archiveID']))['ok'] is False
+        success('modernForgetCutoverArchive', archiveID=ready['archiveID'])
+
+    # Every supported old protocol must reconcile the offline packet first.
+    for version in range(1, 7):
+        author, peer, handle = (f'legacy-cutover-{version}-{side}' for side in ('a', 'b', 'new'))
+        old_blocks = [dict(id='p', type='paragraph', content=[dict(type='text', text='ABC')])]
+        for owner in (author, peer):
+            success('create', owner, actorID=owner, documentID='old-d', epoch='old-epoch',
+                    collaborationVersion=version, blocks=old_blocks)
+        address = dict(blockID='p', path=['content'])
+        success('replaceText', author, address=address, start=0, end=0, text='L')
+        accepted = success('save', author)
+        position = success('position', author, address=address, offset=2)
+        success('replaceText', peer, address=address, start=3, end=3, text='R')
+        packet = success('changes', peer)
+        source = dict(session=dict(acceptedSnapshot=b64(encoded(accepted)), reconciledSnapshot=b64(encoded(accepted)),
+                                   unacknowledged=[b64(encoded(packet))]))
+        premature = cutover_archive('old-d', source, [b'native settled input'])
+        refused = success('modernPrepareCutover', handle, archive=premature)
+        assert refused['status'] == 'unavailable' and refused['reason'] == 'unreconciledLegacyInput'
+        success('modernForgetCutoverArchive', archiveID=refused['archiveID'])
+        success('receive', author, batch=packet)
+        reconciled = success('save', author)
+        source['session']['reconciledSnapshot'] = b64(encoded(reconciled))
+        archive = cutover_archive('old-d', source, [b'native settled input'])
+        ready = success('modernPrepareCutover', handle, archive=archive)
+        literal = dict(format='seventwo.block-editor.document', formatVersion=1, documentID='old-d', title='',
+                       appearance=dict(fontFamily='sans', fontSize='default', pageWidth='readable'),
+                       blocks=[dict(id='p', type='paragraph', content=[dict(type='text', text='LABCR')])])
+        literal['blocks'][0]['content'] = [dict(type='text', text='L', marks=[]),
+                                          dict(type='text', text='ABC'), dict(type='text', text='R', marks=[])]
+        assert ready['document'] == literal, (version, ready['document'], literal)
+        remapped = success('modernRemapCutoverPosition', handle, archiveID=ready['archiveID'],
+                           kind='text' if version <= 2 else 'writing', position=position)
+        assert remapped['epoch'] == 'cutover-new'
+        assert call('modernRemapCutoverPosition', handle, archiveID=ready['archiveID'],
+                    kind='text' if version <= 2 else 'writing', position=dict(position, unknown=True))['ok'] is False
+        archive_readback(handle, ready, archive)
+        # A prepared migration cannot overwrite its existing legacy writer.
+        assert call('cutoverToModern', author, **cutover_flags(ready['archiveID']))['ok'] is False
+        assert success('save', author) == reconciled
+        success('close', author); success('close', peer)
+        result = success('cutoverToModern', handle, **cutover_flags(ready['archiveID']))
+        assert result['document'] == literal and result['canUndo'] is False
+        assert success('modernResolvePosition', handle, position=remapped)['offset'] == 2
+        saved = success('modernSave', handle)
+        assert call('modernReceive', handle, batch=packet)['ok'] is False
+        assert success('modernSave', handle) == saved
+        title_field = dict(node=dict(document=dict(documentID='old-d')), name='title')
+        target = success('modernCaptureTextRange', handle, field=title_field, start=0, end=0)
+        request = dict(documentID='old-d', epoch='cutover-new', command='replaceTitle', target=target, arguments=dict(text='New'))
+        assert success('modernCommand', handle, request=request)['document'] == dict(literal, title='New')
+        request.update(command='undo', target=None, arguments={})
+        assert success('modernCommand', handle, request=request)['document'] == literal
+        success('restoreModern', handle + '-reopen', actorID='cutover-author', snapshot=success('modernSave', handle))
+        assert success('modernDocument', handle + '-reopen') == literal
+        success('restore', author + '-archive', actorID=author, snapshot=accepted)
+        assert success('document', author + '-archive')['canUndo'] is True
+        success('modernForgetCutoverArchive', archiveID=ready['archiveID'])
+
+    # Valid opaque content and a second exact original exceed the request limit
+    # only as an archive. The actual C ABI must accept the chunked transfer.
+    payload = 'x' * 25_000_000
+    raw = encoded([dict(id='opaque', type='vendor', payload=payload)])
+    archive = cutover_archive('large-d', dict(document=dict(format='blockArray', bytes=b64(raw))), [raw])
+    upload = encoded(archive)
+    assert len(raw) < 32_000_000 and len(upload) > 64_000_000
+    handle = 'migration-large'
+    started = success('modernBeginCutoverArchive', handle, byteCount=len(upload))
+    for offset in range(0, len(upload), 8_000_000):
+        result = success('modernAppendCutoverArchive', handle, archiveID=started['archiveID'], offset=offset,
+                         bytes=b64(upload[offset:offset + 8_000_000]))
+        assert result['receivedBytes'] == min(len(upload), offset + 8_000_000)
+    ready = success('modernPrepareCutover', handle, archiveID=started['archiveID'])
+    assert ready['document']['blocks'] == [dict(id='opaque', type='vendor', payload=payload)]
+    archive_readback(handle, ready, archive)
+    created = success('cutoverToModern', handle, **cutover_flags(ready['archiveID']))
+    assert created['document'] == ready['document'] and created['canUndo'] is False
+    assert success('modernChanges', handle)['changes'] == []
+    success('modernForgetCutoverArchive', archiveID=ready['archiveID'])
+
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
                   literalScenarios=['Local author-history input: paired accepted/local archive restore, backward selection with peer prefix, canonical Undo/Redo and no-op preservation, original delayed invocation despite later input, explicit absent focus, mixed cut input captured at preparation, malformed/foreign/repeated archive rejection without accepted-state mutation, typed local row selection without generic mutation authority and no replicated local metadata', 'Local cut publication ordering: exact prepared mixed rich payload, failed publication/policy/composition unchanged, retained peer text and opaque metadata, scoped and malformed acknowledgment rejection, one shared deletion/Undo/Redo/reopen, duplicate callback after Undo, cancellation/forget/session replacement, title-only policy, whole layout retaining a later peer child in two valid original containers', 'Captured paste: independent full ACC-37 root layout, ACC-38 explicit flattened fallback and unchanged nested rejection, ACC-39 blank multiline/caret, whole-node selection, one Undo/Redo/reopen, retained rich policy/composition payloads and no-result no history', 'Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history', 'ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
                   qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Captured paste has full independent root layout, explicit flattened layout and blank multiline native ABI checks with local focus/selection, Undo/Redo/reopen and retained unavailable payloads. Local cut preparation/publication acknowledgment has literal native bridge checks; preparation IDs, clipboard payloads and callback state are never replicated or restored. Local author-history selection restoration has paired archive, backward/mixed, delayed invocation, peer-preservation and malformed import checks. Native UI input/focus ownership and atomic paired persistence, OS clipboard publication and active native invocation integration, migration, typed Kotlin/TypeScript facades and complete provider/host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    report['literalScenarios'].insert(0, 'Explicit archived cutover: complete independent mixed/5001 documents, exact retained original bytes, chunk retry/gap and readback rejection, all three activation acknowledgments, incompatible content retained/exportable, all six legacy protocols/offline reconciliation, explicit remapped positions, fresh history/receipts, existing handle protection, old peer refusal, new author Undo/reopen and original archived Undo retained')
+    report['qualification'] = report['qualification'].replace('active native invocation integration, migration, typed', 'active native invocation integration, durable host migration activation/rollback, typed') + ' Explicit cutover preparation and local bridge activation are checked separately from durable host storage; no active host pointer is replaced by these checks.'
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')
 

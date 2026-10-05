@@ -38,7 +38,7 @@ import Testing
         let bridge = EditorBridge(), initial = try create(bridge, "a")
         #expect(initial["version"] == .number(7) && initial["canUndo"] == .bool(false))
         let capabilities = try success(call(bridge, "modernCapabilities"))
-        #expect(capabilities["protocolVersion"] == .number(7) && capabilities["cutoverToModern"] == .bool(false))
+        #expect(capabilities["protocolVersion"] == .number(7) && capabilities["cutoverToModern"] == .bool(true))
         #expect(capabilities["commands"]?.array?.count == 22)
         let target = try capture(bridge, "a", 0, 0, title: true)
         let edited = try success(command(bridge, "a", "replaceTitle", target: target, arguments: ["text": .string("Studio ")]))

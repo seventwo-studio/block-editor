@@ -41,7 +41,7 @@ public final class EditorBridge {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
         if modern.handles(input) {
-            if command == "createModern" || command == "restoreModern" {
+            if command == "createModern" || command == "restoreModern" || command == "cutoverToModern" {
                 guard sessions[handle] == nil, writingSessions[handle] == nil else { throw EditorError.invalidChange }
             }
             return try modern.dispatch(input)

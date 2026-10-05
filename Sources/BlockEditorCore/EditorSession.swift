@@ -333,6 +333,10 @@ public final class EditorSession {
         guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
         return try structure.address(of: identity)
     }
+    func cutoverAddresses() throws -> [NodeID: NodeAddress] {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        return try structure.cutoverAddresses()
+    }
     public func nodes(in collection: NodeCollection) throws -> [NodeID] {
         guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
         _ = try structure.kind(in: collection)
@@ -642,7 +646,7 @@ public final class EditorSession {
     }
 }
 
-private func validActor(_ actor: String) -> Bool {
+func validActor(_ actor: String) -> Bool {
     !actor.isEmpty && actor.utf8.count <= 256 && actor.utf8.allSatisfy { (33...126).contains($0) }
 }
 

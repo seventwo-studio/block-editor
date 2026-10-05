@@ -147,3 +147,21 @@ The nineteen advertised commands have shared-core and compiled native ABI checks
 `modernCommand` with `command: "paste"` accepts a `ModernPasteTarget` containing either `range`, or `boundary` and optional mixed `selection` (`nodes` plus `ranges`). Arguments are `clipboard` (checked version 2 / collaborationVersion 7, or null for no import result), optional `mode` (`rich`, `plainText`, `flattenedColumns`), optional preorder `newIDs`, and optional `policy` (`allowedBlockTypes`, `allowedMarkTypes`, `allowAssetMetadata`). Default asset permission is false. IDs are fresh schema labels; repeated labels in distinct namespaces remain valid. Consumers retain their opaque IDs and rich reference payloads. Mode selection is explicit; nested rich layouts reject unchanged.
 
 Applied paste returns one transaction, anchored `focusIntent`/`selectionIntent` and compatibility focus/selection fields. Unavailable/recovery results return the exact validated original `retainedClipboard` without changing document, history, receipt or focus; malformed wrappers/extra fields reject at the checked boundary and remain caller-owned. Null/no-result adds no transaction. Paste never reads the current caret, resolves an asset, publishes an OS clipboard or restarts a provider. Native cut publication/invocation integration and complete host/history selection restoration remain unfinished; shared cut ordering uses the local helpers above.
+
+
+## Explicit migration archive API
+
+Swift uses `ModernCutoverArchive`, `ProtocolMigration.prepareModernCutover`, `ModernCutoverPreparation.remap` and `makeSession`. The archive carries version 1, documentID, a fresh epoch, source and originals. Source is exactly one of `document: {format: "blockArray" | "documentObject", bytes: <base64>}` or `session: {acceptedSnapshot: <base64>, reconciledSnapshot: <base64>, pendingRecovery?: <base64>, unacknowledged: [<base64>]}`. Originals are raw base64 host documents/drafts. Unknown fields, duplicate keys and lossy numeric representations reject. This archive is local preservation data, never a protocol-7 change packet.
+
+| Local endpoint | Input | Result |
+| --- | --- | --- |
+| modernBeginCutoverArchive | byteCount | archiveID, reserved byteCount, receivedBytes, uploading |
+| modernAppendCutoverArchive | archiveID, offset, base64 bytes (at most 8 MB decoded) | contiguous receivedBytes; only exact already-received retries are accepted |
+| modernPrepareCutover | archive or completed archiveID | prepared document and complete originMapping, byteCount, verifiedBytes; incompatible/unreconciled returns unavailable with retained archiveID |
+| modernCutoverArchiveBytes | archiveID, offset, length (at most 8 MB) | canonical archive bytes for host persistence/readback; unavailable uploads remain exportable |
+| modernVerifyCutoverReadback | archiveID, offset, base64 bytes | contiguous verifiedBytes; gaps/changed bytes reject without advancing |
+| modernRemapCutoverPosition | archiveID, kind (text or writing), canonical old position | new anchored WritingPosition resolved from the reconciled old epoch |
+| cutoverToModern | fresh session handle, archiveID, actorID, oldWritersStopped/archivePersisted/resetUndoAcknowledged all true | fresh protocol-7 snapshot, originMapping and archiveID; requires all archive bytes verified and rejects duplicate activation |
+| modernForgetCutoverArchive | archiveID | releases local staging capacity; existing sessions stay intact |
+
+Capabilities now advertise cutoverToModern. The 22 checked author-command discriminants remain unchanged: these helpers do not replicate migration decisions. Eight local preparations/uploads reserve at most 384 MB serialized bytes in aggregate. Canonical outer archive encoding may differ from upload whitespace/key order; embedded original bytes remain exact, and readback must use the exported canonical archive. Missing/incomplete source reconciliation does not create a replacement session. Old Undo stacks and atoms stay in the archive; new author edits have new history. Old position remapping is explicit and rejects missing/deleted/reused origins or wrong scope. See [the compatibility contract](modern-editor-compatibility.md) for host archive checksums, native input settlement, durable new-session save/readback, atomic activation and rollback obligations.

@@ -370,6 +370,28 @@ struct StructuralState {
         throw EditorError.invalidPath
     }
 
+    /// Resolve a whole snapshot with one placement calculation. Cutover needs
+    /// every live origin; individual address lookups repeat the entire replay.
+    func cutoverAddresses() throws -> [NodeID: NodeAddress] {
+        let selected = try effectivePlacements(), visible = visibleNodes(selected)
+        var result: [NodeID: NodeAddress] = [:]
+        for identity in visible where nodes[identity]?.kind != .document {
+            var cursor = identity, pending: [NodeID] = [], visited = Set<NodeID>()
+            while result[cursor] == nil {
+                guard visited.insert(cursor).inserted, let placement = selected[cursor],
+                      let node = nodes[cursor] else { throw EditorError.invalidPath }
+                if let owner = placement.collection.owner { pending.append(cursor); cursor = owner }
+                else { result[cursor] = NodeAddress(node.label) }
+            }
+            while let child = pending.popLast() {
+                guard let placement = selected[child], let owner = placement.collection.owner,
+                      let parent = result[owner], let node = nodes[child] else { throw EditorError.invalidPath }
+                result[child] = NodeAddress(parent.blockID, path: parent.path + [placement.collection.field, node.label])
+            }
+        }
+        return result
+    }
+
     func descendants(of identity: NodeID) throws -> [NodeID] {
         let selected = try effectivePlacements(), visible = visibleNodes(selected)
         var result: [NodeID] = [], stack = [identity], seen = Set<NodeID>()
