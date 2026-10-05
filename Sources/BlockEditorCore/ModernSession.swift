@@ -7,6 +7,8 @@ public enum ModernOperation: Codable, Equatable, Sendable {
     case removeColumns(layout: NodeID, source: NodePlacementID)
     case resizeColumns(layout: NodeID, splitBasisPoints: Int)
     case convertBlock(node: NodeID, type: String, attributes: [String: JSONValue])
+    case splitBlock(ModernBlockSplit)
+    case mergeBlocks(ModernBlockJoin)
     case structure(Mutation)
     case text(WritingMutation)
     case setAppearance(field: String, value: String)
@@ -186,28 +188,30 @@ public final class ModernSession {
         }
         return WritingPosition(documentID: documentID, epoch: epoch, field: field, affinity: offset == 0 ? .after : .before)
     }
-    public func resolve(_ position: WritingPosition) throws -> ResolvedWritingPosition { try resolve(position, in: projection) }
-    private func resolve(_ position: WritingPosition, in projection: WritingProjection) throws -> ResolvedWritingPosition {
+    public func resolve(_ position: WritingPosition) throws -> ResolvedWritingPosition { try modernResolve(position, in: modernCurrentReplay) }
+    func modernResolve(_ position: WritingPosition, in replay: (WritingProjection, ModernDocument, StructuralState), observed: [ChangeID]? = nil) throws -> ResolvedWritingPosition {
         guard position.documentID == documentID else { throw EditorError.differentDocument }
         guard position.epoch == epoch else { throw ModernSessionError.incompatibleEpoch }
-        try validateField(position.field)
+        let projection = replay.0, shape = replay.2
+        guard retainedWritingFields(shape)[position.field] != nil else { throw EditorError.invalidPath }
         if let anchor = position.anchor {
-            guard anchor.element.index >= 0, anchor.origin == position.field,
-                  projection.retainedKeys.contains(anchor) else { throw EditorError.invalidChange }
-            if let interior = position.intraAtomOffset {
-                let value = try projection.value(of: anchor)
-                guard value["type"] != .string("text"), interior > 0, interior < plainText([value]).utf16.count,
-                      modernScalarBoundary(interior, in: plainText([value])) else { throw EditorError.invalidRange }
-            }
-            let offset: Int
-            if let interior = position.intraAtomOffset {
-                offset = try projection.offset(of: anchor, affinity: .before) + (projection.visibleKeys(in: position.field).contains(anchor) ? interior : 0)
-            } else { offset = try projection.offset(of: anchor, affinity: position.affinity) }
-            return ResolvedWritingPosition(address: position.field.node.textAddress(position.field.name), offset: offset)
+            guard anchor.element.index >= 0, projection.retainedKeys.contains(anchor),
+                  modernRelatedFields(anchor.origin, position.field, changes: Array(log.values)) else { throw EditorError.invalidChange }
         }
-        guard position.intraAtomOffset == nil else { throw EditorError.invalidRange }
-        return ResolvedWritingPosition(address: position.field.node.textAddress(position.field.name),
-            offset: position.affinity == .before ? projection.text(in: position.field).utf16.count : 0)
+        let history: [ChangeID: ModernChange]
+        if let observed {
+            let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
+            history = log.filter { cohort.contains($0.key) }
+        } else { history = log }
+        let active = activeStates(history)
+        return try resolveWritingPosition(position, projection: projection, structure: shape) { field in
+            guard case .inserted(let creation, let path) = field.node, path.isEmpty, active[creation.change] == false,
+                  case .edit(let operations)? = history[creation.change]?.body else { return nil }
+            let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
+                if case .splitBlock(let split) = operation, split.destination == field { return (split.source, split.edge) }; return nil
+            }
+            return boundaries.count == 1 ? boundaries[0] : nil
+        }
     }
     public func captureTextRange(in field: WritingField, start: Int, end: Int) throws -> ModernTextRange {
         ModernTextRange(start: try position(in: field, offset: start), end: try position(in: field, offset: end), observed: frontier(log))
@@ -216,8 +220,10 @@ public final class ModernSession {
         try authoringAllowed(command: range.start.field == titleField ? "replaceTitle" : "replaceText")
         if let group, !validToken(group) { throw EditorError.invalidChange }
         guard text.utf16.count <= 100_000, range.start.field == range.end.field else { throw EditorError.invalidRange }
-        try validatePlainText(text, field: range.start.field)
-        return try replaceSelected(field: range.start.field, selected: capturedSelection(range), text: text, group: group)
+        let selected = try capturedSelection(range)
+        let field = try selected.position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: selected.position.field)
+        try validatePlainText(text, field: field)
+        return try replaceSelected(field: field, selected: selected, text: text, group: group)
     }
     public func format(in range: ModernTextRange, markType: String, mark: JSONValue?) throws {
         try authoringAllowed(command: "format"); try validateModernMark(type: markType, mark: mark)
@@ -227,19 +233,22 @@ public final class ModernSession {
     }
     func modernCapturedCaret(_ range: ModernTextRange) throws -> WritingPosition {
         guard range.start.field == range.end.field else { throw EditorError.invalidRange }
-        let cohort = try closure(range.observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
-        let captured = try replay(log.filter { cohort.contains($0.key) }).0
-        let start = try resolve(range.start, in: captured), end = try resolve(range.end, in: captured)
+        let captured = try modernCapturedReplay(range.observed)
+        let start = try modernResolve(range.start, in: captured, observed: range.observed), end = try modernResolve(range.end, in: captured, observed: range.observed)
         guard start.address == end.address, start.offset == end.offset else { throw EditorError.invalidRange }
         _ = try resolve(range.start)
-        return range.start
+        let field = try range.start.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: range.start.field)
+        return WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: range.start.anchor,
+            affinity: range.start.affinity, intraAtomOffset: range.start.intraAtomOffset)
     }
     private func capturedSelection(_ range: ModernTextRange) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
         guard range.start.field == range.end.field else { throw EditorError.invalidRange }
-        let cohort = try closure(range.observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
-        let captured = try replay(log.filter { cohort.contains($0.key) }).0
-        let start = try resolve(range.start, in: captured), end = try resolve(range.end, in: captured)
-        return try selection(range.start.field, min(start.offset, end.offset)..<max(start.offset, end.offset), in: captured)
+        let captured = try modernCapturedReplay(range.observed)
+        let start = try modernResolve(range.start, in: captured, observed: range.observed), end = try modernResolve(range.end, in: captured, observed: range.observed)
+        guard start.address == end.address else { throw EditorError.invalidRange }
+        _ = try resolve(range.start); _ = try resolve(range.end)
+        let field = try range.start.anchor.map { try captured.0.field(of: $0) } ?? captured.0.destination(of: range.start.field)
+        return try selection(field, min(start.offset, end.offset)..<max(start.offset, end.offset), in: captured.0)
     }
 
     public func receive(_ incoming: ModernBatch) throws {
@@ -400,8 +409,11 @@ public final class ModernSession {
     var modernObserved: [ChangeID] { frontier(log) }
     var modernCurrentReplay: (WritingProjection, ModernDocument, StructuralState) { (projection, document, structure) }
     func modernCapturedStructure(_ observed: [ChangeID]) throws -> StructuralState {
+        try modernCapturedReplay(observed).2
+    }
+    func modernCapturedReplay(_ observed: [ChangeID]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
-        return try replay(log.filter { cohort.contains($0.key) }).2
+        return try replay(log.filter { cohort.contains($0.key) })
     }
     func modernCapturedSelection(_ range: ModernTextRange) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
         try capturedSelection(range)
@@ -469,7 +481,7 @@ public final class ModernSession {
         }
     }
     private func selection(_ field: WritingField, _ range: Range<Int>, in captured: WritingProjection? = nil) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
-        try validateField(field)
+        if captured == nil { try validateField(field) }
         let projection = captured ?? self.projection
         var cursor = 0, boundaries: Set<Int> = [0], selected: [WritingAtomKey] = []
         var previous: WritingAtomKey?, next: WritingAtomKey?, marks: [JSONValue] = []
@@ -516,6 +528,7 @@ public final class ModernSession {
             case .edit(let operations):
                 guard !operations.isEmpty, operations.count <= 100_000 else { throw EditorError.invalidChange }
                 var introduced = Set<ElementID>(), registers = Set<String>()
+                var causalTextProjection: WritingProjection?
                 func reference(_ key: WritingAtomKey) throws {
                     try modernReference(key.origin.node, before: change.id, cohort: cohort, registry: registry)
                     guard registeredBirths[key.origin] != nil, raw.structure!.nodes[key.origin.node] != nil else { throw EditorError.invalidChange }
@@ -572,6 +585,30 @@ public final class ModernSession {
                             raw.structure!.nodes[node] = try writingConvertedBlock(current, type: type, attributes: attributes, modern: true)
                             raw.structure!.touched.insert(node)
                         }
+                    case .splitBlock(let split):
+                        try validateTargetScope(split.range.start.documentID, split.range.start.epoch)
+                        try validateTargetScope(split.range.end.documentID, split.range.end.epoch)
+                        let capturedIDs = try closure(split.range.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort), introduced.insert(split.creation).inserted else { throw EditorError.invalidChange }
+                        let capturedChanges = ordered.filter { capturedIDs.contains($0.id) }
+                        for position in [split.range.start, split.range.end] {
+                            if let anchor = position.anchor {
+                                guard modernRelatedFields(anchor.origin, position.field, changes: capturedChanges) else { throw EditorError.invalidChange }
+                            }
+                        }
+                        let captured = try causalWritingReplay(capturedIDs, in: candidate), authored = try causalWritingReplay(cohort, in: candidate)
+                        let expected = try planModernSplit(range: split.range, creation: split.creation, label: split.value["id"]!.string!, captured: captured, authored: authored)
+                        guard split == expected else { throw EditorError.invalidChange }
+                        try modernReference(split.source.node, before: change.id, cohort: cohort, registry: registry)
+                        try modernColumnPlacementReference(split.after, change: change.id, cohort: cohort, registry: registry)
+                        try apply([split.birth], enabled: active[change.id] ?? true, to: &raw)
+                    case .mergeBlocks(let join):
+                        try validateTargetScope(join.selection.documentID, join.selection.epoch)
+                        let capturedIDs = try closure(join.selection.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        let captured = try causalColumnStructure(capturedIDs, in: candidate), authored = try causalWritingReplay(cohort, in: candidate)
+                        try validateSelectedNodes(join.selection.nodes, in: captured)
+                        try validateModernJoin(join, structure: authored.1, projection: authored.0)
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
@@ -583,7 +620,13 @@ public final class ModernSession {
                             guard registeredBirths[atom.key.origin] != nil, raw.structure!.nodes[atom.key.origin.node] != nil else { throw EditorError.invalidChange }
                             guard atom.key.element.change == change.id, atom.key.element.index >= 0, atom.key.element.index <= 2_147_483_647,
                                   introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
-                            if let anchor = atom.edge.anchor { try reference(anchor); guard anchor.origin == atom.key.origin else { throw EditorError.invalidChange } }
+                            if let anchor = atom.edge.anchor {
+                                try reference(anchor)
+                                if anchor.origin != atom.key.origin {
+                                    if causalTextProjection == nil { causalTextProjection = try causalWritingReplay(cohort, in: candidate).0 }
+                                    guard try causalTextProjection!.field(of: anchor) == atom.key.origin else { throw EditorError.invalidChange }
+                                }
+                            }
                             switch atom.route {
                             case .field(let field): guard field == atom.key.origin, atom.edge == .start else { throw EditorError.invalidChange }
                             case .follow(let anchor): guard atom.edge.anchor == anchor else { throw EditorError.invalidChange }; try reference(anchor)
@@ -610,6 +653,9 @@ public final class ModernSession {
         return (projection, try ModernDocument(fields: fields), output)
     }
     private func causalColumnStructure(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> StructuralState {
+        try causalWritingReplay(cohort, in: candidate).1
+    }
+    private func causalWritingReplay(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, StructuralState) {
         let subset = candidate.filter { cohort.contains($0.key) }, active = activeStates(subset)
         var raw = Materialized(); raw.structure = seed.structure
         var routes: [ModernColumnRoute] = []
@@ -631,6 +677,8 @@ public final class ModernSession {
                         raw.structure!.nodes[node] = try writingConvertedBlock(current, type: type, attributes: attributes, modern: true)
                         raw.structure!.touched.insert(node)
                     }
+                case .splitBlock(let split): try apply([split.birth], enabled: enabled, to: &raw)
+                case .mergeBlocks: break
                 case .text: break
                 case .setAppearance: break
                 }
@@ -639,7 +687,7 @@ public final class ModernSession {
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(subset.values.sorted { $0.id < $1.id }),
             births: retainedWritingFields(raw.structure!), protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
         let output = shared.0
-        return try projectModernColumnRoutes(output, routes: routes)
+        return (shared.1, try projectModernColumnRoutes(output, routes: routes))
     }
     /// Bound recursive payloads before a Foundation encoder/decoder is asked to
     /// walk them, including typed packets that did not enter through raw JSON.
@@ -651,6 +699,12 @@ public final class ModernSession {
             case .edit(let operations):
                 guard operations.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
                 for operation in operations {
+                    if case .splitBlock(let split) = operation {
+                        try inspectModernPayload(split.value); try validateModernSplitShape(split, change: change.id)
+                    }
+                    if case .mergeBlocks(let join) = operation {
+                        guard join.selection.nodes.count == 2 else { throw EditorError.invalidChange }
+                    }
                     if case .convertBlock(let node, let type, let attributes) = operation {
                         try modernStructuralIdentityShape(node)
                         try inspectModernPayload(.object(attributes))
@@ -717,6 +771,22 @@ public final class ModernSession {
                 var elements = Set<ElementID>(), registers = Set<String>()
                 for operation in operations {
                     switch operation {
+                    case .splitBlock(let split):
+                        try validateModernSplitShape(split, change: change.id)
+                        try validateTargetScope(split.range.start.documentID, split.range.start.epoch)
+                        try validateTargetScope(split.range.end.documentID, split.range.end.epoch)
+                        try validateObservedFrontier(split.range.observed, before: change.id)
+                        try fieldShape(split.range.start.field); try fieldShape(split.source)
+                        for key in split.selected + split.prefix + split.suffix { try referenceShape(key) }
+                        if let key = split.edge.anchor { try referenceShape(key) }
+                        for position in [split.range.start, split.range.end] { if let key = position.anchor { try referenceShape(key) } }
+                        guard elements.insert(split.creation).inserted else { throw EditorError.invalidChange }
+                    case .mergeBlocks(let join):
+                        guard join.selection.nodes.count == 2, Set(join.selection.nodes).count == 2 else { throw EditorError.invalidChange }
+                        try validateTargetScope(join.selection.documentID, join.selection.epoch)
+                        try validateObservedFrontier(join.selection.observed, before: change.id)
+                        for node in join.selection.nodes { try modernStructuralIdentityShape(node) }
+                        if let key = join.edge.anchor { try referenceShape(key) }
                     case .convertBlock(let node, let type, let attributes):
                         try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
                         guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange }
@@ -730,7 +800,7 @@ public final class ModernSession {
                             try fieldShape(atom.key.origin)
                             guard atom.key.element.change == change.id, atom.key.element.index >= 0, atom.key.element.index <= 2_147_483_647,
                                   elements.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
-                            if let anchor = atom.edge.anchor { try referenceShape(anchor); guard anchor.origin == atom.key.origin else { throw EditorError.invalidChange } }
+                            if let anchor = atom.edge.anchor { try referenceShape(anchor) }
                             switch atom.route {
                             case .field(let field): guard atom.edge == .start, field == atom.key.origin else { throw EditorError.invalidChange }
                             case .follow(let key): guard atom.edge.anchor == key else { throw EditorError.invalidChange }; try referenceShape(key)

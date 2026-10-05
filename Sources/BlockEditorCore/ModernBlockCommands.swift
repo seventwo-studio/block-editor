@@ -5,9 +5,9 @@ extension ModernSession {
     /// list/code conversion remains explicit subsequent ST-122 work.
     public func convertBlock(in range: ModernTextRange, to target: WritingBlockTarget) throws -> ModernStructuralResult {
         try authoringAllowed(command: "convertBlock")
-        _ = try modernCapturedCaret(range)
-        guard range.start.field != titleField else { throw EditorError.invalidPath }
-        var node = range.start.field.node
+        let caret = try modernCapturedCaret(range)
+        guard caret.field != titleField else { throw EditorError.invalidPath }
+        var node = caret.field.node
         let placements = try structure.effectivePlacements()
         if target.type == "list", structure.nodes[node]?.kind == .item {
             var visited = Set<NodeID>()
@@ -22,7 +22,7 @@ extension ModernSession {
         let attributes = try modernConversionAttributes(target)
         let converted = try writingConvertedBlock(original, type: target.type, attributes: attributes, modern: true)
         let outcome = { (_: (WritingProjection, ModernDocument, StructuralState), _: [ChangeID]) in
-            ModernStructuralResult(focus: .text(range.start), selection: .text(WritingTextRange(start: range.start, end: range.start)))
+            ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
         }
         if converted.fields == original.fields { return outcome(modernCurrentReplay, modernObserved) }
         endTypingGroup()
@@ -32,8 +32,9 @@ extension ModernSession {
         try authoringAllowed(command: "softBreak")
         guard range.start.field == range.end.field, range.start.field != titleField else { throw EditorError.invalidPath }
         let selected = try modernCapturedSelection(range)
+        let field = try selected.position.anchor.map { try modernCurrentReplay.0.field(of: $0) } ?? modernCurrentReplay.0.destination(of: selected.position.field)
         endTypingGroup()
-        return try replaceSelected(field: range.start.field, selected: selected, text: "\n", group: nil)
+        return try replaceSelected(field: field, selected: selected, text: "\n", group: nil)
     }
 }
 

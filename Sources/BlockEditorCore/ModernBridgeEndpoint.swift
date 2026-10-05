@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -183,6 +183,13 @@ final class ModernBridgeEndpoint {
             case "softBreak":
                 try allowed(arguments, [])
                 position = try session.softBreak(in: decode(request["target"], as: ModernTextRange.self))
+            case "splitBlock":
+                try allowed(arguments, ["newBlockID"])
+                guard let label = arguments["newBlockID"]?.string else { throw EditorError.invalidChange }
+                try structural(session.splitBlock(in: decode(request["target"], as: ModernTextRange.self), newBlockID: label))
+            case "mergeBlocks":
+                try allowed(arguments, [])
+                try structural(session.mergeBlocks(decode(request["target"], as: ModernNodeSelection.self)))
             case "undo", "redo":
                 try allowed(arguments, [])
                 guard request["target"] == nil || request["target"] == .null else { throw EditorError.invalidChange }
@@ -193,8 +200,8 @@ final class ModernBridgeEndpoint {
         catch ModernSessionError.recoveryRequired { return try result("recoveryRequired", reason: "schemaOrIdentityConflict") }
         catch let error as EditorError {
             if command == "convertBlock", case .invalidDocument = error { return try result("unavailable", reason: "conversionMetadataConflict") }
-            if ["createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak"].contains(command), error == .invalidChange || error == .invalidPath {
-                return try result("unavailable", reason: ["convertBlock", "softBreak"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
+            if ["createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks"].contains(command), error == .invalidChange || error == .invalidPath {
+                return try result("unavailable", reason: ["convertBlock", "softBreak", "splitBlock", "mergeBlocks"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
             }
             throw error
         }

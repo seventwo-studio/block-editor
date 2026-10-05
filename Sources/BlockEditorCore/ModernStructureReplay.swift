@@ -44,6 +44,13 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                 guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
             case .convertBlock(let node, let type, let attributes):
                 try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
+            case .splitBlock(let split):
+                try validateModernSplitShape(split, change: change.id)
+                guard introduced.insert(split.creation).inserted, registry.nodes[split.identity] == nil else { throw EditorError.invalidChange }
+                registry.register(split.value, identity: split.identity, kind: split.item ? .item : .block, active: true)
+            case .mergeBlocks(let join):
+                guard join.selection.nodes.count == 2, Set(join.selection.nodes).count == 2 else { throw EditorError.invalidChange }
+                for node in join.selection.nodes { try modernStructuralIdentityShape(node) }
             case .text(.insert(let atom)):
                 guard introduced.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
             default: break

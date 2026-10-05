@@ -301,10 +301,48 @@ def main():
     assert success('modernResolvePosition', 'soft-break', position=broken['focus'])['offset'] == 2
     assert command('soft-break', 'undo')['document'] == baseline
     assert command('soft-break', 'redo')['document'] == broken['document']
+    # Retained cuts use independently written literal ABC expectations; these
+    # supplement the committed fixture checks without modifying that catalog.
+    assert all(name in capabilities['commands'] for name in ('splitBlock', 'mergeBlocks'))
+    column_session('cut-a', baseline)
+    column_session('cut-b', baseline)
+    cut_target = success('modernCaptureTextRange', 'cut-a', field=body_a, start=1, end=1)
+    tail_result = command('cut-a', 'splitBlock', cut_target, newBlockID='tail')
+    tail_origin = tail_result['focus']['field']['node']
+    expected_cut = json.loads(json.dumps(baseline))
+    expected_cut['blocks'][0]['content'] = [dict(type='text', text='A')]
+    expected_cut['blocks'].insert(1, dict(id='tail', type='paragraph', content=[dict(type='text', text='BC')]))
+    assert tail_result['document'] == expected_cut and tail_result['status'] == 'applied'
+    assert success('modernResolvePosition', 'cut-a', position=tail_result['focus'])['offset'] == 0
+    assert success('modernReceive', 'cut-b', batch=success('modernChanges', 'cut-a'))['document'] == expected_cut
+    tail_field = dict(node=tail_origin, name='content')
+    edited_tail = success('modernCaptureTextRange', 'cut-b', field=tail_field, start=0, end=1)
+    command('cut-b', 'replaceText', edited_tail, text='X')
+    success('modernReceive', 'cut-a', batch=success('modernChanges', 'cut-b'))
+    expected_undo = json.loads(json.dumps(baseline))
+    expected_undo['blocks'][0]['content'] = [dict(type='text', text='AXC')]
+    assert command('cut-a', 'undo')['document'] == expected_undo
+    cut_saved = success('modernSave', 'cut-a')
+    success('destroy', 'cut-a')
+    success('restoreModern', 'cut-reopened', actorID='cut-a', snapshot=cut_saved)
+    replayed = command('cut-reopened', 'redo')
+    assert [block['id'] for block in replayed['document']['blocks']][:2] == ['A', 'tail']
+    assert replayed['document']['blocks'][1]['content'] == [dict(type='text', text='XC')]
+    merge_target = success('modernCaptureNodes', 'cut-reopened', nodes=[body_a['node'], tail_origin])
+    merged = command('cut-reopened', 'mergeBlocks', merge_target)
+    assert merged['document'] == expected_undo and merged['status'] == 'applied'
+    assert success('modernResolvePosition', 'cut-reopened', position=merged['focus'])['offset'] == 1
+    assert command('cut-reopened', 'undo')['document'] == replayed['document']
+    # Explicit metadata incompatibility leaves both saved history and receipt intact.
+    unchanged_cut = success('modernSave', 'cut-reopened')
+    invalid_split = command('cut-reopened', 'splitBlock', cut_target, newBlockID='A')
+    assert invalid_split['status'] == 'unavailable' and invalid_split['transaction'] is None
+    assert success('modernSave', 'cut-reopened') == unchanged_cut
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Schema-changing conversion, split/merge, list structure, clipboard, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Empty-list Enter/role transitions, schema-changing conversion, list structure, clipboard, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

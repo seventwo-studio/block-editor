@@ -338,68 +338,29 @@ public final class WritingSession {
         return WritingPosition(documentID: documentID, epoch: epoch, field: field, affinity: offset == 0 ? .after : .before)
     }
     public func resolve(_ original: WritingPosition) throws -> ResolvedWritingPosition {
-        var position = original, retiredHeads = Set<WritingField>()
+        guard original.documentID == documentID, original.epoch == epoch else { throw WritingSessionError.incompatibleEpoch }
         var retirementStates: [ChangeID: Bool]?
-        while true {
-            guard position.documentID == documentID, position.epoch == epoch else { throw WritingSessionError.incompatibleEpoch }
-            if let anchor = position.anchor { guard anchor.element.index >= 0 else { throw EditorError.invalidChange } }
-            let field = try position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: position.field)
-            do { _ = try structure.address(of: field.node) }
-            catch {
-                // A protocol-4 split birth retains its exact source boundary after
-                // author Undo retires the new node. Empty-field head positions have
-                // no text atom to follow; resolve them through that immutable birth.
-                // Deleted unrelated nodes and field-end sentinels keep failing.
-                guard usesRetainedOrigins, position.anchor == nil, position.affinity == .after,
-                      position.intraAtomOffset == nil, !retiredHeads.contains(position.field),
-                      case .inserted(let creation, let path) = position.field.node, path.isEmpty,
-                      case .edit(let operations)? = log[creation.change]?.body else { throw error }
-                if retirementStates == nil {
-                    var winning: [ChangeID: (id: ChangeID, enabled: Bool)] = [:]
-                    for change in log.values {
-                        if case .setActive(let target, let enabled) = change.body,
-                           winning[target].map({ $0.id < change.id }) ?? true { winning[target] = (change.id, enabled) }
-                    }
-                    retirementStates = winning.mapValues(\.enabled)
+        return try resolveWritingPosition(original, projection: projection, structure: structure) { field in
+            guard usesRetainedOrigins, case .inserted(let creation, let path) = field.node, path.isEmpty,
+                  case .edit(let operations)? = log[creation.change]?.body else { return nil }
+            if retirementStates == nil {
+                var winning: [ChangeID: (id: ChangeID, enabled: Bool)] = [:]
+                for change in log.values {
+                    if case .setActive(let target, let enabled) = change.body,
+                       winning[target].map({ $0.id < change.id }) ?? true { winning[target] = (change.id, enabled) }
                 }
-                guard retirementStates?[creation.change] == false else { throw error }
-                let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
-                    switch operation {
-                    case .text(.splitBoundary(let source, let destination, let edge, _)),
-                         .text(.spliceBoundary(let source, let destination, let edge, _, _)):
-                        return destination == position.field ? (source, edge) : nil
-                    default: return nil
-                    }
+                retirementStates = winning.mapValues(\.enabled)
+            }
+            guard retirementStates?[creation.change] == false else { return nil }
+            let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
+                switch operation {
+                case .text(.splitBoundary(let source, let destination, let edge, _)),
+                     .text(.spliceBoundary(let source, let destination, let edge, _, _)):
+                    return destination == field ? (source, edge) : nil
+                default: return nil
                 }
-                guard boundaries.count == 1, let (source, edge) = boundaries.first else { throw error }
-                let affinity: TextAffinity
-                switch edge { case .before: affinity = .before; case .after, .start: affinity = .after }
-                retiredHeads.insert(position.field)
-                position = WritingPosition(documentID: documentID, epoch: epoch, field: source, anchor: edge.anchor, affinity: affinity)
-                continue
             }
-            let keys = projection.visibleKeys(in: field)
-            var offset = 0
-            guard let anchor = position.anchor else {
-                guard position.intraAtomOffset == nil else { throw EditorError.invalidRange }
-                if position.affinity == .before { offset = projection.text(in: field).utf16.count }
-                else { offset = try projection.startOffset(of: position.field) }
-                return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
-            }
-            if let interior = position.intraAtomOffset {
-                let value = try atom(anchor), label = plainText([value])
-                guard value["type"] != .string("text"), interior > 0, interior < label.utf16.count, writingScalarBoundary(interior, in: label) else { throw EditorError.invalidRange }
-                return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: try projection.offset(of: anchor, affinity: .before) + (keys.contains(anchor) ? interior : 0))
-            }
-            for key in keys {
-                if key == anchor, position.affinity == .before { break }
-                offset += plainText([try atom(key)]).utf16.count
-                if key == anchor { break }
-            }
-            // Deleted anchors still own a placement; nearest visible offset is resolved
-            // by the full tombstone order, not by a stale field-local atom number.
-            if !keys.contains(anchor) { offset = try projection.offset(of: anchor, affinity: position.affinity) }
-            return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
+            return boundaries.count == 1 ? boundaries[0] : nil
         }
     }
     @discardableResult public func replaceText(at address: TextAddress, range: Range<Int>, with text: String, marks: [JSONValue]? = nil) throws -> WritingPosition {
@@ -430,19 +391,11 @@ public final class WritingSession {
         let id = try nextID(), creation = ElementID(change: id, index: 0), node = NodeID.inserted(creation: creation, path: [])
         let destination = WritingField(node: node, name: "content")
         let value: JSONValue = .object(["id": .string(newBlockID), "type": .string("paragraph"), "content": .array([])])
-        var operations = try retainedRoleOperations(for: [source])
-        operations.append(.structure(.insertNode(value: value, identity: node, collection: parent.collection, placement: creation, after: parent.id)))
-        operations.append(.text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: nextSibling)))
-        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
-        // Observed prefix atoms can themselves be anchored before a suffix atom.
-        // Pin those known atoms to the source before moving the suffix, so native
-        // committed composition does not follow its old anchor into the new field.
-        if usesRetainedOrigins {
-            let prefix = try selection(address, 0..<range.lowerBound).keys
-            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
-        }
+        let prefix = usesRetainedOrigins ? try selection(address, 0..<range.lowerBound).keys : []
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
-        if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
+        let operations = try retainedRoleOperations(for: [source]) + writingSplitOperations(value: value, identity: node,
+            collection: parent.collection, creation: creation, after: parent.id, source: selected.field, destination: destination,
+            edge: selected.edge, before: nextSibling, selected: selected.keys, prefix: prefix, suffix: suffix)
         try perform(id, operations)
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: suffix.first, affinity: suffix.isEmpty ? .after : .before)
     }
@@ -2721,18 +2674,11 @@ extension WritingSession {
         if structure.nodes[owner]?.fields["style"] == .string("todo") { fields["checked"] = .bool(false) }
         if value.collections.contains("children") { fields["children"] = .array([]) }
         let next = index + 1 < siblings.count ? siblings[index + 1] : nil
-        var operations: [WritingOperation] = [.structure(.insertNode(value: .object(fields), identity: destinationNode, collection: parent.collection, placement: creation, after: parent.id)),
-            .text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: next))]
-        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
-        // Observed prefix atoms can themselves be anchored before a suffix atom.
-        // Pin those known atoms to the source before moving the suffix, so native
-        // committed composition does not follow its old anchor into the new field.
-        if usesRetainedOrigins {
-            let prefix = try selection(address, 0..<range.lowerBound).keys
-            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
-        }
+        let prefix = usesRetainedOrigins ? try selection(address, 0..<range.lowerBound).keys : []
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
-        if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
+        let operations = writingSplitOperations(value: .object(fields), identity: destinationNode, collection: parent.collection,
+            creation: creation, after: parent.id, source: selected.field, destination: destination, edge: selected.edge,
+            before: next, selected: selected.keys, prefix: prefix, suffix: suffix)
         try perform(id, operations)
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: suffix.first, affinity: suffix.isEmpty ? .after : .before)
     }
