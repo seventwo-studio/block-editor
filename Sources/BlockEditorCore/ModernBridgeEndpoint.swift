@@ -5,6 +5,8 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
+    private struct CutPublication { let preparation: ModernCutPreparation; let bytes: Int }
+    private var cuts: [String: [String: CutPublication]] = [:]
     private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "paste", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "completeAsyncBlock", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
@@ -26,6 +28,9 @@ final class ModernBridgeEndpoint {
             let asyncEnabled = sessions[handle]?.allowedCommands?.contains("completeAsyncBlock") ?? true
             values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
+            let cutSession = sessions[handle]
+            values["canCut"] = .bool(cutSession.map { !$0.isComposing && $0.mergeRecovery == nil &&
+                ($0.allowedCommands == nil || $0.allowedCommands!.contains("delete") || $0.allowedCommands!.contains("replaceTitle")) } ?? true)
             let listEnabled = sessions[handle]?.allowedCommands?.contains("listStructure") ?? true
             values["listActions"] = .array([ModernListAction.indent, .outdent, .reorder, .setStyle, .setChecked].filter {
                 listEnabled && (sessions[handle]?.allowedListActions?.contains($0) ?? true)
@@ -53,7 +58,7 @@ final class ModernBridgeEndpoint {
         if command == "cutoverToModern" { throw EditorError.invalidChange }
         guard let session = sessions[handle] else { throw EditorError.invalidChange }
         switch command {
-        case "destroy": try allowed(input, ["command", "session"]); sessions.removeValue(forKey: handle); holds.removeValue(forKey: handle); return .null
+        case "destroy": try allowed(input, ["command", "session"]); sessions.removeValue(forKey: handle); holds.removeValue(forKey: handle); cuts.removeValue(forKey: handle); return .null
         case "modernDocument": try allowed(input, ["command", "session"]); return .object(session.document.fields)
         case "modernSnapshot": try allowed(input, ["command", "session"]); return try snapshot(session)
         case "modernSave": try allowed(input, ["command", "session"]); return try JSONDecoder().decode(JSONValue.self, from: session.save())
@@ -102,6 +107,35 @@ final class ModernBridgeEndpoint {
         case "modernCopy":
             try allowed(input, ["command", "session", "target"])
             return try encode(session.copyClipboard(decode(input["target"], as: ModernDeleteTarget.self)))
+        case "modernPrepareCut":
+            try allowed(input, ["command", "session", "target"])
+            guard (cuts[handle]?.count ?? 0) < 64 else { throw EditorError.recoveryCapacityExceeded }
+            let preparation = try session.prepareCut(decode(input["target"], as: ModernDeleteTarget.self))
+            let identifier = UUID().uuidString
+            let response: JSONValue = .object(["preparationID": .string(identifier), "documentID": .string(session.documentID),
+                "epoch": .string(session.epoch), "clipboard": try encode(preparation.clipboard), "target": try encode(preparation.target)])
+            let bytes = try canonicalEncoder().encode(response).count
+            let used = cuts[handle]?.values.reduce(0, { $0 + $1.bytes }) ?? 0
+            guard bytes <= 64_000_000 - used - 1024 else { throw EditorError.recoveryCapacityExceeded }
+            cuts[handle, default: [:]][identifier] = CutPublication(preparation: preparation, bytes: bytes)
+            return response
+        case "modernFinishCut":
+            try allowed(input, ["command", "session", "preparationID", "documentID", "epoch", "published"])
+            guard let identifier = input["preparationID"]?.string else { throw EditorError.invalidChange }
+            let published = try decode(input["published"], as: Bool.self)
+            guard let record = cuts[handle]?[identifier] else {
+                return try cutResponse(ModernCutOutcome(status: "unavailable", reason: "unknownCutPreparation", transaction: nil, result: nil, retainedClipboard: nil), session: session)
+            }
+            guard input["documentID"] == .string(session.documentID), input["epoch"] == .string(session.epoch) else {
+                return try cutResponse(ModernCutOutcome(status: "unavailable", reason: "cutSessionChanged", transaction: nil, result: nil,
+                    retainedClipboard: record.preparation.clipboard), session: session)
+            }
+            return try cutResponse(session.finishCut(record.preparation, published: published), session: session)
+        case "modernCancelCut", "modernForgetCut":
+            try allowed(input, ["command", "session", "preparationID"])
+            guard let identifier = input["preparationID"]?.string else { throw EditorError.invalidChange }
+            if command == "modernForgetCut" { cuts[handle]?.removeValue(forKey: identifier) }
+            else if let record = cuts[handle]?[identifier] { try session.cancelCut(record.preparation) }
         case "modernSemanticState":
             try allowed(input, ["command", "session", "target", "kind"])
             return try encode(session.semanticState(decode(input["target"], as: ModernSemanticTarget.self), kind: decode(input["kind"], as: ModernSemanticKind.self)))
@@ -331,6 +365,19 @@ final class ModernBridgeEndpoint {
             guard let name = value.string, let action = ModernListAction(rawValue: name), actions.insert(action).inserted else { throw EditorError.invalidChange }
         }
         return actions
+    }
+    private func cutResponse(_ outcome: ModernCutOutcome, session: ModernSession) throws -> JSONValue {
+        var response = try snapshot(session).object!
+        response["status"] = .string(outcome.status); response["reason"] = outcome.reason.map(JSONValue.string) ?? .null
+        response["transaction"] = try outcome.transaction.map(encode) ?? .null
+        response["retainedClipboard"] = try outcome.retainedClipboard.map(encode) ?? .null
+        response["focusIntent"] = try outcome.result.map { try encode($0.focus) } ?? .null
+        response["selectionIntent"] = try outcome.result?.selection.map(encode) ?? .null
+        response["focus"] = try outcome.result.flatMap { if case .text(let caret) = $0.focus { return caret }; return nil }.map(encode) ?? .null
+        response["selection"] = try outcome.result?.selection.map {
+            switch $0 { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes) }
+        } ?? .null
+        return .object(response)
     }
     private func authoringPolicy(_ value: JSONValue) throws -> Set<String> {
         let policy = try decode(value, as: [String].self)

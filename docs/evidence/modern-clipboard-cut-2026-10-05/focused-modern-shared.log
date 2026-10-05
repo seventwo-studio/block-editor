@@ -1,0 +1,662 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 42]
+Build complete! (0.51 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernListRoleTests started.
+◇ Suite ModernAsyncCommandsTests started.
+◇ Suite ModernInlineCommandsTests started.
+◇ Suite ModernAsyncBridgeTests started.
+◇ Suite ModernCutTests started.
+◇ Suite ModernPasteBridgeTests started.
+◇ Suite ModernSplitMergeTests started.
+◇ Suite ModernStructuralBridgeTests started.
+◇ Suite ModernStructureTests started.
+◇ Suite ModernCommandTargetsTests started.
+◇ Suite ModernBlockCommandsTests started.
+◇ Suite ModernClipboardBridgeTests started.
+◇ Suite ModernDocumentTests started.
+◇ Suite ModernCutBridgeTests started.
+◇ Suite ModernSchemaConversionTests started.
+◇ Suite ModernPasteTests started.
+◇ Suite ModernListStructureTests started.
+◇ Suite ModernProjectionTests started.
+◇ Suite ModernClipboardTests started.
+◇ Suite ModernSessionTests started.
+◇ Suite ModernDuplicationTests started.
+◇ Suite ModernColumnTests started.
+◇ Suite ModernBridgeTests started.
+◇ Test concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test activeExitWhosePeerRestoresColumnsRetainsRecoveryAndAuthorCanRepair() started.
+◇ Test forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test capturedEmptyItemWithObservedPeerTypingSplitsWithoutReinterpretingAsExit() started.
+◇ Test codeBornCaretCanSplitAfterParagraphConversion() started.
+◇ Test emptyExitAfterColumnFlattenRetainsLogicalPlacementPeerTextAndUndo() started.
+◇ Test emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test exhaustedConcurrentPartitionsRemainRecoverableUntilAuthorRepair() started.
+◇ Test retainedRoleSurvivesOriginalCreationRedoAndUndoAndKeepsFollowingAnchor() started.
+◇ Test capturedBackwardTextInkAndPeerFillKeepPeerInsertionsOutsideFormatting() started.
+◇ Test forgedSharedMetadataAndWrongSourceProofRejectEvenWhenInactive() started.
+◇ Test invalidLabelsLiteralFieldsAndStaleLinkCapturesRejectUnchanged() started.
+◇ Test checkedCompletionReturnsNoFocusAndRequestStateIsSeparateFromAcceptedSave() started.
+◇ Test capturedMarksAndStateFollowAllActualFieldsAfterPeerSplitAndReopen() started.
+◇ Test policyCompositionCancelFailureAndReopenPreserveProviderRecordsWithoutAutomaticCompletion() started.
+◇ Test unchangedResultAndRepeatedDeliveryHaveNoHistoryAndNoAutomaticRedo() started.
+◇ Test semanticCaretAndAlreadyMatchingMarksDoNotCreateHistory() started.
+◇ Test nestedEmptyOutdentRetainsMetadataDescendantsCapturedCaretAndUndo() started.
+◇ Test concurrentDeletionPreventsValidPeerCompletionFromRecreatingContent() started.
+◇ Test completionPreservesPeerCaptionOpaqueMetadataAndOriginalOriginThroughMoveUndoReopen() started.
+◇ Test localArchiveAndGenerationValidationAreAtomicAndCapacityNeedsExplicitForget() started.
+◇ Test acceptedACC15SwitchRetainsResultWithoutReplacementMutationOrOriginAcknowledgment() started.
+◇ Test genericCollectionCaptureExposesExplicitBoundaryAndPlainPasteCaretAtLastLineEnd() started.
+◇ Test invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test forgedAppliedLocalReceiptCannotAcknowledgePendingOriginAfterReopen() started.
+◇ Test concurrentColumnCutsRemainReachableAfterFlatteningUndoAndRejoin() started.
+◇ Test acceptedReplacementDocumentAndEpochRejectLateResultWithOriginReceiptStillPending() started.
+◇ Test emptySplitHeadReturnsToExactRetainedBoundaryOnUndoIncludingPeerPrefixAndReopen() started.
+◇ Test sameDefaultRegisterConvergesAndAuthorUndoRevealsPeerRole() started.
+◇ Test noProviderResultIsNoopAndMalformedVersionOrExtraFieldsRejectUnchanged() started.
+◇ Test retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test defaultOnExposedPeerParagraphSurvivesOriginalListCreationRedoAndOwnUndo() started.
+◇ Test failureAndInterruptedReopenPreserveLocalPendingErrorResultWithoutSharedMutation() started.
+◇ Test checkedRichReplacementReturnsOneTransactionAndCaretWithoutChangingClipboard() started.
+◇ Test splitKeepsHeadingSourceMetadataRichReferencesAndAtomicBoundaries() started.
+◇ Test fileInsertionAndCompletionAreSeparateStepsAndKeepConsumerPendingMetadata() started.
+◇ Test checkedBridgeReportsSemanticStateLinkResultsPolicyAndUnchangedInvalidArguments() started.
+◇ Test localCompositionAndCommandPoliciesPreserveRemoteDefaultsAndLinkHistory() started.
+◇ Test joinedSourceInputUsesCapturedAtomsAndRejectsUnrelatedFieldAnchor() started.
+◇ Test multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() started.
+◇ Test nearFullArchiveReservesFailureAndCancellationWithoutLosingAcceptedLocalState() started.
+◇ Test policyAndCompositionRetainInertResultForExplicitResubmissionAndDoNotChangeHistory() started.
+◇ Test unavailablePolicyCompositionScopeAndAdmissionRetainExactRichPayloadForExplicitRetry() started.
+◇ Test invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test inlineRolesAndLinksKeepWholeAtomicReferencesAndInheritedListDefaults() started.
+◇ Test sourceChangeRetainsOldResultAndFreshTargetCompletesWithoutOverwritingNewPreviewURL() started.
+◇ Test duplicateDeliveryCannotReenterPublicationOrImplicitlyRedoAfterUndo() started.
+◇ Test resetsRemoveOnlyOverridesAndMixedStateIncludesInheritedDefaults() started.
+◇ Test incompatibleMergePolicyTitleAndForgedCutProofRejectWithoutHistoryChanges() started.
+◇ Test cancellationSupersededGenerationAndReusedRequestIDCannotApplyLateResult() started.
+◇ Test independentConcurrentMetadataRegistersComposeAndAuthorUndoRevealsPeerWinner() started.
+◇ Test completionPublicationPreservesAnotherRequestFailureFromTheHostCallback() started.
+◇ Test mergeRetainsRightPeerAtomsAndAnchorsAcrossUndoReopen() started.
+◇ Test malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test rangeLinksPreserveCapturedAtomsPeerTextBackwardSelectionAndUndoReopen() started.
+◇ Test explicitLabelInsertionUsesCapturedCaretInheritedMarksAndOneAuthorStep() started.
+◇ Test previewOnlyUpdatesDescriptiveMetadataAndExplicitNullRemovesOptionalValues() started.
+◇ Test publicationFailureOrThrowDoesNotDeleteOrCreateHistoryAndPublisherSeesExactPayloadFirst() started.
+◇ Test pendingRecoveryRetainsPublishedClipboardUntilOriginalCausalHistoryArrives() started.
+◇ Test emptyPublicationConsumesItsPreparationAndNeverDeletesLaterPeerInput() started.
+◇ Test independentNestedMoveFixtureKeepsSelectionOriginAndSingleUndoReopen() started.
+◇ Test splitAfterColumnRemovalAndUndoKeepsLogicalOriginRoutes() started.
+◇ Test nestedChecklistSplitRetainsParentChildrenAndResetsNewItemCheckedState() started.
+◇ Test capturedPartialCutFollowsPeerSplitWithoutRemovingUnobservedTailText() started.
+◇ Test concurrentDeletionKeepsDefaultsForRestorationWithoutResurrectingContent() started.
+◇ Test invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test insertedDefaultIncrementalPacketRecoversAfterItsValidBirthArrives() started.
+◇ Test malformedTargetsAndPoliciesCompositionAndScopeLeaveStateUnchanged() started.
+◇ Test preparationAndDelayedCompletionRecheckPolicyCompositionAndCancellationWithoutPublishingHistory() started.
+◇ Test modernFileValidationDoesNotReinterpretLegacyOpaqueFiles() started.
+◇ Test delayedMixedCutPreservesPeerTextAndDeletesOnlyCapturedOriginsInOneGroup() started.
+◇ Test retainedSuffixCaretAndPeerReplacementFollowSplitUndoRedoAndReopen() started.
+◇ Test deletedAndReusedSourceLabelOrDifferentSessionCannotRetargetDelayedCut() started.
+◇ Test capturedCaretRebasesThroughObservedPeerCutBeforeSecondSplit() started.
+◇ Test concurrentCutsPartitionSuffixInTextOrderAndEachAuthorUndoRetainsOtherCut() started.
+◇ Test deletedOrReusedLabelNeverReceivesCompletionAndExplicitRetryAfterDeletionUndoIsPossible() started.
+◇ Test exactTwoContainersAndScopedIdentitiesAreRequired() started.
+◇ Test forgedStructuralAndUnobservedInsertedTextPacketsNeverAcknowledge() started.
+◇ Test blockDefaultsFollowScopedMovementAndSchemaConversionWithoutCopyingText() started.
+◇ Test nestedEmptyChecklistEnterOutdentsAndRetainsHistory() started.
+◇ Test checkedCopyReturnsVersionedPayloadAndFallbackWithoutDocumentHistoryOrFocusMutation() started.
+◇ Test checkedInsertFocusAndWholeBodyDeleteInsertionTargetAreUsableAndAtomic() started.
+◇ Test conversionPreservesRichReferenceOpaqueFieldsAndCaretInsideAtomicLabel() started.
+◇ Test independentSnapshotsRetainEveryAdmittedFieldAndCanonicalRoundTrip() started.
+◇ Test exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test concurrentHeadingRegisterUndoRevealsPeerValueInsteadOfOverwritingIt() started.
+◇ Test readOnlyBodyFallbackUsesTitleAndCoveredRangesDoNotDuplicateDeletion() started.
+◇ Test opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test titleCutSupportsBackwardOverlappingRangesAndPeerTextWithOneReplacementGroup() started.
+◇ Test modernSnapshotDoesNotBroadenLegacyMarkOrSessionAdmission() started.
+◇ Test foreignForgedAndExtraTargetFieldsRejectCopyUnchanged() started.
+◇ Test malformedInactiveConversionRejectsBeforeMissingCausalRecovery() started.
+◇ Test duplicateRawKeysIncludingEscapedKeysRejectBeforeSemanticAdmission() started.
+◇ Test deleteReturnsFollowingThenPrecedingTextOrEmptyInsertionWithoutPlaceholder() started.
+◇ Test titleReplayAndAuthorDeactivationKeepPeerTextAndBodyIndependent() started.
+◇ Test authoredRichBlockMarksUseTextPolicyWithoutReinterpretingOpaqueMetadata() started.
+◇ Test unchangedConversionAndLossyOrInvalidTargetsDoNotChangeSavedHistory() started.
+◇ Test nestedColumnsRejectEvenThroughToggleDescendantsButIndependentLayoutsRemainValid() started.
+◇ Test emptyHeadTraversesMultipleRetiredSplitsButExplicitDeletionDoesNotRetarget() started.
+◇ Test twoColumnsKeepScopedChildOriginsAndLogicalAddressOrder() started.
+◇ Test splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test appearanceAndPaletteRejectUnrecognizedPresetsAndRoles() started.
+◇ Test existingLimitsAndOpaqueMetadataArePreserved() started.
+◇ Test allIndependentModernSnapshotsKeepExactJSONThroughSharedProjection() started.
+◇ Test codeFieldPacketArrivingBeforeBaselineAliasBirthRetainsThenResolvesRecovery() started.
+◇ Test pastedLayoutPeerEditSurvivesAuthorUndoAndReopenWithoutDuplication() started.
+◇ Test explicitNewDocumentDefaultsDoNotSilentlyUpgradeMissingWireFields() started.
+◇ Test nativeJSONEnvelopeChecksListArgumentsPolicyCapturesAndFocus() started.
+◇ Test hierarchyHistoryRetainsLateBirthRecoveryUntilCreatorPacketArrives() started.
+◇ Test invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test capturedAtomsFollowPeerSplitsWhileUnobservedPeerTextAndOverlappingRangesDoNotDuplicate() started.
+◇ Test distinctCommandPolicyCompositionAndTitleRejectWithoutMutatingHistory() started.
+◇ Test semanticInsertionsAndObservedSubtreeDeletionRetainNestedOriginsThroughUndo() started.
+◇ Test titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test reorderBetweenListsPreservesOriginsCheckedStatePeerTextAndNoopHistory() started.
+◇ Test multiItemIndentPreservesRichMetadataChildrenPeerTextCaretAndSingleUndo(actor:) started.
+◇ Test modernItemRowCellPayloadsValidateSemanticMarksWithoutLegacyAdmission() started.
+◇ Test deletionRetainsPeerHistoryAndStaleTargetsCannotHitReusedLabels() started.
+◇ Test codeFormattingAndTitleConversionRejectWithoutHistoryOrReceiptChanges() started.
+◇ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() started.
+◇ Test prepareIsReadOnlyAndFinishNeedsSuccessfulPublicationBeforeOneDeletionAndDuplicateAfterUndoIsNoop() started.
+◇ Test staleSelectionScopeForgedBoundaryWrongOrderAndForeignCaretRejectAtomically() started.
+◇ Test documentTitleHasAnExplicitOriginOutsideBodyAndConsumerIDs() started.
+◇ Test sameFieldPeerInsertionDoesNotInventAParagraphBreakInCapturedCopy() started.
+◇ Test cancelForgetDestroyAndRestoreCannotMakeOldPublicationApplyToNewPreparation() started.
+◇ Test modernMarksReferencesAndOpaqueNodeDataRemainExactWithSeparatePastePolicy() started.
+◇ Test copiedRowAndConvertedListItemCollectionBirthsKeepModernSemanticAdmission() started.
+◇ Test wholeSubtreeCopySuppressesRedundantPartialRangesAndTracksCurrentMaterialization() started.
+◇ Test invalidStructuralCommandsAreAtomicAndPolicyDoesNotStripPeerContent() started.
+◇ Test softBreakMatchesIndependentFixtureAndSharesOneUndoWithPeerSafeCapturedReplacement() started.
+◇ Test inertAssetPolicyAndNewTailAdmissionRejectWithoutChangingOriginalPayload() started.
+◇ Test copiedFilesAndPreviewsRemainInertAndRequireExplicitSafeMetadataPermission() started.
+◇ Test capturedItemsFollowObservedPeerMovesBeforeStyleAndChecklistCommands() started.
+◇ Test versionUnknownFieldsDuplicateKeysFallbackMismatchAndNestedLayoutReject() started.
+◇ Test legacyStructuralProtocolRejectsDocumentOriginMutationAtomically() started.
+◇ Test malformedNodeKindsDepthAndFutureScopeRejectWithoutHistoryMutation() started.
+◇ Test mixedDeletePreservesLaterPeerAtomsAndIndependentTextWithOneUndo() started.
+◇ Test concurrentListStylesConvergeAndUndoRevealsPeerWinner() started.
+◇ Test concurrentScopedLabelConflictRetainsUnionAndAuthorRepairKeepsPeerBirth() started.
+◇ Test preparationByteBudgetRetainsWholeOpaquePayloadWithoutNarrowingDocumentAdmission() started.
+◇ Test forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test splitNoncollapsedCapturedRangeStillDeletesOnlyObservedAtomsAfterSchemaRoundTrip() started.
+◇ Test checklistUpdatesOnlyChangedItemsAndOneUndoRetainsDisjointPeerWrites() started.
+◇ Test insertChoosesFirstEditableNestedFieldOrWholeNodeAndUndoesOnce() started.
+◇ Test legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test genericBlockCommandsKeepItemTableAndDocumentBoundariesClosed() started.
+◇ Test columnMovesKeepScopedOriginsCaretPeerTextAndOneAuthorUndo() started.
+◇ Test listStyleConversionKeepsNestedChecklistOriginsStateAndFieldCaret() started.
+◇ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() started.
+◇ Test multiMovePreservesCapturedOrderCaretAndPeerTextAsOneUndo() started.
+◇ Test compositionAndReducedActionPolicyRejectLocalStyleButPreserveRemoteStyleAndChecks() started.
+◇ Test inactiveInlineConversionDoesNotConflictWithPeerCodeShape() started.
+◇ Test wholeLayoutCutKeepsUnobservedPeerChildInItsValidOriginalContainer() started.
+◇ Test multiItemOutdentKeepsUnselectedChildrenAndReopenedPeerEdits() started.
+◇ Test readOnlyCopyWorksUnderCompositionAndAuthoringPolicyButTitleCannotMixWithBody() started.
+◇ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() started.
+◇ Test hiddenToggleAndTwoColumnsCopyAllContentSplitAndOpaqueMetadataInLogicalOrder() started.
+◇ Test ancestorOverlapMetadataAndDeletedColumnDestinationReject() started.
+◇ Test sameContentConversionMatchesIndependentConcurrentSuffixFixturesThroughUndoReopenAndDuplicatePackets() started.
+◇ Test concurrentNestedMovesPreserveBothAuthorsAndUndoUsesRemainingPlacement() started.
+◇ Test mixedWholeAndBackwardPartialCopyHasLiteralOrderAndLeavesHistoryFocusUntouched() started.
+◇ Test codeConversionRetainsCapturedCaretPeerTextAndFieldAliasesThroughUndoRedoAndReopen() started.
+◇ Test textAuthoredAtConvertedCodeBirthFollowsConversionUndoAndCapturedReplacementAliases() started.
+◇ Test peerStyleAndChecklistHistorySurviveListCreationUndoAndRedo() started.
+◇ Test policyCompositionWrongScopeAndOtherHandleRetainPayloadAndAllowExplicitRetry() started.
+◇ Test directListStyleConversionPreservesPeerStyleAfterCreatorUndo() started.
+◇ Test independentInsertionsAndMovesConvergeInEitherReceiveOrder() started.
+◇ Test titleAndCodeUseExplicitPlainFallbackWithoutRichMarkOrBlockCoercion() started.
+◇ Test case passing 1 argument fault → "extraDelete" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument actor → "a" to concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test case passing 1 argument fault → "duplicate" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test boundedPreparationCountAndMalformedAcknowledgmentNeverDeleteBeforePublication() started.
+◇ Test case passing 1 argument fault → "wrongTail" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument actor → "z" to concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test capturedRootBoundarySurvivesAnchorMoveAndDeletionWithoutRetargeting() started.
+◇ Test hierarchicalFieldsPreserveOwnerMetadataAndUseCompatibleChildCollection() started.
+◇ Test styleChangesDeduplicateContainingOwnersAndPreserveCheckedRichAndOpaqueFields() started.
+◇ Test case passing 1 argument fault → "late" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() started.
+◇ Test insertedBodyFieldsShareTitleHistoryPeerUndoAndReopen() started.
+◇ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() started.
+◇ Test case passing 1 argument fault → "nonempty" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongRange" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongPlacement" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test activeInlineCodeUnionRetainsAcceptedStateUntilAuthorRepair() started.
+◇ Test mixedReplacementAndEmptyClipboardAreSingleOrZeroHistorySteps() started.
+◇ Test case passing 1 argument fault → "wrongScope" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongNode" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test forgedCopyPayloadAndInvisibleMalformedPacketsRejectAtomically() started.
+◇ Test acceptedBlankPlainMultilinePreservesFourLiteralLinesAndLastInputCaret() started.
+◇ Test insertionUndoWithoutPeerWorkHidesBirthButDoesNotReuseOrigin() started.
+◇ Test forgedTextUsesOfRetiredContentAliasRejectEvenWhenInactive() started.
+◇ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() started.
+◇ Test case passing 1 argument fault → "wrongOwner" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test capturedFormattingPreservesDirectionAndLeavesUnobservedPeerAtomsUnformatted() started.
+◇ Test incrementalInsertedFieldPacketBeforeBirthRetainsRecoveryThenConverges() started.
+◇ Test capturedRichReplacementKeepsAtomicReferenceMetadataAndPeerTextThroughUndoAndReopen() started.
+◇ Test case passing 1 argument fault → "wrongRetirement" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "emptyExposure" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 2 arguments index → 0, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() started.
+◇ Test case passing 1 argument fault → "oldExposure" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "selfAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test acceptedDuplicateLiteralSelectsCopyAndFocusesItsFirstInputOneStep() started.
+◇ Test case passing 2 arguments index → 0, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() started.
+◇ Test case passing 1 argument fault → "futureRetirement" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "forgedAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() started.
+◇ Test case passing 2 arguments index → 1, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test nestedListsTablesColumnsFreshenOnlySchemaIDsAndRetainLiteralRichAndOpaqueFields() started.
+◇ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() started.
+◇ Test concurrentCodeConversionsConvergeAndEachUndoKeepsPeerHead() started.
+◇ Test localPolicyCompositionStaleScopeAndReusedLabelsRejectWithoutPartialReplacement() started.
+◇ Test case passing 1 argument fault → "currentAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() started.
+◇ Test case passing 2 arguments index → 1, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test tableRowAndCellPasteKeepSemanticMetadataAndFreshNamespaces() started.
+◇ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() started.
+◇ Test columnDestinationAdmitsOrdinaryCopiesAndRejectsNestedLayoutOrDeletedOwner() started.
+◇ Test laterSchemaConversionRetainsTextCreatedInItsBirthsOwnCompoundPacket() started.
+◇ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() started.
+◇ Test callbacksObserveFinalHistoryAndCannotReenterPublication() started.
+◇ Test heldPacketsExportRestoreAndReleaseWithoutPrematureReceipts() started.
+◇ Test case passing 2 arguments index → 2, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test copiedExposedPeerParagraphAndFollowingAnchorSurviveOriginalListRedo() started.
+◇ Test acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() started.
+◇ Test malformedInactiveSchemaConversionRejectsBeforeMissingPredecessorAndKeepsReceipt() started.
+◇ Test case passing 2 arguments index → 2, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() started.
+◇ Test pasteAfterCapturedCodeAliasUsesCurrentFieldAndRejectsForgedRelation() started.
+◇ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() started.
+◇ Test localPolicyAndCompositionReturnUnchangedUnavailableAndPreservePeerRichContent() started.
+◇ Test case passing 1 argument fault → "none" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() started.
+◇ Test case passing 1 argument fault → "both" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test codeAndListConversionsInsideColumnsKeepLogicalOwnersAcrossFlattenAndUndo() started.
+◇ Test deletedSourceAndOwnerReusedLabelsScopeAndPolicyRejectUnchanged() started.
+◇ Test case passing 1 argument fault → "wrongCaret" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test case passing 1 argument fault → "unknown" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test case passing 1 argument fault → "item" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test case passing 1 argument fault → "deleted" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test opaqueBlockIsCopiedVerbatimWithItsOnlyKnownSchemaIDFreshened() started.
+◇ Test case passing 1 argument fault → "scope" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test crossParagraphPastePreservesRetainedEndpointMetadataAndPeerRoutes() started.
+◇ Test case passing 1 argument fault → "role" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test case passing 1 argument fault → "codeRange" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test explicitModernEndpointsReturnCheckedTransactionsFocusAndSavedAuthorHistory() started.
+◇ Test case passing 1 argument fault → "titleRange" to invalidSemanticTargetsAndRolesRejectAtomically(fault:) started.
+◇ Test case passing 1 argument command → "heading" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() started.
+◇ Test case passing 1 argument command → "code" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test futureJoinCannotJustifyForgedAnchorInEarlierCapturedField() started.
+◇ Test case passing 1 argument command → "list" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test copiedChildPeersRemainRecoverableAcrossAuthorUndoRedoAndReopen() started.
+◇ Test case passing 1 argument command → "split" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() started.
+◇ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() started.
+◇ Test inactiveForgedPlanRejectsAndMissingCaptureIsRetainedUntilItsCausalBirthArrives() started.
+◇ Test listConversionPreservesAtomsCaretPeerReplacementAndChecklistStateThroughUndo() started.
+◇ Test case passing 1 argument command → "move" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "delete" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() started.
+◇ Test capturedBackwardReplacementPreservesPeerInsertionThroughTheBridge() started.
+◇ Test case passing 1 argument command → "insert" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "columns" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test opaqueContentOnCodeBlocksCannotBeDiscardedByLocalOrInactiveRemoteListConversion() started.
+◇ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() started.
+◇ Test codeBirthTextCanBecomeRichParagraphWithoutLosingOriginalOriginsOrOpaqueLanguage() started.
+◇ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() started.
+◇ Test concurrentListConversionsRetainRecoveryUntilOwnUndoKeepsPeerBranch() started.
+◇ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() started.
+◇ Test admissionCopiesObservedTextButLaterOriginalPeerEditsAndUndoRemainIndependent() started.
+◇ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() started.
+◇ Test soleEmptyChecklistEnterPreservesOwnerChildOriginsAndPeerTextThroughUndoReopen() started.
+◇ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() started.
+◇ Test richCodeConversionAndOpaqueFieldCollisionsRejectWithoutChangingSavedHistory() started.
+◇ Test case passing 1 argument metadata → [:] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test capturedOrderSurvivesPeerMovesAndHistoricalDeletedBoundaryRemainsUsable() started.
+◇ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() started.
+◇ Test soleListItemCollapseRetainsCheckedMetadataChildOriginsPeerTextAndUndo() started.
+◇ Test duplicateFromPeerSplitCopiesOnlyCurrentVisibleContentNotBirthPayload() started.
+◇ Test undoListConversionExposesPeerSplitAsRetainedParagraphInsteadOfDroppingIt() started.
+◇ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() started.
+◇ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() started.
+◇ Test case passing 1 argument fault → "role" to malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test case passing 1 argument fault → "document" to malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test case passing 1 argument fault → "unknown" to malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test case passing 1 argument fault → "item" to malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test case passing 1 argument fault → "duplicate" to malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test case passing 1 argument fault → "future" to malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) started.
+◇ Test sameFieldBlockReplacementHasOneRetainedCutAndKeepsPeerInsertion() started.
+◇ Test explicitFlattenedFallbackMatchesAcceptedColumnContentAndRichNestedPasteRejects() started.
+◇ Test explicitPlainRangeUsesNormalInlineAndMultilinePrefixSuffixSemantics() started.
+◇ Test case passing 1 argument href → "javascript:alert(1)" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "data:text/html,test" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "file:///tmp/file" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "https://" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "relative" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "https://example.com/space here" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "https://example.com/
+" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument href → "mailto:" to invalidLinksNeverMutateStateOrStripExistingMarks(href:) started.
+◇ Test case passing 1 argument metadata → ["id": BlockEditorCore.JSONValue.string("new")] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument literal → "9007199254740992" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "0.1" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "100e-2" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "1.00" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "9007199254740993" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test case passing 1 argument literal → "-0.0" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "1.000000000000000000001" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test case passing 1 argument literal → "1e-400" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test case passing 1 argument split → 999.0 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument split → 9001.0 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument split → 5000.5 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument fault → "first" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "rootOutdent" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "noncontiguous" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "reverse" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "ancestor" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "wrongCaret" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "crossList" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument fault → "collision" to invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) started.
+◇ Test case passing 1 argument metadata → ["caption": BlockEditorCore.JSONValue.array([])] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument title → "a
+b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "ab" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a
+b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument actor → "a" to multiItemIndentPreservesRichMetadataChildrenPeerTextCaretAndSingleUndo(actor:) started.
+◇ Test case passing 1 argument metadata → ["consumer": BlockEditorCore.JSONValue.object([:])] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument actor → "z" to multiItemIndentPreservesRichMetadataChildrenPeerTextCaretAndSingleUndo(actor:) started.
+◇ Test case passing 1 argument metadata → ["src": BlockEditorCore.JSONValue.null] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument metadata → ["width": BlockEditorCore.JSONValue.number(-1.0)] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument metadata → ["alt": BlockEditorCore.JSONValue.number(5.0)] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument metadata → ["height": BlockEditorCore.JSONValue.number(1.5)] to invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) started.
+◇ Test case passing 1 argument fault → "delete" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "rootMove" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongPlacement" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongAnchor" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument version → 3 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument fault → "extraSetter" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument version → 4 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument fault → "duplicate" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument version → 5 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument fault → "empty" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument version → 6 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument fault → "wrongScope" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "futureCapture" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "futureCaret" to forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument split → inf to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument split → nan to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument inactive → false to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test case passing 1 argument inactive → true to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+✔ Test forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) with 6 test cases passed after 1.933 seconds.
+✔ Test capturedEmptyItemWithObservedPeerTypingSplitsWithoutReinterpretingAsExit() passed after 1.988 seconds.
+✔ Test codeBornCaretCanSplitAfterParagraphConversion() passed after 1.988 seconds.
+✔ Test forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) with 11 test cases passed after 1.992 seconds.
+✔ Test concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) with 2 test cases passed after 1.992 seconds.
+✔ Test invalidLabelsLiteralFieldsAndStaleLinkCapturesRejectUnchanged() passed after 2.019 seconds.
+✔ Test activeExitWhosePeerRestoresColumnsRetainsRecoveryAndAuthorCanRepair() passed after 2.019 seconds.
+✔ Test retainedRoleSurvivesOriginalCreationRedoAndUndoAndKeepsFollowingAnchor() passed after 2.075 seconds.
+✔ Test capturedBackwardTextInkAndPeerFillKeepPeerInsertionsOutsideFormatting() passed after 2.085 seconds.
+✔ Test forgedSharedMetadataAndWrongSourceProofRejectEvenWhenInactive() passed after 2.136 seconds.
+✔ Test exhaustedConcurrentPartitionsRemainRecoverableUntilAuthorRepair() passed after 2.210 seconds.
+✔ Test checkedCompletionReturnsNoFocusAndRequestStateIsSeparateFromAcceptedSave() passed after 2.270 seconds.
+✔ Test unchangedResultAndRepeatedDeliveryHaveNoHistoryAndNoAutomaticRedo() passed after 2.270 seconds.
+✔ Test policyCompositionCancelFailureAndReopenPreserveProviderRecordsWithoutAutomaticCompletion() passed after 2.271 seconds.
+✔ Test emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) with 6 test cases passed after 2.271 seconds.
+✔ Test semanticCaretAndAlreadyMatchingMarksDoNotCreateHistory() passed after 2.311 seconds.
+✔ Test invalidSemanticTargetsAndRolesRejectAtomically(fault:) with 10 test cases passed after 2.311 seconds.
+✔ Test emptyExitAfterColumnFlattenRetainsLogicalPlacementPeerTextAndUndo() passed after 2.311 seconds.
+✔ Test genericCollectionCaptureExposesExplicitBoundaryAndPlainPasteCaretAtLastLineEnd() passed after 2.311 seconds.
+✔ Test acceptedACC15SwitchRetainsResultWithoutReplacementMutationOrOriginAcknowledgment() passed after 2.367 seconds.
+✔ Test forgedAppliedLocalReceiptCannotAcknowledgePendingOriginAfterReopen() passed after 2.367 seconds.
+✔ Test nestedEmptyOutdentRetainsMetadataDescendantsCapturedCaretAndUndo() passed after 2.368 seconds.
+✔ Test acceptedReplacementDocumentAndEpochRejectLateResultWithOriginReceiptStillPending() passed after 2.402 seconds.
+✔ Test noProviderResultIsNoopAndMalformedVersionOrExtraFieldsRejectUnchanged() passed after 2.547 seconds.
+◇ Test case passing 1 argument reverse → false to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test case passing 1 argument reverse → true to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+✔ Test sameDefaultRegisterConvergesAndAuthorUndoRevealsPeerRole() passed after 2.560 seconds.
+✔ Test capturedMarksAndStateFollowAllActualFieldsAfterPeerSplitAndReopen() passed after 2.560 seconds.
+✔ Test emptySplitHeadReturnsToExactRetainedBoundaryOnUndoIncludingPeerPrefixAndReopen() passed after 2.562 seconds.
+✔ Test checkedRichReplacementReturnsOneTransactionAndCaretWithoutChangingClipboard() passed after 2.571 seconds.
+✔ Test failureAndInterruptedReopenPreserveLocalPendingErrorResultWithoutSharedMutation() passed after 2.614 seconds.
+✔ Test retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) with 8 test cases passed after 2.614 seconds.
+✔ Test concurrentDeletionPreventsValidPeerCompletionFromRecreatingContent() passed after 2.681 seconds.
+✔ Test joinedSourceInputUsesCapturedAtomsAndRejectsUnrelatedFieldAnchor() passed after 2.766 seconds.
+✔ Test localCompositionAndCommandPoliciesPreserveRemoteDefaultsAndLinkHistory() passed after 2.826 seconds.
+✔ Test checkedBridgeReportsSemanticStateLinkResultsPolicyAndUnchangedInvalidArguments() passed after 2.826 seconds.
+✔ Test defaultOnExposedPeerParagraphSurvivesOriginalListCreationRedoAndOwnUndo() passed after 2.838 seconds.
+✔ Test invalidMetadataNeverChangesAcceptedHistoryOrRequestRecord(_:) with 8 test cases passed after 2.863 seconds.
+✔ Test duplicateDeliveryCannotReenterPublicationOrImplicitlyRedoAfterUndo() passed after 2.980 seconds.
+✔ Test unavailablePolicyCompositionScopeAndAdmissionRetainExactRichPayloadForExplicitRetry() passed after 2.980 seconds.
+✔ Test policyAndCompositionRetainInertResultForExplicitResubmissionAndDoNotChangeHistory() passed after 2.980 seconds.
+✔ Test multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() passed after 2.980 seconds.
+✔ Test completionPreservesPeerCaptionOpaqueMetadataAndOriginalOriginThroughMoveUndoReopen() passed after 2.980 seconds.
+✔ Test malformedSemanticPacketsRejectEvenInactiveWithoutReceiptOrRecovery(fault:) with 6 test cases passed after 3.074 seconds.
+✔ Test cancellationSupersededGenerationAndReusedRequestIDCannotApplyLateResult() passed after 3.073 seconds.
+✔ Test resetsRemoveOnlyOverridesAndMixedStateIncludesInheritedDefaults() passed after 3.074 seconds.
+✔ Test mergeRetainsRightPeerAtomsAndAnchorsAcrossUndoReopen() passed after 3.074 seconds.
+✔ Test fileInsertionAndCompletionAreSeparateStepsAndKeepConsumerPendingMetadata() passed after 3.075 seconds.
+✔ Test publicationFailureOrThrowDoesNotDeleteOrCreateHistoryAndPublisherSeesExactPayloadFirst() passed after 3.074 seconds.
+✔ Test rangeLinksPreserveCapturedAtomsPeerTextBackwardSelectionAndUndoReopen() passed after 3.095 seconds.
+✔ Test splitKeepsHeadingSourceMetadataRichReferencesAndAtomicBoundaries() passed after 3.095 seconds.
+✔ Test sourceChangeRetainsOldResultAndFreshTargetCompletesWithoutOverwritingNewPreviewURL() passed after 3.095 seconds.
+✔ Test emptyPublicationConsumesItsPreparationAndNeverDeletesLaterPeerInput() passed after 3.115 seconds.
+✔ Test pendingRecoveryRetainsPublishedClipboardUntilOriginalCausalHistoryArrives() passed after 3.115 seconds.
+✔ Test explicitLabelInsertionUsesCapturedCaretInheritedMarksAndOneAuthorStep() passed after 3.115 seconds.
+✔ Test malformedTargetsAndPoliciesCompositionAndScopeLeaveStateUnchanged() passed after 3.115 seconds.
+✔ Test insertedDefaultIncrementalPacketRecoversAfterItsValidBirthArrives() passed after 3.115 seconds.
+✔ Test incompatibleMergePolicyTitleAndForgedCutProofRejectWithoutHistoryChanges() passed after 3.115 seconds.
+✔ Test invalidLinksNeverMutateStateOrStripExistingMarks(href:) with 8 test cases passed after 3.115 seconds.
+✔ Test concurrentColumnCutsRemainReachableAfterFlatteningUndoAndRejoin() passed after 3.116 seconds.
+✔ Test preparationAndDelayedCompletionRecheckPolicyCompositionAndCancellationWithoutPublishingHistory() passed after 3.115 seconds.
+✔ Test delayedMixedCutPreservesPeerTextAndDeletesOnlyCapturedOriginsInOneGroup() passed after 3.115 seconds.
+✔ Test concurrentDeletionKeepsDefaultsForRestorationWithoutResurrectingContent() passed after 3.115 seconds.
+✔ Test capturedPartialCutFollowsPeerSplitWithoutRemovingUnobservedTailText() passed after 3.116 seconds.
+✔ Test completionPublicationPreservesAnotherRequestFailureFromTheHostCallback() passed after 3.115 seconds.
+✔ Test independentNestedMoveFixtureKeepsSelectionOriginAndSingleUndoReopen() passed after 3.115 seconds.
+✔ Test deletedAndReusedSourceLabelOrDifferentSessionCannotRetargetDelayedCut() passed after 3.115 seconds.
+✔ Test forgedStructuralAndUnobservedInsertedTextPacketsNeverAcknowledge() passed after 3.115 seconds.
+✔ Test nestedChecklistSplitRetainsParentChildrenAndResetsNewItemCheckedState() passed after 3.115 seconds.
+✔ Test exactTwoContainersAndScopedIdentitiesAreRequired() passed after 3.115 seconds.
+✔ Test previewOnlyUpdatesDescriptiveMetadataAndExplicitNullRemovesOptionalValues() passed after 3.116 seconds.
+✔ Test checkedCopyReturnsVersionedPayloadAndFallbackWithoutDocumentHistoryOrFocusMutation() passed after 3.115 seconds.
+✔ Test modernFileValidationDoesNotReinterpretLegacyOpaqueFiles() passed after 3.115 seconds.
+✔ Test splitAfterColumnRemovalAndUndoKeepsLogicalOriginRoutes() passed after 3.116 seconds.
+✔ Test capturedCaretRebasesThroughObservedPeerCutBeforeSecondSplit() passed after 3.115 seconds.
+✔ Test checkedInsertFocusAndWholeBodyDeleteInsertionTargetAreUsableAndAtomic() passed after 3.115 seconds.
+✔ Test exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) with 5 test cases passed after 3.115 seconds.
+✔ Test opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) with 3 test cases passed after 3.115 seconds.
+✔ Test readOnlyBodyFallbackUsesTitleAndCoveredRangesDoNotDuplicateDeletion() passed after 3.115 seconds.
+✔ Test blockDefaultsFollowScopedMovementAndSchemaConversionWithoutCopyingText() passed after 3.115 seconds.
+✔ Test modernSnapshotDoesNotBroadenLegacyMarkOrSessionAdmission() passed after 3.115 seconds.
+✔ Test duplicateRawKeysIncludingEscapedKeysRejectBeforeSemanticAdmission() passed after 3.115 seconds.
+✔ Test malformedInactiveConversionRejectsBeforeMissingCausalRecovery() passed after 3.115 seconds.
+✔ Test titleCutSupportsBackwardOverlappingRangesAndPeerTextWithOneReplacementGroup() passed after 3.115 seconds.
+✔ Test foreignForgedAndExtraTargetFieldsRejectCopyUnchanged() passed after 3.115 seconds.
+✔ Test titleReplayAndAuthorDeactivationKeepPeerTextAndBodyIndependent() passed after 3.115 seconds.
+✔ Test conversionPreservesRichReferenceOpaqueFieldsAndCaretInsideAtomicLabel() passed after 3.116 seconds.
+✔ Test authoredRichBlockMarksUseTextPolicyWithoutReinterpretingOpaqueMetadata() passed after 3.115 seconds.
+✔ Test deleteReturnsFollowingThenPrecedingTextOrEmptyInsertionWithoutPlaceholder() passed after 3.115 seconds.
+✔ Test twoColumnsKeepScopedChildOriginsAndLogicalAddressOrder() passed after 3.115 seconds.
+✔ Test appearanceAndPaletteRejectUnrecognizedPresetsAndRoles() passed after 3.115 seconds.
+✔ Test concurrentHeadingRegisterUndoRevealsPeerValueInsteadOfOverwritingIt() passed after 3.116 seconds.
+✔ Test unchangedConversionAndLossyOrInvalidTargetsDoNotChangeSavedHistory() passed after 3.115 seconds.
+✔ Test retainedSuffixCaretAndPeerReplacementFollowSplitUndoRedoAndReopen() passed after 3.116 seconds.
+✔ Test splitRejectsInvalidBoundsAndNonintegerValues(_:) with 5 test cases passed after 3.115 seconds.
+✔ Test nestedColumnsRejectEvenThroughToggleDescendantsButIndependentLayoutsRemainValid() passed after 3.116 seconds.
+✔ Test inlineRolesAndLinksKeepWholeAtomicReferencesAndInheritedListDefaults() passed after 3.116 seconds.
+✔ Test explicitNewDocumentDefaultsDoNotSilentlyUpgradeMissingWireFields() passed after 3.116 seconds.
+✔ Test deletedOrReusedLabelNeverReceivesCompletionAndExplicitRetryAfterDeletionUndoIsPossible() passed after 3.116 seconds.
+✔ Test codeFieldPacketArrivingBeforeBaselineAliasBirthRetainsThenResolvesRecovery() passed after 3.115 seconds.
+✔ Test invalidHierarchyTargetsRejectWithoutStateHistoryOrReceiptChanges(fault:) with 8 test cases passed after 3.115 seconds.
+✔ Test emptyHeadTraversesMultipleRetiredSplitsButExplicitDeletionDoesNotRetarget() passed after 3.116 seconds.
+✔ Test nativeJSONEnvelopeChecksListArgumentsPolicyCapturesAndFocus() passed after 3.116 seconds.
+✔ Test distinctCommandPolicyCompositionAndTitleRejectWithoutMutatingHistory() passed after 3.115 seconds.
+✔ Test hierarchyHistoryRetainsLateBirthRecoveryUntilCreatorPacketArrives() passed after 3.116 seconds.
+✔ Test concurrentCutsPartitionSuffixInTextOrderAndEachAuthorUndoRetainsOtherCut() passed after 3.116 seconds.
+✔ Test semanticInsertionsAndObservedSubtreeDeletionRetainNestedOriginsThroughUndo() passed after 3.116 seconds.
+✔ Test titleRejectsLineBreaksWithoutConsumingBody(_:) with 5 test cases passed after 3.116 seconds.
+✔ Test capturedAtomsFollowPeerSplitsWhileUnobservedPeerTextAndOverlappingRangesDoNotDuplicate() passed after 3.116 seconds.
+✔ Test modernItemRowCellPayloadsValidateSemanticMarksWithoutLegacyAdmission() passed after 3.116 seconds.
+✔ Test deletionRetainsPeerHistoryAndStaleTargetsCannotHitReusedLabels() passed after 3.116 seconds.
+✔ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() passed after 3.116 seconds.
+✔ Test codeFormattingAndTitleConversionRejectWithoutHistoryOrReceiptChanges() passed after 3.116 seconds.
+✔ Test staleSelectionScopeForgedBoundaryWrongOrderAndForeignCaretRejectAtomically() passed after 3.116 seconds.
+✔ Test documentTitleHasAnExplicitOriginOutsideBodyAndConsumerIDs() passed after 3.116 seconds.
+✔ Test localArchiveAndGenerationValidationAreAtomicAndCapacityNeedsExplicitForget() passed after 3.116 seconds.
+✔ Test sameFieldPeerInsertionDoesNotInventAParagraphBreakInCapturedCopy() passed after 3.116 seconds.
+✔ Test prepareIsReadOnlyAndFinishNeedsSuccessfulPublicationBeforeOneDeletionAndDuplicateAfterUndoIsNoop() passed after 3.116 seconds.
+✔ Test independentConcurrentMetadataRegistersComposeAndAuthorUndoRevealsPeerWinner() passed after 3.116 seconds.
+✔ Test invalidStructuralCommandsAreAtomicAndPolicyDoesNotStripPeerContent() passed after 3.116 seconds.
+✔ Test copiedRowAndConvertedListItemCollectionBirthsKeepModernSemanticAdmission() passed after 3.116 seconds.
+✔ Test modernMarksReferencesAndOpaqueNodeDataRemainExactWithSeparatePastePolicy() passed after 3.116 seconds.
+✔ Test copiedFilesAndPreviewsRemainInertAndRequireExplicitSafeMetadataPermission() passed after 3.116 seconds.
+✔ Test cancelForgetDestroyAndRestoreCannotMakeOldPublicationApplyToNewPreparation() passed after 3.116 seconds.
+✔ Test inertAssetPolicyAndNewTailAdmissionRejectWithoutChangingOriginalPayload() passed after 3.116 seconds.
+✔ Test legacyStructuralProtocolRejectsDocumentOriginMutationAtomically() passed after 3.116 seconds.
+✔ Test versionUnknownFieldsDuplicateKeysFallbackMismatchAndNestedLayoutReject() passed after 3.116 seconds.
+✔ Test mixedDeletePreservesLaterPeerAtomsAndIndependentTextWithOneUndo() passed after 3.116 seconds.
+✔ Test malformedNodeKindsDepthAndFutureScopeRejectWithoutHistoryMutation() passed after 3.116 seconds.
+✔ Test nestedEmptyChecklistEnterOutdentsAndRetainsHistory() passed after 3.116 seconds.
+✔ Test concurrentScopedLabelConflictRetainsUnionAndAuthorRepairKeepsPeerBirth() passed after 3.116 seconds.
+✔ Test softBreakMatchesIndependentFixtureAndSharesOneUndoWithPeerSafeCapturedReplacement() passed after 3.116 seconds.
+✔ Test forgedListPlansRejectEvenWhenDisabledWithoutAcknowledgment(fault:) with 10 test cases passed after 3.116 seconds.
+✔ Test multiItemIndentPreservesRichMetadataChildrenPeerTextCaretAndSingleUndo(actor:) with 2 test cases passed after 3.116 seconds.
+✔ Test wholeSubtreeCopySuppressesRedundantPartialRangesAndTracksCurrentMaterialization() passed after 3.116 seconds.
+✔ Test capturedItemsFollowObservedPeerMovesBeforeStyleAndChecklistCommands() passed after 3.116 seconds.
+✔ Test legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) with 4 test cases passed after 3.116 seconds.
+✔ Test genericBlockCommandsKeepItemTableAndDocumentBoundariesClosed() passed after 3.116 seconds.
+✔ Test splitNoncollapsedCapturedRangeStillDeletesOnlyObservedAtomsAfterSchemaRoundTrip() passed after 3.116 seconds.
+✔ Test insertChoosesFirstEditableNestedFieldOrWholeNodeAndUndoesOnce() passed after 3.116 seconds.
+✔ Test pastedLayoutPeerEditSurvivesAuthorUndoAndReopenWithoutDuplication() passed after 3.116 seconds.
+✔ Test concurrentListStylesConvergeAndUndoRevealsPeerWinner() passed after 3.116 seconds.
+✔ Test listStyleConversionKeepsNestedChecklistOriginsStateAndFieldCaret() passed after 3.116 seconds.
+✔ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() passed after 3.116 seconds.
+✔ Test columnMovesKeepScopedOriginsCaretPeerTextAndOneAuthorUndo() passed after 3.116 seconds.
+✔ Test multiMovePreservesCapturedOrderCaretAndPeerTextAsOneUndo() passed after 3.116 seconds.
+✔ Test inactiveInlineConversionDoesNotConflictWithPeerCodeShape() passed after 3.116 seconds.
+✔ Test ancestorOverlapMetadataAndDeletedColumnDestinationReject() passed after 3.116 seconds.
+✔ Test reorderBetweenListsPreservesOriginsCheckedStatePeerTextAndNoopHistory() passed after 3.116 seconds.
+✔ Test checklistUpdatesOnlyChangedItemsAndOneUndoRetainsDisjointPeerWrites() passed after 3.116 seconds.
+✔ Test hiddenToggleAndTwoColumnsCopyAllContentSplitAndOpaqueMetadataInLogicalOrder() passed after 3.116 seconds.
+✔ Test compositionAndReducedActionPolicyRejectLocalStyleButPreserveRemoteStyleAndChecks() passed after 3.116 seconds.
+✔ Test readOnlyCopyWorksUnderCompositionAndAuthoringPolicyButTitleCannotMixWithBody() passed after 3.116 seconds.
+✔ Test multiItemOutdentKeepsUnselectedChildrenAndReopenedPeerEdits() passed after 3.116 seconds.
+✔ Test wholeLayoutCutKeepsUnobservedPeerChildInItsValidOriginalContainer() passed after 3.116 seconds.
+✔ Test mixedWholeAndBackwardPartialCopyHasLiteralOrderAndLeavesHistoryFocusUntouched() passed after 3.116 seconds.
+✔ Test textAuthoredAtConvertedCodeBirthFollowsConversionUndoAndCapturedReplacementAliases() passed after 3.116 seconds.
+✔ Test policyCompositionWrongScopeAndOtherHandleRetainPayloadAndAllowExplicitRetry() passed after 3.116 seconds.
+✔ Test directListStyleConversionPreservesPeerStyleAfterCreatorUndo() passed after 3.116 seconds.
+✔ Test independentInsertionsAndMovesConvergeInEitherReceiveOrder() passed after 3.116 seconds.
+✔ Test existingLimitsAndOpaqueMetadataArePreserved() passed after 3.116 seconds.
+✔ Test peerStyleAndChecklistHistorySurviveListCreationUndoAndRedo() passed after 3.116 seconds.
+✔ Test titleAndCodeUseExplicitPlainFallbackWithoutRichMarkOrBlockCoercion() passed after 3.116 seconds.
+✔ Test hierarchicalFieldsPreserveOwnerMetadataAndUseCompatibleChildCollection() passed after 3.116 seconds.
+✔ Test capturedRootBoundarySurvivesAnchorMoveAndDeletionWithoutRetargeting() passed after 3.116 seconds.
+✔ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) with 2 test cases passed after 3.116 seconds.
+✔ Test activeInlineCodeUnionRetainsAcceptedStateUntilAuthorRepair() passed after 3.116 seconds.
+✔ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() passed after 3.116 seconds.
+✔ Test concurrentNestedMovesPreserveBothAuthorsAndUndoUsesRemainingPlacement() passed after 3.116 seconds.
+✔ Test mixedReplacementAndEmptyClipboardAreSingleOrZeroHistorySteps() passed after 3.116 seconds.
+✔ Test sameContentConversionMatchesIndependentConcurrentSuffixFixturesThroughUndoReopenAndDuplicatePackets() passed after 3.116 seconds.
+✔ Test insertionUndoWithoutPeerWorkHidesBirthButDoesNotReuseOrigin() passed after 3.070 seconds.
+✔ Test acceptedBlankPlainMultilinePreservesFourLiteralLinesAndLastInputCaret() passed after 3.070 seconds.
+✔ Test forgedTextUsesOfRetiredContentAliasRejectEvenWhenInactive() passed after 3.070 seconds.
+✔ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() passed after 3.070 seconds.
+✔ Test insertedBodyFieldsShareTitleHistoryPeerUndoAndReopen() passed after 3.116 seconds.
+✔ Test codeConversionRetainsCapturedCaretPeerTextAndFieldAliasesThroughUndoRedoAndReopen() passed after 3.116 seconds.
+✔ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() passed after 3.053 seconds.
+✔ Test incrementalInsertedFieldPacketBeforeBirthRetainsRecoveryThenConverges() passed after 3.065 seconds.
+✔ Test capturedFormattingPreservesDirectionAndLeavesUnobservedPeerAtomsUnformatted() passed after 3.065 seconds.
+✔ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() passed after 2.951 seconds.
+✔ Test styleChangesDeduplicateContainingOwnersAndPreserveCheckedRichAndOpaqueFields() passed after 3.116 seconds.
+✔ Test capturedRichReplacementKeepsAtomicReferenceMetadataAndPeerTextThroughUndoAndReopen() passed after 3.065 seconds.
+✔ Test localPolicyCompositionStaleScopeAndReusedLabelsRejectWithoutPartialReplacement() passed after 2.917 seconds.
+✔ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() passed after 2.888 seconds.
+✔ Test concurrentCodeConversionsConvergeAndEachUndoKeepsPeerHead() passed after 2.919 seconds.
+✔ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() passed after 2.964 seconds.
+✔ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() passed after 2.919 seconds.
+✔ Test forgedCopyPayloadAndInvisibleMalformedPacketsRejectAtomically() passed after 3.074 seconds.
+✔ Test tableRowAndCellPasteKeepSemanticMetadataAndFreshNamespaces() passed after 2.882 seconds.
+✔ Test laterSchemaConversionRetainsTextCreatedInItsBirthsOwnCompoundPacket() passed after 2.875 seconds.
+✔ Test callbacksObserveFinalHistoryAndCannotReenterPublication() passed after 2.875 seconds.
+✔ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() passed after 2.882 seconds.
+✔ Test acceptedDuplicateLiteralSelectsCopyAndFocusesItsFirstInputOneStep() passed after 2.966 seconds.
+✔ Test malformedInactiveSchemaConversionRejectsBeforeMissingPredecessorAndKeepsReceipt() passed after 2.856 seconds.
+✔ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() passed after 2.875 seconds.
+✔ Test pasteAfterCapturedCodeAliasUsesCurrentFieldAndRejectsForgedRelation() passed after 2.837 seconds.
+✔ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() passed after 2.835 seconds.
+✔ Test heldPacketsExportRestoreAndReleaseWithoutPrematureReceipts() passed after 2.875 seconds.
+✔ Test copiedExposedPeerParagraphAndFollowingAnchorSurviveOriginalListRedo() passed after 2.863 seconds.
+✔ Test localPolicyAndCompositionReturnUnchangedUnavailableAndPreservePeerRichContent() passed after 2.835 seconds.
+✔ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() passed after 2.810 seconds.
+✔ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() passed after 3.116 seconds.
+✔ Test boundedPreparationCountAndMalformedAcknowledgmentNeverDeleteBeforePublication() passed after 3.116 seconds.
+✔ Test crossParagraphPastePreservesRetainedEndpointMetadataAndPeerRoutes() passed after 2.762 seconds.
+✔ Test opaqueBlockIsCopiedVerbatimWithItsOnlyKnownSchemaIDFreshened() passed after 2.765 seconds.
+✔ Test acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() passed after 2.856 seconds.
+✔ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) with 2 test cases passed after 2.738 seconds.
+✔ Test futureJoinCannotJustifyForgedAnchorInEarlierCapturedField() passed after 2.688 seconds.
+✔ Test legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() passed after 2.647 seconds.
+✔ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() passed after 2.647 seconds.
+✔ Test codeAndListConversionsInsideColumnsKeepLogicalOwnersAcrossFlattenAndUndo() passed after 2.805 seconds.
+✔ Test inactiveForgedPlanRejectsAndMissingCaptureIsRetainedUntilItsCausalBirthArrives() passed after 2.647 seconds.
+✔ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() passed after 2.612 seconds.
+✔ Test listConversionPreservesAtomsCaretPeerReplacementAndChecklistStateThroughUndo() passed after 2.647 seconds.
+✔ Test explicitModernEndpointsReturnCheckedTransactionsFocusAndSavedAuthorHistory() passed after 2.747 seconds.
+✔ Test opaqueContentOnCodeBlocksCannotBeDiscardedByLocalOrInactiveRemoteListConversion() passed after 2.561 seconds.
+✔ Test capturedBackwardReplacementPreservesPeerInsertionThroughTheBridge() passed after 2.612 seconds.
+✔ Test deletedSourceAndOwnerReusedLabelsScopeAndPolicyRejectUnchanged() passed after 2.805 seconds.
+✔ Test codeBirthTextCanBecomeRichParagraphWithoutLosingOriginalOriginsOrOpaqueLanguage() passed after 2.561 seconds.
+✔ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() passed after 2.517 seconds.
+✔ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() passed after 2.739 seconds.
+✔ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() passed after 2.513 seconds.
+✔ Test concurrentListConversionsRetainRecoveryUntilOwnUndoKeepsPeerBranch() passed after 2.517 seconds.
+✔ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() passed after 2.847 seconds.
+✔ Test nestedListsTablesColumnsFreshenOnlySchemaIDsAndRetainLiteralRichAndOpaqueFields() passed after 2.920 seconds.
+✔ Test columnDestinationAdmitsOrdinaryCopiesAndRejectsNestedLayoutOrDeletedOwner() passed after 2.882 seconds.
+✔ Test richCodeConversionAndOpaqueFieldCollisionsRejectWithoutChangingSavedHistory() passed after 2.507 seconds.
+✔ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() passed after 2.561 seconds.
+✔ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() passed after 2.491 seconds.
+✔ Test soleListItemCollapseRetainsCheckedMetadataChildOriginsPeerTextAndUndo() passed after 2.491 seconds.
+✔ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() passed after 2.507 seconds.
+✔ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() passed after 2.534 seconds.
+✔ Test undoListConversionExposesPeerSplitAsRetainedParagraphInsteadOfDroppingIt() passed after 2.490 seconds.
+✔ Test soleEmptyChecklistEnterPreservesOwnerChildOriginsAndPeerTextThroughUndoReopen() passed after 2.513 seconds.
+✔ Test explicitPlainRangeUsesNormalInlineAndMultilinePrefixSuffixSemantics() passed after 2.318 seconds.
+✔ Suite ModernListRoleTests passed after 3.119 seconds.
+✔ Suite ModernInlineCommandsTests passed after 3.119 seconds.
+✔ Suite ModernAsyncBridgeTests passed after 3.119 seconds.
+✔ Suite ModernPasteBridgeTests passed after 3.119 seconds.
+✔ Suite ModernSplitMergeTests passed after 3.119 seconds.
+✔ Suite ModernCutTests passed after 3.119 seconds.
+✔ Suite ModernStructuralBridgeTests passed after 3.119 seconds.
+✔ Suite ModernStructureTests passed after 3.119 seconds.
+✔ Suite ModernClipboardBridgeTests passed after 3.119 seconds.
+✔ Suite ModernCommandTargetsTests passed after 3.119 seconds.
+✔ Suite ModernBlockCommandsTests passed after 3.119 seconds.
+✔ Suite ModernSchemaConversionTests passed after 3.119 seconds.
+✔ Suite ModernListStructureTests passed after 3.119 seconds.
+✔ Suite ModernClipboardTests passed after 3.119 seconds.
+✔ Suite ModernBridgeTests passed after 3.119 seconds.
+✔ Test sameFieldBlockReplacementHasOneRetainedCutAndKeepsPeerInsertion() passed after 2.343 seconds.
+✔ Test preparationByteBudgetRetainsWholeOpaquePayloadWithoutNarrowingDocumentAdmission() passed after 3.215 seconds.
+✔ Suite ModernCutBridgeTests passed after 3.217 seconds.
+✔ Test copiedChildPeersRemainRecoverableAcrossAuthorUndoRedoAndReopen() passed after 2.760 seconds.
+✔ Test capturedOrderSurvivesPeerMovesAndHistoricalDeletedBoundaryRemainsUsable() passed after 2.593 seconds.
+✔ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() passed after 2.544 seconds.
+✔ Test admissionCopiesObservedTextButLaterOriginalPeerEditsAndUndoRemainIndependent() passed after 2.666 seconds.
+✔ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() passed after 2.653 seconds.
+✔ Suite ModernColumnTests passed after 3.281 seconds.
+✔ Test duplicateFromPeerSplitCopiesOnlyCurrentVisibleContentNotBirthPayload() passed after 2.661 seconds.
+✔ Suite ModernDuplicationTests passed after 3.289 seconds.
+✔ Test explicitFlattenedFallbackMatchesAcceptedColumnContentAndRichNestedPasteRejects() passed after 2.557 seconds.
+✔ Suite ModernPasteTests passed after 3.343 seconds.
+✔ Test independentSnapshotsRetainEveryAdmittedFieldAndCanonicalRoundTrip() passed after 3.520 seconds.
+✔ Suite ModernDocumentTests passed after 3.521 seconds.
+✔ Test nearFullArchiveReservesFailureAndCancellationWithoutLosingAcceptedLocalState() passed after 4.037 seconds.
+✔ Suite ModernAsyncCommandsTests passed after 4.039 seconds.
+✔ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() passed after 4.846 seconds.
+✔ Suite ModernSessionTests passed after 4.848 seconds.
+✔ Test allIndependentModernSnapshotsKeepExactJSONThroughSharedProjection() passed after 11.597 seconds.
+✔ Suite ModernProjectionTests passed after 11.599 seconds.
+✔ Test run with 247 tests in 23 suites passed after 11.599 seconds.
