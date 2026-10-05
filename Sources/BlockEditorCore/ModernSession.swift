@@ -3,6 +3,7 @@ import Foundation
 /// Protocol-7 operations. Structural/compound layout commands are added only
 /// once their admission and retained-origin replay semantics are implemented.
 public enum ModernOperation: Codable, Equatable, Sendable {
+    case duplicateBlocks(ModernDuplication)
     case createColumns(ModernColumnCreation)
     case removeColumns(layout: NodeID, source: NodePlacementID)
     case resizeColumns(layout: NodeID, splitBasisPoints: Int)
@@ -621,6 +622,27 @@ public final class ModernSession {
                         try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
                         retainModernFieldBirths(in: raw.structure!, births: &births)
                         collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
+                    case .duplicateBlocks(let copy):
+                        guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                        try validateModernDuplicationShape(copy, change: change.id)
+                        try validateTargetScope(copy.target.selection.documentID, copy.target.selection.epoch)
+                        try validateTargetScope(copy.target.boundary.documentID, copy.target.boundary.epoch)
+                        let selectedIDs = try closure(copy.target.selection.observed, before: change.id, in: candidate)
+                        let boundaryIDs = try closure(copy.target.boundary.observed, before: change.id, in: candidate)
+                        guard selectedIDs.isSubset(of: cohort), boundaryIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        let authored = try causalWritingMaterialized(cohort, in: candidate)
+                        let captured = try causalColumnStructure(selectedIDs, in: candidate)
+                        let boundary = try causalColumnStructure(boundaryIDs, in: candidate)
+                        let snapshot = try authored.1.document(documentID: documentID, text: authored.2)
+                        let expected = try planModernDuplication(copy.target, newBlockIDs: copy.newBlockIDs, change: change.id,
+                            captured: captured, boundaryCaptured: boundary, authored: authored.1, document: snapshot)
+                        guard expected == copy else { throw EditorError.invalidChange }
+                        for (index, mutation) in copy.operations.enumerated() {
+                            guard introduced.insert(ElementID(change: change.id, index: index)).inserted else { throw EditorError.invalidChange }
+                            try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
+                        }
+                        retainModernFieldBirths(in: raw.structure!, births: &births)
+                        collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
                     case .createColumns(let value):
                         let captured = try causalColumnStructure(cohort, in: candidate)
                         try validateModernColumnCreation(value, in: captured)
@@ -801,6 +823,10 @@ public final class ModernSession {
         try causalWritingReplay(cohort, in: candidate).1
     }
     private func causalWritingReplay(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, StructuralState) {
+        let value = try causalWritingMaterialized(cohort, in: candidate)
+        return (value.0, value.1)
+    }
+    private func causalWritingMaterialized(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, StructuralState, [NodeID: [String: JSONValue]]) {
         let subset = candidate.filter { cohort.contains($0.key) }, active = activeStates(subset)
         var raw = Materialized(); raw.structure = seed.structure
         var births = seed.births
@@ -819,6 +845,10 @@ public final class ModernSession {
                         raw: &raw, placementShape: projectModernColumnRoutes(raw.structure!, routes: routes))
                 case .structure(let mutation):
                     try apply([mutation], enabled: enabled, to: &raw)
+                    retainModernFieldBirths(in: raw.structure!, births: &births)
+                    collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
+                case .duplicateBlocks(let copy):
+                    try apply(copy.operations, enabled: enabled, to: &raw)
                     retainModernFieldBirths(in: raw.structure!, births: &births)
                     collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
                 case .createColumns(let value):
@@ -863,7 +893,7 @@ public final class ModernSession {
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(subset.values.sorted { $0.id < $1.id }),
             births: births, protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
         let output = shared.0
-        return (shared.1, try projectModernColumnRoutes(output, routes: routes))
+        return (shared.1, try projectModernColumnRoutes(output, routes: routes), shared.2)
     }
     /// Bound recursive payloads before a Foundation encoder/decoder is asked to
     /// walk them, including typed packets that did not enter through raw JSON.
@@ -880,6 +910,10 @@ public final class ModernSession {
                         try inspectModernPayload(.object(conversion.attributes))
                         try inspectModernPayload(.object(conversion.preservedItemFields))
                         try validateModernSchemaShape(conversion, change: change.id)
+                    }
+                    if case .duplicateBlocks(let copy) = operation {
+                        guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                        try validateModernDuplicationShape(copy, change: change.id)
                     }
                     if case .listStructure(let command) = operation { try validateModernListShape(command, change: change.id) }
                     if case .enterListItem(let enter) = operation { try validateModernEnterShape(enter, change: change.id) }
@@ -1021,6 +1055,11 @@ public final class ModernSession {
                     case .convertBlock(let node, let type, let attributes):
                         try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
                         guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange }
+                    case .duplicateBlocks(let copy):
+                        guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                        try validateModernDuplicationShape(copy, change: change.id)
+                        try validateTargetScope(copy.target.selection.documentID, copy.target.selection.epoch)
+                        try validateTargetScope(copy.target.boundary.documentID, copy.target.boundary.epoch)
                     case .structure, .createColumns, .removeColumns, .resizeColumns: break
                     case .setSemanticDefault(let node, let kind, let role):
                         try modernStructuralIdentityShape(node); try validateModernSemanticRole(role)

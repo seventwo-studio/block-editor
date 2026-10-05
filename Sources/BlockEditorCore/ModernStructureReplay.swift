@@ -29,6 +29,14 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                           !identities.contains(where: { if case .document = $0 { return true }; return false }) else { throw EditorError.invalidChange }
                 default: throw EditorError.invalidChange
                 }
+            case .duplicateBlocks(let copy):
+                guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                try validateModernDuplicationShape(copy, change: change.id)
+                for mutation in copy.operations {
+                    guard case .insertNode(let value, let identity, _, let placement, _) = mutation,
+                          introduced.insert(placement).inserted, registry.nodes[identity] == nil else { throw EditorError.invalidChange }
+                    registry.register(value, identity: identity, kind: .block, active: true)
+                }
             case .createColumns(let value):
                 try validateModernColumnCreationShape(value, change: change.id)
                 guard registry.nodes[value.identity] == nil else { throw EditorError.invalidChange }
@@ -86,7 +94,7 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
             default: break
             }
             switch operation {
-            case .structure(.insertNode), .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
+            case .structure(.insertNode), .duplicateBlocks, .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
             default: break
             }
         }

@@ -43,6 +43,7 @@ func modernRoleTargets(_ operations: [ModernOperation]) -> [NodeID] {
         case .structure(.insertNode(_, _, _, _, let after)): anchor(after)
         case .structure(.moveNode(let node, _, _, let after)): result.append(node); anchor(after)
         case .structure(.deleteNodes(let nodes)): result += nodes
+        case .duplicateBlocks(let copy): anchor(copy.target.boundary.after)
         case .createColumns(let creation): result += creation.nodes; anchor(creation.after)
         case .convertBlock(let node, _, _), .setSemanticDefault(let node, _, _): result.append(node)
         case .schemaConvert(let conversion): result += [conversion.node, conversion.source.node]

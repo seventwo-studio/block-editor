@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -191,6 +191,10 @@ final class ModernBridgeEndpoint {
                 let boundary = try decode(request["target"], as: ModernBlockBoundary.self)
                 let block = try decode(arguments["block"], as: Block.self)
                 try structural(session.insertBlock(block, at: boundary))
+            case "duplicate":
+                try allowed(arguments, ["newBlockIDs"])
+                let ids = try decode(arguments["newBlockIDs"], as: [String].self)
+                try structural(session.duplicate(decode(request["target"], as: ModernDuplicateTarget.self), newBlockIDs: ids))
             case "move":
                 try allowed(arguments, [])
                 try structural(session.move(decode(request["target"], as: ModernMoveTarget.self)))
@@ -236,8 +240,8 @@ final class ModernBridgeEndpoint {
         catch ModernSessionError.recoveryRequired { return try result("recoveryRequired", reason: "schemaOrIdentityConflict") }
         catch let error as EditorError {
             if command == "convertBlock", case .invalidDocument = error { return try result("unavailable", reason: "conversionMetadataConflict") }
-            if ["createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command), error == .invalidChange || error == .invalidPath {
-                return try result("unavailable", reason: ["convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
+            if ["duplicate", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command), error == .invalidChange || error == .invalidPath {
+                return try result("unavailable", reason: ["duplicate", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
             }
             throw error
         }

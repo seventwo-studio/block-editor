@@ -571,11 +571,50 @@ def main():
     assert success('modernSemanticState', 'cross-reopen', target=dict(range=cross_range), kind='ink') == dict(mixed={})
     command('cross-reopen', 'redo')
     assert command('cross-reopen', 'redo')['document'] == expected_cross
+    # ACC-12 has a separately authored full document, including exact reference
+    # and opaque consumer fields. No expected document is captured from runtime.
+    mixed, mixed_copy = fixture('mixed'), fixture('mixed-duplicated')
+    column_session('copy-a', mixed)
+    column_session('copy-b', mixed)
+    def duplicate_command(handle, name, target=None, **arguments):
+        return success('modernCommand', handle, request=dict(documentID=mixed['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    copy_nodes = success('modernCaptureNodes', 'copy-a', nodes=[origin_a])
+    copy_boundary = success('modernCaptureBoundary', 'copy-a', collection=dict(field='blocks'), after=origin_a)
+    copied = duplicate_command('copy-a', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['copy-A'])
+    assert copied['status'] == 'applied' and copied['document'] == mixed_copy
+    copy_origin = copied['selection']['nodes'][0]
+    assert copied['selectionIntent']['nodes']['_0']['nodes'] == [copy_origin]
+    assert copied['focus']['field'] == dict(node=copy_origin, name='content')
+    assert success('modernResolvePosition', 'copy-a', position=copied['focus'])['offset'] == 0
+    success('modernReceive', 'copy-b', batch=success('modernChanges', 'copy-a'))
+    body = dict(node=origin_a, name='content')
+    copy_peer_range = success('modernCaptureTextRange', 'copy-b', field=body, start=0, end=0)
+    expected_copy_peer = json.loads(json.dumps(mixed_copy))
+    expected_copy_peer['blocks'][0]['content'][0]['text'] = 'peer Bold '
+    assert duplicate_command('copy-b', 'replaceText', copy_peer_range, text='peer ')['document'] == expected_copy_peer
+    success('modernReceive', 'copy-a', batch=success('modernChanges', 'copy-b'))
+    assert success('modernDocument', 'copy-a') == expected_copy_peer
+    copy_save = success('modernSave', 'copy-a')
+    success('restoreModern', 'copy-reopen', actorID='copy-a', snapshot=copy_save)
+    expected_copy_undo = json.loads(json.dumps(mixed))
+    expected_copy_undo['blocks'][0]['content'][0]['text'] = 'peer Bold '
+    assert duplicate_command('copy-reopen', 'undo')['document'] == expected_copy_undo
+    assert duplicate_command('copy-reopen', 'redo')['document'] == expected_copy_peer
+    success('modernSetAuthoringPolicy', 'copy-reopen', allowedCommands=['replaceTitle'])
+    copy_unchanged = success('modernSave', 'copy-reopen')
+    assert duplicate_command('copy-reopen', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['policy-copy'])['status'] == 'unavailable'
+    assert success('modernSave', 'copy-reopen') == copy_unchanged
+    success('modernSetAuthoringPolicy', 'copy-reopen', allowedCommands=None)
+    copy_unchanged = success('modernSave', 'copy-reopen')
+    assert duplicate_command('copy-reopen', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['A'])['status'] == 'unavailable'
+    assert success('modernSave', 'copy-reopen') == copy_unchanged
+
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Clipboard, async completion, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Clipboard, async completion, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')
