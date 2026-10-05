@@ -19,7 +19,7 @@ func modernProjectionChanges(_ changes: [ModernChange]) -> [WritingChange] {
                 case .enterListItem(let enter): return enter.operations
                 case .splitBlock(let split): return split.writingOperations
                 case .mergeBlocks(let join): return [.text(.join(source: join.source, destination: join.destination, edge: join.edge))]
-                case .createColumns, .removeColumns, .resizeColumns, .setAppearance, .setSemanticDefault: return []
+                case .completeAsyncMetadata, .createColumns, .removeColumns, .resizeColumns, .setAppearance, .setSemanticDefault: return []
                 }
             }
         } else { operations = [] }

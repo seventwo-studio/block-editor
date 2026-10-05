@@ -22,7 +22,7 @@ func validateModernSemanticRole(_ role: String?) throws {
 func validateModernSemanticNode(_ node: NodeID, in structure: StructuralState) throws {
     _ = try structure.address(of: node)
     guard let value = structure.nodes[node], value.kind == .block,
-          ["paragraph", "heading", "quote", "callout", "toggle", "list", "table", "image", "code", "math", "divider", "embed", "columns"].contains(value.fields["type"]?.string ?? "") else { throw EditorError.invalidPath }
+          ["paragraph", "heading", "quote", "callout", "toggle", "list", "table", "image", "code", "math", "divider", "embed", "file", "columns"].contains(value.fields["type"]?.string ?? "") else { throw EditorError.invalidPath }
 }
 func applyModernSemanticDefault(node: NodeID, kind: ModernSemanticKind, role: String?, enabled: Bool, raw: inout Materialized) throws {
     guard raw.structure!.nodes[node] != nil else { throw EditorError.invalidChange }

@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "completeAsyncBlock", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -23,6 +23,8 @@ final class ModernBridgeEndpoint {
                 values["canUndo"] = .bool(session.canUndo); values["canRedo"] = .bool(session.canRedo)
                 values["isComposing"] = .bool(session.isComposing); values["recoveryRequired"] = .bool(session.mergeRecovery != nil)
             }
+            let asyncEnabled = sessions[handle]?.allowedCommands?.contains("completeAsyncBlock") ?? true
+            values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
             let listEnabled = sessions[handle]?.allowedCommands?.contains("listStructure") ?? true
             values["listActions"] = .array([ModernListAction.indent, .outdent, .reorder, .setStyle, .setChecked].filter {
                 listEnabled && (sessions[handle]?.allowedListActions?.contains($0) ?? true)
@@ -95,6 +97,24 @@ final class ModernBridgeEndpoint {
         case "modernSemanticState":
             try allowed(input, ["command", "session", "target", "kind"])
             return try encode(session.semanticState(decode(input["target"], as: ModernSemanticTarget.self), kind: decode(input["kind"], as: ModernSemanticKind.self)))
+        case "modernBeginAsyncBlock":
+            try allowed(input, ["command", "session", "node", "requestID"])
+            guard let requestID = input["requestID"]?.string else { throw EditorError.invalidChange }
+            return try encode(session.beginAsyncBlock(decode(input["node"], as: NodeID.self), requestID: requestID))
+        case "modernAsyncRequests":
+            try allowed(input, ["command", "session"]); return try encode(session.asyncRequests)
+        case "modernExportAsyncRequests":
+            try allowed(input, ["command", "session"]); return try JSONDecoder().decode(JSONValue.self, from: session.exportAsyncRequests())
+        case "modernRestoreAsyncRequests":
+            try allowed(input, ["command", "session", "archive"]); try session.restoreAsyncRequests(canonicalEncoder().encode(input["archive"] ?? .null))
+        case "modernCancelAsyncBlock", "modernForgetAsyncBlock":
+            try allowed(input, ["command", "session", "target"])
+            let target = try decode(input["target"], as: ModernAsyncTarget.self)
+            if command == "modernCancelAsyncBlock" { try session.cancelAsyncBlock(target) } else { try session.forgetAsyncBlock(target) }
+        case "modernFailAsyncBlock":
+            try allowed(input, ["command", "session", "target", "reason"])
+            guard let reason = input["reason"]?.string else { throw EditorError.invalidChange }
+            try session.failAsyncBlock(decode(input["target"], as: ModernAsyncTarget.self), reason: reason)
         case "modernComposition":
             try allowed(input, ["command", "session", "active"]); session.isComposing = try decode(input["active"], as: Bool.self)
         case "modernSetAuthoringPolicy":
@@ -127,9 +147,11 @@ final class ModernBridgeEndpoint {
     }
     private func execute(_ request: JSONValue, session: ModernSession) throws -> JSONValue {
         try allowed(request, ["documentID", "epoch", "command", "target", "arguments"])
-        guard request["documentID"] == .string(session.documentID) else { throw EditorError.differentDocument }
-        guard request["epoch"] == .string(session.epoch) else { throw ModernSessionError.incompatibleEpoch }
         guard let command = request["command"]?.string, let arguments = request["arguments"], arguments.object != nil else { throw EditorError.invalidChange }
+        if command != "completeAsyncBlock" {
+            guard request["documentID"] == .string(session.documentID) else { throw EditorError.differentDocument }
+            guard request["epoch"] == .string(session.epoch) else { throw ModernSessionError.incompatibleEpoch }
+        }
         func result(_ status: String, transaction: ChangeID? = nil, position: WritingPosition? = nil,
                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
@@ -143,6 +165,21 @@ final class ModernBridgeEndpoint {
             return .object(fields)
         }
         guard commands.contains(command) else { return try result("unavailable", reason: "unsupportedCommand") }
+        if command == "completeAsyncBlock" {
+            try allowed(arguments, ["metadata"])
+            let target = try decode(request["target"], as: ModernAsyncTarget.self)
+            guard let metadata = arguments["metadata"]?.object else { throw EditorError.invalidChange }
+            try validateModernAsyncMetadata(metadata, kind: target.origin.kind)
+            let before = Set(session.syncState.received)
+            let outcome: ModernAsyncOutcome
+            if request["documentID"] != .string(target.documentID) || request["epoch"] != .string(target.epoch) {
+                outcome = ModernAsyncOutcome(status: "unavailable", reason: "asyncRequestScopeChanged", retainedResult: metadata)
+            } else { outcome = try session.completeAsyncBlock(target, metadata: metadata) }
+            let transaction = session.syncState.received.first { !before.contains($0) && $0.actor == session.actorID }
+            var response = try result(outcome.status, transaction: transaction, reason: outcome.reason).object!
+            response["retainedResult"] = outcome.retainedResult.map(JSONValue.object) ?? .null
+            return .object(response)
+        }
         if session.allowedCommands?.contains(command) == false { return try result("unavailable", reason: "hostPolicy") }
         if session.isComposing { return try result("unavailable", reason: "compositionActive") }
         if session.mergeRecovery != nil { return try result("recoveryRequired", reason: "pendingRecovery") }

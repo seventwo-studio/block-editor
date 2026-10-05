@@ -3,6 +3,7 @@ import Foundation
 /// Protocol-7 operations. Structural/compound layout commands are added only
 /// once their admission and retained-origin replay semantics are implemented.
 public enum ModernOperation: Codable, Equatable, Sendable {
+    case completeAsyncMetadata(ModernAsyncMetadataEdit)
     case duplicateBlocks(ModernDuplication)
     case createColumns(ModernColumnCreation)
     case removeColumns(layout: NodeID, source: NodePlacementID)
@@ -83,6 +84,8 @@ public final class ModernSession {
     public var onWillReceive: (() -> Void)?
     public var onChange: ((ModernDocument, ModernChange?) -> Void)?
     public var isComposing = false { didSet { if oldValue != isComposing { endTypingGroup() } } }
+    var modernAsyncRequests: [String: ModernAsyncRecord] = [:]
+    var modernAsyncGeneration: UInt64 = 0
     private let seed: ModernProjectionSeed
     var structure: StructuralState
     private var projection: WritingProjection
@@ -622,6 +625,16 @@ public final class ModernSession {
                         try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
                         retainModernFieldBirths(in: raw.structure!, births: &births)
                         collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
+                    case .completeAsyncMetadata(let edit):
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernAsyncShape(edit, change: change.id)
+                        try modernReference(edit.origin.node, before: change.id, cohort: cohort, registry: registry)
+                        let capturedIDs = try closure(edit.origin.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        let captured = try causalColumnStructure(capturedIDs, in: candidate)
+                        let authored = try causalColumnStructure(cohort, in: candidate)
+                        try validateModernAsyncEdit(edit, captured: captured, authored: authored)
+                        try applyModernAsyncMetadata(edit, enabled: active[change.id] ?? true, raw: &raw)
                     case .duplicateBlocks(let copy):
                         guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
                         try validateModernDuplicationShape(copy, change: change.id)
@@ -847,6 +860,8 @@ public final class ModernSession {
                     try apply([mutation], enabled: enabled, to: &raw)
                     retainModernFieldBirths(in: raw.structure!, births: &births)
                     collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
+                case .completeAsyncMetadata(let edit):
+                    try applyModernAsyncMetadata(edit, enabled: enabled, raw: &raw)
                 case .duplicateBlocks(let copy):
                     try apply(copy.operations, enabled: enabled, to: &raw)
                     retainModernFieldBirths(in: raw.structure!, births: &births)
@@ -910,6 +925,10 @@ public final class ModernSession {
                         try inspectModernPayload(.object(conversion.attributes))
                         try inspectModernPayload(.object(conversion.preservedItemFields))
                         try validateModernSchemaShape(conversion, change: change.id)
+                    }
+                    if case .completeAsyncMetadata(let edit) = operation {
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernAsyncShape(edit, change: change.id)
                     }
                     if case .duplicateBlocks(let copy) = operation {
                         guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
@@ -1055,6 +1074,9 @@ public final class ModernSession {
                     case .convertBlock(let node, let type, let attributes):
                         try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
                         guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange }
+                    case .completeAsyncMetadata(let edit):
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernAsyncShape(edit, change: change.id)
                     case .duplicateBlocks(let copy):
                         guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
                         try validateModernDuplicationShape(copy, change: change.id)
@@ -1144,7 +1166,7 @@ private func modernScalarBoundary(_ offset: Int, in text: String) -> Bool {
     return false
 }
 private func jsonValue<T: Encodable>(_ value: T) throws -> JSONValue { try JSONDecoder().decode(JSONValue.self, from: canonicalEncoder().encode(value)) }
-private func modernWireValue(_ data: Data) throws -> JSONValue {
+func modernWireValue(_ data: Data) throws -> JSONValue {
     guard data.count <= 64_000_000 else { throw EditorError.recoveryCapacityExceeded }
     try inspectModernJSONKeys(data, maximumDepth: 128)
     return try JSONDecoder().decode(JSONValue.self, from: data)

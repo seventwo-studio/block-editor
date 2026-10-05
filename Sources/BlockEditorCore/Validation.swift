@@ -62,6 +62,15 @@ enum Validation {
                     guard case .number(let n) = value, n.isFinite, n > 0, n.rounded() == n else { throw invalid(key) }
                 }
             }
+        case "file":
+            if modern {
+                try string(f["src"], name: "file source", min: 1, max: 100_000)
+                try string(f["name"], name: "file name", min: 1, max: 10_000)
+                try string(f["mimeType"], name: "file media type", min: 1, max: 256, optional: true)
+                if let value = f["size"] {
+                    guard case .number(let n) = value, n.isFinite, n >= 0, n.rounded() == n, n <= 9_007_199_254_740_991 else { throw invalid("file size") }
+                }
+            }
         case "table":
             if let widths = f["columnWidths"] {
                 guard let widths = widths.array, widths.allSatisfy({ if case .number(let n) = $0 { return n.isFinite }; return false }) else { throw invalid("column widths") }

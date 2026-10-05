@@ -127,7 +127,7 @@ private func modernStructuralBoundaryShape(_ collection: NodeCollection, after: 
 
 func validateModernAuthoredBlock(_ value: JSONValue) throws {
     try validateNode(value, kind: .block, modern: true)
-    let known = Set(["paragraph", "heading", "quote", "callout", "toggle", "list", "table", "image", "code", "math", "divider", "embed"])
+    let known = Set(["paragraph", "heading", "quote", "callout", "toggle", "list", "table", "image", "code", "math", "divider", "embed", "file"])
     var pending: [(JSONValue, NodeKind)] = [(value, .block)]
     while let (node, kind) = pending.popLast() {
         if kind == .block {

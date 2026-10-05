@@ -610,11 +610,113 @@ def main():
     assert duplicate_command('copy-reopen', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['A'])['status'] == 'unavailable'
     assert success('modernSave', 'copy-reopen') == copy_unchanged
 
+    # Inert providers exercise the accepted late-result switch without any
+    # upload, URL fetch or replacement-document acknowledgment.
+    column_session('async-origin', mixed)
+    column_session('async-replacement', baseline)
+    media_origin = dict(baseline=dict(blockID='media', path=[]))
+    def async_command(handle, name, target=None, document=mixed, **arguments):
+        return success('modernCommand', handle, request=dict(documentID=document['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    provider_result = dict(src='asset://fixture/completed', width=640, height=480)
+    async_target = success('modernBeginAsyncBlock', 'async-origin', node=media_origin, requestID='fixture-provider')
+    origin_save, replacement_save = success('modernSave', 'async-origin'), success('modernSave', 'async-replacement')
+    switched = async_command('async-replacement', 'completeAsyncBlock', async_target, metadata=provider_result)
+    assert switched['status'] == 'unavailable' and switched['retainedResult'] == provider_result
+    assert switched['document'] == baseline and switched['transaction'] is None and switched['focus'] is None
+    assert success('modernSave', 'async-replacement') == replacement_save
+    assert success('modernSave', 'async-origin') == origin_save
+    assert success('modernAsyncRequests', 'async-origin')[0]['status'] == 'pending'
+    success('modernCancelAsyncBlock', 'async-origin', target=async_target)
+    cancelled = async_command('async-origin', 'completeAsyncBlock', async_target, metadata=provider_result)
+    assert cancelled['status'] == 'unavailable' and cancelled['document'] == mixed
+    assert success('modernAsyncRequests', 'async-origin')[0]['status'] == 'cancelled'
+    retry_target = success('modernBeginAsyncBlock', 'async-origin', node=media_origin, requestID='retry-provider')
+    assert retry_target['generation'] > async_target['generation']
+    success('modernSetAuthoringPolicy', 'async-origin', allowedCommands=['replaceTitle'])
+    assert async_command('async-origin', 'completeAsyncBlock', retry_target, metadata=provider_result)['reason'] == 'hostPolicy'
+    assert success('modernAsyncRequests', 'async-origin')[-1]['result'] == provider_result
+    success('modernSetAuthoringPolicy', 'async-origin', allowedCommands=None)
+    success('modernComposition', 'async-origin', active=True)
+    assert async_command('async-origin', 'completeAsyncBlock', retry_target, metadata=provider_result)['reason'] == 'compositionActive'
+    success('modernComposition', 'async-origin', active=False)
+    completed_media = json.loads(json.dumps(mixed))
+    next(block for block in completed_media['blocks'] if block['id'] == 'media').update(provider_result)
+    completed = async_command('async-origin', 'completeAsyncBlock', retry_target, metadata=provider_result)
+    assert completed['status'] == 'applied' and completed['document'] == completed_media
+    assert all(completed[field] is None for field in ['focus', 'selection', 'focusIntent', 'selectionIntent', 'retainedResult'])
+    shared_async = json.dumps(success('modernChanges', 'async-origin'))
+    assert 'requestID' not in shared_async and 'generation' not in shared_async and 'retry-provider' not in shared_async
+    async_saved = success('modernSave', 'async-origin')
+    async_archive = success('modernExportAsyncRequests', 'async-origin')
+    success('restoreModern', 'async-reopen', actorID='async-origin', snapshot=async_saved)
+    success('modernRestoreAsyncRequests', 'async-reopen', archive=async_archive)
+    assert success('modernSave', 'async-reopen') == async_saved
+    assert async_command('async-reopen', 'undo')['document'] == mixed
+    undo_saved = success('modernSave', 'async-reopen')
+    assert async_command('async-reopen', 'completeAsyncBlock', retry_target, metadata=provider_result)['status'] == 'noop'
+    assert success('modernSave', 'async-reopen') == undo_saved
+    assert async_command('async-reopen', 'redo')['document'] == completed_media
+    delete_target = success('modernBeginAsyncBlock', 'async-origin', node=media_origin, requestID='deleted-provider')
+    media_selection = success('modernCaptureNodes', 'async-origin', nodes=[media_origin])
+    deleted_media = json.loads(json.dumps(completed_media))
+    deleted_media['blocks'] = [block for block in deleted_media['blocks'] if block['id'] != 'media']
+    assert async_command('async-origin', 'delete', dict(nodes=media_selection, ranges=[]))['document'] == deleted_media
+    deleted_save = success('modernSave', 'async-origin')
+    assert async_command('async-origin', 'completeAsyncBlock', delete_target, metadata=provider_result)['status'] == 'unavailable'
+    assert success('modernSave', 'async-origin') == deleted_save
+    assert success('modernAsyncRequests', 'async-origin')[-1]['result'] == provider_result
+
+    # File metadata is a protocol-7 schema; asset bytes and consumer state stay
+    # with the host. Initial insertion and completion have independent history.
+    column_session('async-file', baseline)
+    file_boundary = success('modernCaptureBoundary', 'async-file', collection=dict(field='blocks'))
+    pending_file = dict(id='file', type='file', src='asset://pending/file', name='Research notes.pdf',
+                        consumer=dict(assetID='fixture-only', status='pending'))
+    expected_pending_file = json.loads(json.dumps(baseline)); expected_pending_file['blocks'].insert(0, pending_file)
+    inserted_file = async_command('async-file', 'insertBlock', file_boundary, document=baseline, block=pending_file)
+    assert inserted_file['document'] == expected_pending_file
+    file_origin = inserted_file['selection']['nodes'][0]
+    file_target = success('modernBeginAsyncBlock', 'async-file', node=file_origin, requestID='file-provider')
+    file_metadata = dict(src='asset://fixture/notes', name='研究😀.pdf', mimeType='application/pdf', size=240000)
+    expected_file = json.loads(json.dumps(expected_pending_file)); expected_file['blocks'][0].update(file_metadata)
+    assert async_command('async-file', 'completeAsyncBlock', file_target, document=baseline, metadata=file_metadata)['document'] == expected_file
+    assert async_command('async-file', 'undo', document=baseline)['document'] == expected_pending_file
+    assert async_command('async-file', 'undo', document=baseline)['document'] == baseline
+    assert async_command('async-file', 'redo', document=baseline)['document'] == expected_pending_file
+    assert async_command('async-file', 'redo', document=baseline)['document'] == expected_file
+    file_save, file_archive = success('modernSave', 'async-file'), success('modernExportAsyncRequests', 'async-file')
+    success('restoreModern', 'async-file-reopen', actorID='async-file', snapshot=file_save)
+    success('modernRestoreAsyncRequests', 'async-file-reopen', archive=file_archive)
+    assert success('modernSave', 'async-file-reopen') == file_save
+
+    column_session('async-preview', baseline)
+    preview_boundary = success('modernCaptureBoundary', 'async-preview', collection=dict(field='blocks'))
+    pending_preview = dict(id='preview', type='embed', url='https://example.org/notes', title='Pending', consumer=dict(opaque='keep'))
+    inserted_preview = async_command('async-preview', 'insertBlock', preview_boundary, document=baseline, block=pending_preview)
+    preview_origin = inserted_preview['selection']['nodes'][0]
+    preview_target = success('modernBeginAsyncBlock', 'async-preview', node=preview_origin, requestID='preview-provider')
+    preview_metadata = dict(title='Local preview', description='Inert fixture provider', thumbnail='asset://fixture/thumbnail')
+    expected_preview = json.loads(json.dumps(baseline)); expected_preview['blocks'].insert(0, dict(pending_preview, **preview_metadata))
+    assert async_command('async-preview', 'completeAsyncBlock', preview_target, document=baseline, metadata=preview_metadata)['document'] == expected_preview
+    error_target = success('modernBeginAsyncBlock', 'async-preview', node=preview_origin, requestID='failed-provider')
+    success('modernFailAsyncBlock', 'async-preview', target=error_target, reason='Provider interrupted')
+    preview_save, preview_archive = success('modernSave', 'async-preview'), success('modernExportAsyncRequests', 'async-preview')
+    success('restoreModern', 'async-preview-reopen', actorID='async-preview', snapshot=preview_save)
+    success('modernRestoreAsyncRequests', 'async-preview-reopen', archive=preview_archive)
+    assert success('modernSave', 'async-preview-reopen') == preview_save
+    assert success('modernAsyncRequests', 'async-preview-reopen')[-1]['status'] == 'failed'
+    assert async_command('async-preview-reopen', 'completeAsyncBlock', error_target, document=baseline, metadata=preview_metadata)['status'] == 'unavailable'
+    assert success('modernSave', 'async-preview-reopen') == preview_save
+    success('modernCancelAsyncBlock', 'async-preview-reopen', target=error_target)
+    success('modernForgetAsyncBlock', 'async-preview-reopen', target=error_target)
+    assert len(success('modernAsyncRequests', 'async-preview-reopen')) == 1
+
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Clipboard, async completion, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Clipboard, migration, full command/focus history and complete provider/host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')
