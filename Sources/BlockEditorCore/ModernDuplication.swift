@@ -51,7 +51,7 @@ func validateModernDuplicationShape(_ copy: ModernDuplication, change: ChangeID)
     }
 }
 
-private func modernVisibleValue(_ node: NodeID, in structure: StructuralState, document: ModernDocument) throws -> JSONValue {
+func modernVisibleValue(_ node: NodeID, in structure: StructuralState, document: ModernDocument) throws -> JSONValue {
     let address = try structure.address(of: node)
     guard let block = document.blocks.first(where: { $0.id == address.blockID }) else { throw EditorError.invalidPath }
     var value = JSONValue.object(block.fields)

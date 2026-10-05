@@ -109,14 +109,14 @@ extension WritingClipboard {
 
 /// Clipboard URLs have a deliberately narrower boundary than persisted host
 /// document URLs. Tightening the global validator would reject old content.
-private func validateClipboardURL(_ text: String?) throws {
+func validateClipboardURL(_ text: String?) throws {
     guard let text, !text.isEmpty,
           !text.unicodeScalars.contains(where: { CharacterSet.whitespacesAndNewlines.contains($0) || CharacterSet.controlCharacters.contains($0) }),
           let url = URL(string: text), let scheme = url.scheme?.lowercased(),
           ["http", "https", "mailto"].contains(scheme),
           (scheme == "mailto" ? !url.path.isEmpty : !(url.host ?? "").isEmpty) else { throw EditorError.invalidChange }
 }
-private func validateClipboardAssetURL(_ text: String?) throws {
+func validateClipboardAssetURL(_ text: String?) throws {
     guard let text, !text.isEmpty,
           !text.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) }),
           let url = URL(string: text), let scheme = url.scheme?.lowercased(),

@@ -25,6 +25,7 @@ final class ModernBridgeEndpoint {
             }
             let asyncEnabled = sessions[handle]?.allowedCommands?.contains("completeAsyncBlock") ?? true
             values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
+            values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
             let listEnabled = sessions[handle]?.allowedCommands?.contains("listStructure") ?? true
             values["listActions"] = .array([ModernListAction.indent, .outdent, .reorder, .setStyle, .setChecked].filter {
                 listEnabled && (sessions[handle]?.allowedListActions?.contains($0) ?? true)
@@ -94,6 +95,9 @@ final class ModernBridgeEndpoint {
         case "modernCaptureNodes":
             try allowed(input, ["command", "session", "nodes"])
             return try encode(session.captureNodes(decode(input["nodes"], as: [NodeID].self)))
+        case "modernCopy":
+            try allowed(input, ["command", "session", "target"])
+            return try encode(session.copyClipboard(decode(input["target"], as: ModernDeleteTarget.self)))
         case "modernSemanticState":
             try allowed(input, ["command", "session", "target", "kind"])
             return try encode(session.semanticState(decode(input["target"], as: ModernSemanticTarget.self), kind: decode(input["kind"], as: ModernSemanticKind.self)))
