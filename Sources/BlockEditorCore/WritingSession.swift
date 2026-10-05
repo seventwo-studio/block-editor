@@ -2543,7 +2543,7 @@ public final class WritingSession {
     private static func json<T: Encodable>(_ value: T) throws -> JSONValue { try JSONDecoder().decode(JSONValue.self, from: canonicalEncoder().encode(value)) }
 }
 
-private func validToken(_ value: String) -> Bool { !value.isEmpty && value.utf8.count <= 256 && value.utf8.allSatisfy { (33...126).contains($0) } }
+func validToken(_ value: String) -> Bool { !value.isEmpty && value.utf8.count <= 256 && value.utf8.allSatisfy { (33...126).contains($0) } }
 
 private func writingScalarBoundary(_ offset: Int, in text: String) -> Bool {
     if offset == 0 { return true }
@@ -2911,7 +2911,7 @@ private func observedClosure(_ frontier: [ChangeID], before current: ChangeID, i
     return found
 }
 
-private func validateObservedFrontier(_ ids: [ChangeID], before bound: ChangeID) throws {
+func validateObservedFrontier(_ ids: [ChangeID], before bound: ChangeID) throws {
     guard ids.count <= 100_000, ids == ids.sorted(), Set(ids.map(\.actor)).count == ids.count,
           ids.allSatisfy({ $0.counter > 0 && $0.counter <= 9_007_199_254_740_991 && validToken($0.actor) && $0 < bound }) else { throw EditorError.invalidChange }
 }

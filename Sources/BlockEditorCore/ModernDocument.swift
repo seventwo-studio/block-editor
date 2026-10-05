@@ -95,14 +95,14 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
 
 /// Foundation decoders collapse duplicate object keys. Check raw keys, including
 /// escaped spellings, before decoding. JSONDecoder still owns syntax validation.
-private func inspectModernJSONKeys(_ data: Data) throws {
+func inspectModernJSONKeys(_ data: Data, maximumDepth: Int = 104) throws {
     struct Frame { let object: Bool; var needsKey = true; var keys = Set<String>() }
     let bytes = Array(data)
     var frames: [Frame] = [], offset = 0
     while offset < bytes.count {
         switch bytes[offset] {
         case 123, 91: // { [
-            guard frames.count < 104 else { throw EditorError.invalidDocument("Document nesting exceeds limit") }
+            guard frames.count < maximumDepth else { throw EditorError.invalidDocument("Document nesting exceeds limit") }
             frames.append(Frame(object: bytes[offset] == 123)); offset += 1
         case 125, 93: // } ]
             guard let frame = frames.popLast(), frame.object == (bytes[offset] == 125) else { throw EditorError.invalidDocument("Invalid JSON container") }

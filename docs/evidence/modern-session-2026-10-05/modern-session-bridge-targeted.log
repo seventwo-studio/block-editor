@@ -1,0 +1,94 @@
+Building for debugging...
+[Computing dependencies]
+[2 / 56] BlockEditorCore
+[4 / 58] BlockEditorCore
+[6 / 60] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:108:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+106 |         func result(_ status: String, transaction: ChangeID? = nil, position: WritingPosition? = nil,
+107 |                     selection: JSONValue? = nil, reason: String? = nil) throws -> JSONValue {
+108 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+109 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+110 |             fields["focus"] = try position.map(encode) ?? .null
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[20 / 70] editor-bridge-product
+[32 / 70] block-editor-wasm-product
+[46 / 77] BlockEditorBridge-product
+[54 / 78] relay-client-product
+[57 / 82] BlockEditorApple
+[62 / 83] BlockEditorDemoApple
+[69 / 83] local-editor-app-product
+[71 / 83] BlockEditorAppleTests-product
+[74 / 85] BlockEditorCoreTests-product
+[80 / 84] BlockEditorCoreTests-product
+[85 / 85] block-editor-wasm-product
+[95 / 95] local-editor-app-product
+Build complete! (9.17 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernBridgeTests started.
+◇ Suite ModernSessionTests started.
+◇ Test explicitModernEndpointsReturnCheckedTransactionsFocusAndSavedAuthorHistory() started.
+◇ Test capturedBackwardReplacementPreservesPeerInsertionThroughTheBridge() started.
+◇ Test capturedFormattingPreservesDirectionAndLeavesUnobservedPeerAtomsUnformatted() started.
+◇ Test localPolicyAndCompositionReturnUnchangedUnavailableAndPreservePeerRichContent() started.
+◇ Test legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() started.
+◇ Test heldPacketsExportRestoreAndReleaseWithoutPrematureReceipts() started.
+◇ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() started.
+◇ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() started.
+◇ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() started.
+◇ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() started.
+◇ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() started.
+◇ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() started.
+◇ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() started.
+◇ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() started.
+◇ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() started.
+◇ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() started.
+◇ Test callbacksObserveFinalHistoryAndCannotReenterPublication() started.
+◇ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() started.
+◇ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() started.
+◇ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() started.
+◇ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() started.
+◇ Test case passing 1 argument reverse → false to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test case passing 1 argument reverse → true to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test case passing 1 argument inactive → false to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test case passing 1 argument inactive → true to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+✔ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) with 2 test cases passed after 0.048 seconds.
+✔ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() passed after 0.048 seconds.
+✔ Test legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() passed after 0.048 seconds.
+✔ Test callbacksObserveFinalHistoryAndCannotReenterPublication() passed after 0.048 seconds.
+✔ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() passed after 0.048 seconds.
+✔ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() passed after 0.048 seconds.
+✔ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() passed after 0.048 seconds.
+✔ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) with 2 test cases passed after 0.048 seconds.
+✔ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() passed after 0.048 seconds.
+✔ Test capturedFormattingPreservesDirectionAndLeavesUnobservedPeerAtomsUnformatted() passed after 0.049 seconds.
+✔ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() passed after 0.049 seconds.
+✔ Test localPolicyAndCompositionReturnUnchangedUnavailableAndPreservePeerRichContent() passed after 0.050 seconds.
+✔ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() passed after 0.061 seconds.
+✔ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() passed after 0.062 seconds.
+✔ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() passed after 0.063 seconds.
+✔ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() passed after 0.065 seconds.
+✔ Test capturedBackwardReplacementPreservesPeerInsertionThroughTheBridge() passed after 0.076 seconds.
+✔ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() passed after 0.076 seconds.
+✔ Test heldPacketsExportRestoreAndReleaseWithoutPrematureReceipts() passed after 0.080 seconds.
+✔ Test explicitModernEndpointsReturnCheckedTransactionsFocusAndSavedAuthorHistory() passed after 0.085 seconds.
+✔ Suite ModernBridgeTests passed after 0.085 seconds.
+✔ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() passed after 0.121 seconds.
+✔ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() passed after 0.625 seconds.
+✔ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() passed after 1.106 seconds.
+✔ Suite ModernSessionTests passed after 1.107 seconds.
+✔ Test run with 23 tests in 2 suites passed after 1.107 seconds.
