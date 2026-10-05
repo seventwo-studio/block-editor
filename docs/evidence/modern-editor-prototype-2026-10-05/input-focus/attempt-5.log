@@ -1,0 +1,292 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Examples/ModernInteractionPrototype/ModernInteractionPrototype.xcodeproj -scheme ModernPrototypePhone -destination "platform=iOS Simulator,id=B37B1CA0-FF78-4ABB-9EBC-10FC4A0FE38B" -derivedDataPath /private/tmp/block-editor-prototype-focus-build -resultBundlePath /private/tmp/block-editor-prototype-focus-5.xcresult -parallel-testing-enabled NO "-only-testing:ModernPrototypePhoneTests/InteractionReviewTests/testFormattingConversionAndNestedInput" CODE_SIGNING_ALLOWED=NO test
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BlockEditor: /tmp/block-editor-prototype-input-focus
+
+Writing result bundle at path:
+	/private/tmp/block-editor-prototype-focus-5.xcresult
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (4 targets)
+    Target 'ModernPrototypePhoneTests' in project 'ModernInteractionPrototype'
+        ➜ Explicit dependency on target 'ModernPrototypePhone' in project 'ModernInteractionPrototype'
+    Target 'ModernPrototypePhone' in project 'ModernInteractionPrototype'
+        ➜ Explicit dependency on target 'BlockEditorCore-product' in project 'BlockEditor'
+    Target 'BlockEditorCore-product' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorCore' in project 'BlockEditor'
+    Target 'BlockEditorCore' in project 'BlockEditor' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk /tmp/block-editor-prototype-focus-build/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/ModernInteractionPrototype.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -o /tmp/block-editor-prototype-focus-build/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache
+
+SwiftDriver ModernPrototypePhone normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ModernPrototypePhone -Onone @/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/block-editor-prototype-focus-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/block-editor-prototype-focus-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -F /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/block-editor-prototype-focus-build/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/block-editor-prototype-focus-build/ModuleCache.noindex -sdk-module-cache-path /tmp/block-editor-prototype-focus-build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/block-editor-prototype-focus-build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-generated-files.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-own-target-headers.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernInteractionPrototype-84df574b66901626253df89225d17f87-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-project-headers.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources-normal/arm64 -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources/arm64 -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-Swift.h -working-directory /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ ReviewApp.swift /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/App/ReviewApp.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftCompile normal arm64 /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/App/ReviewApp.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-SwiftPerFileCompile ReviewApp.swift
+
+SwiftCompile normal arm64 Compiling\ ReviewModel.swift /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/App/ReviewModel.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftCompile normal arm64 /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/App/ReviewModel.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-SwiftPerFileCompile ReviewModel.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ ModernPrototypePhone (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftCompile normal arm64 (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling ReviewModel.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftCompile normal arm64 Compiling\ ReviewInput.swift /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/App/ReviewInput.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftCompile normal arm64 /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/App/ReviewInput.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-SwiftPerFileCompile ReviewInput.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ReviewInput.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ReviewApp.swift (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftDriver\ Compilation ModernPrototypePhone normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ModernPrototypePhone -Onone @/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/block-editor-prototype-focus-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/block-editor-prototype-focus-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -F /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/block-editor-prototype-focus-build/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/block-editor-prototype-focus-build/ModuleCache.noindex -sdk-module-cache-path /tmp/block-editor-prototype-focus-build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/block-editor-prototype-focus-build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-generated-files.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-own-target-headers.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernInteractionPrototype-84df574b66901626253df89225d17f87-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-project-headers.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources-normal/arm64 -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources/arm64 -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-Swift.h -working-directory /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for ModernPrototypePhone (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+SwiftDriver\ Compilation\ Requirements ModernPrototypePhone normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ModernPrototypePhone -Onone @/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/block-editor-prototype-focus-build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/block-editor-prototype-focus-build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -F /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/block-editor-prototype-focus-build/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/block-editor-prototype-focus-build/ModuleCache.noindex -sdk-module-cache-path /tmp/block-editor-prototype-focus-build/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/block-editor-prototype-focus-build/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-generated-files.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-own-target-headers.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernInteractionPrototype-84df574b66901626253df89225d17f87-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-project-headers.hmap -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources-normal/arm64 -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources/arm64 -Xcc -I/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone-Swift.h -working-directory /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.swiftmodule/arm64-apple-ios-simulator.abi.json /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.abi.json (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.abi.json /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftsourceinfo (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftsourceinfo /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+Copy /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.swiftmodule/arm64-apple-ios-simulator.swiftmodule /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftmodule (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftmodule /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Ld /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone.debug.dylib normal (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -F/tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -filelist /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.LinkFileList -install_name @rpath/ModernPrototypePhone.debug.dylib -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -o /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone.debug.dylib
+
+ConstructStubExecutorLinkFileList /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-ExecutorLinkFileList-normal-arm64.txt (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    construct-stub-executor-link-file-list /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+
+Ld /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone normal (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -F/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone-ExecutorLinkFileList-normal-arm64.txt /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone.debug.dylib -o /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone
+
+ExtractAppIntentsMetadata (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.aQZs6I/Metal.xctoolchain --module-name ModernPrototypePhone --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk --xcode-version 27A266a --platform-family iOS --deployment-target 26.0 --bundle-identifier studio.seventwo.blockeditor.st121.ios --output /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app --target-triple arm64-apple-ios26.0-simulator --binary-file /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone --dependency-file /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone_dependency_info.dat --stringsdata-file /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.SwiftFileList --metadata-file-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone.DependencyMetadataFileList --static-metadata-file-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/ModernPrototypePhone.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/Objects-normal/arm64/ModernPrototypePhone.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-05 22:41:08.879 appintentsmetadataprocessor[70563:17892742] Starting appintentsmetadataprocessor export
+2026-10-05 22:41:08.880 appintentsmetadataprocessor[70563:17892742] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app (in target 'ModernPrototypePhone' from project 'ModernInteractionPrototype')
+    cd /tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/ModernPrototypePhone.debug.dylib --scan-folder /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/Frameworks --scan-folder /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/PlugIns --scan-folder /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/SystemExtensions --scan-folder /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.aQZs6I/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/block-editor-prototype-focus-build/Build/Products/Debug-iphonesimulator/ModernPrototypePhone.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ModernInteractionPrototype.build/Debug-iphonesimulator/ModernPrototypePhone.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+PruneExplicitPrecompiledModules /tmp/block-editor-prototype-focus-build/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/block-editor-prototype-focus-build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+2026-10-05 22:41:10.094311+0200 ModernPrototypePhoneTests-Runner[70580:17892999] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-05 22:41:10.538.
+Test Suite 'ModernPrototypePhoneTests.xctest' started at 2026-10-05 22:41:10.538.
+Test Suite 'InteractionReviewTests' started at 2026-10-05 22:41:10.538.
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testFormattingConversionAndNestedInput]' started.
+    t =     0.00s Start Test at 2026-10-05 22:41:10.539
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.st121.ios
+    t =     0.03s     Launch studio.seventwo.blockeditor.st121.ios
+2026-10-05 22:41:10.800 xcodebuild[70391:17891996] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-05 22:41:10.800 xcodebuild[70391:17891996] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.67s         Setting up automation session
+    t =     1.15s         Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     2.49s Waiting 10.0s for "Text first" TextView to exist
+    t =     3.53s     Checking `Expect predicate `existsNoRetry == 1` for object "Text first" TextView`
+    t =     3.53s         Checking existence of `"Text first" TextView`
+    t =     3.95s Tap "Text first" TextView
+    t =     3.95s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     3.95s     Find the "Text first" TextView
+    t =     4.04s     Check for interrupting elements affecting "Text first" TextView
+    t =     4.10s     Synthesize event
+    t =     4.39s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     6.76s Press "Text first" TextView for 1.0 seconds
+    t =     6.76s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.14s     Find the "Text first" TextView
+    t =     7.25s     Check for interrupting elements affecting "Text first" TextView
+    t =     7.32s     Synthesize event
+    t =     8.55s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     9.27s Waiting 3.0s for "Select All" Any to exist
+    t =    10.30s     Checking `Expect predicate `existsNoRetry == 1` for object "Select All" Any`
+    t =    10.31s         Checking existence of `"Select All" Any`
+    t =    10.64s Tap "Select All" Any
+    t =    10.64s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    10.64s     Find the "Select All" Any
+    t =    10.98s     Check for interrupting elements affecting "Select All" MenuItem
+    t =    11.06s     Synthesize event
+    t =    11.35s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    13.03s Tap "Accessory bold" Button
+    t =    13.03s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    13.03s     Find the "Accessory bold" Button
+    t =    13.16s     Check for interrupting elements affecting "Accessory bold" Button
+    t =    13.24s     Synthesize event
+    t =    13.53s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    16.56s Waiting 3.0s for "Format bold" StaticText to exist
+    t =    17.58s     Checking `Expect predicate `existsNoRetry == 1` for object "Format bold" StaticText`
+    t =    17.58s         Checking existence of `"Format bold" StaticText`
+    t =    17.70s Find the "Text first" TextView
+    t =    17.79s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    17.91s Added attachment named 'Native selected range bold formatting'
+    t =    17.92s Tap "Block actions first" Any
+    t =    17.92s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    17.92s     Find the "Block actions first" Any
+    t =    17.97s     Check for interrupting elements affecting "Block actions first" Button
+    t =    18.05s     Synthesize event
+    t =    18.34s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    20.85s Tap "Convert to heading" Any
+    t =    20.85s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    21.63s     Find the "Convert to heading" Any
+    t =    21.95s     Check for interrupting elements affecting "Convert to heading" Button
+    t =    22.02s     Synthesize event
+    t =    22.31s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    26.04s Waiting 3.0s for "Convert heading" StaticText to exist
+    t =    27.06s     Checking `Expect predicate `existsNoRetry == 1` for object "Convert heading" StaticText`
+    t =    27.06s         Checking existence of `"Convert heading" StaticText`
+    t =    27.17s Find the "Block actions first" Any
+    t =    27.22s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    27.35s Added attachment named 'Conversion retains rich text'
+    t =    27.35s Tap "Outline" Button
+    t =    27.35s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.35s     Find the "Outline" Button
+    t =    27.44s     Check for interrupting elements affecting "Outline" Button
+    t =    27.51s     Synthesize event
+    t =    27.80s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    30.27s Tap "Structured notes" Button
+    t =    30.27s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    30.77s     Find the "Structured notes" Button
+    t =    30.88s     Check for interrupting elements affecting "Structured notes" Button
+    t =    30.95s     Synthesize event
+    t =    31.23s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    35.05s Tap "Disclosure toggle" Button
+    t =    35.05s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    35.55s     Find the "Disclosure toggle" Button
+    t =    36.97s     Check for interrupting elements affecting "Disclosure toggle" Button
+    t =    37.05s     Synthesize event
+    t =    37.34s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    38.50s Waiting 3.0s for "Text child" TextView to exist
+    t =    39.51s     Checking `Expect predicate `existsNoRetry == 1` for object "Text child" TextView`
+    t =    39.51s         Checking existence of `"Text child" TextView`
+    t =    39.62s Tap "Text child" TextView
+    t =    39.62s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    39.62s     Find the "Text child" TextView
+    t =    39.71s     Check for interrupting elements affecting "Text child" TextView
+    t =    39.78s     Synthesize event
+    t =    40.07s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    41.27s Type ' edited' into "Text child" TextView
+    t =    41.27s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    41.74s     Find the "Text child" TextView
+    t =    41.86s     Check for interrupting elements affecting "Text child" TextView
+    t =    41.93s     Synthesize event
+    t =    42.24s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    43.90s Find the "Text child" TextView
+    t =    47.24s Find the "Text child" TextView
+    t =    47.34s Find the "Text child" TextView
+objc[70580]: Class UIAccessibilityLoaderWebShared is implemented in both /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x11f088310) and /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x11f024398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =    47.43s Tap "List parent" TextView
+    t =    47.43s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    47.44s     Find the "List parent" TextView
+    t =    47.53s     Check for interrupting elements affecting "List parent" TextView
+    t =    47.60s     Synthesize event
+    t =    47.61s         Scroll element to visible
+    t =    47.61s         Find the "List parent" TextView
+    t =    47.72s         Computed hit point {44.666666666666664, 241.99999999999991} after scrolling to visible
+    t =    48.00s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    49.21s Type ' native' into "List parent" TextView
+    t =    49.21s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    49.22s     Find the "List parent" TextView
+    t =    49.31s     Check for interrupting elements affecting "List parent" TextView
+    t =    49.38s     Synthesize event
+    t =    49.69s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+Resolve Package Graph
+
+    t =    54.50s Find the "List parent" TextView
+    t =    54.60s Find the "List parent" TextView
+    t =    54.69s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    54.81s Added attachment named 'Native nested toggle and list input'
+    t =    54.81s Tap "Outline" Button
+    t =    54.81s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    54.82s     Find the "Outline" Button
+    t =    54.91s     Check for interrupting elements affecting "Outline" Button
+    t =    54.98s     Synthesize event
+    t =    55.26s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    57.79s Tap "Closing notes" Button
+    t =    57.79s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    58.31s     Find the "Closing notes" Button
+    t =    58.41s     Check for interrupting elements affecting "Closing notes" Button
+    t =    58.47s     Synthesize event
+    t =    58.76s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    62.52s Find the "Text closing" TextView
+    t =    62.73s Find the "Text closing" TextView
+    t =    62.94s Find the "Text closing" TextView
+    t =    64.68s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    64.82s Added attachment named 'Long document outline reaches closing heading'
+    t =    64.82s Terminate studio.seventwo.blockeditor.st121.ios:70601
+    t =    65.86s Tear Down
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testFormattingConversionAndNestedInput]' passed (65.928 seconds).
+Test Suite 'InteractionReviewTests' passed at 2026-10-05 22:42:16.467.
+	 Executed 1 test, with 0 failures (0 unexpected) in 65.928 (65.929) seconds
+Test Suite 'ModernPrototypePhoneTests.xctest' passed at 2026-10-05 22:42:16.468.
+	 Executed 1 test, with 0 failures (0 unexpected) in 65.928 (65.930) seconds
+Test Suite 'Selected tests' passed at 2026-10-05 22:42:16.469.
+	 Executed 1 test, with 0 failures (0 unexpected) in 65.928 (65.931) seconds
+2026-10-05 22:42:16.745 xcodebuild[70391:17891996] [MT] IDETestOperationsObserverDebug: 67.847 elapsed -- Testing started completed.
+2026-10-05 22:42:16.745 xcodebuild[70391:17891996] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-05 22:42:16.745 xcodebuild[70391:17891996] [MT] IDETestOperationsObserverDebug: 67.847 sec, +67.847 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/block-editor-prototype-focus-5.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

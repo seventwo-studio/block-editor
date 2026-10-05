@@ -68,7 +68,7 @@ import AppKit
                     Text("ST-121 local interaction study · body: shared protocol 6 · title/columns: review state")
                 }.font(.caption).foregroundStyle(.secondary).padding(8).frame(maxWidth:.infinity).background(.thinMaterial)
             }
-            .sheet(isPresented:Binding(get:{geometry.size.width < 700 && model.showOutline && !model.focusMode},set:{if !$0 { model.showOutline = false }})) {
+            .sheet(isPresented:Binding(get:{geometry.size.width < 700 && model.showOutline && !model.focusMode},set:{if !$0 { model.showOutline = false }}),onDismiss:{ model.outlineDidDismiss() }) {
                 VStack { outline(narrow:true); Button("Close outline") { model.showOutline = false }.padding() }
                     .presentationDetents([.medium,.large])
             }
@@ -101,9 +101,9 @@ import AppKit
     private func outline(narrow:Bool) -> some View {
         VStack(alignment:.leading,spacing:12) {
             Text("On this page").font(.headline)
-            Button(model.title.isEmpty ? "Untitled" : model.title) { model.navigate(to:"intro"); if narrow { model.showOutline = false } }
+            Button(model.title.isEmpty ? "Untitled" : model.title) { model.navigate(to:"intro",afterOutlineDismissal:narrow) }
             ForEach(model.document.blocks.filter { $0.type == "heading" }) { block in
-                Button(block.text.isEmpty ? "Heading" : block.text) { model.navigate(to:block.id); if narrow { model.showOutline = false } }
+                Button(block.text.isEmpty ? "Heading" : block.text) { model.navigate(to:block.id,afterOutlineDismissal:narrow) }
             }
             Spacer()
         }.buttonStyle(.plain).padding(16).background(.quaternary.opacity(0.3))
@@ -318,7 +318,11 @@ import AppKit
         }
     }
     private func input(_ node:NodeID,_ field:String,label:String,size:Double) -> some View {
-        ReviewInput(model:model,field:ReviewField(node:node,name:field),label:label,fontSize:size).id(ReviewField(node:node,name:field).key)
+        let target = ReviewField(node:node,name:field)
+        // Changing projection/focus values invalidate the native input even when
+        // its model and origin stay the same, as during title-to-body submission.
+        return ReviewInput(model:model,field:target,label:label,fontSize:size,projectedValue:model.value(target),
+            focusRequest:model.requestedFocus.flatMap { $0.field == target ? $0 : nil }).id(target.key)
     }
     private func exportReceipt() {
         guard let path = ProcessInfo.processInfo.environment["EDITOR_REVIEW_RECEIPT"] else { return }

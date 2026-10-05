@@ -44,6 +44,8 @@ import AppKit
     let field: ReviewField
     let label: String
     let fontSize: Double
+    let projectedValue:JSONValue?
+    let focusRequest:ReviewFocusRequest?
     func makeCoordinator() -> Coordinator { Coordinator(self) }
     func makeNSView(context:Context) -> NSScrollView {
         let view = ReviewTextView()
@@ -75,11 +77,10 @@ import AppKit
             view.setSelectedRange(NSRange(location:location,length:min(selection.length,attributed.length-location)))
             context.coordinator.refreshing = false
         }
-        if model.requestedFocus == field.key {
-            let requestedRange = model.activeField == field ? model.activeRange : NSRange(location:0,length:0)
-            if model.activeField == field { let location = min(model.activeRange.location,attributed.length); view.setSelectedRange(NSRange(location:location,length:min(model.activeRange.length,attributed.length-location))) }
+        if let request = model.requestedFocus, request.field == field {
+            let requestedRange = request.range
             DispatchQueue.main.async { [weak view] in
-                guard model.requestedFocus == field.key, let view, let window = view.window else { return }
+                guard model.requestedFocus?.field == field, let view, let window = view.window else { return }
                 window.makeFirstResponder(view)
                 let location = min(requestedRange.location,view.string.utf16.count)
                 view.setSelectedRange(NSRange(location:location,length:min(requestedRange.length,view.string.utf16.count-location)))
@@ -188,6 +189,8 @@ import UIKit
     let field:ReviewField
     let label:String
     let fontSize:Double
+    let projectedValue:JSONValue?
+    let focusRequest:ReviewFocusRequest?
     func makeCoordinator() -> Coordinator { Coordinator(self) }
     func makeUIView(context:Context) -> ReviewTextView {
         let view = ReviewTextView()
@@ -205,14 +208,15 @@ import UIKit
         view.reviewKey = { model.handleKey($0) }
         view.reviewFormat = { model.format($0) }
         view.reviewPickerOpen = { model.pickerOpen }
-        view.didEdit = { [weak view, weak coordinator = context.coordinator] in if let view { coordinator?.textViewDidChange(view) } }
+        view.didEdit = { [weak view, weak coordinator = context.coordinator] in if let view { coordinator?.textViewDidChange(view); coordinator?.restoreFocus(view) } }
+        view.reviewFocus = { [weak view, weak coordinator = context.coordinator] in if let view { coordinator?.restoreFocus(view) } }
         view.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         return view
     }
-    static func dismantleUIView(_ view:ReviewTextView,coordinator:Coordinator) { view.delegate = nil; view.didEdit = nil; view.reviewKey = nil; view.reviewFormat = nil; view.reviewPickerOpen = nil }
+    static func dismantleUIView(_ view:ReviewTextView,coordinator:Coordinator) { view.delegate = nil; view.didEdit = nil; view.reviewFocus = nil; view.reviewKey = nil; view.reviewFormat = nil; view.reviewPickerOpen = nil }
     func updateUIView(_ view:ReviewTextView,context:Context) {
         context.coordinator.parent = self
-        guard view.markedTextRange == nil else { return }
+        guard view.markedTextRange == nil, !view.nativeEditing else { return }
         let attributed = reviewAttributed(model:model,field:field,size:fontSize)
         let range = view.selectedRange
         if !reviewProjectionMatches(view.attributedText,attributed) {
@@ -222,17 +226,7 @@ import UIKit
             view.selectedRange = NSRange(location:location,length:min(range.length,attributed.length-location))
             context.coordinator.refreshing = false
         }
-        if model.requestedFocus == field.key {
-            let requestedRange = model.activeField == field ? model.activeRange : NSRange(location:0,length:0)
-            if model.activeField == field { let location = min(model.activeRange.location,attributed.length); view.selectedRange = NSRange(location:location,length:min(model.activeRange.length,attributed.length-location)) }
-            DispatchQueue.main.async { [weak view] in
-                guard model.requestedFocus == field.key, let view, view.window != nil else { return }
-                view.becomeFirstResponder()
-                let location = min(requestedRange.location,view.text.utf16.count)
-                view.selectedRange = NSRange(location:location,length:min(requestedRange.length,view.text.utf16.count-location))
-                model.requestedFocus = nil
-            }
-        }
+        context.coordinator.restoreFocus(view)
     }
     func sizeThatFits(_ proposal:ProposedViewSize,uiView:ReviewTextView,context:Context) -> CGSize? {
         guard let width = proposal.width else { return nil }
@@ -243,22 +237,63 @@ import UIKit
         var parent:ReviewInput
         var refreshing = false
         init(_ parent:ReviewInput) { self.parent = parent }
-        func textViewDidBeginEditing(_ view:UITextView) { parent.model.activeField = parent.field; parent.model.activeRange = view.selectedRange; parent.model.selected = []; parent.model.requestedFocus = nil }
+        func restoreFocus(_ view:ReviewTextView) {
+            guard !view.nativeEditing, !view.focusScheduled, view.window != nil, parent.model.requestedFocus?.field == parent.field else { return }
+            view.focusScheduled = true
+            DispatchQueue.main.async { [weak self, weak view] in
+                guard let self, let view else { return }
+                view.focusScheduled = false
+                self.applyFocus(view)
+            }
+        }
+        private func applyFocus(_ view:ReviewTextView) {
+            guard !view.nativeEditing, view.window != nil, let request = parent.model.requestedFocus, request.field == parent.field else { return }
+            refreshing = true
+            guard view.becomeFirstResponder() else { refreshing = false; return }
+            let length = view.text.utf16.count, location = min(request.range.location,length)
+            let range = NSRange(location:location,length:min(request.range.length,length-location))
+            view.selectedRange = range
+            refreshing = false
+            parent.model.activeField = parent.field; parent.model.activeRange = range
+            parent.model.requestedFocus = nil
+        }
+        func textViewDidBeginEditing(_ view:UITextView) { guard !refreshing, parent.model.requestedFocus?.field != parent.field else { return }; parent.model.activeField = parent.field; parent.model.activeRange = view.selectedRange; parent.model.selected = []; parent.model.requestedFocus = nil }
         func textViewDidChange(_ view:UITextView) { guard !refreshing,view.markedTextRange == nil, (view as? ReviewTextView)?.nativeEditing != true else { return }; parent.model.update(parent.field,text:view.text,range:view.selectedRange) }
         func textView(_ view:UITextView,shouldChangeTextIn range:NSRange,replacementText text:String) -> Bool {
-            if text == "\n", parent.model.pickerOpen { return !parent.model.handleKey(.enter) }
+            if text == "\n", parent.model.pickerOpen, parent.model.handleKey(.enter) {
+                (view as? ReviewTextView)?.nativeCommandHandled = true
+                return false
+            }
             return true
         }
         func textViewDidChangeSelection(_ view:UITextView) { guard !refreshing,view.isFirstResponder, (view as? ReviewTextView)?.nativeEditing != true else { return }; parent.model.activeField = parent.field; parent.model.activeRange = view.selectedRange }
     }
 }
 @MainActor final class ReviewTextView:UITextView {
-    private(set) var nativeEditing = false
+    private var nativeEditDepth = 0
+    var nativeEditing:Bool { nativeEditDepth > 0 }
     var didEdit:(()->Void)?
-    override func insertText(_ text:String) { nativeEditing = true; super.insertText(text); nativeEditing = false; didEdit?() }
-    override func deleteBackward() { nativeEditing = true; super.deleteBackward(); nativeEditing = false; didEdit?() }
-    override func setMarkedText(_ text:String?,selectedRange:NSRange) { nativeEditing = true; super.setMarkedText(text,selectedRange:selectedRange); nativeEditing = false; didEdit?() }
-    override func unmarkText() { nativeEditing = true; super.unmarkText(); nativeEditing = false; didEdit?() }
+    var reviewFocus:(()->Void)?
+    var focusScheduled = false
+    var nativeCommandHandled = false
+    override func didMoveToWindow() { super.didMoveToWindow(); reviewFocus?() }
+    private func nativeEdit(_ operation:()->Void) {
+        if nativeEditDepth == 0 { nativeCommandHandled = false }
+        nativeEditDepth += 1
+        defer {
+            nativeEditDepth -= 1
+            if nativeEditDepth == 0 {
+                if !nativeCommandHandled { didEdit?() }
+                nativeCommandHandled = false
+            }
+        }
+        operation()
+    }
+    override func insertText(_ text:String) { nativeEdit { super.insertText(text) } }
+    override func replace(_ range:UITextRange,withText text:String) { nativeEdit { super.replace(range,withText:text) } }
+    override func deleteBackward() { nativeEdit { super.deleteBackward() } }
+    override func setMarkedText(_ text:String?,selectedRange:NSRange) { nativeEdit { super.setMarkedText(text,selectedRange:selectedRange) } }
+    override func unmarkText() { nativeEdit { super.unmarkText() } }
     var reviewKey:((ReviewKey)->Bool)?
     var reviewFormat:((String)->Void)?
     var reviewPickerOpen:(()->Bool)?
