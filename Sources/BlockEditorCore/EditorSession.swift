@@ -695,6 +695,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
         let count: Int
         if let identity = address.identity, let field = address.path.last {
             switch identity {
+            case .document: throw EditorError.invalidChange
             case .baseline:
                 guard let node = introducedStructure.nodes[identity] else { return nil }
                 count = atomCount(node.fields[field])
@@ -818,6 +819,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
     }
     func nodeReference(_ identity: NodeID) throws {
         switch identity {
+        case .document: throw EditorError.invalidChange
         case .baseline(let blockID, let path):
             guard !blockID.isEmpty, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
             if structure != nil, introducedStructure.nodes[identity] == nil { throw EditorError.invalidChange }

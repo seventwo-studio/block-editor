@@ -81,6 +81,7 @@ extension WritingClipboard {
         guard let fields = value.object else { throw EditorError.invalidPath }
         let authoredType: String
         switch kind {
+        case .document, .column: throw EditorError.invalidPath
         case .block:
             guard let type = fields["type"]?.string,
                   ["paragraph", "heading", "quote", "callout", "list", "code", "image", "table", "embed", "math", "toggle", "divider"].contains(type) else { throw EditorError.invalidChange }
@@ -218,6 +219,7 @@ private struct WritingImportNormalizer {
         guard var fields = value.object else { return nil }
         let type: String
         switch kind {
+        case .document, .column: return nil
         case .block:
             guard let name = fields["type"]?.string,
                   ["paragraph", "heading", "quote", "callout", "list", "code", "image", "table", "embed", "math", "toggle", "divider"].contains(name) else { return nil }
@@ -265,6 +267,7 @@ private struct WritingImportNormalizer {
             groups.enumerated().flatMap { index, group in (index == 0 ? [] : [textNode(separator)]) + group }
         }
         switch kind {
+        case .document, .column: return []
         case .item: return joined([field("content")] + (fields["children"]?.array ?? []).map { visible($0, kind: .item) })
         case .row: return joined((fields["cells"]?.array ?? []).map { visible($0, kind: .cell) }, separator: "\t")
         case .cell: return field("content")

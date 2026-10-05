@@ -693,6 +693,7 @@ public final class WritingSession {
             guard var fields = value.object else { throw EditorError.invalidPath }
             // Duplication authors new schema nodes, including nested descendants.
             switch kind {
+            case .document, .column: throw EditorError.invalidPath
             case .block:
                 guard let type = fields["type"]?.string else { throw EditorError.invalidPath }
                 try requireAuthoredType(type)
@@ -943,6 +944,7 @@ public final class WritingSession {
         else { before = nil }
         func inlineValue(_ values: [JSONValue]) throws -> JSONValue {
             switch kind {
+            case .document, .column: throw EditorError.invalidPath
             case .block:
                 try requireAuthoredType("paragraph")
                 guard policy.allowedBlockTypes?.contains("paragraph") ?? true else { throw EditorError.restrictedBlock("paragraph") }
@@ -1141,6 +1143,7 @@ public final class WritingSession {
         func authored(_ value: JSONValue, kind: NodeKind) throws {
             guard let fields = value.object else { throw EditorError.invalidPath }
             switch kind {
+            case .document, .column: throw EditorError.invalidPath
             case .block:
                 guard let type = fields["type"]?.string else { throw EditorError.invalidPath }
                 try requireAuthoredType(type)
@@ -1391,6 +1394,7 @@ public final class WritingSession {
         var exposures: [[ChangeID]: StructuralState] = [:]
         func roleNode(_ identity: NodeID, before change: ChangeID) throws -> StructuralState.Node {
             switch identity {
+            case .document: throw EditorError.invalidChange
             case .baseline(let label, let path):
                 guard !label.isEmpty, path.count <= 100, path.count % 2 == 0, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidChange }
             case .inserted(let creation, let path):
@@ -1609,6 +1613,7 @@ public final class WritingSession {
             var introduced = Set<ElementID>()
             func node(_ identity: NodeID) throws {
                 switch identity {
+                case .document: throw EditorError.invalidChange
                 case .baseline(let label, let path):
                     guard !label.isEmpty, path.count <= 100, path.count % 2 == 0, path.allSatisfy({ !$0.isEmpty }), raw.structure?.nodes[identity] != nil else { throw EditorError.invalidChange }
                 case .inserted(let creation, let path):
@@ -2043,30 +2048,8 @@ public final class WritingSession {
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
         fields = Set(retainedWritingFields(structure).keys)
-        for (field, birth) in births {
-                var previous: WritingAtomKey?, index = 0
-                let value = birth.value
-                for payload in value.array ?? value.string.map({ [textNode($0)] }) ?? [] {
-                    let parts: [JSONValue]
-                    if payload["type"] == .string("text") {
-                        parts = (payload["text"]?.string ?? "").unicodeScalars.map {
-                            var object = payload.object!; object["text"] = .string(String($0)); return .object(object)
-                        }
-                        if parts.isEmpty, value.array != nil {
-                            let key = WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: index))
-                            seeds.append(WritingAtomSeed(key: key, node: payload, edge: previous.map(WritingEdge.after) ?? .start, route: .field(field)))
-                            if !birth.active { hidden.insert(key) }
-                            previous = key; index += 1
-                        }
-                    } else { parts = [payload] }
-                    for part in parts {
-                        let key = WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: index))
-                        seeds.append(WritingAtomSeed(key: key, node: part, edge: previous.map(WritingEdge.after) ?? .start, route: .field(field)))
-                        if !birth.active { hidden.insert(key) }
-                        previous = key; index += 1
-                    }
-                }
-        }
+        let seeded = seedWritingAtoms(births)
+        seeds = seeded.atoms; hidden = seeded.hidden
         var active: [ChangeID: Bool] = [:], edits: [WritingEdit] = []
         for change in changes {
             switch change.body {
@@ -2274,36 +2257,7 @@ public final class WritingSession {
         let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
         let hidden = inputs.hidden, aliases = inputs.aliases
         let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
-        var values: [NodeID: [String: JSONValue]] = [:]
-        var baselineNodesByField: [WritingField: [JSONValue]] = [:]
-        for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
-        for field in fields {
-            let nodes = projection.nodes(in: field)
-            if retained != nil, field.name == "code", !nodes.allSatisfy({
-                $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
-                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
-            }) { throw EditorError.invalidDocument("Code conversion cannot flatten rich atoms") }
-            if !nodes.isEmpty { structure.touched.insert(field.node) }
-            // Preserve exact baseline JSON for untouched fields, including empty
-            // text runs and host extensions that have no visible scalar atoms.
-            let original = structure.nodes[field.node]!.fields[field.name]!
-            let baselineNodes = baselineNodesByField[field] ?? []
-            if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
-               retained == nil || original == births[field]?.value { continue }
-            var runs: [JSONValue] = []
-            for node in nodes {
-                if node["type"] == .string("text"), var last = runs.last?.object, last["type"] == .string("text") {
-                    var lhs = last, rhs = node.object!
-                    lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")
-                    if lhs == rhs {
-                        last["text"] = .string((last["text"]?.string ?? "") + (node["text"]?.string ?? ""))
-                        runs[runs.count - 1] = .object(last); continue
-                    }
-                }
-                runs.append(node)
-            }
-            values[field.node, default: [:]][field.name] = original.string == nil ? .array(runs) : .string(plainText(runs))
-        }
+        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil)
         for field in projection.joinedSources {
             if let node = structure.nodes[field.node], node.kind == .block,
                Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {
@@ -2606,7 +2560,8 @@ private func writingFields(_ node: StructuralState.Node) -> [String] {
     let names: [String]
     switch node.kind {
     case .item, .cell: names = ["content"]
-    case .row: names = []
+    case .row, .column: names = []
+    case .document: names = ["title"]
     case .block:
         switch node.fields["type"]?.string {
         case "paragraph", "quote", "heading", "callout": names = ["content"]
@@ -2814,11 +2769,11 @@ private func conversionAttributeOwner(_ name: String) -> String? {
     default: return nil
     }
 }
-private struct WritingFieldBirth {
+struct WritingFieldBirth {
     let value: JSONValue
     let active: Bool
 }
-private func retainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
+func retainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
     var result: [WritingField: WritingFieldBirth] = [:]
     for (identity, node) in structure.nodes {
         for name in writingFields(node) {

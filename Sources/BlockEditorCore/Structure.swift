@@ -3,12 +3,14 @@ import Foundation
 /// A document ID is scoped to its containing array. This identity additionally
 /// records its origin, so moving a node never retargets another container's ID.
 public enum NodeID: Codable, Hashable, Sendable {
+    case document(documentID: String)
     case baseline(blockID: String, path: [String])
     case inserted(creation: ElementID, path: [String])
 
     var key: String { String(decoding: (try? canonicalEncoder().encode(self)) ?? Data(), as: UTF8.self) }
     func textAddress(_ field: String) -> TextAddress {
         switch self {
+        case .document: return TextAddress("", path: [field], identity: self)
         case .baseline(let blockID, let path): return TextAddress(blockID, path: path + [field], identity: self)
         case .inserted(let creation, let path):
             return TextAddress("@\(creation.change.actor)/\(creation.change.counter)/\(creation.index)", path: path + [field], identity: self)
@@ -48,7 +50,7 @@ public enum NodePlacementID: Codable, Hashable, Comparable, Sendable {
     }
 }
 
-enum NodeKind: String { case block, item, row, cell }
+enum NodeKind: String { case document, block, column, item, row, cell }
 
 struct StructuralState {
     struct Node {
@@ -78,6 +80,7 @@ struct StructuralState {
     var placements: [NodePlacementID: Placement] = [:]
     var deleted = Set<NodeID>()
     var touched = Set<NodeID>()
+    private(set) var modern = false
 
     static func seed(_ document: Document) -> Self {
         var result = Self(), after: NodePlacementID?
@@ -91,10 +94,26 @@ struct StructuralState {
         return result
     }
 
-    static func collectionFields(_ kind: NodeKind, _ fields: [String: JSONValue]) -> [String: NodeKind] {
+    static func seed(_ document: ModernDocument) -> Self {
+        var result = Self(), after: NodePlacementID?
+        result.modern = true
+        var metadata = document.fields; metadata.removeValue(forKey: "blocks")
+        result.register(.object(metadata), identity: .document(documentID: document.documentID), kind: .document, active: true)
+        for block in document.blocks {
+            let identity = NodeID.baseline(blockID: block.id, path: [])
+            result.register(.object(block.fields), identity: identity, kind: .block, active: true)
+            let id = NodePlacementID.initial(identity)
+            result.placements[id] = Placement(id: id, after: after, node: identity, collection: .root, active: true)
+            after = id
+        }
+        return result
+    }
+
+    static func collectionFields(_ kind: NodeKind, _ fields: [String: JSONValue], modern: Bool = false) -> [String: NodeKind] {
         switch kind {
         case .block:
             switch fields["type"]?.string {
+            case "columns": return modern ? ["columns": .column] : [:]
             case "list": return ["items": .item]
             case "toggle": return ["children": .block]
             case "table": return ["rows": .row]
@@ -103,12 +122,14 @@ struct StructuralState {
         case .item: return ["children": .item]
         case .row: return ["cells": .cell]
         case .cell: return [:]
+        case .column: return modern ? ["children": .block] : [:]
+        case .document: return [:]
         }
     }
 
     mutating func register(_ value: JSONValue, identity: NodeID, kind: NodeKind, active: Bool) {
         guard nodes[identity] == nil, var fields = value.object else { return }
-        let collections = Self.collectionFields(kind, fields)
+        let collections = Self.collectionFields(kind, fields, modern: modern)
         let present = Set(collections.keys.filter { fields[$0] != nil })
         let arrays = collections.reduce(into: [String: [JSONValue]]()) { $0[$1.key] = fields[$1.key]?.array ?? [] }
         for field in present { fields.removeValue(forKey: field) }
@@ -119,6 +140,7 @@ struct StructuralState {
                 let path = [field, child["id"]?.string ?? ""]
                 let childID: NodeID
                 switch identity {
+                case .document: return // Metadata is never a visible block/child collection.
                 case .baseline(let root, let prefix): childID = .baseline(blockID: root, path: prefix + path)
                 case .inserted(let creation, let prefix): childID = .inserted(creation: creation, path: prefix + path)
                 }
@@ -134,7 +156,7 @@ struct StructuralState {
     func kind(in collection: NodeCollection) throws -> NodeKind {
         if collection == .root { return .block }
         guard let owner = collection.owner, let node = nodes[owner],
-              let kind = Self.collectionFields(node.kind, node.fields)[collection.field] else { throw EditorError.invalidPath }
+              let kind = Self.collectionFields(node.kind, node.fields, modern: modern)[collection.field] else { throw EditorError.invalidPath }
         return kind
     }
 
@@ -336,6 +358,20 @@ struct StructuralState {
     }
 
     func document(text: [NodeID: [String: JSONValue]]) throws -> Document {
+        guard !modern else { throw EditorError.invalidPath }
+        return try Document(blocks: renderedBlocks(text: text))
+    }
+
+    func document(documentID: String, text: [NodeID: [String: JSONValue]]) throws -> ModernDocument {
+        guard modern, let metadata = nodes[.document(documentID: documentID)], metadata.kind == .document,
+              !deleted.contains(metadata.identity) else { throw EditorError.invalidPath }
+        var fields = metadata.fields
+        for (key, value) in text[metadata.identity] ?? [:] { fields[key] = value }
+        fields["blocks"] = .array(try renderedBlocks(text: text).map { .object($0.fields) })
+        return try ModernDocument(fields: fields)
+    }
+
+    private func renderedBlocks(text: [NodeID: [String: JSONValue]]) throws -> [Block] {
         let selected = try effectivePlacements(), visible = visibleNodes(selected)
         var childCollections: [NodeID: Set<String>] = [:]
         for p in selected.values where visible.contains(p.node) {
@@ -371,13 +407,14 @@ struct StructuralState {
             }
             rendered[identity] = .object(fields)
         }
-        return try Document(blocks: roots.map { try Block(fields: rendered[$0]?.object ?? [:]) })
+        return try roots.map { try Block(fields: rendered[$0]?.object ?? [:]) }
     }
 }
 
 func validateNode(_ value: JSONValue, kind: NodeKind) throws {
     guard let label = value["id"]?.string, !label.isEmpty else { throw EditorError.invalidPath }
     switch kind {
+    case .document, .column: throw EditorError.invalidPath // Only explicit modern compound commands may create these.
     case .block: _ = try Document(blocks: [Block(fields: value.object ?? [:])])
     case .item:
         _ = try Document(blocks: [Block(fields: ["id": .string("validation"), "type": .string("list"), "style": .string("unordered"), "items": .array([value])])])

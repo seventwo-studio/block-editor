@@ -327,6 +327,7 @@ private struct RawWritingField: Hashable {
     init(_ field: WritingField) {
         var values: [String]
         switch field.node {
+        case .document(let documentID): values = ["document", documentID]
         case .baseline(let blockID, let path): values = ["baseline", blockID] + path
         case .inserted(let creation, let path):
             values = ["inserted", String(creation.change.counter), creation.change.actor, String(creation.index)] + path

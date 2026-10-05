@@ -386,6 +386,7 @@ func impossibleSameChangeNodePathsAndInitialAnchorsRejectAtomically(deferredPare
 private extension NodeID {
     func textAddressForTest() -> TextAddress {
         switch self {
+        case .document: return TextAddress("", path: ["content"], identity: self)
         case .baseline(let blockID, let path): return TextAddress(blockID, path: path + ["content"], identity: self)
         case .inserted(let creation, let path): return TextAddress("@\(creation.change.actor)/\(creation.change.counter)/\(creation.index)", path: path + ["content"], identity: self)
         }
