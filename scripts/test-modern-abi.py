@@ -429,11 +429,62 @@ def main():
         success('restoreModern', reopened, actorID=handle, snapshot=saved)
         assert command(reopened, 'undo')['document'] == enter_document
         assert command(reopened, 'redo')['document']['blocks'] == expected
+    # List-only multi-item hierarchy, scalar state and scoped moves use literal
+    # expectations written independently of runtime output and accepted fixtures.
+    list_items = [dict(id=name, content=[dict(type='text', text=name.upper())], checked=False, consumer='keep-' + name) for name in ('a', 'b', 'c')]
+    list_document = dict(baseline, blocks=[dict(id='L', type='list', style='todo', consumer='root', items=list_items),
+                                         dict(id='M', type='list', style='todo', items=[dict(id='m', content=[dict(type='text', text='M')], checked=False)])])
+    column_session('list-a', list_document)
+    column_session('list-b', list_document)
+    origins = [dict(baseline=dict(blockID='L', path=['items', name])) for name in ('b', 'c')]
+    list_field = dict(node=origins[0], name='content')
+    selected = success('modernCaptureListNodes', 'list-a', nodes=origins)
+    caret = success('modernPosition', 'list-a', field=list_field, offset=1)
+    target = dict(selection=selected, caret=caret)
+    indented = command('list-a', 'listStructure', target, action='indent')
+    expected_indent = dict(list_document, blocks=[dict(list_document['blocks'][0], items=[dict(list_items[0], children=list_items[1:])]), list_document['blocks'][1]])
+    assert indented['status'] == 'applied' and indented['document'] == expected_indent
+    peer_range = success('modernCaptureTextRange', 'list-b', field=list_field, start=1, end=1)
+    command('list-b', 'replaceText', peer_range, text='!')
+    success('modernReceive', 'list-a', batch=success('modernChanges', 'list-b'))
+    success('modernReceive', 'list-b', batch=success('modernChanges', 'list-a'))
+    expected_peer_items = [list_items[0], dict(list_items[1], content=[dict(type='text', text='B!')]), list_items[2]]
+    expected_restored = dict(list_document, blocks=[dict(list_document['blocks'][0], items=expected_peer_items), list_document['blocks'][1]])
+    assert command('list-a', 'undo')['document'] == expected_restored
+    boundary = success('modernCaptureListBoundary', 'list-a', collection=dict(owner=dict(baseline=dict(blockID='M', path=[])), field='items'),
+                       after=dict(baseline=dict(blockID='M', path=['items', 'm'])))
+    selected = success('modernCaptureListNodes', 'list-a', nodes=origins)
+    moved = command('list-a', 'listStructure', dict(selection=selected, caret=caret, boundary=boundary), action='reorder')
+    expected_moved = dict(list_document, blocks=[dict(list_document['blocks'][0], items=expected_peer_items[:1]),
+                                               dict(list_document['blocks'][1], items=list_document['blocks'][1]['items'] + expected_peer_items[1:])])
+    assert moved['status'] == 'applied' and moved['document'] == expected_moved
+    resolved_caret = success('modernResolvePosition', 'list-a', position=caret)
+    assert resolved_caret['address']['identity'] == origins[0] and resolved_caret['offset'] == 1
+    moved_save = success('modernSave', 'list-a')
+    success('restoreModern', 'list-reopened', actorID='list-a', snapshot=moved_save)
+    assert command('list-reopened', 'undo')['document'] == expected_restored
+    assert command('list-reopened', 'redo')['document'] == expected_moved
+    selected = success('modernCaptureListNodes', 'list-reopened', nodes=origins)
+    checks = command('list-reopened', 'listStructure', dict(selection=selected), action='setChecked', checked=True)
+    expected_checked_items = [dict(item, checked=True) for item in expected_peer_items[1:]]
+    expected_checked = dict(list_document, blocks=[expected_moved['blocks'][0], dict(list_document['blocks'][1], items=list_document['blocks'][1]['items'] + expected_checked_items)])
+    assert checks['status'] == 'applied' and checks['document'] == expected_checked
+    assert command('list-reopened', 'undo')['document'] == expected_moved
+    assert command('list-reopened', 'redo')['document'] == expected_checked
+    success('modernSetListPolicy', 'list-reopened', allowedListActions=['setChecked', 'reorder'])
+    policy = success('modernCapabilities', 'list-reopened')
+    assert policy['listActions'] == ['reorder', 'setChecked'] and 'listStructure' in policy['commands']
+    denied = command('list-reopened', 'listStructure', dict(selection=selected), action='setStyle', style='ordered')
+    assert denied['status'] == 'unavailable' and denied['reason'] == 'hostPolicy' and denied['transaction'] is None
+    success('modernSetListPolicy', 'list-reopened', allowedListActions=None)
+    styled = command('list-reopened', 'listStructure', dict(selection=selected), action='setStyle', style='ordered')
+    assert styled['status'] == 'applied' and styled['document']['blocks'] == [expected_checked['blocks'][0], dict(expected_checked['blocks'][1], style='ordered')]
+    assert command('list-reopened', 'undo')['document'] == expected_checked
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. General list structure, clipboard, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Clipboard, semantic defaults, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

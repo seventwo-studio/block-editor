@@ -48,6 +48,7 @@ func modernRoleTargets(_ operations: [ModernOperation]) -> [NodeID] {
         case .schemaConvert(let conversion): result += [conversion.node, conversion.source.node]
         case .splitBlock(let split): result.append(split.source.node); anchor(split.after)
         case .mergeBlocks(let join): result += join.selection.nodes
+        case .listStructure(let command): result += command.target.selection.nodes
         default: break
         }
     }

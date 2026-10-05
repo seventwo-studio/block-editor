@@ -53,6 +53,11 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                     registry.register(.object(item), identity: conversion.destination.node, kind: .item, active: true)
                 }
                 births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: conversion.type == "code" ? .string("") : .array([]), active: true)
+            case .listStructure(let command):
+                try validateModernListShape(command, change: change.id)
+                for operation in command.operations {
+                    if case .structure(.moveNode(_, _, let placement, _)) = operation { guard introduced.insert(placement).inserted else { throw EditorError.invalidChange } }
+                }
             case .enterListItem(let enter):
                 try validateModernEnterShape(enter, change: change.id)
                 for operation in enter.operations {

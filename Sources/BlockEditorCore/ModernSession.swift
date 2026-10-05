@@ -9,6 +9,7 @@ public enum ModernOperation: Codable, Equatable, Sendable {
     case convertBlock(node: NodeID, type: String, attributes: [String: JSONValue])
     case retainParagraphRole(WritingParagraphRole)
     case schemaConvert(WritingSchemaConversion)
+    case listStructure(ModernListStructure)
     case enterListItem(ModernListEnter)
     case splitBlock(ModernBlockSplit)
     case mergeBlocks(ModernBlockJoin)
@@ -76,6 +77,7 @@ public final class ModernSession {
     public private(set) var mergeRecovery: ModernRecovery?
     /// Local host policy restricts authoring only; peer admission/preservation is unchanged.
     public var allowedCommands: Set<String>? { didSet { endTypingGroup() } }
+    public var allowedListActions: Set<ModernListAction>? { didSet { endTypingGroup() } }
     public var onWillReceive: (() -> Void)?
     public var onChange: ((ModernDocument, ModernChange?) -> Void)?
     public var isComposing = false { didSet { if oldValue != isComposing { endTypingGroup() } } }
@@ -651,13 +653,11 @@ public final class ModernSession {
                     case .convertBlock(let node, let type, let attributes):
                         try modernReference(node, before: change.id, cohort: cohort, registry: registry)
                         let captured = try causalColumnStructure(cohort, in: candidate)
-                        guard let original = captured.nodes[node], let current = raw.structure!.nodes[node] else { throw EditorError.invalidChange }
+                        guard let original = captured.nodes[node], raw.structure!.nodes[node] != nil else { throw EditorError.invalidChange }
                         _ = try captured.address(of: node)
                         _ = try writingConvertedBlock(original, type: type, attributes: attributes, modern: true)
-                        if active[change.id] ?? true {
-                            raw.structure!.nodes[node] = try writingConvertedBlock(current, type: type, attributes: attributes, modern: true)
-                            raw.structure!.touched.insert(node)
-                        }
+                        try applyModernMetadataConversion(node: node, type: type, attributes: attributes,
+                            enabled: active[change.id] ?? true, raw: &raw, collectionBirths: collectionBirths)
                     case .schemaConvert(let conversion):
                         try modernReference(conversion.node, before: change.id, cohort: cohort, registry: registry)
                         try modernReference(conversion.source.node, before: change.id, cohort: cohort, registry: registry)
@@ -665,6 +665,33 @@ public final class ModernSession {
                         try validateModernSchemaConversion(conversion, change: change.id, structure: authored.1, projection: authored.0)
                         try applyWritingSchemaConversion(conversion, change: change.id, enabled: active[change.id] ?? true,
                             raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced, modern: true)
+                    case .listStructure(let command):
+                        try validateTargetScope(command.target.selection.documentID, command.target.selection.epoch)
+                        let capturedIDs = try closure(command.target.selection.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        if let caret = command.target.caret {
+                            try validateTargetScope(caret.documentID, caret.epoch)
+                            if let anchor = caret.anchor {
+                                guard anchor.element.change.counter == 0 || capturedIDs.contains(anchor.element.change),
+                                      modernRelatedFields(anchor.origin, caret.field, changes: ordered.filter { capturedIDs.contains($0.id) }) else { throw EditorError.invalidChange }
+                                if case .inserted(let birth, _) = anchor.origin.node { guard capturedIDs.contains(birth.change) else { throw EditorError.invalidChange } }
+                            }
+                        }
+                        let captured = try causalWritingReplay(capturedIDs, in: candidate), authored = try causalWritingReplay(cohort, in: candidate)
+                        let boundaryCaptured: StructuralState?
+                        if let boundary = command.target.boundary {
+                            try validateTargetScope(boundary.documentID, boundary.epoch)
+                            let ids = try closure(boundary.observed, before: change.id, in: candidate)
+                            guard ids.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                            boundaryCaptured = try causalColumnStructure(ids, in: candidate)
+                        } else { boundaryCaptured = nil }
+                        let expected: ModernListStructure
+                        do { expected = try planModernListStructure(target: command.target, action: command.action, style: command.style, checked: command.checked,
+                            change: change.id, captured: captured, authored: authored, boundaryCaptured: boundaryCaptured) }
+                        catch EditorError.invalidDocument { throw EditorError.invalidChange }
+                        guard command == expected else { throw EditorError.invalidChange }
+                        try applyModernListStructure(command, change: change.id, enabled: active[change.id] ?? true, raw: &raw,
+                            collectionBirths: collectionBirths, introduced: &introduced)
                     case .enterListItem(let enter):
                         for node in modernEnterTransitions(enter) { guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange } }
                         try validateTargetScope(enter.range.start.documentID, enter.range.start.epoch)
@@ -795,14 +822,16 @@ public final class ModernSession {
                 case .resizeColumns(let layout, let split):
                     try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: enabled, to: &raw)
                 case .convertBlock(let node, let type, let attributes):
-                    if enabled, let current = raw.structure!.nodes[node] {
-                        raw.structure!.nodes[node] = try writingConvertedBlock(current, type: type, attributes: attributes, modern: true)
-                        raw.structure!.touched.insert(node)
-                    }
+                    try applyModernMetadataConversion(node: node, type: type, attributes: attributes,
+                        enabled: enabled, raw: &raw, collectionBirths: collectionBirths)
                 case .schemaConvert(let conversion):
                     var introduced = Set<ElementID>()
                     try applyWritingSchemaConversion(conversion, change: change.id, enabled: enabled,
                         raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced, modern: true)
+                case .listStructure(let command):
+                    var introduced = Set<ElementID>()
+                    try applyModernListStructure(command, change: change.id, enabled: enabled, raw: &raw,
+                        collectionBirths: collectionBirths, introduced: &introduced)
                 case .enterListItem(let enter):
                     var introduced = Set<ElementID>()
                     let roles = try applyModernEmptyEnter(enter, change: change.id, enabled: enabled, raw: &raw,
@@ -841,6 +870,7 @@ public final class ModernSession {
                         try inspectModernPayload(.object(conversion.preservedItemFields))
                         try validateModernSchemaShape(conversion, change: change.id)
                     }
+                    if case .listStructure(let command) = operation { try validateModernListShape(command, change: change.id) }
                     if case .enterListItem(let enter) = operation { try validateModernEnterShape(enter, change: change.id) }
                     if case .splitBlock(let split) = operation {
                         try inspectModernPayload(split.value); try validateModernSplitShape(split, change: change.id)
@@ -929,6 +959,19 @@ public final class ModernSession {
                         try fieldShape(conversion.source)
                         if let creation = conversion.creation { guard elements.insert(creation).inserted else { throw EditorError.invalidChange } }
                         guard registers.insert("convert:" + conversion.node.key).inserted else { throw EditorError.invalidChange }
+                    case .listStructure(let command):
+                        try validateModernListShape(command, change: change.id)
+                        try validateTargetScope(command.target.selection.documentID, command.target.selection.epoch)
+                        if let boundary = command.target.boundary { try validateTargetScope(boundary.documentID, boundary.epoch) }
+                        if let caret = command.target.caret {
+                            try validateTargetScope(caret.documentID, caret.epoch); try fieldShape(caret.field)
+                            if let anchor = caret.anchor { try referenceShape(anchor) }
+                        }
+                        for operation in command.operations {
+                            if case .structure(.moveNode(_, _, let placement, _)) = operation { guard elements.insert(placement).inserted else { throw EditorError.invalidChange } }
+                            if case .structure(.setNodeField(let node, _, _)) = operation { guard registers.insert("checked:" + node.key).inserted else { throw EditorError.invalidChange } }
+                            if case .convertBlock(let node, _, _) = operation { guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange } }
+                        }
                     case .enterListItem(let enter):
                         for node in modernEnterTransitions(enter) { guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange } }
                         try validateModernEnterShape(enter, change: change.id)

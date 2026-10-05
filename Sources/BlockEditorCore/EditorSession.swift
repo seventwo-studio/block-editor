@@ -385,20 +385,15 @@ public final class EditorSession {
 
     /// Indent a list item under its preceding sibling, preserving its identity.
     public func indent(_ identity: NodeID) throws {
-        guard let structure = state.structure, structure.nodes[identity]?.kind == .item,
-              let placement = try structure.effectivePlacements()[identity] else { throw EditorError.invalidPath }
-        let siblings = try nodes(in: placement.collection)
-        guard let index = siblings.firstIndex(of: identity), index > 0 else { throw EditorError.invalidPath }
-        let target = NodeCollection(owner: siblings[index - 1], field: "children")
-        try moveNode(identity, into: target, after: nodes(in: target).last)
+        guard let structure = state.structure else { throw EditorError.invalidPath }
+        let id = try nextID()
+        try commit(id, planWritingListHierarchy([identity], outdent: false, change: id, structure: structure))
     }
 
     public func outdent(_ identity: NodeID) throws {
-        guard let structure = state.structure, structure.nodes[identity]?.kind == .item else { throw EditorError.invalidPath }
-        let placements = try structure.effectivePlacements()
-        guard let owner = placements[identity]?.collection.owner, structure.nodes[owner]?.kind == .item,
-              let parent = placements[owner] else { throw EditorError.invalidPath }
-        try moveNode(identity, into: parent.collection, after: owner)
+        guard let structure = state.structure else { throw EditorError.invalidPath }
+        let id = try nextID()
+        try commit(id, planWritingListHierarchy([identity], outdent: true, change: id, structure: structure))
     }
 
     private func nodePlacement(_ identity: NodeID?, in collection: NodeCollection) throws -> NodePlacementID? {
