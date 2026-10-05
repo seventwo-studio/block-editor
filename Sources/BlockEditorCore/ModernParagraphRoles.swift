@@ -40,6 +40,18 @@ func modernRoleTargets(_ operations: [ModernOperation]) -> [NodeID] {
     func anchor(_ placement: NodePlacementID?) { if case .role(_, let node) = placement { result.append(node) } }
     for operation in operations {
         switch operation {
+        case .paste(let paste):
+            anchor(paste.target.boundary?.after)
+            for operation in paste.operations {
+                switch operation {
+                case .structure(.insertNode(_, _, _, _, let after)): anchor(after)
+                case .structure(.deleteNodes(let nodes)): result += nodes
+                case .structure(.moveNode(let node, _, _, let after)): result.append(node); anchor(after)
+                case .text(.insert(let atom)): result.append(atom.key.origin.node)
+                case .text(.transfer(_, let field, _)): result.append(field.node)
+                default: break
+                }
+            }
         case .structure(.insertNode(_, _, _, _, let after)): anchor(after)
         case .structure(.moveNode(let node, _, _, let after)): result.append(node); anchor(after)
         case .structure(.deleteNodes(let nodes)): result += nodes

@@ -9,6 +9,25 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
         var introduced = Set<ElementID>()
         for operation in operations {
             switch operation {
+            case .paste(let paste):
+                guard modernPasteIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                try validateModernPasteShape(paste, change: change.id)
+                var birthIndex = 0
+                for operation in paste.operations {
+                    switch operation {
+                    case .structure(.insertNode(let value, let identity, _, let placement, _)):
+                        guard introduced.insert(placement).inserted, registry.nodes[identity] == nil else { throw EditorError.invalidChange }
+                        guard let kind = NodeKind(rawValue: paste.birthKinds[birthIndex]) else { throw EditorError.invalidChange }
+                        birthIndex += 1
+                        guard kind != .document, kind != .column else { throw EditorError.invalidChange }
+                        registry.register(value, identity: identity, kind: kind, active: true)
+                    case .structure(.moveNode(_, _, let placement, _)):
+                        guard introduced.insert(placement).inserted else { throw EditorError.invalidChange }
+                    case .text(.insert(let atom)):
+                        guard introduced.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
+                    default: break
+                    }
+                }
             case .structure(let mutation):
                 switch mutation {
                 case .insertNode(let value, let identity, let collection, let placement, let after):
@@ -94,7 +113,7 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
             default: break
             }
             switch operation {
-            case .structure(.insertNode), .duplicateBlocks, .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
+            case .paste, .structure(.insertNode), .duplicateBlocks, .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
             default: break
             }
         }

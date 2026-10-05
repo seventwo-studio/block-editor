@@ -267,6 +267,14 @@ struct StructuralState {
             guard let parent = selected[id]?.collection.owner else { continue }
             if nodes[parent] != nil, visible.insert(parent).inserted { pending.append(parent) }
         }
+        if modern {
+            // Retained peer work in an undone layout still requires its two
+            // column containers. Their hidden author content stays hidden.
+            let layouts = Set(visible.filter { nodes[$0]?.kind == .block && nodes[$0]?.fields["type"] == .string("columns") })
+            for (id, placement) in selected where nodes[id]?.kind == .column && placement.collection.field == "columns" {
+                if let owner = placement.collection.owner, layouts.contains(owner) { visible.insert(id) }
+            }
+        }
         return visible
     }
 
@@ -435,11 +443,13 @@ func validateNode(_ value: JSONValue, kind: NodeKind, modern: Bool = false) thro
         if modern { try Validation.block(Block(fields: value.object ?? [:]), modern: true) }
         else { _ = try Document(blocks: [Block(fields: value.object ?? [:])]) }
     case .item:
-        _ = try Document(blocks: [Block(fields: ["id": .string("validation"), "type": .string("list"), "style": .string("unordered"), "items": .array([value])])])
+        let wrapper = try Block(fields: ["id": .string("validation"), "type": .string("list"), "style": .string("unordered"), "items": .array([value])])
+        if modern { try Validation.block(wrapper, modern: true) } else { _ = try Document(blocks: [wrapper]) }
     case .row:
-        _ = try Document(blocks: [Block(fields: ["id": .string("validation"), "type": .string("table"), "rows": .array([value])])])
+        let wrapper = try Block(fields: ["id": .string("validation"), "type": .string("table"), "rows": .array([value])])
+        if modern { try Validation.block(wrapper, modern: true) } else { _ = try Document(blocks: [wrapper]) }
     case .cell:
         let row: JSONValue = .object(["id": .string("row"), "cells": .array([value])])
-        try validateNode(row, kind: .row)
+        try validateNode(row, kind: .row, modern: modern)
     }
 }

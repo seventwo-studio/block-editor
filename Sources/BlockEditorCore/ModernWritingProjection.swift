@@ -9,6 +9,7 @@ func modernProjectionChanges(_ changes: [ModernChange]) -> [WritingChange] {
         if case .edit(let edits) = change.body {
             operations = edits.flatMap { operation -> [WritingOperation] in
                 switch operation {
+                case .paste(let paste): return paste.operations
                 case .duplicateBlocks(let copy): return copy.operations.map(WritingOperation.structure)
                 case .structure(let mutation): return [.structure(mutation)]
                 case .text(let mutation): return [.text(mutation)]

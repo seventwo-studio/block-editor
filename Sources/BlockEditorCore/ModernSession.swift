@@ -3,6 +3,7 @@ import Foundation
 /// Protocol-7 operations. Structural/compound layout commands are added only
 /// once their admission and retained-origin replay semantics are implemented.
 public enum ModernOperation: Codable, Equatable, Sendable {
+    case paste(ModernPaste)
     case completeAsyncMetadata(ModernAsyncMetadataEdit)
     case duplicateBlocks(ModernDuplication)
     case createColumns(ModernColumnCreation)
@@ -221,7 +222,13 @@ public final class ModernSession {
             guard case .inserted(let creation, let path) = field.node, path.isEmpty, active[creation.change] == false,
                   case .edit(let operations)? = history[creation.change]?.body else { return nil }
             let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
-                if case .splitBlock(let split) = operation, split.destination == field { return (split.source, split.edge) }; return nil
+                if case .splitBlock(let split) = operation, split.destination == field { return (split.source, split.edge) }
+                if case .paste(let paste) = operation {
+                    return paste.operations.compactMap { operation -> (WritingField, WritingEdge)? in
+                        if case .text(.spliceBoundary(let source, let destination, let edge, _, _)) = operation, destination == field { return (source, edge) }; return nil
+                    }.first
+                }
+                return nil
             }
             return boundaries.count == 1 ? boundaries[0] : nil
         }
@@ -424,6 +431,17 @@ public final class ModernSession {
     }
     var modernObserved: [ChangeID] { frontier(log) }
     var modernCurrentReplay: (WritingProjection, ModernDocument, StructuralState) { (projection, document, structure) }
+    /// Replays already-admitted local history without repeating packet admission.
+    func modernCapturedWritingReplay(_ observed: [ChangeID]) throws -> (WritingProjection, StructuralState) {
+        let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
+        return try causalWritingReplay(cohort, in: log)
+    }
+    func validatePasteCaptures(_ target: ModernPasteTarget) throws {
+        for range in modernPasteRanges(target) {
+            let captured = try closure(range.observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
+            try validateModernPasteRangeProof(range, history: log.values.filter { captured.contains($0.id) })
+        }
+    }
     func modernCapturedStructure(_ observed: [ChangeID]) throws -> StructuralState {
         try modernCapturedReplay(observed).2
     }
@@ -625,6 +643,33 @@ public final class ModernSession {
                         try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
                         retainModernFieldBirths(in: raw.structure!, births: &births)
                         collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
+                    case .paste(let paste):
+                        guard modernPasteIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                        try validateModernPasteShape(paste, change: change.id)
+                        for observed in modernPasteFrontiers(paste.target) {
+                            guard try closure(observed, before: change.id, in: candidate).isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        }
+                        for range in modernPasteRanges(paste.target) {
+                            let ids = try closure(range.observed, before: change.id, in: candidate)
+                            try validateModernPasteRangeProof(range, history: ordered.filter { ids.contains($0.id) })
+                        }
+                        let authored = try causalWritingReplay(cohort, in: candidate)
+                        let expected = try planModernPaste(target: paste.target, clipboard: paste.clipboard, mode: paste.mode, newIDs: paste.newIDs,
+                            change: change.id, documentID: documentID, epoch: epoch, captured: { observed in
+                                try self.causalWritingReplay(closure(observed, before: change.id, in: candidate), in: candidate)
+                            }, authored: authored)
+                        guard expected.command == paste else { throw EditorError.invalidChange }
+                        for operation in paste.operations {
+                            switch operation {
+                            case .structure(.insertNode(_, _, _, let placement, _)), .structure(.moveNode(_, _, let placement, _)):
+                                guard introduced.insert(placement).inserted else { throw EditorError.invalidChange }
+                            case .text(.insert(let atom)):
+                                guard introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
+                                available[atom.key] = atom.node
+                            default: break
+                            }
+                        }
+                        try applyModernPaste(paste, enabled: active[change.id] ?? true, raw: &raw, births: &births, collectionBirths: &collectionBirths)
                     case .completeAsyncMetadata(let edit):
                         guard operations.count == 1 else { throw EditorError.invalidChange }
                         try validateModernAsyncShape(edit, change: change.id)
@@ -860,6 +905,8 @@ public final class ModernSession {
                     try apply([mutation], enabled: enabled, to: &raw)
                     retainModernFieldBirths(in: raw.structure!, births: &births)
                     collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
+                case .paste(let paste):
+                    try applyModernPaste(paste, enabled: enabled, raw: &raw, births: &births, collectionBirths: &collectionBirths)
                 case .completeAsyncMetadata(let edit):
                     try applyModernAsyncMetadata(edit, enabled: enabled, raw: &raw)
                 case .duplicateBlocks(let copy):
@@ -925,6 +972,10 @@ public final class ModernSession {
                         try inspectModernPayload(.object(conversion.attributes))
                         try inspectModernPayload(.object(conversion.preservedItemFields))
                         try validateModernSchemaShape(conversion, change: change.id)
+                    }
+                    if case .paste(let paste) = operation {
+                        guard modernPasteIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                        try validateModernPasteShape(paste, change: change.id)
                     }
                     if case .completeAsyncMetadata(let edit) = operation {
                         guard operations.count == 1 else { throw EditorError.invalidChange }
@@ -1074,6 +1125,9 @@ public final class ModernSession {
                     case .convertBlock(let node, let type, let attributes):
                         try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
                         guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange }
+                    case .paste(let paste):
+                        guard modernPasteIsOnlyCommand(operations) else { throw EditorError.invalidChange }
+                        try validateModernPasteShape(paste, change: change.id)
                     case .completeAsyncMetadata(let edit):
                         guard operations.count == 1 else { throw EditorError.invalidChange }
                         try validateModernAsyncShape(edit, change: change.id)

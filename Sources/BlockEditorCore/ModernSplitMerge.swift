@@ -110,6 +110,19 @@ func modernRelatedFields(_ first: WritingField, _ second: WritingField, changes:
     for change in changes {
         guard case .edit(let operations) = change.body else { continue }
         for operation in operations {
+            if case .paste(let paste) = operation {
+                for nested in paste.operations {
+                    var pairs: [(WritingField, WritingField)] = []
+                    switch nested {
+                    case .text(.transfer(let keys, let destination, _)): pairs = keys.map { ($0.origin, destination) }
+                    case .text(.join(let source, let destination, _)), .text(.spliceBoundary(let source, let destination, _, _, _)): pairs = [(source, destination)]
+                    case .text(.rangeSpliceBoundary(let splice)): pairs = [(splice.source, splice.destination)]
+                    default: break
+                    }
+                    for pair in pairs { graph[pair.0, default: []].insert(pair.1); graph[pair.1, default: []].insert(pair.0) }
+                }
+                continue
+            }
             let pair: (WritingField, WritingField)
             switch operation {
             case .schemaConvert(let conversion): pair = (conversion.source, conversion.destination)

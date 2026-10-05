@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "completeAsyncBlock", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "paste", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "completeAsyncBlock", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -85,6 +85,10 @@ final class ModernBridgeEndpoint {
             let collection = try decode(input["collection"], as: NodeCollection.self)
             let after = try input["after"].map { try decode($0, as: NodeID.self) }
             return try encode(session.captureBoundary(in: collection, after: after))
+        case "modernCapturePasteBoundary":
+            try allowed(input, ["command", "session", "collection", "after"])
+            let after = try input["after"].map { try decode($0, as: NodeID.self) }
+            return try encode(session.capturePasteBoundary(in: decode(input["collection"], as: NodeCollection.self), after: after))
         case "modernCaptureListBoundary":
             try allowed(input, ["command", "session", "collection", "after"])
             let after = try input["after"].map { try decode($0, as: NodeID.self) }
@@ -152,7 +156,7 @@ final class ModernBridgeEndpoint {
     private func execute(_ request: JSONValue, session: ModernSession) throws -> JSONValue {
         try allowed(request, ["documentID", "epoch", "command", "target", "arguments"])
         guard let command = request["command"]?.string, let arguments = request["arguments"], arguments.object != nil else { throw EditorError.invalidChange }
-        if command != "completeAsyncBlock" {
+        if command != "completeAsyncBlock" && command != "paste" {
             guard request["documentID"] == .string(session.documentID) else { throw EditorError.differentDocument }
             guard request["epoch"] == .string(session.epoch) else { throw ModernSessionError.incompatibleEpoch }
         }
@@ -169,6 +173,37 @@ final class ModernBridgeEndpoint {
             return .object(fields)
         }
         guard commands.contains(command) else { return try result("unavailable", reason: "unsupportedCommand") }
+        if command == "paste" {
+            try allowed(arguments, ["clipboard", "mode", "newIDs", "policy"])
+            let target = try decode(request["target"], as: ModernPasteTarget.self)
+            guard let payload = arguments["clipboard"] else { throw EditorError.invalidChange }
+            if payload == .null { return try result("noop", reason: "clipboardNoResult") }
+            let clipboard = try ModernClipboard(json: canonicalEncoder().encode(payload))
+            let mode = try arguments["mode"].map { try decode($0, as: ModernPasteMode.self) } ?? .rich
+            let ids = try arguments["newIDs"].map { try decode($0, as: [String].self) }
+            let policy = try arguments["policy"].map { try decode($0, as: WritingPastePolicy.self) } ?? WritingPastePolicy()
+            func retained(_ status: String, _ reason: String) throws -> JSONValue {
+                var response = try result(status, reason: reason).object!
+                response["retainedClipboard"] = try encode(clipboard); return .object(response)
+            }
+            guard request["documentID"] == .string(session.documentID), request["epoch"] == .string(session.epoch) else { return try retained("unavailable", "clipboardScopeChanged") }
+            let before = Set(session.syncState.received)
+            do {
+                let outcome = try session.paste(clipboard, at: target, mode: mode, newIDs: ids, policy: policy)
+                let transaction = session.syncState.received.first { !before.contains($0) && $0.actor == session.actorID }
+                let caret: WritingPosition? = { if case .text(let position) = outcome.focus { return position }; return nil }()
+                let selection = try outcome.selection.map { selection -> JSONValue in
+                    switch selection { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes) }
+                }
+                var response = try result(transaction == nil ? "noop" : "applied", transaction: transaction, position: caret, selection: selection,
+                    focusIntent: outcome.focus, selectionIntent: outcome.selection).object!
+                response["retainedClipboard"] = .null; return .object(response)
+            } catch ModernSessionError.unavailable(let reason) { return try retained("unavailable", reason) }
+            catch ModernSessionError.compositionActive { return try retained("unavailable", "compositionActive") }
+            catch ModernSessionError.recoveryRequired { return try retained("recoveryRequired", "pendingRecovery") }
+            catch is EditorError { return try retained("unavailable", "invalidPasteTargetOrAdmission") }
+            catch ModernSessionError.incompatibleEpoch { return try retained("unavailable", "clipboardScopeChanged") }
+        }
         if command == "completeAsyncBlock" {
             try allowed(arguments, ["metadata"])
             let target = try decode(request["target"], as: ModernAsyncTarget.self)

@@ -48,7 +48,15 @@ public struct ModernClipboard: Codable, Equatable, Sendable {
         return try ModernClipboard(parts: WritingClipboard.plainText(text).parts)
     }
     public static func multiline(_ text: String) throws -> ModernClipboard {
-        try ModernClipboard(parts: WritingClipboard.multilineText(text).parts)
+        let parts = try WritingClipboard.multilineText(text).parts.map { part -> WritingClipboardPart in
+            guard case .node(let value, let kind) = part, var fields = value.object else { return part }
+            fields["content"] = .array((fields["content"]?.array ?? []).map { atom in
+                guard var item = atom.object else { return atom }
+                if item["marks"] == .array([]) { item.removeValue(forKey: "marks") }; return .object(item)
+            })
+            return .node(value: .object(fields), kind: kind)
+        }
+        return try ModernClipboard(parts: parts)
     }
     public static func markdown(_ text: String) throws -> ModernClipboard {
         try ModernClipboard(parts: WritingClipboard.markdown(text).parts)

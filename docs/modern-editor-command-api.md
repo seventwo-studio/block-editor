@@ -115,3 +115,11 @@ let result = try session.insertBlock(Block.paragraph(id: freshID, text: ""), at:
 ```
 
 The nineteen advertised commands have shared-core and compiled native ABI checks, including independently authored nested-move/writing fixtures and literal split/merge, code/list conversion, empty-item Enter, retained roles, list hierarchy/reorder/checklist/style and semantic-default/link expectations. Versioned clipboard, the complete command/focus outcomes, async completion, archive-based migration, typed host facades and the complete native/Android/WASM acceptance matrix remain required work. See [implementation evidence](modern-editor-foundation.md); no full host/scenario row is promoted by these command subset checks.
+
+## Captured paste
+
+`modernCapturePasteBoundary` accepts `collection` and optional `after` node identity. It supports root blocks, column/toggle children, list items, table rows and cells; it retains the immutable original placement and observed frontier.
+
+`modernCommand` with `command: "paste"` accepts a `ModernPasteTarget` containing either `range`, or `boundary` and optional mixed `selection` (`nodes` plus `ranges`). Arguments are `clipboard` (checked version 2 / collaborationVersion 7, or null for no import result), optional `mode` (`rich`, `plainText`, `flattenedColumns`), optional preorder `newIDs`, and optional `policy` (`allowedBlockTypes`, `allowedMarkTypes`, `allowAssetMetadata`). Default asset permission is false. IDs are fresh schema labels; repeated labels in distinct namespaces remain valid. Consumers retain their opaque IDs and rich reference payloads. Mode selection is explicit; nested rich layouts reject unchanged.
+
+Applied paste returns one transaction, anchored `focusIntent`/`selectionIntent` and compatibility focus/selection fields. Unavailable/recovery results return the exact validated original `retainedClipboard` without changing document, history, receipt or focus; malformed wrappers/extra fields reject at the checked boundary and remain caller-owned. Null/no-result adds no transaction. Paste never reads the current caret, resolves an asset, publishes an OS clipboard or restarts a provider. Cut publication and complete host/history selection restoration remain unfinished.

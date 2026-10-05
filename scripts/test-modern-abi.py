@@ -746,11 +746,90 @@ def main():
     assert success('modernDocument', 'clipboard-columns') == created_columns
     assert success('modernChanges', 'clipboard-columns')['changes'] == []
 
+    # Paste uses unchanged independent ACC-37/38/39 documents, including IDs
+    # repeated in distinct child namespaces. Never derive expected state from replay.
+    def pasted_command(handle, document, target=None, name='paste', **arguments):
+        return success('modernCommand', handle, request=dict(documentID=document['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+
+    def schema_ids(value, kind='block'):
+        fields = {}
+        if kind == 'block':
+            fields = dict(columns='column') if value.get('type') == 'columns' else dict(children='block') if value.get('type') == 'toggle' else dict(items='item') if value.get('type') == 'list' else dict(rows='row') if value.get('type') == 'table' else {}
+        elif kind == 'column': fields = dict(children='block')
+        elif kind == 'item': fields = dict(children='item') if 'children' in value else {}
+        elif kind == 'row': fields = dict(cells='cell')
+        result = [value['id']]
+        for field, child_kind in sorted(fields.items()):
+            for child in value.get(field, []): result.extend(schema_ids(child, child_kind))
+        return result
+
+    paste_base = fixture('columns-3000')
+    root_copy, flattened = fixture('columns-root-copy'), fixture('columns-flattened-paste')
+    for handle in ('paste-root', 'paste-column'): column_session(handle, paste_base)
+    layout_node = dict(baseline=dict(blockID='layout', path=[]))
+    selected = success('modernCaptureNodes', 'paste-root', nodes=[layout_node])
+    clipboard = success('modernCopy', 'paste-root', target=dict(nodes=selected, ranges=[]))
+    boundary = success('modernCapturePasteBoundary', 'paste-root', collection=dict(field='blocks'), after=layout_node)
+    target = dict(boundary=boundary)
+    copied = root_copy['blocks'][1]
+    pasted = pasted_command('paste-root', paste_base, target, clipboard=clipboard, newIDs=schema_ids(copied))
+    assert pasted['status'] == 'applied' and pasted['document'] == root_copy and pasted['retainedClipboard'] is None
+    assert len(pasted['selection']['nodes']) == 1 and pasted['selectionIntent']['nodes']['_0'] == pasted['selection']
+    assert pasted['focus']['field']['node']['inserted']['path'] == ['columns', 'copy-first-column', 'children', 'copy-A']
+    assert success('modernResolvePosition', 'paste-root', position=pasted['focus'])['offset'] == 0
+    assert len(success('modernChanges', 'paste-root')['changes']) == 1
+    saved = success('modernSave', 'paste-root')
+    success('restoreModern', 'paste-root-reopen', actorID='paste-root', snapshot=saved)
+    assert pasted_command('paste-root-reopen', paste_base, name='undo')['document'] == paste_base
+    assert pasted_command('paste-root-reopen', paste_base, name='redo')['document'] == root_copy
+
+    column = dict(baseline=dict(blockID='layout', path=['columns', 'first-column']))
+    last = dict(baseline=dict(blockID='layout', path=['columns', 'first-column', 'children', 'B']))
+    boundary = success('modernCapturePasteBoundary', 'paste-column', collection=dict(owner=column, field='children'), after=last)
+    target = dict(boundary=boundary)
+    before = success('modernSave', 'paste-column')
+    unavailable = pasted_command('paste-column', paste_base, target, clipboard=clipboard)
+    assert unavailable['status'] == 'unavailable' and unavailable['retainedClipboard'] == clipboard and unavailable['focus'] is None
+    assert success('modernSave', 'paste-column') == before
+    children = flattened['blocks'][0]['columns'][0]['children'][2:]
+    ids = [label for value in children for label in schema_ids(value)]
+    pasted = pasted_command('paste-column', paste_base, target, clipboard=clipboard, mode='flattenedColumns', newIDs=ids)
+    assert pasted['status'] == 'applied' and pasted['document'] == flattened and len(pasted['selection']['nodes']) == 3
+    assert pasted_command('paste-column', paste_base, name='undo')['document'] == paste_base
+    assert pasted_command('paste-column', paste_base, name='redo')['document'] == flattened
+
+    blank, blank_pasted = fixture('blank'), fixture('blank-plain-paste')
+    column_session('paste-blank', blank)
+    boundary = success('modernCapturePasteBoundary', 'paste-blank', collection=dict(field='blocks'))
+    blank_clipboard = dict(version=2, collaborationVersion=7, parts=[dict(inline={'_0': [dict(type='text', text='\nHello\n\n')]})], plainText='\nHello\n\n')
+    target = dict(boundary=boundary)
+    before = success('modernSave', 'paste-blank')
+    assert pasted_command('paste-blank', blank, target, clipboard=None)['status'] == 'noop'
+    assert success('modernSave', 'paste-blank') == before
+    success('modernComposition', 'paste-blank', active=True)
+    refused = pasted_command('paste-blank', blank, target, clipboard=blank_clipboard, mode='plainText')
+    assert refused['status'] == 'unavailable' and refused['reason'] == 'compositionActive' and refused['retainedClipboard'] == blank_clipboard
+    success('modernComposition', 'paste-blank', active=False)
+    success('modernSetAuthoringPolicy', 'paste-blank', allowedCommands=[])
+    refused = pasted_command('paste-blank', blank, target, clipboard=blank_clipboard, mode='plainText')
+    assert refused['reason'] == 'hostPolicy' and refused['retainedClipboard'] == blank_clipboard
+    assert success('modernSave', 'paste-blank') == before
+    success('modernSetAuthoringPolicy', 'paste-blank', allowedCommands=None)
+    pasted = pasted_command('paste-blank', blank, target, clipboard=blank_clipboard, mode='plainText', newIDs=['paste-0', 'paste-1', 'paste-2', 'paste-3'])
+    assert pasted['status'] == 'applied' and pasted['document'] == blank_pasted
+    assert success('modernResolvePosition', 'paste-blank', position=pasted['focus'])['offset'] == 0
+    assert pasted['focus']['field']['node']['inserted']['creation']['index'] == 3
+    assert len(success('modernChanges', 'paste-blank')['changes']) == 1
+    assert pasted_command('paste-blank', blank, name='undo')['document'] == blank
+    assert pasted_command('paste-blank', blank, name='redo')['document'] == blank_pasted
+    assert 'paste' in success('modernCapabilities', 'paste-blank')['commands']
+
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history', 'ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Paste/cut integration, migration, full command/focus history and complete provider/host acceptance remain pending.')
+                  literalScenarios=['Captured paste: independent full ACC-37 root layout, ACC-38 explicit flattened fallback and unchanged nested rejection, ACC-39 blank multiline/caret, whole-node selection, one Undo/Redo/reopen, retained rich policy/composition payloads and no-result no history', 'Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history', 'ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Captured paste has full independent root layout, explicit flattened layout and blank multiline native ABI checks with local focus/selection, Undo/Redo/reopen and retained unavailable payloads. Native clipboard/cut publication integration, migration, full command/focus history and complete provider/host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')
