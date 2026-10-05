@@ -93,6 +93,12 @@ public final class ModernSession {
     private var log: [ChangeID: ModernChange] = [:]
     private var counter: UInt64 = 0
     private var undoStack: [[ChangeID]] = [], redoStack: [[ChangeID]] = []
+    var modernHistorySelectionOverride: ModernHistorySelectionOverride?
+    var modernHistorySelections: [ChangeID: ModernHistorySelectionRecord] = [:]
+    var modernLocalSelectionStorage: ModernLocalSelection?
+    public var localSelection: ModernLocalSelection? { modernLocalSelectionStorage }
+    var modernHistoryGroups: [[ChangeID]] { undoStack + redoStack }
+    var modernHistoryUndoCount: Int { undoStack.count }
     private var typingGroup: String?
     private var publishing = false
     private var remoteHolds = 0
@@ -143,9 +149,9 @@ public final class ModernSession {
         guard text.utf16.count <= 100_000 else { throw EditorError.invalidRange }
         let field = try projection.destination(of: field)
         try validatePlainText(text, field: field)
-        return try replaceSelected(field: field, selected: selection(field, range), text: text, group: group)
+        return try replaceSelected(field: field, selected: selection(field, range), text: text, group: group, historyBefore: historySelection(try captureTextRange(in: field, start: range.lowerBound, end: range.upperBound)))
     }
-    func replaceSelected(field: WritingField, selected: (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition), text: String, group: String?) throws -> WritingPosition {
+    func replaceSelected(field: WritingField, selected: (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition), text: String, group: String?, historyBefore: ModernLocalSelection) throws -> WritingPosition {
         if selected.keys.isEmpty && text.isEmpty { return selected.position }
         let id = try nextID()
         var operations: [ModernOperation] = selected.keys.isEmpty ? [] : [.text(.delete(keys: selected.keys))]
@@ -157,8 +163,8 @@ public final class ModernSession {
                 route: edge.anchor.map(WritingRoute.follow) ?? .field(field))
             operations.append(.text(.insert(atom))); edge = .after(key); last = key
         }
-        try perform(id, operations, group: group)
-        return last.map { WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: $0, affinity: .after) } ?? selected.position
+        let position = last.map { WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: $0, affinity: .after) } ?? selected.position
+        return try performReturning(id, operations, group: group, historyBefore: historyBefore) { _, _ in position }
     }
     @discardableResult public func replaceTitle(range: Range<Int>, with text: String) throws -> WritingPosition {
         endTypingGroup(); return try replaceText(in: titleField, range: range, with: text)
@@ -168,13 +174,15 @@ public final class ModernSession {
         if document.fields["appearance"]?[field] == .string(value) { return }
         try perform(nextID(), [.setAppearance(field: field, value: value)])
     }
-    public func format(in field: WritingField, range: Range<Int>, markType: String, mark: JSONValue?) throws {
+    @discardableResult public func format(in field: WritingField, range: Range<Int>, markType: String, mark: JSONValue?) throws -> ModernStructuralResult {
         try authoringAllowed(command: "format"); try validateField(field)
         let field = try projection.destination(of: field)
         guard !plainField(field) else { throw EditorError.invalidChange }
         try validateModernMark(type: markType, mark: mark); endTypingGroup()
         let selected = try selection(field, range)
-        if !selected.keys.isEmpty { try perform(nextID(), [.text(.format(keys: selected.keys, type: markType, mark: mark))]) }
+        let captured = try captureTextRange(in: field, start: range.lowerBound, end: range.upperBound)
+        if selected.keys.isEmpty { return modernRangeResult(captured) }
+        return try performReturning(nextID(), [.text(.format(keys: selected.keys, type: markType, mark: mark))], historyBefore: historySelection(captured)) { _, _ in self.modernRangeResult(captured) }
     }
     public func undo() throws { try toggle(active: false) }
     public func redo() throws { try toggle(active: true) }
@@ -203,16 +211,18 @@ public final class ModernSession {
         return WritingPosition(documentID: documentID, epoch: epoch, field: field, affinity: offset == 0 ? .after : .before)
     }
     public func resolve(_ position: WritingPosition) throws -> ResolvedWritingPosition { try modernResolve(position, in: modernCurrentReplay) }
-    func modernResolve(_ position: WritingPosition, in replay: (WritingProjection, ModernDocument, StructuralState), observed: [ChangeID]? = nil) throws -> ResolvedWritingPosition {
+    func modernResolve(_ position: WritingPosition, in replay: (WritingProjection, ModernDocument, StructuralState), observed: [ChangeID]? = nil,
+        history overrides: [ChangeID: ModernChange]? = nil) throws -> ResolvedWritingPosition {
         guard position.documentID == documentID else { throw EditorError.differentDocument }
         guard position.epoch == epoch else { throw ModernSessionError.incompatibleEpoch }
         let projection = replay.0, shape = replay.2
         guard projection.hasField(position.field) else { throw EditorError.invalidPath }
+        let available = overrides ?? log
         let history: [ChangeID: ModernChange]
         if let observed {
-            let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
-            history = log.filter { cohort.contains($0.key) }
-        } else { history = log }
+            let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: available)
+            history = available.filter { cohort.contains($0.key) }
+        } else { history = available }
         if let anchor = position.anchor {
             guard anchor.element.index >= 0, projection.retainedKeys.contains(anchor),
                   modernRelatedFields(anchor.origin, position.field, changes: Array(history.values)) else { throw EditorError.invalidChange }
@@ -243,16 +253,17 @@ public final class ModernSession {
         let selected = try capturedSelection(range)
         let field = try selected.position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: selected.position.field)
         try validatePlainText(text, field: field)
-        return try replaceSelected(field: field, selected: selected, text: text, group: group)
+        return try replaceSelected(field: field, selected: selected, text: text, group: group, historyBefore: historySelection(range))
     }
-    public func format(in range: ModernTextRange, markType: String, mark: JSONValue?) throws {
+    @discardableResult public func format(in range: ModernTextRange, markType: String, mark: JSONValue?) throws -> ModernStructuralResult {
         try authoringAllowed(command: "format"); try validateModernMark(type: markType, mark: mark)
         guard range.start.field == range.end.field else { throw EditorError.invalidChange }
         let selected = try capturedSelection(range)
         let field = try selected.position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: selected.position.field)
         guard !plainField(field) else { throw EditorError.invalidChange }
         endTypingGroup()
-        if !selected.keys.isEmpty { try perform(nextID(), [.text(.format(keys: selected.keys, type: markType, mark: mark))]) }
+        if selected.keys.isEmpty { return modernRangeResult(range) }
+        return try performReturning(nextID(), [.text(.format(keys: selected.keys, type: markType, mark: mark))], historyBefore: historySelection(range)) { _, _ in self.modernRangeResult(range) }
     }
     func modernCapturedCaret(_ range: ModernTextRange) throws -> WritingPosition {
         guard range.start.field == range.end.field else { throw EditorError.invalidRange }
@@ -350,6 +361,11 @@ public final class ModernSession {
         let change = ModernChange(id: id, observed: frontier(candidate), body: .setActive(targets: targets, active: active))
         candidate[id] = change; try capacity(candidate)
         let result = try replayOrRetain(candidate)
+        let record = historySelectionRecord(for: targets)
+        let source = record.map { active ? $0.after : $0.before } ?? modernLocalSelectionStorage
+        let restored = try modernResolveLocalSelection(source, in: result, observed: frontier(candidate), history: candidate)
+        _ = try checkedHistorySelectionArchive(modernHistorySelections, current: restored)
+        modernLocalSelectionStorage = restored
         accept(candidate, result, change: change)
     }
 
@@ -452,10 +468,22 @@ public final class ModernSession {
     func modernCapturedSelection(_ range: ModernTextRange) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
         try capturedSelection(range)
     }
-    func perform(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil) throws {
-        try performReturning(id, operations, group: group) { _, _ in () }
+    func modernHistoryChange(_ id: ChangeID) -> ModernChange? { log[id] }
+    func modernHistoryCohort(_ observed: [ChangeID]) throws -> Set<ChangeID> {
+        try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
     }
-    func performReturning<Result>(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil,
+    func modernHistoryReplay(_ observed: [ChangeID]) throws -> (WritingProjection, ModernDocument, StructuralState) {
+        if observed == modernObserved { return modernCurrentReplay }
+        return try modernCapturedReplay(observed)
+    }
+    func modernHistoryBounds(_ edits: [ChangeID]) throws -> (before: Set<ChangeID>, after: Set<ChangeID>) {
+        guard let first = edits.first.flatMap({ log[$0] }), let last = edits.last.flatMap({ log[$0] }) else { throw EditorError.invalidChange }
+        return (try modernHistoryCohort(first.observed), try modernHistoryCohort((last.observed.filter { $0.actor != last.id.actor } + [last.id]).sorted()))
+    }
+    func perform(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil, historyBefore: ModernLocalSelection? = nil) throws {
+        try performReturning(id, operations, group: group, historyBefore: historyBefore) { _, _ in () }
+    }
+    func performReturning<Result>(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil, historyBefore: ModernLocalSelection? = nil,
         result makeResult: ((WritingProjection, ModernDocument, StructuralState), [ChangeID]) throws -> Result) throws -> Result {
         try authoringAllowed()
         let roles = try planWritingParagraphRoles(for: modernRoleTargets(operations), structure: structure,
@@ -468,9 +496,12 @@ public final class ModernSession {
         let change = ModernChange(id: id, observed: frontier(log), body: .edit(roles + operations))
         var candidate = log; candidate[id] = change; try capacity(candidate)
         let result = try replay(candidate), outcome = try makeResult(result, frontier(candidate))
-        if let group, group == typingGroup, !undoStack.isEmpty { undoStack[undoStack.count - 1].append(id) }
+        let coalescing = group != nil && group == typingGroup && !undoStack.isEmpty
+        let history = try planHistorySelection(id, priorGroup: coalescing ? undoStack.last : nil, outcome: outcome, observed: frontier(candidate), defaultBefore: historyBefore)
+        if coalescing { undoStack[undoStack.count - 1].append(id) }
         else { undoStack.append([id]) }
         typingGroup = group; redoStack = []
+        modernHistorySelections = history.records; modernLocalSelectionStorage = history.current
         accept(candidate, result, change: change)
         return outcome
     }
@@ -480,6 +511,10 @@ public final class ModernSession {
         let change = ModernChange(id: try nextID(), observed: frontier(log), body: .setActive(targets: targets, active: active))
         var candidate = log; candidate[change.id] = change; try capacity(candidate)
         let result = try replayOrRetain(candidate)
+        let record = historySelectionRecord(for: targets)
+        let restored = try modernResolveLocalSelection(active ? record?.after : record?.before, in: result, observed: frontier(candidate), history: candidate)
+        _ = try checkedHistorySelectionArchive(modernHistorySelections, current: restored)
+        modernLocalSelectionStorage = restored
         accept(candidate, result, change: change)
     }
     private func activeStates(_ candidate: [ChangeID: ModernChange]) -> [ChangeID: Bool] {
@@ -504,6 +539,7 @@ public final class ModernSession {
             if !enabled.isEmpty { newUndo.append(enabled) }
         }
         undoStack = newUndo; redoStack = newRedo
+        pruneHistorySelection()
         log = candidate; counter = candidate.keys.map(\.counter).max() ?? 0
         projection = result.0; document = result.1; structure = result.2; mergeRecovery = nil
         publishing = true; onChange?(document, change); publishing = false

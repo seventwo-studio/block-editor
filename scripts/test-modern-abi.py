@@ -931,11 +931,111 @@ def main():
     assert finish_cut('publication-layout-reopen', prepared_layout)['reason'] == 'unknownCutPreparation'
     assert pasted_command('publication-layout-reopen', paste_base, name='redo')['document'] == cut_layout
 
+    # Local input history is a paired sidecar, never replicated document data.
+    assert capabilities['localHistorySelectionVersion'] == 1
+    def local_context(document, captured, selection=None):
+        return dict(documentID=document['documentID'], epoch=epoch, observed=captured['observed'],
+                    focus={'text': {'_0': captured['end']}},
+                    selection=selection or {'text': {'_0': dict(start=captured['start'], end=captured['end'])}})
+    def input_offset(handle, position):
+        return success('modernResolvePosition', handle, position=position)['offset']
+    def history_command(handle, name, target=None, arguments=None, **extra):
+        return success('modernCommand', handle, request=dict(documentID=cut_base['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments or {}, **extra))
+    for handle in ('history-a', 'history-b'): column_session(handle, cut_base)
+    captured = success('modernCaptureTextRange', 'history-a', field=cut_field, start=2, end=1)
+    success('modernSetLocalSelection', 'history-a', selection=local_context(cut_base, captured))
+    replaced = json.loads(json.dumps(cut_base)); replaced['blocks'][0]['content'] = [dict(type='text', text='AXC')]
+    assert history_command('history-a', 'replaceText', captured, dict(text='X'))['document'] == replaced
+    prefix = success('modernCaptureTextRange', 'history-b', field=cut_field, start=0, end=0)
+    history_command('history-b', 'replaceText', prefix, dict(text='R'))
+    with_peer = json.loads(json.dumps(cut_base)); with_peer['blocks'][0]['content'] = [dict(type='text', text='RABC')]
+    replaced_peer = json.loads(json.dumps(cut_base)); replaced_peer['blocks'][0]['content'] = [dict(type='text', text='RAXC')]
+    assert success('modernReceive', 'history-a', batch=success('modernChanges', 'history-b'))['document'] == replaced_peer
+    saved = success('modernSave', 'history-a'); metadata = success('modernExportHistorySelection', 'history-a')
+    changes = success('modernChanges', 'history-a')
+    assert all(key not in json.dumps(changes) for key in ('historySelection', 'focusIntent', 'selectionIntent', 'records', 'current'))
+    success('destroy', 'history-a')
+    assert success('restoreModern', 'history-a', actorID='history-a', snapshot=saved)['document'] == replaced_peer
+    success('modernRestoreHistorySelection', 'history-a', archive=metadata)
+    assert success('modernSave', 'history-a') == saved and success('modernExportHistorySelection', 'history-a') == metadata
+    undone = history_command('history-a', 'undo')
+    assert undone['document'] == with_peer and undone['selectionIntent'] == local_context(cut_base, captured)['selection']
+    assert input_offset('history-a', undone['selection']['start']) == 3 and input_offset('history-a', undone['selection']['end']) == 2
+    stable = success('modernSave', 'history-a'); stable_local = success('modernExportHistorySelection', 'history-a')
+    noop = history_command('history-a', 'undo')
+    assert noop['status'] == 'noop' and noop['focusIntent'] is None and noop['selectionIntent'] is None
+    assert success('modernSave', 'history-a') == stable and success('modernExportHistorySelection', 'history-a') == stable_local
+    redone = history_command('history-a', 'redo')
+    assert redone['document'] == replaced_peer and input_offset('history-a', redone['focus']) == 3
+    assert redone['selection']['start'] == redone['selection']['end'] == redone['focus']
+    assert success('modernLocalSelection', 'history-a')['selection'] == redone['selectionIntent']
+
+    # A menu/provider invocation keeps its original input even after local focus changes.
+    column_session('history-override', cut_base)
+    original = success('modernCaptureTextRange', 'history-override', field=cut_field, start=2, end=1)
+    qfield = dict(node=dict(baseline=dict(blockID='q', path=[])), name='content')
+    later = success('modernCaptureTextRange', 'history-override', field=qfield, start=3, end=3)
+    success('modernSetLocalSelection', 'history-override', selection=local_context(cut_base, later))
+    history_command('history-override', 'paste', dict(range=original), dict(clipboard=dict(version=2, collaborationVersion=7, parts=[dict(inline={'_0': [dict(type='text', text='X')]})], plainText='X')),
+                    historySelection=local_context(cut_base, original))
+    undone = history_command('history-override', 'undo')
+    assert undone['document'] == cut_base and undone['selectionIntent'] == local_context(cut_base, original)['selection']
+    history_command('history-override', 'setAppearance', dict(document=dict(documentID=cut_base['documentID'])),
+                    dict(field='fontSize', value='large'), historySelection=None)
+    absent = history_command('history-override', 'undo')
+    assert absent['status'] == 'applied' and absent['focusIntent'] is None and absent['selectionIntent'] is None
+
+    # Cut captures the whole mixed input before a later selection change.
+    column_session('history-mixed', cut_base)
+    part = success('modernCaptureTextRange', 'history-mixed', field=cut_field, start=2, end=1)
+    qorigin = dict(baseline=dict(blockID='q', path=[]))
+    whole = success('modernCaptureLocalNodes', 'history-mixed', nodes=[qorigin])
+    mixed_target = dict(nodes=whole, ranges=[part])
+    mixed_selection = {'mixed': {'_0': mixed_target}}
+    success('modernSetLocalSelection', 'history-mixed', selection=local_context(cut_base, part, mixed_selection))
+    prepared = success('modernPrepareCut', 'history-mixed', target=mixed_target)
+    later = success('modernCaptureTextRange', 'history-mixed', field=qfield, start=3, end=3)
+    success('modernSetLocalSelection', 'history-mixed', selection=local_context(cut_base, later))
+    cut_document = json.loads(json.dumps(cut_base)); cut_document['blocks'] = [dict(cut_base['blocks'][0], content=[dict(type='text', text='AC')])]
+    assert finish_cut('history-mixed', prepared)['document'] == cut_document
+    undone = history_command('history-mixed', 'undo')
+    assert undone['document'] == cut_base and undone['selectionIntent']['mixed']['_0'] == undone['selection']
+    assert undone['selection']['ranges'][0]['start'] == part['start'] and undone['selection']['ranges'][0]['end'] == part['end']
+    assert undone['selection']['nodes']['nodes'] == [qorigin] and input_offset('history-mixed', undone['selection']['ranges'][0]['start']) == 2
+    assert input_offset('history-mixed', undone['focus']) == 1
+    assert history_command('history-mixed', 'redo')['document'] == cut_document
+
+    # Malformed/foreign sidecars leave accepted history and the fresh registry intact.
+    success('restoreModern', 'history-import', actorID='history-a', snapshot=saved)
+    empty_local = success('modernExportHistorySelection', 'history-import')
+    for field, value in (('version', 2), ('epoch', 'foreign'), ('actorID', 'foreign'), ('unknown', True)):
+        malformed = dict(metadata, **{field: value})
+        assert call('modernRestoreHistorySelection', 'history-import', archive=malformed)['ok'] is False
+        assert success('modernSave', 'history-import') == saved and success('modernExportHistorySelection', 'history-import') == empty_local
+    success('modernRestoreHistorySelection', 'history-import', archive=metadata)
+    assert call('modernRestoreHistorySelection', 'history-import', archive=metadata)['ok'] is False
+    success('restoreModern', 'history-other', actorID='history-other', snapshot=saved)
+    assert call('modernRestoreHistorySelection', 'history-other', archive=metadata)['ok'] is False
+    foreign = dict(local_context(cut_base, captured), epoch='foreign')
+    assert call('modernSetLocalSelection', 'history-import', selection=foreign)['ok'] is False
+    assert success('modernExportHistorySelection', 'history-import') == metadata
+
+    # Local typed selection does not grant unsupported generic row mutations.
+    table_document = dict(cut_base, title='', blocks=[dict(id='table', type='table', rows=[dict(id='row', cells=[dict(id='cell', content=[dict(type='text', text='A')])])])])
+    column_session('history-table', table_document)
+    row = dict(baseline=dict(blockID='table', path=['rows', 'row']))
+    selected = success('modernCaptureLocalNodes', 'history-table', nodes=[row])
+    stable = success('modernSave', 'history-table')
+    assert call('modernCommand', 'history-table', request=dict(documentID=cut_base['documentID'], epoch=epoch,
+                command='delete', target=dict(nodes=selected, ranges=[]), arguments={}))['ok'] is False
+    assert success('modernSave', 'history-table') == stable
+
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['Local cut publication ordering: exact prepared mixed rich payload, failed publication/policy/composition unchanged, retained peer text and opaque metadata, scoped and malformed acknowledgment rejection, one shared deletion/Undo/Redo/reopen, duplicate callback after Undo, cancellation/forget/session replacement, title-only policy, whole layout retaining a later peer child in two valid original containers', 'Captured paste: independent full ACC-37 root layout, ACC-38 explicit flattened fallback and unchanged nested rejection, ACC-39 blank multiline/caret, whole-node selection, one Undo/Redo/reopen, retained rich policy/composition payloads and no-result no history', 'Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history', 'ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Captured paste has full independent root layout, explicit flattened layout and blank multiline native ABI checks with local focus/selection, Undo/Redo/reopen and retained unavailable payloads. Local cut preparation/publication acknowledgment has literal native bridge checks; preparation IDs, clipboard payloads and callback state are never replicated or restored. OS clipboard publication and active native invocation integration, migration, full command/focus history and complete provider/host acceptance remain pending.')
+                  literalScenarios=['Local author-history input: paired accepted/local archive restore, backward selection with peer prefix, canonical Undo/Redo and no-op preservation, original delayed invocation despite later input, explicit absent focus, mixed cut input captured at preparation, malformed/foreign/repeated archive rejection without accepted-state mutation, typed local row selection without generic mutation authority and no replicated local metadata', 'Local cut publication ordering: exact prepared mixed rich payload, failed publication/policy/composition unchanged, retained peer text and opaque metadata, scoped and malformed acknowledgment rejection, one shared deletion/Undo/Redo/reopen, duplicate callback after Undo, cancellation/forget/session replacement, title-only policy, whole layout retaining a later peer child in two valid original containers', 'Captured paste: independent full ACC-37 root layout, ACC-38 explicit flattened fallback and unchanged nested rejection, ACC-39 blank multiline/caret, whole-node selection, one Undo/Redo/reopen, retained rich policy/composition payloads and no-result no history', 'Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history', 'ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Captured paste has full independent root layout, explicit flattened layout and blank multiline native ABI checks with local focus/selection, Undo/Redo/reopen and retained unavailable payloads. Local cut preparation/publication acknowledgment has literal native bridge checks; preparation IDs, clipboard payloads and callback state are never replicated or restored. Local author-history selection restoration has paired archive, backward/mixed, delayed invocation, peer-preservation and malformed import checks. Native UI input/focus ownership and atomic paired persistence, OS clipboard publication and active native invocation integration, migration, typed Kotlin/TypeScript facades and complete provider/host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

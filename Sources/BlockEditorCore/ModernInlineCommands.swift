@@ -49,7 +49,7 @@ extension ModernSession {
             let operations = try modernMarkOperations(in: range, type: kind.markType, mark: mark)
             endTypingGroup()
             if operations.isEmpty { return modernRangeResult(range) }
-            return try performReturning(nextID(), operations) { _, _ in self.modernRangeResult(range) }
+            return try performReturning(nextID(), operations, historyBefore: historySelection(range)) { _, _ in self.modernRangeResult(range) }
         }
         let selection = try modernSemanticNodes(target)
         let operations = selection.nodes.compactMap { node -> ModernOperation? in
@@ -57,7 +57,7 @@ extension ModernSession {
         }
         endTypingGroup()
         if operations.isEmpty { return moveResult(selection.nodes, caret: target.caret, observed: modernObserved) }
-        return try performReturning(nextID(), operations) { _, observed in self.moveResult(selection.nodes, caret: target.caret, observed: observed) }
+        return try performReturning(nextID(), operations, historyBefore: historySelection(selection, caret: target.caret)) { _, observed in self.moveResult(selection.nodes, caret: target.caret, observed: observed) }
     }
     public func semanticState(_ target: ModernSemanticTarget, kind: ModernSemanticKind) throws -> ModernSemanticState {
         guard (target.range != nil) != (target.nodes != nil), target.range == nil || target.caret == nil else { throw EditorError.invalidChange }
@@ -139,14 +139,14 @@ extension ModernSession {
             }
             let caret = WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: last!, affinity: .after)
             endTypingGroup()
-            return try performReturning(id, operations) { _, _ in
+            return try performReturning(id, operations, historyBefore: historySelection(range)) { _, _ in
                 ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
             }
         }
         let operations = try modernMarkOperations(in: range, type: "link", mark: mark)
         endTypingGroup()
         if operations.isEmpty { return modernRangeResult(range) }
-        return try performReturning(nextID(), operations) { _, _ in self.modernRangeResult(range) }
+        return try performReturning(nextID(), operations, historyBefore: historySelection(range)) { _, _ in self.modernRangeResult(range) }
     }
     func modernRangeResult(_ range: ModernTextRange) -> ModernStructuralResult {
         ModernStructuralResult(focus: .text(range.end), selection: .text(WritingTextRange(start: range.start, end: range.end)))

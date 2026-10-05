@@ -43,7 +43,7 @@ extension ModernSession {
         try validateModernColumnCreationShape(value, change: id)
         try validateModernColumnCreation(value, in: structure)
         endTypingGroup()
-        return try performReturning(id, [.createColumns(value)]) { _, observed in
+        return try performReturning(id, [.createColumns(value)], historyBefore: target.selection.map { historySelection($0, caret: target.caret) } ?? target.boundary.map(historySelection)) { _, observed in
             self.moveResult([value.identity], caret: target.caret, observed: observed)
         }
     }
@@ -59,7 +59,7 @@ extension ModernSession {
         let source = try requiredPlacement(target.layout, in: structure.effectivePlacements()), collection = structure.placements[source]!.collection
         let boundaryObserved = modernObserved // Prove this anchor while its layout is still live.
         endTypingGroup()
-        return try performReturning(nextID(), [.removeColumns(layout: target.layout, source: source)]) { _, observed in
+        return try performReturning(nextID(), [.removeColumns(layout: target.layout, source: source)], historyBefore: historySelection(try captureNodes([target.layout]), caret: target.caret)) { _, observed in
             if !nodes.isEmpty { return self.moveResult(nodes, caret: target.caret, observed: observed) }
             return ModernStructuralResult(focus: .insertion(ModernBlockBoundary(documentID: self.documentID, epoch: self.epoch,
                 collection: collection, after: source, observed: boundaryObserved)), selection: nil)
@@ -80,7 +80,7 @@ extension ModernSession {
             return outcome(modernCurrentReplay, modernObserved)
         }
         endTypingGroup()
-        return try performReturning(nextID(), [.resizeColumns(layout: target.layout, splitBasisPoints: splitBasisPoints)], result: outcome)
+        return try performReturning(nextID(), [.resizeColumns(layout: target.layout, splitBasisPoints: splitBasisPoints)], historyBefore: historySelection(try captureNodes([target.layout]), caret: target.caret), result: outcome)
     }
     private func requiredPlacement(_ node: NodeID, in placements: [NodeID: StructuralState.Placement]) throws -> NodePlacementID {
         guard let placement = placements[node] else { throw EditorError.invalidPath }; return placement.id

@@ -35,14 +35,17 @@ public struct ModernDeleteTarget: Codable, Equatable, Sendable {
     public init(nodes: ModernNodeSelection? = nil, ranges: [ModernTextRange] = []) { self.nodes = nodes; self.ranges = ranges }
 }
 /// Canonical local result intents. They do not instruct peers to change focus.
-public enum ModernFocusIntent: Codable, Equatable, Sendable {
+/// Indirect payloads keep large anchored ranges out of every command/replay
+/// stack frame; synthesized Codable preserves the same wire discriminants.
+public indirect enum ModernFocusIntent: Codable, Equatable, Sendable {
     case text(WritingPosition)
     case nodes(ModernNodeSelection)
     case insertion(ModernBlockBoundary)
 }
-public enum ModernSelectionIntent: Codable, Equatable, Sendable {
+public indirect enum ModernSelectionIntent: Codable, Equatable, Sendable {
     case text(WritingTextRange)
     case nodes(ModernNodeSelection)
+    case mixed(ModernDeleteTarget)
 }
 public struct ModernStructuralResult: Codable, Equatable, Sendable {
     public let focus: ModernFocusIntent
@@ -75,7 +78,7 @@ extension ModernSession {
         guard !(try structure.visibleOrder(in: boundary.collection)).contains(where: { structure.nodes[$0]?.label == block.id }) else { throw EditorError.invalidChange }
         let id = try nextID(), placement = ElementID(change: id, index: 0), identity = NodeID.inserted(creation: placement, path: [])
         return try performReturning(id, [.structure(.insertNode(value: .object(block.fields), identity: identity, collection: boundary.collection,
-            placement: placement, after: boundary.after))]) { replay, observed in
+            placement: placement, after: boundary.after))], historyBefore: historySelection(boundary)) { replay, observed in
             let selection = ModernNodeSelection(documentID: self.documentID, epoch: self.epoch, nodes: [identity], observed: observed)
             if let field = try self.editableFields(in: [identity], structure: replay.2).first {
                 let position = self.edgePosition(field, projection: replay.0, end: false)
@@ -117,7 +120,7 @@ extension ModernSession {
             operations.append(.structure(.moveNode(identity: identity, collection: collection, placement: placement, after: after)))
             after = .edit(placement)
         }
-        return try performReturning(id, operations) { _, observed in self.moveResult(nodes, caret: target.caret, observed: observed) }
+        return try performReturning(id, operations, historyBefore: historySelection(target.selection, caret: target.caret)) { _, observed in self.moveResult(nodes, caret: target.caret, observed: observed) }
     }
 
     public func delete(_ target: ModernDeleteTarget) throws -> ModernStructuralResult {
@@ -166,7 +169,7 @@ extension ModernSession {
             return ModernStructuralResult(focus: .text(position), selection: .text(WritingTextRange(start: position, end: position)))
         }
         if operations.isEmpty { return try result(modernCurrentReplay, modernObserved) }
-        return try performReturning(nextID(), operations, result: result)
+        return try performReturning(nextID(), operations, historyBefore: historySelection(target), result: result)
     }
 
     func validateBoundary(_ boundary: ModernBlockBoundary, columns: Bool = false) throws {

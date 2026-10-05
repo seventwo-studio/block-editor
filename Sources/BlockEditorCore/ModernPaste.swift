@@ -217,6 +217,6 @@ extension ModernSession {
         }
         if plan.command.operations.isEmpty { return try result(modernCurrentReplay, modernObserved) }
         try validateModernPasteShape(plan.command, change: id)
-        return try performReturning(id, [.paste(plan.command)], result: result)
+        return try performReturning(id, [.paste(plan.command)], historyBefore: target.range.map(historySelection) ?? target.selection.map(historySelection) ?? target.boundary.map(historySelection), result: result)
     }
 }

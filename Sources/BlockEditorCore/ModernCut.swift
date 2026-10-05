@@ -8,9 +8,11 @@ public final class ModernCutPreparation {
     public let clipboard: ModernClipboard
     public fileprivate(set) var phase: ModernCutPhase = .prepared
     public fileprivate(set) var transaction: ChangeID?
+    fileprivate let historySelection: ModernLocalSelection?
     fileprivate weak var owner: ModernSession?
     fileprivate init(owner: ModernSession, target: ModernDeleteTarget, clipboard: ModernClipboard) {
         self.owner = owner; self.target = target; self.clipboard = clipboard
+        historySelection = owner.localSelection ?? owner.historySelection(target)
     }
 }
 public struct ModernCutOutcome: Codable, Equatable, Sendable {
@@ -49,7 +51,9 @@ extension ModernSession {
         let before = Set(syncState.received)
         do {
             let title = preparation.target.ranges.contains { $0.start.field == titleField || $0.end.field == titleField }
-            let result = try title ? cutTitle(preparation.target) : delete(preparation.target)
+            let result = try withHistorySelection(preparation.historySelection) {
+                try title ? cutTitle(preparation.target) : delete(preparation.target)
+            }
             let transaction = syncState.received.first { !before.contains($0) && $0.actor == actorID }
             preparation.transaction = transaction; preparation.phase = .applied
             return ModernCutOutcome(status: transaction == nil ? "noop" : "applied", reason: nil, transaction: transaction, result: result, retainedClipboard: nil)
@@ -90,6 +94,6 @@ extension ModernSession {
             return ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
         }
         if keys.isEmpty { return try result(modernCurrentReplay, modernObserved) }
-        return try performReturning(nextID(), [.text(.delete(keys: keys.sorted()))], result: result)
+        return try performReturning(nextID(), [.text(.delete(keys: keys.sorted()))], historyBefore: historySelection(target), result: result)
     }
 }

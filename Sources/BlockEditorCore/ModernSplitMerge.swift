@@ -158,7 +158,7 @@ extension ModernSession {
                 let enter = try planModernEmptyEnter(range: range, newBlockID: newBlockID, change: id,
                     captured: (captured.0, captured.2), authored: (modernCurrentReplay.0, structure))
                 endTypingGroup()
-                return try performReturning(id, [.enterListItem(enter)]) { _, _ in
+                return try performReturning(id, [.enterListItem(enter)], historyBefore: historySelection(range)) { _, _ in
                     ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
                 }
             }
@@ -167,7 +167,7 @@ extension ModernSession {
         let split = try planModernSplit(range: range, creation: creation, label: newBlockID,
             captured: (captured.0, captured.2), authored: (modernCurrentReplay.0, structure))
         endTypingGroup()
-        return try performReturning(id, [.splitBlock(split)]) { _, _ in
+        return try performReturning(id, [.splitBlock(split)], historyBefore: historySelection(range)) { _, _ in
             let caret = WritingPosition(documentID: self.documentID, epoch: self.epoch, field: split.destination,
                 anchor: split.suffix.first, affinity: split.suffix.isEmpty ? .after : .before)
             return ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
@@ -182,7 +182,7 @@ extension ModernSession {
         let join = ModernBlockJoin(selection: selection, edge: anchor.map(WritingEdge.after) ?? .start)
         try validateModernJoin(join, structure: structure, projection: modernCurrentReplay.0)
         endTypingGroup()
-        return try performReturning(nextID(), [.mergeBlocks(join)]) { _, _ in
+        return try performReturning(nextID(), [.mergeBlocks(join)], historyBefore: historySelection(selection)) { _, _ in
             let caret = WritingPosition(documentID: self.documentID, epoch: self.epoch, field: destination, anchor: anchor, affinity: .after)
             return ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
         }

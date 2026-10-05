@@ -18,14 +18,14 @@ extension ModernSession {
             let converted = try writingConvertedBlock(original, type: target.type, attributes: attributes, modern: true)
             if converted.fields == original.fields { return outcome(modernCurrentReplay, modernObserved) }
             endTypingGroup()
-            return try performReturning(nextID(), [.convertBlock(node: node, type: target.type, attributes: attributes)], result: outcome)
+            return try performReturning(nextID(), [.convertBlock(node: node, type: target.type, attributes: attributes)], historyBefore: historySelection(range), result: outcome)
         }
         if original.fields["type"] == .string("code"), target.type == "code" { return outcome(modernCurrentReplay, modernObserved) }
         let id = try nextID()
         let conversion = try planWritingSchemaConversion(source: caret.field, target: target, id: id, structure: structure, projection: modernCurrentReplay.0)
         try validateModernSchemaShape(conversion, change: id)
         endTypingGroup()
-        return try performReturning(id, [.schemaConvert(conversion)], result: outcome)
+        return try performReturning(id, [.schemaConvert(conversion)], historyBefore: historySelection(range), result: outcome)
     }
     @discardableResult public func softBreak(in range: ModernTextRange) throws -> WritingPosition {
         try authoringAllowed(command: "softBreak")
@@ -33,7 +33,7 @@ extension ModernSession {
         let selected = try modernCapturedSelection(range)
         let field = try selected.position.anchor.map { try modernCurrentReplay.0.field(of: $0) } ?? modernCurrentReplay.0.destination(of: selected.position.field)
         endTypingGroup()
-        return try replaceSelected(field: field, selected: selected, text: "\n", group: nil)
+        return try replaceSelected(field: field, selected: selected, text: "\n", group: nil, historyBefore: historySelection(range))
     }
 }
 

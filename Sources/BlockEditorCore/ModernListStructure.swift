@@ -206,6 +206,6 @@ extension ModernSession {
         if let caret = target.caret { _ = try modernResolve(caret, in: captured, observed: target.selection.observed) }
         if command.operations.isEmpty { return moveResult(target.selection.nodes, caret: target.caret, observed: modernObserved) }
         endTypingGroup()
-        return try performReturning(id, [.listStructure(command)]) { _, observed in self.moveResult(target.selection.nodes, caret: target.caret, observed: observed) }
+        return try performReturning(id, [.listStructure(command)], historyBefore: historySelection(target.selection, caret: target.caret)) { _, observed in self.moveResult(target.selection.nodes, caret: target.caret, observed: observed) }
     }
 }

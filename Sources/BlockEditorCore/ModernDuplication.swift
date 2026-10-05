@@ -73,7 +73,7 @@ extension ModernSession {
         try validateModernDuplicationShape(copy, change: id)
         let nodes = (0..<newBlockIDs.count).map { NodeID.inserted(creation: ElementID(change: id, index: $0), path: []) }
         endTypingGroup()
-        return try performReturning(id, [.duplicateBlocks(copy)]) { replay, observed in
+        return try performReturning(id, [.duplicateBlocks(copy)], historyBefore: historySelection(target.selection)) { replay, observed in
             let selected = ModernNodeSelection(documentID: self.documentID, epoch: self.epoch, nodes: nodes, observed: observed)
             let focus: ModernFocusIntent
             if let field = try self.editableFields(in: nodes, structure: replay.2).first {

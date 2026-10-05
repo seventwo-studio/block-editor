@@ -28,6 +28,7 @@ final class ModernBridgeEndpoint {
             let asyncEnabled = sessions[handle]?.allowedCommands?.contains("completeAsyncBlock") ?? true
             values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
+            values["localHistorySelectionVersion"] = .number(1)
             let cutSession = sessions[handle]
             values["canCut"] = .bool(cutSession.map { !$0.isComposing && $0.mergeRecovery == nil &&
                 ($0.allowedCommands == nil || $0.allowedCommands!.contains("delete") || $0.allowedCommands!.contains("replaceTitle")) } ?? true)
@@ -57,6 +58,9 @@ final class ModernBridgeEndpoint {
         }
         if command == "cutoverToModern" { throw EditorError.invalidChange }
         guard let session = sessions[handle] else { throw EditorError.invalidChange }
+        if ["modernCaptureLocalNodes", "modernSetLocalSelection", "modernLocalSelection", "modernExportHistorySelection", "modernRestoreHistorySelection"].contains(command) {
+            return try localSelectionCommand(input, session: session, command: command)
+        }
         switch command {
         case "destroy": try allowed(input, ["command", "session"]); sessions.removeValue(forKey: handle); holds.removeValue(forKey: handle); cuts.removeValue(forKey: handle); return .null
         case "modernDocument": try allowed(input, ["command", "session"]); return .object(session.document.fields)
@@ -187,7 +191,37 @@ final class ModernBridgeEndpoint {
         }
         return try snapshot(session)
     }
+    private func localSelectionCommand(_ input: JSONValue, session: ModernSession, command: String) throws -> JSONValue {
+        switch command {
+        case "modernCaptureLocalNodes":
+            try allowed(input, ["command", "session", "nodes"])
+            return try encode(session.captureLocalNodes(decode(input["nodes"], as: [NodeID].self)))
+        case "modernSetLocalSelection":
+            try allowed(input, ["command", "session", "selection"])
+            guard let value = input["selection"] else { throw EditorError.invalidChange }
+            try session.setLocalSelection(value == .null ? nil : decode(value, as: ModernLocalSelection.self))
+        case "modernLocalSelection":
+            try allowed(input, ["command", "session"]); return try session.resolvedLocalSelection().map(encode) ?? .null
+        case "modernExportHistorySelection":
+            try allowed(input, ["command", "session"]); return try JSONDecoder().decode(JSONValue.self, from: session.exportHistorySelection())
+        case "modernRestoreHistorySelection":
+            try allowed(input, ["command", "session", "archive"])
+            try session.restoreHistorySelection(canonicalEncoder().encode(input["archive"] ?? .null))
+        default: throw EditorError.invalidChange
+        }
+        return try snapshot(session)
+    }
     private func execute(_ request: JSONValue, session: ModernSession) throws -> JSONValue {
+        try allowed(request, ["documentID", "epoch", "command", "target", "arguments", "historySelection"])
+        if let value = request["historySelection"] {
+            guard let command = request["command"]?.string, command != "undo", command != "redo" else { throw EditorError.invalidChange }
+            let before = try value == .null ? nil : decode(value, as: ModernLocalSelection.self)
+            var inner = request.object!; inner.removeValue(forKey: "historySelection")
+            return try session.withHistorySelection(before) { try self.executeCommand(.object(inner), session: session) }
+        }
+        return try executeCommand(request, session: session)
+    }
+    private func executeCommand(_ request: JSONValue, session: ModernSession) throws -> JSONValue {
         try allowed(request, ["documentID", "epoch", "command", "target", "arguments"])
         guard let command = request["command"]?.string, let arguments = request["arguments"], arguments.object != nil else { throw EditorError.invalidChange }
         if command != "completeAsyncBlock" && command != "paste" {
@@ -207,6 +241,7 @@ final class ModernBridgeEndpoint {
             return .object(fields)
         }
         guard commands.contains(command) else { return try result("unavailable", reason: "unsupportedCommand") }
+
         if command == "paste" {
             try allowed(arguments, ["clipboard", "mode", "newIDs", "policy"])
             let target = try decode(request["target"], as: ModernPasteTarget.self)
@@ -227,7 +262,7 @@ final class ModernBridgeEndpoint {
                 let transaction = session.syncState.received.first { !before.contains($0) && $0.actor == session.actorID }
                 let caret: WritingPosition? = { if case .text(let position) = outcome.focus { return position }; return nil }()
                 let selection = try outcome.selection.map { selection -> JSONValue in
-                    switch selection { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes) }
+                    switch selection { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes); case .mixed(let mixed): return try encode(mixed) }
                 }
                 var response = try result(transaction == nil ? "noop" : "applied", transaction: transaction, position: caret, selection: selection,
                     focusIntent: outcome.focus, selectionIntent: outcome.selection).object!
@@ -264,6 +299,7 @@ final class ModernBridgeEndpoint {
             if case .text(let caret) = outcome.focus { position = caret }
             if case .nodes(let selected) = outcome.selection { selection = try encode(selected) }
             else if case .text(let range) = outcome.selection { selection = try encode(range) }
+            else if case .mixed(let mixed) = outcome.selection { selection = try encode(mixed) }
         }
         do {
             switch command {
@@ -344,6 +380,13 @@ final class ModernBridgeEndpoint {
                 try allowed(arguments, [])
                 guard request["target"] == nil || request["target"] == .null else { throw EditorError.invalidChange }
                 if command == "undo" { try session.undo() } else { try session.redo() }
+                if Set(session.syncState.received) != before, let restored = session.localSelection {
+                    focusIntent = restored.focus; selectionIntent = restored.selection
+                    if case .text(let caret) = restored.focus { position = caret }
+                    if let intent = restored.selection {
+                        switch intent { case .text(let range): selection = try encode(range); case .nodes(let nodes): selection = try encode(nodes); case .mixed(let mixed): selection = try encode(mixed) }
+                    }
+                }
             default: throw EditorError.invalidChange
             }
         } catch ModernSessionError.unavailable(let reason) { return try result("unavailable", reason: reason) }
@@ -375,7 +418,7 @@ final class ModernBridgeEndpoint {
         response["selectionIntent"] = try outcome.result?.selection.map(encode) ?? .null
         response["focus"] = try outcome.result.flatMap { if case .text(let caret) = $0.focus { return caret }; return nil }.map(encode) ?? .null
         response["selection"] = try outcome.result?.selection.map {
-            switch $0 { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes) }
+            switch $0 { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes); case .mixed(let mixed): return try encode(mixed) }
         } ?? .null
         return .object(response)
     }

@@ -234,46 +234,17 @@ func validateModernStructure(_ mutation: Mutation, change: ChangeID, cohort: Set
 
 extension ModernSession {
     @discardableResult public func insertBlock(_ block: Block, into collection: NodeCollection = .root, after: NodeID? = nil) throws -> NodeID {
-        try authoringAllowed(command: "insertBlock"); endTypingGroup()
-        try modernBlockCollection(collection, structure: structure)
-        if let owner = collection.owner { _ = try structure.address(of: owner) }
-        try validateModernAuthoredBlock(.object(block.fields))
-        guard !(try structure.visibleOrder(in: collection)).contains(where: { structure.nodes[$0]?.label == block.id }) else { throw EditorError.invalidChange }
-        let anchor = try modernBoundary(after, in: collection), id = try nextID()
-        let placement = ElementID(change: id, index: 0), identity = NodeID.inserted(creation: placement, path: [])
-        try perform(id, [.structure(.insertNode(value: .object(block.fields), identity: identity, collection: collection, placement: placement, after: anchor))])
+        let identity = NodeID.inserted(creation: ElementID(change: try nextID(), index: 0), path: [])
+        _ = try insertBlock(block, at: captureBoundary(in: collection, after: after))
         return identity
     }
     public func move(_ identity: NodeID, into collection: NodeCollection, after: NodeID? = nil) throws {
-        try authoringAllowed(command: "move"); endTypingGroup()
-        _ = try structure.address(of: identity)
-        guard structure.nodes[identity]?.kind == .block, identity != after else { throw EditorError.invalidChange }
-        try modernBlockCollection(collection, structure: structure)
-        if let owner = collection.owner {
-            _ = try structure.address(of: owner)
-            guard !(try structure.descendants(of: identity)).contains(owner) else { throw EditorError.invalidChange }
-        }
-        guard !(try structure.visibleOrder(in: collection)).contains(where: { $0 != identity && structure.nodes[$0]?.label == structure.nodes[identity]?.label }) else { throw EditorError.invalidChange }
-        let anchor = try modernBoundary(after, in: collection), id = try nextID()
-        let current = try structure.effectivePlacements()[identity]
-        if current?.collection == collection {
-            let siblings = try structure.visibleOrder(in: collection), offset = siblings.firstIndex(of: identity)!
-            if (offset == 0 ? nil : siblings[offset - 1]) == after { return }
-        }
-        try perform(id, [.structure(.moveNode(identity: identity, collection: collection, placement: ElementID(change: id, index: 0), after: anchor))])
+        guard identity != after else { throw EditorError.invalidChange }
+        _ = try move(ModernMoveTarget(selection: captureNodes([identity]), boundary: captureBoundary(in: collection, after: after)))
     }
     public func delete(_ identity: NodeID) throws {
-        try authoringAllowed(command: "delete"); endTypingGroup()
-        _ = try structure.address(of: identity)
-        guard structure.nodes[identity]?.kind == .block else { throw EditorError.invalidChange }
-        try perform(nextID(), [.structure(.deleteNodes(identities: structure.descendants(of: identity)))])
+        _ = try delete(ModernDeleteTarget(nodes: captureNodes([identity])))
     }
     public func address(of identity: NodeID) throws -> NodeAddress { try structure.address(of: identity) }
     public func nodes(in collection: NodeCollection = .root) throws -> [NodeID] { try structure.visibleOrder(in: collection) }
-    private func modernBoundary(_ identity: NodeID?, in collection: NodeCollection) throws -> NodePlacementID? {
-        guard let identity else { return nil }
-        guard (try structure.visibleOrder(in: collection)).contains(identity),
-              let placement = try structure.effectivePlacements()[identity] else { throw EditorError.invalidPath }
-        return placement.id
-    }
 }
