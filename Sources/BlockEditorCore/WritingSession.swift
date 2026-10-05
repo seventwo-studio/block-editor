@@ -1317,31 +1317,9 @@ public final class WritingSession {
             }
         }
         func validationShape(_ original: Materialized, mutations: [Mutation], retainedRoles: Set<NodeID> = [], inactive: Bool = false) -> Materialized {
-            var copy = original
-            guard usesRetainedOrigins else { return copy }
-            for mutation in mutations {
-                let collection: NodeCollection
-                switch mutation {
-                case .insertNode(_, _, let destination, _, _), .moveNode(_, let destination, _, _): collection = destination
-                default: continue
-                }
-                if inactive, case .moveNode(let identity, _, _, _) = mutation, retainedRoles.contains(identity),
-                   (try? copy.structure?.kind(in: collection)) == .block, var value = copy.structure?.nodes[identity], value.kind == .item {
-                    value.kind = .block; value.fields["type"] = .string("paragraph"); copy.structure?.nodes[identity] = value
-                }
-                if (try? copy.structure?.kind(in: collection)) == nil,
-                   collection.field == "children",
-                   let owner = collection.owner, var value = copy.structure?.nodes[owner], value.birthKind == .item {
-                    value.kind = .item; copy.structure?.nodes[owner] = value
-                }
-                if (try? copy.structure?.kind(in: collection)) == nil,
-                   collectionBirths[collection] == .item, collection.field == "items",
-                   let owner = collection.owner, var value = copy.structure?.nodes[owner], value.kind == .block {
-                    value.fields["type"] = .string("list"); value.fields["style"] = .string("unordered")
-                    value.collections.insert("items"); copy.structure?.nodes[owner] = value
-                }
-            }
-            return copy
+            guard usesRetainedOrigins else { return original }
+            return writingRetainedCollectionShape(original, mutations: mutations, collectionBirths: collectionBirths,
+                retainedRoles: retainedRoles, inactive: inactive)
         }
         var validatedRoleChanges = trustedRoleChanges
         var exposures: [[ChangeID]: StructuralState] = [:]
@@ -1854,74 +1832,8 @@ public final class WritingSession {
                 case .schemaConvert(let conversion):
                     guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(conversion.node); try field(conversion.source)
-                    guard conversion.source.node == conversion.node || conversion.type != "list",
-                          let original = raw.structure?.nodes[conversion.node], original.kind == .block,
-                          ["paragraph", "heading", "quote", "callout", "list", "code"].contains(original.fields["type"]?.string ?? ""),
-                          ["paragraph", "heading", "quote", "callout", "list", "code"].contains(conversion.type) else { throw EditorError.invalidChange }
-                    if conversion.source.node != conversion.node {
-                        guard raw.structure?.nodes[conversion.source.node]?.kind == .item,
-                              raw.structure!.placements.values.contains(where: {
-                                  $0.node == conversion.source.node && $0.collection == NodeCollection(owner: conversion.node, field: "items")
-                              }) else { throw EditorError.invalidChange }
-                    }
-                    var value = original
-                    if conversion.type == "list" {
-                        guard let creation = conversion.creation, creation.change == change.id, creation.index >= 0, creation.index <= 2_147_483_647,
-                              original.fields["items"] == nil, introduced.insert(creation).inserted, let itemID = conversion.itemID, !itemID.isEmpty,
-                              conversion.destination == WritingField(node: .inserted(creation: creation, path: []), name: "content"),
-                              conversion.attributes.keys.allSatisfy({ $0 == "style" }) else { throw EditorError.invalidChange }
-                        if active[change.id] ?? true, original.fields["type"] == .string("list") {
-                            throw EditorError.invalidDocument("Concurrent list conversions require reconciliation")
-                        }
-                        var item: [String: JSONValue] = ["id": .string(itemID), "content": .array([])]
-                        if conversion.attributes["style"] == .string("todo") { item["checked"] = .bool(false) }
-                        let enabled = active[change.id] ?? true
-                        raw.structure?.register(.object(item), identity: conversion.destination.node, kind: .item, active: enabled)
-                        let placement = NodePlacementID.edit(creation)
-                        raw.structure?.placements[placement] = StructuralState.Placement(id: placement, after: nil,
-                            node: conversion.destination.node, collection: NodeCollection(owner: conversion.node, field: "items"), active: enabled)
-                        births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: .array([]), active: enabled)
-                        collectionBirths[NodeCollection(owner: conversion.node, field: "items")] = .item
-                        value.collections.insert("items")
-                    } else {
-                        guard conversion.creation == nil, conversion.itemID == nil,
-                              (conversion.source == conversion.destination || original.fields[conversion.destination.name] == nil || births[conversion.destination] != nil),
-                              conversion.destination == WritingField(node: conversion.node, name: conversion.type == "code" ? "code" : "content") else { throw EditorError.invalidChange }
-                        let allowed: Set<String> = conversion.type == "heading" ? ["level"] : conversion.type == "callout" ? ["variant"] : conversion.type == "code" ? ["language"] : []
-                        guard Set(conversion.attributes.keys).isSubset(of: allowed) else { throw EditorError.invalidChange }
-                        births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: conversion.type == "code" ? .string("") : .array([]), active: true)
-                        value.collections.remove("items")
-                    }
-                    if conversion.source.node != conversion.node {
-                        guard let item = raw.structure?.nodes[conversion.source.node], item.kind == .item else { throw EditorError.invalidChange }
-                        guard item.fields.filter({ $0.key != "id" && $0.key != "content" }) == conversion.preservedItemFields.filter({ $0.key != "children" }) else {
-                            throw EditorError.invalidDocument("Converted item metadata requires reconciliation")
-                        }
-                        if item.collections.contains("children") {
-                            guard conversion.preservedItemFields["children"] == nil || conversion.preservedItemFields["children"] == .array([]) else { throw EditorError.invalidChange }
-                        }
-                    } else { guard conversion.preservedItemFields.isEmpty else { throw EditorError.invalidChange } }
-                    guard conversion.preservedItemFields.keys.allSatisfy({ !["id", "type", "content", "code", "summary", "caption", "expression", "items", "rows"].contains($0) }) else { throw EditorError.invalidChange }
-                    for (key, preserved) in conversion.preservedItemFields {
-                        guard original.fields[key] == nil || original.fields[key] == preserved else { throw EditorError.invalidChange }
-                        value.fields[key] = preserved
-                    }
-                    value.fields.removeValue(forKey: conversion.source.name)
-                    value.fields["type"] = .string(conversion.type)
-                    value.fields[conversion.destination.name] = conversion.type == "list" ? nil : conversion.type == "code" ? .string("") : .array([])
-                    for (key, attribute) in conversion.attributes {
-                        guard !(active[change.id] ?? true) || original.fields["type"]?.string == conversionAttributeOwner(key) || value.fields[key] == nil || value.fields[key] == attribute else {
-                            throw EditorError.invalidDocument("Conversion attribute metadata requires reconciliation")
-                        }
-                        value.fields[key] = attribute
-                    }
-                    var shape = value.fields
-                    for collection in value.collections { shape[collection] = .array([]) }
-                    try validateNode(.object(shape), kind: .block)
-                    if active[change.id] ?? true {
-                        raw.structure?.nodes[conversion.node] = value; raw.structure?.touched.insert(conversion.node)
-                        if conversion.source.node != conversion.node { raw.structure?.deleted.insert(conversion.source.node) }
-                    }
+                    try applyWritingSchemaConversion(conversion, change: change.id, enabled: active[change.id] ?? true,
+                        raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced)
                 case .convertBlock(let identity, let type, let attributes):
                     guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(identity)
@@ -2534,17 +2446,7 @@ extension WritingSession {
     private func requireAuthoredType(_ type: String) throws {
         if let allowedBlockTypes, !allowedBlockTypes.contains(type) { throw EditorError.restrictedBlock(type) }
     }
-    private func listOwner(of item: NodeID) throws -> NodeID {
-        let placements = try structure.effectivePlacements()
-        var current = item, visited = Set<NodeID>()
-        while let owner = placements[current]?.collection.owner {
-            guard visited.insert(owner).inserted else { throw EditorError.invalidPath }
-            if structure.nodes[owner]?.fields["type"] == .string("list"), structure.nodes[owner]?.kind == .block { return owner }
-            guard structure.nodes[owner]?.kind == .item else { throw EditorError.invalidPath }
-            current = owner
-        }
-        throw EditorError.invalidPath
-    }
+    private func listOwner(of item: NodeID) throws -> NodeID { try writingListOwner(of: item, structure: structure) }
     private func conversion(at address: TextAddress, target: WritingBlockTarget) throws -> WritingOperation {
         let source = try field(address).node
         let owner = structure.nodes[source]?.kind == .item && target.type == "list" ? try listOwner(of: source) : source
@@ -2722,54 +2624,9 @@ extension WritingSession {
     private func schemaConversion(at address: TextAddress, target: WritingBlockTarget, id: ChangeID) throws -> WritingSchemaConversion {
         guard usesRetainedOrigins else { throw EditorError.invalidChange }
         try requireAuthoredType(target.type)
-        let source = try field(address)
-        let root = structure.nodes[source.node]?.kind == .item ? try listOwner(of: source.node) : source.node
-        guard let node = structure.nodes[root], node.kind == .block,
-              ["paragraph", "heading", "quote", "callout", "list", "code"].contains(node.fields["type"]?.string ?? ""),
-              ["paragraph", "heading", "quote", "callout", "list", "code"].contains(target.type) else { throw EditorError.invalidChange }
-        var preserved: [String: JSONValue] = [:]
-        if node.fields["type"] == .string("list") {
-            let items = try structure.visibleOrder(in: NodeCollection(owner: root, field: "items"))
-            guard items == [source.node], let item = structure.nodes[source.node] else { throw EditorError.invalidChange }
-            // Unknown item properties are retained only where the root has no
-            // conflicting value. No overwrite can make a conversion lossless.
-            for (key, value) in item.fields where key != "id" && key != "content" {
-                guard !["type", "code", "summary", "caption", "expression", "items", "rows"].contains(key),
-                      node.fields[key] == nil || node.fields[key] == value else { throw EditorError.invalidChange }
-                preserved[key] = value
-            }
-            if item.collections.contains("children") {
-                guard node.fields["children"] == nil || node.fields["children"] == .array([]) else { throw EditorError.invalidChange }
-                preserved["children"] = .array([])
-            }
-        }
-        if target.type == "code" {
-            guard projection.nodes(in: source).allSatisfy({
-                $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
-                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
-            }) else { throw EditorError.invalidChange }
-        }
-        var attributes: [String: JSONValue] = [:]
-        if target.type == "heading" { attributes["level"] = .number(Double(target.level ?? 1)) }
-        if target.type == "callout" { attributes["variant"] = .string(target.variant ?? "info") }
-        if target.type == "list" {
-            guard node.fields["items"] == nil, node.fields["type"] != .string("list") else { throw EditorError.invalidChange }
-            attributes["style"] = .string(target.style ?? "unordered")
-            guard node.fields["style"] == nil || node.fields["style"] == attributes["style"] else { throw EditorError.invalidChange }
-            let creation = ElementID(change: id, index: 0)
-            return WritingSchemaConversion(node: root, type: target.type, attributes: attributes, source: source,
-                destination: WritingField(node: .inserted(creation: creation, path: []), name: "content"),
-                itemID: node.label + "-item", creation: creation, preservedItemFields: [:])
-        }
-        for (key, attribute) in attributes {
-            let previous = preserved[key] ?? node.fields[key]
-            guard node.fields["type"]?.string == conversionAttributeOwner(key) || previous == nil || previous == attribute else { throw EditorError.invalidChange }
-        }
-        let name = target.type == "code" ? "code" : "content"
-        guard name == source.name && root == source.node || node.fields[name] == nil else { throw EditorError.invalidChange }
-        return WritingSchemaConversion(node: root, type: target.type, attributes: attributes, source: source,
-            destination: WritingField(node: root, name: name), itemID: nil, creation: nil, preservedItemFields: preserved)
+        return try planWritingSchemaConversion(source: field(address), target: target, id: id, structure: structure, projection: projection)
     }
+
 }
 
 /// A later structural command explicitly retains a paragraph role exposed by a

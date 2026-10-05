@@ -165,11 +165,16 @@ import Testing
         try a.redo(); try a.redo(); try a.delete(head.field.node)
         #expect(throws: EditorError.self) { try a.resolve(head) }
     }
-    @Test func emptyChecklistEnterRemainsExplicitlyUnavailableWithoutLosingPeerContent() throws {
+    @Test func nestedEmptyChecklistEnterRemainsExplicitlyUnavailableWithoutLosingPeerContent() throws {
         let a = try session("a","mixed"), f = try field(a,NodeAddress("toggle",path:["children","todo","items","same"]))
         try a.replaceText(in:f,range:0..<10,with:"")
+        _ = try a.splitBlock(in:a.captureTextRange(in:f,start:0,end:0),newBlockID:"unused")
+        try a.undo()
+        // A sole root exit is implemented; nested and multi-item roles remain.
+        let nested = try field(a,NodeAddress("toggle",path:["children","todo","items","same","children","child"]))
+        try a.replaceText(in:nested,range:0..<11,with:"")
         let saved = try a.save()
-        #expect(throws: ModernSessionError.unavailable("emptyListEnterPending")) { try a.splitBlock(in:a.captureTextRange(in:f,start:0,end:0),newBlockID:"unused") }
+        #expect(throws: ModernSessionError.unavailable("emptyListEnterPending")) { try a.splitBlock(in:a.captureTextRange(in:nested,start:0,end:0),newBlockID:"unused") }
         #expect(try a.save() == saved)
     }
 }

@@ -113,6 +113,7 @@ func modernRelatedFields(_ first: WritingField, _ second: WritingField, changes:
         for operation in operations {
             let pair: (WritingField, WritingField)
             switch operation {
+            case .schemaConvert(let conversion): pair = (conversion.source, conversion.destination)
             case .splitBlock(let split): pair = (split.source, split.destination)
             case .mergeBlocks(let join) where join.selection.nodes.count == 2: pair = (join.source, join.destination)
             default: continue
@@ -132,7 +133,26 @@ extension ModernSession {
     public func splitBlock(in range: ModernTextRange, newBlockID: String) throws -> ModernStructuralResult {
         try authoringAllowed(command: "splitBlock")
         let captured = try modernCapturedReplay(range.observed)
-        _ = try modernResolve(range.start, in: captured); _ = try modernResolve(range.end, in: captured)
+        let first = try modernResolve(range.start, in: captured, observed: range.observed)
+        let last = try modernResolve(range.end, in: captured, observed: range.observed)
+        if first.address == last.address, first.offset == last.offset {
+            let caret = try modernCapturedCaret(range), source = caret.field
+            if structure.nodes[source.node]?.kind == .item,
+               modernCurrentReplay.0.nodes(in: source).isEmpty,
+               let parent = try structure.effectivePlacements()[source.node],
+               parent.collection.field == "items", let owner = parent.collection.owner,
+               structure.nodes[owner]?.kind == .block, structure.nodes[owner]?.fields["type"] == .string("list"),
+               try structure.visibleOrder(in: parent.collection) == [source.node] {
+                let id = try nextID()
+                let conversion = try planWritingSchemaConversion(source: source, target: WritingBlockTarget(type: "paragraph"),
+                    id: id, structure: structure, projection: modernCurrentReplay.0)
+                try validateModernSchemaShape(conversion, change: id)
+                endTypingGroup()
+                return try performReturning(id, [.schemaConvert(conversion)]) { _, _ in
+                    ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))
+                }
+            }
+        }
         let id = try nextID(), creation = ElementID(change: id, index: 0)
         let split = try planModernSplit(range: range, creation: creation, label: newBlockID,
             captured: (captured.0, captured.2), authored: (modernCurrentReplay.0, structure))

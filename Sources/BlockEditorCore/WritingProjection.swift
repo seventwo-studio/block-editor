@@ -197,6 +197,7 @@ struct WritingProjection {
     private static func head(_ field: WritingField) -> WritingAtomKey {
         WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: -1))
     }
+    func hasField(_ field: WritingField) -> Bool { fields[Self.head(field)] != nil }
     var joinedSources: Set<WritingField> { Set(joins.keys).subtracting(redirectSources) }
     var retainedKeys: Set<WritingAtomKey> { Set(nodes.keys.filter { $0.element.index >= 0 }) }
     func visibleKeys(in field: WritingField) -> [WritingAtomKey] {

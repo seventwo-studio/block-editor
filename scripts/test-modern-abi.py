@@ -291,7 +291,7 @@ def main():
         invalid_conversion = command(resumed, 'convertBlock', caret, type='heading', level=4)
         assert invalid_conversion['status'] == 'unavailable' and invalid_conversion['transaction'] is None
         assert success('modernSave', resumed) == unchanged_conversion
-        deferred_conversion = command(resumed, 'convertBlock', caret, type='code')
+        deferred_conversion = command(resumed, 'convertBlock', caret, type='consumer-card')
         assert deferred_conversion['status'] == 'unavailable' and deferred_conversion['transaction'] is None
         assert success('modernSave', resumed) == unchanged_conversion
     column_session('soft-break', baseline)
@@ -338,11 +338,67 @@ def main():
     invalid_split = command('cut-reopened', 'splitBlock', cut_target, newBlockID='A')
     assert invalid_split['status'] == 'unavailable' and invalid_split['transaction'] is None
     assert success('modernSave', 'cut-reopened') == unchanged_cut
+    # Schema conversions use literal expectations, independently of runtime output.
+    column_session('schema-code-a', baseline)
+    column_session('schema-code-b', baseline)
+    schema_caret = success('modernCaptureTextRange', 'schema-code-a', field=body_a, start=2, end=2)
+    old_replacement = success('modernCaptureTextRange', 'schema-code-b', field=body_a, start=1, end=2)
+    code_result = command('schema-code-a', 'convertBlock', schema_caret, type='code')
+    assert code_result['status'] == 'applied'
+    assert code_result['document']['blocks'][0] == dict(id='A', type='code', code='ABC')
+    assert success('modernResolvePosition', 'schema-code-a', position=schema_caret['start'])['address']['path'] == ['code']
+    success('modernReceive', 'schema-code-b', batch=success('modernChanges', 'schema-code-a'))
+    command('schema-code-b', 'replaceText', old_replacement, text='X')
+    success('modernReceive', 'schema-code-a', batch=success('modernChanges', 'schema-code-b'))
+    assert command('schema-code-a', 'undo')['document']['blocks'][0] == dict(id='A', type='paragraph', content=[dict(type='text', text='AXC')])
+    schema_saved = success('modernSave', 'schema-code-a')
+    success('restoreModern', 'schema-code-reopened', actorID='schema-code-a', snapshot=schema_saved)
+    assert command('schema-code-reopened', 'redo')['document']['blocks'][0] == dict(id='A', type='code', code='AXC')
+    assert success('modernResolvePosition', 'schema-code-reopened', position=schema_caret['start'])['offset'] == 2
+    column_session('schema-list-a', baseline)
+    column_session('schema-list-b', baseline)
+    list_caret = success('modernCaptureTextRange', 'schema-list-a', field=body_a, start=1, end=1)
+    listed = command('schema-list-a', 'convertBlock', list_caret, type='list', style='todo')
+    assert listed['document']['blocks'][0] == dict(id='A', type='list', style='todo', items=[dict(id='A-item', checked=False, content=[dict(type='text', text='ABC')])])
+    item_origin = dict(inserted=dict(creation=dict(change=listed['transaction'], index=0), path=[]))
+    item_field = dict(node=item_origin, name='content')
+    success('modernReceive', 'schema-list-b', batch=success('modernChanges', 'schema-list-a'))
+    item_cut = success('modernCaptureTextRange', 'schema-list-b', field=item_field, start=1, end=1)
+    schema_cut = command('schema-list-b', 'splitBlock', item_cut, newBlockID='schema-tail')
+    success('modernReceive', 'schema-list-a', batch=success('modernChanges', 'schema-list-b'))
+    retired = command('schema-list-a', 'undo')['document']['blocks']
+    assert retired[0] == dict(id='A', type='paragraph', content=[dict(type='text', text='A')])
+    assert retired[1] == dict(id='schema-tail', type='paragraph', checked=False, content=[dict(type='text', text='BC')])
+    assert success('modernResolvePosition', 'schema-list-a', position=item_cut['start'])['address']['identity'] == schema_cut['focus']['field']['node']
+    list_saved = success('modernSave', 'schema-list-a')
+    success('restoreModern', 'schema-list-reopened', actorID='schema-list-a', snapshot=list_saved)
+    assert len(command('schema-list-reopened', 'redo')['document']['blocks'][0]['items']) == 2
+    column_session('schema-empty', baseline)
+    empty_caret = success('modernCaptureTextRange', 'schema-empty', field=body_a, start=0, end=0)
+    empty_list = command('schema-empty', 'convertBlock', empty_caret, type='list', style='todo')
+    empty_origin = dict(inserted=dict(creation=dict(change=empty_list['transaction'], index=0), path=[]))
+    empty_field = dict(node=empty_origin, name='content')
+    all_text = success('modernCaptureTextRange', 'schema-empty', field=empty_field, start=0, end=3)
+    command('schema-empty', 'replaceText', all_text, text='')
+    empty_enter = success('modernCaptureTextRange', 'schema-empty', field=empty_field, start=0, end=0)
+    exited = command('schema-empty', 'splitBlock', empty_enter, newBlockID='unused')
+    assert exited['document']['blocks'][0] == dict(id='A', type='paragraph', style='todo', checked=False, content=[])
+    assert success('modernResolvePosition', 'schema-empty', position=exited['focus'])['offset'] == 0
+    assert command('schema-empty', 'undo')['document']['blocks'][0] == dict(id='A', type='list', style='todo', items=[dict(id='A-item', checked=False, content=[])])
+    assert command('schema-empty', 'redo')['document'] == exited['document']
+    opaque_code_document = dict(baseline, blocks=[dict(id='A', type='code', code='ABC', content=dict(consumer='retain'))])
+    column_session('schema-opaque', opaque_code_document)
+    opaque_target = success('modernCaptureTextRange', 'schema-opaque', field=dict(node=body_a['node'], name='code'), start=0, end=0)
+    opaque_saved = success('modernSave', 'schema-opaque')
+    rejected_opaque = command('schema-opaque', 'convertBlock', opaque_target, type='list')
+    assert rejected_opaque['status'] == 'unavailable' and rejected_opaque['transaction'] is None
+    assert rejected_opaque['document'] == opaque_code_document
+    assert success('modernSave', 'schema-opaque') == opaque_saved
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Empty-list Enter/role transitions, schema-changing conversion, list structure, clipboard, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Remaining empty-list/list-role transitions, list structure, clipboard, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

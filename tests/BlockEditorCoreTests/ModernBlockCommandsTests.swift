@@ -68,7 +68,7 @@ import Testing
         #expect(throws: EditorError.self) { try a.convertBlock(in: target, to: WritingBlockTarget(type: "heading", level: 2)) }
         #expect(throws: EditorError.self) { try a.convertBlock(in: target, to: WritingBlockTarget(type: "paragraph", style: "todo")) }
         #expect(throws: EditorError.self) { try a.convertBlock(in: a.captureTextRange(in: field, start: 0, end: 1), to: WritingBlockTarget(type: "quote")) }
-        #expect(throws: ModernSessionError.unavailable("schemaConversionPending")) { try a.convertBlock(in: target, to: WritingBlockTarget(type: "code")) }
+        #expect(throws: ModernSessionError.unavailable("unsupportedConversion")) { try a.convertBlock(in: target, to: WritingBlockTarget(type: "consumer-card")) }
         #expect(try a.save() == saved)
     }
     @Test func softBreakMatchesIndependentFixtureAndSharesOneUndoWithPeerSafeCapturedReplacement() throws {

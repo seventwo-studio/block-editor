@@ -1,0 +1,31 @@
+{
+  "runtime": "native C ABI",
+  "library": "/Users/luca/Developer/block-editor/.build/out/Products/Debug/libBlockEditorBridge.dylib",
+  "librarySHA256": "f889ae4f25c452b439213f95b1734ded8b89694f31bb90e2adbb4a5e700ac675",
+  "verifiedResponses": 223,
+  "independentFixtureHashes": {
+    "docs/acceptance/modern-editor/documents/unicode.json": "45f2e64136d867ded1adb1811059cb15a958e81e9816a04ceb124e439d0ccc54",
+    "docs/acceptance/modern-editor/documents/unicode-title-both.json": "268e869fd215341e0ced033bab3af90723baeda12842b6bf559b235d4a4f5184",
+    "docs/acceptance/modern-editor/documents/unicode-title-size-both.json": "7befd05619fbf53b9da4d0ad138f6d1aaf0bbf604a6e6b08c9ca9738748253df",
+    "docs/acceptance/modern-editor/documents/unicode-title-peer.json": "dbd6865898462ccba88f6080a518dbf4a0f3ef7eaa8fb9d03f9bc027fd53df30",
+    "docs/acceptance/modern-editor/documents/nested.json": "d1532e3794abad9a2b4663cec667ef87ebc0bdf0e41609e8213ad36628f51d27",
+    "docs/acceptance/modern-editor/documents/nested-moved.json": "9cf2ee7380c9a0820832c690a17e96148838b3ce1b183de77eb6dc0ad38d4185",
+    "docs/acceptance/modern-editor/documents/before-columns.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+    "docs/acceptance/modern-editor/documents/columns-created.json": "57a1f215750eae2c07417075666d9e770a96f87b9ac90464a0559316d38350a3",
+    "docs/acceptance/modern-editor/documents/columns-create-peer.json": "97e21b0a315269cc233557d3cf01c3a5c050a063c33d70d7ad2c9980d9b3c563",
+    "docs/acceptance/modern-editor/documents/columns-create-undone-peer.json": "869151b5ef01c28868829dcdf5ffba4c486a67670acb4bf7fcd7e56df875da4f",
+    "docs/acceptance/modern-editor/documents/columns-3000.json": "8aa181097145e152f43b81583abb104ea4101a4d780611eb6f9b4ebd86f7ed27",
+    "docs/acceptance/modern-editor/documents/columns-flattened.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+    "docs/acceptance/modern-editor/documents/columns-5000.json": "02204595fa843fb07613b451162043e173cc5d41b59bb74f61980f9213c6d5d9",
+    "docs/acceptance/modern-editor/documents/columns-split-a.json": "115f706aa4968e0de14818f7e160436d187388b31ba07d26f2005ac652073951",
+    "docs/acceptance/modern-editor/documents/columns-split-b.json": "fe0fe0ebe58019f017a9ab3688a7b429d8ad274f4ed6cd0d9fe66f53ae740a5f",
+    "docs/acceptance/modern-editor/documents/unicode-peer-heading.json": "c95df3ceebbc8d8ed06089fc712db85f2ffd77971f119cfcf8e0488c458ec633",
+    "docs/acceptance/modern-editor/documents/unicode-peer-suffix.json": "e5cb7144b59a0669746ebfb7bbe67b52dbdbe569c9a90aa8a4b213a8d3d9ec89",
+    "docs/acceptance/modern-editor/documents/unicode-soft-break.json": "594ca45344d3b1146415cb37b34ff568956730919a95c8f883faff0950d92193"
+  },
+  "literalScenarios": [
+    "ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text",
+    "ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged"
+  ],
+  "qualification": "Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Remaining empty-list/list-role transitions, list structure, clipboard, migration and full host acceptance remain pending."
+}

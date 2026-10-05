@@ -2,8 +2,8 @@ import Foundation
 
 /// Retained births are independent of current placement and author Undo. This
 /// registry is for admission only; visible state still comes from shared replay.
-func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) throws -> StructuralState {
-    var registry = baseline
+func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) throws -> (structure: StructuralState, births: [WritingField: WritingFieldBirth]) {
+    var registry = baseline, births = retainedWritingFields(baseline)
     for change in changes {
         guard case .edit(let operations) = change.body else { continue }
         var introduced = Set<ElementID>()
@@ -44,6 +44,15 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                 guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
             case .convertBlock(let node, let type, let attributes):
                 try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
+            case .schemaConvert(let conversion):
+                try validateModernSchemaShape(conversion, change: change.id)
+                if let creation = conversion.creation {
+                    guard introduced.insert(creation).inserted, registry.nodes[conversion.destination.node] == nil else { throw EditorError.invalidChange }
+                    var item: [String: JSONValue] = ["id": .string(conversion.itemID!), "content": .array([])]
+                    if conversion.attributes["style"] == .string("todo") { item["checked"] = .bool(false) }
+                    registry.register(.object(item), identity: conversion.destination.node, kind: .item, active: true)
+                }
+                births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: conversion.type == "code" ? .string("") : .array([]), active: true)
             case .splitBlock(let split):
                 try validateModernSplitShape(split, change: change.id)
                 guard introduced.insert(split.creation).inserted, registry.nodes[split.identity] == nil else { throw EditorError.invalidChange }
@@ -55,9 +64,13 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                 guard introduced.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
             default: break
             }
+            switch operation {
+            case .structure(.insertNode), .createColumns, .splitBlock: retainModernFieldBirths(in: registry, births: &births)
+            default: break
+            }
         }
     }
-    return registry
+    return (registry, births)
 }
 
 func modernStructuralIdentityShape(_ identity: NodeID) throws {
