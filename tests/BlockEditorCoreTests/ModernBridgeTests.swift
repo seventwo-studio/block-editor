@@ -39,7 +39,7 @@ import Testing
         #expect(initial["version"] == .number(7) && initial["canUndo"] == .bool(false))
         let capabilities = try success(call(bridge, "modernCapabilities"))
         #expect(capabilities["protocolVersion"] == .number(7) && capabilities["cutoverToModern"] == .bool(false))
-        #expect(capabilities["commands"]?.array?.count == 9)
+        #expect(capabilities["commands"]?.array?.count == 12)
         let target = try capture(bridge, "a", 0, 0, title: true)
         let edited = try success(command(bridge, "a", "replaceTitle", target: target, arguments: ["text": .string("Studio ")]))
         #expect(edited["status"] == .string("applied") && edited["document"]?["title"] == .string("Studio A"))
@@ -103,7 +103,7 @@ import Testing
         let unavailable = try success(command(bridge, "a", "replaceTitle", target: title, arguments: ["text": .string("draft")]))
         #expect(unavailable["status"] == .string("unavailable") && unavailable["reason"] == .string("compositionActive") && unavailable["document"] == a)
         let columns = try success(command(bridge, "a", "createColumns"))
-        #expect(columns["status"] == .string("unavailable") && columns["reason"] == .string("unsupportedCommand"))
+        #expect(columns["status"] == .string("unavailable") && columns["reason"] == .string("hostPolicy"))
     }
 
     @Test func legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() throws {

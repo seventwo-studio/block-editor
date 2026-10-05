@@ -1,0 +1,633 @@
+Building for debugging...
+[Provisioning 3 / 21]
+Build complete! (0.30 sec)
+Test Suite 'All tests' started at 2026-10-05 06:06:03.722.
+Test Suite 'All tests' passed at 2026-10-05 06:06:03.722.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'All tests' started at 2026-10-05 06:06:03.783.
+Test Suite 'All tests' passed at 2026-10-05 06:06:03.784.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'All tests' started at 2026-10-05 06:06:03.845.
+Test Suite 'All tests' passed at 2026-10-05 06:06:03.846.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test standaloneDraftCreatesReopensAndUndoesWithoutTransport() started.
+◇ Test draftRestoresExclusiveAuthorHistoryAndPreservesRemoteChanges() started.
+◇ Test oldDraftUpgradesWithoutResetAndIncompatibleRecoveryIsRetainedOnDisk() started.
+◇ Test transportCapacityFailureRetainsHistoryForExportRestartAndRetry() started.
+◇ Test pendingRecoverySurvivesDraftRestartExportAndExplicitRepair() started.
+◇ Test standaloneOpenDoesNotReplaceAnExistingRelayDraft() started.
+➜ Test appleRelayRecoversOfflineDraftsAndDeferredComposition() skipped.
+◇ Test corruptDraftIsNotSilentlyReplaced() started.
+✔ Test standaloneOpenDoesNotReplaceAnExistingRelayDraft() passed after 0.003 seconds.
+✔ Test corruptDraftIsNotSilentlyReplaced() passed after 0.003 seconds.
+✔ Test oldDraftUpgradesWithoutResetAndIncompatibleRecoveryIsRetainedOnDisk() passed after 0.004 seconds.
+✔ Test draftRestoresExclusiveAuthorHistoryAndPreservesRemoteChanges() passed after 0.008 seconds.
+✔ Test standaloneDraftCreatesReopensAndUndoesWithoutTransport() passed after 0.010 seconds.
+✔ Test pendingRecoverySurvivesDraftRestartExportAndExplicitRepair() passed after 0.024 seconds.
+✔ Test transportCapacityFailureRetainsHistoryForExportRestartAndRetry() passed after 0.027 seconds.
+✔ Test run with 8 tests in 0 suites passed after 0.028 seconds.
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test formattingAndStructureRedoPreserveUnrelatedRemoteChanges() started.
+◇ Test retainedPasteRichReferenceCannotFlattenThroughConcurrentCode(actor:) started.
+◇ Test hierarchicalPasteOldEpochAndIncompatibleKindRejectAtomically() started.
+◇ Test clipboardCollectionFreshensOnlySchemaIDsAndUndoesOnceWithRemoteChildren() started.
+◇ Test sequentialSpliceBeforeFirstImportedMemberMustPrecedeWholeEarlierGroup() started.
+◇ Test retainedPasteDifferentLaterSourceKeepsEarlierImportedMember(actor:concurrentCut:) started.
+◇ Test writingSessionMergeKeepsEmptySourceRemoteInputAndRestoresOrigins() started.
+◇ Test externalNormalizationDoesNotRelaxLiveHostPolicy() started.
+◇ Test retainedPasteCannotClaimGloballyKnownButUnobservedEndpointAtom() started.
+◇ Test clipboardMarkdownDividerRoundTripsWithFreshIdentityAndPolicy() started.
+◇ Test emptyLastRootItemExitsAndUndoRetainsConcurrentRemoteInput() started.
+◇ Test recoveryTextEditsRetainUnicodeMarksAndAtomicReferences() started.
+◇ Test writingSessionUndoEmptySplitRetainsIndependentRemoteParagraph() started.
+◇ Test hierarchicalPasteConcurrentImportsUseRetainedRankInSameChildCollection(actor:reversedDelivery:) started.
+◇ Test bridgeReportsErrorsAndReleasesSessions() started.
+◇ Test retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test pasteSpliceRejectsUnobservedSameEditOuterNeighborWhenActiveOrUndone(inactive:) started.
+◇ Test writingMathThresholdUnionAt10001RetainsProposalAndRepairsWithoutLosingPeerAtoms(version:actor:) started.
+◇ Test writingSessionRecoveryRepairUndoPreservesRemoteCutAndFailureProposal() started.
+◇ Test schemaConvertedMergeSourceRetainsUnionForEitherAuthorRepair(type:repairConversion:) started.
+◇ Test concurrentCyclesAndCollidingMovesFallBackWithoutChangingIDs() started.
+◇ Test collectionTableConcurrentRowsCellsReorderRemoveAndReopenedUndo() started.
+◇ Suite ModernColumnTests started.
+◇ Test collectionNestedChecklistMovesPreserveReferencesCheckedAndScopedLabels() started.
+◇ Test sameChangeTextAnchorsCannotNamePlacementsOrAnotherField(version:) started.
+◇ Test schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault:) started.
+◇ Test legacySeedNamespaceFollowsTheTextActuallyInitialized(initialized:) started.
+◇ Test retainedPasteCannotRankFromUnobservedSourcePinEvenWithBaselineEdge() started.
+◇ Test undoInsertionPreservesRemoteContentAndConcurrentDescendantsSurviveDelete() started.
+◇ Test v4SequentialInsertionKeepsObservedRunOrderAndPeerUndo(list:actor:) started.
+◇ Test retainedPasteNewWireCannotBeSpoofedIntoFiveOrMissingCohortAdmitted() started.
+◇ Test preservesUnknownFieldsAndNestedContent() started.
+◇ Test schemaSoleEmptyListExitKeepsRootIdentityAndRemoteReopenedUndo() started.
+◇ Test v4InlineEnterPreservesSourceAttributesRichSuffixAndAuthorUndo(type:) started.
+◇ Test sameChangeMovesCannotHideExistingContentInAnAnchorCycle(version:) started.
+◇ Test v4ConcurrentTextRepairsRetainBothAuthorsAndRecoverAfterBothUndos(actor:) started.
+◇ Suite ModernStructureTests started.
+◇ Test schemaFirstExitKeepsInsertedOwnerAndFollowingInsertedRootOrdinal() started.
+◇ Test externalUnknownWholeNodeFallbackKeepsRecognizedVisibleFieldsOnly() started.
+◇ Test receivePreparationCannotOverwriteReentrantLocalChanges() started.
+◇ Suite ModernCommandTargetsTests started.
+◇ Test recoveryRepairPreservesBothAuthorsAndSurvivesRestartAndRemoteUndo() started.
+◇ Test retainedPasteBaselineRoleRequiresObservedRetirement(actor:) started.
+◇ Test duplicateRecursivelyRespectsAuthoringPolicyWithoutChangingAcceptedHistory() started.
+◇ Test incrementalLocalEditsMatchFullReplayAfterEveryAction() started.
+◇ Test depthLimitUnionCanBeRepairedWithoutChangingExistingIDsOrContent(levels:) started.
+◇ Suite ModernSessionTests started.
+◇ Test pasteBlocksRejectsUnsupportedPolicyCompositionAndOldEpochWithoutAcceptedMutation() started.
+◇ Test concurrentTypingAndAuthorUndo() started.
+◇ Test schemaEmptyExitRejectsVisibleAndRetainedRootLabelCollisionAtomically(retired:) started.
+◇ Test schemaConversionRejectsReservedUnknownFieldCollisionsWithoutMutation(key:) started.
+◇ Suite ModernProjectionTests started.
+◇ Test externalNormalizationDoesNotCommitOrReleaseComposition() started.
+◇ Test retainedPasteInsideObservedInsertedToggleKeepsNestedInitialProofs(actor:) started.
+◇ Suite WritingByteRootBoundaryTests started.
+◇ Test schemaOrdinaryConversionCannotBeSpoofedIntoV3BatchOrRestore() started.
+◇ Test hierarchicalPasteSingleInlineKeepsBothOpaqueBoundaries(actor:) started.
+◇ Suite ModernStructuralBridgeTests started.
+◇ Test writingMathThresholdUnionAt10000PreservesBothAuthorsAndUndo(version:actor:) started.
+◇ Test v4RequiredUndoPersistsAndExplicitRedoRetainsEveryHistory(actor:) started.
+◇ Suite ModernBridgeTests started.
+◇ Test schemaListConversionKeepsRootIdentityRichAtomsMetadataAndRemoteUndo(style:) started.
+◇ Suite ModernDocumentTests started.
+◇ Test crossPastePreservesUnseenIntermediateChildAndBoundaryText(actor:) started.
+◇ Test nestedPositionsRespectAtomicReferencesAndDoNotChangeSavedState() started.
+◇ Test rootCountLimitUnionRepairsIntoAnExistingContainerWithoutDroppingBlocks() started.
+◇ Test writingSessionEmptyTextExtensionsSurviveAuthoringAndUndo() started.
+◇ Test schemaRetiredListStyleStillRejectsMalformedWireAttribute() started.
+◇ Test collectionInsertAfterMiddleExitKeepsRoleAnchorAcrossRemoteUndo() started.
+◇ Test case passing 2 arguments actor → "a", concurrentCut → false to retainedPasteDifferentLaterSourceKeepsEarlierImportedMember(actor:concurrentCut:) started.
+◇ Test v5RejectsMixedVersionsAndUnknownVersionsWithoutAdmission() started.
+◇ Test case passing 2 arguments actor → "a", concurrentCut → true to retainedPasteDifferentLaterSourceKeepsEarlierImportedMember(actor:concurrentCut:) started.
+◇ Test retainedPasteAcceptsObservedRoleSourceAndRejectsErasedRoleCohort(actor:) started.
+◇ Test mixedPasteZeroReplacementRetainsSuffixOriginWithConcurrentSplit(actor:upper:) started.
+◇ Test case passing 2 arguments actor → "z", concurrentCut → false to retainedPasteDifferentLaterSourceKeepsEarlierImportedMember(actor:concurrentCut:) started.
+◇ Test case passing 2 arguments actor → "z", concurrentCut → true to retainedPasteDifferentLaterSourceKeepsEarlierImportedMember(actor:concurrentCut:) started.
+◇ Test receiveHoldBoundsQueuedMessagesWithoutAcknowledgingThem() started.
+◇ Test nestedListIndentOutdentAndTableCollectionsUseSharedCommands() started.
+◇ Test case passing 2 arguments actor → "a", reversedDelivery → false to hierarchicalPasteConcurrentImportsUseRetainedRankInSameChildCollection(actor:reversedDelivery:) started.
+◇ Test case passing 2 arguments actor → "a", reversedDelivery → true to hierarchicalPasteConcurrentImportsUseRetainedRankInSameChildCollection(actor:reversedDelivery:) started.
+◇ Test case passing 1 argument actor → "a" to retainedPasteRichReferenceCannotFlattenThroughConcurrentCode(actor:) started.
+◇ Test case passing 1 argument actor → "z" to retainedPasteRichReferenceCannotFlattenThroughConcurrentCode(actor:) started.
+◇ Test case passing 2 arguments actor → "z", reversedDelivery → false to hierarchicalPasteConcurrentImportsUseRetainedRankInSameChildCollection(actor:reversedDelivery:) started.
+◇ Test case passing 1 argument inactive → false to pasteSpliceRejectsUnobservedSameEditOuterNeighborWhenActiveOrUndone(inactive:) started.
+◇ Test case passing 2 arguments actor → "a", scenario → "source-before" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test case passing 1 argument inactive → true to pasteSpliceRejectsUnobservedSameEditOuterNeighborWhenActiveOrUndone(inactive:) started.
+◇ Test concurrentFormattingAndDeletion() started.
+◇ Test case passing 2 arguments actor → "z", reversedDelivery → true to hierarchicalPasteConcurrentImportsUseRetainedRankInSameChildCollection(actor:reversedDelivery:) started.
+◇ Test schemaPeerListStyleSurvivesWrapperUndoAsMetadataAndRedoUsesPeerStyle() started.
+◇ Test case passing 2 arguments version → 4, actor → "a" to writingMathThresholdUnionAt10001RetainsProposalAndRepairsWithoutLosingPeerAtoms(version:actor:) started.
+◇ Test case passing 2 arguments actor → "a", scenario → "source-after" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test schemaOverlappingMovedItemConversionOriginsNeverDependOnDictionaryOrder() started.
+◇ Test case passing 2 arguments type → "list", repairConversion → false to schemaConvertedMergeSourceRetainsUnionForEitherAuthorRepair(type:repairConversion:) started.
+◇ Test v5InheritsV4ObservedUnicodeAuthorUndoAndRestart() started.
+◇ Test writingPrototypeCyclesAndIncompleteHistoriesFailExplicitly() started.
+◇ Test case passing 2 arguments version → 4, actor → "z" to writingMathThresholdUnionAt10001RetainsProposalAndRepairsWithoutLosingPeerAtoms(version:actor:) started.
+◇ Test v4ObservedRichPrefixSelectionReplacementRetainsReferencesFormattingAndPeerUndo(list:actor:) started.
+◇ Test case passing 2 arguments type → "list", repairConversion → true to schemaConvertedMergeSourceRetainsUnionForEitherAuthorRepair(type:repairConversion:) started.
+◇ Test case passing 2 arguments actor → "a", scenario → "endpoint-before" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test generatedStructuralCollectionsOfflineEditsAndHistoryConverge(seed:kind:) started.
+◇ Test v5RequiredUndoExportsRestartsAndRepairsWithoutLosingPeerMetadata() started.
+◇ Test writingSessionEmptyCodeHasNoSyntheticInlineRecord() started.
+◇ Test case passing 1 argument version → 1 to sameChangeTextAnchorsCannotNamePlacementsOrAnotherField(version:) started.
+◇ Test case passing 2 arguments version → 5, actor → "a" to writingMathThresholdUnionAt10001RetainsProposalAndRepairsWithoutLosingPeerAtoms(version:actor:) started.
+◇ Test v4RepairGuardsPreserveAcceptedAndPendingHistories() started.
+◇ Test case passing 1 argument fault → "absent" to schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault:) started.
+◇ Test case passing 2 arguments actor → "a", scenario → "endpoint-after" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test case passing 1 argument initialized → false to legacySeedNamespaceFollowsTheTextActuallyInitialized(initialized:) started.
+◇ Test case passing 2 arguments type → "code", repairConversion → false to schemaConvertedMergeSourceRetainsUnionForEitherAuthorRepair(type:repairConversion:) started.
+◇ Test case passing 1 argument version → 2 to sameChangeTextAnchorsCannotNamePlacementsOrAnotherField(version:) started.
+◇ Test case passing 1 argument fault → "duplicateActor" to schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault:) started.
+◇ Test case passing 1 argument initialized → true to legacySeedNamespaceFollowsTheTextActuallyInitialized(initialized:) started.
+◇ Test case passing 2 arguments version → 5, actor → "z" to writingMathThresholdUnionAt10001RetainsProposalAndRepairsWithoutLosingPeerAtoms(version:actor:) started.
+◇ Test writingPrototypeAtomicReferencesMoveWithoutReplacement() started.
+◇ Test writingSessionCausalGapRecoveryPersistsSeparatelyAndReplaysOnRejoin() started.
+◇ Test case passing 1 argument fault → "unsorted" to schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault:) started.
+◇ Test case passing 2 arguments actor → "z", scenario → "source-before" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test concurrentJoinedSourceConversionRetainsUnionForAuthorReconciliation(reverseActors:repairMerge:) started.
+◇ Test v3NewBlockCommandsLeaveAcceptedStateUntouched() started.
+◇ Test schemaV4CannotEnterV3SessionAndRestrictionsRemainAtomic() started.
+◇ Test writingBatchRejectsOverlapAndCompositionWithoutMutation() started.
+◇ Test case passing 2 arguments type → "code", repairConversion → true to schemaConvertedMergeSourceRetainsUnionForEitherAuthorRepair(type:repairConversion:) started.
+◇ Test schemaConcurrentPartitionsThatExhaustAnOwnerRetainRecoveryAndEitherAuthorCanRepair(actor:repairOther:) started.
+◇ Test case passing 2 arguments list → false, actor → "a" to v4SequentialInsertionKeepsObservedRunOrderAndPeerUndo(list:actor:) started.
+◇ Test independentTextAcceptanceRestoredAuthorUndoPreservesRemoteMarksAndReference(version:) started.
+◇ Test case passing 1 argument fault → "future" to schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault:) started.
+◇ Test aMoveIntoAnUnanchoredCausalOwnerKeepsItsPreviousPlacement() started.
+◇ Test dependentPlacementChainsPreserveExistingContentUntilTheirAnchorArrives(nested:) started.
+◇ Test v4TextRepairCompletesRequiredUndoAndPreservesAdditionalPeerMetadata(actor:) started.
+◇ Test case passing 2 arguments actor → "z", scenario → "source-after" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test clipboardMixedCopyUsesVisibleOrderAfterRemoteMove() started.
+◇ Test createdListDescendantsRetainOpaqueTypeMetadata(metadataType:) started.
+◇ Test rejectedRepairsAndMalformedPayloadsLeaveThePendingUnionAndReceiptsIntact() started.
+◇ Test case passing 1 argument fault → "zero" to schemaMalformedV4ObservedFrontierLeavesAcceptedSaveUnchanged(fault:) started.
+◇ Test writingSessionUnicodeReferenceAndUnknownPayloadSurviveSplitReopen() started.
+◇ Test case passing 2 arguments list → false, actor → "z" to v4SequentialInsertionKeepsObservedRunOrderAndPeerUndo(list:actor:) started.
+◇ Test insertedDescendantInitialPlacementsAndCausalReorderingRemainValid() started.
+◇ Test hierarchicalPasteNestedImportsAndParentEnterKeepIndependentCollections(actor:reversedDelivery:) started.
+◇ Test generatedOfflineTextAndFormattingConverge(seed:) started.
+◇ Test collectionInsertAfterProjectedPeerRetainsRoleProofAndUndo(baseline:) started.
+◇ Test case passing 2 arguments actor → "z", scenario → "endpoint-before" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test crossPasteConcurrentBoundarySplitsPreserveCutOwners(actor:scenario:) started.
+◇ Test nestedMovesRetainScopedIdentityTextMarksReferencesAndSelections() started.
+◇ Test v4SoftBreakAfterInsertedRunSurvivesTransferredAndJoinedHistory(splitFirst:) started.
+◇ Test documentMigrationCorpusRetainsEveryFieldAndRejectsInvalidKnownShapes() started.
+◇ Test schemaUndoKeepsPeerSubtreeIdentityMarksReferencesAndOpaqueChildren() started.
+◇ Test v4PendingReceiveBlocksHistoryEvenWhenNeitherStackHasAnEntry() started.
+◇ Test case passing 2 arguments list → true, actor → "a" to v4SequentialInsertionKeepsObservedRunOrderAndPeerUndo(list:actor:) started.
+◇ Test case passing 2 arguments actor → "z", scenario → "endpoint-after" to retainedPasteConcurrentSplitsOrderRetainedEndpointGroup(actor:scenario:) started.
+◇ Test retainedPasteCannotRankFromGloballyKnownButUnobservedSourceAnchor() started.
+◇ Test case passing 1 argument version → 1 to sameChangeMovesCannotHideExistingContentInAnAnchorCycle(version:) started.
+◇ Test case passing 1 argument type → "heading" to v4InlineEnterPreservesSourceAttributesRichSuffixAndAuthorUndo(type:) started.
+◇ Test case passing 1 argument actor → "a" to v4ConcurrentTextRepairsRetainBothAuthorsAndRecoverAfterBothUndos(actor:) started.
+◇ Test case passing 2 arguments list → true, actor → "z" to v4SequentialInsertionKeepsObservedRunOrderAndPeerUndo(list:actor:) started.
+◇ Test retainedPasteConcurrentHeadingPreservesEndpointSchemaAndUndo(actor:) started.
+◇ Test case passing 1 argument version → 2 to sameChangeMovesCannotHideExistingContentInAnAnchorCycle(version:) started.
+◇ Test writingPrototypeSplitRetainsConcurrentTypingFormattingAndAtomOrigins() started.
+◇ Test concurrentFormattingPreservesRemoteInsertionAndIndependentMarks() started.
+◇ Test case passing 1 argument actor → "z" to v4ConcurrentTextRepairsRetainBothAuthorsAndRecoverAfterBothUndos(actor:) started.
+◇ Test v4EmptySplitHeadPositionFollowsRetainedBoundaryAcrossPeerEditsUndoReopenAndRedo(list:actor:) started.
+◇ Test case passing 1 argument type → "quote" to v4InlineEnterPreservesSourceAttributesRichSuffixAndAuthorUndo(type:) started.
+◇ Test schemaConversionAndOldOriginEditConvergeUnderReversedActorAndDeliveryOrder(converter:) started.
+◇ Test seedAnchorsPreserveUnicodeReferencesAndTombstones(version:) started.
+◇ Test case passing 1 argument type → "callout" to v4InlineEnterPreservesSourceAttributesRichSuffixAndAuthorUndo(type:) started.
+◇ Test schemaRichCodeRejectionAndRemoteRichUnionPreserveAcceptedState() started.
+◇ Test schemaListTextSemanticsCannotBeSpoofedIntoV3BatchOrRestore(exit:) started.
+◇ Test recoveryAccumulatesReorderedAdditionalEditsWithoutAcknowledgingThem() started.
+◇ Test reusedChildIDsRemainIndependentlyEditable() started.
+◇ Test invalidKnownShapesAreRejectedWithoutChangingTheDocument() started.
+◇ Test clipboardRichPastePreservesReferencePayloadAndPeerUndoAcrossReopen() started.
+◇ Test v5SplicePreservesForeignMovedImportedContainerAndUnseenChildThroughAuthorUndoAndReopen() started.
+◇ Test writingSessionReferenceInteriorSelectionFollowsSplitAndDeletion() started.
+◇ Test writingSessionCompositionDefersReceiptsCapturesSelectionAndReleasesOnce() started.
+◇ Test schemaRoleCohortExcludesUnobservedConcurrentRedo(redoActor:) started.
+◇ Test writingSessionReplacementAndSoftBreakAreAtomicAndCompositionGuarded() started.
+◇ Test impossibleSameChangeNodePathsAndInitialAnchorsRejectAtomically(deferredParent:) started.
+◇ Test pasteSpliceExplicitGroupKeepsConcurrentCutsInBoundaryOrder(pasteActor:pasteCut:) started.
+◇ Test retainedPasteAtZeroUsesOriginalEndpointAndNoBlankPrefix(actor:) started.
+◇ Test writingBatchMoveKeepsNestedOriginsAndRemoteAuthorWork() started.
+◇ Test localHistorySurvivesRestartWithoutRevertingRemoteWork() started.
+◇ Test legacyStoppedAuthorReorderedUndoRedoKeepsWinningAvailability(version:) started.
+◇ Test undoOfMissingEditRemainsValidUntilItsCausalTargetArrives(version:) started.
+◇ Test inlineReconciliationKeepsFormattingOperationsSeparateFromText() started.
+◇ Test v4SplitKeepsObservedInsertedPrefixAndPeerUndo(list:) started.
+◇ Test exitRolesWithRankedAndFallbackOriginsKeepOneStableOrder() started.
+◇ Test retainedPasteLaterEndpointMoveStaysAuthoritativeThroughOwnUndo(actor:acrossContainer:) started.
+◇ Test sharedStructureBridgeFixture() started.
+◇ Test schemaConvertedMergeDestinationPreservesTypeIdentityAndBothAuthorUndo(type:) started.
+◇ Test writingBatchDuplicateSkipsLabelsRetainedAcrossEpochReset() started.
+◇ Test writingSessionDeletionCannotCollapseDifferentCutRanks(swap:) started.
+◇ Test writingBatchMixedDeletionPreservesRemoteTextAndReopenUndo() started.
+◇ Test schemaConcurrentUnobservedPeerAndRetirementCanRetainRole(undoActor:) started.
+◇ Test writingSessionSequentialCutsKeepObservedSiblingOrder(offset:) started.
+◇ Test case passing 1 argument actor → "a" to retainedPasteBaselineRoleRequiresObservedRetirement(actor:) started.
+◇ Test crossPasteMetadataEndpointRejectsWithoutAcceptedMutation() started.
+◇ Test knownPriorElementsMustHaveTheReferencedKindAndField() started.
+◇ Test case passing 1 argument actor → "z" to retainedPasteBaselineRoleRequiresObservedRetirement(actor:) started.
+◇ Test requiredContentRepairAdmitsFailedAuthorUndoWithoutDroppingRemoteMetadata() started.
+◇ Test v2StructuralReplayPreservesTheMigrationCorpus() started.
+◇ Test retainedPasteSupersededEndpointContainerDoesNotClaimOldSourceGroup(actor:) started.
+◇ Test schemaRetainedPeerSupportsConversionShortcutAndMerge(command:) started.
+◇ Test writingSessionConcurrentSameCutRetainsBothBreaksAndUndo() started.
+◇ Test schemaRetirementBeforePeerBirthCannotForgeExposure() started.
+◇ Test v4ConcurrentCutsKeepEachObservedPrefixPartition(actor:) started.
+◇ Test concurrentConversionAndParagraphSplitConvergeWithRemotePreservingUndo() started.
+◇ Test case passing 1 argument levels → 17 to depthLimitUnionCanBeRepairedWithoutChangingExistingIDsOrContent(levels:) started.
+◇ Test hierarchicalPasteForeignMovedImportRetainsPeerWorkThroughAuthorUndo(actor:acrossContainer:) started.
+◇ Test sameTransactionCreationSeedsRemainValid(version:) started.
+◇ Test v4RetiredSplitHeadTraversesLongValidatedBirthChainWithoutRecursion() started.
+◇ Test writingBatchRetainedFieldEndFollowsRemoteSuffix(range:) started.
+◇ Test case passing 1 argument levels → 20 to depthLimitUnionCanBeRepairedWithoutChangingExistingIDsOrContent(levels:) started.
+◇ Test invalidBatchIsAtomic() started.
+◇ Test externalNormalizationResultPolicyArraysHaveDeterministicWireOrder() started.
+◇ Test retainedPasteKeepsBothOpaqueOwnersAndOneAuthorUndo(actor:reversed:) started.
+◇ Test writingSessionNewLinksRejectUnsafeSchemesWithoutChangingLegacyBaseline() started.
+◇ Test case passing 1 argument levels → 24 to depthLimitUnionCanBeRepairedWithoutChangingExistingIDsOrContent(levels:) started.
+◇ Test partialReferenceEditBecomesPlainText() started.
+◇ Test sharedBridgeFixture() started.
+◇ Test sameChangePlacementCyclesAreRejectedWithoutAcknowledgmentOrContentLoss() started.
+◇ Test reservedSeedReferencesRejectAtomically(version:) started.
+◇ Test writingPrototypeBoundaryAffinityFollowsTheAdjacentContent() started.
+◇ Test retiredSplitHeadPositionPreservesV3AndRejectsUnrelatedDeletion() started.
+◇ Test observerSeesCommittedHistory() started.
+◇ Test schemaSoleEmptyItemExitRetainsChildrenAndReorderedPeerChildEdits(existing:actor:) started.
+◇ Test markdownHeadingConsumesPrefixInOneUndoAndRespectsPolicyAndComposition() started.
+◇ Test knownUndoTargetsMustBeEdits(version:) started.
+◇ Test schemaConversionUndoProjectsPeerItemWithSameIdentityAndSuffix() started.
+◇ Test authoringRestrictionsDoNotDestroySavedBlocks() started.
+◇ Test crossPasteMixedRetainsWholeImportsAndObservedSuffixOneUndo(actor:reversed:) started.
+◇ Test unicodeRangesAndRoundTrip() started.
+◇ Test oversizedDocumentAndCapacityErrorsKeepEveryUnappliedChangeRecoverable() started.
+◇ Test allDeliveryPermutationsConverge() started.
+◇ Test writingSessionSplitFollowsRemoteTextMarksSelectionsAndOneUndo() started.
+◇ Test structuralPasteAtFieldStartMustRetainCompleteFirstNodeAndAvoidIncidentalBlankPrefix() started.
+◇ Test schemaRetainedRoleAnchorsKeepMultiplePeerParagraphOrderAndWrapperRedo() started.
+◇ Test writingPrototypeMergeRetainsBothNamespacesAndRemoteTextThroughUndo() started.
+◇ Test schemaBaselineItemMoveUndoAndRedoKeepIdentityAndSubtree() started.
+◇ Test retainedPasteEndpointRoleKeepsOpaqueIdentityThroughHistory(actor:) started.
+◇ Test writingSessionRejectsOldEpochProtocolAndMalformedBirthWithoutAcknowledging() started.
+◇ Test writingSessionConcurrentDifferentCutsPreserveSegmentOrder(swap:) started.
+◇ Test schemaMalformedRoleAnchorAndHiddenFirstItemRejectAtomically(fault:) started.
+◇ Test externalNormalizationPreservesRichReferenceAndPeerUndo(version:) started.
+◇ Test schemaRoleDeltaBeforeDependenciesRetainsRecoveryAndReopens() started.
+◇ Test case passing 1 argument retired → false to schemaEmptyExitRejectsVisibleAndRetainedRootLabelCollisionAtomically(retired:) started.
+◇ Test nestedReceiveHoldsPreserveCompositionAnchorsAndPreparationCallbacks() started.
+◇ Test case passing 1 argument actor → "a" to retainedPasteInsideObservedInsertedToggleKeepsNestedInitialProofs(actor:) started.
+◇ Test writingSharedBridgeFixture(name:) started.
+◇ Test concurrentDestinationConversionAndParagraphMergePreserveIdentityAndAuthorUndo() started.
+◇ Test v4InsertionAfterReferenceNeighborRetainsAtomicPayloadAndMarks() started.
+◇ Test writingBatchDuplicateCopiesRichDescendantsWithFreshOrigins() started.
+◇ Test case passing 1 argument retired → true to schemaEmptyExitRejectsVisibleAndRetainedRootLabelCollisionAtomically(retired:) started.
+◇ Test case passing 1 argument key → "style" to schemaConversionRejectsReservedUnknownFieldCollisionsWithoutMutation(key:) started.
+◇ Test v4EmptySplitHeadPositionFollowsNestedRetiredBirthsWithoutChangingEndSentinels() started.
+◇ Test hierarchicalPasteDeletesOnlyObservedIntermediateSubtrees(actor:) started.
+◇ Test case passing 1 argument actor → "z" to retainedPasteInsideObservedInsertedToggleKeepsNestedInitialProofs(actor:) started.
+◇ Test retainedPasteCanReuseObservedOrdinarySplitTail(actor:) started.
+◇ Test writingSessionCutoverPreservesDocumentIDRequiresReconciliationAndArchivesUndo() started.
+◇ Test schemaEmptyNestedOutdentKeepsChildrenAndUndo() started.
+◇ Test hierarchicalPasteKeepsOriginalCollectionsAndWholeImportedMetadata(actor:reversed:) started.
+◇ Test case passing 1 argument key → "items" to schemaConversionRejectsReservedUnknownFieldCollisionsWithoutMutation(key:) started.
+◇ Test writingSessionRepairReconcilesRetainedOwnUndoBeforeSaveRestore() started.
+◇ Test mixedPasteRejectsPolicyAndOldEpochBeforeAnyAcceptedMutation() started.
+◇ Test cachedWritingOrderMatchesCanonicalIdentityOrder() started.
+◇ Test mixedPasteAtZeroKeepsOriginalSuffixOwnerWithoutAnIncidentalBlankHead() started.
+◇ Test case passing 1 argument key → "code" to schemaConversionRejectsReservedUnknownFieldCollisionsWithoutMutation(key:) started.
+◇ Test simultaneousRepairsConvergeAndUndoKeepsTheOtherRepair() started.
+◇ Test writingSessionConcurrentMergeSplitFollowsBoundary(swap:side:) started.
+◇ Test schemaConcurrentListConversionsKeepRecoverableUnionAndEitherAuthorCanRepair(reverseActors:repairFirst:) started.
+◇ Test v4ConcurrentCutPreservesUnobservedInsertedPrefixInEarlierTail(actor:) started.
+◇ Test spliceDuplicateDescriptorMustRemainMalformedWhenAuthorUndone(inactive:) started.
+◇ Test independentTextAcceptanceUndoDoesNotResurrectAnotherAuthorsDeletion(version:) started.
+◇ Test mixedPasteAdjacentInlineFieldsKeepTheirExplicitBreak(actor:emptyLeading:) started.
+◇ Test collectionCreationRejectsInvalidScopePolicyCompositionAndLegacyAtomically() started.
+◇ Test listContinuationKeepsMarksReferencesChildrenAndRemoteSuffix() started.
+◇ Test clipboardPlainTextNormalizesLineEndingsInOneUndoAction() started.
+◇ Test schemaOverlappingOwnerRepairRoutesBothHistoricalHeadsAndOriginalAtomOrigin(actor:repairOther:) started.
+◇ Test emptyNestedListItemOutdentsWithoutChangingIdentity() started.
+◇ Test textPositionsWaitForMissingCausalAnchorsAndRejectOtherDocuments() started.
+◇ Test ordinarySplitBeforeFirstImportedMemberMustPrecedeWholeExistingGroup() started.
+◇ Test v4ScalarMetadataPreservesOpaqueCompositeValuesAndRejectsActiveComposition() started.
+◇ Test pasteBlocksSequentialSameBoundaryKeepsCapturedBeforeImportedGroup() started.
+◇ Test schemaMalformedRetainedRoleDoesNotChangeAcceptedSaveOrReachV3(fault:) started.
+◇ Test retainedPasteSequentialReuseKeepsOneStepHistory(actor:) started.
+◇ Test nestedReceiveHoldsKeepReceiptsPendingAndDrainAfterInvalidBatch() started.
+◇ Test inactiveMovesStillRejectKnownAnchorsFromAnotherCollection(editedAnchor:) started.
+◇ Test schemaConversionAndOldParagraphSplitUseRetainedOriginWithAuthorUndo(type:reverseActors:) started.
+◇ Test v5SpliceOnExposedPeerParagraphPreservesRoleAcrossWrapperUndoAndReopen(wrapperActor:) started.
+◇ Test hierarchicalPasteBoundaryAncestorKeepsChildrenAndForeignDescendants(actor:) started.
+◇ Test generatedRecoveryCollisionsRetainAllCollectionKinds(seed:kind:) started.
+◇ Test writingSessionObserverSeesFinalUndoAndRedoHistory() started.
+◇ Test externalNormalizationRejectsVersionDepthAndUnknownKindWithoutMutatingSource() started.
+◇ Test duplicateAndReorderedDelivery() started.
+◇ Test v4CausalSplitPinsEarlierDestinationAndJoinedPrefix(joinFirst:) started.
+◇ Test schemaProjectedPeerParagraphSupportsEnterMoveUndoAndReopen(baseline:) started.
+◇ Test schemaInactiveConversionAllowsEitherAuthorToRepairPriorSortedMetadataConflict(repairConversion:) started.
+◇ Test case passing 1 argument actor → "a" to hierarchicalPasteSingleInlineKeepsBothOpaqueBoundaries(actor:) started.
+◇ Test invalidNestedOperationsRejectAtomicallyAndDoNotRewriteIDs() started.
+◇ Test pasteBlocksPublicCommandRetainsWholeMetadataAndConcurrentCutGroups(actor:cut:) started.
+◇ Test schemaCodeShortcutAndEncodingRoundTripRetainIdentityAndBothOrigins() started.
+◇ Test externalNormalizationFreshensSchemaLabelsWithoutChangingOpaqueReferenceData() started.
+◇ Test blockConversionKeepsIdentityRichContentAndAuthorUndoAfterReopen() started.
+◇ Test case passing 1 argument actor → "z" to hierarchicalPasteSingleInlineKeepsBothOpaqueBoundaries(actor:) started.
+◇ Test impossiblePriorCreationPathsRejectAtomically(delivery:) started.
+◇ Test writingSessionStoppedAuthorReorderedUndoRedoRestoresWinningHistory() started.
+◇ Test pasteSpliceRejectsDuplicateOwnershipEvenWhenAuthorUndoRetainsMalformedEdit(inactive:) started.
+◇ Test writingSessionReentrantCompositionQueueRetainsNewPacketsDuringDrain() started.
+◇ Test knownCreationSeedsValidateWhileTheirParentIsMissing() started.
+◇ Test externalNormalizationFallbackKeepsVisibleNestedOrderAndAllowedRichNodes() started.
+◇ Test externalNormalizationRequiresExplicitSafeAssetMetadata() started.
+◇ Test protocolCutoverPreservesDocumentAndRejectsMixedVersionsAtomically() started.
+◇ Test markdownDialectAndUnknownProtocol() started.
+◇ Test textPositionsFollowRemoteEditsDeletionUndoAndRestore() started.
+◇ Test concurrentMovesAndDeletesConverge() started.
+◇ Test v4ScalarMetadataIsAtomicAndCannotReplaceSchemaRichTextOrConversionAttributes() started.
+◇ Test retainedPasteOverlappingEndpointExportsAndEitherAuthorRepairs(actor:repairPeer:) started.
+◇ Test writingBatchRetainedRangeFollowsRemoteSplitAndPreservesItOnUndo() started.
+◇ Test schemaConcurrentFirstAndLastExitsConvergeAndKeepSourceOrdinal(actor:inserted:) started.
+◇ Test undoNodeInsertionRemovesItsTextButRetainsRemoteAtoms() started.
+◇ Test retainedPasteDoesNotUpgradeOrAdmitMixedEpochs() started.
+◇ Test case passing 1 argument actor → "a" to v4RequiredUndoPersistsAndExplicitRedoRetainsEveryHistory(actor:) started.
+◇ Test case passing 2 arguments version → 4, actor → "a" to writingMathThresholdUnionAt10000PreservesBothAuthorsAndUndo(version:actor:) started.
+◇ Test codeUsesCharacterMergingToo() started.
+◇ Test mixedPasteCerror: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/luca/Developer/block-editor/.build/out/Products/Debug/BlockEditorCoreTests.xctest/Contents/MacOS/BlockEditorCoreTests /Users/luca/Developer/block-editor/.build/out/Products/Debug/BlockEditorCoreTests.xctest/Contents/MacOS/BlockEditorCoreTests --testing-library swift-testing' exited with unexpected signal code 10
+oncurrentCutsOrderCompleteGroupsAndFollowBoundaryPrefix(actor:cut:) started.
+◇ Test mixedPasteAbsorbsOnlyExplicitInlineBoundariesAndFreshensWholeSchemaNodes(actor:) started.
+◇ Test case passing 1 argument style → "ordered" to schemaListConversionKeepsRootIdentityRichAtomsMetadataAndRemoteUndo(style:) started.
+◇ Test case passing 1 argument actor → "z" to v4RequiredUndoPersistsAndExplicitRedoRetainsEveryHistory(actor:) started.
+◇ Test case passing 1 argument style → "unordered" to schemaListConversionKeepsRootIdentityRichAtomsMetadataAndRemoteUndo(style:) started.
+◇ Test writingPrototypeEmptyMergedFieldKeepsItsVirtualBoundaryAcrossUndo() started.
+◇ Test case passing 2 arguments version → 4, actor → "z" to writingMathThresholdUnionAt10000PreservesBothAuthorsAndUndo(version:actor:) started.
+◇ Test retainedPasteAfterOrdinarySourceMoveUsesLiveOrderNotRgaAfterAncestry(actor:) started.
+◇ Test schemaInactiveRoleRestoresExactItemAndSupportsLaterListCommands() started.
+◇ Test case passing 1 argument style → "todo" to schemaListConversionKeepsRootIdentityRichAtomsMetadataAndRemoteUndo(style:) started.
+◇ Test clipboardPoliciesRejectUnsafeOrRestrictedImportsWithoutChangingHistory() started.
+◇ Test collectionToggleCreationUndoRedoRetainsRemoteDescendants() started.
+◇ Test crossPasteInlineUsesOneAuthorJoinAndPreservesPeerAtoms(actor:reversed:) started.
+◇ Test schemaEmptyRootItemExitPreservesBothIdentitiesAndRemoteHistory(index:actor:) started.
+◇ Test case passing 2 arguments version → 5, actor → "a" to writingMathThresholdUnionAt10000PreservesBothAuthorsAndUndo(version:actor:) started.
+◇ Test case passing 2 arguments version → 5, actor → "z" to writingMathThresholdUnionAt10000PreservesBothAuthorsAndUndo(version:actor:) started.
+◇ Test writingSessionNestedSplitKeepsContainerIDsReferencesAndUndo() started.
+◇ Test siblingInsertionConflictDoesNotAcknowledgeOrPersistRemoteChanges() started.
+◇ Test writingBatchCrossCollectionRangeKeepsBoundaryAncestorsAndUnselectedChildren() started.
+◇ Test schemaInlineConversionDoesNotOverwriteUnknownReservedMetadata(version:key:) started.
+◇ Test writingBatchCapturesBackwardRootAndNestedRanges() started.
+◇ Test sharedRecoveryBridgeFixture() started.
+◇ Test writingDepthBoundaryKeepsOriginsAndPeerAtomsThroughExplicitRecovery(version:scenario:) started.
+◇ Test pasteBlocksAtZeroPreservesOriginalSuffixIdentityAndOpaqueBoundaryMetadata() started.
+◇ Test undoKeepsRemoteDescendants() started.
+◇ Test bridgeRoutesExplicitV5AndRejectsUnknownCreateAndRestoreVersions() started.
+◇ Test receivePreparationOnlyRunsForValidatedStateChanges() started.
+◇ Test heldProtocolFailureDoesNotStopLaterNestedChangesOrAcknowledgeTheFailure() started.
+◇ Test case passing 1 argument actor → "a" to crossPastePreservesUnseenIntermediateChildAndBoundaryText(actor:) started.
+◇ Test case passing 1 argument actor → "z" to crossPastePreservesUnseenIntermediateChildAndBoundaryText(actor:) started.
+◇ Test case passing 1 argument actor → "a" to retainedPasteAcceptsObservedRoleSourceAndRejectsErasedRoleCohort(actor:) started.
+◇ Test case passing 1 argument actor → "z" to retainedPasteAcceptsObservedRoleSourceAndRejectsErasedRoleCohort(actor:) started.
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test fullEditorFocusHandoffWaitsForCompositionCommit() started.
+◇ Test writingNativeTypingAppliesSharedMarkdownAndRespectsDisabledTypes() started.
+◇ Test writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test platformCommandCommitsEntryBeforeUndoAndRemoteReplay() started.
+◇ Test appKitUnmarkAndDisposalReleaseRemoteChanges() started.
+◇ Test writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test nativeFormattingMapsQueuedRemoteInsertionBeforeCommand() started.
+◇ Test unchangedReplayDoesNotLeaveFocusCaptureForALaterReparent() started.
+◇ Test appKitToolbarUndoCommitsCompositionBeforeUndoAndRemoteReplay() started.
+◇ Test platformEntryCommitsBeforeApplyingQueuedRemoteText() started.
+◇ Test writingCompositionMenuUsesCapturedOriginAfterQueuedReparentAndLabelReuse() started.
+◇ Test writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test writingDetachedNativeSourceCannotUseRetainedKeyCallbackBeforeDisposal() started.
+◇ Test writingNativeFormattingTogglesAndPreservesUpstreamSelectionAffinity() started.
+◇ Test writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test writingPendingCaretDoesNotRouteAnotherFocusedInputOrRevokedSourceCallback() started.
+◇ Test writingRetainedChecklistSetterKeepsOriginAfterMoveAndRejectsDeletedReuse() started.
+◇ Test writingCleanDisabledInputAllowsAnotherNativeCommandButMarkedDraftBlocksIt() started.
+◇ Test writingAppKitSoftBreakAndBoundaryBackspaceUseSharedTransactions() started.
+◇ Test writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test writingPendingCaretExpiresAfterSynchronousFocusAwayAndBackBeforeLayout() started.
+◇ Test writingFailedLocalCommandExpiresCaptureBeforeIntentionalBlurAndRemoteReparent() started.
+◇ Test writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test appKitDisabledHostKeepsAcceptedTextSelectable() started.
+◇ Test writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test compositionCommitsBeforeRemoteChangesAndPreservesAuthorUndo() started.
+◇ Test legacyNestedActionsCannotDeleteTheirContainingRoot() started.
+◇ Test writingOrdinaryTypingBeforePendingTailLayoutUsesTheSharedDestination() started.
+◇ Test writingFocusedFormattingRetainsNativeRangeAndUpstreamAffinityAfterScheduledFocusWork() started.
+◇ Test writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) started.
+◇ Test appKitCompositionCommitsUnicodeBeforeRemoteReplay() started.
+◇ Test failedCompositionCommitStopsLocalCommandWithoutDroppingRemoteHold() started.
+◇ Test appleCompositionPreservesMarksAndAtomicReferences() started.
+◇ Test writingFailedCompositionClosePreservesRecoverableDraftAndQueuedRemoteInput() started.
+◇ Test appleSelectionMapsRemoteEditsAndDisposalReleasesComposition() started.
+◇ Test writingEmptyTailUndoAndRedoRetainsNativeHeadPositionProvenance() started.
+◇ Test nativeActionFollowsMovedIdentityWhenOldLabelIsReused() started.
+◇ Test writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) started.
+◇ Test writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test writingPendingTargetSelectionFormatsItsRenderedRichFieldBeforeLayout() started.
+◇ Test writingPlatformCommittedDictationAndDuplicateFinish() started.
+◇ Test writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test nativeInsertionsRespectPolicyAndPreserveExistingContent() started.
+◇ Test writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test writingEditorRejectsImplicitLegacyEpochAndClosedInputMutation() started.
+◇ Test writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test writingTextOnlyReplayExpiresFocusCaptureBeforeIntentionalBlurAndLaterMove() started.
+◇ Test writingImmediateRepeatedEnterUsesThePendingDestinationIdentityAndCaret() started.
+◇ Test nativeFormattingShortcutTogglesMarksAndIgnoresCompositionAndDisposal() started.
+◇ Test committedPlatformInputPreservesMarksAndReferences() started.
+◇ Test writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test checklistCommandFollowsOriginAfterCompositionReleasesMoveAndLabelReuse() started.
+◇ Test fullEditorViewRebindsAReusedLabelToItsNewOrigin() started.
+◇ Test appKitSelectionAndUnicodeInsertionFollowRemoteText() started.
+◇ Test writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test writingAppKitMinimalDraftPreservesMarksReferenceAndRejectsPartialReference() started.
+◇ Test writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test nativeFormattingCombinesCodeBoldAndItalic() started.
+◇ Test case passing 1 argument version → 4 to writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test nativeRootOrderingAndUndoUseSharedCommands() started.
+◇ Test writingRetainedNativeCallbacksRespectCurrentPermissionAndCloseLease() started.
+◇ Test focusHandoffDoesNotOverrideAnotherNativeResponder() started.
+◇ Test nativeCompositionFollowsMovedNodeWhenItsOldPathIsReused() started.
+◇ Test writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) started.
+◇ Test case passing 1 argument version → 5 to writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test case passing 2 arguments version → 4, replacingSelection → false to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test platformEntryDisposalCommitsDraftAndReleasesRemoteHold() started.
+◇ Test case passing 2 arguments version → 5, replacingSelection → false to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 2 arguments version → 5, replacingSelection → true to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 2 arguments version → 4, replacingSelection → true to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test writingRemoteSplitOfUnfocusedFieldDoesNotStealAnotherFieldsFocus() started.
+◇ Test case passing 1 argument version → 6 to writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument version → 4 to writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test case passing 1 argument version → 6 to writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test writingAppKitCompositionCommitsBeforeEnterAndKeepsPeerUndo() started.
+◇ Test writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test case passing 2 arguments list → false, emptyTail → true to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 2 arguments version → 6, replacingSelection → false to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 2 arguments version → 6, replacingSelection → true to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test case passing 2 arguments list → true, emptyTail → false to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test case passing 1 argument empty → false to writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test case passing 1 argument empty → true to writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) started.
+◇ Test case passing 2 arguments list → false, emptyTail → false to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test case passing 2 arguments list → true, emptyTail → true to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test case passing 2 arguments version → 4, emptyTail → false to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test case passing 1 argument scenario → .selectionRebase to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument version → 5 to writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test case passing 1 argument version → 6 to writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test case passing 1 argument scenario → .reparent to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test case passing 1 argument version → 4 to writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test case passing 2 arguments version → 4, emptyTail → true to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 2 arguments version → 5, emptyTail → false to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test case passing 1 argument scenario → .consecutiveReceives to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument version → 5 to writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test case passing 2 arguments version → 5, emptyTail → true to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 1 argument version → 6 to writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test case passing 2 arguments version → 6, emptyTail → false to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 2 arguments selectionLength → 0, remoteEdit → false to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test case passing 1 argument version → 5 to writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test case passing 2 arguments selectionLength → 3, remoteEdit → true to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test case passing 1 argument version → 6 to writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument rapidReceive → false to writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) started.
+◇ Test case passing 1 argument version → 4 to writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test case passing 1 argument version → 4 to writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test case passing 2 arguments selectionLength → 0, remoteEdit → true to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test case passing 1 argument version → 4 to writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test case passing 1 argument version → 4 to writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test case passing 1 argument version → 6 to writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test case passing 1 argument version → 6 to writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test case passing 1 argument version → 5 to writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test case passing 1 argument rapidReceive → true to writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) started.
+◇ Test case passing 2 arguments selectionLength → 3, remoteEdit → false to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test case passing 2 arguments version → 6, emptyTail → true to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+✔ Test writingNativeTypingAppliesSharedMarkdownAndRespectsDisabledTypes() passed after 0.085 seconds.
+✔ Test appKitUnmarkAndDisposalReleaseRemoteChanges() passed after 0.167 seconds.
+✔ Test nativeFormattingMapsQueuedRemoteInsertionBeforeCommand() passed after 0.169 seconds.
+✔ Test appKitToolbarUndoCommitsCompositionBeforeUndoAndRemoteReplay() passed after 0.190 seconds.
+✔ Test platformEntryCommitsBeforeApplyingQueuedRemoteText() passed after 0.221 seconds.
+✔ Test writingNativeFormattingTogglesAndPreservesUpstreamSelectionAffinity() passed after 0.227 seconds.
+✔ Test writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) with 3 test cases passed after 0.271 seconds.
+✔ Test writingCompositionMenuUsesCapturedOriginAfterQueuedReparentAndLabelReuse() passed after 0.279 seconds.
+✔ Test platformCommandCommitsEntryBeforeUndoAndRemoteReplay() passed after 0.280 seconds.
+✔ Test writingPendingCaretExpiresAfterSynchronousFocusAwayAndBackBeforeLayout() passed after 0.292 seconds.
+✔ Test writingRetainedChecklistSetterKeepsOriginAfterMoveAndRejectsDeletedReuse() passed after 0.355 seconds.
+✔ Test writingDetachedNativeSourceCannotUseRetainedKeyCallbackBeforeDisposal() passed after 0.418 seconds.
+✔ Test writingAppKitSoftBreakAndBoundaryBackspaceUseSharedTransactions() passed after 0.451 seconds.
+✔ Test compositionCommitsBeforeRemoteChangesAndPreservesAuthorUndo() passed after 0.452 seconds.
+✔ Test legacyNestedActionsCannotDeleteTheirContainingRoot() passed after 0.497 seconds.
+✔ Test writingOrdinaryTypingBeforePendingTailLayoutUsesTheSharedDestination() passed after 0.574 seconds.
+✔ Test failedCompositionCommitStopsLocalCommandWithoutDroppingRemoteHold() passed after 0.599 seconds.
+✔ Test appKitCompositionCommitsUnicodeBeforeRemoteReplay() passed after 0.605 seconds.
+✔ Test appleCompositionPreservesMarksAndAtomicReferences() passed after 0.605 seconds.
+✔ Test appleSelectionMapsRemoteEditsAndDisposalReleasesComposition() passed after 0.606 seconds.
+✔ Test nativeActionFollowsMovedIdentityWhenOldLabelIsReused() passed after 0.613 seconds.
+✔ Test writingPendingTargetSelectionFormatsItsRenderedRichFieldBeforeLayout() passed after 0.619 seconds.
+✔ Test writingPlatformCommittedDictationAndDuplicateFinish() passed after 0.746 seconds.
+✔ Test writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) with 4 test cases passed after 0.780 seconds.
+✔ Test writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) with 3 test cases passed after 0.781 seconds.
+✔ Test writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) with 2 test cases passed after 0.851 seconds.
+✔ Test writingCleanDisabledInputAllowsAnotherNativeCommandButMarkedDraftBlocksIt() passed after 0.859 seconds.
+✔ Test writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) with 3 test cases passed after 0.912 seconds.
+✔ Test writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) with 3 test cases passed after 0.924 seconds.
+✔ Test writingFailedCompositionClosePreservesRecoverableDraftAndQueuedRemoteInput() passed after 0.964 seconds.
+✔ Test writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) with 3 test cases passed after 1.060 seconds.
+✔ Test writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) with 3 test cases passed after 1.204 seconds.
+✔ Test writingEditorRejectsImplicitLegacyEpochAndClosedInputMutation() passed after 1.205 seconds.
+✔ Test committedPlatformInputPreservesMarksAndReferences() passed after 1.212 seconds.
+✔ Test nativeFormattingShortcutTogglesMarksAndIgnoresCompositionAndDisposal() passed after 1.249 seconds.
+✔ Test writingImmediateRepeatedEnterUsesThePendingDestinationIdentityAndCaret() passed after 1.254 seconds.
+✔ Test checklistCommandFollowsOriginAfterCompositionReleasesMoveAndLabelReuse() passed after 1.258 seconds.
+✔ Test appKitDisabledHostKeepsAcceptedTextSelectable() passed after 1.274 seconds.
+✔ Test writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) with 3 test cases passed after 1.295 seconds.
+✔ Test writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) with 3 test cases passed after 1.297 seconds.
+✔ Test nativeInsertionsRespectPolicyAndPreserveExistingContent() passed after 1.318 seconds.
+✔ Test appKitSelectionAndUnicodeInsertionFollowRemoteText() passed after 1.320 seconds.
+✔ Test writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) with 3 test cases passed after 1.322 seconds.
+✔ Test writingAppKitMinimalDraftPreservesMarksReferenceAndRejectsPartialReference() passed after 1.337 seconds.
+✔ Test nativeRootOrderingAndUndoUseSharedCommands() passed after 1.377 seconds.
+✔ Test writingRetainedNativeCallbacksRespectCurrentPermissionAndCloseLease() passed after 1.401 seconds.
+✔ Test nativeCompositionFollowsMovedNodeWhenItsOldPathIsReused() passed after 1.408 seconds.
+✔ Test writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) with 3 test cases passed after 1.439 seconds.
+✔ Test writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) with 3 test cases passed after 1.445 seconds.
+✔ Test writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) with 3 test cases passed after 1.452 seconds.
+✔ Test writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) with 3 test cases passed after 1.511 seconds.
+✔ Test fullEditorViewRebindsAReusedLabelToItsNewOrigin() passed after 1.545 seconds.
+✔ Test writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) with 3 test cases passed after 1.561 seconds.
+✔ Test writingAppKitCompositionCommitsBeforeEnterAndKeepsPeerUndo() passed after 1.607 seconds.
+✔ Test writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) with 3 test cases passed after 1.621 seconds.
+✔ Test writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) with 3 test cases passed after 1.637 seconds.
+✔ Test nativeFormattingCombinesCodeBoldAndItalic() passed after 1.660 seconds.
+✔ Test writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) with 6 test cases passed after 1.691 seconds.
+✔ Test platformEntryDisposalCommitsDraftAndReleasesRemoteHold() passed after 1.692 seconds.
+✔ Test writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) with 3 test cases passed after 1.693 seconds.
+✔ Test fullEditorFocusHandoffWaitsForCompositionCommit() passed after 1.781 seconds.
+✔ Test writingPendingCaretDoesNotRouteAnotherFocusedInputOrRevokedSourceCallback() passed after 1.822 seconds.
+✔ Test writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) with 3 test cases passed after 1.868 seconds.
+✔ Test writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) with 6 test cases passed after 1.880 seconds.
+✔ Test fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) with 3 test cases passed after 1.915 seconds.
+✔ Test writingTextOnlyReplayExpiresFocusCaptureBeforeIntentionalBlurAndLaterMove() passed after 1.916 seconds.
+✔ Test writingFailedLocalCommandExpiresCaptureBeforeIntentionalBlurAndRemoteReparent() passed after 1.939 seconds.
+✔ Test writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) with 3 test cases passed after 1.956 seconds.
+✔ Test writingRemoteSplitOfUnfocusedFieldDoesNotStealAnotherFieldsFocus() passed after 1.968 seconds.
+✔ Test writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) with 2 test cases passed after 1.969 seconds.
+✔ Test unchangedReplayDoesNotLeaveFocusCaptureForALaterReparent() passed after 2.001 seconds.
+✔ Test writingFocusedFormattingRetainsNativeRangeAndUpstreamAffinityAfterScheduledFocusWork() passed after 2.004 seconds.
+✔ Test writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) with 2 test cases passed after 2.005 seconds.
+✔ Test focusHandoffDoesNotOverrideAnotherNativeResponder() passed after 2.015 seconds.
+✔ Test writingEmptyTailUndoAndRedoRetainsNativeHeadPositionProvenance() passed after 2.043 seconds.
+✔ Test writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) with 4 test cases passed after 2.059 seconds.
+✔ Test run with 76 tests in 0 suites passed after 2.060 seconds.
+Note: Some test targets reported failures:
+  - BlockEditorCoreTests (Swift Testing)

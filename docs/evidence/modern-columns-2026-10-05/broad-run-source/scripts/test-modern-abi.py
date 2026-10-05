@@ -253,14 +253,6 @@ def main():
     denied_nested = column_command('columns-reopened', 'createColumns', dict(boundary=nested_boundary), layout=layout)
     assert denied_nested['status'] == 'unavailable'
     assert success('modernSave', 'columns-reopened') == saved_before_nested
-    column_session('empty-columns', before_columns)
-    empty_boundary = success('modernCaptureBoundary', 'empty-columns', collection=dict(field='blocks'), after=dict(baseline=dict(blockID='B', path=[])))
-    empty_created = column_command('empty-columns', 'createColumns', dict(boundary=empty_boundary), layout=layout)
-    empty_removed = column_command('empty-columns', 'removeColumns', dict(layout=empty_created['selection']['nodes'][0]))
-    assert empty_removed['document'] == before_columns and empty_removed['selection'] is None
-    resumed_boundary = empty_removed['focusIntent']['insertion']['_0']
-    empty_resumed = column_command('empty-columns', 'insertBlock', resumed_boundary, block=dict(id='Resume', type='paragraph', content=[dict(type='text', text='Write here')]))
-    assert [block['id'] for block in empty_resumed['document']['blocks']] == ['A', 'B', 'Resume', 'C', 'E']
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,

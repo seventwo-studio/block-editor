@@ -1410,6 +1410,7 @@ public final class WritingSession {
         }
         func roleAnchor(_ after: NodePlacementID?, before change: ChangeID) throws {
             switch after {
+            case .some(.columnRoute): throw EditorError.invalidChange
             case .some(.initial(let identity)): _ = try roleNode(identity, before: change)
             case .some(.role(let owner, let node)): _ = try roleNode(owner, before: change); _ = try roleNode(node, before: change)
             case .some(.edit(let element)):
@@ -1669,6 +1670,7 @@ public final class WritingSession {
                 if let anchor = boundary.edge.anchor { try observed(anchor, allowOwn: true) }
                 for key in boundary.sourceKeys { try observed(key) }
                 switch boundary.sourcePlacement {
+                case .columnRoute: throw EditorError.invalidChange
                 case .edit(let edit):
                     guard edit.change < change.id, cohort.contains(edit.change), edit.index >= 0,
                           edit.index <= 2_147_483_647 else { throw EditorError.invalidChange }
@@ -1741,6 +1743,7 @@ public final class WritingSession {
                             guard !path.isEmpty, cohort.contains(creation.change) else { throw EditorError.invalidChange }
                         }
                         try selfReference(identity)
+                    case .columnRoute: throw EditorError.invalidChange
                     case .role(let owner, let node):
                         try selfReference(owner); try selfReference(node)
                         guard let role = operations.compactMap({ operation -> WritingParagraphRole? in

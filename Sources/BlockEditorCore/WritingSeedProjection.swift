@@ -31,7 +31,7 @@ func seedWritingAtoms(_ births: [WritingField: WritingFieldBirth]) -> (atoms: [W
 }
 
 /// Preserve untouched run JSON; only edited fields need atom-run compaction.
-func projectedWritingValues(structure: inout StructuralState, projection: WritingProjection, seeds: [WritingAtomSeed], fields: Set<WritingField>, births: [WritingField: WritingFieldBirth], retainedOrigins: Bool) throws -> [NodeID: [String: JSONValue]] {
+func projectedWritingValues(structure: inout StructuralState, projection: WritingProjection, seeds: [WritingAtomSeed], fields: Set<WritingField>, births: [WritingField: WritingFieldBirth], retainedOrigins: Bool, omitEmptyMarks: Bool = false) throws -> [NodeID: [String: JSONValue]] {
     var values: [NodeID: [String: JSONValue]] = [:]
     var baselineNodesByField: [WritingField: [JSONValue]] = [:]
     for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
@@ -49,7 +49,15 @@ func projectedWritingValues(structure: inout StructuralState, projection: Writin
         if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
            !retainedOrigins || original == births[field]?.value { continue }
         var runs: [JSONValue] = []
-        for node in nodes {
+        let compactEmptyMarks = omitEmptyMarks && !baselineNodes.contains(where: { $0["marks"] == .array([]) })
+        for rawNode in nodes {
+            var node = rawNode
+            // Modern edited runs omit empty marks unless the field explicitly
+            // used that representation at birth. Untouched input JSON
+            // above remains exact, and legacy projections retain their wire form.
+            if compactEmptyMarks, node["marks"] == .array([]), var object = node.object {
+                object.removeValue(forKey: "marks"); node = .object(object)
+            }
             if node["type"] == .string("text"), var last = runs.last?.object, last["type"] == .string("text") {
                 var lhs = last, rhs = node.object!
                 lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")

@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -168,6 +168,16 @@ final class ModernBridgeEndpoint {
             case "delete":
                 try allowed(arguments, [])
                 try structural(session.delete(decode(request["target"], as: ModernDeleteTarget.self)))
+            case "createColumns":
+                try allowed(arguments, ["layout"])
+                guard let layout = arguments["layout"] else { throw EditorError.invalidChange }
+                try structural(session.createColumns(decode(request["target"], as: ModernCreateColumnsTarget.self), layout: layout))
+            case "removeColumns":
+                try allowed(arguments, [])
+                try structural(session.removeColumns(decode(request["target"], as: ModernColumnTarget.self)))
+            case "resizeColumns":
+                try allowed(arguments, ["splitBasisPoints"])
+                try structural(session.resizeColumns(decode(request["target"], as: ModernColumnTarget.self), splitBasisPoints: integer(arguments["splitBasisPoints"])))
             case "undo", "redo":
                 try allowed(arguments, [])
                 guard request["target"] == nil || request["target"] == .null else { throw EditorError.invalidChange }
@@ -176,6 +186,12 @@ final class ModernBridgeEndpoint {
             }
         } catch ModernSessionError.unavailable(let reason) { return try result("unavailable", reason: reason) }
         catch ModernSessionError.recoveryRequired { return try result("recoveryRequired", reason: "schemaOrIdentityConflict") }
+        catch let error as EditorError {
+            if ["createColumns", "removeColumns", "resizeColumns"].contains(command), error == .invalidChange || error == .invalidPath {
+                return try result("unavailable", reason: "invalidColumnTargetOrArguments")
+            }
+            throw error
+        }
         let transaction = session.syncState.received.first { !before.contains($0) && $0.actor == session.actorID }
         return try result(transaction == nil ? "noop" : "applied", transaction: transaction, position: position, selection: selection, focusIntent: focusIntent, selectionIntent: selectionIntent)
     }

@@ -29,6 +29,19 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                           !identities.contains(where: { if case .document = $0 { return true }; return false }) else { throw EditorError.invalidChange }
                 default: throw EditorError.invalidChange
                 }
+            case .createColumns(let value):
+                try validateModernColumnCreationShape(value, change: change.id)
+                guard registry.nodes[value.identity] == nil else { throw EditorError.invalidChange }
+                for index in 0...value.nodes.count {
+                    guard introduced.insert(ElementID(change: change.id, index: index)).inserted else { throw EditorError.invalidChange }
+                }
+                registry.register(value.layout, identity: value.identity, kind: .block, active: true)
+            case .removeColumns(let layout, let source):
+                try modernStructuralIdentityShape(layout); try modernColumnPlacementShape(source)
+                guard introduced.insert(ElementID(change: change.id, index: 0)).inserted else { throw EditorError.invalidChange }
+            case .resizeColumns(let layout, let split):
+                try modernStructuralIdentityShape(layout)
+                guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
             case .text(.insert(let atom)):
                 guard introduced.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
             default: break
@@ -57,11 +70,7 @@ private func modernStructuralBoundaryShape(_ collection: NodeCollection, after: 
         try modernStructuralIdentityShape(owner)
     }
     if let after {
-        switch after {
-        case .initial(let identity): try modernStructuralIdentityShape(identity)
-        case .edit(let element): try modernStructuralIdentityShape(.inserted(creation: element, path: []))
-        case .role: throw EditorError.invalidChange
-        }
+        try modernColumnPlacementShape(after)
     }
 }
 
@@ -121,12 +130,7 @@ func validateModernStructure(_ mutation: Mutation, change: ChangeID, cohort: Set
         try modernBlockCollection(collection, structure: structure)
         if let owner = collection.owner { try node(owner) }
         if let after {
-            switch after {
-            case .initial(let identity): try node(identity)
-            case .edit(let element):
-                guard element.change == change || cohort.contains(element.change) else { throw EditorError.invalidChange }
-            case .role: throw EditorError.invalidChange
-            }
+            try modernColumnPlacementReference(after, change: change, cohort: cohort, registry: registry)
             guard structure.placements[after]?.collection == collection else { throw EditorError.invalidChange }
         }
     }

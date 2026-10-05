@@ -37,15 +37,23 @@ public enum NodePlacementID: Codable, Hashable, Comparable, Sendable {
     case initial(NodeID)
     /// A protocol-4 derived paragraph placement, distinct from birth placement.
     case role(owner: NodeID, node: NodeID)
+    /// A protocol-7 flattened child anchor retained across layout Undo/Redo.
+    indirect case columnRoute(layout: NodeID, slot: ElementID, node: NodeID)
     case edit(ElementID)
     public static func < (lhs: Self, rhs: Self) -> Bool {
+        func tier(_ value: Self) -> Int {
+            switch value { case .initial: return 0; case .role: return 1; case .columnRoute: return 2; case .edit: return 3 }
+        }
+        if tier(lhs) != tier(rhs) { return tier(lhs) < tier(rhs) }
         switch (lhs, rhs) {
         case (.initial(let a), .initial(let b)): return a.key.utf8.lexicographicallyPrecedes(b.key.utf8)
-        case (.initial, .role), (.initial, .edit), (.role, .edit): return true
-        case (.role, .initial), (.edit, .initial), (.edit, .role): return false
         case (.role(let ownerA, let nodeA), .role(let ownerB, let nodeB)):
             return ownerA.key == ownerB.key ? nodeA.key.utf8.lexicographicallyPrecedes(nodeB.key.utf8) : ownerA.key.utf8.lexicographicallyPrecedes(ownerB.key.utf8)
+        case (.columnRoute(let layoutA, let slotA, let nodeA), .columnRoute(let layoutB, let slotB, let nodeB)):
+            if slotA != slotB { return slotA < slotB }
+            return layoutA.key == layoutB.key ? nodeA.key.utf8.lexicographicallyPrecedes(nodeB.key.utf8) : layoutA.key.utf8.lexicographicallyPrecedes(layoutB.key.utf8)
         case (.edit(let a), .edit(let b)): return a < b
+        default: return false
         }
     }
 }
@@ -70,10 +78,12 @@ struct StructuralState {
         let active: Bool
         let rolePriority: ElementID?
         let roleOrigin: NodePlacementID?
+        let columnBucket: Int?
+        let columnRank: Int?
         init(id: NodePlacementID, after: NodePlacementID?, node: NodeID, collection: NodeCollection, active: Bool,
-             rolePriority: ElementID? = nil, roleOrigin: NodePlacementID? = nil) {
+             rolePriority: ElementID? = nil, roleOrigin: NodePlacementID? = nil, columnBucket: Int? = nil, columnRank: Int? = nil) {
             self.id = id; self.after = after; self.node = node; self.collection = collection; self.active = active
-            self.rolePriority = rolePriority; self.roleOrigin = roleOrigin
+            self.rolePriority = rolePriority; self.roleOrigin = roleOrigin; self.columnBucket = columnBucket; self.columnRank = columnRank
         }
     }
     var nodes: [NodeID: Node] = [:]
@@ -288,12 +298,18 @@ struct StructuralState {
         }
         func orderingKey(_ placement: Placement) -> NodePlacementID {
             if case .role(let owner, _) = placement.id, let priority = groupPriorities[owner] { return .edit(priority) }
+            if case .columnRoute(_, let slot, _) = placement.id { return .edit(slot) }
             return placement.id
         }
         func ordered(_ lhs: NodePlacementID, _ rhs: NodePlacementID) -> Bool {
             let a = entries[lhs]!, b = entries[rhs]!
             let keyA = orderingKey(a), keyB = orderingKey(b)
             if keyA != keyB { return keyA < keyB }
+            if case .columnRoute(let ownerA, _, _) = lhs, case .columnRoute(let ownerB, _, _) = rhs {
+                if ownerA != ownerB { return ownerA.key < ownerB.key }
+                if a.columnBucket != b.columnBucket { return (a.columnBucket ?? 0) > (b.columnBucket ?? 0) }
+                if a.columnRank != b.columnRank { return (a.columnRank ?? 0) > (b.columnRank ?? 0) }
+            }
             if case .role(let ownerA, _) = lhs, case .role(let ownerB, _) = rhs {
                 if ownerA != ownerB { return ownerA.key < ownerB.key }
                 let sourceA = a.roleOrigin.flatMap { placements[$0]?.collection }

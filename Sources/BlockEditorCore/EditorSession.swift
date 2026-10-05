@@ -860,6 +860,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
             // protocol-4 writing projection, never inferred from birth labels.
             guard version == 2, introducedStructure.placements[id] != nil else { throw EditorError.invalidChange }
             try nodeReference(owner); try nodeReference(node)
+        case .columnRoute: throw EditorError.invalidChange
         case .edit(let element): try placementElement(element)
         }
     }

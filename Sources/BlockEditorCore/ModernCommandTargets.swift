@@ -51,7 +51,7 @@ public struct ModernStructuralResult: Codable, Equatable, Sendable {
 
 extension ModernSession {
     public func captureBoundary(in collection: NodeCollection = .root, after identity: NodeID? = nil) throws -> ModernBlockBoundary {
-        try modernBlockCollection(collection, structure: structure)
+        guard try structure.kind(in: collection) == .block else { throw EditorError.invalidPath }
         if let owner = collection.owner { _ = try structure.address(of: owner) }
         var after: NodePlacementID?
         if let identity {
@@ -169,11 +169,16 @@ extension ModernSession {
         return try performReturning(nextID(), operations, result: result)
     }
 
-    private func validateBoundary(_ boundary: ModernBlockBoundary) throws {
+    func validateBoundary(_ boundary: ModernBlockBoundary, columns: Bool = false) throws {
         try validateTargetScope(boundary.documentID, boundary.epoch)
         let captured = try modernCapturedStructure(boundary.observed)
-        try modernBlockCollection(boundary.collection, structure: captured)
-        try modernBlockCollection(boundary.collection, structure: structure)
+        if columns {
+            try modernColumnCollection(boundary.collection, structure: captured)
+            try modernColumnCollection(boundary.collection, structure: structure)
+        } else {
+            try modernBlockCollection(boundary.collection, structure: captured)
+            try modernBlockCollection(boundary.collection, structure: structure)
+        }
         if let owner = boundary.collection.owner { _ = try captured.address(of: owner); _ = try structure.address(of: owner) }
         if let after = boundary.after {
             guard captured.placements[after]?.collection == boundary.collection,
@@ -185,7 +190,7 @@ extension ModernSession {
             _ = try captured.address(of: identity)
         }
     }
-    private func validateSelection(_ selection: ModernNodeSelection) throws -> StructuralState {
+    func validateSelection(_ selection: ModernNodeSelection) throws -> StructuralState {
         try validateTargetScope(selection.documentID, selection.epoch)
         let captured = try modernCapturedStructure(selection.observed)
         try validateSelectedNodes(selection.nodes, in: captured)
@@ -197,7 +202,7 @@ extension ModernSession {
         }
         return captured
     }
-    private func validateSelectedNodes(_ nodes: [NodeID], in shape: StructuralState) throws {
+    func validateSelectedNodes(_ nodes: [NodeID], in shape: StructuralState) throws {
         guard !nodes.isEmpty, nodes.count <= 10_000, Set(nodes).count == nodes.count else { throw EditorError.invalidPath }
         for identity in nodes {
             _ = try shape.address(of: identity)
@@ -208,15 +213,15 @@ extension ModernSession {
         let order = try logicalNodes(shape).filter { nodes.contains($0) }
         guard order == nodes else { throw EditorError.invalidPath }
     }
-    private func validateTargetScope(_ document: String, _ epoch: String) throws {
+    func validateTargetScope(_ document: String, _ epoch: String) throws {
         guard document == documentID else { throw EditorError.differentDocument }
         guard epoch == self.epoch else { throw ModernSessionError.incompatibleEpoch }
     }
-    private func moveResult(_ nodes: [NodeID], caret: WritingPosition?, observed: [ChangeID]) -> ModernStructuralResult {
+    func moveResult(_ nodes: [NodeID], caret: WritingPosition?, observed: [ChangeID]) -> ModernStructuralResult {
         let selected = ModernNodeSelection(documentID: documentID, epoch: epoch, nodes: nodes, observed: observed)
         return ModernStructuralResult(focus: caret.map(ModernFocusIntent.text) ?? .nodes(selected), selection: .nodes(selected))
     }
-    private func logicalNodes(_ shape: StructuralState) throws -> [NodeID] {
+    func logicalNodes(_ shape: StructuralState) throws -> [NodeID] {
         var result: [NodeID] = [], pending = Array(try shape.visibleOrder(in: .root).reversed())
         while let node = pending.popLast() {
             result.append(node)
@@ -227,13 +232,13 @@ extension ModernSession {
         }
         return result
     }
-    private func editableFields(in nodes: [NodeID], structure shape: StructuralState) throws -> [WritingField] {
+    func editableFields(in nodes: [NodeID], structure shape: StructuralState) throws -> [WritingField] {
         let births = retainedWritingFields(shape), descendants = try Set(nodes.flatMap { try shape.descendants(of: $0) })
         return try logicalNodes(shape).filter { descendants.contains($0) }.flatMap { node in
             ["content", "summary", "caption", "code", "expression"].map { WritingField(node: node, name: $0) }.filter { births[$0] != nil }
         }
     }
-    private func edgePosition(_ field: WritingField, projection: WritingProjection, end: Bool) -> WritingPosition {
+    func edgePosition(_ field: WritingField, projection: WritingProjection, end: Bool) -> WritingPosition {
         let keys = projection.visibleKeys(in: field)
         return WritingPosition(documentID: documentID, epoch: epoch, field: field,
             anchor: end ? keys.last : keys.first, affinity: end || keys.isEmpty ? .after : .before)

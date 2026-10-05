@@ -3,6 +3,9 @@ import Foundation
 /// Protocol-7 operations. Structural/compound layout commands are added only
 /// once their admission and retained-origin replay semantics are implemented.
 public enum ModernOperation: Codable, Equatable, Sendable {
+    case createColumns(ModernColumnCreation)
+    case removeColumns(layout: NodeID, source: NodePlacementID)
+    case resizeColumns(layout: NodeID, splitBasisPoints: Int)
     case structure(Mutation)
     case text(WritingMutation)
     case setAppearance(field: String, value: String)
@@ -480,6 +483,7 @@ public final class ModernSession {
         let active = activeStates(candidate)
         var raw = Materialized(); raw.structure = seed.structure
         var available = Dictionary(uniqueKeysWithValues: registeredSeeds.atoms.map { ($0.key, $0.node) })
+        var routes: [ModernColumnRoute] = []
         var edits: [WritingEdit] = [], appearance = baseline.fields["appearance"]!.object!
         var previousAuthor: [String: ChangeID] = [:]
         for change in ordered {
@@ -512,8 +516,37 @@ public final class ModernSession {
                 for operation in operations {
                     switch operation {
                     case .structure(let mutation):
-                        try validateModernStructure(mutation, change: change.id, cohort: cohort, registry: registry, structure: raw.structure!, introduced: &introduced)
+                        try validateModernStructure(mutation, change: change.id, cohort: cohort, registry: registry, structure: projectModernColumnRoutes(raw.structure!, routes: routes), introduced: &introduced)
                         try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
+                    case .createColumns(let value):
+                        let captured = try causalColumnStructure(cohort, in: candidate)
+                        try validateModernColumnCreation(value, in: captured)
+                        for node in value.nodes { try modernReference(node, before: change.id, cohort: cohort, registry: registry) }
+                        if let owner = value.collection.owner { try modernReference(owner, before: change.id, cohort: cohort, registry: registry) }
+                        for source in value.sources + [value.after].compactMap({ $0 }) {
+                            try modernColumnPlacementReference(source, change: change.id, cohort: cohort, registry: registry)
+                        }
+                        for index in 0...value.nodes.count {
+                            guard introduced.insert(ElementID(change: change.id, index: index)).inserted else { throw EditorError.invalidChange }
+                        }
+                        let enabled = active[change.id] ?? true
+                        try applyModernColumnCreation(value, enabled: enabled, raw: &raw)
+                        routes.append(modernCreationRoute(value, enabled: enabled))
+                    case .removeColumns(let layout, let source):
+                        try modernReference(layout, before: change.id, cohort: cohort, registry: registry)
+                        try modernColumnPlacementReference(source, change: change.id, cohort: cohort, registry: registry)
+                        let captured = try causalColumnStructure(cohort, in: candidate)
+                        _ = try captured.address(of: layout); _ = try modernColumnIDs(layout, in: captured)
+                        guard try captured.effectivePlacements()[layout]?.id == source,
+                              introduced.insert(ElementID(change: change.id, index: 0)).inserted else { throw EditorError.invalidChange }
+                        routes.append(try modernRemovalRoute(layout, source: source, change: change.id, enabled: active[change.id] ?? true, structure: raw.structure!))
+                    case .resizeColumns(let layout, let split):
+                        try modernReference(layout, before: change.id, cohort: cohort, registry: registry)
+                        _ = try modernColumnIDs(layout, in: raw.structure!)
+                        let captured = try causalColumnStructure(cohort, in: candidate)
+                        _ = try captured.address(of: layout)
+                        guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
+                        try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: active[change.id] ?? true, to: &raw)
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
@@ -549,10 +582,41 @@ public final class ModernSession {
         let projection = try WritingProjection(seeds: seeded.atoms, edits: edits, active: active,
             emptyFields: Set(births.keys), hiddenSeeds: seeded.hidden)
         let values = try projectedWritingValues(structure: &output, projection: projection,
-            seeds: seeded.atoms, fields: Set(births.keys), births: births, retainedOrigins: true)
+            seeds: seeded.atoms, fields: Set(births.keys), births: births, retainedOrigins: true, omitEmptyMarks: true)
+        output = try projectModernColumnRoutes(output, routes: routes)
         var fields = try output.document(documentID: documentID, text: values).fields
         fields["appearance"] = .object(appearance)
         return (projection, try ModernDocument(fields: fields), output)
+    }
+    private func causalColumnStructure(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> StructuralState {
+        let subset = candidate.filter { cohort.contains($0.key) }, active = activeStates(subset)
+        var raw = Materialized(); raw.structure = seed.structure
+        var routes: [ModernColumnRoute] = [], edits: [WritingEdit] = []
+        for change in subset.values.sorted(by: { $0.id < $1.id }) {
+            guard case .edit(let operations) = change.body else { continue }
+            let enabled = active[change.id] ?? true
+            var text: [WritingMutation] = []
+            for operation in operations {
+                switch operation {
+                case .structure(let mutation): try apply([mutation], enabled: enabled, to: &raw)
+                case .createColumns(let value):
+                    try applyModernColumnCreation(value, enabled: enabled, raw: &raw)
+                    routes.append(modernCreationRoute(value, enabled: enabled))
+                case .removeColumns(let layout, let source):
+                    routes.append(try modernRemovalRoute(layout, source: source, change: change.id, enabled: enabled, structure: raw.structure!))
+                case .resizeColumns(let layout, let split):
+                    try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: enabled, to: &raw)
+                case .text(let mutation): text.append(mutation)
+                case .setAppearance: break
+                }
+            }
+            edits.append(WritingEdit(id: change.id, mutations: text))
+        }
+        var output = raw.structure!
+        let births = retainedWritingFields(output), seeded = seedWritingAtoms(births)
+        let projection = try WritingProjection(seeds: seeded.atoms, edits: edits, active: active, emptyFields: Set(births.keys), hiddenSeeds: seeded.hidden)
+        _ = try projectedWritingValues(structure: &output, projection: projection, seeds: seeded.atoms, fields: Set(births.keys), births: births, retainedOrigins: true, omitEmptyMarks: true)
+        return try projectModernColumnRoutes(output, routes: routes)
     }
     /// Bound recursive payloads before a Foundation encoder/decoder is asked to
     /// walk them, including typed packets that did not enter through raw JSON.
@@ -564,6 +628,10 @@ public final class ModernSession {
             case .edit(let operations):
                 guard operations.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
                 for operation in operations {
+                    if case .createColumns(let value) = operation {
+                        try inspectModernPayload(value.layout)
+                        guard value.nodes.count <= 10_000, value.sources.count <= 10_000 else { throw EditorError.recoveryCapacityExceeded }
+                    }
                     if case .structure(let mutation) = operation {
                         switch mutation {
                         case .insertNode(let value, _, _, _, _): try inspectModernPayload(value)
@@ -621,7 +689,7 @@ public final class ModernSession {
                 var elements = Set<ElementID>(), registers = Set<String>()
                 for operation in operations {
                     switch operation {
-                    case .structure: break
+                    case .structure, .createColumns, .removeColumns, .resizeColumns: break
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
