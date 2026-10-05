@@ -6,4 +6,4 @@ Build a real Mac bundle with `./script/build_and_run.sh --prototype --build-only
 
 The UI tests exercise native inputs, clicks/taps and menus rather than driving the model directly. Mac screenshot placement is scoped to this app and activated only by `EDITOR_REVIEW_PRIMARY_WINDOW=1`. `EDITOR_REVIEW_RECEIPT` optionally writes fixture-only action/state receipts to the supplied test path.
 
-See the [recorded review and outstanding checks](../../docs/evidence/modern-editor-prototype-2026-10-05/README.md). This is a review app, not a production adapter or an accepted protocol-7 implementation.
+See the [original review](../../docs/evidence/modern-editor-prototype-2026-10-05/README.md) and [revision review with unresolved checks](../../docs/evidence/modern-editor-prototype-2026-10-05/revisions/README.md). The revised suite records four passing phone walkthroughs and three failed checks; ST-121 remains open and gates native canvas/input work while shared-core ST-122 proceeds. This is a review app, not a production adapter or an accepted protocol-7 implementation.

@@ -1,0 +1,23 @@
+# Native prototype revisions, 5 October 2026
+
+The revised local study implements quiet block chrome, contextual formatting/conversion, native title fields, narrow outline/resize panels, rich UIKit marks, divider dragging/keyboard ratio controls, independent column layouts, logical container order and first input into empty columns. Title/layout/preferences remain local review state. Body editing uses the unchanged protocol-6 core source at `da0505771898308da100432638b11b463b4fa952`; the separate ST-122 modern snapshot work is not used by this test binary.
+
+The final iPhone simulator XCTest run executed **seven walkthroughs: four passed, three failed**. Its complete result is failed. The [receipt](receipt.json) contains exact source hashes, the native result summary and 21 unmodified exported PNG/MP4 hashes. Each artifact is labelled with its originating test result. Movies are native XCTest recordings, including failed walkthroughs; they are not assembled renders. No QuickTime or physical-device acceptance is involved.
+
+| Walkthrough | Result and observed boundary | Original movie |
+| --- | --- | --- |
+| Block range and personal views | Pass: select/create/move; resize preview cancellation retains 50/50; apply commits 70/30; flatten preserves both texts; outline/focus | [Columns](BlockRangeColumnsAndPersonalViews.mp4) |
+| Formatting, conversion and nested input | Pass: native selected-range bold and heading conversion; toggle/list typing; outline reaches the closing heading after 60 long paragraphs | [Rich and nested](FormattingConversionAndNestedInput.mp4) |
+| Rich fields | Pass: real table-cell/caption/code input; code keeps original Unicode and whitespace after removing only the newly typed literal | [Rich fields](RichFieldInputAndLiteralPreservation.mp4) |
+| Direct title and picker | Pass: native title/body input, slash filtering, dismissal retains query and picker inserts a heading | [Writing](TitleWritingAndContextualPicker.mp4) |
+| Column focus/order/containment | Unresolved: continued-typing assertion after creation failed; later reorder/flatten/containment steps did not run in this final walkthrough | [Failed focus check](ColumnFocusOrderAndContainment.mp4) |
+| Keyboard title-to-body/slash Return | Unresolved: expected `Keyboard start ` prefix was not verified; reported native value joined `start` to the original body. Later heading input did not run | [Failed keyboard check](KeyboardTitleToBodyAndSlashAcceptance.mp4) |
+| Multiple layouts/boundary writing | Unresolved: independent layouts and forbidden-nesting rejection ran, but continued input into a new empty-column field did not reach the complete expected `Fresh writing` value | [Failed boundary check](MultipleLayoutsAndBoundaryWriting.mp4) |
+
+Earlier intermediate runs exercised additional steps, but they do not substitute for these final-source outcomes. Native tracing exposed input callbacks before an insertion/composition operation finishes; the revised wrapper commits after the native operation and after unmarking, and test observation now yields the main actor while waiting for actual values. Those changes improved complete walkthroughs but do not establish the three remaining checks. Keep their exact assertions and diagnose input, focus and observation timing without accepting partial text. Code fields disable smart punctuation/autocorrection; input composition and complete native behavior remain ST-124/ST-143 obligations.
+
+The Mac app compiled successfully. Revised Mac XCTest attempts failed before any test started with `Timed out while enabling automation mode`. Current keyboard split/divider and Mac input behavior remain unverified; ST-143 explicitly retains that environment and native acceptance check. The earlier [Mac recordings](../README.md) apply only to their original pinned source.
+
+Retain the reviewed direct-title, contextual-tool, logical-column and personal-view direction. Reject permanent controls on every plain block and reject nested layouts. The independent ST-120 commands and ST-140 expected documents remain the shared-core target; this host-only study cannot substitute for protocol-7 origin ownership, concurrency, author Undo or recovery.
+
+Following Luca's instruction to keep eligible work moving, **ST-121 remains In Progress and gates ST-123 native canvas work and its downstream input/touch delivery; ST-122 may implement the already accepted shared command/fixture contract.** The deferred Mac check remains in ST-143. This sequencing decision leaves unfinished checks visible and changes no physical, assistive, performance, publication or final native acceptance requirement.

@@ -1,6 +1,6 @@
 # ST-121 native interaction review, 5 October 2026
 
-The [isolated app](../../../Examples/ModernInteractionPrototype/README.md) builds for Mac and iOS. Two XCTest walkthroughs pass on the physical Mac running macOS 27.0.1 and on an iPhone simulator running iOS 27: **four tests, zero failures**. The [receipt](receipt.json) pins source and unmodified exported PNG/MP4 hashes. Movies are XCTest screen recordings of the actual tested app; they are not assembled from screenshots. Simulator evidence is not physical iPhone acceptance.
+This records the original source at `02c4393`. Two XCTest walkthroughs passed on the Mac running macOS 27.0.1 and on an iPhone simulator running iOS 27: **four tests, zero failures**. The [receipt](receipt.json) pins that source and unmodified exported PNG/MP4 hashes. Movies are XCTest screen recordings of the actual tested app; they are not assembled from screenshots. Simulator evidence is not physical iPhone acceptance. The [current revision review](revisions/README.md) records subsequent changes, four passing phone walkthroughs and three unresolved checks.
 
 | Walkthrough | Actual tested actions | Evidence |
 | --- | --- | --- |
@@ -15,11 +15,11 @@ Retain direct title editing, scalar-safe body input through the shared engine, a
 
 Reject using screenshot-only evidence for writing behavior, reproducing the engine in a host, and publishing this local review state as a modern document. Protocol-7 transaction grouping, shared title/layout history and concurrent ownership routes remain ST-122 requirements.
 
-**ST-121 stays In Progress.** Its remaining prototype revisions/checks are explicit:
+**ST-121 stays In Progress.** The original review produced these explicit prototype revisions/checks; their current disposition is recorded in the [revision review](revisions/README.md):
 
 * Quiet the permanent per-block action chrome and validate contextual formatting, conversion, reorder and nested/rich editing with native input.
 * Make the narrow outline a panel and expose touch resize while stacked. Add pointer divider dragging and a test that proves the split changes; the current keyboard slider walkthrough alone does not prove a meaningful ratio change.
 * Render rich marks on iOS, validate selection/focus retention across tools/moves and follow keyboard-only title-to-body navigation, touch accessory, list/toggle containment and long-document outline jumps.
 * Use container membership order for column rendering and review multiple independent layouts, boundary insertion, cancellation and explicit forbidden nesting. The current local study supports one layout around selected roots and is not the final shared model.
 
-These are concrete revisions to this prototype, not additional scope or passed checks. Independent ST-140 fixture work can proceed while they remain open; ST-122 still requires ST-121 and ST-140 completion. Physical-device access/acceptance stays with ST-170/ST-139/ST-142/ST-143 and does not hold up fixture/design work. No credentials, package grants, publication or paid services changed.
+These are concrete prototype revisions. ST-140's independent fixture contract is now complete. Following Luca's instruction to keep eligible work moving, ST-121 gates ST-123 native canvas work and downstream input/touch delivery while ST-122 proceeds from the accepted ST-120/ST-140 shared-core contract. Pending checks remain open. Physical-device access/acceptance stays with ST-170/ST-139/ST-142/ST-143. No credentials, package grants, publication or paid services changed.
