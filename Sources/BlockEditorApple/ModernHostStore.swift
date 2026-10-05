@@ -42,13 +42,16 @@ public struct ModernHostCheckpoint: Codable, Sendable {
     public let recovery: Data?
     public let deferred: Data
     public let pendingInputs: [ModernPendingInput]
+    private let clipboardPayloads: [ModernRetainedClipboard]?
+    public var retainedClipboard: [ModernRetainedClipboard] { clipboardPayloads ?? [] }
 
-    @MainActor public init(session: ModernSession, pendingInputs: [ModernPendingInput] = []) throws {
+    @MainActor public init(session: ModernSession, pendingInputs: [ModernPendingInput] = [], retainedClipboard: [ModernRetainedClipboard] = []) throws {
         guard !session.isComposing || !pendingInputs.isEmpty else { throw ModernSessionError.compositionActive }
         version = 1; revision = UUID(); documentID = session.documentID; actorID = session.actorID; epoch = session.epoch
         accepted = try session.save(); historySelection = try session.exportHistorySelection()
         providers = try session.exportAsyncRequests(); recovery = try session.exportRecovery()
         deferred = try session.exportDeferredChanges(); self.pendingInputs = pendingInputs
+        clipboardPayloads = retainedClipboard.isEmpty ? nil : retainedClipboard
         try validate()
     }
 
@@ -70,6 +73,7 @@ public struct ModernHostCheckpoint: Codable, Sendable {
                 guard let text = draft.nativeText, selection.lowerBound >= 0, selection.upperBound <= text.utf16.count else { throw ModernHostStoreError.invalidCheckpoint }
             }
         }
+        try validateRetainedClipboard(retainedClipboard, documentID: documentID, epoch: epoch)
     }
 
     /// Build a detached candidate before the host replaces its active model.
@@ -99,6 +103,7 @@ public struct ModernHostCheckpoint: Codable, Sendable {
     public let checkpoint: ModernHostCheckpoint
     public let session: ModernSession
     public var pendingInputs: [ModernPendingInput] { checkpoint.pendingInputs }
+    public var retainedClipboard: [ModernRetainedClipboard] { checkpoint.retainedClipboard }
     private let release: () throws -> Void
     fileprivate init(checkpoint: ModernHostCheckpoint, session: ModernSession, release: @escaping () throws -> Void) {
         self.checkpoint = checkpoint; self.session = session; self.release = release

@@ -10,6 +10,11 @@ import Observation
     public private(set) var canRedo: Bool
     public private(set) var error: String?
     public var isEditable = true
+    /// Deactivate the outgoing document before switching its mounted host.
+    public var isActive = true { didSet { if isActive != oldValue { invocationGeneration &+= 1; if !isActive { blur() } } } }
+    @ObservationIgnored private(set) var invocationGeneration: UInt64 = 0
+    @ObservationIgnored public lazy var clipboard = ModernClipboardController(model: self, retained: restoredClipboard)
+    @ObservationIgnored private let restoredClipboard: [ModernRetainedClipboard]
     public private(set) var focusIntent: ModernFocusIntent?
     public private(set) var pendingInputs: [UUID: ModernPendingInput] = [:]
     @ObservationIgnored public let session: ModernSession
@@ -31,7 +36,8 @@ import Observation
         }
     }
 
-    public init(session: ModernSession) {
+    public init(session: ModernSession, retainedClipboard: [ModernRetainedClipboard] = []) {
+        restoredClipboard = retainedClipboard
         self.session = session; document = session.document; canUndo = session.canUndo; canRedo = session.canRedo
         session.onWillReceive = { [weak self] in self?.inputs.values.forEach { $0.prepareReceive() } }
         onChange = session.onChange
@@ -58,10 +64,26 @@ import Observation
     func draftsChanged() { pendingInputs = Dictionary(uniqueKeysWithValues: inputs.values.compactMap { input in input.pendingInput.map { (input.id, $0) } }) }
     func report(_ failure: Error) { error = String(describing: failure); draftsChanged() }
     func inputSucceeded() { error = nil; publish() }
+    /// Settle native drafts without splitting typing history or authoring.
+    func captureClipboardSelection(_ input: ModernInputController? = nil) throws {
+        guard isActive, !performing, input == nil || ownsInput(input!) else { throw EditorError.invalidChange }
+        performing = true; defer { performing = false }
+        let source = activeInput
+        for control in Array(inputs.values) { try control.settle() }
+        if let source { try source.selectionChanged(source.selection) }
+    }
+    /// A captured command owns its history grouping. Failed publication and
+    /// read-only capture must not end an otherwise continuous typing group.
+    func clipboardApplied(_ result: ModernStructuralResult?, source: ModernInputController?) {
+        error = nil; publish()
+        if let result, let source, ownsInput(source), let window = source.window {
+            focusIntent = result.focus; transfer(result.focus, source: source, window: window)
+        }
+    }
     /// Returned intent stays local. The canvas owns node/insertion surfaces;
     /// mounted native field controllers apply only checked text intents.
     public func perform(_ operation: (ModernSession) throws -> ModernFocusIntent?) throws {
-        guard isEditable, !performing else { throw EditorError.invalidChange }
+        guard isActive, isEditable, !performing else { throw EditorError.invalidChange }
         performing = true; defer { performing = false }
         let source = activeInput, window = source?.window
         do {
@@ -83,7 +105,7 @@ import Observation
     }
     public func checkpoint() throws -> ModernHostCheckpoint {
         guard !inputs.values.contains(where: { $0.nativeEditing }) else { throw ModernSessionError.compositionActive }
-        return try ModernHostCheckpoint(session: session, pendingInputs: Array(inputs.values).compactMap { $0.pendingInput })
+        return try ModernHostCheckpoint(session: session, pendingInputs: Array(inputs.values).compactMap { $0.pendingInput }, retainedClipboard: clipboard.retained)
     }
     func transfer(_ intent: ModernFocusIntent, source: ModernInputController, window: AnyObject, selection: WritingTextRange? = nil) {
         guard case .text(let position) = intent else { return }

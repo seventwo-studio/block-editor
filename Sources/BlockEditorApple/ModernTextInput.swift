@@ -16,15 +16,16 @@ private typealias ModernPlatformView = ModernUIKitTextView
     private let field: WritingField
     private let label: String
     private let submit: (() -> Bool)?
-    public init(model: ModernEditorModel, field: WritingField, label: String = "Block text", onSubmit: (() -> Bool)? = nil) {
-        self.model = model; self.field = field; self.label = label; submit = onSubmit
+    private let clipboardAccess: any ModernClipboardAccess
+    public init(model: ModernEditorModel, field: WritingField, label: String = "Block text", onSubmit: (() -> Bool)? = nil, clipboard: any ModernClipboardAccess = ModernNativeClipboard()) {
+        self.model = model; self.field = field; self.label = label; submit = onSubmit; clipboardAccess = clipboard
     }
     public var body: some View {
         // An explicit changing value invalidates the representable even while
         // its observable model reference and opaque field remain stable.
-        ModernPlatformInput(model: model, field: field, label: label, submit: submit,
+        ModernPlatformInput(model: model, field: field, label: label, submit: submit, clipboard: clipboardAccess,
             projectedText: (try? model.session.text(in: field)) ?? "", document: model.document,
-            editable: model.isEditable, intent: model.focusIntent).id(field)
+            editable: model.isEditable && model.isActive, intent: model.focusIntent).id(field)
     }
 }
 
@@ -33,11 +34,12 @@ private typealias ModernPlatformView = ModernUIKitTextView
     let field: WritingField
     let label: String
     let submit: (() -> Bool)?
+    let clipboard: any ModernClipboardAccess
     let projectedText: String
     let document: ModernDocument
     let editable: Bool
     let intent: ModernFocusIntent?
-    func makeCoordinator() -> ModernNativeCoordinator { ModernNativeCoordinator(model: model, field: field, submit: submit) }
+    func makeCoordinator() -> ModernNativeCoordinator { ModernNativeCoordinator(model: model, field: field, submit: submit, clipboard: clipboard) }
 }
 
 #if os(macOS)
@@ -86,8 +88,10 @@ extension ModernPlatformInput: UIViewRepresentable {
     weak var view: ModernPlatformView?
     private var rendering = false
     private let submit: (() -> Bool)?
-    init(model: ModernEditorModel, field: WritingField, submit: (() -> Bool)?) {
+    private let clipboard: any ModernClipboardAccess
+    init(model: ModernEditorModel, field: WritingField, submit: (() -> Bool)?, clipboard: any ModernClipboardAccess) {
         self.model = model; input = try? ModernInputController(model: model, field: field); self.submit = submit
+        self.clipboard = clipboard
     }
     func connect(_ view: ModernPlatformView) {
         self.view = view; view.delegate = self; view.isEditable = input != nil && model.isEditable
@@ -97,6 +101,7 @@ extension ModernPlatformInput: UIViewRepresentable {
         view.didFocus = { [weak self] in guard let self, !self.model.restoringFocus else { return }; do { try self.input?.activate(selection: self.selectedRange) } catch { self.model.report(error) } }
         view.didBlur = { [weak self] in guard let self, !self.model.restoringFocus else { return }; self.model.blur() }
         view.submit = submit
+        view.clipboardAction = { [weak self] action in self?.clipboardAction(action) }
         view.history = { [weak self] redo in
             guard let self else { return }; do { if redo { try self.model.redo() } else { try self.model.undo() } } catch { self.model.report(error) }
         }
@@ -115,10 +120,35 @@ extension ModernPlatformInput: UIViewRepresentable {
         input?.settleNativeInput = { [weak self] in
             guard let self, let view = self.view, !view.nativeEditing else { throw ModernSessionError.compositionActive }
             let range = self.selectedRange
-            self.rendering = true; view.unmarkText(); self.rendering = false
+            #if os(macOS)
+            let marked = view.hasMarkedText()
+            #else
+            let marked = view.markedTextRange != nil
+            #endif
+            if marked { self.rendering = true; view.unmarkText(); self.rendering = false }
             try self.input?.update(text: self.nativeText, selection: range, marked: false)
         }
         attached(); render()
+    }
+    private func clipboardAction(_ action: String) {
+        guard let input else { return }
+        do {
+            try model.captureClipboardSelection(input)
+            let selection = input.selection
+            let range = try model.session.captureTextRange(in: input.field, start: selection.location, end: NSMaxRange(selection))
+            switch action {
+            case "copy":
+                guard selection.length > 0 else { return }
+                _ = try model.clipboard.copy(ModernDeleteTarget(ranges: [range]), to: clipboard, source: input)
+            case "cut":
+                guard selection.length > 0 else { return }
+                _ = try model.clipboard.cut(ModernDeleteTarget(ranges: [range]), to: clipboard, source: input)
+            case "paste", "pastePlain":
+                guard let payload = try clipboard.read() else { return }
+                _ = try model.clipboard.paste(payload, at: ModernPasteTarget(range: range), mode: action == "pastePlain" ? .plainText : .rich, source: input)
+            default: break
+            }
+        } catch { model.report(error) }
     }
     private var nativeText: String {
         #if os(macOS)
@@ -194,7 +224,7 @@ extension ModernPlatformInput: UIViewRepresentable {
         // recovery; it cannot keep callbacks to a dismantled native control.
         input?.onProjection = nil; input?.settleNativeInput = nil; input?.applyNativeFocus = nil
         view?.delegate = nil; view?.beforeEdit = nil; view?.afterEdit = nil; view?.didMove = nil
-        view?.didFocus = nil; view?.didBlur = nil; view?.submit = nil; view?.history = nil; view = nil
+        view?.didFocus = nil; view?.didBlur = nil; view?.submit = nil; view?.history = nil; view?.clipboardAction = nil; view = nil
     }
 }
 
@@ -210,6 +240,7 @@ extension ModernNativeCoordinator: NSTextViewDelegate {
     var beforeEdit: ((Bool) -> Void)?, afterEdit: (() -> Void)?, didMove: (() -> Void)?
     var didFocus: (() -> Void)?, didBlur: (() -> Void)?, submit: (() -> Bool)?
     var history: ((Bool) -> Void)?
+    var clipboardAction: ((String) -> Void)?
     private var depth = 0, detaching = false
     var nativeEditing: Bool { depth > 0 }
     override func viewWillMove(toWindow window: NSWindow?) { detaching = window == nil; super.viewWillMove(toWindow: window) }
@@ -229,6 +260,11 @@ extension ModernNativeCoordinator: NSTextViewDelegate {
         edit { super.doCommand(by: selector) }
     }
     override var undoManager: UndoManager? { nil }
+    override func copy(_ sender: Any?) { clipboardAction?("copy") }
+    override func cut(_ sender: Any?) { clipboardAction?("cut") }
+    override func paste(_ sender: Any?) { clipboardAction?("paste") }
+    override func pasteAsPlainText(_ sender: Any?) { clipboardAction?("pastePlain") }
+    override func pasteAsRichText(_ sender: Any?) { clipboardAction?("paste") }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         if isEditable, event.modifierFlags.contains(.command), event.charactersIgnoringModifiers?.lowercased() == "z" { history?(event.modifierFlags.contains(.shift)); return true }
         return super.performKeyEquivalent(with: event)
@@ -246,6 +282,7 @@ extension ModernNativeCoordinator: UITextViewDelegate {
     var beforeEdit: ((Bool) -> Void)?, afterEdit: (() -> Void)?, didMove: (() -> Void)?
     var didFocus: (() -> Void)?, didBlur: (() -> Void)?, submit: (() -> Bool)?
     var history: ((Bool) -> Void)?
+    var clipboardAction: ((String) -> Void)?
     private var depth = 0, detaching = false
     var nativeEditing: Bool { depth > 0 }
     override func willMove(toWindow window: UIWindow?) { detaching = window == nil; super.willMove(toWindow: window) }
@@ -263,6 +300,10 @@ extension ModernNativeCoordinator: UITextViewDelegate {
     override func setMarkedText(_ text: String?, selectedRange: NSRange) { edit(marked: true) { super.setMarkedText(text, selectedRange: selectedRange) } }
     override func unmarkText() { edit { super.unmarkText() } }
     override var undoManager: UndoManager? { nil }
+    override func copy(_ sender: Any?) { clipboardAction?("copy") }
+    override func cut(_ sender: Any?) { clipboardAction?("cut") }
+    override func paste(_ sender: Any?) { clipboardAction?("paste") }
+    override func pasteAndMatchStyle(_ sender: Any?) { clipboardAction?("pastePlain") }
     override var keyCommands: [UIKeyCommand]? {
         [UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(undoShared)),
          UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(redoShared))]

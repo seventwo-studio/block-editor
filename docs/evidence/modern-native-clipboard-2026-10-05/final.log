@@ -1,0 +1,40 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 1]
+[2 / 15] BlockEditorApple
+[5 / 18] BlockEditorApple
+[7 / 20] BlockEditorApple
+[12 / 28] BlockEditorApple
+[16 / 27] BlockEditorApple
+[20 / 27] local-editor-app-product
+[25 / 28] local-editor-app-product
+[26 / 29] BlockEditorAppleTests-product
+Build complete! (2.38 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernNativeClipboardTests started.
+◇ Suite ModernNativeInputTests started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() started.
+◇ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() started.
+◇ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() started.
+◇ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() started.
+◇ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() started.
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.257 seconds.
+✔ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() passed after 0.351 seconds.
+✔ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() passed after 0.430 seconds.
+✔ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() passed after 0.437 seconds.
+✔ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() passed after 0.437 seconds.
+✔ Suite ModernNativeClipboardTests passed after 0.437 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 0.437 seconds.
+✔ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() passed after 0.439 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.462 seconds.
+✔ Suite ModernHostStoreTests passed after 0.462 seconds.
+✔ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() passed after 0.570 seconds.
+✔ Suite ModernNativeInputTests passed after 0.571 seconds.
+✔ Test run with 9 tests in 3 suites passed after 0.571 seconds.

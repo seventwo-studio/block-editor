@@ -35,7 +35,7 @@ import Foundation
         host = model; self.field = field; model.register(self)
     }
     public func activate(selection: NSRange) throws {
-        guard let model = host, !closed, model.isEditable else { throw EditorError.invalidChange }
+        guard let model = host, !closed, model.isActive else { throw EditorError.invalidChange }
         model.activate(self); try selectionChanged(selection)
     }
     public func selectionChanged(_ range: NSRange) throws {
@@ -43,12 +43,25 @@ import Foundation
               range.location <= text.utf16.count, range.length <= text.utf16.count - range.location else { throw EditorError.invalidChange }
         selection = range
         guard !composing, !committing else { return }
+        try updateSelectionAnchors(range, model: model)
+    }
+    private func updateSelectionAnchors(_ range: NSRange, model: ModernEditorModel) throws {
+        // Native offset echoes can describe either side of an atom boundary.
+        // Keep the command's existing causal anchor when the caret is unchanged.
+        if model.ownsInput(self), let local = model.session.localSelection,
+           case .text(let current) = local.selection,
+           let start = try? model.session.resolve(current.start), let end = try? model.session.resolve(current.end),
+           start.address.identity == field.node, end.address.identity == field.node,
+           start.address.path.last == field.name, end.address.path.last == field.name,
+           min(start.offset, end.offset) == range.location, abs(end.offset - start.offset) == range.length {
+            anchors = current; return
+        }
         let captured = try model.session.captureTextRange(in: field, start: range.location, end: NSMaxRange(range))
         anchors = WritingTextRange(start: captured.start, end: captured.end)
         if model.ownsInput(self) { try model.session.setLocalSelection(model.session.captureLocalSelection(focus: .text(captured.end), selection: .text(anchors!))) }
     }
     public func beginComposition() throws {
-        guard let model = host, !closed, model.isEditable else { throw EditorError.invalidChange }
+        guard let model = host, !closed, model.isActive, model.isEditable else { throw EditorError.invalidChange }
         if !composing {
             if sourceText == nil { sourceText = text }
             if release == nil { release = try model.session.holdRemoteChanges() }
@@ -56,7 +69,7 @@ import Foundation
         }
     }
     public func beginNativeOperation(marked: Bool = false) throws {
-        guard let model = host, !closed, model.isEditable else { throw EditorError.invalidChange }
+        guard let model = host, !closed, model.isActive, model.isEditable else { throw EditorError.invalidChange }
         if sourceText == nil { sourceText = text }
         if release == nil { release = try model.session.holdRemoteChanges() }
         nativeEditing = true
@@ -69,6 +82,9 @@ import Foundation
               range.length >= 0, range.location <= value.utf16.count,
               range.length <= value.utf16.count - range.location else { throw EditorError.invalidChange }
         nativeEditing = false
+        if !marked, !composing, pendingInput == nil, sourceText == nil, value == text {
+            try selectionChanged(range); return
+        }
         if marked, model.isEditable { try beginComposition() }
         let before = sourceText ?? text, difference = Self.difference(before, value)
         let target: ModernTextRange
@@ -83,7 +99,7 @@ import Foundation
             nativeText: value, nativeSelection: range.location..<NSMaxRange(range))
         selection = range
         if marked { model.draftsChanged(); return }
-        guard model.isEditable else { let failure = EditorError.invalidChange; model.report(failure); throw failure }
+        guard model.isActive, model.isEditable else { let failure = EditorError.invalidChange; model.report(failure); throw failure }
         let wasComposing = composing
         committing = true; defer { committing = false; refresh() }
         model.composition(id, active: false)
@@ -91,9 +107,7 @@ import Foundation
             if before != value {
                 _ = try model.session.replaceText(in: target, with: difference.text, typingGroup: typingGroup)
             }
-            let selected = try model.session.captureTextRange(in: field, start: range.location, end: NSMaxRange(range))
-            anchors = WritingTextRange(start: selected.start, end: selected.end)
-            if model.ownsInput(self) { try model.session.setLocalSelection(model.session.captureLocalSelection(focus: .text(selected.end), selection: .text(anchors!))) }
+            try updateSelectionAnchors(range, model: model)
             pendingInput = nil; sourceText = nil; composing = false; model.composition(id, active: false)
             let finish = release; release = nil; try finish?()
             model.inputSucceeded()
