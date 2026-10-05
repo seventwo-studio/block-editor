@@ -1,6 +1,6 @@
 # Implemented modern command API
 
-ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript entrypoint now exposes the implemented modern contract; typed Kotlin and complete native host acceptance remain unfinished.
+ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript and Kotlin entrypoints now expose the implemented modern contract. Kotlin JNI execution and complete native host acceptance remain open.
 
 ## TypeScript consumer
 
@@ -25,6 +25,21 @@ Commit platform input before direct `receive`, or hold remote changes while the 
 The [typed adapter receipt](evidence/modern-typescript-adapter-2026-10-05/receipt.json) records actual applied coverage for every advertised command through the native C ABI and Chromium/WebKit WASM, all 55 accepted complete document fixtures, local lifecycle/recovery assertions, type rejection checks, regression and isolated installed-package verification. The initial Firefox run and a controlled temporary-profile retry fail before browser launch; they remain execution failures, not passed or skipped editor checks. Native input/IME, OS clipboard/provider integration, durable storage activation and the full physical/assistive host matrix retain their existing acceptance gates. The unchanged shared core retains its separately pinned Swift/migration evidence.
 
 A modernCommand request has documentID, epoch, command, target and arguments. Results carry status (applied/noop/unavailable/recoveryRequired), the materialized snapshot, actual admitted author transaction, and local focus/selection intent. Unsupported commands and host/composition policy restrictions return unchanged unavailable results. Malformed schemas and wrong scope return the existing structured error boundary. Checked column and writing/list commands return unchanged unavailable results for invalid target/argument values; other invalid/stale targets retain the structured error boundary. Pending retained recovery disables further conflicting author edits. A result is planned against the validated candidate before publishing its document/history. Result intents are not replicated instructions to move peers' focus.
+
+## Kotlin consumer
+
+The Android library exposes `ModernSession`, `ModernCommand` and the `Modern*` contracts in `studio.seventwo.blockeditor`. Create explicitly with an admitted `ModernDocument`; old `EditorSession` and `WritingSession` protocols retain their defaults. All 22 author commands couple their captured targets with their own argument types. Appearance presets use separate enum-typed operations; opaque appearance data cannot become an authorable register. Text/collection paste and column targets are separate sealed alternatives, and only `ModernCommand.Author` accepts an explicit history-selection override.
+
+```kotlin
+val session = ModernSession.create(ModernDocument.restore(documentJSON), actorID, epoch)
+val title = ModernField(ModernNodeID.document(session.snapshot.document.documentID), "title")
+val range = session.captureTextRange(title, 0, session.snapshot.document.title.length)
+val result = session.execute(ModernCommand.ReplaceTitle(range, "Field notes"))
+```
+
+Use the session on its creating thread. `snapshot` is Compose-observable; its owned values, nested getters and exports protect accepted state from caller mutation. Publication precedes `subscribe` callbacks, and observer failures go to `onListenerError` without changing the accepted outcome. `ModernRecoveryException` publishes refreshed accepted state/recovery before propagation. Cut publication, nested remote holds, separate selection/recovery/deferred/provider archives and invocation generations retain the same explicit lifecycle as the TypeScript facade. `ModernCutover` exposes archive preparation/chunks/readback and separate legacy text/writing position remapping. `ModernCutoverAcknowledgments` requires three explicit true acknowledgments before `ModernSession.fromCutover`; the host owns actual storage, activation and rollback.
+
+Local compilation and Android test packaging pass. One focused `ModernSessionTest` is wired into existing Android CI for actual JNI execution; packaging does not prove its assertions executed. The local bundled native libraries predate protocol 7, so this delivery does not claim local Android runtime acceptance. See [Kotlin delivery evidence](evidence/modern-kotlin-adapter-2026-10-05/receipt.json). No modern Android view, IME integration or complete host acceptance is provided by this facade.
 
 ## Captured targets
 

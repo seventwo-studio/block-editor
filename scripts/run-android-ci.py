@@ -147,6 +147,7 @@ def main():
         instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
+        instrument("studio.seventwo.blockeditor.ModernSessionTest", "modern-session-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
