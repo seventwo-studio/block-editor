@@ -16,6 +16,7 @@ public enum ModernOperation: Codable, Equatable, Sendable {
     case structure(Mutation)
     case text(WritingMutation)
     case setAppearance(field: String, value: String)
+    case setSemanticDefault(node: NodeID, kind: ModernSemanticKind, role: String?)
 }
 public enum ModernChangeBody: Codable, Equatable, Sendable {
     case edit([ModernOperation])
@@ -384,7 +385,7 @@ public final class ModernSession {
         guard projection.hasField(field) else { throw EditorError.invalidPath }
         if field != titleField { _ = try structure.address(of: projection.destination(of: field).node) }
     }
-    private func plainField(_ field: WritingField) -> Bool { field == titleField || ["code", "expression"].contains(field.name) }
+    func plainField(_ field: WritingField) -> Bool { field == titleField || ["code", "expression"].contains(field.name) }
     private func validatePlainText(_ text: String, field: WritingField) throws {
         try validateField(field)
         if field == titleField && text.unicodeScalars.contains(where: { [10, 13, 0x2028, 0x2029].contains($0.value) }) { throw EditorError.invalidChange }
@@ -560,6 +561,7 @@ public final class ModernSession {
                 let beforeRoleNodes = raw.structure!.nodes
                 var retainedRoles = Set<NodeID>(), passedRolePrefix = false
                 var causalTextProjection: WritingProjection?
+                var causalSemanticStructure: StructuralState?
                 func reference(_ key: WritingAtomKey) throws {
                     try modernReference(key.origin.node, before: change.id, cohort: cohort, registry: registry)
                     guard registeredBirths[key.origin] != nil, raw.structure!.nodes[key.origin.node] != nil else { throw EditorError.invalidChange }
@@ -734,6 +736,13 @@ public final class ModernSession {
                         let captured = try causalColumnStructure(capturedIDs, in: candidate), authored = try causalWritingReplay(cohort, in: candidate)
                         try validateSelectedNodes(join.selection.nodes, in: captured)
                         try validateModernJoin(join, structure: authored.1, projection: authored.0)
+                    case .setSemanticDefault(let node, let kind, let role):
+                        try validateModernSemanticRole(role)
+                        try modernReference(node, before: change.id, cohort: cohort, registry: registry)
+                        if causalSemanticStructure == nil { causalSemanticStructure = try causalWritingReplay(cohort, in: candidate).1 }
+                        do { try validateModernSemanticNode(node, in: causalSemanticStructure!) } catch { throw EditorError.invalidChange }
+                        guard registers.insert(kind.field + ":" + node.key).inserted else { throw EditorError.invalidChange }
+                        try applyModernSemanticDefault(node: node, kind: kind, role: role, enabled: active[change.id] ?? true, raw: &raw)
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
@@ -844,6 +853,8 @@ public final class ModernSession {
                     collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
                 case .mergeBlocks: break
                 case .text: break
+                case .setSemanticDefault(let node, let kind, let role):
+                    try applyModernSemanticDefault(node: node, kind: kind, role: role, enabled: enabled, raw: &raw)
                 case .setAppearance: break
                 }
             }
@@ -877,6 +888,9 @@ public final class ModernSession {
                     }
                     if case .mergeBlocks(let join) = operation {
                         guard join.selection.nodes.count == 2 else { throw EditorError.invalidChange }
+                    }
+                    if case .setSemanticDefault(let node, _, let role) = operation {
+                        try modernStructuralIdentityShape(node); try validateModernSemanticRole(role)
                     }
                     if case .convertBlock(let node, let type, let attributes) = operation {
                         try modernStructuralIdentityShape(node)
@@ -1008,6 +1022,9 @@ public final class ModernSession {
                         try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
                         guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange }
                     case .structure, .createColumns, .removeColumns, .resizeColumns: break
+                    case .setSemanticDefault(let node, let kind, let role):
+                        try modernStructuralIdentityShape(node); try validateModernSemanticRole(role)
+                        guard registers.insert(kind.field + ":" + node.key).inserted else { throw EditorError.invalidChange }
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }

@@ -39,7 +39,7 @@ import Testing
         #expect(initial["version"] == .number(7) && initial["canUndo"] == .bool(false))
         let capabilities = try success(call(bridge, "modernCapabilities"))
         #expect(capabilities["protocolVersion"] == .number(7) && capabilities["cutoverToModern"] == .bool(false))
-        #expect(capabilities["commands"]?.array?.count == 17)
+        #expect(capabilities["commands"]?.array?.count == 19)
         let target = try capture(bridge, "a", 0, 0, title: true)
         let edited = try success(command(bridge, "a", "replaceTitle", target: target, arguments: ["text": .string("Studio ")]))
         #expect(edited["status"] == .string("applied") && edited["document"]?["title"] == .string("Studio A"))

@@ -480,11 +480,102 @@ def main():
     styled = command('list-reopened', 'listStructure', dict(selection=selected), action='setStyle', style='ordered')
     assert styled['status'] == 'applied' and styled['document']['blocks'] == [expected_checked['blocks'][0], dict(expected_checked['blocks'][1], style='ordered')]
     assert command('list-reopened', 'undo')['document'] == expected_checked
+    # Semantic defaults and links use independent literal documents and marks,
+    # preserving captured atoms, peer text and author-local Undo/reopen.
+    bold = dict(type='bold')
+    green = dict(type='semantic-color', value='green')
+    link = dict(type='link', href='https://example.com/path')
+    inline_document = dict(baseline, blocks=[dict(id='A', type='paragraph', consumer=dict(color='custom'), content=[dict(type='text', text='ABC', marks=[bold])]),
+                                            dict(id='B', type='paragraph', content=[])])
+    column_session('ink-a', inline_document)
+    column_session('ink-b', inline_document)
+    origin_a = dict(baseline=dict(blockID='A', path=[]))
+    origin_b = dict(baseline=dict(blockID='B', path=[]))
+    inline_field = dict(node=origin_a, name='content')
+    text_target = success('modernCaptureTextRange', 'ink-a', field=inline_field, start=3, end=0)
+    selection = success('modernCaptureNodes', 'ink-a', nodes=[origin_a, origin_b])
+    nodes_target = dict(nodes=selection)
+    peer_target = success('modernCaptureTextRange', 'ink-b', field=inline_field, start=1, end=1)
+    command('ink-b', 'replaceText', peer_target, text='peer')
+    peer_nodes = success('modernCaptureNodes', 'ink-b', nodes=[origin_a])
+    command('ink-b', 'setSemanticColor', dict(nodes=peer_nodes), kind='fill', role='amber')
+    colored = command('ink-a', 'setSemanticColor', nodes_target, kind='ink', role='blue')
+    assert colored['status'] == 'applied' and colored['selectionIntent']['nodes']
+    success('modernReceive', 'ink-a', batch=success('modernChanges', 'ink-b'))
+    success('modernReceive', 'ink-b', batch=success('modernChanges', 'ink-a'))
+    peer_document = dict(inline_document, blocks=[dict(inline_document['blocks'][0], semanticBackground='amber', content=[dict(type='text', text='ApeerBC', marks=[bold])]), inline_document['blocks'][1]])
+    expected_defaults = dict(inline_document, blocks=[dict(peer_document['blocks'][0], semanticColor='blue'), dict(inline_document['blocks'][1], semanticColor='blue')])
+    saved = success('modernSave', 'ink-a')
+    success('restoreModern', 'ink-reopen', actorID='ink-a', snapshot=saved)
+    assert command('ink-reopen', 'undo')['document'] == peer_document
+    assert command('ink-reopen', 'redo')['document'] == expected_defaults
+    assert success('modernSemanticState', 'ink-reopen', target=nodes_target, kind='ink') == dict(role=dict(_0='blue'))
+    assert success('modernSemanticState', 'ink-reopen', target=nodes_target, kind='fill') == dict(mixed={})
+    rich = command('ink-reopen', 'setSemanticColor', dict(range=text_target), kind='ink', role='green')
+    expected_rich = dict(expected_defaults, blocks=[dict(expected_defaults['blocks'][0], content=[dict(type='text', text='A', marks=[bold, green]), dict(type='text', text='peer', marks=[bold]), dict(type='text', text='BC', marks=[bold, green])]), expected_defaults['blocks'][1]])
+    assert rich['document'] == expected_rich and rich['focus'] == text_target['end']
+    full_range = success('modernCaptureTextRange', 'ink-reopen', field=inline_field, start=0, end=7)
+    assert success('modernSemanticState', 'ink-reopen', target=dict(range=full_range), kind='ink') == dict(mixed={})
+    linked = command('ink-reopen', 'setLink', text_target, href='https://example.com/path')
+    expected_linked = dict(expected_defaults, blocks=[dict(expected_defaults['blocks'][0], content=[dict(type='text', text='A', marks=[bold, link, green]), dict(type='text', text='peer', marks=[bold]), dict(type='text', text='BC', marks=[bold, link, green])]), expected_defaults['blocks'][1]])
+    assert linked['document'] == expected_linked and linked['focus'] == text_target['end']
+    saved = success('modernSave', 'ink-reopen')
+    assert command('ink-reopen', 'setLink', text_target, href='https://example.com/path')['status'] == 'noop'
+    assert success('modernSave', 'ink-reopen') == saved
+    reset = command('ink-reopen', 'setSemanticColor', dict(range=text_target), kind='ink', role=None)
+    expected_reset = dict(expected_defaults, blocks=[dict(expected_defaults['blocks'][0], content=[dict(type='text', text='A', marks=[bold, link]), dict(type='text', text='peer', marks=[bold]), dict(type='text', text='BC', marks=[bold, link])]), expected_defaults['blocks'][1]])
+    assert reset['document'] == expected_reset
+    assert success('modernSemanticState', 'ink-reopen', target=dict(range=text_target), kind='ink') == dict(role=dict(_0='blue'))
+    assert command('ink-reopen', 'undo')['document'] == expected_linked
+    assert command('ink-reopen', 'undo')['document'] == expected_rich
+    assert command('ink-reopen', 'redo')['document'] == expected_linked
+    caret = success('modernCaptureTextRange', 'ink-reopen', field=inline_field, start=7, end=7)
+    label = command('ink-reopen', 'setLink', caret, href='mailto:hello@example.com', label='😀 link')
+    expected_label = dict(expected_defaults, blocks=[dict(expected_linked['blocks'][0], content=expected_linked['blocks'][0]['content'] + [dict(type='text', text='😀 link', marks=[bold, dict(type='link', href='mailto:hello@example.com'), green])]), expected_defaults['blocks'][1]])
+    assert label['document'] == expected_label
+    assert success('modernResolvePosition', 'ink-reopen', position=label['focus'])['offset'] == 14
+    assert command('ink-reopen', 'undo')['document'] == expected_linked
+    saved = success('modernSave', 'ink-reopen')
+    for name, target, arguments in [('setLink', text_target, dict(href='javascript:alert(1)')),
+                                    ('setSemanticColor', nodes_target, dict(kind='ink', role='custom'))]:
+        denied = command('ink-reopen', name, target, **arguments)
+        assert denied['status'] == 'unavailable' and denied['transaction'] is None
+        assert success('modernSave', 'ink-reopen') == saved
+    success('modernSetAuthoringPolicy', 'ink-reopen', allowedCommands=['setLink', 'undo', 'redo'])
+    assert success('modernCapabilities', 'ink-reopen')['commands'] == ['setLink', 'undo', 'redo']
+    denied = command('ink-reopen', 'setSemanticColor', nodes_target, kind='ink', role='red')
+    assert denied['status'] == 'unavailable' and denied['reason'] == 'hostPolicy' and denied['document'] == expected_linked
+    # A captured range follows suffix atoms into a peer-created field. State
+    # uses the actual field's default, while marks cover both retained segments.
+    column_session('cross-a', inline_document)
+    column_session('cross-b', inline_document)
+    cross_range = success('modernCaptureTextRange', 'cross-a', field=inline_field, start=3, end=0)
+    split_range = success('modernCaptureTextRange', 'cross-b', field=inline_field, start=1, end=1)
+    split = command('cross-b', 'splitBlock', split_range, newBlockID='tail')
+    tail_nodes = success('modernCaptureNodes', 'cross-b', nodes=[split['focus']['field']['node']])
+    command('cross-b', 'setSemanticColor', dict(nodes=tail_nodes), kind='ink', role='blue')
+    success('modernReceive', 'cross-a', batch=success('modernChanges', 'cross-b'))
+    assert success('modernSemanticState', 'cross-a', target=dict(range=cross_range), kind='ink') == dict(mixed={})
+    expected_cross_peer = dict(inline_document, blocks=[dict(inline_document['blocks'][0], content=[dict(type='text', text='A', marks=[bold])]),
+                                                     dict(id='tail', type='paragraph', semanticColor='blue', content=[dict(type='text', text='BC', marks=[bold])]), inline_document['blocks'][1]])
+    command('cross-a', 'setSemanticColor', dict(range=cross_range), kind='ink', role='green')
+    cross = command('cross-a', 'setLink', cross_range, href='https://example.com/path')
+    expected_cross = dict(inline_document, blocks=[dict(expected_cross_peer['blocks'][0], content=[dict(type='text', text='A', marks=[bold, link, green])]),
+                                                dict(expected_cross_peer['blocks'][1], content=[dict(type='text', text='BC', marks=[bold, link, green])]), inline_document['blocks'][1]])
+    assert cross['document'] == expected_cross
+    assert success('modernSemanticState', 'cross-a', target=dict(range=cross_range), kind='ink') == dict(role=dict(_0='green'))
+    cross_save = success('modernSave', 'cross-a')
+    success('restoreModern', 'cross-reopen', actorID='cross-a', snapshot=cross_save)
+    command('cross-reopen', 'undo')
+    assert command('cross-reopen', 'undo')['document'] == expected_cross_peer
+    assert success('modernSemanticState', 'cross-reopen', target=dict(range=cross_range), kind='ink') == dict(mixed={})
+    command('cross-reopen', 'redo')
+    assert command('cross-reopen', 'redo')['document'] == expected_cross
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy'],
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Clipboard, semantic defaults, migration and full host acceptance remain pending.')
+                  literalScenarios=['ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Clipboard, async completion, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

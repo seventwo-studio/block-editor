@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -92,6 +92,9 @@ final class ModernBridgeEndpoint {
         case "modernCaptureNodes":
             try allowed(input, ["command", "session", "nodes"])
             return try encode(session.captureNodes(decode(input["nodes"], as: [NodeID].self)))
+        case "modernSemanticState":
+            try allowed(input, ["command", "session", "target", "kind"])
+            return try encode(session.semanticState(decode(input["target"], as: ModernSemanticTarget.self), kind: decode(input["kind"], as: ModernSemanticKind.self)))
         case "modernComposition":
             try allowed(input, ["command", "session", "active"]); session.isComposing = try decode(input["active"], as: Bool.self)
         case "modernSetAuthoringPolicy":
@@ -166,6 +169,16 @@ final class ModernBridgeEndpoint {
                 guard try decode(request["target"], as: NodeID.self) == .document(documentID: session.documentID),
                       let field = arguments["field"]?.string, let value = arguments["value"]?.string else { throw EditorError.invalidChange }
                 try session.setAppearance(field: field, value: value)
+            case "setSemanticColor":
+                try allowed(arguments, ["kind", "role"])
+                guard let role = arguments["role"], role == .null || role.string != nil else { throw EditorError.invalidChange }
+                try structural(session.setSemanticColor(decode(request["target"], as: ModernSemanticTarget.self),
+                    kind: decode(arguments["kind"], as: ModernSemanticKind.self), role: role.string))
+            case "setLink":
+                try allowed(arguments, ["href", "label"])
+                guard let href = arguments["href"], href == .null || href.string != nil else { throw EditorError.invalidChange }
+                if let label = arguments["label"], label.string == nil { throw EditorError.invalidChange }
+                try structural(session.setLink(in: decode(request["target"], as: ModernTextRange.self), href: href.string, label: arguments["label"]?.string))
             case "format":
                 try allowed(arguments, ["markType", "mark"])
                 guard let type = arguments["markType"]?.string else { throw EditorError.invalidChange }
@@ -223,8 +236,8 @@ final class ModernBridgeEndpoint {
         catch ModernSessionError.recoveryRequired { return try result("recoveryRequired", reason: "schemaOrIdentityConflict") }
         catch let error as EditorError {
             if command == "convertBlock", case .invalidDocument = error { return try result("unavailable", reason: "conversionMetadataConflict") }
-            if ["createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure"].contains(command), error == .invalidChange || error == .invalidPath {
-                return try result("unavailable", reason: ["convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
+            if ["createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command), error == .invalidChange || error == .invalidPath {
+                return try result("unavailable", reason: ["convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
             }
             throw error
         }
