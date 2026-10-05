@@ -123,7 +123,7 @@ def main():
     assert success('createModern', 'lossy', actorID='lossy', documentID=document_id,
                    epoch=epoch, collaborationVersion=7, document=baseline)['document'] == baseline
     # Receive a real protocol-7 structural birth through the same compiled ABI.
-    # Local structural command/focus results are deliberately not advertised yet.
+    # Checked structural request/result scenarios follow below.
     created_id = {'counter': 1, 'actor': 'structural-peer'}
     element = {'change': created_id, 'index': 0}
     identity = {'inserted': {'creation': element, 'path': []}}
@@ -147,14 +147,62 @@ def main():
     success('destroy', 'structure')
     structural_restored = success('restoreModern', 'structure-resumed', actorID='structure', snapshot=structural_saved)
     assert structural_restored['document'] == edited['document'] and structural_restored['canUndo'] is True
-    assert 'insertBlock' not in capabilities['commands'] and 'move' not in capabilities['commands']
+    assert all(name in capabilities['commands'] for name in ('insertBlock', 'move', 'delete'))
+    # Checked structural results use the independent nested move snapshots.
+    nested = fixture('nested')
+    nested_moved = fixture('nested-moved')
+    success('createModern', 'nested', actorID='nested', documentID=nested['documentID'],
+            epoch=epoch, collaborationVersion=7, document=nested)
+    origin_a = {'baseline': {'blockID': 'A', 'path': []}}
+    selected = success('modernCaptureNodes', 'nested', nodes=[origin_a])
+    root_boundary = success('modernCaptureBoundary', 'nested', collection={'field': 'blocks'})
+    def structural_command(name, target=None, **arguments):
+        return success('modernCommand', 'nested', request=dict(documentID=nested['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    moved = structural_command('move', dict(selection=selected, boundary=root_boundary))
+    assert moved['status'] == 'applied' and moved['document'] == nested_moved
+    assert moved['selection']['nodes'] == [origin_a]
+    assert moved['focusIntent']['nodes']['_0'] == moved['selection']
+    assert structural_command('undo')['document'] == nested
+    assert structural_command('redo')['document'] == nested_moved
+    captured = success('modernCaptureBoundary', 'nested', collection={'field': 'blocks'})
+    inserted = structural_command('insertBlock', captured, block=dict(id='checked', type='paragraph',
+                                   content=[dict(type='text', text='Writing', marks=[])]))
+    assert inserted['status'] == 'applied' and inserted['focusIntent']['text']['_0'] == inserted['focus']
+    assert inserted['selectionIntent']['text']['_0'] == inserted['selection']
+    inserted_id = {'inserted': {'creation': {'change': inserted['transaction'], 'index': 0}, 'path': []}}
+    ordered = [inserted_id, origin_a] + [{'baseline': {'blockID': label, 'path': []}} for label in ('toggle', 'list')]
+    all_nodes = success('modernCaptureNodes', 'nested', nodes=ordered)
+    removed = structural_command('delete', dict(nodes=all_nodes, ranges=[]))
+    assert removed['status'] == 'applied' and removed['document']['blocks'] == []
+    assert removed['document']['title'] == nested['title']
+    assert removed['focus'] is None and removed['selection'] is None
+    insertion = removed['focusIntent']['insertion']['_0']
+    assert insertion['collection'] == {'field': 'blocks'}
+    assert structural_command('undo')['document'] == inserted['document']
+    assert structural_command('redo')['document'] == removed['document']
+    resumed_body = structural_command('insertBlock', insertion, block=dict(id='resumed', type='paragraph',
+                                      content=[dict(type='text', text='Resume', marks=[])]))
+    assert [block['id'] for block in resumed_body['document']['blocks']] == ['resumed']
+    # Stale targets cannot select another origin; malformed nested targets leave receipts intact.
+    saved_structural = success('modernSave', 'nested')
+    stale = call('modernCommand', 'nested', request=dict(documentID=nested['documentID'], epoch=epoch,
+                 command='delete', target=dict(nodes=all_nodes, ranges=[]), arguments={}))
+    assert stale['ok'] is False
+    assert success('modernSave', 'nested') == saved_structural
+    unsafe_block = dict(id='unsafe', type='paragraph', content=[dict(type='text', text='Bad',
+                        marks=[dict(type='link', href='javascript:bad')])])
+    rejected = call('modernCommand', 'nested', request=dict(documentID=nested['documentID'], epoch=epoch,
+                    command='insertBlock', target=root_boundary, arguments=dict(block=unsafe_block)))
+    assert rejected['ok'] is False
+    assert success('modernSave', 'nested') == saved_structural
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Local structural command/focus results, compound layout commands, migration and full host acceptance remain pending.')
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound layout commands, conversion, clipboard, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
-    print(f'Verified {responses} native C ABI responses against 4 independent fixtures.')
+    print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')
 
 
 if __name__ == '__main__':

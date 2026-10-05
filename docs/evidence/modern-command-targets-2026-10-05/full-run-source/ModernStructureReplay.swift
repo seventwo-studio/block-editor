@@ -73,23 +73,6 @@ func validateModernAuthoredBlock(_ value: JSONValue) throws {
         if kind == .block {
             guard let type = node["type"]?.string, known.contains(type) else { throw EditorError.invalidChange }
         }
-        // Newly authored structural payloads must use the same inline-mark
-        // policy as scalar text insertion. Unknown consumer fields stay opaque.
-        let inlineFields: [String]
-        if kind == .item || kind == .cell { inlineFields = ["content"] }
-        else if kind == .block {
-            switch node["type"]?.string {
-            case "paragraph", "heading", "quote", "callout": inlineFields = ["content"]
-            case "toggle": inlineFields = ["summary"]
-            case "image": inlineFields = ["caption"]
-            default: inlineFields = []
-            }
-        } else { inlineFields = [] }
-        for field in inlineFields {
-            for atom in node[field]?.array ?? [] {
-                for mark in atom["marks"]?.array ?? [] { try validateModernMark(type: mark["type"]?.string ?? "", mark: mark) }
-            }
-        }
         for (field, childKind) in StructuralState.collectionFields(kind, node.object ?? [:], modern: true) {
             pending.append(contentsOf: (node[field]?.array ?? []).map { ($0, childKind) })
         }

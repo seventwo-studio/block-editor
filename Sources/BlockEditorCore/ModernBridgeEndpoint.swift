@@ -5,7 +5,7 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "undo", "redo"]
+    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "move", "delete", "undo", "redo"]
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
         let command = input["command"]?.string ?? ""
@@ -72,6 +72,14 @@ final class ModernBridgeEndpoint {
         case "modernCaptureTextRange":
             try allowed(input, ["command", "session", "field", "start", "end"])
             return try encode(session.captureTextRange(in: decode(input["field"], as: WritingField.self), start: integer(input["start"]), end: integer(input["end"])))
+        case "modernCaptureBoundary":
+            try allowed(input, ["command", "session", "collection", "after"])
+            let collection = try decode(input["collection"], as: NodeCollection.self)
+            let after = try input["after"].map { try decode($0, as: NodeID.self) }
+            return try encode(session.captureBoundary(in: collection, after: after))
+        case "modernCaptureNodes":
+            try allowed(input, ["command", "session", "nodes"])
+            return try encode(session.captureNodes(decode(input["nodes"], as: [NodeID].self)))
         case "modernComposition":
             try allowed(input, ["command", "session", "active"]); session.isComposing = try decode(input["active"], as: Bool.self)
         case "modernSetAuthoringPolicy":
@@ -104,11 +112,14 @@ final class ModernBridgeEndpoint {
         guard request["epoch"] == .string(session.epoch) else { throw ModernSessionError.incompatibleEpoch }
         guard let command = request["command"]?.string, let arguments = request["arguments"], arguments.object != nil else { throw EditorError.invalidChange }
         func result(_ status: String, transaction: ChangeID? = nil, position: WritingPosition? = nil,
-                    selection: JSONValue? = nil, reason: String? = nil) throws -> JSONValue {
+                    selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+                    selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
             var fields = try snapshot(session).object!
             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
             fields["focus"] = try position.map(encode) ?? .null
-            fields["selection"] = try position.map { try encode(WritingTextRange(start: $0, end: $0)) } ?? selection ?? .null
+            fields["selection"] = try selection ?? position.map { try encode(WritingTextRange(start: $0, end: $0)) } ?? .null
+            fields["focusIntent"] = try (focusIntent ?? position.map(ModernFocusIntent.text)).map(encode) ?? .null
+            fields["selectionIntent"] = try (selectionIntent ?? position.map { .text(WritingTextRange(start: $0, end: $0)) }).map(encode) ?? .null
             if let reason { fields["reason"] = .string(reason) }
             return .object(fields)
         }
@@ -118,6 +129,13 @@ final class ModernBridgeEndpoint {
         if session.mergeRecovery != nil { return try result("recoveryRequired", reason: "pendingRecovery") }
         let before = Set(session.syncState.received)
         var position: WritingPosition?, selection: JSONValue?
+        var focusIntent: ModernFocusIntent?, selectionIntent: ModernSelectionIntent?
+        func structural(_ outcome: ModernStructuralResult) throws {
+            focusIntent = outcome.focus; selectionIntent = outcome.selection
+            if case .text(let caret) = outcome.focus { position = caret }
+            if case .nodes(let selected) = outcome.selection { selection = try encode(selected) }
+            else if case .text(let range) = outcome.selection { selection = try encode(range) }
+        }
         do {
             switch command {
             case "replaceText", "replaceTitle":
@@ -137,7 +155,19 @@ final class ModernBridgeEndpoint {
                 guard let type = arguments["markType"]?.string else { throw EditorError.invalidChange }
                 let target = try decode(request["target"], as: ModernTextRange.self)
                 try session.format(in: target, markType: type, mark: arguments["mark"] == .null ? nil : arguments["mark"])
-                selection = try encode(WritingTextRange(start: target.start, end: target.end))
+                let range = WritingTextRange(start: target.start, end: target.end)
+                selection = try encode(range); selectionIntent = .text(range)
+            case "insertBlock":
+                try allowed(arguments, ["block"])
+                let boundary = try decode(request["target"], as: ModernBlockBoundary.self)
+                let block = try decode(arguments["block"], as: Block.self)
+                try structural(session.insertBlock(block, at: boundary))
+            case "move":
+                try allowed(arguments, [])
+                try structural(session.move(decode(request["target"], as: ModernMoveTarget.self)))
+            case "delete":
+                try allowed(arguments, [])
+                try structural(session.delete(decode(request["target"], as: ModernDeleteTarget.self)))
             case "undo", "redo":
                 try allowed(arguments, [])
                 guard request["target"] == nil || request["target"] == .null else { throw EditorError.invalidChange }
@@ -147,7 +177,7 @@ final class ModernBridgeEndpoint {
         } catch ModernSessionError.unavailable(let reason) { return try result("unavailable", reason: reason) }
         catch ModernSessionError.recoveryRequired { return try result("recoveryRequired", reason: "schemaOrIdentityConflict") }
         let transaction = session.syncState.received.first { !before.contains($0) && $0.actor == session.actorID }
-        return try result(transaction == nil ? "noop" : "applied", transaction: transaction, position: position, selection: selection)
+        return try result(transaction == nil ? "noop" : "applied", transaction: transaction, position: position, selection: selection, focusIntent: focusIntent, selectionIntent: selectionIntent)
     }
     private func authoringPolicy(_ value: JSONValue) throws -> Set<String> {
         let policy = try decode(value, as: [String].self)

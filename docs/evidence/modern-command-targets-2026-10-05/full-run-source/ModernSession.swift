@@ -686,7 +686,7 @@ private func validateAppearance(field: String, value: String) throws {
     default: throw EditorError.invalidChange
     }
 }
-func validateModernMark(type: String, mark: JSONValue?) throws {
+private func validateModernMark(type: String, mark: JSONValue?) throws {
     guard ["bold", "italic", "strikethrough", "code", "link", "semantic-color", "semantic-background"].contains(type), mark == nil || mark?["type"] == .string(type) else { throw EditorError.invalidChange }
     if let mark {
         do { try Validation.mark(mark, modern: true) } catch { throw EditorError.invalidChange }
