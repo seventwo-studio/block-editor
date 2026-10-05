@@ -1,0 +1,26 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 2] BlockEditorCore
+[2 / 15] BlockEditorApple
+[4 / 17] BlockEditorApple
+[13 / 14] local-editor-app-product
+Build complete! (1.52 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.040 seconds.
+✘ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() recorded an issue at ModernHostStoreTests.swift:73:9: Expectation failed: reopened.session.document.blocks.last?.text == "Peer"
+↳ reopened.session.document.blocks.last?.text == "Peer" → false
+↳   reopened.session.document.blocks.last?.text → ""
+↳     some → ""
+↳     some → "Peer"
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.119 seconds.
+✘ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() failed after 0.119 seconds with 1 issue.
+✘ Suite ModernHostStoreTests failed after 0.119 seconds with 1 issue.
+✘ Test run with 3 tests in 1 suite failed after 0.120 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

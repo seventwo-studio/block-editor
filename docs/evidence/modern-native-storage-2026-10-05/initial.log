@@ -1,0 +1,68 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 589]
+[Planning deferred tasks]
+[1 / 1]
+[13 / 41] BlockEditorLocalDemoTests-product
+[13 / 41] BlockEditorApple
+[15 / 43] BlockEditorApple
+[21 / 42] BlockEditorApple
+[26 / 44] BlockEditorDemoApple
+[41 / 63] BlockEditorAppleTests-product
+[43 / 63] BlockEditorAppleTests-product
+[44 / 63] BlockEditorDemoApple
+[50 / 63] BlockEditorAppleTests-product
+[54 / 63] BlockEditorAppleTests-product
+[57 / 63] BlockEditorAppleTests-product
+[57 / 63] local-editor-app-product
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[57 / 63] BlockEditorAppleTests-product
+[59 / 63] BlockEditorAppleTests-product
+Build complete! (4.42 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+✘ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() recorded an issue at ModernHostStoreTests.swift:58:6: Caught error: Error Domain=NSCocoaErrorDomain Code=4 "The file “active.json” doesn’t exist." UserInfo={NSFilePath=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/modern-host-A63ABB9B-AEDC-4C91-8CFF-9BDA5F86E8F7/active.json, NSUnderlyingError=0x7651148060 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+✘ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() failed after 0.052 seconds with 1 issue.
+✘ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() recorded an issue at ModernHostStoreTests.swift:23:6: Caught error: Error Domain=NSCocoaErrorDomain Code=4 "The file “active.json” doesn’t exist." UserInfo={NSFilePath=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/modern-host-651E0A47-1A35-4C93-B173-DCF614338A8F/active.json, NSUnderlyingError=0x1035cd2b0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+✘ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() recorded an issue at ModernHostStoreTests.swift:78:6: Caught error: Error Domain=NSCocoaErrorDomain Code=4 "The file “active.json” doesn’t exist." UserInfo={NSFilePath=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/modern-host-CA724930-2615-49D6-B812-3FD83CD509A2/active.json, NSUnderlyingError=0x1035cd240 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+✘ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() failed after 0.052 seconds with 1 issue.
+✘ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() failed after 0.052 seconds with 1 issue.
+✘ Suite ModernHostStoreTests failed after 0.052 seconds with 3 issues.
+✘ Test run with 3 tests in 1 suite failed after 0.053 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

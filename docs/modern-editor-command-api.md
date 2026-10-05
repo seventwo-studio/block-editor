@@ -2,6 +2,27 @@
 
 ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript and Kotlin entrypoints now expose the implemented modern contract. Kotlin JNI execution and complete native host acceptance remain open.
 
+## Native paired storage
+
+`BlockEditorApple` exposes `ModernHostCheckpoint`, `ModernHostStore` and `ModernPendingInput`. Capture on the confined session/main actor; send the immutable checkpoint to the storage actor. Supply an existing app-owned directory and the revision actually loaded. A first save uses `nil` and cannot overwrite an existing file. Saves serialize accepted history, anchored local selection/history, provider records/results, pending recovery, held peer packets and original native drafts together. Composing sessions require supplied drafts; the host must retain every uncommitted input.
+
+```swift
+let store = ModernHostStore(url: activeURL, documentID: session.documentID, actorID: session.actorID)
+let pair = try ModernHostCheckpoint(session: session, pendingInputs: retainedDrafts)
+let saved = try await store.save(pair, replacing: loadedRevision)
+// Update loadedRevision only after success. Retain later live edits for the next save.
+let restoredPair = try await store.load()
+let restored = try restoredPair?.restore() // main actor; detached candidate
+// Explicitly attach inputs/resolve drafts before resuming deferred peer delivery.
+try restored?.resumeDeferredChanges()
+```
+
+The separate storage actor keeps disk I/O off the UI actor. A POSIX lock and expected revision prevent cooperating stale writers from replacing another save. Publication writes a private same-directory temporary file, synchronizes it, renames it over the active file, synchronizes the directory and checks actual stored bytes. Failures before rename leave the prior active file intact. `durabilityUnconfirmed(revision:)` means rename occurred but durable confirmation/readback failed; read back the actual active revision before retrying. No rollback is inferred from that error.
+
+Reopen validates owner, format, size and every engine sidecar before returning a detached live session. Deferred packets remain held, provider records do not launch tasks, and native drafts remain bound to their captured atoms even when their target was deleted. Reopen does not author a draft, transfer focus, acknowledge cut publication or activate a migration pointer. The private checkpoint admits its exact canonical encoding, refusing ignored/duplicate outer fields. Serialized checkpoint and component budgets are bounds on encoded data, not total process memory.
+
+Three [focused native disk scenarios](evidence/modern-native-storage-2026-10-05/receipt.json) pass: paired Unicode draft/history/provider/held-peer reopen with backward-selection Undo; retained conflicting recovery and explicit repair/save; stale-writer/invalid-draft/owner/outer-field rejection preserving the prior pair. Power-loss, every device/filesystem, UI integration and migration activation/rollback campaigns remain separately tracked finishing work.
+
 ## TypeScript consumer
 
 Import `SwiftEditorRuntime`, `SwiftModernSession`, the `Modern*` types and `SwiftModernRecoveryError` from `@seventwo-studio/block-editor/swift`. `runtime.createModern(...)` requires an admitted complete document, actor, document identity and epoch. `runtime.restoreModern(session.save(), actorID)` restores accepted author history. It does not restore local input, recovery, deferred packets or provider state; export and restore those separately in the host's durable transaction.
