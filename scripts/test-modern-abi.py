@@ -122,10 +122,36 @@ def main():
     # Failed creation must leave the handle available for an admitted document.
     assert success('createModern', 'lossy', actorID='lossy', documentID=document_id,
                    epoch=epoch, collaborationVersion=7, document=baseline)['document'] == baseline
+    # Receive a real protocol-7 structural birth through the same compiled ABI.
+    # Local structural command/focus results are deliberately not advertised yet.
+    created_id = {'counter': 1, 'actor': 'structural-peer'}
+    element = {'change': created_id, 'index': 0}
+    identity = {'inserted': {'creation': element, 'path': []}}
+    paragraph = {'id': 'abi-inserted', 'type': 'paragraph',
+                 'content': [{'type': 'text', 'text': 'seed', 'marks': []}]}
+    structural = dict(version=7, documentID=document_id, epoch=epoch, baseline=baseline,
+                      changes=[dict(id=created_id, observed=[], body={'edit': {'_0': [
+                          {'structure': {'_0': {'insertNode': dict(value=paragraph, identity=identity,
+                              collection={'field': 'blocks'}, placement=element)}}}]}})])
+    assert success('createModern', 'structure', actorID='structure', documentID=document_id,
+                   epoch=epoch, collaborationVersion=7, document=baseline)['document'] == baseline
+    expected_structural = dict(baseline, blocks=[paragraph] + baseline['blocks'])
+    assert success('modernReceive', 'structure', batch=structural)['document'] == expected_structural
+    body_field = dict(node=identity, name='content')
+    body_target = success('modernCaptureTextRange', 'structure', field=body_field, start=4, end=4)
+    edited = command('structure', 'replaceText', body_target, text=' peer')
+    assert edited['status'] == 'applied' and edited['document']['blocks'][0]['content'][0]['text'] == 'seed peer'
+    assert command('structure', 'undo')['document'] == expected_structural
+    assert command('structure', 'redo')['document'] == edited['document']
+    structural_saved = success('modernSave', 'structure')
+    success('destroy', 'structure')
+    structural_restored = success('restoreModern', 'structure-resumed', actorID='structure', snapshot=structural_saved)
+    assert structural_restored['document'] == edited['document'] and structural_restored['canUndo'] is True
+    assert 'insertBlock' not in capabilities['commands'] and 'move' not in capabilities['commands']
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  qualification='Title/appearance/session/checked-command ABI subset only. Structural/layout commands, migration and full host acceptance remain pending.')
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Local structural command/focus results, compound layout commands, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against 4 independent fixtures.')

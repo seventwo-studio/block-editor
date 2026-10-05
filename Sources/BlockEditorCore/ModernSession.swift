@@ -3,6 +3,7 @@ import Foundation
 /// Protocol-7 operations. Structural/compound layout commands are added only
 /// once their admission and retained-origin replay semantics are implemented.
 public enum ModernOperation: Codable, Equatable, Sendable {
+    case structure(Mutation)
     case text(WritingMutation)
     case setAppearance(field: String, value: String)
 }
@@ -70,6 +71,7 @@ public final class ModernSession {
     public var onChange: ((ModernDocument, ModernChange?) -> Void)?
     public var isComposing = false { didSet { if oldValue != isComposing { endTypingGroup() } } }
     private let seed: ModernProjectionSeed
+    var structure: StructuralState
     private var projection: WritingProjection
     private var log: [ChangeID: ModernChange] = [:]
     private var counter: UInt64 = 0
@@ -86,6 +88,7 @@ public final class ModernSession {
         guard validToken(actorID), validToken(epoch) else { throw EditorError.invalidChange }
         self.documentID = documentID; self.actorID = actorID; self.epoch = epoch; baseline = document
         seed = ModernProjectionSeed(document)
+        structure = seed.structure
         projection = try WritingProjection(seeds: seed.atoms, edits: [], emptyFields: seed.fields)
         self.document = document
     }
@@ -96,7 +99,7 @@ public final class ModernSession {
         WritingSyncState(documentID: documentID, epoch: epoch, received: log.keys.sorted(), version: 7)
     }
     public func endTypingGroup() { typingGroup = nil }
-    public func node(at address: NodeAddress) throws -> NodeID { try seed.structure.node(at: address) }
+    public func node(at address: NodeAddress) throws -> NodeID { try structure.node(at: address) }
     public func field(node: NodeID, name: String = "content") throws -> WritingField {
         let field = WritingField(node: node, name: name); try validateField(field); return field
     }
@@ -340,20 +343,21 @@ public final class ModernSession {
         guard try packet.json().count <= 64_000_000 else { throw EditorError.recoveryCapacityExceeded }
     }
     private func validateField(_ field: WritingField) throws {
-        guard seed.fields.contains(field) else { throw EditorError.invalidPath }
+        guard retainedWritingFields(structure)[field] != nil else { throw EditorError.invalidPath }
+        if field != titleField { _ = try structure.address(of: field.node) }
     }
     private func plainField(_ field: WritingField) -> Bool { field == titleField || ["code", "expression"].contains(field.name) }
     private func validatePlainText(_ text: String, field: WritingField) throws {
         try validateField(field)
         if field == titleField && text.unicodeScalars.contains(where: { [10, 13, 0x2028, 0x2029].contains($0.value) }) { throw EditorError.invalidChange }
     }
-    private func authoringAllowed(command: String? = nil) throws {
+    func authoringAllowed(command: String? = nil) throws {
         guard !publishing else { throw EditorError.invalidChange }
         guard !isComposing else { throw ModernSessionError.compositionActive }
         if let command, allowedCommands?.contains(command) == false { throw ModernSessionError.unavailable("hostPolicy") }
         if let recovery = mergeRecovery { throw ModernSessionError.recoveryRequired(recovery) }
     }
-    private func nextID(in candidate: [ChangeID: ModernChange]? = nil) throws -> ChangeID {
+    func nextID(in candidate: [ChangeID: ModernChange]? = nil) throws -> ChangeID {
         let value = candidate?.keys.map(\.counter).max() ?? counter
         guard value < 9_007_199_254_740_991 else { throw EditorError.invalidChange }
         return ChangeID(counter: value + 1, actor: actorID)
@@ -375,7 +379,7 @@ public final class ModernSession {
         }
         return result
     }
-    private func perform(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil) throws {
+    func perform(_ id: ChangeID, _ operations: [ModernOperation], group: String? = nil) throws {
         try authoringAllowed()
         let change = ModernChange(id: id, observed: frontier(log), body: .edit(operations))
         var candidate = log; candidate[id] = change; try capacity(candidate)
@@ -400,7 +404,7 @@ public final class ModernSession {
         }
         return result
     }
-    private func accept(_ candidate: [ChangeID: ModernChange], _ result: (WritingProjection, ModernDocument), change: ModernChange?) {
+    private func accept(_ candidate: [ChangeID: ModernChange], _ result: (WritingProjection, ModernDocument, StructuralState), change: ModernChange?) {
         let active = activeStates(candidate)
         var newUndo = undoStack.map { $0.filter { active[$0] ?? true } }.filter { !$0.isEmpty }
         var newRedo = redoStack.map { $0.filter { !(active[$0] ?? true) } }.filter { !$0.isEmpty }
@@ -416,13 +420,16 @@ public final class ModernSession {
         }
         undoStack = newUndo; redoStack = newRedo
         log = candidate; counter = candidate.keys.map(\.counter).max() ?? 0
-        projection = result.0; document = result.1; mergeRecovery = nil
+        projection = result.0; document = result.1; structure = result.2; mergeRecovery = nil
         publishing = true; onChange?(document, change); publishing = false
     }
-    private func replayOrRetain(_ candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, ModernDocument) {
+    private func replayOrRetain(_ candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         do { return try replay(candidate) }
         catch let error as WritingProjectionError {
             let recovery = ModernRecovery(reason: error == .missingAtom ? .schemaConstraint : .identityConflict, batch: batch(Array(candidate.values)))
+            mergeRecovery = recovery; throw ModernSessionError.recoveryRequired(recovery)
+        } catch EditorError.structuralConflict {
+            let recovery = ModernRecovery(reason: .identityConflict, batch: batch(Array(candidate.values)))
             mergeRecovery = recovery; throw ModernSessionError.recoveryRequired(recovery)
         } catch EditorError.invalidDocument {
             let recovery = ModernRecovery(reason: .schemaConstraint, batch: batch(Array(candidate.values)))
@@ -450,11 +457,15 @@ public final class ModernSession {
             anchor: next ?? previous, affinity: next == nil ? .after : .before))
     }
 
-    private func replay(_ candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, ModernDocument) {
+    private func replay(_ candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         let ordered = candidate.values.sorted { $0.id < $1.id }
-        try preflight(ordered)
+        let registry = try modernBirthRegistry(ordered, baseline: seed.structure)
+        let registeredBirths = retainedWritingFields(registry)
+        let registeredSeeds = seedWritingAtoms(registeredBirths)
+        try preflight(ordered, fields: Set(registeredBirths.keys), seeds: registeredSeeds.atoms)
         let active = activeStates(candidate)
-        var available = Dictionary(uniqueKeysWithValues: seed.atoms.map { ($0.key, $0.node) })
+        var raw = Materialized(); raw.structure = seed.structure
+        var available = Dictionary(uniqueKeysWithValues: registeredSeeds.atoms.map { ($0.key, $0.node) })
         var edits: [WritingEdit] = [], appearance = baseline.fields["appearance"]!.object!
         var previousAuthor: [String: ChangeID] = [:]
         for change in ordered {
@@ -473,7 +484,8 @@ public final class ModernSession {
                 guard !operations.isEmpty, operations.count <= 100_000 else { throw EditorError.invalidChange }
                 var mutations: [WritingMutation] = [], introduced = Set<ElementID>(), registers = Set<String>()
                 func reference(_ key: WritingAtomKey) throws {
-                    try validateField(key.origin)
+                    try modernReference(key.origin.node, before: change.id, cohort: cohort, registry: registry)
+                    guard registeredBirths[key.origin] != nil, raw.structure!.nodes[key.origin.node] != nil else { throw EditorError.invalidChange }
                     let id = key.element
                     guard id.index >= 0, id.index <= 2_147_483_647,
                           id.change.counter == 0 ? id.change.actor.isEmpty : validModernChangeID(id.change) && (id.change == change.id || cohort.contains(id.change)),
@@ -485,6 +497,9 @@ public final class ModernSession {
                 }
                 for operation in operations {
                     switch operation {
+                    case .structure(let mutation):
+                        try validateModernStructure(mutation, change: change.id, cohort: cohort, registry: registry, structure: raw.structure!, introduced: &introduced)
+                        try apply([mutation], enabled: active[change.id] ?? true, to: &raw)
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
@@ -492,7 +507,8 @@ public final class ModernSession {
                     case .text(let mutation):
                         switch mutation {
                         case .insert(let atom):
-                            try validateField(atom.key.origin)
+                            try modernReference(atom.key.origin.node, before: change.id, cohort: cohort, registry: registry)
+                            guard registeredBirths[atom.key.origin] != nil, raw.structure!.nodes[atom.key.origin.node] != nil else { throw EditorError.invalidChange }
                             guard atom.key.element.change == change.id, atom.key.element.index >= 0, atom.key.element.index <= 2_147_483_647,
                                   introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
                             if let anchor = atom.edge.anchor { try reference(anchor); guard anchor.origin == atom.key.origin else { throw EditorError.invalidChange } }
@@ -514,10 +530,15 @@ public final class ModernSession {
                 edits.append(WritingEdit(id: change.id, mutations: mutations))
             }
         }
-        let projection = try WritingProjection(seeds: seed.atoms, edits: edits, active: active, emptyFields: seed.fields)
-        var fields = try seed.document(projecting: projection).fields
+        var output = raw.structure!
+        let births = retainedWritingFields(output), seeded = seedWritingAtoms(births)
+        let projection = try WritingProjection(seeds: seeded.atoms, edits: edits, active: active,
+            emptyFields: Set(births.keys), hiddenSeeds: seeded.hidden)
+        let values = try projectedWritingValues(structure: &output, projection: projection,
+            seeds: seeded.atoms, fields: Set(births.keys), births: births, retainedOrigins: true)
+        var fields = try output.document(documentID: documentID, text: values).fields
         fields["appearance"] = .object(appearance)
-        return (projection, try ModernDocument(fields: fields))
+        return (projection, try ModernDocument(fields: fields), output)
     }
     /// Bound recursive payloads before a Foundation encoder/decoder is asked to
     /// walk them, including typed packets that did not enter through raw JSON.
@@ -529,6 +550,14 @@ public final class ModernSession {
             case .edit(let operations):
                 guard operations.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
                 for operation in operations {
+                    if case .structure(let mutation) = operation {
+                        switch mutation {
+                        case .insertNode(let value, _, _, _, _): try inspectModernPayload(value)
+                        case .moveNode: break
+                        case .deleteNodes(let identities): guard identities.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
+                        default: throw EditorError.invalidChange
+                        }
+                    }
                     if case .text(let mutation) = operation {
                         switch mutation {
                         case .insert(let atom): try inspectModernPayload(atom.node)
@@ -545,16 +574,25 @@ public final class ModernSession {
     }
     /// Check intrinsic operation shape even when a missing predecessor means
     /// causal replay must be retained for later. Undo never hides malformed input.
-    private func preflight(_ changes: [ModernChange]) throws {
-        let baselineKeys = Set(seed.atoms.map(\.key))
+    private func preflight(_ changes: [ModernChange], fields: Set<WritingField>, seeds: [WritingAtomSeed]) throws {
+        let baselineKeys = Set(seeds.map(\.key))
         for change in changes {
             guard validModernChangeID(change.id) else { throw EditorError.invalidChange }
             try validateObservedFrontier(change.observed, before: change.id)
+            func fieldShape(_ field: WritingField) throws {
+                if fields.contains(field) { return }
+                // An incremental packet may arrive before its field's birth.
+                // Only plausible inserted origins survive to causal recovery;
+                // known fields and baseline aliases still require exact proof.
+                guard case .inserted(let creation, _) = field.node, creation.change < change.id,
+                      ["content", "summary", "caption", "code", "expression"].contains(field.name) else { throw EditorError.invalidChange }
+                try modernStructuralIdentityShape(field.node)
+            }
             func referenceShape(_ key: WritingAtomKey) throws {
-                try validateField(key.origin)
+                try fieldShape(key.origin)
                 guard key.element.index >= 0, key.element.index <= 2_147_483_647 else { throw EditorError.invalidChange }
                 if key.element.change.counter == 0 {
-                    guard key.element.change.actor.isEmpty, baselineKeys.contains(key) else { throw EditorError.invalidChange }
+                    guard key.element.change.actor.isEmpty, !fields.contains(key.origin) || baselineKeys.contains(key) else { throw EditorError.invalidChange }
                 } else { guard validModernChangeID(key.element.change), key.element.change <= change.id else { throw EditorError.invalidChange } }
             }
             func keysShape(_ keys: [WritingAtomKey]) throws {
@@ -569,13 +607,14 @@ public final class ModernSession {
                 var elements = Set<ElementID>(), registers = Set<String>()
                 for operation in operations {
                     switch operation {
+                    case .structure: break
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
                     case .text(let mutation):
                         switch mutation {
                         case .insert(let atom):
-                            try validateField(atom.key.origin)
+                            try fieldShape(atom.key.origin)
                             guard atom.key.element.change == change.id, atom.key.element.index >= 0, atom.key.element.index <= 2_147_483_647,
                                   elements.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
                             if let anchor = atom.edge.anchor { try referenceShape(anchor); guard anchor.origin == atom.key.origin else { throw EditorError.invalidChange } }
@@ -603,7 +642,7 @@ public final class ModernSession {
         if plainField(field) {
             guard value["type"] == .string("text"), (value["marks"]?.array ?? []).isEmpty,
                   Set(value.object!.keys).isSubset(of: ["type", "text", "marks"]) else { throw EditorError.invalidChange }
-            try validatePlainText(value["text"]!.string!, field: field)
+            if field == titleField, value["text"]!.string!.unicodeScalars.contains(where: { [10, 13, 0x2028, 0x2029].contains($0.value) }) { throw EditorError.invalidChange }
         }
         for mark in value["marks"]?.array ?? [] { try validateModernMark(type: mark["type"]?.string ?? "", mark: mark) }
     }

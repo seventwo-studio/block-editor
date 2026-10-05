@@ -411,11 +411,13 @@ struct StructuralState {
     }
 }
 
-func validateNode(_ value: JSONValue, kind: NodeKind) throws {
+func validateNode(_ value: JSONValue, kind: NodeKind, modern: Bool = false) throws {
     guard let label = value["id"]?.string, !label.isEmpty else { throw EditorError.invalidPath }
     switch kind {
     case .document, .column: throw EditorError.invalidPath // Only explicit modern compound commands may create these.
-    case .block: _ = try Document(blocks: [Block(fields: value.object ?? [:])])
+    case .block:
+        if modern { try Validation.block(Block(fields: value.object ?? [:]), modern: true) }
+        else { _ = try Document(blocks: [Block(fields: value.object ?? [:])]) }
     case .item:
         _ = try Document(blocks: [Block(fields: ["id": .string("validation"), "type": .string("list"), "style": .string("unordered"), "items": .array([value])])])
     case .row:

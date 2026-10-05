@@ -333,7 +333,7 @@ func apply(_ mutations: [Mutation], enabled: Bool, to state: inout Materialized)
             let kind: NodeKind
             if collection.owner != nil, structure.nodes[collection.owner!] == nil { continue }
             kind = try structure.kind(in: collection)
-            try validateNode(value, kind: kind)
+            try validateNode(value, kind: kind, modern: structure.modern)
             structure.register(value, identity: identity, kind: kind, active: enabled)
             let placement = NodePlacementID.edit(id)
             structure.placements[placement] = .init(id: placement, after: after, node: identity, collection: collection, active: true)

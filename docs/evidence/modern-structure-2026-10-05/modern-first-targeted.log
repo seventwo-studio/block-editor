@@ -1,0 +1,157 @@
+Another instance of SwiftPM (PID: 36683) is already running using '/Users/luca/Developer/block-editor/.build', waiting until that process has finished execution...Building for debugging...
+[Provisioning 1 / 21]
+[1 / 35] BlockEditorAppleTests-product
+[2 / 7] BlockEditorCoreTests-product
+[4 / 9] BlockEditorCoreTests-product
+[10 / 14] BlockEditorCoreTests-product
+Build complete! (7.67 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernSessionTests started.
+◇ Suite ModernProjectionTests started.
+◇ Suite ModernBridgeTests started.
+◇ Suite ModernStructureTests started.
+◇ Suite ModernDocumentTests started.
+◇ Test twoColumnsKeepScopedChildOriginsAndLogicalAddressOrder() started.
+◇ Test allIndependentModernSnapshotsKeepExactJSONThroughSharedProjection() started.
+◇ Test documentTitleHasAnExplicitOriginOutsideBodyAndConsumerIDs() started.
+◇ Test titleReplayAndAuthorDeactivationKeepPeerTextAndBodyIndependent() started.
+◇ Test legacyStructuralProtocolRejectsDocumentOriginMutationAtomically() started.
+◇ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() started.
+◇ Test heldPacketsExportRestoreAndReleaseWithoutPrematureReceipts() started.
+◇ Test legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test localPolicyAndCompositionReturnUnchangedUnavailableAndPreservePeerRichContent() started.
+◇ Test capturedFormattingPreservesDirectionAndLeavesUnobservedPeerAtomsUnformatted() started.
+◇ Test legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() started.
+◇ Test capturedBackwardReplacementPreservesPeerInsertionThroughTheBridge() started.
+◇ Test explicitModernEndpointsReturnCheckedTransactionsFocusAndSavedAuthorHistory() started.
+◇ Test insertedBodyFieldsShareTitleHistoryPeerUndoAndReopen() started.
+◇ Test deletionRetainsPeerHistoryAndStaleTargetsCannotHitReusedLabels() started.
+◇ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() started.
+◇ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test semanticInsertionsAndObservedSubtreeDeletionRetainNestedOriginsThroughUndo() started.
+◇ Test incrementalInsertedFieldPacketBeforeBirthRetainsRecoveryThenConverges() started.
+◇ Test insertionUndoWithoutPeerWorkHidesBirthButDoesNotReuseOrigin() started.
+◇ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() started.
+◇ Test forgedStructuralAndUnobservedInsertedTextPacketsNeverAcknowledge() started.
+◇ Test columnMovesKeepScopedOriginsCaretPeerTextAndOneAuthorUndo() started.
+◇ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() started.
+◇ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() started.
+◇ Test concurrentScopedLabelConflictRetainsUnionAndAuthorRepairKeepsPeerBirth() started.
+◇ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() started.
+◇ Test invalidStructuralCommandsAreAtomicAndPolicyDoesNotStripPeerContent() started.
+◇ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() started.
+◇ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() started.
+◇ Test callbacksObserveFinalHistoryAndCannotReenterPublication() started.
+◇ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() started.
+◇ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() started.
+◇ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() started.
+◇ Test independentInsertionsAndMovesConvergeInEitherReceiveOrder() started.
+◇ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() started.
+◇ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() started.
+◇ Test case passing 1 argument version → 3 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument version → 5 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() started.
+◇ Test case passing 1 argument version → 4 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument version → 6 to legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) started.
+◇ Test case passing 1 argument inactive → false to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test case passing 1 argument inactive → true to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test existingLimitsAndOpaqueMetadataArePreserved() started.
+◇ Test modernSnapshotDoesNotBroadenLegacyMarkOrSessionAdmission() started.
+◇ Test explicitNewDocumentDefaultsDoNotSilentlyUpgradeMissingWireFields() started.
+◇ Test exactTwoContainersAndScopedIdentitiesAreRequired() started.
+◇ Test appearanceAndPaletteRejectUnrecognizedPresetsAndRoles() started.
+◇ Test exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test independentSnapshotsRetainEveryAdmittedFieldAndCanonicalRoundTrip() started.
+◇ Test duplicateRawKeysIncludingEscapedKeysRejectBeforeSemanticAdmission() started.
+◇ Test nestedColumnsRejectEvenThroughToggleDescendantsButIndependentLayoutsRemainValid() started.
+◇ Test opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+✘ Test concurrentScopedLabelConflictRetainsUnionAndAuthorRepairKeepsPeerBirth() recorded an issue at ModernStructureTests.swift:138:9: Expectation failed: a.mergeRecovery != nil && a.document.blocks.first?.text == "B"
+↳ a.mergeRecovery != nil && a.document.blocks.first?.text == "B" → false
+↳   a.mergeRecovery != nil → false
+↳   a.document.blocks.first?.text == "B" → <not evaluated>
+◇ Test case passing 1 argument reverse → false to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test case passing 1 argument reverse → true to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+✔ Test legacyStructuralProtocolRejectsDocumentOriginMutationAtomically() passed after 0.087 seconds.
+✔ Test documentTitleHasAnExplicitOriginOutsideBodyAndConsumerIDs() passed after 0.087 seconds.
+✔ Test legacyWritingProtocolsRejectDocumentOriginsWithoutAcknowledging(_:) with 4 test cases passed after 0.087 seconds.
+✔ Test twoColumnsKeepScopedChildOriginsAndLogicalAddressOrder() passed after 0.087 seconds.
+✔ Test titleReplayAndAuthorDeactivationKeepPeerTextAndBodyIndependent() passed after 0.087 seconds.
+✔ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) with 2 test cases passed after 0.087 seconds.
+✔ Test legacyEntryPointsHandleCollisionsAndMalformedModernRequestsDoNotPromoteOrMutate() passed after 0.087 seconds.
+✔ Test insertionUndoWithoutPeerWorkHidesBirthButDoesNotReuseOrigin() passed after 0.087 seconds.
+✔ Test deletionRetainsPeerHistoryAndStaleTargetsCannotHitReusedLabels() passed after 0.087 seconds.
+✔ Test semanticInsertionsAndObservedSubtreeDeletionRetainNestedOriginsThroughUndo() passed after 0.087 seconds.
+✔ Test forgedStructuralAndUnobservedInsertedTextPacketsNeverAcknowledge() passed after 0.087 seconds.
+✔ Test incrementalInsertedFieldPacketBeforeBirthRetainsRecoveryThenConverges() passed after 0.087 seconds.
+✔ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() passed after 0.088 seconds.
+✔ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() passed after 0.088 seconds.
+✔ Test capturedFormattingPreservesDirectionAndLeavesUnobservedPeerAtomsUnformatted() passed after 0.090 seconds.
+◇ Test case passing 1 argument literal → "9007199254740992" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "0.1" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "100e-2" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "1.00" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+✔ Test localPolicyAndCompositionReturnUnchangedUnavailableAndPreservePeerRichContent() passed after 0.091 seconds.
+◇ Test case passing 1 argument literal → "-0.0" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument split → 999.0 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument split → 9001.0 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument literal → "9007199254740993" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test case passing 1 argument split → 5000.5 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument literal → "1.000000000000000000001" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test case passing 1 argument literal → "1e-400" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test case passing 1 argument title → "a
+b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "ab" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a
+b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument split → inf to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument title → "a b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument split → nan to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test case passing 1 argument title → "a b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+✔ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() passed after 0.121 seconds.
+✘ Test concurrentScopedLabelConflictRetainsUnionAndAuthorRepairKeepsPeerBirth() failed after 0.121 seconds with 1 issue.
+✔ Test callbacksObserveFinalHistoryAndCannotReenterPublication() passed after 0.121 seconds.
+✔ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() passed after 0.121 seconds.
+✔ Test invalidStructuralCommandsAreAtomicAndPolicyDoesNotStripPeerContent() passed after 0.121 seconds.
+✔ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() passed after 0.121 seconds.
+✔ Test independentInsertionsAndMovesConvergeInEitherReceiveOrder() passed after 0.121 seconds.
+✔ Test columnMovesKeepScopedOriginsCaretPeerTextAndOneAuthorUndo() passed after 0.121 seconds.
+✔ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() passed after 0.121 seconds.
+✔ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() passed after 0.121 seconds.
+✔ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) with 2 test cases passed after 0.121 seconds.
+✔ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() passed after 0.121 seconds.
+✔ Test explicitNewDocumentDefaultsDoNotSilentlyUpgradeMissingWireFields() passed after 0.080 seconds.
+✔ Test modernSnapshotDoesNotBroadenLegacyMarkOrSessionAdmission() passed after 0.086 seconds.
+✔ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() passed after 0.121 seconds.
+✔ Test appearanceAndPaletteRejectUnrecognizedPresetsAndRoles() passed after 0.080 seconds.
+✔ Test exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) with 5 test cases passed after 0.076 seconds.
+✔ Test duplicateRawKeysIncludingEscapedKeysRejectBeforeSemanticAdmission() passed after 0.076 seconds.
+✔ Test capturedBackwardReplacementPreservesPeerInsertionThroughTheBridge() passed after 0.121 seconds.
+✔ Test insertedBodyFieldsShareTitleHistoryPeerUndoAndReopen() passed after 0.121 seconds.
+✔ Test heldPacketsExportRestoreAndReleaseWithoutPrematureReceipts() passed after 0.121 seconds.
+✔ Test opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) with 3 test cases passed after 0.076 seconds.
+✔ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() passed after 0.121 seconds.
+✔ Test titleRejectsLineBreaksWithoutConsumingBody(_:) with 5 test cases passed after 0.076 seconds.
+✔ Test explicitModernEndpointsReturnCheckedTransactionsFocusAndSavedAuthorHistory() passed after 0.121 seconds.
+✔ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() passed after 0.121 seconds.
+✔ Suite ModernBridgeTests passed after 0.122 seconds.
+✘ Suite ModernStructureTests failed after 0.122 seconds with 1 issue.
+✔ Test exactTwoContainersAndScopedIdentitiesAreRequired() passed after 0.084 seconds.
+✔ Test nestedColumnsRejectEvenThroughToggleDescendantsButIndependentLayoutsRemainValid() passed after 0.086 seconds.
+✔ Test splitRejectsInvalidBoundsAndNonintegerValues(_:) with 5 test cases passed after 0.096 seconds.
+✔ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() passed after 0.195 seconds.
+✔ Test existingLimitsAndOpaqueMetadataArePreserved() passed after 0.322 seconds.
+✔ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() passed after 0.658 seconds.
+✔ Test independentSnapshotsRetainEveryAdmittedFieldAndCanonicalRoundTrip() passed after 1.023 seconds.
+✔ Suite ModernDocumentTests passed after 1.068 seconds.
+✔ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() passed after 1.448 seconds.
+✔ Suite ModernSessionTests passed after 1.449 seconds.
+✔ Test allIndependentModernSnapshotsKeepExactJSONThroughSharedProjection() passed after 9.000 seconds.
+✔ Suite ModernProjectionTests passed after 9.000 seconds.
+✘ Test run with 51 tests in 5 suites failed after 9.001 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorCoreTests (Swift Testing)

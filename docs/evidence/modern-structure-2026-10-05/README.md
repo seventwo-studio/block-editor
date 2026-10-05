@@ -1,0 +1,7 @@
+# Modern structural session verification
+
+ST-122 now authors block insertion, movement and observed subtree deletion in the existing protocol-7 history. Tests cover peer text through creation Undo, scoped origins/caret through root and column movement, stale targets after deletion/label reuse, nested fields, semantic marks, local policy, out-of-order births and retained structural conflict/author repair. The shared structural/scalar replay remains the implementation; generic column-container changes, document metadata mutation and general block indentation reject.
+
+The full regression and final focused run are recorded separately. Two additional recovery/nested-subtree tests were added after the full run's test bundle compiled; the final focused run executes those alongside every modern test. The receipt pins the full run's original eight-test structural source hash and final source/test hashes. Production source did not change between these runs.
+
+The compiled native C ABI verifies structural packet receive, inserted-field editing, Undo/Redo and reopen in addition to the earlier four independent title/appearance snapshots. Structural command targets, returned node selection/focus and deletion fallback are not advertised by the bridge yet. Compound column creation/split/flatten/late-child routing, clipboard, conversion, migration, typed host facades and executed Android/WASM/full native acceptance remain required ST-122 work. ST-121/ST-143 native checks remain on their owning issues; no full acceptance scenario or host row is promoted.
