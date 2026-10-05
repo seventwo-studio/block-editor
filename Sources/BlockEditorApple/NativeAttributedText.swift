@@ -29,7 +29,7 @@ import UIKit
     return nativeRichAttributedText(value?.array ?? [.object(["type": .string("text"), "text": .string(input.text)])], container: container, address: input.effectiveAddress)
 }
 
-@MainActor private func nativeRichAttributedText(_ nodes: [JSONValue], container: JSONValue?, address: TextAddress) -> NSAttributedString {
+@MainActor func nativeRichAttributedText(_ nodes: [JSONValue], container: JSONValue?, address: TextAddress) -> NSAttributedString {
     let heading = container?["type"]?.string == "heading", level = container?["level"]
     let result = NSMutableAttributedString(string: "")
     for node in nodes {

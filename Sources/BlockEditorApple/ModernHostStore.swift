@@ -13,8 +13,11 @@ public struct ModernPendingInput: Codable, Equatable, Sendable {
     public let text: String
     public let selection: Range<Int>
     public let reason: String
-    public init(target: ModernTextRange, text: String, selection: Range<Int>, reason: String) {
+    public let nativeText: String?
+    public let nativeSelection: Range<Int>?
+    public init(target: ModernTextRange, text: String, selection: Range<Int>, reason: String, nativeText: String? = nil, nativeSelection: Range<Int>? = nil) {
         self.target = target; self.text = text; self.selection = selection; self.reason = reason
+        self.nativeText = nativeText; self.nativeSelection = nativeSelection
     }
 }
 
@@ -63,6 +66,9 @@ public struct ModernHostCheckpoint: Codable, Sendable {
                   draft.target.start.field == draft.target.end.field,
                   draft.selection.lowerBound >= 0, draft.selection.upperBound <= draft.text.utf16.count,
                   draft.reason.utf16.count <= 1000 else { throw ModernHostStoreError.invalidCheckpoint }
+            if let selection = draft.nativeSelection {
+                guard let text = draft.nativeText, selection.lowerBound >= 0, selection.upperBound <= text.utf16.count else { throw ModernHostStoreError.invalidCheckpoint }
+            }
         }
     }
 

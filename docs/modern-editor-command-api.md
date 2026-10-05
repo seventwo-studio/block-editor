@@ -2,6 +2,27 @@
 
 ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript and Kotlin entrypoints now expose the implemented modern contract. Kotlin JNI execution and complete native host acceptance remain open.
 
+## Native input and focus
+
+`BlockEditorApple` exposes `ModernEditorModel`, `ModernInputController` and `ModernTextInput` for protocol 7. AppKit/UIKit fields bind to opaque `WritingField` origins, including `session.titleField`; moving a node or reusing a display label does not rebind its control. The model owns the session's receive/publication hooks. Use `model.onChange` for host notifications, `model.receive` for peer packets and `model.perform` for author commands. Input controllers and model callbacks stay on the main actor. The wrapper receives changing projections explicitly, so a stable model reference does not suppress native refresh.
+
+```swift
+let model = ModernEditorModel(session: session)
+// In the canvas:
+ModernTextInput(model: model, field: session.titleField, label: "Document title", onSubmit: moveToBody)
+ModernTextInput(model: model, field: paragraphField, label: "Paragraph", onSubmit: splitCurrentBlock)
+// Structural handlers execute the checked operation and return its local intent:
+try model.perform { session in try session.splitBlock(in: capturedRange, newBlockID: freshID).focus }
+```
+
+The canvas supplies title-to-body and structural Return behavior through `onSubmit`; the field adapter does not persist an empty-body placeholder or choose a structural destination through a mutable caret. Shared Undo/Redo replace native per-control history, including command-key bindings. Contextual commands settle native inputs first. Marked text and outer native insertion/replacement operations hold incoming peers until the captured edit commits. Unicode-scalar differences preserve unchanged rich/reference atoms; anchors then rebase through the released peer packets. Unfocused field settlement cannot overwrite the active input's local selection.
+
+Text focus intents retain the original weak window lease and anchored range through layout. Mounted destination controls must match the resolved opaque field in that same window. An intentional native blur or responder choice cancels the lease; ordinary peer refresh cannot choose a different window or unrelated active field. Node/insertion intents remain available to the canvas's own surfaces.
+
+`model.pendingInputs` and `model.checkpoint()` expose retained failures and marked drafts. Each native draft stores the captured replacement and the complete native buffer/selection; a deleted target cannot become a later block with the same label. Failed detached controls retain their buffers in the model for explicit host recovery/export. A commit followed by a failed peer drain remains committed, with recovery/deferred state separately retained. Reopen never reapplies a draft or restarts composition automatically.
+
+Three [actual AppKit scenarios](evidence/modern-native-input-2026-10-05/receipt.json) pass: real marked Unicode input with held peer edits, unchanged rich/reference data and shared Undo/Redo; split focus in the original of two windows plus intentional-blur cancellation; rejected native input preserving the exact buffer and accepted checkpoint. The three affected disk-pair scenarios also pass. The UIKit adapter compiles in the existing iOS host; its full runtime/device/assistive campaign remains deferred. Canvas/starter/structural Return integration, OS clipboard/provider invocation and migration activation remain implementation work.
+
 ## Native paired storage
 
 `BlockEditorApple` exposes `ModernHostCheckpoint`, `ModernHostStore` and `ModernPendingInput`. Capture on the confined session/main actor; send the immutable checkpoint to the storage actor. Supply an existing app-owned directory and the revision actually loaded. A first save uses `nil` and cannot overwrite an existing file. Saves serialize accepted history, anchored local selection/history, provider records/results, pending recovery, held peer packets and original native drafts together. Composing sessions require supplied drafts; the host must retain every uncommitted input.

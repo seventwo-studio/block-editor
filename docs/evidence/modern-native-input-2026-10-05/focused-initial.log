@@ -1,0 +1,74 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 589]
+[Planning deferred tasks]
+[5 / 54]
+[10 / 38] BlockEditorApple
+[14 / 42] BlockEditorApple
+[17 / 45] BlockEditorApple
+[23 / 45] BlockEditorApple
+[27 / 49] BlockEditorApple
+[32 / 50] BlockEditorDemoApple
+[35 / 51] local-editor-app-product
+[50 / 66] BlockEditorAppleTests-product
+[54 / 65] BlockEditorAppleTests-product
+[59 / 65] local-editor-app-product
+[59 / 65] BlockEditorAppleTests-productmacro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+
+[61 / 65] BlockEditorAppleTests-product
+Build complete! (3.74 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeInputTests started.
+◇ Suite ModernHostStoreTests started.
+◇ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() started.
+✘ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() recorded an issue at ModernNativeInputTests.swift:60:9: Expectation failed: a.document.blocks[0].fields["content"]?.array?.contains(where: { $0["text"] == .string("ABC") && $0["marks"] == .array([.object(["type": .string("bold")])]) }) == true
+↳ a.document.blocks[0].fields["content"]?.array?.contains(where: { $0["text"] == .string("ABC") && $0["marks"] == .array([.object(["type": .string("bold")])]) }) == true → false
+↳   a.document.blocks[0].fields["content"]?.array?.contains(where: { $0["text"] == .string("ABC") && $0["marks"] == .array([.object(["type": .string("bold")])]) }) → false
+↳     some → false
+↳     some → true
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.316 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 0.376 seconds.
+✘ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() failed after 0.463 seconds with 1 issue.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.486 seconds.
+✔ Suite ModernHostStoreTests passed after 0.486 seconds.
+✔ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() passed after 0.537 seconds.
+✘ Suite ModernNativeInputTests failed after 0.537 seconds with 1 issue.
+✘ Test run with 5 tests in 2 suites failed after 0.537 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)
