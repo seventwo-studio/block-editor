@@ -1,6 +1,9 @@
 import { WASI, File, OpenFile, ConsoleStdout } from "@bjorn3/browser_wasi_shim";
 import type { Block, Mark, InlineNode } from "./schema.js";
 import { parseClipboardHtml } from "./clipboard.js";
+import { SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError } from "./swift-modern.js";
+import type { ModernScope, ModernPolicy, ModernDocument, ModernObject, ModernRecovery } from "./swift-modern.js";
+export * from "./swift-modern.js";
 
 export interface SwiftElementID { change: { counter: number; actor: string }; index: number }
 /** Origin identities are immutable. Hosts should obtain them from session.node(). */
@@ -99,10 +102,11 @@ export class SwiftEditorRuntime {
       const memory = new Uint8Array(this.exports.memory.buffer);
       const end = memory.indexOf(0, output);
       if (end === -1) throw new Error("Invalid Swift response buffer");
-      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery | SwiftWritingRecovery };
+      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery | SwiftWritingRecovery | ModernRecovery };
       if (!response.ok) {
+        if (response.error === "modernRecoveryRequired" && response.recovery) throw new SwiftModernRecoveryError(response.recovery as ModernRecovery);
         if (response.error === "writingRecoveryRequired" && response.recovery) throw new SwiftWritingRecoveryError(response.recovery as SwiftWritingRecovery);
-        if (response.error === "mergeRecoveryRequired" && response.recovery) throw new SwiftMergeRecoveryError(response.recovery);
+        if (response.error === "mergeRecoveryRequired" && response.recovery) throw new SwiftMergeRecoveryError(response.recovery as SwiftMergeRecovery);
         throw new Error(response.error ?? "Swift editor operation failed");
       }
       return response.value as T;
@@ -111,6 +115,9 @@ export class SwiftEditorRuntime {
       this.exports.block_editor_free(input);
     }
   }
+  createModern(options: ModernScope & ModernPolicy & { readonly actorID: string; readonly document: ModernDocument }): SwiftModernSession { return SwiftModernSession.create(this, options); }
+  restoreModern(snapshot: ModernObject, actorID: string, policy: ModernPolicy = {}): SwiftModernSession { return SwiftModernSession.restore(this, snapshot, actorID, policy); }
+  modernCutover(): SwiftModernCutover { return new SwiftModernCutover(this); }
   create(options: { documentID: string; actorID: string; blocks: Block[]; collaborationVersion?: 1 | 2 }): SwiftEditorSession {
     const handle = crypto.randomUUID();
     return new SwiftEditorSession(this, handle, this.call({ command: "create", session: handle, ...options }));

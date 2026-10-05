@@ -1,0 +1,41 @@
+{
+  "checks": [
+    "captured Unicode peer range, immutable publication, idempotent receive, reopen and selection history",
+    "document origin title/appearance, composition and author policy, listener failure isolation",
+    "nested idempotent remote holds, deferred archive restore and release",
+    "typed identity recovery, unchanged acceptance/receipt, archived recovery, author repair, failed release once",
+    "typed readonly copy, explicit publication cut, foreign/cancelled/duplicate outcomes and retained paste",
+    "typed local provider archive, inert save reopen, explicit archive restore, invocation generation invalidation and cleanup",
+    "typed format, semantic color/state, link, conversion, split/merge, soft break, duplicate/move/delete and columns",
+    "all five list actions, list policy and captured local item nodes",
+    "independent complete document round trips",
+    "chunked cutover, mandatory readback, fresh history, origin map and incompatible archival export",
+    "closed session lifecycle"
+  ],
+  "fixtures": 55,
+  "appliedCommands": [
+    "completeAsyncBlock",
+    "convertBlock",
+    "createColumns",
+    "delete",
+    "duplicate",
+    "format",
+    "insertBlock",
+    "listStructure",
+    "mergeBlocks",
+    "move",
+    "paste",
+    "redo",
+    "removeColumns",
+    "replaceText",
+    "replaceTitle",
+    "resizeColumns",
+    "setAppearance",
+    "setLink",
+    "setSemanticColor",
+    "softBreak",
+    "splitBlock",
+    "undo"
+  ],
+  "wasmSHA256": "be1acca8760b5169fe97a99658604f028c0b0feac37e0b20fb45a06fa5d6ba58"
+}

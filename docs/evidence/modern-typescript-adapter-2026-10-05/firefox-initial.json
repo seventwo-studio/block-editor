@@ -1,0 +1,262 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.swift.config.ts",
+      "tests/modern-adapter.swift.ts",
+      "--workers=1",
+      "--reporter=json"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.swift.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4287 --strictPort",
+      "url": "http://127.0.0.1:4287/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-adapter.swift.ts",
+      "file": "modern-adapter.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "typed protocol 7 consumer contract through actual browser WASM",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7074,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T15:00:51.131Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-adapter-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiY2FwdHVyZWQgVW5pY29kZSBwZWVyIHJhbmdlLCBpbW11dGFibGUgcHVibGljYXRpb24sIGlkZW1wb3RlbnQgcmVjZWl2ZSwgcmVvcGVuIGFuZCBzZWxlY3Rpb24gaGlzdG9yeSIsCiAgICAiZG9jdW1lbnQgb3JpZ2luIHRpdGxlL2FwcGVhcmFuY2UsIGNvbXBvc2l0aW9uIGFuZCBhdXRob3IgcG9saWN5LCBsaXN0ZW5lciBmYWlsdXJlIGlzb2xhdGlvbiIsCiAgICAibmVzdGVkIGlkZW1wb3RlbnQgcmVtb3RlIGhvbGRzLCBkZWZlcnJlZCBhcmNoaXZlIHJlc3RvcmUgYW5kIHJlbGVhc2UiLAogICAgInR5cGVkIGlkZW50aXR5IHJlY292ZXJ5LCB1bmNoYW5nZWQgYWNjZXB0YW5jZS9yZWNlaXB0LCBhcmNoaXZlZCByZWNvdmVyeSwgYXV0aG9yIHJlcGFpciwgZmFpbGVkIHJlbGVhc2Ugb25jZSIsCiAgICAidHlwZWQgcmVhZG9ubHkgY29weSwgZXhwbGljaXQgcHVibGljYXRpb24gY3V0LCBmb3JlaWduL2NhbmNlbGxlZC9kdXBsaWNhdGUgb3V0Y29tZXMgYW5kIHJldGFpbmVkIHBhc3RlIiwKICAgICJ0eXBlZCBsb2NhbCBwcm92aWRlciBhcmNoaXZlLCBpbmVydCBzYXZlIHJlb3BlbiwgZXhwbGljaXQgYXJjaGl2ZSByZXN0b3JlLCBpbnZvY2F0aW9uIGdlbmVyYXRpb24gaW52YWxpZGF0aW9uIGFuZCBjbGVhbnVwIiwKICAgICJ0eXBlZCBmb3JtYXQsIHNlbWFudGljIGNvbG9yL3N0YXRlLCBsaW5rLCBjb252ZXJzaW9uLCBzcGxpdC9tZXJnZSwgc29mdCBicmVhaywgZHVwbGljYXRlL21vdmUvZGVsZXRlIGFuZCBjb2x1bW5zIiwKICAgICJhbGwgZml2ZSBsaXN0IGFjdGlvbnMsIGxpc3QgcG9saWN5IGFuZCBjYXB0dXJlZCBsb2NhbCBpdGVtIG5vZGVzIiwKICAgICJpbmRlcGVuZGVudCBjb21wbGV0ZSBkb2N1bWVudCByb3VuZCB0cmlwcyIsCiAgICAiY2h1bmtlZCBjdXRvdmVyLCBtYW5kYXRvcnkgcmVhZGJhY2ssIGZyZXNoIGhpc3RvcnksIG9yaWdpbiBtYXAgYW5kIGluY29tcGF0aWJsZSBhcmNoaXZhbCBleHBvcnQiLAogICAgImNsb3NlZCBzZXNzaW9uIGxpZmVjeWNsZSIKICBdLAogICJmaXh0dXJlcyI6IDU1LAogICJ3YXNtU0hBMjU2IjogImJlMWFjY2E4NzYwYjUxNjlmZTk3YTk5NjU4NjA0ZjAyOGMwYjBmZWFjMzdlMGIyMGZiNDVhMDZmYTVkNmJhNTgiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9ce0e353f0d818bab058-4a4693787c4be92233ef",
+          "file": "modern-adapter.swift.ts",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "typed protocol 7 consumer contract through actual browser WASM",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7110,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T15:00:58.481Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-adapter-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiY2FwdHVyZWQgVW5pY29kZSBwZWVyIHJhbmdlLCBpbW11dGFibGUgcHVibGljYXRpb24sIGlkZW1wb3RlbnQgcmVjZWl2ZSwgcmVvcGVuIGFuZCBzZWxlY3Rpb24gaGlzdG9yeSIsCiAgICAiZG9jdW1lbnQgb3JpZ2luIHRpdGxlL2FwcGVhcmFuY2UsIGNvbXBvc2l0aW9uIGFuZCBhdXRob3IgcG9saWN5LCBsaXN0ZW5lciBmYWlsdXJlIGlzb2xhdGlvbiIsCiAgICAibmVzdGVkIGlkZW1wb3RlbnQgcmVtb3RlIGhvbGRzLCBkZWZlcnJlZCBhcmNoaXZlIHJlc3RvcmUgYW5kIHJlbGVhc2UiLAogICAgInR5cGVkIGlkZW50aXR5IHJlY292ZXJ5LCB1bmNoYW5nZWQgYWNjZXB0YW5jZS9yZWNlaXB0LCBhcmNoaXZlZCByZWNvdmVyeSwgYXV0aG9yIHJlcGFpciwgZmFpbGVkIHJlbGVhc2Ugb25jZSIsCiAgICAidHlwZWQgcmVhZG9ubHkgY29weSwgZXhwbGljaXQgcHVibGljYXRpb24gY3V0LCBmb3JlaWduL2NhbmNlbGxlZC9kdXBsaWNhdGUgb3V0Y29tZXMgYW5kIHJldGFpbmVkIHBhc3RlIiwKICAgICJ0eXBlZCBsb2NhbCBwcm92aWRlciBhcmNoaXZlLCBpbmVydCBzYXZlIHJlb3BlbiwgZXhwbGljaXQgYXJjaGl2ZSByZXN0b3JlLCBpbnZvY2F0aW9uIGdlbmVyYXRpb24gaW52YWxpZGF0aW9uIGFuZCBjbGVhbnVwIiwKICAgICJ0eXBlZCBmb3JtYXQsIHNlbWFudGljIGNvbG9yL3N0YXRlLCBsaW5rLCBjb252ZXJzaW9uLCBzcGxpdC9tZXJnZSwgc29mdCBicmVhaywgZHVwbGljYXRlL21vdmUvZGVsZXRlIGFuZCBjb2x1bW5zIiwKICAgICJhbGwgZml2ZSBsaXN0IGFjdGlvbnMsIGxpc3QgcG9saWN5IGFuZCBjYXB0dXJlZCBsb2NhbCBpdGVtIG5vZGVzIiwKICAgICJpbmRlcGVuZGVudCBjb21wbGV0ZSBkb2N1bWVudCByb3VuZCB0cmlwcyIsCiAgICAiY2h1bmtlZCBjdXRvdmVyLCBtYW5kYXRvcnkgcmVhZGJhY2ssIGZyZXNoIGhpc3RvcnksIG9yaWdpbiBtYXAgYW5kIGluY29tcGF0aWJsZSBhcmNoaXZhbCBleHBvcnQiLAogICAgImNsb3NlZCBzZXNzaW9uIGxpZmVjeWNsZSIKICBdLAogICJmaXh0dXJlcyI6IDU1LAogICJ3YXNtU0hBMjU2IjogImJlMWFjY2E4NzYwYjUxNjlmZTk3YTk5NjU4NjA0ZjAyOGMwYjBmZWFjMzdlMGIyMGZiNDVhMDZmYTVkNmJhNTgiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9ce0e353f0d818bab058-f30032cc7215f6ae9d40",
+          "file": "modern-adapter.swift.ts",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "typed protocol 7 consumer contract through actual browser WASM",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 0,
+                  "error": {
+                    "message": "Error: browserType.launch: Failed to launch the browser process.\nBrowser logs:\n\n<launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-Usyp42 -juggler-pipe -silent\n<launched> pid=86405\n[pid=86405][err] *** You are running in headless mode.\n[pid=86405][err] Could not find profile folder.\n[pid=86405] <process did exit: exitCode=1, signal=null>\n[pid=86405] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-Usyp42 -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=86405\u001b[22m\n\u001b[2m  - [pid=86405][err] *** You are running in headless mode.\u001b[22m\n\u001b[2m  - [pid=86405][err] Could not find profile folder.\u001b[22m\n\u001b[2m  - [pid=86405] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=86405] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=86405] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=86405] <kill>\u001b[22m\n\u001b[2m  - [pid=86405] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=86405] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=86405] <gracefully close end>\u001b[22m\n",
+                    "stack": "Error: browserType.launch: Failed to launch the browser process.\nBrowser logs:\n\n<launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-Usyp42 -juggler-pipe -silent\n<launched> pid=86405\n[pid=86405][err] *** You are running in headless mode.\n[pid=86405][err] Could not find profile folder.\n[pid=86405] <process did exit: exitCode=1, signal=null>\n[pid=86405] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-Usyp42 -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=86405\u001b[22m\n\u001b[2m  - [pid=86405][err] *** You are running in headless mode.\u001b[22m\n\u001b[2m  - [pid=86405][err] Could not find profile folder.\u001b[22m\n\u001b[2m  - [pid=86405] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=86405] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=86405] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=86405] <kill>\u001b[22m\n\u001b[2m  - [pid=86405] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=86405] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=86405] <gracefully close end>\u001b[22m\n"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Failed to launch the browser process.\nBrowser logs:\n\n<launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-Usyp42 -juggler-pipe -silent\n<launched> pid=86405\n[pid=86405][err] *** You are running in headless mode.\n[pid=86405][err] Could not find profile folder.\n[pid=86405] <process did exit: exitCode=1, signal=null>\n[pid=86405] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-Usyp42 -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=86405\u001b[22m\n\u001b[2m  - [pid=86405][err] *** You are running in headless mode.\u001b[22m\n\u001b[2m  - [pid=86405][err] Could not find profile folder.\u001b[22m\n\u001b[2m  - [pid=86405] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=86405] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=86405] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=86405] <kill>\u001b[22m\n\u001b[2m  - [pid=86405] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=86405] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=86405] <gracefully close end>\u001b[22m\n"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T15:01:05.997Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/test-results/modern-adapter.swift.ts-ty-56d00-through-actual-browser-WASM-firefox/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "9ce0e353f0d818bab058-92df9ea38242fdefd709",
+          "file": "modern-adapter.swift.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-05T15:00:50.562Z",
+    "duration": 15636.729000000001,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

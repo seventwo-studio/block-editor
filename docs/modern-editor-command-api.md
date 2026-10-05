@@ -1,6 +1,28 @@
 # Implemented modern command API
 
-ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. Typed Kotlin/TypeScript wrappers and executed Android/WASM parity remain unfinished.
+ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript entrypoint now exposes the implemented modern contract; typed Kotlin and complete native host acceptance remain unfinished.
+
+## TypeScript consumer
+
+Import `SwiftEditorRuntime`, `SwiftModernSession`, the `Modern*` types and `SwiftModernRecoveryError` from `@seventwo-studio/block-editor/swift`. `runtime.createModern(...)` requires an admitted complete document, actor, document identity and epoch. `runtime.restoreModern(session.save(), actorID)` restores accepted author history. It does not restore local input, recovery, deferred packets or provider state; export and restore those separately in the host's durable transaction.
+
+```ts
+const session = runtime.createModern({ document, documentID: document.documentID, actorID, epoch });
+const title = { node: { document: { documentID: document.documentID } }, name: "title" } as const;
+const target = session.captureTextRange(title, 0, document.title.length);
+const result = session.execute({ command: "replaceTitle", target, arguments: { text: "Field notes" } });
+// result.status and result.focusIntent are checked local outcomes.
+```
+
+`execute` discriminates all 22 commands, pairing their captured targets with typed arguments. Published snapshots and returned objects are deeply frozen, including opaque metadata. Publication precedes subscriber notification. Subscriber errors go to `onListenerError` and do not make a committed command appear to fail. `getSnapshot`/`subscribe` can serve an external store; no modern editor view is provided here.
+
+Commit platform input before direct `receive`, or hold remote changes while the platform owns an uncommitted buffer. Nested `holdRemoteChanges()` releases are idempotent, including after a recovery failure or session close. A typed recovery error refreshes the accepted snapshot/recovery before propagating; persist its proposal separately, then explicitly repair. Result intent does not move focus automatically. Host generation, active document and composition checks remain required around delayed actions.
+
+`copy` is read-only. `prepareCut` captures without deleting; only `finishCut(preparation, published)` after the actual OS clipboard outcome may delete. Preparations are bound to the originating live session. `beginAsyncBlock`, local provider archives and explicit completion expose the core lifecycle; restoring an archive does not start a provider or automatically author its result. A new invocation invalidates an older generation.
+
+`runtime.modernCutover()` exposes upload, preparation, chunk export, exact readback verification, remapping and cleanup. `SwiftModernSession.fromCutover` requires explicit stop/archive/reset acknowledgments and verified readback. Hosts must supply bytes read from their actual storage, persist/read back the new save and atomically activate their own pointer; the facade does not perform durable activation or rollback. Raw archive bytes are base64, and chunks retain the core's 8 MB decoded limit. All legacy TypeScript entrypoints retain their protocol defaults.
+
+The [typed adapter receipt](evidence/modern-typescript-adapter-2026-10-05/receipt.json) records actual applied coverage for every advertised command through the native C ABI and Chromium/WebKit WASM, all 55 accepted complete document fixtures, local lifecycle/recovery assertions, type rejection checks, regression and isolated installed-package verification. The initial Firefox run and a controlled temporary-profile retry fail before browser launch; they remain execution failures, not passed or skipped editor checks. Native input/IME, OS clipboard/provider integration, durable storage activation and the full physical/assistive host matrix retain their existing acceptance gates. The unchanged shared core retains its separately pinned Swift/migration evidence.
 
 A modernCommand request has documentID, epoch, command, target and arguments. Results carry status (applied/noop/unavailable/recoveryRequired), the materialized snapshot, actual admitted author transaction, and local focus/selection intent. Unsupported commands and host/composition policy restrictions return unchanged unavailable results. Malformed schemas and wrong scope return the existing structured error boundary. Checked column and writing/list commands return unchanged unavailable results for invalid target/argument values; other invalid/stale targets retain the structured error boundary. Pending retained recovery disables further conflicting author edits. A result is planned against the validated candidate before publishing its document/history. Result intents are not replicated instructions to move peers' focus.
 

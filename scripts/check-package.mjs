@@ -26,7 +26,7 @@ try {
     import * as crdt from '@seventwo-studio/block-editor/crdt';
     import { Content } from '@seventwo-studio/block-editor/schema';
     import { BlockEditor } from '@seventwo-studio/block-editor/react';
-    import { SwiftEditorRuntime } from '@seventwo-studio/block-editor/swift';
+    import { SwiftEditorRuntime, SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError } from '@seventwo-studio/block-editor/swift';
     import { SwiftBlockEditor } from '@seventwo-studio/block-editor/swift/react';
     import { createElement } from 'react';
     import { renderToStaticMarkup } from 'react-dom/server';
@@ -35,6 +35,9 @@ try {
     assert.ok(Object.keys(model).length && Object.keys(crdt).length);
     assert.equal(typeof BlockEditor, 'function');
     assert.equal(typeof SwiftEditorRuntime.initialize, 'function');
+    assert.equal(typeof SwiftModernSession.create, 'function');
+    assert.equal(typeof SwiftModernCutover, 'function');
+    assert.equal(typeof SwiftModernRecoveryError, 'function');
     assert.equal(typeof SwiftBlockEditor, 'function');
     assert.ok(renderToStaticMarkup(createElement(BlockEditor, { value: blocks, onChange() {}, allowMarkdown: false })).length > 0);
     assert.ok(readFileSync(new URL(import.meta.resolve('@seventwo-studio/block-editor/react.css')), 'utf8').length > 0);
