@@ -6,6 +6,7 @@ public enum ModernOperation: Codable, Equatable, Sendable {
     case createColumns(ModernColumnCreation)
     case removeColumns(layout: NodeID, source: NodePlacementID)
     case resizeColumns(layout: NodeID, splitBasisPoints: Int)
+    case convertBlock(node: NodeID, type: String, attributes: [String: JSONValue])
     case structure(Mutation)
     case text(WritingMutation)
     case setAppearance(field: String, value: String)
@@ -130,7 +131,7 @@ public final class ModernSession {
         try validatePlainText(text, field: field)
         return try replaceSelected(field: field, selected: selection(field, range), text: text, group: group)
     }
-    private func replaceSelected(field: WritingField, selected: (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition), text: String, group: String?) throws -> WritingPosition {
+    func replaceSelected(field: WritingField, selected: (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition), text: String, group: String?) throws -> WritingPosition {
         if selected.keys.isEmpty && text.isEmpty { return selected.position }
         let id = try nextID()
         var operations: [ModernOperation] = selected.keys.isEmpty ? [] : [.text(.delete(keys: selected.keys))]
@@ -178,6 +179,11 @@ public final class ModernSession {
             if offset == cursor && affinity == .after { return WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: key, affinity: affinity) }
         }
         guard offset == 0 || offset == cursor else { throw EditorError.invalidRange }
+        // A captured nonempty field end follows the observed last atom, so a
+        // later peer suffix does not move an existing caret past that suffix.
+        if offset > 0, let last = projection.visibleKeys(in: field).last {
+            return WritingPosition(documentID: documentID, epoch: epoch, field: field, anchor: last, affinity: .after)
+        }
         return WritingPosition(documentID: documentID, epoch: epoch, field: field, affinity: offset == 0 ? .after : .before)
     }
     public func resolve(_ position: WritingPosition) throws -> ResolvedWritingPosition { try resolve(position, in: projection) }
@@ -218,6 +224,15 @@ public final class ModernSession {
         guard !plainField(range.start.field), range.start.field == range.end.field else { throw EditorError.invalidChange }
         let selected = try capturedSelection(range); endTypingGroup()
         if !selected.keys.isEmpty { try perform(nextID(), [.text(.format(keys: selected.keys, type: markType, mark: mark))]) }
+    }
+    func modernCapturedCaret(_ range: ModernTextRange) throws -> WritingPosition {
+        guard range.start.field == range.end.field else { throw EditorError.invalidRange }
+        let cohort = try closure(range.observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
+        let captured = try replay(log.filter { cohort.contains($0.key) }).0
+        let start = try resolve(range.start, in: captured), end = try resolve(range.end, in: captured)
+        guard start.address == end.address, start.offset == end.offset else { throw EditorError.invalidRange }
+        _ = try resolve(range.start)
+        return range.start
     }
     private func capturedSelection(_ range: ModernTextRange) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
         guard range.start.field == range.end.field else { throw EditorError.invalidRange }
@@ -484,7 +499,7 @@ public final class ModernSession {
         var raw = Materialized(); raw.structure = seed.structure
         var available = Dictionary(uniqueKeysWithValues: registeredSeeds.atoms.map { ($0.key, $0.node) })
         var routes: [ModernColumnRoute] = []
-        var edits: [WritingEdit] = [], appearance = baseline.fields["appearance"]!.object!
+        var appearance = baseline.fields["appearance"]!.object!
         var previousAuthor: [String: ChangeID] = [:]
         for change in ordered {
             guard validModernChangeID(change.id) else { throw EditorError.invalidChange }
@@ -500,7 +515,7 @@ public final class ModernSession {
                 }
             case .edit(let operations):
                 guard !operations.isEmpty, operations.count <= 100_000 else { throw EditorError.invalidChange }
-                var mutations: [WritingMutation] = [], introduced = Set<ElementID>(), registers = Set<String>()
+                var introduced = Set<ElementID>(), registers = Set<String>()
                 func reference(_ key: WritingAtomKey) throws {
                     try modernReference(key.origin.node, before: change.id, cohort: cohort, registry: registry)
                     guard registeredBirths[key.origin] != nil, raw.structure!.nodes[key.origin.node] != nil else { throw EditorError.invalidChange }
@@ -547,6 +562,16 @@ public final class ModernSession {
                         _ = try captured.address(of: layout)
                         guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
                         try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: active[change.id] ?? true, to: &raw)
+                    case .convertBlock(let node, let type, let attributes):
+                        try modernReference(node, before: change.id, cohort: cohort, registry: registry)
+                        let captured = try causalColumnStructure(cohort, in: candidate)
+                        guard let original = captured.nodes[node], let current = raw.structure!.nodes[node] else { throw EditorError.invalidChange }
+                        _ = try captured.address(of: node)
+                        _ = try writingConvertedBlock(original, type: type, attributes: attributes, modern: true)
+                        if active[change.id] ?? true {
+                            raw.structure!.nodes[node] = try writingConvertedBlock(current, type: type, attributes: attributes, modern: true)
+                            raw.structure!.touched.insert(node)
+                        }
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)
                         guard registers.insert(field).inserted else { throw EditorError.invalidChange }
@@ -571,18 +596,14 @@ public final class ModernSession {
                             guard span.allSatisfy({ !plainField($0.origin) }) else { throw EditorError.invalidChange }
                         default: throw EditorError.invalidChange
                         }
-                        mutations.append(mutation)
                     }
                 }
-                edits.append(WritingEdit(id: change.id, mutations: mutations))
             }
         }
-        var output = raw.structure!
-        let births = retainedWritingFields(output), seeded = seedWritingAtoms(births)
-        let projection = try WritingProjection(seeds: seeded.atoms, edits: edits, active: active,
-            emptyFields: Set(births.keys), hiddenSeeds: seeded.hidden)
-        let values = try projectedWritingValues(structure: &output, projection: projection,
-            seeds: seeded.atoms, fields: Set(births.keys), births: births, retainedOrigins: true, omitEmptyMarks: true)
+        let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(ordered), births: retainedWritingFields(raw.structure!),
+            protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
+        var output = shared.0
+        let projection = shared.1, values = shared.2
         output = try projectModernColumnRoutes(output, routes: routes)
         var fields = try output.document(documentID: documentID, text: values).fields
         fields["appearance"] = .object(appearance)
@@ -591,11 +612,10 @@ public final class ModernSession {
     private func causalColumnStructure(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> StructuralState {
         let subset = candidate.filter { cohort.contains($0.key) }, active = activeStates(subset)
         var raw = Materialized(); raw.structure = seed.structure
-        var routes: [ModernColumnRoute] = [], edits: [WritingEdit] = []
+        var routes: [ModernColumnRoute] = []
         for change in subset.values.sorted(by: { $0.id < $1.id }) {
             guard case .edit(let operations) = change.body else { continue }
             let enabled = active[change.id] ?? true
-            var text: [WritingMutation] = []
             for operation in operations {
                 switch operation {
                 case .structure(let mutation): try apply([mutation], enabled: enabled, to: &raw)
@@ -606,16 +626,19 @@ public final class ModernSession {
                     routes.append(try modernRemovalRoute(layout, source: source, change: change.id, enabled: enabled, structure: raw.structure!))
                 case .resizeColumns(let layout, let split):
                     try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: enabled, to: &raw)
-                case .text(let mutation): text.append(mutation)
+                case .convertBlock(let node, let type, let attributes):
+                    if enabled, let current = raw.structure!.nodes[node] {
+                        raw.structure!.nodes[node] = try writingConvertedBlock(current, type: type, attributes: attributes, modern: true)
+                        raw.structure!.touched.insert(node)
+                    }
+                case .text: break
                 case .setAppearance: break
                 }
             }
-            edits.append(WritingEdit(id: change.id, mutations: text))
         }
-        var output = raw.structure!
-        let births = retainedWritingFields(output), seeded = seedWritingAtoms(births)
-        let projection = try WritingProjection(seeds: seeded.atoms, edits: edits, active: active, emptyFields: Set(births.keys), hiddenSeeds: seeded.hidden)
-        _ = try projectedWritingValues(structure: &output, projection: projection, seeds: seeded.atoms, fields: Set(births.keys), births: births, retainedOrigins: true, omitEmptyMarks: true)
+        let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(subset.values.sorted { $0.id < $1.id }),
+            births: retainedWritingFields(raw.structure!), protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
+        let output = shared.0
         return try projectModernColumnRoutes(output, routes: routes)
     }
     /// Bound recursive payloads before a Foundation encoder/decoder is asked to
@@ -628,6 +651,11 @@ public final class ModernSession {
             case .edit(let operations):
                 guard operations.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
                 for operation in operations {
+                    if case .convertBlock(let node, let type, let attributes) = operation {
+                        try modernStructuralIdentityShape(node)
+                        try inspectModernPayload(.object(attributes))
+                        try validateWritingConversionAttributes(type: type, attributes: attributes)
+                    }
                     if case .createColumns(let value) = operation {
                         try inspectModernPayload(value.layout)
                         guard value.nodes.count <= 10_000, value.sources.count <= 10_000 else { throw EditorError.recoveryCapacityExceeded }
@@ -689,6 +717,9 @@ public final class ModernSession {
                 var elements = Set<ElementID>(), registers = Set<String>()
                 for operation in operations {
                     switch operation {
+                    case .convertBlock(let node, let type, let attributes):
+                        try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
+                        guard registers.insert("convert:" + node.key).inserted else { throw EditorError.invalidChange }
                     case .structure, .createColumns, .removeColumns, .resizeColumns: break
                     case .setAppearance(let field, let value):
                         try validateAppearance(field: field, value: value)

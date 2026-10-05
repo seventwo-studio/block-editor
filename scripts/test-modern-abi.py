@@ -261,10 +261,50 @@ def main():
     resumed_boundary = empty_removed['focusIntent']['insertion']['_0']
     empty_resumed = column_command('empty-columns', 'insertBlock', resumed_boundary, block=dict(id='Resume', type='paragraph', content=[dict(type='text', text='Write here')]))
     assert [block['id'] for block in empty_resumed['document']['blocks']] == ['A', 'B', 'Resume', 'C', 'E']
+    # Same-content conversion retains an observed caret while peer text arrives.
+    assert all(name in capabilities['commands'] for name in ('convertBlock', 'softBreak'))
+    body_a = dict(node=dict(baseline=dict(blockID='A', path=[])), name='content')
+    expected_heading, expected_suffix = fixture('unicode-peer-heading'), fixture('unicode-peer-suffix')
+    for peer_first in (False, True):
+        author, peer = ('convert-first-a', 'convert-first-b') if peer_first else ('convert-last-a', 'convert-last-b')
+        column_session(author, baseline)
+        column_session(peer, baseline)
+        caret = success('modernCaptureTextRange', author, field=body_a, start=3, end=3)
+        peer_caret = success('modernCaptureTextRange', peer, field=body_a, start=3, end=3)
+        command(peer, 'replaceText', peer_caret, text=' remote')
+        peer_packet = success('modernChanges', peer)
+        if peer_first:
+            success('modernReceive', author, batch=peer_packet)
+        converted = command(author, 'convertBlock', caret, type='heading', level=2)
+        assert converted['status'] == 'applied' and converted['focus'] == caret['start']
+        assert success('modernReceive', author, batch=peer_packet)['document'] == expected_heading
+        assert success('modernReceive', peer, batch=success('modernChanges', author))['document'] == expected_heading
+        assert success('modernResolvePosition', author, position=converted['focus'])['offset'] == 3
+        assert command(author, 'undo')['document'] == expected_suffix
+        saved_conversion = success('modernSave', author)
+        success('destroy', author)
+        resumed = author + '-reopened'
+        assert success('restoreModern', resumed, actorID=author, snapshot=saved_conversion)['document'] == expected_suffix
+        assert command(resumed, 'redo')['document'] == expected_heading
+        assert success('modernResolvePosition', resumed, position=converted['focus'])['offset'] == 3
+        unchanged_conversion = success('modernSave', resumed)
+        invalid_conversion = command(resumed, 'convertBlock', caret, type='heading', level=4)
+        assert invalid_conversion['status'] == 'unavailable' and invalid_conversion['transaction'] is None
+        assert success('modernSave', resumed) == unchanged_conversion
+        deferred_conversion = command(resumed, 'convertBlock', caret, type='code')
+        assert deferred_conversion['status'] == 'unavailable' and deferred_conversion['transaction'] is None
+        assert success('modernSave', resumed) == unchanged_conversion
+    column_session('soft-break', baseline)
+    soft_caret = success('modernCaptureTextRange', 'soft-break', field=body_a, start=1, end=1)
+    broken = command('soft-break', 'softBreak', soft_caret)
+    assert broken['status'] == 'applied' and broken['document'] == fixture('unicode-soft-break')
+    assert success('modernResolvePosition', 'soft-break', position=broken['focus'])['offset'] == 2
+    assert command('soft-break', 'undo')['document'] == baseline
+    assert command('soft-break', 'redo')['document'] == broken['document']
     report = dict(runtime='native C ABI', library=str(library),
                   librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
                   verifiedResponses=responses, independentFixtureHashes=hashes,
-                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Conversion, clipboard, migration and full host acceptance remain pending.')
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Schema-changing conversion, split/merge, list structure, clipboard, migration and full host acceptance remain pending.')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')

@@ -1973,24 +1973,9 @@ public final class WritingSession {
                     guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(identity)
                     guard var value = raw.structure?.nodes[identity], value.kind == .block else { throw EditorError.invalidChange }
-                    let original = value.fields["type"]?.string ?? ""
-                    let inline = ["paragraph", "heading", "quote", "callout"]
-                    let retiredList = usesRetainedOrigins && original != "list" && type == "list" &&
+                    let retiredList = usesRetainedOrigins && value.fields["type"] != .string("list") && type == "list" &&
                         collectionBirths[NodeCollection(owner: identity, field: "items")] == .item
-                    guard (inline.contains(original) && inline.contains(type)) || (original == "list" && type == "list") || retiredList else { throw EditorError.invalidChange }
-                    let allowed: Set<String> = type == "heading" ? ["level"] : type == "callout" ? ["variant"] : type == "list" ? ["style"] : []
-                    guard Set(attributes.keys).isSubset(of: allowed) else { throw EditorError.invalidChange }
-                    if type == "list" { guard ["ordered", "unordered", "todo"].contains(attributes["style"]?.string ?? "") else { throw EditorError.invalidChange } }
-                    if !retiredList { value.fields["type"] = .string(type) }
-                    for (key, attribute) in attributes {
-                        guard !(active[change.id] ?? true) || original == conversionAttributeOwner(key) || retiredList || value.fields[key] == nil || value.fields[key] == attribute else {
-                            throw EditorError.invalidDocument("Conversion attribute metadata requires reconciliation")
-                        }
-                        value.fields[key] = attribute
-                    }
-                    var shape = value.fields
-                    for collection in value.collections { shape[collection] = .array([]) }
-                    try validateNode(.object(shape), kind: .block)
+                    value = try writingConvertedBlock(value, type: type, attributes: attributes, retiredList: retiredList, active: active[change.id] ?? true)
                     if active[change.id] ?? true { raw.structure?.nodes[identity] = value; raw.structure?.touched.insert(identity) }
                 case .structure(let mutation):
                     switch mutation {
@@ -2027,13 +2012,14 @@ public final class WritingSession {
         guard try document.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
         return (state.0, state.1, document)
     }
-    private static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
-        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained)
+    static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3,
+                             activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride)
         let (structure, edits) = try orderedCuts(structure: inputs.structure, edits: inputs.edits,
             seeds: inputs.seeds, active: inputs.active, fields: inputs.fields, births: inputs.births,
             hidden: inputs.hidden, aliases: inputs.aliases, changes: changes,
             retained: retained, protocolVersion: protocolVersion)
-        return try assembleProjection(structure: structure, edits: edits, inputs: inputs, retained: retained)
+        return try assembleProjection(structure: structure, edits: edits, inputs: inputs, retained: retained, omitEmptyMarks: omitEmptyMarks)
     }
     private struct ProjectionInputs {
         let structure: StructuralState
@@ -2046,7 +2032,7 @@ public final class WritingSession {
         let aliases: [WritingField: WritingField]
     }
     @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
-        births retained: [WritingField: WritingFieldBirth]?) throws -> ProjectionInputs {
+        births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil) throws -> ProjectionInputs {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
@@ -2061,6 +2047,7 @@ public final class WritingSession {
                 edits.append(WritingEdit(id: change.id, mutations: operations.compactMap { if case .text(let mutation) = $0 { return mutation }; return nil }))
             }
         }
+        if let activeOverride { active = activeOverride }
         var aliases: [WritingField: WritingField] = [:]
         if retained != nil {
             var groups: [NodeID: Set<WritingField>] = [:], destinations: [NodeID: WritingField] = [:]
@@ -2255,12 +2242,12 @@ public final class WritingSession {
     }
     @inline(never) private static func assembleProjection(structure input: StructuralState,
         edits: [WritingEdit], inputs: ProjectionInputs,
-        retained: [WritingField: WritingFieldBirth]?) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        retained: [WritingField: WritingFieldBirth]?, omitEmptyMarks: Bool = false) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
         var structure = input
         let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
         let hidden = inputs.hidden, aliases = inputs.aliases
         let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
-        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil)
+        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks)
         for field in projection.joinedSources {
             if let node = structure.nodes[field.node], node.kind == .block,
                Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {
@@ -2763,7 +2750,7 @@ public struct WritingSchemaConversion: Codable, Equatable, Sendable {
     public let creation: ElementID?
     public let preservedItemFields: [String: JSONValue]
 }
-private func conversionAttributeOwner(_ name: String) -> String? {
+func conversionAttributeOwner(_ name: String) -> String? {
     switch name {
     case "level": return "heading"
     case "variant": return "callout"

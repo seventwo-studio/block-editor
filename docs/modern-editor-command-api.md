@@ -16,12 +16,16 @@ Use the capture endpoints and retain their returned canonical objects unchanged.
 
 Whole-node selection rejects duplicates, ancestor/descendant overlap, document metadata and non-block collection owners. Movement supports compatible root/existing column-child collections; no general document-block indentation is exposed. Captured boundaries keep their original collection placement if their anchor later moves or is deleted; a deleted collection owner rejects. A stale selected origin never resolves through a reused display label.
 
+A captured nonempty field-end caret anchors after its observed last atom. A later peer suffix therefore leaves that caret before the suffix, including through conversion and reopen. Explicit nil-anchor positions retain their field-boundary meaning.
+
 ## Advertised commands
 
 | Command | Target | Arguments | Result |
 | --- | --- | --- | --- |
 | replaceText / replaceTitle | ModernTextRange | text, optional typingGroup | Caret after accepted insertion; captured atoms only; plain title and literal fields retain their policy |
 | format | ModernTextRange | markType, optional mark (null removes) | Anchored text range with original direction |
+| softBreak | ModernTextRange | Empty object | Replace captured atoms with a newline in one author step; preserve later peer text and return the insertion caret |
+| convertBlock | Collapsed ModernTextRange in a body field | type, optional level/style/variant appropriate to that type | Same-content paragraph/heading/quote/callout conversion or containing-list style; retain field origins, rich runs, opaque metadata and the captured caret |
 | setAppearance | Explicit document NodeID | field, value | Shared independent preset register |
 | insertBlock | ModernBlockBoundary | block | First editable descendant field caret, or whole-node selection for a non-text block |
 | move | ModernMoveTarget: selection, boundary, optional caret | Empty object | Ordered whole-node selection; an optional caret inside the selected subtree follows its origin |
@@ -32,6 +36,8 @@ Whole-node selection rejects duplicates, ancestor/descendant overlap, document m
 | undo / redo | Omitted or null | Empty object | Actual author history transition; peer history retained |
 
 Multi-node movement preserves capture order, origins, descendants and metadata. Captured text deletion preserves later peer atoms; mixed ranges inside selected subtrees do not create redundant atom deletions. Deliberate commands create one Undo step. No-op placement/caret-only deletion adds no transaction. Structural conflicts that cannot form a valid accepted union remain separately recoverable; repair cannot disable a peer's history.
+
+convertBlock defaults heading level to 1, callout variant to info and list style to unordered. Levels are 1–3, variants are info/warning/error/success and styles are unordered/ordered/todo. A list-item caret targets its containing list's style while keeping that item caret. Conversion does not overwrite a conflicting opaque field to install an attribute. Invalid metadata/arguments and schema-changing conversion return unchanged unavailable results; full code/list shape conversion remains pending. A noncollapsed or title target rejects. softBreak has its own host command policy and rejects title targets; literal body fields retain plain text and atomic labels remain indivisible for editing.
 
 New rich block marks use the same validation as text insertion; opaque consumer metadata remains opaque. Column containers cannot be individually created/moved/deleted through generic commands. Nested layouts reject, including indirect nesting through toggles. Whole-layout deletion deletes the observed subtree; removeColumns instead flattens first-column then second-column children without copying content. Generic insertion/movement remains root or existing column children; captureBoundary also supports a typed block-child collection for explicit column creation outside any layout.
 
@@ -55,4 +61,4 @@ let result = try session.insertBlock(Block.paragraph(id: freshID, text: ""), at:
 // Apply result.focus/result.selection only to the still-current local invocation.
 ```
 
-The currently advertised subset has shared-core and compiled native ABI checks, including an independently authored nested-move fixture. Versioned clipboard, split/merge/conversion/list structure, semantic block defaults, async completion, archive-based migration, typed host facades and the complete native/Android/WASM acceptance matrix remain required work. See [implementation evidence](modern-editor-foundation.md); no full host/scenario row is promoted by these command subset checks.
+The fourteen advertised commands have shared-core and compiled native ABI checks, including independently authored nested-move and writing fixtures. Versioned clipboard, split/merge/schema-changing conversion/list structure, semantic block defaults, async completion, archive-based migration, typed host facades and the complete native/Android/WASM acceptance matrix remain required work. See [implementation evidence](modern-editor-foundation.md); no full host/scenario row is promoted by these command subset checks.

@@ -42,6 +42,8 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
             case .resizeColumns(let layout, let split):
                 try modernStructuralIdentityShape(layout)
                 guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
+            case .convertBlock(let node, let type, let attributes):
+                try modernStructuralIdentityShape(node); try validateWritingConversionAttributes(type: type, attributes: attributes)
             case .text(.insert(let atom)):
                 guard introduced.insert(atom.key.element).inserted else { throw EditorError.invalidChange }
             default: break
