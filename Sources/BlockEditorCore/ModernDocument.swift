@@ -123,8 +123,39 @@ private func inspectModernJSONKeys(_ data: Data) throws {
                 guard frames[index].keys.insert(key).inserted else { throw EditorError.invalidDocument("Duplicate JSON object key \(key)") }
                 frames[index].needsKey = false
             }
+        case 45, 48...57: // number; retain the mathematical value of opaque metadata
+            let start = offset
+            while offset < bytes.count, ![9, 10, 13, 32, 44, 93, 125].contains(bytes[offset]) { offset += 1 }
+            let literal = Data(bytes[start..<offset])
+            let number = try JSONDecoder().decode(Double.self, from: literal)
+            let encoded = try canonicalEncoder().encode(number)
+            guard try modernNumberIdentity(literal) == modernNumberIdentity(encoded) else {
+                throw EditorError.invalidDocument("JSON number cannot be preserved without rounding")
+            }
         default: offset += 1
         }
     }
     guard frames.isEmpty else { throw EditorError.invalidDocument("Unclosed JSON container") }
+}
+
+/// Compare decimal values without a fixed-precision decimal or integer parser.
+/// Syntax has already been checked by JSONDecoder for each numeric token.
+private func modernNumberIdentity(_ data: Data) throws -> String {
+    var value = String(decoding: data, as: UTF8.self).lowercased()
+    let negative = value.hasPrefix("-")
+    if negative { value.removeFirst() }
+    let parts = value.split(separator: "e", omittingEmptySubsequences: false)
+    let mantissa = String(parts[0])
+    let fractionCount = mantissa.split(separator: ".", omittingEmptySubsequences: false).dropFirst().first?.count ?? 0
+    let digits = mantissa.filter { $0 != "." }.drop(while: { $0 == "0" })
+    if digits.isEmpty { return negative ? "-0" : "0" }
+    guard let exponent = parts.count == 1 ? 0 : Int(parts[1]) else {
+        throw EditorError.invalidDocument("JSON number exponent exceeds limit")
+    }
+    let (initialScale, overflow) = exponent.subtractingReportingOverflow(fractionCount)
+    guard !overflow else { throw EditorError.invalidDocument("JSON number exponent exceeds limit") }
+    let trailingZeroCount = digits.reversed().prefix(while: { $0 == "0" }).count
+    let (scale, scaleOverflow) = initialScale.addingReportingOverflow(trailingZeroCount)
+    guard !scaleOverflow else { throw EditorError.invalidDocument("JSON number exponent exceeds limit") }
+    return "\(negative ? "-" : "")\(digits.dropLast(trailingZeroCount))e\(scale)"
 }

@@ -115,6 +115,22 @@ import Testing
         #expect(throws: (any Error).self) { try ModernDocument(json: Data(#"{"consumer":"unterminated"#.utf8)) }
     }
 
+    @Test(arguments: ["9007199254740993", "1.000000000000000000001", "1e-400"])
+    func opaqueNumbersCannotSilentlyRoundDuringAdmission(_ literal: String) throws {
+        let baseline = try ModernDocument(documentID: "numeric")
+        let source = String(decoding: try baseline.json(), as: UTF8.self).dropLast() + ",\"consumerNumber\":" + literal + "}"
+        #expect(throws: (any Error).self) { try ModernDocument(json: Data(source.utf8)) }
+        #expect(baseline.fields["consumerNumber"] == nil)
+    }
+
+    @Test(arguments: ["9007199254740992", "0.1", "100e-2", "1.00", "-0.0"])
+    func exactNumericRoundTripsAllowCanonicalDecimalSpelling(_ literal: String) throws {
+        let baseline = try ModernDocument(documentID: "numeric")
+        let source = String(decoding: try baseline.json(), as: UTF8.self).dropLast() + ",\"consumerNumber\":" + literal + "}"
+        let admitted = try ModernDocument(json: Data(source.utf8))
+        #expect(try ModernDocument(json: admitted.json()) == admitted)
+    }
+
     @Test func existingLimitsAndOpaqueMetadataArePreserved() throws {
         let large = try ModernDocument(json: Data(contentsOf: fixtures.appendingPathComponent("migrated-5001.json")))
         #expect(large.blocks.count == 5001)
