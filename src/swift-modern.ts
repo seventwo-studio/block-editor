@@ -84,7 +84,7 @@ export type ModernAuthorCommand =
   | Command<"format", ModernTextRange | { readonly ranges: readonly ModernTextRange[] }, { readonly markType: string; readonly mark: ModernObject | null }>
   | Command<"insertBlock", ModernBoundary, { readonly block: ModernObject }>
   | Command<"duplicate", { readonly selection: ModernNodes; readonly boundary: ModernBoundary }, { readonly newBlockIDs: readonly string[] }>
-  | Command<"paste", ModernPasteTarget, { readonly clipboard: ModernClipboard | null; readonly mode?: "rich" | "flattenedColumns" | "plainText"; readonly newIDs?: readonly string[]; readonly policy?: ModernPastePolicy }>
+  | Command<"paste", ModernPasteTarget, { readonly clipboard: ModernClipboard | null; readonly mode?: "rich" | "flattenedColumns" | "plainText"; readonly newIDs?: readonly string[]; readonly policy?: ModernPastePolicy; readonly focusInserted?: boolean }>
   | Command<"move", { readonly selection: ModernNodes; readonly boundary: ModernBoundary; readonly caret?: ModernPosition }, EmptyArguments>
   | Command<"delete", ModernDeleteTarget, EmptyArguments>
   | Command<"createColumns", ModernCreateColumnsTarget, { readonly layout: ModernObject }>

@@ -296,9 +296,9 @@ sealed class ModernCommand(val name: ModernCommandName) {
     class Duplicate(val selection: ModernNodes, val boundary: ModernBoundary, val newBlockIDs: List<String>) : Author(ModernCommandName.DUPLICATE) {
         override fun target() = modernObject("selection" to selection, "boundary" to boundary); override fun arguments() = modernObject("newBlockIDs" to JSONArray(newBlockIDs))
     }
-    class Paste(val destination: ModernPasteTarget, val clipboard: ModernClipboard?, val mode: ModernPasteMode = ModernPasteMode.RICH, val newIDs: List<String>? = null, val policy: ModernPastePolicy? = null) : Author(ModernCommandName.PASTE) {
+    class Paste(val destination: ModernPasteTarget, val clipboard: ModernClipboard?, val mode: ModernPasteMode = ModernPasteMode.RICH, val newIDs: List<String>? = null, val policy: ModernPastePolicy? = null, val focusInserted: Boolean = false) : Author(ModernCommandName.PASTE) {
         override fun target() = destination.wire()
-        override fun arguments() = modernObject("clipboard" to clipboard, "mode" to mode.wireValue).also { value -> newIDs?.let { value.put("newIDs", JSONArray(it)) }; policy?.let { value.put("policy", it.wire()) } }
+        override fun arguments() = modernObject("clipboard" to clipboard, "mode" to mode.wireValue).also { value -> newIDs?.let { value.put("newIDs", JSONArray(it)) }; policy?.let { value.put("policy", it.wire()) }; if (focusInserted) value.put("focusInserted", true) }
     }
     class Move(val selection: ModernNodes, val boundary: ModernBoundary, val caret: ModernPosition? = null) : Author(ModernCommandName.MOVE) {
         override fun target() = modernObject("selection" to selection, "boundary" to boundary).also { value -> caret?.let { value.put("caret", it.export()) } }; override fun arguments() = JSONObject()

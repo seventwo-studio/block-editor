@@ -570,13 +570,13 @@ public struct ModernEditorHostActions {
         command { session in
             if descriptor.id == "columns" {
                 let layout = JSONValue.object(["id": .string(UUID().uuidString), "type": .string("columns"), "splitBasisPoints": .number(5000), "columns": .array((0..<2).map { _ in .object(["id": .string(UUID().uuidString), "children": .array([])]) })])
-                let result = try insertionRange.map { range in try session.paste(ModernClipboard(parts: [.node(value: layout, kind: "block")]), at: .init(range: range)) } ?? session.createColumns(.init(boundary: insertion), layout: layout)
+                let result = try insertionRange.map { range in try session.paste(ModernClipboard(parts: [.node(value: layout, kind: "block")]), at: .init(range: range), focusInserted: true) } ?? session.createColumns(.init(boundary: insertion), layout: layout)
                 self.insertion = nil; insertionRange = nil; return result.focus
             }
             let count = descriptor.blockType == "list" ? 1 : descriptor.blockType == "table" ? 6 : 0
             let block = try ModernInsertionCatalog.block(descriptor.id, id: UUID().uuidString, childIDs: (0..<count).map { _ in UUID().uuidString })
             let result: ModernStructuralResult
-            if let insertionRange { result = try session.paste(ModernClipboard(parts: [.node(value: .object(block.fields), kind: "block")]), at: .init(range: insertionRange)) }
+            if let insertionRange { result = try session.paste(ModernClipboard(parts: [.node(value: .object(block.fields), kind: "block")]), at: .init(range: insertionRange), focusInserted: true) }
             else { result = try session.insertBlock(block, at: insertion) }
             self.insertion = nil; insertionRange = nil; return result.focus
         }

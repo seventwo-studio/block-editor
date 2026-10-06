@@ -88,3 +88,24 @@ extension ModernSession {
         return ModernCommandAvailability(command: command, available: reason == nil, reason: reason)
     }
 }
+
+extension ModernSession {
+    /// Local author restrictions are distinct from untrusted clipboard import.
+    /// Existing opaque nodes, asset identifiers and metadata can be duplicated
+    /// verbatim while only known content fields are checked against host policy.
+    func validateLocalContentPolicy(_ value: JSONValue, kind: NodeKind = .block) throws {
+        guard let fields = value.object else { throw EditorError.invalidPath }
+        let type = kind == .block ? fields["type"]?.string : kind == .item ? "list" : kind == .column ? "columns" : "table"
+        if let type, allowedBlockTypes?.contains(type) == false { throw ModernSessionError.unavailable("hostBlockPolicy") }
+        for name in ["content", "summary", "caption"] {
+            for atom in fields[name]?.array ?? [] {
+                for mark in atom["marks"]?.array ?? [] {
+                    if let name = mark["type"]?.string, allowedMarkTypes?.contains(name) == false { throw ModernSessionError.unavailable("hostMarkPolicy") }
+                }
+            }
+        }
+        for (name, childKind) in StructuralState.collectionFields(kind, fields, modern: true) {
+            for child in fields[name]?.array ?? [] { try validateLocalContentPolicy(child, kind: childKind) }
+        }
+    }
+}

@@ -177,7 +177,7 @@ extension ModernSession {
         return ModernBlockBoundary(documentID: documentID, epoch: epoch, collection: collection, after: after, observed: modernObserved)
     }
     public func paste(_ clipboard: ModernClipboard, at target: ModernPasteTarget, mode: ModernPasteMode = .rich,
-                      newIDs: [String]? = nil, policy: WritingPastePolicy = WritingPastePolicy()) throws -> ModernStructuralResult {
+                      newIDs: [String]? = nil, policy: WritingPastePolicy = WritingPastePolicy(), focusInserted: Bool = false) throws -> ModernStructuralResult {
         try authoringAllowed(command: "paste")
         func intersect(_ a: Set<String>?, _ b: Set<String>?) -> Set<String>? { a.map { value in b.map { value.intersection($0) } ?? value } ?? b }
         let policy = WritingPastePolicy(allowedBlockTypes: intersect(policy.allowedBlockTypes, allowedBlockTypes), allowedMarkTypes: intersect(policy.allowedMarkTypes, allowedMarkTypes), allowAssetMetadata: policy.allowAssetMetadata)
@@ -201,6 +201,10 @@ extension ModernSession {
         }
         endTypingGroup()
         func result(_ replay: (WritingProjection, ModernDocument, StructuralState), _ observed: [ChangeID]) throws -> ModernStructuralResult {
+            if focusInserted, let field = try self.editableFields(in: plan.nodes, structure: replay.2).first {
+                let selected = ModernNodeSelection(documentID: self.documentID, epoch: self.epoch, nodes: plan.nodes, observed: observed)
+                return ModernStructuralResult(focus: .text(self.edgePosition(field, projection: replay.0, end: false)), selection: .nodes(selected))
+            }
             if let caret = plan.caret {
                 _ = try resolveWritingPosition(caret, projection: replay.0, structure: replay.2) { _ in nil }
                 return ModernStructuralResult(focus: .text(caret), selection: .text(WritingTextRange(start: caret, end: caret)))

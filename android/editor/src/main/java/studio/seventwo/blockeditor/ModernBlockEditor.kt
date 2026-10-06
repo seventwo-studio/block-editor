@@ -166,7 +166,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         val position = state.focus ?: return@LaunchedEffect
         if (position.export().getJSONObject("field").toString() == field.wire().toString()) {
             val offset = session.resolvePosition(position).export().getInt("offset")
-            value = value.copy(selection = TextRange(offset)); request.requestFocus(); bring.bringIntoView(); state.focus = null
+            value = value.copy(text = session.text(field), selection = TextRange(offset), composition = null); request.requestFocus(); bring.bringIntoView(); state.focus = null
         }
     }
     DisposableEffect(id) { onDispose { if (value.composition != null) state.composition(id, false); release?.invoke() } }
@@ -269,6 +269,26 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         })
 }
 
+@Composable private fun ModernFormattingMenu(state: ModernBlockEditorState) {
+    var opened by remember { mutableStateOf(false) }
+    var captured by remember { mutableStateOf<List<ModernTextRange>>(emptyList()) }
+    Box {
+        TextButton(enabled = !state.host.readOnly, onClick = {
+            captured = state.textSpan.ifEmpty { listOfNotNull(state.textSelection) }; opened = true
+        }) { Text("Format") }
+        DropdownMenu(expanded = opened, onDismissRequest = { opened = false }) {
+            listOf("bold", "italic", "strikethrough", "code").forEach { mark ->
+                val current = if (captured.isEmpty()) "off" else state.session.markState(captured, mark)
+                DropdownMenuItem(text = { Text("$mark${if (current == "on") " ✓" else if (current == "mixed") " (mixed)" else ""}") }, enabled = captured.isNotEmpty(), onClick = {
+                    val value = if (current == "on") null else ModernPayload.restore(modernObject("type" to mark))
+                    state.execute(if (captured.size > 1) ModernCommand.FormatSpan(captured, mark, value) else ModernCommand.Format(captured.first(), mark, value))
+                    opened = false
+                })
+            }
+        }
+    }
+}
+
 /** All authored operations are protocol-7 JNI commands. Device width and font
  * scale decide column presentation without writing the persisted split. */
 @Composable fun ModernBlockEditor(state: ModernBlockEditorState, modifier: Modifier = Modifier,
@@ -339,10 +359,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         }
         Row(Modifier.horizontalScroll(rememberScrollState())) {
             TextButton(onClick = { state.insertionRange = null; state.insertion = session.captureBoundary(after = session.nodes().lastOrNull()); state.query = "" }) { Text("Insert") }
-            listOf("bold", "italic", "strikethrough", "code").forEach { mark -> TextButton(enabled = !state.host.readOnly, onClick = { state.textSelection?.let { range ->
-                val ranges = state.textSpan.ifEmpty { listOf(range) }; val value = if (session.markState(ranges, mark) == "on") null else ModernPayload.restore(modernObject("type" to mark))
-                state.execute(if (ranges.size > 1) ModernCommand.FormatSpan(ranges, mark, value) else ModernCommand.Format(range, mark, value))
-            } }) { Text(mark) } }
+            ModernFormattingMenu(state)
             TextButton(onClick = { state.linkTarget = state.textSelection; state.linkURL = ""; state.internalLink = false }) { Text("Link") }
             TextButton(enabled = session.snapshot.canUndo, onClick = { state.execute(ModernCommand.Undo) }) { Text("Undo") }
             ModernSecondaryActions(state, clipboard)
@@ -388,7 +405,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                     val count = when (descriptor.blockType) { "list" -> 1; "table" -> 6; "columns" -> 2; else -> 0 }
                     val block = session.insertionValue(descriptor.id, UUID.randomUUID().toString(), List(count) { UUID.randomUUID().toString() }).export()
                     val range = state.insertionRange
-                    if (range != null) state.execute(ModernCommand.Paste(ModernPasteTarget.Range(range), session.clipboardParts(JSONArray().put(modernObject("node" to modernObject("kind" to "block", "value" to block))))))
+                    if (range != null) state.execute(ModernCommand.Paste(ModernPasteTarget.Range(range), session.clipboardParts(JSONArray().put(modernObject("node" to modernObject("kind" to "block", "value" to block)))), focusInserted = true))
                     else if (descriptor.blockType == "columns") state.execute(ModernCommand.CreateColumns(ModernCreateColumnsTarget.Boundary(boundary), ModernPayload.restore(block)))
                     else state.execute(ModernCommand.InsertBlock(boundary, ModernPayload.restore(block)))
                 }

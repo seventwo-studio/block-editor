@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus) await testInfo.attach('failed-editor-dom', { body: await page.content(), contentType: 'text/html' });
+});
+
 test('modern integrated editor preserves local writing through blocks, columns and paired reopen', async ({ page }, testInfo) => {
   test.setTimeout(120_000);
   await page.goto('modern.html');

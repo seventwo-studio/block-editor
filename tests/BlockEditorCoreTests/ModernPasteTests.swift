@@ -24,6 +24,22 @@ import Testing
     private func exchange(_ a: ModernSession, _ b: ModernSession) throws {
         let aa = try a.changes(), bb = try b.changes(); try a.receive(bb); try b.receive(aa); try a.receive(bb); try b.receive(aa)
     }
+    @Test func catalogInsertionFocusIsStoredWithAuthorHistoryWhileOrdinaryPasteKeepsItsCaret() throws {
+        let document = try ModernDocument(json: Data(#"{"format":"seventwo.block-editor.document","formatVersion":1,"documentID":"catalog-focus","title":"Help","appearance":{"fontFamily":"sans","fontSize":"default","pageWidth":"readable"},"blocks":[{"id":"query","type":"paragraph","content":[{"type":"text","text":"/code"}]}]}"#.utf8))
+        let clipboard = try ModernClipboard(parts: [.node(value: .object(["id": .string("code"), "type": .string("code"), "code": .string("")]), kind: "block")])
+        for catalog in [false, true] {
+            let s = try session(document: document), field = try s.field(node: node(s, "query"))
+            let target = ModernPasteTarget(range: try s.captureTextRange(in: field, start: 0, end: 5))
+            let result = try s.paste(clipboard, at: target, focusInserted: catalog)
+            guard case .text(let caret) = result.focus else { Issue.record("Expected text focus"); continue }
+            #expect(caret.field.name == (catalog ? "code" : "content"))
+            #expect(try s.resolve(caret).offset == 0)
+            try s.undo(); #expect(try s.text(in: field) == "/code")
+            try s.redo(); #expect(s.localSelection?.focus == result.focus)
+            let restored = try ModernSession.restore(s.save(), actorID: "a")
+            #expect(restored.localSelection?.focus == result.focus)
+        }
+    }
     @Test func acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() throws {
         let d = try fixture("columns-3000"), expected = try fixture("columns-root-copy"), s = try session(document: d)
         let layout = try node(s, "layout"), clipboard = try s.copyClipboard(ModernDeleteTarget(nodes: s.captureNodes([layout])))

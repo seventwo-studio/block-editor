@@ -20,17 +20,22 @@ class ModernEditorComposeTest {
     @Test fun modernNativeTypingAndHistoryReopenThroughActualJni() {
         val context = ApplicationProvider.getApplicationContext<Context>(); val file = File(context.cacheDir, "modern-${UUID.randomUUID()}.json")
         val store = ModernHostStore(file); lateinit var host: ModernAndroidHost; lateinit var state: ModernBlockEditorState
+        val errors = mutableListOf<Throwable>()
         compose.setContent {
             val document = ModernDocument.restore(JSONObject().put("format", "seventwo.block-editor.document").put("formatVersion", 1).put("documentID", "modern-ui")
                 .put("title", "Help").put("appearance", JSONObject().put("fontFamily", "sans").put("fontSize", "default").put("pageWidth", "readable"))
                 .put("blocks", JSONArray().put(JSONObject().put("id", "body").put("type", "paragraph").put("content", JSONArray()))))
             val current = androidx.compose.runtime.remember { ModernAndroidHost(ModernSession.create(document, "author", "epoch"), "author", store) }
-            host = current; state = rememberModernBlockEditorState(current)
+            host = current; state = rememberModernBlockEditorState(current) { errors.add(it) }
             ModernBlockEditor(state)
         }
         compose.onNodeWithContentDescription("Block text").performClick().performTextInput("Unicode 😀")
         compose.onNodeWithContentDescription("Block text").assertTextContains("Unicode 😀")
-        compose.onNodeWithText("Undo", useUnmergedTree = true).performClick()
+        compose.onNodeWithText("Undo").assertIsDisplayed().assertHasClickAction().performClick()
+        compose.runOnIdle {
+            org.junit.Assert.assertTrue(errors.joinToString(), errors.isEmpty())
+            org.junit.Assert.assertEquals("Undo must change the shared document", "", host.session.text(host.session.field(host.session.nodes().first())))
+        }
         compose.onNodeWithContentDescription("Block text").assertTextEquals("")
         compose.runOnIdle { state.execute(ModernCommand.Redo) }
         compose.onNodeWithContentDescription("Block text").assertTextContains("Unicode 😀")

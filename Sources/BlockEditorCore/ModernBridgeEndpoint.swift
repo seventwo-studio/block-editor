@@ -333,7 +333,7 @@ final class ModernBridgeEndpoint {
         guard commands.contains(command) else { return try result("unavailable", reason: "unsupportedCommand") }
 
         if command == "paste" {
-            try allowed(arguments, ["clipboard", "mode", "newIDs", "policy"])
+            try allowed(arguments, ["clipboard", "mode", "newIDs", "policy", "focusInserted"])
             let target = try decode(request["target"], as: ModernPasteTarget.self)
             guard let payload = arguments["clipboard"] else { throw EditorError.invalidChange }
             if payload == .null { return try result("noop", reason: "clipboardNoResult") }
@@ -341,6 +341,7 @@ final class ModernBridgeEndpoint {
             let mode = try arguments["mode"].map { try decode($0, as: ModernPasteMode.self) } ?? .rich
             let ids = try arguments["newIDs"].map { try decode($0, as: [String].self) }
             let policy = try arguments["policy"].map { try decode($0, as: WritingPastePolicy.self) } ?? WritingPastePolicy()
+            let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
             func retained(_ status: String, _ reason: String) throws -> JSONValue {
                 var response = try result(status, reason: reason).object!
                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
@@ -348,7 +349,7 @@ final class ModernBridgeEndpoint {
             guard request["documentID"] == .string(session.documentID), request["epoch"] == .string(session.epoch) else { return try retained("unavailable", "clipboardScopeChanged") }
             let before = Set(session.syncState.received)
             do {
-                let outcome = try session.paste(clipboard, at: target, mode: mode, newIDs: ids, policy: policy)
+                let outcome = try session.paste(clipboard, at: target, mode: mode, newIDs: ids, policy: policy, focusInserted: focusInserted)
                 let transaction = session.syncState.received.first { !before.contains($0) && $0.actor == session.actorID }
                 let caret: WritingPosition? = { if case .text(let position) = outcome.focus { return position }; return nil }()
                 let selection = try outcome.selection.map { selection -> JSONValue in

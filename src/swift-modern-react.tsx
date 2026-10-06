@@ -9,24 +9,27 @@ const object = (value: unknown): ModernObject => value && typeof value === "obje
 const array = (value: unknown): readonly ModernObject[] => Array.isArray(value) ? value as readonly ModernObject[] : [];
 const text = (value: unknown): string => typeof value === "string" ? value : "";
 function visible(nodes: readonly ModernObject[]): string { return nodes.map(node => node.type === "text" ? text(node.text) : text(node.label ?? node.date ?? node.expression ?? node.name)).join(""); }
-function inline(nodes: readonly ModernObject[], open?: (id: string, type: string) => void): ReactNode {
-  return nodes.map((node, index) => {
-    if (node.type === "soft-break") return <br key={index} />;
-    if (node.type !== "text") return <span key={index} contentEditable={false} className="modern-reference" role="link" tabIndex={0} onClick={() => open?.(text(node.entityId), text(node.entityType))} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open?.(text(node.entityId), text(node.entityType)); } }}>{visible([node]) || "Unavailable reference"}</span>;
-    let result: ReactNode = text(node.text);
-    for (const mark of array(node.marks)) {
-      switch (mark.type) {
-        case "bold": result = <strong>{result}</strong>; break;
-        case "italic": result = <em>{result}</em>; break;
-        case "strikethrough": result = <s>{result}</s>; break;
-        case "code": result = <code>{result}</code>; break;
-        case "link": result = <a href={/^(https?:\/\/|mailto:)/i.test(text(mark.href)) ? text(mark.href) : undefined}>{result}</a>; break;
-        case "semantic-color": result = <span data-ink={text(mark.value)}>{result}</span>; break;
-        case "semantic-background": result = <span data-fill={text(mark.value)}>{result}</span>; break;
-      }
+function renderInline(root: HTMLElement, nodes: readonly ModernObject[] | string, open?: (id: string, type: string) => void): void {
+  const fragment = root.ownerDocument.createDocumentFragment();
+  if (typeof nodes === "string") fragment.append(root.ownerDocument.createTextNode(nodes));
+  else for (const node of nodes) {
+    if (node.type === "soft-break") { fragment.append(root.ownerDocument.createElement("br")); continue; }
+    let element: Node = root.ownerDocument.createTextNode(node.type === "text" ? text(node.text) : visible([node]) || "Unavailable reference");
+    if (node.type !== "text") {
+      const reference = root.ownerDocument.createElement("span"); reference.contentEditable = "false"; reference.className = "modern-reference"; reference.setAttribute("role", "link"); reference.tabIndex = 0;
+      reference.append(element); const activate = () => open?.(text(node.entityId), text(node.entityType)); reference.onclick = activate;
+      reference.onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); activate(); } }; element = reference;
+    } else for (const mark of array(node.marks)) {
+      const tag = ({ bold: "strong", italic: "em", strikethrough: "s", code: "code", link: "a" } as Record<string, string>)[text(mark.type)] ?? "span";
+      const wrapper = root.ownerDocument.createElement(tag);
+      if (mark.type === "link" && /^(https?:\/\/|mailto:)/i.test(text(mark.href))) wrapper.setAttribute("href", text(mark.href));
+      if (mark.type === "semantic-color") wrapper.dataset.ink = text(mark.value);
+      if (mark.type === "semantic-background") wrapper.dataset.fill = text(mark.value);
+      wrapper.append(element); element = wrapper;
     }
-    return <span key={index}>{result}</span>;
-  });
+    fragment.append(element);
+  }
+  root.replaceChildren(fragment);
 }
 
 interface InputProps {
@@ -44,7 +47,7 @@ function ModernInput(props: InputProps) {
   const { session, field } = props, element = useRef<HTMLDivElement>(null), composing = useRef(false);
   const release = useRef<(() => void) | undefined>(undefined), before = useRef("");
   const anchors = useRef<ModernTextRange | undefined>(undefined), typing = useRef(crypto.randomUUID());
-  const original = useRef<ModernTextRange | undefined>(undefined);
+  const original = useRef<ModernTextRange | undefined>(undefined), rendered = useRef<string | undefined>(undefined);
   const pending = useRef(false), value = typeof props.value === "string" ? props.value : visible(props.value);
   const fieldKey = key(field);
   function selection(): ModernTextRange | undefined {
@@ -102,6 +105,8 @@ function ModernInput(props: InputProps) {
   }
   useLayoutEffect(() => {
     if (!element.current || composing.current || pending.current) return;
+    const signature = key(props.value);
+    if (rendered.current !== signature) { renderInline(element.current, props.value, props.openReference); rendered.current = signature; }
     before.current = value;
     original.current = session.captureTextRange(field, 0, value.length);
     if (document.activeElement === element.current && anchors.current) {
@@ -110,7 +115,7 @@ function ModernInput(props: InputProps) {
         selectInline(element.current, Math.min(a, b), Math.max(a, b), a > b);
       } catch (error) { props.report(error); }
     }
-  }, [value, props.value, fieldKey]);
+  }, [value, key(props.value), fieldKey]);
   useEffect(() => () => { props.register(field, null); if (composing.current) session.setComposing(false); release.current?.(); }, [session, fieldKey]);
   return <div ref={node => { element.current = node; props.register(field, node); }} className={`modern-input ${field.name === "code" ? "modern-code-input" : ""}`}
     role="textbox" aria-label={props.label} aria-multiline={field.name !== "title"} contentEditable={!props.readOnly} suppressContentEditableWarning
@@ -128,7 +133,7 @@ function ModernInput(props: InputProps) {
       if (props.navigate?.(event, range)) { event.preventDefault(); return; }
       if (field.name === "code" && (event.key === "Tab" || event.key === "Enter")) { event.preventDefault(); props.execute({ command: "replaceText", target: range, arguments: { text: event.key === "Tab" ? "\t" : "\n" } }); return; }
       if (event.key === "Enter" && props.enter) { event.preventDefault(); if (event.shiftKey && field.name !== "title") props.execute({ command: "softBreak", target: range, arguments: {} }); else props.enter(range); }
-    }}>{typeof props.value === "string" ? props.value : inline(props.value, props.openReference)}</div>;
+    }} />;
 }
 
 function domPoint(root: HTMLElement, at: number): { node: Node; offset: number } {
@@ -386,7 +391,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       const block = session.insertionValue(descriptor.id, id(), Array.from({ length: count }, id));
       if (descriptor.blockType === "columns" && !menu.range) {
         execute({ command: "createColumns", target: { boundary: menu.boundary }, arguments: { layout: block as ModernObject } });
-      } else if (menu.range) execute({ command: "paste", target: { range: menu.range }, arguments: { clipboard: session.clipboardParts([{ node: { kind: "block", value: block as ModernObject } }]) } });
+      } else if (menu.range) execute({ command: "paste", target: { range: menu.range }, arguments: { clipboard: session.clipboardParts([{ node: { kind: "block", value: block as ModernObject } }]), focusInserted: true } });
       else execute({ command: "insertBlock", target: menu.boundary, arguments: { block: block as ModernObject } });
       setMenu(undefined);
     });

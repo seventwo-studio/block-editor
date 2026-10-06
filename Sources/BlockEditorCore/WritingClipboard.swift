@@ -122,7 +122,7 @@ func validateClipboardAssetURL(_ text: String?) throws {
           let url = URL(string: text), let scheme = url.scheme?.lowercased(),
           ["http", "https", "asset", "content", "file", "blob"].contains(scheme) else { throw EditorError.invalidChange }
     if scheme == "http" || scheme == "https" { try validateClipboardURL(text) }
-    else { guard !url.path.isEmpty else { throw EditorError.invalidChange } }
+    else { guard !url.path.isEmpty || (scheme == "asset" && !(url.host ?? "").isEmpty) else { throw EditorError.invalidChange } }
 }
 
 /// External normalization is explicit. Hosts decide whether to adopt the suggested

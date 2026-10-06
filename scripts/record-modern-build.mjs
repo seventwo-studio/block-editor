@@ -22,7 +22,7 @@ if (process.argv[1]?.endsWith("record-modern-build.mjs")) {
   if (!["wasm", "javascript", "android"].includes(runtime)) throw new Error("Unknown build runtime");
   const artifacts = {};
   if (runtime === "android") {
-    for (const abi of ["arm64-v8a", "x86_64"]) for (const name of ["libBlockEditorBridge.so", "libBlockEditorJNI.so", "libc++_shared.so"]) {
+    for (const abi of (process.env.ANDROID_ABIS ?? "arm64-v8a x86_64").split(/\s+/).filter(Boolean)) for (const name of ["libBlockEditorBridge.so", "libBlockEditorJNI.so", "libc++_shared.so"]) {
       const path = `android/editor/src/main/jniLibs/${abi}/${name}`; artifacts[path] = digest(readFileSync(path));
     }
   }

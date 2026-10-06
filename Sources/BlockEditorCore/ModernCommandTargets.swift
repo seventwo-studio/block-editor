@@ -75,7 +75,7 @@ extension ModernSession {
         try authoringAllowed(command: "insertBlock"); endTypingGroup()
         try validateBoundary(boundary)
         try validateModernAuthoredBlock(.object(block.fields))
-        try ModernClipboard(parts: [.node(value: .object(block.fields), kind: "block")]).validateForPaste(policy: WritingPastePolicy(allowedBlockTypes: allowedBlockTypes, allowedMarkTypes: allowedMarkTypes, allowAssetMetadata: true))
+        try validateLocalContentPolicy(.object(block.fields))
         guard !(try structure.visibleOrder(in: boundary.collection)).contains(where: { structure.nodes[$0]?.label == block.id }) else { throw EditorError.invalidChange }
         let id = try nextID(), placement = ElementID(change: id, index: 0), identity = NodeID.inserted(creation: placement, path: [])
         return try performReturning(id, [.structure(.insertNode(value: .object(block.fields), identity: identity, collection: boundary.collection,

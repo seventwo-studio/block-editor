@@ -23,4 +23,8 @@ for ABI in ${ANDROID_ABIS:-arm64-v8a x86_64}; do
     -L"$OUTPUT" -lBlockEditorBridge -o "$OUTPUT/libBlockEditorJNI.so"
 done
 
-SWIFT_BIN="$SWIFT_BIN" "${JS_RUNTIME:-bun}" scripts/record-modern-build.mjs android
+mkdir -p dist
+if [ -z "${JS_RUNTIME:-}" ]; then
+  if command -v bun >/dev/null 2>&1; then JS_RUNTIME=bun; else JS_RUNTIME=node; fi
+fi
+SWIFT_BIN="$SWIFT_BIN" "$JS_RUNTIME" scripts/record-modern-build.mjs android
