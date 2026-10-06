@@ -1,0 +1,182 @@
+{
+  "sourceCommit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
+  "sourceTree": "84662caba4bec7876c9a7a787984a6812491552b",
+  "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+  "date": "2026-10-04",
+  "control": "Official Computer Use with @oai/sky; Device Hub UI launches/records TV/watch; Xcode UI runs visionOS on exact task-owned destination. CLI device creation/install and isolated fixture/file preparation only.",
+  "seed": {
+    "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/mac-computer-use/mac-rich-draft-before-reopen.json",
+    "sha256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53",
+    "scope": "Independent snapshots of the task-generated Mac draft; no live collaboration or user documents."
+  },
+  "platforms": {
+    "tvOS": {
+      "deviceUUID": "E1D8B313-9B50-45C9-9FA6-DFD1A5E8CBB8",
+      "runtime": "tvOS 27.0",
+      "appBundle": "derived-tvOS/Build/Products/Debug-appletvsimulator/EditorLab-tvOS.app",
+      "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-tvOS",
+      "seed": "mac-computer-use/mac-rich-draft-before-reopen.json",
+      "seedSHA256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53",
+      "scope": "Task-owned simulator; unmodified previously built reference host. Prepared an isolated snapshot of task-generated native Mac text/checklist/table data before launching UI. No existing simulator or user document changed.",
+      "rawRecording": {
+        "originalPath": "/Users/luca/Desktop/Screen Recording ST116-baseline-tvOS-01a10410 10-04-2026 at 2.52.17\u202fPM.mp4",
+        "retainedPath": "/private/tmp/block-editor-native-assessment-ntz96ybc/tvos-reference-raw.mp4",
+        "bytes": 8721820,
+        "sha256": "05d914932791bc0a6546592735c5c2e07d4a83d99bde726c6c7c5c4ee85e3c45"
+      },
+      "originalBuild": {
+        "result": "BUILD SUCCEEDED",
+        "scope": "Existing simulator app compiled only; no runtime interaction, screenshot, physical or modern acceptance.",
+        "log": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/tvOS-build.log",
+          "bytes": 426086,
+          "sha256": "433e0f2720352afb908f4c30c16d7adffb650802d5847c7def050905fd73e312"
+        },
+        "executable": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived-tvOS/Build/Products/Debug-appletvsimulator/EditorLab-tvOS.app/EditorLab-tvOS",
+          "sha256": "441d3114f5a541eb67d0c65461c32609558a4e888e0a4318401ef53096abe7d0"
+        },
+        "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-tvOS",
+        "platform": "appletvsimulator",
+        "sdk": "appletvsimulator27.0",
+        "minimumOS": "26.0"
+      },
+      "finalTaskDraft": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/tvos-final-task-draft.json",
+        "sha256": "6c6dd61dd0c786fa55330c99ca90366d42cddf4602d3cc47ad3f44d973713ebe"
+      },
+      "retainedVideo": {
+        "file": "tvos-reference-interaction.mp4",
+        "sha256": "37286dbd7c5ef2d2b872dc172dae2503df7f9e2ea0036af375fb58aa995911f1",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "width": 1280,
+              "height": 720,
+              "nb_frames": "431"
+            }
+          ],
+          "format": {
+            "duration": "14.366667",
+            "size": "156134"
+          }
+        },
+        "operation": "ffmpeg libx264 CRF22 yuv420p; fps=30 regularizes recorded frame timing; continuous trim, no overlays, interpolation or invented states. TV 30\u201344.35 seconds scaled to 1280 wide; watch 0\u201314 seconds at original size."
+      },
+      "qualification": "Native reduced host opens seeded document, focus navigates and checklist changes On to Off; table text remains visible. No text/caret/reorder/restore/modern/physical/accessibility acceptance."
+    },
+    "watchOS": {
+      "deviceUUID": "29BADD13-F6BF-490B-B61E-5FDDD3FD2CFB",
+      "runtime": "watchOS 27.0",
+      "appBundle": "derived-watchOS/Build/Products/Debug-watchsimulator/EditorLab-watchOS.app",
+      "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-watchOS",
+      "seed": "mac-computer-use/mac-rich-draft-before-reopen.json",
+      "seedSHA256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53",
+      "scope": "Task-owned watch simulator; unmodified existing reference host. Prepared isolated task-generated native Mac text/checklist/table draft before UI launch.",
+      "rawRecording": {
+        "originalPath": "/Users/luca/Desktop/Screen Recording ST116-baseline-watchOS-01a10410 10-04-2026 at 2.58.57\u202fPM.mp4",
+        "retainedPath": "/private/tmp/block-editor-native-assessment-ntz96ybc/watchos-reference-raw.mp4",
+        "bytes": 37057,
+        "sha256": "39322a04dfacf22cc7882fe8106ce087032e8afd3e0d20733bdc348c85a45bd3"
+      },
+      "originalBuild": {
+        "result": "BUILD SUCCEEDED",
+        "scope": "Existing simulator app compiled only; no runtime interaction, screenshot, physical or modern acceptance.",
+        "log": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/watchOS-build.log",
+          "bytes": 433929,
+          "sha256": "4b5036f6330db2ca9849b9b11fa389d8ba836f75cb0048450368d80130239c89"
+        },
+        "executable": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived-watchOS/Build/Products/Debug-watchsimulator/EditorLab-watchOS.app/EditorLab-watchOS",
+          "sha256": "074bf09269577ceb4d373b2cd0e7d91d6e65e7613e79c68f6a91bd5d3f7f4306"
+        },
+        "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-watchOS",
+        "platform": "watchsimulator",
+        "sdk": "watchsimulator27.0",
+        "minimumOS": "26.0"
+      },
+      "finalTaskDraft": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/watchos-final-task-draft.json",
+        "sha256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53"
+      },
+      "retainedVideo": {
+        "file": "watchos-reference-interaction.mp4",
+        "sha256": "289d8d92d306a49c98693a53f5e789fb9f11639d0618dc8c2a601013415e2f99",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "width": 416,
+              "height": 496,
+              "nb_frames": "420"
+            }
+          ],
+          "format": {
+            "duration": "14.000000",
+            "size": "51530"
+          }
+        },
+        "operation": "ffmpeg libx264 CRF22 yuv420p; fps=30 regularizes recorded frame timing; continuous trim, no overlays, interpolation or invented states. TV 30\u201344.35 seconds scaled to 1280 wide; watch 0\u201314 seconds at original size."
+      },
+      "qualification": "Native reduced host opens seeded document; controls wrap tightly and visible paragraph truncates. No successful scrolling, checklist/table edit, reorder/restore/modern/physical/accessibility acceptance. Input-routing vs product scrolling cause unknown."
+    },
+    "visionOS": {
+      "deviceUUID": "F2CCEC20-687C-4D9A-972D-4DD6B4AF2EC6",
+      "runtime": "visionOS 26.0",
+      "sdk": "27.0",
+      "minimumOS": "26.0",
+      "appBundle": "derived-visionOS/Build/Products/Debug-xrsimulator/EditorLab-visionOS.app",
+      "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-visionOS",
+      "seed": "mac-computer-use/mac-rich-draft-before-reopen.json",
+      "seedSHA256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53",
+      "scope": "Task-owned visionOS simulator; unmodified existing reference host, isolated task-generated Mac draft seeded before UI launch. Simulator rendering cannot establish physical gaze/pinch/accessibility acceptance.",
+      "originalBuild": {
+        "result": "BUILD SUCCEEDED",
+        "scope": "Existing simulator app compiled only; no runtime interaction, screenshot, physical or modern acceptance.",
+        "log": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/visionOS-build.log",
+          "bytes": 441074,
+          "sha256": "43a7dafc0852a07ea467b0194915cfbce3af68c0912f3448ba64e6b66a9d8c19"
+        },
+        "executable": {
+          "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/derived-visionOS/Build/Products/Debug-xrsimulator/EditorLab-visionOS.app/EditorLab-visionOS",
+          "sha256": "ce3ae46507980108767c9cec59d3a49e0b52b0cbe1b546d9f453d81779c3b91d"
+        },
+        "bundleID": "studio.seventwo.blockeditor.lab.EditorLab-visionOS",
+        "platform": "xrsimulator",
+        "sdk": "xrsimulator27.0",
+        "minimumOS": "26.0"
+      },
+      "finalTaskDraft": {
+        "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/visionos-final-task-draft.json",
+        "sha256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53"
+      },
+      "actualRenderedHost": {
+        "installedBundle": "/Users/luca/Library/Developer/CoreSimulator/Devices/F2CCEC20-687C-4D9A-972D-4DD6B4AF2EC6/data/Containers/Bundle/Application/BC580611-4C94-419A-B216-C551E9C2D754/EditorLab-visionOS.app",
+        "binarySHA256": "7c440226901d208b41e7b057dc7c4bfa33d1e37339b5eec083680352c2775b42",
+        "plistSHA256": "4d8a1dcbc6e9db12044ae2030897cb839c82a5b5f285f5608a159914a7057238",
+        "wrapperFile": "visionos-assessment-host-wrapper.swift",
+        "wrapperSHA256": "79c71405a816e52199c67321560bcb276a10435fe437503e77c7e9e47016b080",
+        "change": "Temporary host uses LocalEditorDemoView directly to bypass picker whose taps could not be verified. No production source change. Rendered evidence only; no interaction or restart acceptance."
+      },
+      "rejectedRecording": "Picker-only recording stopped; no accepted visionOS canvas interaction video.",
+      "qualification": "Unmodified host launches through Xcode, picker displayed; taps not verified. Temporary wrapper renders seeded native canvas. No input/restore/modern/physical/accessibility acceptance."
+    }
+  },
+  "cleanup": {
+    "taskOwnedSimulatorUUIDs": [
+      "E1D8B313-9B50-45C9-9FA6-DFD1A5E8CBB8",
+      "29BADD13-F6BF-490B-B61E-5FDDD3FD2CFB",
+      "F2CCEC20-687C-4D9A-972D-4DD6B4AF2EC6"
+    ],
+    "shutdownAndDeleted": true,
+    "absenceVerified": true,
+    "existingSimulatorIdentitiesPreserved": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "runtime": "native C ABI",
+  "library": "/Users/luca/Developer/block-editor/.build/out/Products/Debug/libBlockEditorBridge.dylib",
+  "librarySHA256": "ff55b991c3d4e7e6fb15d9f658d625284684115eb691c6a7253d1860bbee22d6",
+  "verifiedResponses": 38,
+  "independentFixtureHashes": {
+    "docs/acceptance/modern-editor/documents/unicode.json": "45f2e64136d867ded1adb1811059cb15a958e81e9816a04ceb124e439d0ccc54",
+    "docs/acceptance/modern-editor/documents/unicode-title-both.json": "268e869fd215341e0ced033bab3af90723baeda12842b6bf559b235d4a4f5184",
+    "docs/acceptance/modern-editor/documents/unicode-title-size-both.json": "7befd05619fbf53b9da4d0ad138f6d1aaf0bbf604a6e6b08c9ca9738748253df",
+    "docs/acceptance/modern-editor/documents/unicode-title-peer.json": "dbd6865898462ccba88f6080a518dbf4a0f3ef7eaa8fb9d03f9bc027fd53df30"
+  },
+  "qualification": "Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Local structural command/focus results, compound layout commands, migration and full host acceptance remain pending."
+}

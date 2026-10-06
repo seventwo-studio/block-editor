@@ -1,0 +1,87 @@
+{
+  "recordedAt": "2026-10-04T23:09:42.397Z",
+  "reviewHead": "6eec1d032d4746cc8a0eed67c47c64b7e22af768",
+  "sourceReference": "da0505771898308da100432638b11b463b4fa952",
+  "coreDiffFromSourceReference": 0,
+  "command": "swift test --filter (writingBatch|schemaRetainedPeerSupportsConversionShortcutAndMerge|v4RequiredUndoPersistsAndExplicitRedo)",
+  "result": {
+    "exitCode": 0,
+    "tests": 11,
+    "passed": true
+  },
+  "qualification": "Existing command reuse only; no modern protocol-7, title, columns, grouped typing or native input acceptance",
+  "sources": [
+    {
+      "path": "Sources/BlockEditorCore/Bridge.swift",
+      "sha256": "7087ff03b9dca7e41fcb33855d4ac2b4e823f06780811ec0b5501161b7f49860"
+    },
+    {
+      "path": "Sources/BlockEditorCore/Collaboration.swift",
+      "sha256": "fabb79d595e0818115c1f28a0321f4d70b4bfd7cb5c8ba77630355c34c6e45fa"
+    },
+    {
+      "path": "Sources/BlockEditorCore/Document.swift",
+      "sha256": "6cf09ffb502f8082d5effe59757e1d157b96ba9aec1138afb45da4b4849ab825"
+    },
+    {
+      "path": "Sources/BlockEditorCore/EditorSession.swift",
+      "sha256": "67f58fb3ca4b3ab6f7cfebd71d4ea7b2dedb78665098c572051e8d91b3aaaf1e"
+    },
+    {
+      "path": "Sources/BlockEditorCore/LegacyMigration.swift",
+      "sha256": "426f26cc32b940d1edd3290fe2dce6c4acc9d61665e14f3cc10578cf19929ac2"
+    },
+    {
+      "path": "Sources/BlockEditorCore/Markdown.swift",
+      "sha256": "0e819bf163672170d5e41661f6078e62bfb4ddcb9a1b795d50db4a1f8d9b5320"
+    },
+    {
+      "path": "Sources/BlockEditorCore/MergeRecovery.swift",
+      "sha256": "18303e6f4c68493c888b3eb1eb04dc072d1cfc4eb6bfacde3aeff3262e03dcd3"
+    },
+    {
+      "path": "Sources/BlockEditorCore/ProtocolMigration.swift",
+      "sha256": "99ec7a92097ef284e83adc42338c4e3ae10801294f3e502300afe30c29ed21e5"
+    },
+    {
+      "path": "Sources/BlockEditorCore/Structure.swift",
+      "sha256": "5520cd4b4a2e9d2685c11d6d8c6dd89d0a3f21af470e9279a26fbef8a6c5c1a4"
+    },
+    {
+      "path": "Sources/BlockEditorCore/Validation.swift",
+      "sha256": "9fcfc864d5addb571834227faaba90577c5db4f327db2510a25995b52a37d4d5"
+    },
+    {
+      "path": "Sources/BlockEditorCore/WritingClipboard.swift",
+      "sha256": "9d6957efcafdf8dd26a67b67e4ddb584c7e01138fd125c567144f90e0ce41c85"
+    },
+    {
+      "path": "Sources/BlockEditorCore/WritingMigration.swift",
+      "sha256": "038b4872567596e6208439487d6f08412988ad07f0d7b93509d9a572e66409bf"
+    },
+    {
+      "path": "Sources/BlockEditorCore/WritingProjection.swift",
+      "sha256": "f0ba843188cbbf8776fa9d769d154a59a43774f2ed009778883c77a753ba30a4"
+    },
+    {
+      "path": "Sources/BlockEditorCore/WritingSession.swift",
+      "sha256": "0fbf94e4fd1faae74e4d453c03fb6fb1c626e1fccaf16ee470c41643e07bb69e"
+    },
+    {
+      "path": "tests/BlockEditorCoreTests/WritingSelectionTests.swift",
+      "sha256": "896d06dae3118fc5e7449a800055e9a3c6a64281b0fb7b1135610f0f7f056041"
+    },
+    {
+      "path": "tests/BlockEditorCoreTests/SchemaWritingCommandsTests.swift",
+      "sha256": "ae70a2ad6d057da87cb58a6c39f34fdfc2ed81b4748c4c05337478ad1d95da4d"
+    },
+    {
+      "path": "tests/BlockEditorCoreTests/WritingUndoRecoveryTests.swift",
+      "sha256": "7ea6d32c9723fd2703dca5babbab90d055a5910cab8810619133f89af291f31f"
+    }
+  ],
+  "log": {
+    "path": "docs/evidence/modern-editor-command-review-2026-10-05/reused-command-tests.log",
+    "sha256": "36361c6965a311a23a913b8347a1c301b10efd7269c9892375e54b36759670df"
+  }
+}

@@ -197,6 +197,7 @@ struct WritingProjection {
     private static func head(_ field: WritingField) -> WritingAtomKey {
         WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: -1))
     }
+    func hasField(_ field: WritingField) -> Bool { fields[Self.head(field)] != nil }
     var joinedSources: Set<WritingField> { Set(joins.keys).subtracting(redirectSources) }
     var retainedKeys: Set<WritingAtomKey> { Set(nodes.keys.filter { $0.element.index >= 0 }) }
     func visibleKeys(in field: WritingField) -> [WritingAtomKey] {
@@ -327,6 +328,7 @@ private struct RawWritingField: Hashable {
     init(_ field: WritingField) {
         var values: [String]
         switch field.node {
+        case .document(let documentID): values = ["document", documentID]
         case .baseline(let blockID, let path): values = ["baseline", blockID] + path
         case .inserted(let creation, let path):
             values = ["inserted", String(creation.change.counter), creation.change.actor, String(creation.index)] + path

@@ -27,11 +27,13 @@ jobs:
           bun-version: 1.4.2
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
+      - run: bun node_modules/typescript/bin/tsc -p tsconfig.modern-tests.json
       - run: bun run demo:typecheck
       - run: bun run test
+      - run: bun test tests/modern-build-provenance.test.ts
+      - run: python3 -m unittest discover -s tests -p android_writing_ime_runner_test.py -v
       - run: bunx playwright install --with-deps chromium webkit
       - run: bun run test:browser
-      - run: bun run check:package
       - run: bun run demo:build
 
   swift-runtime:
@@ -56,6 +58,9 @@ jobs:
           xcrun --sdk macosx --show-sdk-version > test-results/compatibility/apple-sdk-version.txt
           "$SWIFT_BIN" test 2>&1 | tee test-results/compatibility/swift-tests.txt
           "$SWIFT_BIN" build --product editor-bridge
+          "$SWIFT_BIN" build --product BlockEditorBridge
+          python3 scripts/test-modern-abi.py --library .build/debug/libBlockEditorBridge.dylib --output test-results/compatibility/modern-abi.json
+          bun scripts/test-modern-adapter.ts .build/debug/libBlockEditorBridge.dylib test-results/compatibility/modern-adapter.json
           bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
           bun scripts/run-native-writing-resource.mjs .build/debug/editor-bridge
           "$SWIFT_BIN" build --product relay-client
@@ -102,6 +107,9 @@ jobs:
           "$SWIFT_BIN" --version > "$COMPATIBILITY_OUTPUT/swift-version.txt"
           "$SWIFT_BIN" sdk list > "$COMPATIBILITY_OUTPUT/swift-sdks.txt"
           bun run build:wasm 2>&1 | tee "$COMPATIBILITY_OUTPUT/wasm-build.txt"
+      - run: bun run build
+      - run: node scripts/modern-package-provenance.mjs
+      - run: bun run check:package
       - name: Build the relay engine from the same checkout as WASM
         run: |
           "$SWIFT_BIN" build --product editor-bridge
@@ -153,6 +161,8 @@ jobs:
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             test-results
             dist/block-editor.wasm
+            dist/modern-build-*.json
+            dist/modern-provenance.json
           if-no-files-found: error
           retention-days: 7
 
@@ -191,7 +201,7 @@ jobs:
           test -e /dev/kvm
           sudo chown "$USER" /dev/kvm
           input_checks=()
-          if [ '${{ matrix.api }}' = '26' ]; then input_checks+=(--system-ime); fi
+          if [ '${{ matrix.api }}' = '26' ]; then input_checks+=(--system-ime --reference-capture); fi
           python3 scripts/run-android-ci.py '${{ matrix.api }}' '${{ matrix.abi }}' --performance-profile smoke "${input_checks[@]}" 2>&1 | tee test-results/compatibility/android-run.txt
       - name: Record exact JNI build provenance
         run: |
@@ -210,6 +220,7 @@ jobs:
             test-results/resource
             test-results/system-input
             test-results/writing-system-input
+            test-results/reference-capture
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
             android/editor/build/reports/androidTests
           if-no-files-found: error

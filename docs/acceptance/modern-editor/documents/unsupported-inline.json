@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "A",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "consumer-inline",
+          "id": "keep-original",
+          "payload": {
+            "text": "世界😀"
+          }
+        }
+      ]
+    }
+  ]
+}

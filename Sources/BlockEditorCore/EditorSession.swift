@@ -333,6 +333,10 @@ public final class EditorSession {
         guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
         return try structure.address(of: identity)
     }
+    func cutoverAddresses() throws -> [NodeID: NodeAddress] {
+        guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
+        return try structure.cutoverAddresses()
+    }
     public func nodes(in collection: NodeCollection) throws -> [NodeID] {
         guard let structure = state.structure else { throw EditorError.unsupportedVersion(2) }
         _ = try structure.kind(in: collection)
@@ -385,20 +389,15 @@ public final class EditorSession {
 
     /// Indent a list item under its preceding sibling, preserving its identity.
     public func indent(_ identity: NodeID) throws {
-        guard let structure = state.structure, structure.nodes[identity]?.kind == .item,
-              let placement = try structure.effectivePlacements()[identity] else { throw EditorError.invalidPath }
-        let siblings = try nodes(in: placement.collection)
-        guard let index = siblings.firstIndex(of: identity), index > 0 else { throw EditorError.invalidPath }
-        let target = NodeCollection(owner: siblings[index - 1], field: "children")
-        try moveNode(identity, into: target, after: nodes(in: target).last)
+        guard let structure = state.structure else { throw EditorError.invalidPath }
+        let id = try nextID()
+        try commit(id, planWritingListHierarchy([identity], outdent: false, change: id, structure: structure))
     }
 
     public func outdent(_ identity: NodeID) throws {
-        guard let structure = state.structure, structure.nodes[identity]?.kind == .item else { throw EditorError.invalidPath }
-        let placements = try structure.effectivePlacements()
-        guard let owner = placements[identity]?.collection.owner, structure.nodes[owner]?.kind == .item,
-              let parent = placements[owner] else { throw EditorError.invalidPath }
-        try moveNode(identity, into: parent.collection, after: owner)
+        guard let structure = state.structure else { throw EditorError.invalidPath }
+        let id = try nextID()
+        try commit(id, planWritingListHierarchy([identity], outdent: true, change: id, structure: structure))
     }
 
     private func nodePlacement(_ identity: NodeID?, in collection: NodeCollection) throws -> NodePlacementID? {
@@ -647,7 +646,7 @@ public final class EditorSession {
     }
 }
 
-private func validActor(_ actor: String) -> Bool {
+func validActor(_ actor: String) -> Bool {
     !actor.isEmpty && actor.utf8.count <= 256 && actor.utf8.allSatisfy { (33...126).contains($0) }
 }
 
@@ -695,6 +694,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
         let count: Int
         if let identity = address.identity, let field = address.path.last {
             switch identity {
+            case .document: throw EditorError.invalidChange
             case .baseline:
                 guard let node = introducedStructure.nodes[identity] else { return nil }
                 count = atomCount(node.fields[field])
@@ -818,6 +818,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
     }
     func nodeReference(_ identity: NodeID) throws {
         switch identity {
+        case .document: throw EditorError.invalidChange
         case .baseline(let blockID, let path):
             guard !blockID.isEmpty, path.count % 2 == 0, path.count <= 100, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidPath }
             if structure != nil, introducedStructure.nodes[identity] == nil { throw EditorError.invalidChange }
@@ -858,6 +859,7 @@ func validate(_ change: Change, version: Int, structure: StructuralState? = nil,
             // protocol-4 writing projection, never inferred from birth labels.
             guard version == 2, introducedStructure.placements[id] != nil else { throw EditorError.invalidChange }
             try nodeReference(owner); try nodeReference(node)
+        case .columnRoute: throw EditorError.invalidChange
         case .edit(let element): try placementElement(element)
         }
     }

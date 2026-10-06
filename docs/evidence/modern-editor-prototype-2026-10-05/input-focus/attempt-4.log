@@ -1,0 +1,533 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Examples/ModernInteractionPrototype/ModernInteractionPrototype.xcodeproj -scheme ModernPrototypePhone -destination "platform=iOS Simulator,id=B37B1CA0-FF78-4ABB-9EBC-10FC4A0FE38B" -derivedDataPath /private/tmp/block-editor-prototype-focus-build -resultBundlePath /private/tmp/block-editor-prototype-focus-4.xcresult -parallel-testing-enabled NO "-only-testing:ModernPrototypePhoneTests/InteractionReviewTests/testTitleWritingAndContextualPicker" "-only-testing:ModernPrototypePhoneTests/InteractionReviewTests/testBlockRangeColumnsAndPersonalViews" "-only-testing:ModernPrototypePhoneTests/InteractionReviewTests/testFormattingConversionAndNestedInput" "-only-testing:ModernPrototypePhoneTests/InteractionReviewTests/testRichFieldInputAndLiteralPreservation" CODE_SIGNING_ALLOWED=NO test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BlockEditor: /tmp/block-editor-prototype-input-focus
+
+Writing result bundle at path:
+	/private/tmp/block-editor-prototype-focus-4.xcresult
+
+2026-10-05 22:33:41.039622+0200 ModernPrototypePhoneTests-Runner[61085:17855637] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-05 22:33:41.547.
+Test Suite 'ModernPrototypePhoneTests.xctest' started at 2026-10-05 22:33:41.548.
+Test Suite 'InteractionReviewTests' started at 2026-10-05 22:33:41.548.
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testBlockRangeColumnsAndPersonalViews]' started.
+    t =     0.00s Start Test at 2026-10-05 22:33:41.548
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.st121.ios
+    t =     0.02s     Launch studio.seventwo.blockeditor.st121.ios
+2026-10-05 22:33:41.617 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-05 22:33:41.617 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.48s         Setting up automation session
+objc[61085]: Class UIAccessibilityLoaderWebShared is implemented in both /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x127e04310) and /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x127da0398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     1.06s         Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     2.39s Tap "Select blocks" Any
+    t =     2.39s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     3.82s     Find the "Select blocks" Any
+    t =     3.87s     Check for interrupting elements affecting "Select blocks" Switch
+    t =     3.98s     Synthesize event
+    t =     4.27s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     5.27s Waiting 10.0s for "Select first" Button to exist
+    t =     6.30s     Checking `Expect predicate `existsNoRetry == 1` for object "Select first" Button`
+    t =     6.30s         Checking existence of `"Select first" Button`
+    t =     6.43s Tap "Select first" Button
+    t =     6.43s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     6.43s     Find the "Select first" Button
+    t =     6.54s     Check for interrupting elements affecting "circle" Button
+    t =     6.62s     Synthesize event
+    t =     6.92s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.88s Tap "Select second" Button
+    t =     7.88s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.89s     Find the "Select second" Button
+    t =     8.02s     Check for interrupting elements affecting "circle" Button
+    t =     8.11s     Synthesize event
+    t =     8.42s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     9.33s Waiting 3.0s for "2 blocks selected" StaticText to exist
+    t =    10.35s     Checking `Expect predicate `existsNoRetry == 1` for object "2 blocks selected" StaticText`
+    t =    10.35s         Checking existence of `"2 blocks selected" StaticText`
+    t =    10.48s Tap "Create two columns" Button
+    t =    10.48s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    10.49s     Find the "Create two columns" Button
+    t =    10.60s     Check for interrupting elements affecting "Create two columns" Button
+    t =    10.68s     Synthesize event
+    t =    10.98s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    12.05s Waiting 3.0s for "Remove columns" Button to exist
+    t =    13.08s     Checking `Expect predicate `existsNoRetry == 1` for object "Remove columns" Button`
+    t =    13.08s         Checking existence of `"Remove columns" Button`
+    t =    13.22s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    13.36s Added attachment named 'Created two columns'
+    t =    13.36s Tap "Select second" Button
+    t =    13.36s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    13.36s     Find the "Select second" Button
+    t =    13.47s     Check for interrupting elements affecting "circle" Button
+    t =    13.55s     Synthesize event
+    t =    13.86s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    14.80s Tap "Second column" Button
+    t =    14.80s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    14.81s     Find the "Second column" Button
+    t =    14.92s     Check for interrupting elements affecting "Second column" Button
+    t =    15.01s     Synthesize event
+    t =    16.07s         Scroll element to visible
+    t =    16.07s         Find the "Second column" Button
+    t =    16.21s         Computed hit point {143.16666666666669, 264.83333333333326} after scrolling to visible
+    t =    16.49s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    17.44s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    17.59s Added attachment named 'Moved origin into second column'
+    t =    17.59s Tap "Resize columns" Button
+    t =    17.59s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    17.60s     Find the "Resize columns" Button
+    t =    17.64s     Check for interrupting elements affecting "Resize columns" Button
+    t =    17.73s     Synthesize event
+    t =    18.04s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    19.04s Waiting 3.0s for "Column proportions" StaticText to exist
+    t =    20.07s     Checking `Expect predicate `existsNoRetry == 1` for object "Column proportions" StaticText`
+    t =    20.07s         Checking existence of `"Column proportions" StaticText`
+    t =    20.20s Tap "70 / 30" Button
+    t =    20.20s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    20.21s     Find the "70 / 30" Button
+    t =    20.32s     Check for interrupting elements affecting "70 / 30" Button
+    t =    20.41s     Synthesize event
+    t =    20.69s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    22.56s Tap "Cancel resize" Button
+    t =    22.56s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    22.56s     Find the "Cancel resize" Button
+    t =    22.70s     Check for interrupting elements affecting "Cancel resize" Button
+    t =    22.78s     Synthesize event
+    t =    23.07s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    24.62s Waiting 3.0s for "Split 50 / 50" StaticText to exist
+    t =    25.65s     Checking `Expect predicate `existsNoRetry == 1` for object "Split 50 / 50" StaticText`
+    t =    25.65s         Checking existence of `"Split 50 / 50" StaticText`
+    t =    25.78s Tap "Resize columns" Button
+    t =    25.78s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    25.78s     Find the "Resize columns" Button
+    t =    25.82s     Check for interrupting elements affecting "Resize columns" Button
+    t =    25.90s     Synthesize event
+    t =    26.21s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.23s Tap "70 / 30" Button
+    t =    27.23s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.73s     Find the "70 / 30" Button
+    t =    27.87s     Check for interrupting elements affecting "70 / 30" Button
+    t =    27.95s     Synthesize event
+    t =    28.24s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    30.11s Tap "Apply split" Button
+    t =    30.11s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    30.11s     Find the "Apply split" Button
+    t =    30.25s     Check for interrupting elements affecting "Apply split" Button
+    t =    30.34s     Synthesize event
+    t =    30.63s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    32.18s Waiting 3.0s for "Split 70 / 30" StaticText to exist
+    t =    33.22s     Checking `Expect predicate `existsNoRetry == 1` for object "Split 70 / 30" StaticText`
+    t =    33.22s         Checking existence of `"Split 70 / 30" StaticText`
+    t =    33.35s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    33.49s Added attachment named 'Touch pointer resize and cancellation'
+    t =    33.49s Tap "Remove columns" Button
+    t =    33.49s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    33.50s     Find the "Remove columns" Button
+    t =    33.60s     Check for interrupting elements affecting "Remove columns" Button
+    t =    33.68s     Synthesize event
+    t =    33.99s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    35.51s Waiting 3.0s for "Remove columns in logical order" StaticText to exist
+    t =    36.54s     Checking `Expect predicate `existsNoRetry == 1` for object "Remove columns in logical order" StaticText`
+    t =    36.54s         Checking existence of `"Remove columns in logical order" StaticText`
+    t =    36.68s Find the "Text first" TextView
+    t =    36.78s Find the "Text second" TextView
+    t =    36.90s Tap "Outline" Button
+    t =    36.90s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    36.90s     Find the "Outline" Button
+    t =    37.01s     Check for interrupting elements affecting "Outline" Button
+    t =    37.09s     Synthesize event
+    t =    37.38s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    38.39s Checking existence of `"On this page" StaticText`
+    t =    38.52s Tap "Close outline" Button
+    t =    38.52s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    38.90s     Find the "Close outline" Button
+    t =    39.04s     Check for interrupting elements affecting "Close outline" Button
+    t =    39.16s     Synthesize event
+    t =    39.45s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    40.97s Tap "Focus" Button
+    t =    40.97s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    40.97s     Find the "Focus" Button
+    t =    41.09s     Check for interrupting elements affecting "Focus" Button
+    t =    41.17s     Synthesize event
+    t =    41.47s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    42.42s Checking existence of `"On this page" StaticText`
+    t =    42.50s Checking existence of `"Leave focus mode" Button`
+    t =    42.59s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    42.70s Added attachment named 'Plain document in focus mode'
+    t =    42.70s Tap "Leave focus mode" Button
+    t =    42.70s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    42.70s     Find the "Leave focus mode" Button
+    t =    42.78s     Check for interrupting elements affecting "Leave focus mode" Button
+    t =    42.84s     Synthesize event
+    t =    43.13s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    43.95s Terminate studio.seventwo.blockeditor.st121.ios:61111
+    t =    44.98s Tear Down
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testBlockRangeColumnsAndPersonalViews]' passed (45.047 seconds).
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testFormattingConversionAndNestedInput]' started.
+    t =     0.00s Start Test at 2026-10-05 22:34:26.596
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.st121.ios
+    t =     0.02s     Launch studio.seventwo.blockeditor.st121.ios
+2026-10-05 22:34:26.617 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-05 22:34:26.617 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.23s         Setting up automation session
+    t =     0.81s         Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     2.12s Waiting 10.0s for "Text first" TextView to exist
+    t =     3.13s     Checking `Expect predicate `existsNoRetry == 1` for object "Text first" TextView`
+    t =     3.14s         Checking existence of `"Text first" TextView`
+    t =     3.61s Tap "Text first" TextView
+    t =     3.61s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     3.61s     Find the "Text first" TextView
+    t =     3.71s     Check for interrupting elements affecting "Text first" TextView
+    t =     3.77s     Synthesize event
+    t =     4.07s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     6.41s Press "Text first" TextView for 1.0 seconds
+    t =     6.41s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     6.80s     Find the "Text first" TextView
+    t =     6.90s     Check for interrupting elements affecting "Text first" TextView
+    t =     6.97s     Synthesize event
+    t =     8.20s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     8.86s Waiting 3.0s for "Select All" Any to exist
+    t =     9.89s     Checking `Expect predicate `existsNoRetry == 1` for object "Select All" Any`
+    t =     9.89s         Checking existence of `"Select All" Any`
+    t =    10.17s Tap "Select All" Any
+    t =    10.17s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    10.17s     Find the "Select All" Any
+    t =    10.45s     Check for interrupting elements affecting "Select All" MenuItem
+    t =    10.53s     Synthesize event
+    t =    10.82s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    12.46s Tap "Accessory bold" Button
+    t =    12.46s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    12.46s     Find the "Accessory bold" Button
+    t =    12.56s     Check for interrupting elements affecting "Accessory bold" Button
+    t =    12.64s     Synthesize event
+    t =    12.92s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    16.08s Waiting 3.0s for "Format bold" StaticText to exist
+    t =    17.10s     Checking `Expect predicate `existsNoRetry == 1` for object "Format bold" StaticText`
+    t =    17.10s         Checking existence of `"Format bold" StaticText`
+    t =    17.20s Find the "Text first" TextView
+    t =    17.30s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    17.43s Added attachment named 'Native selected range bold formatting'
+    t =    17.43s Tap "Block actions first" Any
+    t =    17.43s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    17.43s     Find the "Block actions first" Any
+    t =    17.49s     Check for interrupting elements affecting "Block actions first" Button
+    t =    17.57s     Synthesize event
+    t =    17.87s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    20.63s Tap "Convert to heading" Any
+    t =    20.63s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    21.41s     Find the "Convert to heading" Any
+    t =    21.71s     Check for interrupting elements affecting "Convert to heading" Button
+    t =    21.79s     Synthesize event
+    t =    22.08s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    25.93s Waiting 3.0s for "Convert heading" StaticText to exist
+    t =    26.94s     Checking `Expect predicate `existsNoRetry == 1` for object "Convert heading" StaticText`
+    t =    26.94s         Checking existence of `"Convert heading" StaticText`
+    t =    27.04s Find the "Block actions first" Any
+    t =    27.10s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    27.22s Added attachment named 'Conversion retains rich text'
+    t =    27.22s Tap "Outline" Button
+    t =    27.22s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.23s     Find the "Outline" Button
+    t =    27.32s     Check for interrupting elements affecting "Outline" Button
+    t =    27.39s     Synthesize event
+    t =    27.67s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    30.25s Tap "Structured notes" Button
+    t =    30.25s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    30.75s     Find the "Structured notes" Button
+    t =    30.85s     Check for interrupting elements affecting "Structured notes" Button
+    t =    30.91s     Synthesize event
+    t =    31.20s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    35.17s Tap "Disclosure toggle" Button
+    t =    35.17s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    35.68s     Find the "Disclosure toggle" Button
+    t =    35.78s     Check for interrupting elements affecting "Disclosure toggle" Button
+    t =    35.85s     Synthesize event
+    t =    35.86s         Scroll element to visible
+    t =    35.86s         Find the "Disclosure toggle" Button
+    t =    35.98s         Computed hit point {314.66666666666663, 266.83333333333326} after scrolling to visible
+    t =    36.26s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    37.51s Waiting 3.0s for "Text child" TextView to exist
+    t =    38.53s     Checking `Expect predicate `existsNoRetry == 1` for object "Text child" TextView`
+    t =    38.53s         Checking existence of `"Text child" TextView`
+    t =    38.64s Tap "Text child" TextView
+    t =    38.64s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    38.65s     Find the "Text child" TextView
+    t =    38.74s     Check for interrupting elements affecting "Text child" TextView
+    t =    38.81s     Synthesize event
+    t =    39.10s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    40.29s Type ' edited' into "Text child" TextView
+    t =    40.29s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    40.76s     Find the "Text child" TextView
+    t =    40.87s     Check for interrupting elements affecting "Text child" TextView
+    t =    40.94s     Synthesize event
+    t =    41.25s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    46.16s Find the "Text child" TextView
+    t =    46.26s Find the "Text child" TextView
+    t =    46.35s Tap "List parent" TextView
+    t =    46.35s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    46.35s     Find the "List parent" TextView
+    t =    46.45s     Check for interrupting elements affecting "List parent" TextView
+    t =    46.52s     Synthesize event
+    t =    46.82s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    48.07s Type ' native' into "List parent" TextView
+    t =    48.07s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    48.08s     Find the "List parent" TextView
+    t =    48.17s     Check for interrupting elements affecting "List parent" TextView
+    t =    48.24s     Synthesize event
+    t =    48.56s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    50.21s Find the "List parent" TextView
+    t =    53.64s Find the "List parent" TextView
+    t =    53.75s Find the "List parent" TextView
+    t =    53.85s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    53.97s Added attachment named 'Native nested toggle and list input'
+    t =    53.98s Tap "Outline" Button
+    t =    53.98s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    53.98s     Find the "Outline" Button
+    t =    54.07s     Check for interrupting elements affecting "Outline" Button
+    t =    54.14s     Synthesize event
+    t =    54.43s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    56.98s Tap "Closing notes" Button
+    t =    56.98s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    57.50s     Find the "Closing notes" Button
+    t =    57.60s     Check for interrupting elements affecting "Closing notes" Button
+    t =    57.67s     Synthesize event
+    t =    57.95s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    62.01s Find the "Text closing" TextView
+    t =    62.23s Find the "Text closing" TextView
+    t =    62.45s Find the "Text closing" TextView
+    t =    62.67s Find the "Text closing" TextView
+    t =    62.88s Find the "Text closing" TextView
+    t =    63.09s Find the "Text closing" TextView
+    t =    63.30s Find the "Text closing" TextView
+    t =    63.51s Find the "Text closing" TextView
+    t =    63.71s Find the "Text closing" TextView
+    t =    63.92s Find the "Text closing" TextView
+    t =    64.13s Find the "Text closing" TextView
+    t =    64.34s Find the "Text closing" TextView
+    t =    64.54s Find the "Text closing" TextView
+    t =    64.76s Find the "Text closing" TextView
+    t =    64.97s Find the "Text closing" TextView
+    t =    65.17s Find the "Text closing" TextView
+    t =    65.38s Find the "Text closing" TextView
+    t =    65.59s Find the "Text closing" TextView
+    t =    65.80s Find the "Text closing" TextView
+    t =    66.00s Find the "Text closing" TextView
+    t =    66.22s Find the "Text closing" TextView
+    t =    66.43s Find the "Text closing" TextView
+    t =    66.64s Find the "Text closing" TextView
+    t =    66.84s Find the "Text closing" TextView
+    t =    67.05s Find the "Text closing" TextView
+/tmp/block-editor-prototype-input-focus/Examples/ModernInteractionPrototype/UITests/InteractionReviewTests.swift:228: error: -[ModernPrototypePhoneTests.InteractionReviewTests testFormattingConversionAndNestedInput] : XCTAssertTrue failed - Closing heading was not reached by the outline
+    t =    67.17s Tear Down
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testFormattingConversionAndNestedInput]' failed (67.230 seconds).
+2026-10-05 22:35:33.826708+0200 ModernPrototypePhoneTests-Runner[61085:17855637] [Default] Flushing outgoing messages to the IDE with timeout 600.00s
+2026-10-05 22:35:33.826832+0200 ModernPrototypePhoneTests-Runner[61085:17855783] [Default] Received confirmation that IDE processed remaining outgoing messages
+2026-10-05 22:35:34.546598+0200 ModernPrototypePhoneTests-Runner[63406:17864996] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+
+Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous launches.
+
+Test Suite 'Selected tests' started at 2026-10-05 22:35:35.146.
+Test Suite 'ModernPrototypePhoneTests.xctest' started at 2026-10-05 22:35:35.147.
+Test Suite 'InteractionReviewTests' started at 2026-10-05 22:35:35.147.
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testRichFieldInputAndLiteralPreservation]' started.
+    t =     0.00s Start Test at 2026-10-05 22:35:35.147
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.st121.ios
+    t =     0.02s     Launch studio.seventwo.blockeditor.st121.ios
+2026-10-05 22:35:35.170 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-05 22:35:35.170 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.23s         Setting up automation session
+    t =     0.76s         Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     2.10s Waiting 10.0s for "Outline" Button to exist
+    t =     3.17s     Checking `Expect predicate `existsNoRetry == 1` for object "Outline" Button`
+    t =     3.17s         Checking existence of `"Outline" Button`
+    t =     3.56s Tap "Outline" Button
+    t =     3.56s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     3.56s     Find the "Outline" Button
+    t =     3.65s     Check for interrupting elements affecting "Outline" Button
+    t =     3.71s     Synthesize event
+    t =     4.00s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     4.94s Tap "Structured notes" Button
+    t =     4.94s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     5.45s     Find the "Structured notes" Button
+    t =     5.54s     Check for interrupting elements affecting "Structured notes" Button
+    t =     5.61s     Synthesize event
+    t =     5.90s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.32s Tap "Cell left" TextView
+    t =     7.32s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.32s     Find the "Cell left" TextView
+    t =     7.42s     Check for interrupting elements affecting "Cell left" TextView
+    t =     7.48s     Synthesize event
+    t =     7.77s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    10.07s Type 'Cell edit ' into "Cell left" TextView
+    t =    10.07s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    10.46s     Find the "Cell left" TextView
+    t =    10.57s     Check for interrupting elements affecting "Cell left" TextView
+    t =    10.64s     Synthesize event
+    t =    11.01s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    12.71s Find the "Cell left" TextView
+    t =    16.80s Find the "Cell left" TextView
+objc[63406]: Class UIAccessibilityLoaderWebShared is implemented in both /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x11d9e0310) and /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x11d97c398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =    16.89s Find the "Cell left" TextView
+    t =    16.98s Find the "Cell left" TextView
+    t =    17.08s Find the "Cell left" TextView
+    t =    17.17s Tap "Media caption" TextView
+    t =    17.17s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    17.17s     Find the "Media caption" TextView
+    t =    17.26s     Check for interrupting elements affecting "Media caption" TextView
+    t =    17.33s     Synthesize event
+    t =    17.34s         Scroll element to visible
+    t =    17.34s         Find the "Media caption" TextView
+    t =    17.45s         Computed hit point {29, 229.33333333333317} after scrolling to visible
+    t =    17.74s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    18.90s Type 'Caption edit ' into "Media caption" TextView
+    t =    18.90s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    18.91s     Find the "Media caption" TextView
+    t =    19.00s     Check for interrupting elements affecting "Media caption" TextView
+    t =    19.07s     Synthesize event
+    t =    19.48s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    20.99s Find the "Media caption" TextView
+    t =    25.67s Find the "Media caption" TextView
+    t =    25.77s Find the "Media caption" TextView
+    t =    25.86s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    25.99s Added attachment named 'Native table cell and local media caption input'
+    t =    25.99s Find the "Code review-code" TextView
+    t =    26.08s Tap "Code review-code" TextView
+    t =    26.08s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    26.08s     Find the "Code review-code" TextView
+    t =    26.18s     Check for interrupting elements affecting "Code review-code" TextView
+    t =    26.25s     Synthesize event
+    t =    26.55s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.80s Type 'literal ' into "Code review-code" TextView
+    t =    27.80s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.80s     Find the "Code review-code" TextView
+    t =    27.90s     Check for interrupting elements affecting "Code review-code" TextView
+    t =    27.97s     Synthesize event
+    t =    28.29s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    29.92s Find the "Code review-code" TextView
+    t =    33.45s Find the "Code review-code" TextView
+    t =    33.55s Find the "Code review-code" TextView
+    t =    33.65s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    33.78s Added attachment named 'Code input retains literal Unicode and whitespace'
+    t =    33.78s Terminate studio.seventwo.blockeditor.st121.ios:63438
+    t =    34.84s Tear Down
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testRichFieldInputAndLiteralPreservation]' passed (34.882 seconds).
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testTitleWritingAndContextualPicker]' started.
+    t =     0.00s Start Test at 2026-10-05 22:36:10.030
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.st121.ios
+    t =     0.02s     Launch studio.seventwo.blockeditor.st121.ios
+2026-10-05 22:36:10.049 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-05 22:36:10.049 xcodebuild[61070:17855322] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.23s         Setting up automation session
+    t =     0.84s         Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     2.17s Waiting 10.0s for "Text intro" TextView to exist
+    t =     3.20s     Checking `Expect predicate `existsNoRetry == 1` for object "Text intro" TextView`
+    t =     3.20s         Checking existence of `"Text intro" TextView`
+    t =     3.65s Checking existence of `"Document title" TextField`
+    t =     3.74s Tap "Document title" TextField
+    t =     3.74s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     3.74s     Find the "Document title" TextField
+    t =     3.83s     Check for interrupting elements affecting "Document title" TextField
+    t =     3.89s     Synthesize event
+    t =     4.19s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     5.19s Press "Document title" TextField for 1.0 seconds
+    t =     5.19s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     5.58s     Find the "Document title" TextField
+    t =     5.69s     Check for interrupting elements affecting "Document title" TextField
+    t =     5.76s     Synthesize event
+    t =     6.99s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.75s Checking existence of `"Select All" MenuItem`
+    t =     7.85s Tap "Select All" MenuItem
+    t =     7.85s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     7.85s     Find the "Select All" MenuItem
+    t =     7.95s     Check for interrupting elements affecting "Select All" MenuItem
+    t =     8.02s     Synthesize event
+    t =     8.31s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     8.74s Type 'Review title' into "Document title" TextField
+    t =     8.74s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =     8.75s     Find the "Document title" TextField
+    t =     8.84s     Check for interrupting elements affecting "Document title" TextField
+    t =     8.92s     Synthesize event
+    t =     9.32s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    10.00s Find the "Document title" TextField
+    t =    11.16s Find the "Document title" TextField
+    t =    11.25s Find the "Document title" TextField
+    t =    11.34s Tap "Text intro" TextView
+    t =    11.34s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    11.34s     Find the "Text intro" TextView
+    t =    11.44s     Check for interrupting elements affecting "Text intro" TextView
+    t =    11.51s     Synthesize event
+    t =    11.80s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    12.67s Type ' /hea' into "Text intro" TextView
+    t =    12.67s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    12.67s     Find the "Text intro" TextView
+    t =    12.76s     Check for interrupting elements affecting "Text intro" TextView
+    t =    12.84s     Synthesize event
+    t =    13.12s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    19.29s Waiting 5.0s for "Heading" Button to exist
+    t =    20.32s     Checking `Expect predicate `existsNoRetry == 1` for object "Heading" Button`
+    t =    20.32s         Checking existence of `"Heading" Button`
+    t =    20.43s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    20.56s Added attachment named 'Contextual slash query'
+    t =    20.56s Tap "Dismiss picker" Button
+    t =    20.56s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    20.56s     Find the "Dismiss picker" Button
+    t =    20.65s     Check for interrupting elements affecting "Dismiss picker" Button
+    t =    20.72s     Synthesize event
+    t =    21.01s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    23.85s Find the "Text intro" TextView
+    t =    23.94s Checking existence of `"Heading" Button`
+    t =    24.02s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    24.15s Added attachment named 'Cancelled query retains content'
+    t =    24.15s Tap "Insert" Button
+    t =    24.15s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    24.15s     Find the "Insert" Button
+    t =    24.24s     Check for interrupting elements affecting "Insert" Button
+    t =    24.31s     Synthesize event
+    t =    24.60s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    25.76s Waiting 5.0s for "Search blocks" TextField to exist
+    t =    26.79s     Checking `Expect predicate `existsNoRetry == 1` for object "Search blocks" TextField`
+    t =    26.79s         Checking existence of `"Search blocks" TextField`
+    t =    26.90s Tap "Search blocks" TextField
+    t =    26.90s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    26.91s     Find the "Search blocks" TextField
+    t =    27.00s     Check for interrupting elements affecting "Search blocks" TextField
+    t =    27.07s     Synthesize event
+    t =    27.37s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.64s Type 'Heading' into "Search blocks" TextField
+    t =    27.65s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    27.65s     Find the "Search blocks" TextField
+    t =    27.76s     Check for interrupting elements affecting "Search blocks" TextField
+    t =    27.83s     Synthesize event
+    t =    28.14s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    28.15s Tap "Heading" Button
+    t =    28.15s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    28.15s     Find the "Heading" Button
+    t =    28.25s     Check for interrupting elements affecting "Insert option Heading" Button
+    t =    28.32s     Synthesize event
+    t =    28.61s     Wait for studio.seventwo.blockeditor.st121.ios to idle
+    t =    34.71s Waiting 5.0s for "Insert Heading" StaticText to exist
+    t =    35.75s     Checking `Expect predicate `existsNoRetry == 1` for object "Insert Heading" StaticText`
+    t =    35.75s         Checking existence of `"Insert Heading" StaticText`
+    t =    35.85s Find the Target Application 'studio.seventwo.blockeditor.st121.ios'
+    t =    35.97s Added attachment named 'Inserted heading with direct title'
+    t =    35.97s Terminate studio.seventwo.blockeditor.st121.ios:64038
+    t =    37.00s Tear Down
+Test Case '-[ModernPrototypePhoneTests.InteractionReviewTests testTitleWritingAndContextualPicker]' passed (37.044 seconds).
+Test Suite 'InteractionReviewTests' passed at 2026-10-05 22:36:47.074.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 71.926 (71.928) seconds
+Test Suite 'ModernPrototypePhoneTests.xctest' passed at 2026-10-05 22:36:47.075.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 71.926 (71.928) seconds
+Test Suite 'Selected tests' passed at 2026-10-05 22:36:47.075.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 71.926 (71.929) seconds
+** BUILD INTERRUPTED **

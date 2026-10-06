@@ -41,6 +41,15 @@ import SwiftUI
         return nil
     }
     var body: some Scene {
-        WindowGroup { EditorDemoView(localFile: localFile, relayEndpoint: relayEndpoint) }
+        WindowGroup {
+            if ProcessInfo.processInfo.environment["EDITOR_LAB_MODERN"] == "1" {
+                ModernEditorDemoView(file: {
+                    if let id = ProcessInfo.processInfo.environment["EDITOR_LAB_MODERN_DOCUMENT"].flatMap(UUID.init(uuidString:)) {
+                        return FileManager.default.temporaryDirectory.appendingPathComponent("modern-ui-" + id.uuidString).appendingPathComponent("help.json")
+                    }
+                    return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("EditorLab/modern-help.json")
+                }())
+            } else { EditorDemoView(localFile: localFile, relayEndpoint: relayEndpoint) }
+        }
     }
 }

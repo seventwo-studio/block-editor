@@ -3,7 +3,7 @@ import base from "./playwright.config.js";
 export default defineConfig({
   ...base,
   testIgnore: [],
-  testMatch: ["**/swift-wasm.spec.ts", "**/swift-selection.spec.ts", "**/swift-loading.spec.ts", "**/runtime-compatibility.spec.ts", "**/writing-runtime.swift.ts"],
+  testMatch: ["**/swift-wasm.spec.ts", "**/swift-selection.spec.ts", "**/swift-loading.spec.ts", "**/runtime-compatibility.spec.ts", "**/writing-runtime.swift.ts", "**/modern-adapter.swift.ts", "**/modern-editor.swift.ts"],
   use: { baseURL: "http://127.0.0.1:4287/block-editor/", headless: true },
   webServer: {
     command: "bun run demo:dev --port 4287 --strictPort",

@@ -1,0 +1,5 @@
+# ST-122 tracker follow-up
+
+The connected Linear API rejected the 2026-10-05 ST-122 refresh with: "This app connection requires reauthentication. Reconnect the app and try again." Implementation and repository verification continued. The duplication increment is recorded in this receipt and draft PR #70; its Linear description update has not been applied.
+
+After the connection is restored, refetch ST-122 and its relations before the smallest guarded description edit. Add the durable duplication behavior: current visible content, fresh schema identities, verbatim references/consumer metadata, captured placement, copied selection/input focus, peer-preserving author Undo/reopen and exact causal copy-plan admission. Link the current repository foundation and this receipt. Preserve existing scope, owner, status, estimate, project, native dependencies, attachments and unrelated description content. Clipboard, async completion, archive cutover, complete command/focus history and all host gates remain open.

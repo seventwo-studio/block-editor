@@ -1,0 +1,14 @@
+{
+  "blocks": [
+    {
+      "id": "legacy",
+      "type": "columns",
+      "vendorPayload": {
+        "id": "old-meaning",
+        "columns": [
+          "opaque"
+        ]
+      }
+    }
+  ]
+}

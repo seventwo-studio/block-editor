@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "baseCommit": "a1302ee085f8b0ed3e91b44793f834a3872efaf4",
+  "sourceSHA256": {
+    "Sources/BlockEditorApple/ModernEditorModel.swift": "6b2124c22c640b99a11251741802262a3139f106aa2b894972f307fd89b766c4",
+    "Sources/BlockEditorApple/ModernHostStore.swift": "4793050235f2d3b48556af87866e8f4ef7b62a590f8c76574c1c22f901330277",
+    "Sources/BlockEditorApple/ModernInputController.swift": "7512124fd2933bb526668dfcf29e871bef61bee465f8a98ce5b203378813f450",
+    "Sources/BlockEditorApple/ModernNativeClipboard.swift": "abf9820377faec1ac7c6941ef1c0910f8fd6c7dffaf0fd006350e7de57bd9205",
+    "Sources/BlockEditorApple/ModernTextInput.swift": "4af6fd72b44a6b3c261995863c200923feada7d52d7cfa36771acacdf3170412",
+    "tests/BlockEditorAppleTests/ModernNativeClipboardTests.swift": "b7f718a593ea0045f403a3fe3c62b11f12ce5948fca6ef2f431b1676c233870c",
+    "tests/BlockEditorAppleTests/ModernNativeInputTests.swift": "1f4f4f8b70185e9f1726215a969c0cc63c3133e6968a4255fde2e8f0d0ff668c",
+    "tests/BlockEditorAppleTests/ModernHostStoreTests.swift": "151230da3f225674498a90632811beecba740f951466f41beabc739f76c17260"
+  },
+  "verification": [
+    {
+      "command": "swift test --filter 'ModernNativeClipboardTests|ModernNativeInputTests|ModernHostStoreTests'",
+      "result": "passed",
+      "tests": 9,
+      "durationSeconds": 0.571
+    },
+    {
+      "command": "xcodebuild -project Examples/AppleDemo/EditorLab.xcodeproj -scheme EditorLab-iOS -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/block-editor-modern-native-input-ios CODE_SIGNING_ALLOWED=NO build",
+      "result": "BUILD SUCCEEDED",
+      "qualification": "UIKit compile only; no UIKit runtime clipboard claim."
+    }
+  ],
+  "logs": [
+    {
+      "path": "docs/evidence/modern-native-clipboard-2026-10-05/first.log",
+      "sha256": "6470fb4b748bde932596ae3f7a277e5d208109ac5a39174c66d3755fca6adb96",
+      "result": "compile_failure"
+    },
+    {
+      "path": "docs/evidence/modern-native-clipboard-2026-10-05/second.log",
+      "sha256": "26a32814df00cad109d8e18a3bffba0e5920b32ae4509d6e3762503da244a264",
+      "result": "fixture_compile_failure"
+    },
+    {
+      "path": "docs/evidence/modern-native-clipboard-2026-10-05/third.log",
+      "sha256": "f9b6824581ff360a5bed924237a0485a3c2d2257d4eb4e92194907894ac735e5",
+      "result": "failed"
+    },
+    {
+      "path": "docs/evidence/modern-native-clipboard-2026-10-05/fourth.log",
+      "sha256": "6a26e6d1453a5343a7a76bea823b2a96b71ade4b1bf6631e487035a4c5ea304d",
+      "result": "failed"
+    },
+    {
+      "path": "docs/evidence/modern-native-clipboard-2026-10-05/final.log",
+      "sha256": "db184247cc2c5f351da4519e244f725de43df975306e952451361d05b739e68c",
+      "result": "passed"
+    },
+    {
+      "path": "docs/evidence/modern-native-clipboard-2026-10-05/ios.log",
+      "sha256": "3cc877cf6b37365ac66c47f52407772f44ceb49678c8d382ef67ff72da386797",
+      "result": "compiled"
+    }
+  ],
+  "qualifications": [
+    "Final source hashes apply to final.log and ios.log. Earlier failed attempts retain original output; their source changed and was not independently pinned.",
+    "Actual AppKit tests use private named NSPasteboards, never the general user clipboard.",
+    "Focused clipboard, affected input and paired storage checks only; broad native/device/assistive and crash/power-loss campaigns remain deferred.",
+    "Host provider invocation/presentation, remaining-host persistence, canvas and durable migration activation remain implementation work."
+  ]
+}

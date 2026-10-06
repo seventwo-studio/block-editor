@@ -3,12 +3,14 @@ import Foundation
 /// A document ID is scoped to its containing array. This identity additionally
 /// records its origin, so moving a node never retargets another container's ID.
 public enum NodeID: Codable, Hashable, Sendable {
+    case document(documentID: String)
     case baseline(blockID: String, path: [String])
     case inserted(creation: ElementID, path: [String])
 
     var key: String { String(decoding: (try? canonicalEncoder().encode(self)) ?? Data(), as: UTF8.self) }
     func textAddress(_ field: String) -> TextAddress {
         switch self {
+        case .document: return TextAddress("", path: [field], identity: self)
         case .baseline(let blockID, let path): return TextAddress(blockID, path: path + [field], identity: self)
         case .inserted(let creation, let path):
             return TextAddress("@\(creation.change.actor)/\(creation.change.counter)/\(creation.index)", path: path + [field], identity: self)
@@ -35,20 +37,28 @@ public enum NodePlacementID: Codable, Hashable, Comparable, Sendable {
     case initial(NodeID)
     /// A protocol-4 derived paragraph placement, distinct from birth placement.
     case role(owner: NodeID, node: NodeID)
+    /// A protocol-7 flattened child anchor retained across layout Undo/Redo.
+    indirect case columnRoute(layout: NodeID, slot: ElementID, node: NodeID)
     case edit(ElementID)
     public static func < (lhs: Self, rhs: Self) -> Bool {
+        func tier(_ value: Self) -> Int {
+            switch value { case .initial: return 0; case .role: return 1; case .columnRoute: return 2; case .edit: return 3 }
+        }
+        if tier(lhs) != tier(rhs) { return tier(lhs) < tier(rhs) }
         switch (lhs, rhs) {
         case (.initial(let a), .initial(let b)): return a.key.utf8.lexicographicallyPrecedes(b.key.utf8)
-        case (.initial, .role), (.initial, .edit), (.role, .edit): return true
-        case (.role, .initial), (.edit, .initial), (.edit, .role): return false
         case (.role(let ownerA, let nodeA), .role(let ownerB, let nodeB)):
             return ownerA.key == ownerB.key ? nodeA.key.utf8.lexicographicallyPrecedes(nodeB.key.utf8) : ownerA.key.utf8.lexicographicallyPrecedes(ownerB.key.utf8)
+        case (.columnRoute(let layoutA, let slotA, let nodeA), .columnRoute(let layoutB, let slotB, let nodeB)):
+            if slotA != slotB { return slotA < slotB }
+            return layoutA.key == layoutB.key ? nodeA.key.utf8.lexicographicallyPrecedes(nodeB.key.utf8) : layoutA.key.utf8.lexicographicallyPrecedes(layoutB.key.utf8)
         case (.edit(let a), .edit(let b)): return a < b
+        default: return false
         }
     }
 }
 
-enum NodeKind: String { case block, item, row, cell }
+enum NodeKind: String { case document, block, column, item, row, cell }
 
 struct StructuralState {
     struct Node {
@@ -68,16 +78,19 @@ struct StructuralState {
         let active: Bool
         let rolePriority: ElementID?
         let roleOrigin: NodePlacementID?
+        let columnBucket: Int?
+        let columnRank: Int?
         init(id: NodePlacementID, after: NodePlacementID?, node: NodeID, collection: NodeCollection, active: Bool,
-             rolePriority: ElementID? = nil, roleOrigin: NodePlacementID? = nil) {
+             rolePriority: ElementID? = nil, roleOrigin: NodePlacementID? = nil, columnBucket: Int? = nil, columnRank: Int? = nil) {
             self.id = id; self.after = after; self.node = node; self.collection = collection; self.active = active
-            self.rolePriority = rolePriority; self.roleOrigin = roleOrigin
+            self.rolePriority = rolePriority; self.roleOrigin = roleOrigin; self.columnBucket = columnBucket; self.columnRank = columnRank
         }
     }
     var nodes: [NodeID: Node] = [:]
     var placements: [NodePlacementID: Placement] = [:]
     var deleted = Set<NodeID>()
     var touched = Set<NodeID>()
+    private(set) var modern = false
 
     static func seed(_ document: Document) -> Self {
         var result = Self(), after: NodePlacementID?
@@ -91,10 +104,26 @@ struct StructuralState {
         return result
     }
 
-    static func collectionFields(_ kind: NodeKind, _ fields: [String: JSONValue]) -> [String: NodeKind] {
+    static func seed(_ document: ModernDocument) -> Self {
+        var result = Self(), after: NodePlacementID?
+        result.modern = true
+        var metadata = document.fields; metadata.removeValue(forKey: "blocks")
+        result.register(.object(metadata), identity: .document(documentID: document.documentID), kind: .document, active: true)
+        for block in document.blocks {
+            let identity = NodeID.baseline(blockID: block.id, path: [])
+            result.register(.object(block.fields), identity: identity, kind: .block, active: true)
+            let id = NodePlacementID.initial(identity)
+            result.placements[id] = Placement(id: id, after: after, node: identity, collection: .root, active: true)
+            after = id
+        }
+        return result
+    }
+
+    static func collectionFields(_ kind: NodeKind, _ fields: [String: JSONValue], modern: Bool = false) -> [String: NodeKind] {
         switch kind {
         case .block:
             switch fields["type"]?.string {
+            case "columns": return modern ? ["columns": .column] : [:]
             case "list": return ["items": .item]
             case "toggle": return ["children": .block]
             case "table": return ["rows": .row]
@@ -103,12 +132,14 @@ struct StructuralState {
         case .item: return ["children": .item]
         case .row: return ["cells": .cell]
         case .cell: return [:]
+        case .column: return modern ? ["children": .block] : [:]
+        case .document: return [:]
         }
     }
 
     mutating func register(_ value: JSONValue, identity: NodeID, kind: NodeKind, active: Bool) {
         guard nodes[identity] == nil, var fields = value.object else { return }
-        let collections = Self.collectionFields(kind, fields)
+        let collections = Self.collectionFields(kind, fields, modern: modern)
         let present = Set(collections.keys.filter { fields[$0] != nil })
         let arrays = collections.reduce(into: [String: [JSONValue]]()) { $0[$1.key] = fields[$1.key]?.array ?? [] }
         for field in present { fields.removeValue(forKey: field) }
@@ -119,6 +150,7 @@ struct StructuralState {
                 let path = [field, child["id"]?.string ?? ""]
                 let childID: NodeID
                 switch identity {
+                case .document: return // Metadata is never a visible block/child collection.
                 case .baseline(let root, let prefix): childID = .baseline(blockID: root, path: prefix + path)
                 case .inserted(let creation, let prefix): childID = .inserted(creation: creation, path: prefix + path)
                 }
@@ -134,7 +166,7 @@ struct StructuralState {
     func kind(in collection: NodeCollection) throws -> NodeKind {
         if collection == .root { return .block }
         guard let owner = collection.owner, let node = nodes[owner],
-              let kind = Self.collectionFields(node.kind, node.fields)[collection.field] else { throw EditorError.invalidPath }
+              let kind = Self.collectionFields(node.kind, node.fields, modern: modern)[collection.field] else { throw EditorError.invalidPath }
         return kind
     }
 
@@ -235,6 +267,14 @@ struct StructuralState {
             guard let parent = selected[id]?.collection.owner else { continue }
             if nodes[parent] != nil, visible.insert(parent).inserted { pending.append(parent) }
         }
+        if modern {
+            // Retained peer work in an undone layout still requires its two
+            // column containers. Their hidden author content stays hidden.
+            let layouts = Set(visible.filter { nodes[$0]?.kind == .block && nodes[$0]?.fields["type"] == .string("columns") })
+            for (id, placement) in selected where nodes[id]?.kind == .column && placement.collection.field == "columns" {
+                if let owner = placement.collection.owner, layouts.contains(owner) { visible.insert(id) }
+            }
+        }
         return visible
     }
 
@@ -266,12 +306,18 @@ struct StructuralState {
         }
         func orderingKey(_ placement: Placement) -> NodePlacementID {
             if case .role(let owner, _) = placement.id, let priority = groupPriorities[owner] { return .edit(priority) }
+            if case .columnRoute(_, let slot, _) = placement.id { return .edit(slot) }
             return placement.id
         }
         func ordered(_ lhs: NodePlacementID, _ rhs: NodePlacementID) -> Bool {
             let a = entries[lhs]!, b = entries[rhs]!
             let keyA = orderingKey(a), keyB = orderingKey(b)
             if keyA != keyB { return keyA < keyB }
+            if case .columnRoute(let ownerA, _, _) = lhs, case .columnRoute(let ownerB, _, _) = rhs {
+                if ownerA != ownerB { return ownerA.key < ownerB.key }
+                if a.columnBucket != b.columnBucket { return (a.columnBucket ?? 0) > (b.columnBucket ?? 0) }
+                if a.columnRank != b.columnRank { return (a.columnRank ?? 0) > (b.columnRank ?? 0) }
+            }
             if case .role(let ownerA, _) = lhs, case .role(let ownerB, _) = rhs {
                 if ownerA != ownerB { return ownerA.key < ownerB.key }
                 let sourceA = a.roleOrigin.flatMap { placements[$0]?.collection }
@@ -324,6 +370,28 @@ struct StructuralState {
         throw EditorError.invalidPath
     }
 
+    /// Resolve a whole snapshot with one placement calculation. Cutover needs
+    /// every live origin; individual address lookups repeat the entire replay.
+    func cutoverAddresses() throws -> [NodeID: NodeAddress] {
+        let selected = try effectivePlacements(), visible = visibleNodes(selected)
+        var result: [NodeID: NodeAddress] = [:]
+        for identity in visible where nodes[identity]?.kind != .document {
+            var cursor = identity, pending: [NodeID] = [], visited = Set<NodeID>()
+            while result[cursor] == nil {
+                guard visited.insert(cursor).inserted, let placement = selected[cursor],
+                      let node = nodes[cursor] else { throw EditorError.invalidPath }
+                if let owner = placement.collection.owner { pending.append(cursor); cursor = owner }
+                else { result[cursor] = NodeAddress(node.label) }
+            }
+            while let child = pending.popLast() {
+                guard let placement = selected[child], let owner = placement.collection.owner,
+                      let parent = result[owner], let node = nodes[child] else { throw EditorError.invalidPath }
+                result[child] = NodeAddress(parent.blockID, path: parent.path + [placement.collection.field, node.label])
+            }
+        }
+        return result
+    }
+
     func descendants(of identity: NodeID) throws -> [NodeID] {
         let selected = try effectivePlacements(), visible = visibleNodes(selected)
         var result: [NodeID] = [], stack = [identity], seen = Set<NodeID>()
@@ -336,6 +404,20 @@ struct StructuralState {
     }
 
     func document(text: [NodeID: [String: JSONValue]]) throws -> Document {
+        guard !modern else { throw EditorError.invalidPath }
+        return try Document(blocks: renderedBlocks(text: text))
+    }
+
+    func document(documentID: String, text: [NodeID: [String: JSONValue]]) throws -> ModernDocument {
+        guard modern, let metadata = nodes[.document(documentID: documentID)], metadata.kind == .document,
+              !deleted.contains(metadata.identity) else { throw EditorError.invalidPath }
+        var fields = metadata.fields
+        for (key, value) in text[metadata.identity] ?? [:] { fields[key] = value }
+        fields["blocks"] = .array(try renderedBlocks(text: text).map { .object($0.fields) })
+        return try ModernDocument(fields: fields)
+    }
+
+    private func renderedBlocks(text: [NodeID: [String: JSONValue]]) throws -> [Block] {
         let selected = try effectivePlacements(), visible = visibleNodes(selected)
         var childCollections: [NodeID: Set<String>] = [:]
         for p in selected.values where visible.contains(p.node) {
@@ -371,20 +453,25 @@ struct StructuralState {
             }
             rendered[identity] = .object(fields)
         }
-        return try Document(blocks: roots.map { try Block(fields: rendered[$0]?.object ?? [:]) })
+        return try roots.map { try Block(fields: rendered[$0]?.object ?? [:]) }
     }
 }
 
-func validateNode(_ value: JSONValue, kind: NodeKind) throws {
+func validateNode(_ value: JSONValue, kind: NodeKind, modern: Bool = false) throws {
     guard let label = value["id"]?.string, !label.isEmpty else { throw EditorError.invalidPath }
     switch kind {
-    case .block: _ = try Document(blocks: [Block(fields: value.object ?? [:])])
+    case .document, .column: throw EditorError.invalidPath // Only explicit modern compound commands may create these.
+    case .block:
+        if modern { try Validation.block(Block(fields: value.object ?? [:]), modern: true) }
+        else { _ = try Document(blocks: [Block(fields: value.object ?? [:])]) }
     case .item:
-        _ = try Document(blocks: [Block(fields: ["id": .string("validation"), "type": .string("list"), "style": .string("unordered"), "items": .array([value])])])
+        let wrapper = try Block(fields: ["id": .string("validation"), "type": .string("list"), "style": .string("unordered"), "items": .array([value])])
+        if modern { try Validation.block(wrapper, modern: true) } else { _ = try Document(blocks: [wrapper]) }
     case .row:
-        _ = try Document(blocks: [Block(fields: ["id": .string("validation"), "type": .string("table"), "rows": .array([value])])])
+        let wrapper = try Block(fields: ["id": .string("validation"), "type": .string("table"), "rows": .array([value])])
+        if modern { try Validation.block(wrapper, modern: true) } else { _ = try Document(blocks: [wrapper]) }
     case .cell:
         let row: JSONValue = .object(["id": .string("row"), "cells": .array([value])])
-        try validateNode(row, kind: .row)
+        try validateNode(row, kind: .row, modern: modern)
     }
 }

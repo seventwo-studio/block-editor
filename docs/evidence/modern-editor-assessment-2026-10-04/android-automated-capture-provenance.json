@@ -1,0 +1,87 @@
+{
+  "pullRequestHead": "ebb7ac7a86f2ade785a882179a8c103d1a6e8b99",
+  "actualCIMergeSource": "9830e787f163d9dd10898c58402884dcf15c1be7",
+  "actualCIMergeTree": "0e9d61d918962710339d8df97c1d973c319fbf75",
+  "workflowRun": 37209315355,
+  "job": 111457162839,
+  "artifact": {
+    "id": 11307025308,
+    "name": "runtime-android-api26-x86_64",
+    "bytes": 2200251,
+    "url": "https://github.com/seventwo-studio/block-editor/actions/runs/37209315355/artifacts/11307025308"
+  },
+  "api": 26,
+  "abi": "x86_64",
+  "testIdentifier": "AuthoringControlsTest#nestedUnicodeAndChecklistHistorySurviveSessionRestore",
+  "passedTests": 1,
+  "failedTests": 0,
+  "instrumentationDurationSeconds": 7.526,
+  "apkSHA256": "c8c0c7b66ddf3d894d8d36abdc83417cdca84281e5c9ea68c1c2c96d64f4de41",
+  "rawRecording": {
+    "artifactPath": "block-editor/block-editor/test-results/reference-capture/interaction-raw.mp4",
+    "localPath": "/private/tmp/block-editor-automated-capture-5sfcs01z/android-ci-artifact/block-editor/block-editor/test-results/reference-capture/interaction-raw.mp4",
+    "sha256": "ff513952055a1c3d1d86ca9a0bd27e8da88a41db1651f3de4f363d561c5b7436",
+    "durationSeconds": 18.650567,
+    "size": [
+      320,
+      640
+    ]
+  },
+  "retainedClip": {
+    "file": "android-automated-mixed-history.mp4",
+    "sha256": "fb43c706f5c7bd015f65b2cfe7b450697bda8587e7064c63fc96ef365fab7fe2",
+    "sourceIntervalSeconds": [
+      2.9,
+      8.4
+    ],
+    "durationSeconds": 5.5,
+    "size": [
+      320,
+      640
+    ],
+    "transform": "fps=30 repeats real frames; continuous original excerpt; no overlays, interpolation or invented states."
+  },
+  "acceptedOriginalScreenshots": [
+    "android-automated-baseline.png",
+    "android-automated-checklist-undone.png",
+    "android-automated-history-restored.png"
+  ],
+  "baselineScreenshot": {
+    "file": "android-automated-baseline-video-frame.png",
+    "rawTimestampSeconds": 3,
+    "qualification": "Unscaled PNG decode from genuine native screenrecord; not an instrumentation screenshot attachment."
+  },
+  "excludedInitialScreenshot": {
+    "artifactPath": "block-editor/block-editor/test-results/reference-capture/mixed-document.png",
+    "sha256": "60966079e6f003a1e3ec837d772678c58a9fd7f69eb3c2179f6e8826778d4df0",
+    "reason": "Blank capture before first visible frame. Not retained as accepted visual evidence; source artifact preserves original bytes."
+  },
+  "scope": "Existing mixed-document Compose component test: semantics text input, checklist touch, session restore and Undo/Redo. No installed IME, process restart, assets, physical device, TalkBack or modern acceptance.",
+  "visibleAssetQualification": "Host asset placeholder/description only, not a resolved image.",
+  "unverified": [
+    "installed keyboard in this capture replay",
+    "process restart",
+    "TalkBack",
+    "physical device",
+    "modern shared writing surface",
+    "full host integration"
+  ],
+  "sourceFiles": {
+    "scripts/run-android-ci.py": "b982dd015fbef6e83bee228efa4de725ab8339651cdae65826dc3bfafb83803c",
+    "android/editor/src/androidTest/java/studio/seventwo/blockeditor/AuthoringControlsTest.kt": "ebd9d5cf24b68b31b3dc677d324b63c57f295fa8b3d5f1e39f4fa42302936c08",
+    ".github/workflows/ci.yml": "4779dd686ef48249c0e3e293b3f5e4d0ced53c87dc82aa09eaed17fed4938a28"
+  },
+  "sourceParents": [
+    "01a0e35cceace2e6cd0ae2366621caf305bfd169",
+    "ebb7ac7a86f2ade785a882179a8c103d1a6e8b99"
+  ],
+  "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+  "productionFileCount": 60,
+  "productionSourceMatchesWorkingTree": true,
+  "compositorTimingQualification": {
+    "retainedFile": "android-automated-baseline.png",
+    "originalArtifactFile": "nested-text-edited.png",
+    "sha256": "df218d8fdd541b4f7a043a8a293d651cca27d4500b382044ce7f61a34194c5ac",
+    "observedState": "Pre-edit baseline. The compositor lagged the model checkpoint; original bytes are relabeled according to their visible content. Unicode editing is shown by the recording and later unchanged screenshots."
+  }
+}

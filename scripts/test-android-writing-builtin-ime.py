@@ -139,7 +139,14 @@ def main():
         report["failure"] = f"{type(error).__name__}: {error}"
         raise
     finally:
-        report["settingsAfter"] = settings()
+        settings_error = None
+        try:
+            report["settingsAfter"] = settings()
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+            settings_error = error
+            report["settingsAfter"] = None
+            report["settingsVerificationFailure"] = f"{type(error).__name__}: {error}"
+            (args.output / "settings-after.log").write_bytes(error.stdout or b"")
         if report["settingsAfter"] != report["settingsBefore"]:
             report["passed"] = False
         collection_failures = []
@@ -163,7 +170,11 @@ def main():
         # retain failure evidence. Screenshots remain mandatory in the success path.
         report["diagnosticCollectionFailures"] = collection_failures
         (args.output / "environment.json").write_text(json.dumps(report, indent=2) + "\n")
-        if report["settingsAfter"] != report["settingsBefore"]:
+        # A disconnected runtime must still retain the original instrumentation
+        # failure and the failed settings check in the final evidence report.
+        if report["settingsAfter"] != report["settingsBefore"] and "failure" not in report:
+            if settings_error is not None:
+                raise RuntimeError("System input settings could not be verified; investigate before accepting the run") from settings_error
             raise RuntimeError("System input settings changed; restore and investigate before accepting the run")
 
 

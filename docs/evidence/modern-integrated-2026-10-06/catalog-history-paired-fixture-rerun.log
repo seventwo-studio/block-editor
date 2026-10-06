@@ -1,0 +1,50 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 5]
+[3 / 12] BlockEditorCoreTests-product
+[5 / 14] BlockEditorCoreTests-product
+[10 / 12] BlockEditorCoreTests-product
+[12 / 19] local-editor-app-product
+Build complete! (12.31 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernPasteTests started.
+◇ Test localPolicyCompositionStaleScopeAndReusedLabelsRejectWithoutPartialReplacement() started.
+◇ Test catalogInsertionFocusIsStoredWithAuthorHistoryWhileOrdinaryPasteKeepsItsCaret() started.
+◇ Test mixedReplacementAndEmptyClipboardAreSingleOrZeroHistorySteps() started.
+◇ Test pasteAfterCapturedCodeAliasUsesCurrentFieldAndRejectsForgedRelation() started.
+◇ Test explicitPlainRangeUsesNormalInlineAndMultilinePrefixSuffixSemantics() started.
+◇ Test crossParagraphPastePreservesRetainedEndpointMetadataAndPeerRoutes() started.
+◇ Test acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() started.
+◇ Test hierarchicalFieldsPreserveOwnerMetadataAndUseCompatibleChildCollection() started.
+◇ Test tableRowAndCellPasteKeepSemanticMetadataAndFreshNamespaces() started.
+◇ Test titleAndCodeUseExplicitPlainFallbackWithoutRichMarkOrBlockCoercion() started.
+◇ Test explicitFlattenedFallbackMatchesAcceptedColumnContentAndRichNestedPasteRejects() started.
+◇ Test sameFieldBlockReplacementHasOneRetainedCutAndKeepsPeerInsertion() started.
+◇ Test inactiveForgedPlanRejectsAndMissingCaptureIsRetainedUntilItsCausalBirthArrives() started.
+◇ Test copiedRowAndConvertedListItemCollectionBirthsKeepModernSemanticAdmission() started.
+◇ Test pastedLayoutPeerEditSurvivesAuthorUndoAndReopenWithoutDuplication() started.
+◇ Test capturedRichReplacementKeepsAtomicReferenceMetadataAndPeerTextThroughUndoAndReopen() started.
+◇ Test acceptedBlankPlainMultilinePreservesFourLiteralLinesAndLastInputCaret() started.
+◇ Test inertAssetPolicyAndNewTailAdmissionRejectWithoutChangingOriginalPayload() started.
+✔ Test localPolicyCompositionStaleScopeAndReusedLabelsRejectWithoutPartialReplacement() passed after 0.034 seconds.
+✔ Test hierarchicalFieldsPreserveOwnerMetadataAndUseCompatibleChildCollection() passed after 0.034 seconds.
+✔ Test explicitPlainRangeUsesNormalInlineAndMultilinePrefixSuffixSemantics() passed after 0.034 seconds.
+✔ Test pasteAfterCapturedCodeAliasUsesCurrentFieldAndRejectsForgedRelation() passed after 0.034 seconds.
+✔ Test titleAndCodeUseExplicitPlainFallbackWithoutRichMarkOrBlockCoercion() passed after 0.034 seconds.
+✔ Test mixedReplacementAndEmptyClipboardAreSingleOrZeroHistorySteps() passed after 0.035 seconds.
+✔ Test inactiveForgedPlanRejectsAndMissingCaptureIsRetainedUntilItsCausalBirthArrives() passed after 0.041 seconds.
+✔ Test copiedRowAndConvertedListItemCollectionBirthsKeepModernSemanticAdmission() passed after 0.042 seconds.
+✔ Test inertAssetPolicyAndNewTailAdmissionRejectWithoutChangingOriginalPayload() passed after 0.042 seconds.
+✔ Test sameFieldBlockReplacementHasOneRetainedCutAndKeepsPeerInsertion() passed after 0.048 seconds.
+✔ Test acceptedBlankPlainMultilinePreservesFourLiteralLinesAndLastInputCaret() passed after 0.051 seconds.
+✔ Test capturedRichReplacementKeepsAtomicReferenceMetadataAndPeerTextThroughUndoAndReopen() passed after 0.085 seconds.
+✔ Test tableRowAndCellPasteKeepSemanticMetadataAndFreshNamespaces() passed after 0.086 seconds.
+✔ Test catalogInsertionFocusIsStoredWithAuthorHistoryWhileOrdinaryPasteKeepsItsCaret() passed after 0.087 seconds.
+✔ Test crossParagraphPastePreservesRetainedEndpointMetadataAndPeerRoutes() passed after 0.112 seconds.
+✔ Test explicitFlattenedFallbackMatchesAcceptedColumnContentAndRichNestedPasteRejects() passed after 0.219 seconds.
+✔ Test acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() passed after 0.225 seconds.
+✔ Test pastedLayoutPeerEditSurvivesAuthorUndoAndReopenWithoutDuplication() passed after 0.331 seconds.
+✔ Suite ModernPasteTests passed after 0.331 seconds.
+✔ Test run with 18 tests in 1 suite passed after 0.332 seconds.

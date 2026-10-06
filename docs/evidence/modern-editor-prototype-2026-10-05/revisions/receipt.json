@@ -1,0 +1,244 @@
+{
+  "qualification": "Actual iPhone simulator XCTest interaction captures. Full suite FAILED: 4 passes, 3 unresolved checks; not physical/device/protocol-7 acceptance. App body used unchanged protocol-6 source at the frozen core baseline.",
+  "coreSourceRevision": "da0505771898308da100432638b11b463b4fa952",
+  "sourceHashes": {
+    "Examples/ModernInteractionPrototype/App/ReviewApp.swift": "69d08c4933c188aaf14750aa6c322ba74e58a08a0a95cbfc39dd50cbebb76200",
+    "Examples/ModernInteractionPrototype/App/ReviewInput.swift": "0acb4e257df765beac32f759cad46be27a39bff527f5f38d2461ac77caa2155a",
+    "Examples/ModernInteractionPrototype/App/ReviewModel.swift": "5087ed5658f525a8b5aa88e31bc4d3dd7420476f675df8971f66c90aa8e54b5d",
+    "Examples/ModernInteractionPrototype/UITests/InteractionReviewTests.swift": "b1afe01f42f031bdf29f1af8150f204496fc4a1970bd4f06eb2c085631fdfb2b",
+    "Examples/ModernInteractionPrototype/project.yml": "d46b1492a3fb0f6e6ab519145a7406dd34caa64e68493b683fe472f46aec4f69"
+  },
+  "summary": {
+    "devicesAndConfigurations": [
+      {
+        "device": {
+          "architecture": "arm64",
+          "deviceId": "D87B005F-E87F-4FBC-ACEB-06231A0BA20D",
+          "deviceName": "ST121-Review-iPhone-Revisions",
+          "modelName": "iPhone 16 Pro Max",
+          "osBuildNumber": "24A434",
+          "osVersion": "27.0",
+          "platform": "iOS Simulator"
+        },
+        "expectedFailures": 0,
+        "failedTests": 3,
+        "passedTests": 4,
+        "skippedTests": 0,
+        "testPlanConfiguration": {
+          "configurationId": "1",
+          "configurationName": "Test Scheme Action"
+        }
+      }
+    ],
+    "environmentDescription": "ModernPrototypePhone · Built with macOS 27.0.1",
+    "expectedFailures": 0,
+    "failedTests": 3,
+    "finishTime": 1791163022.852,
+    "passedTests": 4,
+    "result": "Failed",
+    "runtimeWarnings": [],
+    "skippedTests": 0,
+    "startTime": 1791162754.67,
+    "statistics": [],
+    "testFailures": [
+      {
+        "failureText": "XCTAssertTrue failed - Native value: Optional(before after create Second thought)",
+        "targetName": "ModernPrototypePhoneTests",
+        "testIdentifier": 2,
+        "testIdentifierString": "InteractionReviewTests/testColumnFocusOrderAndContainment()",
+        "testIdentifierURL": "test://com.apple.xcode/ModernInteractionPrototype/ModernPrototypePhoneTests/InteractionReviewTests/testColumnFocusOrderAndContainment",
+        "testName": "testColumnFocusOrderAndContainment()"
+      },
+      {
+        "failureText": "XCTAssertTrue failed - Native value: Optional(Keyboard startStart with the document. Select words to format, or type / to insert a block.)",
+        "targetName": "ModernPrototypePhoneTests",
+        "testIdentifier": 4,
+        "testIdentifierString": "InteractionReviewTests/testKeyboardTitleToBodyAndSlashAcceptance()",
+        "testIdentifierURL": "test://com.apple.xcode/ModernInteractionPrototype/ModernPrototypePhoneTests/InteractionReviewTests/testKeyboardTitleToBodyAndSlashAcceptance",
+        "testName": "testKeyboardTitleToBodyAndSlashAcceptance()"
+      },
+      {
+        "failureText": "XCTAssertTrue failed - Native value: Optional(Fresh writi)",
+        "targetName": "ModernPrototypePhoneTests",
+        "testIdentifier": 5,
+        "testIdentifierString": "InteractionReviewTests/testMultipleLayoutsAndBoundaryWriting()",
+        "testIdentifierURL": "test://com.apple.xcode/ModernInteractionPrototype/ModernPrototypePhoneTests/InteractionReviewTests/testMultipleLayoutsAndBoundaryWriting",
+        "testName": "testMultipleLayoutsAndBoundaryWriting()"
+      }
+    ],
+    "title": "Test - ModernPrototypePhone",
+    "topInsights": [],
+    "totalTestCount": 7
+  },
+  "artifacts": [
+    {
+      "file": "BlockRangeColumnsAndPersonalViews-1.png",
+      "sha256": "495104abd73da9f8673abb0c73ae7f8075685ecbef0157ada382fe48baaa542b",
+      "originalExportName": "98796B7A-7857-4359-8CA9-4BA2E2DCA4EB.png",
+      "captureName": "Plain document in focus mode_0_1E896F17-139B-4B21-8B2A-A511DBBB53E6.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "testResult": "passed"
+    },
+    {
+      "file": "BlockRangeColumnsAndPersonalViews-2.png",
+      "sha256": "8475078a703059774fd9897b856acf9949b0eb22516263c9245b80de173b30b7",
+      "originalExportName": "DDEEB164-4943-4F48-A278-598E510D0BAF.png",
+      "captureName": "Touch pointer resize and cancellation_0_23F73656-1624-40AC-BA15-3DA9B94A84ED.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "testResult": "passed"
+    },
+    {
+      "file": "BlockRangeColumnsAndPersonalViews-3.png",
+      "sha256": "47d1eb01ac072fbea6178ea1eaea7b8fa8cf03b597e10e0f69ffcba3f5525577",
+      "originalExportName": "C42712D5-EE43-49BD-B58B-AEB049116886.png",
+      "captureName": "Moved origin into second column_0_23CE062E-AB98-4745-9C62-D8A81E8015D6.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "testResult": "passed"
+    },
+    {
+      "file": "BlockRangeColumnsAndPersonalViews-4.png",
+      "sha256": "f9bbc6b77ae44d5dc702c9393c3be3ef12cfba89d79f4550ac2a87d7cbcee294",
+      "originalExportName": "335E5E7E-CD16-4C18-8F23-212ED0CD6B8B.png",
+      "captureName": "Created two columns_0_02263FAC-3E4C-49BB-BFD7-FA7B07C8D7FB.png",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "testResult": "passed"
+    },
+    {
+      "file": "BlockRangeColumnsAndPersonalViews.mp4",
+      "sha256": "6af014917ad4d898f29155a05d3e547185ce587ce26049fcd34348550245edf0",
+      "originalExportName": "0AF28290-866C-4FEC-B72E-51D8DCD0CCDD.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.12.39 AM.mp4",
+      "test": "InteractionReviewTests/testBlockRangeColumnsAndPersonalViews()",
+      "testResult": "passed"
+    },
+    {
+      "file": "ColumnFocusOrderAndContainment.mp4",
+      "sha256": "488a7e3624ad456fb9a0022f53906e6aa44592a0342bd6ea94c1011466a2002f",
+      "originalExportName": "1BE47239-3B88-4CCA-9B70-CA63627BF0C7.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.13.15 AM.mp4",
+      "test": "InteractionReviewTests/testColumnFocusOrderAndContainment()",
+      "testResult": "failed"
+    },
+    {
+      "file": "FormattingConversionAndNestedInput-1.png",
+      "sha256": "66a1ed1008c7152d0c54bafef7cd14612ef57dc37c3e0eca7dac80adae728bd7",
+      "originalExportName": "5A5DEDEF-603B-481E-BF3A-11EFD2495B04.png",
+      "captureName": "Long document outline reaches closing heading_0_6319AD7D-DDF8-42C2-B4D1-3A91708DE44D.png",
+      "test": "InteractionReviewTests/testFormattingConversionAndNestedInput()",
+      "testResult": "passed"
+    },
+    {
+      "file": "FormattingConversionAndNestedInput-2.png",
+      "sha256": "28d165c669b67a5dac4b5658309fdc37272d262101dccdd467b18386352fa7b0",
+      "originalExportName": "8F9223BD-066F-4205-BED7-64C25CCC71D8.png",
+      "captureName": "Native nested toggle and list input_0_D2D26E2D-8DC8-4F2C-8BF3-1EA6198A3717.png",
+      "test": "InteractionReviewTests/testFormattingConversionAndNestedInput()",
+      "testResult": "passed"
+    },
+    {
+      "file": "FormattingConversionAndNestedInput-3.png",
+      "sha256": "0218d1e0159fb2ab97e8abd8e85cfd553a6341322e7e929723489b053989d118",
+      "originalExportName": "E065FB09-1C15-4013-BE53-09FB9C462CA4.png",
+      "captureName": "Conversion retains rich text_0_C2C3E756-6DB4-423A-B4B6-A7F87CF920BB.png",
+      "test": "InteractionReviewTests/testFormattingConversionAndNestedInput()",
+      "testResult": "passed"
+    },
+    {
+      "file": "FormattingConversionAndNestedInput-4.png",
+      "sha256": "b599a71fae08bd17ec1f9fae6e56837f3f7401643b0cb026b21959ec6d212cbd",
+      "originalExportName": "A01DCE0D-E6B5-41E4-8744-259A93186E49.png",
+      "captureName": "Native selected range bold formatting_0_B45FEE0F-3C63-47D7-8BB6-78CA67D9F4DC.png",
+      "test": "InteractionReviewTests/testFormattingConversionAndNestedInput()",
+      "testResult": "passed"
+    },
+    {
+      "file": "FormattingConversionAndNestedInput.mp4",
+      "sha256": "18ca3ebb68a5052a62eb1d9f603a8c736a2e41940f4997905b11d1aa59d483b7",
+      "originalExportName": "A8BDB621-FFEF-49A1-AB91-DEA927403CB3.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.13.47 AM.mp4",
+      "test": "InteractionReviewTests/testFormattingConversionAndNestedInput()",
+      "testResult": "passed"
+    },
+    {
+      "file": "KeyboardTitleToBodyAndSlashAcceptance.mp4",
+      "sha256": "dbd1ffbb4eb50bbb31697deed15085aecad9acd547dca6b04a613e9547f0f12b",
+      "originalExportName": "7A5FD79C-8838-414C-A512-BA2E093725D6.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.14.40 AM.mp4",
+      "test": "InteractionReviewTests/testKeyboardTitleToBodyAndSlashAcceptance()",
+      "testResult": "failed"
+    },
+    {
+      "file": "MultipleLayoutsAndBoundaryWriting-1.png",
+      "sha256": "3e59063d10b6e86dce00ed2f3a5e604b2924bbdd1fc04ea89cc1e73030e585aa",
+      "originalExportName": "2E3CB9AB-F146-4051-BA64-7A536FE9892F.png",
+      "captureName": "Independent layouts and explicit nesting rejection_0_9E006889-14C0-4179-AFCA-EDCFAB47C861.png",
+      "test": "InteractionReviewTests/testMultipleLayoutsAndBoundaryWriting()",
+      "testResult": "failed"
+    },
+    {
+      "file": "MultipleLayoutsAndBoundaryWriting.mp4",
+      "sha256": "d07f76b0efe69563bacf287daa8aebf8679f037d77f2b7df9861d9a0ac0cc879",
+      "originalExportName": "08B3559D-1D87-4134-A4D3-90484E030BEF.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.15.08 AM.mp4",
+      "test": "InteractionReviewTests/testMultipleLayoutsAndBoundaryWriting()",
+      "testResult": "failed"
+    },
+    {
+      "file": "RichFieldInputAndLiteralPreservation-1.png",
+      "sha256": "b334bfa051e4c21b5e414dd1bcff8eafbad84462d027ba77dbce12b82607b88f",
+      "originalExportName": "6C3F2700-87CF-4A17-B723-9276FBE68CDB.png",
+      "captureName": "Code input retains literal Unicode and whitespace_0_62E5F0F5-38FC-4698-B597-6F2A667C80AD.png",
+      "test": "InteractionReviewTests/testRichFieldInputAndLiteralPreservation()",
+      "testResult": "passed"
+    },
+    {
+      "file": "RichFieldInputAndLiteralPreservation-2.png",
+      "sha256": "89824b37c091ec6713d8ac25055bc730da3da007c3b52936d54ae8fd02cd589e",
+      "originalExportName": "ED471759-7C91-42E4-A712-C1A54BD06339.png",
+      "captureName": "Native table cell and local media caption input_0_A68D29F0-AF96-40AB-A3F6-90BF84E4F64E.png",
+      "test": "InteractionReviewTests/testRichFieldInputAndLiteralPreservation()",
+      "testResult": "passed"
+    },
+    {
+      "file": "RichFieldInputAndLiteralPreservation.mp4",
+      "sha256": "55ff15520529152e4c90fac747e7fe1c7c1e6347a023a6ec47d1cc1a2bf01737",
+      "originalExportName": "1BE7BA0E-89B8-4A70-A7DC-5CDE777CB1A3.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.15.53 AM.mp4",
+      "test": "InteractionReviewTests/testRichFieldInputAndLiteralPreservation()",
+      "testResult": "passed"
+    },
+    {
+      "file": "TitleWritingAndContextualPicker-1.png",
+      "sha256": "1a708b94919e8a251f563401e7ab48515a2f3cbdbb6200e2e5dd3a230a5bcdf8",
+      "originalExportName": "EE66739B-E45C-4160-8261-709141450057.png",
+      "captureName": "Inserted heading with direct title_0_0515C3A7-1D12-44A9-8C74-748C86F40FE5.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "testResult": "passed"
+    },
+    {
+      "file": "TitleWritingAndContextualPicker-2.png",
+      "sha256": "026e41d06657441500ce8315b3a0cce1f39993078d3e32f2bf765ad2ec1564bf",
+      "originalExportName": "7210F89E-F600-4250-A9AE-48A3035ECD35.png",
+      "captureName": "Cancelled query retains content_0_CB0C7225-6958-4F30-B22C-46816C5E33BE.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "testResult": "passed"
+    },
+    {
+      "file": "TitleWritingAndContextualPicker-3.png",
+      "sha256": "a72fb015c729b8b922a385192a73958bd1eae31723be7d0aa18f68dbf0e2229e",
+      "originalExportName": "BA2FC9B1-2F9C-4A5F-B763-A26F37F8D1A4.png",
+      "captureName": "Contextual slash query_0_ADBAD530-E7E4-455D-8474-32E4A05F5BEF.png",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "testResult": "passed"
+    },
+    {
+      "file": "TitleWritingAndContextualPicker.mp4",
+      "sha256": "dc33384ced647ec8e0f35d8b49295a008c932cb17cfb7a8792dae3c8e706cbe9",
+      "originalExportName": "B3E912CA-EBF2-4BEA-9B0D-D1D443E89460.mp4",
+      "captureName": "Screen Recording 2026-10-05 at 03.16.32 AM.mp4",
+      "test": "InteractionReviewTests/testTitleWritingAndContextualPicker()",
+      "testResult": "passed"
+    }
+  ],
+  "macStatus": "Build passed; revised native XCTest not initialized: Timed out while enabling automation mode; deferred to ST-143"
+}

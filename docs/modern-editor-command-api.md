@@ -1,0 +1,313 @@
+# Implemented modern command API
+
+ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript and Kotlin entrypoints now expose the implemented modern contract. The cumulative candidate adds modern native/Compose/React surfaces and explicit host lifecycle adapters. Actual integrated runtime validation and complete native host acceptance must be recorded separately.
+
+## Cumulative candidate additions (ST-122–ST-138, ST-47)
+
+The current candidate advertises 26 author commands. Historical receipts below
+retain their original 22-command source/runtime identities and qualifications.
+The four new commands are `typingShortcut`, `tableStructure`, `mediaProperties`
+and `codeProperties`; document format 1 and protocol 7 remain explicit.
+
+`captureTableTarget(table:row:cell:)` captures scope, opaque origins and frontier.
+`tableStructure` supports row/column insertion and removal plus header toggling.
+Fresh IDs are explicit; deletion of the last row/column, ragged structural edits,
+foreign scope and changed captured cells reject before publication. Header and
+structural edits use shared author history. Viewport resizing never authors table data.
+
+`captureMediaTarget` returns document/epoch plus the original media origin/source.
+`mediaProperties` accepts checked image/file/generic-preview metadata independently
+of provider completion. Caption text remains an origin-bound writing field.
+`captureCodeTarget` and `codeProperties` change supported language metadata without
+rewriting literal Unicode, whitespace or unknown admitted language metadata.
+
+`logicalFields`, `parentCollection` and `captureTextSpan` expose logical navigation
+independently of column stacking. Directed spans capture one cohort across fields.
+`format` accepts the legacy single range or `{ ranges: [...] }`, using one transaction,
+original selection and author Undo. `modernMarkState` accepts one range or a range
+array and returns on/off/mixed. Cross-field plain/rich replacement uses the existing
+captured `ModernPasteTarget.range` endpoints. Copy/delete use ordered captured ranges.
+
+One insertion catalog supplies vocabulary, descriptions and factories. Slash
+conversion consumes its captured query in the same paste transaction, including
+exactly two columns. `typingShortcut` consumes approved paragraph/inline delimiters
+in one author transaction; literal code/title/caption fields stay outside shortcuts.
+`availability` reports local command policy, composition, recovery and history state.
+
+`allowedBlockTypes` and `allowedMarkTypes` restrict newly authored content through
+the shared engine. Creation, paste, conversion, duplication and explicit marks
+respect these restrictions; restore, admitted rich typing, peer history and Undo
+preserve existing data. `modernSetContentPolicy` updates both local restrictions
+atomically. Policy is not application authorization and is never replicated.
+
+`ModernPersistenceController`, `ModernBrowserHost` and `ModernAndroidHost` serialize
+paired saves. Providers persist pending requests before invoking application code,
+retain responses, save them before application, then recheck original active
+invocation/generation. Restored requests never invoke providers automatically.
+Failed saves retain response data for explicit retry. Native/browser/Android
+activation adapters validate the detached fresh session, persist/read back originals
+and candidate, then atomically compare/switch a pointer with recoverable previous
+activation. Later autosave uses a separate live pair for that epoch.
+
+See [the integration candidate](modern-editor-handoff.md) for reference applications,
+package preparation and external ST-34/ST-144 delivery boundaries. Current build
+or focused fixture results do not replace the integrated validation matrix.
+
+## Native input and focus
+
+`BlockEditorApple` exposes `ModernEditorModel`, `ModernInputController` and `ModernTextInput` for protocol 7. AppKit/UIKit fields bind to opaque `WritingField` origins, including `session.titleField`; moving a node or reusing a display label does not rebind its control. The model owns the session's receive/publication hooks. Use `model.onChange` for host notifications, `model.receive` for peer packets and `model.perform` for author commands. Input controllers and model callbacks stay on the main actor. The wrapper receives changing projections explicitly, so a stable model reference does not suppress native refresh.
+
+```swift
+let model = ModernEditorModel(session: session)
+// In the canvas:
+ModernTextInput(model: model, field: session.titleField, label: "Document title", onSubmit: moveToBody)
+ModernTextInput(model: model, field: paragraphField, label: "Paragraph", onSubmit: splitCurrentBlock)
+// Structural handlers execute the checked operation and return its local intent:
+try model.perform { session in try session.splitBlock(in: capturedRange, newBlockID: freshID).focus }
+```
+
+The canvas supplies title-to-body and structural Return behavior through `onSubmit`; the field adapter does not persist an empty-body placeholder or choose a structural destination through a mutable caret. Shared Undo/Redo replace native per-control history, including command-key bindings. Contextual commands settle native inputs first. Marked text and outer native insertion/replacement operations hold incoming peers until the captured edit commits. Unicode-scalar differences preserve unchanged rich/reference atoms; anchors then rebase through the released peer packets. Unfocused field settlement cannot overwrite the active input's local selection.
+
+Text focus intents retain the original weak window lease and anchored range through layout. Mounted destination controls must match the resolved opaque field in that same window. An intentional native blur or responder choice cancels the lease; ordinary peer refresh cannot choose a different window or unrelated active field. Node/insertion intents remain available to the canvas's own surfaces.
+
+`model.pendingInputs` and `model.checkpoint()` expose retained failures and marked drafts. Each native draft stores the captured replacement and the complete native buffer/selection; a deleted target cannot become a later block with the same label. Failed detached controls retain their buffers in the model for explicit host recovery/export. A commit followed by a failed peer drain remains committed, with recovery/deferred state separately retained. Reopen never reapplies a draft or restarts composition automatically.
+
+Three [actual AppKit scenarios](evidence/modern-native-input-2026-10-05/receipt.json) pass: real marked Unicode input with held peer edits, unchanged rich/reference data and shared Undo/Redo; split focus in the original of two windows plus intentional-blur cancellation; rejected native input preserving the exact buffer and accepted checkpoint. The three affected disk-pair scenarios also pass. The UIKit adapter compiles in the existing iOS host; its full runtime/device/assistive campaign remains deferred. That dated receipt precedes the cumulative canvas/provider/activation implementation described below; it does not verify those later changes. Native clipboard integration is described below.
+
+## Native clipboard and document invocation
+
+`ModernTextInput` routes native Copy, Cut, Paste and explicit Paste as Plain Text through `model.clipboard`. The protocol-7 pasteboard type is `studio.seventwo.blockeditor.modern-clipboard`, with the exact checked rich envelope and plain fallback. AppKit and UIKit publishers read back both representations before acknowledging publication. Inject `ModernClipboardAccess` for an app-owned clipboard surface; tests use a private named pasteboard and never modify the user's general clipboard. Plain input uses the shared plain-range planner; Markdown import remains explicit. Malformed rich input is retained without silently importing the OS plain fallback.
+
+`ModernClipboardController` exposes read-only `copy`, synchronous `cut`, delayed `prepareCut`/`finishCut`, captured `paste`, `retryPaste` and `forget`. Delayed Cut binds to the live model's invocation generation and original native input/window/responder lease. Set the outgoing `model.isActive = false` before replacing a document; reactivating it does not revive an old callback. Only publication of the exact prepared payload can delete the original captured atoms. Later peer text survives. Failed publication does not split typing history, alter accepted content or transfer focus; duplicate completion does not redo an undone cut.
+
+`clipboard.retained` exposes original payloads, captured destinations and failure reasons for host presentation/export. Records have a combined 64 MB encoded budget and 64-record limit; at most eight live Cut tickets are retained. Capacity is reserved before publication or shared paste. Checkpoints include these payloads atomically with accepted history and local sidecars. After reopen, initialize `ModernEditorModel(session: restored.session, retainedClipboard: restored.retainedClipboard)`. Restored data is inert: publication acknowledgment and live Cut preparations are never restored. Explicit paste retry uses its saved destination and admitted rich/plain mode, never the current caret or a new clipboard read. `forget` releases a record without changing the shared document.
+
+The [focused clipboard receipt](evidence/modern-native-clipboard-2026-10-05/receipt.json) covers actual AppKit Copy/Cut/Paste, rich/reference preservation, a peer edit during publication, author Undo, failed-publication typing continuity, document-switch cancellation, original payload disk reopen, malformed-rich refusal and captured-destination retry. The affected input/storage scenarios also pass. UIKit compilation checks the native bindings; UIKit runtime and the broad clipboard/device/assistive campaign remain deferred. The dated clipboard receipt does not verify the subsequent provider or migration activation implementation.
+
+## Native paired storage
+
+`BlockEditorApple` exposes `ModernHostCheckpoint`, `ModernHostStore` and `ModernPendingInput`. Capture on the confined session/main actor; send the immutable checkpoint to the storage actor. Supply an existing app-owned directory and the revision actually loaded. A first save uses `nil` and cannot overwrite an existing file. Saves serialize accepted history, anchored local selection/history, provider records/results, pending recovery, held peer packets, original native drafts and retained clipboard payloads together. Composing sessions require supplied drafts; the host must retain every uncommitted input.
+
+```swift
+let store = ModernHostStore(url: activeURL, documentID: session.documentID, actorID: session.actorID)
+let pair = try ModernHostCheckpoint(session: session, pendingInputs: retainedDrafts)
+let saved = try await store.save(pair, replacing: loadedRevision)
+// Update loadedRevision only after success. Retain later live edits for the next save.
+let restoredPair = try await store.load()
+let restored = try restoredPair?.restore() // main actor; detached candidate
+// Explicitly attach inputs/resolve drafts before resuming deferred peer delivery.
+try restored?.resumeDeferredChanges()
+```
+
+The separate storage actor keeps disk I/O off the UI actor. A POSIX lock and expected revision prevent cooperating stale writers from replacing another save. Publication writes a private same-directory temporary file, synchronizes it, renames it over the active file, synchronizes the directory and checks actual stored bytes. Failures before rename leave the prior active file intact. `durabilityUnconfirmed(revision:)` means rename occurred but durable confirmation/readback failed; read back the actual active revision before retrying. No rollback is inferred from that error.
+
+Reopen validates owner, format, size and every engine sidecar before returning a detached live session. Deferred packets remain held, provider records do not launch tasks, and native drafts remain bound to their captured atoms even when their target was deleted. Reopen does not author a draft, transfer focus, acknowledge cut publication or activate a migration pointer. The private checkpoint admits its exact canonical encoding, refusing ignored/duplicate outer fields. Serialized checkpoint and component budgets are bounds on encoded data, not total process memory.
+
+Three [focused native disk scenarios](evidence/modern-native-storage-2026-10-05/receipt.json) pass: paired Unicode draft/history/provider/held-peer reopen with backward-selection Undo; retained conflicting recovery and explicit repair/save; stale-writer/invalid-draft/owner/outer-field rejection preserving the prior pair. Power-loss, every device/filesystem, UI integration and migration activation/rollback campaigns remain separately tracked finishing work.
+
+## TypeScript consumer
+
+Import `SwiftEditorRuntime`, `SwiftModernSession`, the `Modern*` types and `SwiftModernRecoveryError` from `@seventwo-studio/block-editor/swift`. `runtime.createModern(...)` requires an admitted complete document, actor, document identity and epoch. `runtime.restoreModern(session.save(), actorID)` restores accepted author history. It does not restore local input, recovery, deferred packets or provider state; export and restore those separately in the host's durable transaction.
+
+```ts
+const session = runtime.createModern({ document, documentID: document.documentID, actorID, epoch });
+const title = { node: { document: { documentID: document.documentID } }, name: "title" } as const;
+const target = session.captureTextRange(title, 0, document.title.length);
+const result = session.execute({ command: "replaceTitle", target, arguments: { text: "Field notes" } });
+// result.status and result.focusIntent are checked local outcomes.
+```
+
+`execute` discriminates all 26 commands, pairing their captured targets with typed arguments. Published snapshots and returned objects are deeply frozen, including opaque metadata. Publication precedes subscriber notification. Subscriber errors go to `onListenerError` and do not make a committed command appear to fail. `getSnapshot`/`subscribe` can serve an external store; `SwiftModernBlockEditor` and its lifecycle adapter are exported separately through `swift/modern/react` and `swift/modern/host`.
+
+Commit platform input before direct `receive`, or hold remote changes while the platform owns an uncommitted buffer. Nested `holdRemoteChanges()` releases are idempotent, including after a recovery failure or session close. A typed recovery error refreshes the accepted snapshot/recovery before propagating; persist its proposal separately, then explicitly repair. Result intent does not move focus automatically. Host generation, active document and composition checks remain required around delayed actions.
+
+`copy` is read-only. `prepareCut` captures without deleting; only `finishCut(preparation, published)` after the actual OS clipboard outcome may delete. Preparations are bound to the originating live session. `beginAsyncBlock`, local provider archives and explicit completion expose the core lifecycle; restoring an archive does not start a provider or automatically author its result. A new invocation invalidates an older generation.
+
+`runtime.modernCutover()` exposes upload, preparation, chunk export, exact readback verification, remapping and cleanup. `SwiftModernSession.fromCutover` requires explicit stop/archive/reset acknowledgments and verified readback. Hosts must supply bytes read from their actual storage, persist/read back the new save and atomically activate their own pointer; the facade does not perform durable activation or rollback. Raw archive bytes are base64, and chunks retain the core's 8 MB decoded limit. All legacy TypeScript entrypoints retain their protocol defaults.
+
+The [typed adapter receipt](evidence/modern-typescript-adapter-2026-10-05/receipt.json) records actual applied coverage for every advertised command through the native C ABI and Chromium/WebKit WASM, all 55 accepted complete document fixtures, local lifecycle/recovery assertions, type rejection checks, regression and isolated installed-package verification. The initial Firefox run and a controlled temporary-profile retry fail before browser launch; they remain execution failures, not passed or skipped editor checks. Native input/IME, OS clipboard/provider integration, durable storage activation and the full physical/assistive host matrix retain their existing acceptance gates. The unchanged shared core retains its separately pinned Swift/migration evidence.
+
+A modernCommand request has documentID, epoch, command, target and arguments. Results carry status (applied/noop/unavailable/recoveryRequired), the materialized snapshot, actual admitted author transaction, and local focus/selection intent. Unsupported commands and host/composition policy restrictions return unchanged unavailable results. Malformed schemas and wrong scope return the existing structured error boundary. Checked column and writing/list commands return unchanged unavailable results for invalid target/argument values; other invalid/stale targets retain the structured error boundary. Pending retained recovery disables further conflicting author edits. A result is planned against the validated candidate before publishing its document/history. Result intents are not replicated instructions to move peers' focus.
+
+## Kotlin consumer
+
+The Android library exposes `ModernSession`, `ModernCommand` and the `Modern*` contracts in `studio.seventwo.blockeditor`. Create explicitly with an admitted `ModernDocument`; old `EditorSession` and `WritingSession` protocols retain their defaults. All 26 author commands couple their captured targets with their own argument types. Appearance presets use separate enum-typed operations; opaque appearance data cannot become an authorable register. Text/collection paste and column targets are separate sealed alternatives, and only `ModernCommand.Author` accepts an explicit history-selection override.
+
+```kotlin
+val session = ModernSession.create(ModernDocument.restore(documentJSON), actorID, epoch)
+val title = ModernField(ModernNodeID.document(session.snapshot.document.documentID), "title")
+val range = session.captureTextRange(title, 0, session.snapshot.document.title.length)
+val result = session.execute(ModernCommand.ReplaceTitle(range, "Field notes"))
+```
+
+Use the session on its creating thread. `snapshot` is Compose-observable; its owned values, nested getters and exports protect accepted state from caller mutation. Publication precedes `subscribe` callbacks, and observer failures go to `onListenerError` without changing the accepted outcome. `ModernRecoveryException` publishes refreshed accepted state/recovery before propagation. Cut publication, nested remote holds, separate selection/recovery/deferred/provider archives and invocation generations retain the same explicit lifecycle as the TypeScript facade. `ModernCutover` exposes archive preparation/chunks/readback and separate legacy text/writing position remapping. `ModernCutoverAcknowledgments` requires three explicit true acknowledgments before `ModernSession.fromCutover`; the host owns actual storage, activation and rollback.
+
+Local compilation and Android test packaging pass. One focused `ModernSessionTest` is wired into existing Android CI for actual JNI execution; packaging does not prove its assertions executed. The local bundled native libraries predate protocol 7, so this delivery does not claim local Android runtime acceptance. See [Kotlin delivery evidence](evidence/modern-kotlin-adapter-2026-10-05/receipt.json). No modern Android view, IME integration or complete host acceptance is provided by this facade.
+
+## Captured targets
+
+Use the capture endpoints and retain their returned canonical objects unchanged. Unknown nested fields reject; optional nil fields are omitted in canonical Codable targets. A host must also recheck its own invocation generation, active document and composition/held-peer state before submission. The engine validates document/epoch, causal observation, liveness, ordering and policy again.
+
+| Capture endpoint | Input | Returned target |
+| --- | --- | --- |
+| modernCaptureTextRange | field, start, end (scalar-safe UTF-16 adapter offsets) | ModernTextRange with anchored endpoints and observed causal frontier; direction retained |
+| modernCaptureBoundary | collection, optional after NodeID | ModernBlockBoundary with documentID, epoch, collection, captured after placement and observed frontier |
+| modernCaptureNodes | nodes in logical document order | ModernNodeSelection with documentID, epoch, ordered block origins and observed frontier |
+| modernCaptureListNodes | list items or list blocks in logical document order | ModernNodeSelection for listStructure; duplicates and ancestor/descendant overlap reject |
+| modernCaptureListBoundary | typed item collection, optional after NodeID | ModernBlockBoundary for listStructure reorder; retained placement and observed frontier |
+
+Generic whole-node selection rejects duplicates, ancestor/descendant overlap, document metadata and non-block collection owners. List capture separately admits list items and list blocks for checked list-only commands. Movement supports compatible root/existing column-child collections; no general document-block indentation is exposed. Captured boundaries keep their original collection placement if their anchor later moves or is deleted; a deleted collection owner rejects. A stale selected origin never resolves through a reused display label.
+
+A captured nonempty field-end caret anchors after its observed last atom. A later peer suffix therefore leaves that caret before the suffix, including through conversion and reopen. Explicit nil-anchor positions retain their field-boundary meaning.
+
+## Local input and author history
+
+Hosts report their actual anchored input with `modernSetLocalSelection(selection:)`, using null for an explicit absence of a document input. `ModernLocalSelection` has documentID, epoch, observed frontier and optional canonical focus/selection intents. Optional nil fields are omitted. Text selections retain direction, including endpoints in different fields; whole-node and mixed selections retain origins. `modernCaptureLocalNodes(nodes:)` captures block, item, row or cell selection in logical order, rejecting duplicates, overlapping descendants, document and column owners. This local capture grants no additional authoring capability: generic block deletion still rejects row/item/cell targets.
+
+`modernLocalSelection` resolves the session's local anchors after peer changes. Peer receive never requests focus transfer. Hosts apply resolved input only while that document input still owns focus. Reporting an actual selection/focus change ends ordinary typing grouping; refreshing the same anchors with a later frontier does not. Successful checked commands use the reported local input, or their captured target as a default when no local input was reported, and record their canonical result. `ModernSession.format` now returns a discardable `ModernStructuralResult` so its original directed range is also the stored result.
+
+For delayed menu/provider commands, an optional `historySelection` on a modernCommand request supplies the original invocation input; null explicitly supplies none. Swift uses `withHistorySelection(_:perform:)`. This override validates its original causal scope, affects only that action's history, and does not change current input before command admission. Undo/Redo reject invocation overrides. Cut preparations retain the input captured at preparation, so a later focus change cannot become the cut's Undo selection.
+
+Applied Undo/Redo return canonical `focusIntent`/`selectionIntent` and compatibility `focus`/`selection` aliases. `selectionIntent.mixed` carries a `ModernDeleteTarget`. Grouped typing restores the first input on Undo and the latest result on Redo. Anchors follow retained atoms through peer insertions, splits, merges and shape changes. Surviving selection parts remain anchored; lost origins fall back through their original following/preceding editable neighbors, empty-root insertion or title. Reused display labels never substitute for the original origin. Explicitly absent focus stays absent even when selection survives. No-op, rejected or failed recovery actions return no new history focus and preserve local metadata. New author edits release obsolete Redo records; repair preserves selection records for remaining author groups.
+
+`modernExportHistorySelection` / `modernRestoreHistorySelection(archive:)` correspond to Swift `exportHistorySelection()` / `restoreHistorySelection(_:)`. Capabilities advertise `localHistorySelectionVersion: 1`. This separate, bounded 16 MB local archive contains scope, actor, current input and before/after records tied to owned edit IDs. Persist it beside `modernSave` and any provider archive in the host's same durable transaction. Restore accepted history first, then import the sidecar into a fresh local registry. Import checks canonical schema, original causal bounds, edit ownership, anchors and retained Undo/Redo groups before changing local metadata. Foreign actors/scopes, duplicate edit records, future captures, malformed/unknown fields and repeated replacement of an initialized registry reject atomically. Import does not start providers or focus UI. Older accepted saves without a sidecar restore without invented selections. Local metadata never enters modernChanges or changes accepted-history/document limits.
+
+Swift focus and selection enums store indirect payloads; their existing Codable wire shape stays intact. Downstream exhaustive selection switches must handle mixed selections. Native active-invocation ownership, actual UI focus restoration and atomic host persistence remain separate integration/acceptance work.
+
+## Advertised commands
+
+| Command | Target | Arguments | Result |
+| --- | --- | --- | --- |
+| replaceText / replaceTitle | ModernTextRange | text, optional typingGroup | Caret after accepted insertion; captured atoms only; plain title and literal fields retain their policy |
+| format | ModernTextRange | markType, optional mark (null removes) | Anchored text range with original direction |
+| softBreak | ModernTextRange | Empty object | Replace captured atoms with a newline in one author step; preserve later peer text and return the insertion caret |
+| convertBlock | Collapsed ModernTextRange in a body field | type, optional level/style/variant appropriate to that type | Inline/code/list shape or containing-list style conversion; retain atom origins, opaque metadata and the captured caret; reject lossy conversion |
+| splitBlock | ModernTextRange in inline block content or a list item | newBlockID (fresh scoped label) | Fresh paragraph/item tail with retained suffix atoms; delete captured selected atoms and preserve source metadata; a sole empty root list item exits to its owner paragraph |
+| mergeBlocks | ModernNodeSelection containing exactly two adjacent paragraph origins | Empty object | Retained field join, preserving peer text; return the original boundary caret |
+| setAppearance | Explicit document NodeID | field, value | Shared independent preset register |
+| insertBlock | ModernBlockBoundary | block | First editable descendant field caret, or whole-node selection for a non-text block |
+| duplicate | ModernDuplicateTarget: captured ordered selection + boundary | newBlockIDs, one fresh root label per selected block | Deep copy of current visible content; fresh schema origins/descendant labels; copied node selection and first editable input focus; one author step |
+| move | ModernMoveTarget: selection, boundary, optional caret | Empty object | Ordered whole-node selection; an optional caret inside the selected subtree follows its origin |
+| delete | ModernDeleteTarget: optional nodes selection, ranges array | Empty object | Boundary caret/fallback; selected subtrees and captured text atoms form one author transaction |
+| createColumns | ModernCreateColumnsTarget: exactly one selection or boundary, optional caret | layout with two empty columns and splitBasisPoints 5000 | New layout node selection; optional selected-subtree caret follows its origin |
+| removeColumns | ModernColumnTarget: layout origin, optional descendant caret | Empty object | Flattened child selection with retained caret, or an insertion boundary for an empty layout |
+| resizeColumns | ModernColumnTarget: layout origin, optional descendant caret | splitBasisPoints (integer 1000–9000) | Layout selection; unchanged split adds no transaction |
+| listStructure | ModernListTarget: selection, optional caret, boundary only for reorder | action (indent/outdent/reorder/setStyle/setChecked), style only for setStyle, checked only for setChecked | Ordered selected origins and retained optional caret; one deliberate author step; unchanged values/placements add no history |
+| setSemanticColor | ModernSemanticTarget: exactly one range or nodes; optional subtree caret only for nodes | kind (ink/fill), role (palette name or explicit null reset) | Captured text marks or independent block-default registers; retain selection direction/caret and one author step |
+| setLink | ModernTextRange | href (validated URL or explicit null removal), optional nonempty label for collapsed insertion | Mark captured text or insert explicitly labeled text at the captured caret; preserve peer atoms and other marks |
+| completeAsyncBlock | ModernAsyncTarget from modernBeginAsyncBlock | metadata: validated scalar patch for captured image/file/embed | Applied/noop or unchanged unavailable with retainedResult; no focus/selection transfer; distinct completion history step |
+| undo / redo | Omitted or null | Empty object | Actual author history transition; peer history retained |
+
+Multi-node movement preserves capture order, origins, descendants and metadata. Captured text deletion preserves later peer atoms; mixed ranges inside selected subtrees do not create redundant atom deletions. Deliberate commands create one Undo step. No-op placement/caret-only deletion adds no transaction. Structural conflicts that cannot form a valid accepted union remain separately recoverable; repair cannot disable a peer's history.
+
+convertBlock defaults heading level to 1, callout variant to info and list style to unordered. Levels are 1–3, variants are info/warning/error/success and styles are unordered/ordered/todo. A list-item caret targets its containing list's style while keeping that item caret. Conversion does not overwrite a conflicting opaque field to install an attribute. Code conversion requires plain text without rich marks, references or opaque inline properties. Inline/code conversion and single-item list collapse retain immutable field births and aliases; creating a list introduces one retained item. List collapse preserves checked/opaque item fields and children only when the root has no conflicting values; multi-item collapse rejects. Retained field handles and captured carets resolve to their current destination through Undo/Redo/reopen. New text uses that current field birth, and formatting validates the current causal field even when its atoms were born in code. Invalid or lossy metadata/arguments return unchanged unavailable results. A noncollapsed or title target rejects. softBreak has its own host command policy and rejects title targets; literal body fields retain plain text and atomic labels remain indivisible for editing.
+
+splitBlock retains observed prefix and suffix ownership in the existing ordered-cut projection. Concurrent cuts partition suffix atoms in text order, even when author ordering differs. Nested checklist splits retain original children/metadata and reset the new item's checked state. A stale captured caret can follow a prior observed peer split before a new cut. Explicit cut proofs are checked against the original capture and author cohorts even when inactive; arbitrary transfers are not admitted. A sole empty root list item exits to a paragraph at the original owner, retaining metadata, child origins and peer text through Undo. Empty nested items outdent with their existing identities and children; empty first/middle/last root items exit while retaining the original owner and, for a middle exit, a fresh tail list. Protocol-7 replay re-derives the complete transition from captured and authored cohorts and rejects forged or inactive malformed plans. Undoing a list conversion projects a peer-created sibling item as a paragraph instead of dropping its text. Later conversions, cuts, moves, deletion, insertion boundaries and column creation pin the roles they use with original exposure/retirement proofs. Inactive exits retain their historical placements when Undo restores columns; incompatible active placement unions remain author-repairable recovery. Captured code-born carets can split after conversion to an inline field; current code remains unavailable for block splitting. The command does not turn title, code, toggle summary or table cells into paragraphs; hosts use their documented Enter/soft-break behavior for those fields.
+
+mergeBlocks requires current and captured compatible adjacency. It retains the destination paragraph's metadata and rejects source metadata/collections that would be lost, including list/toggle/table structure. Original source atoms and field heads follow the joined field. Captured edits re-resolve their actual field, and new tail edits retain original anchor origins. A split tail's empty head can resolve through its exact birth boundary after author Undo, including chained retired splits; explicit unrelated deletion still rejects. Both commands form one author step and keep local focus out of peer packets.
+
+listStructure admits indent/outdent only for contiguous sibling items in the current author view. Indent appends the group under its preceding sibling; outdent places it after its item parent in the enclosing item collection. Root outdent and general block hierarchy edits reject. reorder uses modernCaptureListBoundary to move selected items, in captured order, within or between live typed item collections; duplicate destination labels, descendant cycles, selected anchors and incompatible block/table/document destinations reject unchanged. The boundary retains its original placement through later peer movement or deletion. Item origins, descendants, text and opaque fields remain intact.
+
+setStyle accepts unordered/ordered/todo and updates each selected item's current containing list, or a selected list block, once. setChecked accepts a Boolean and requires selected items in todo lists; list roots and other styles reject. Captures follow observed peer item moves to their current containing list. Shared replay derives the exact operation plan from original capture and author cohorts, including inactive history, before applying retained moves/scalars. Late valid births remain recoverable until received. Peer list metadata and edits survive list creation Undo, and incompatible active shape/placement unions retain accepted state and author-repairable recovery.
+
+createModern and restoreModern optionally accept allowedListActions, a unique array drawn from indent/outdent/reorder/setStyle/setChecked. modernSetListPolicy changes that local array; null resets it to all actions. Capabilities expose listActions in that order, filtered by both action policy and the listStructure command policy. A reduced host can allow only reorder/setChecked while retaining peer hierarchy/style history. Action policy is local, ends typing groups and does not rewrite accepted content or saved peer history.
+
+setSemanticColor accepts neutral/green/blue/purple/amber/red for ink or fill. A text target sets semantic-color/semantic-background marks on captured visible text atoms only; later peer atoms and atomic references retain their content. Captured atoms follow all current fields after peer cuts/joins; state queries use each atom's actual containing block default. A block target sets semanticColor/semanticBackground on selected live known block origins, without replacing content, descendants or other metadata. It accepts known list/table/two-column layout blocks and code/math defaults; document origins, column containers, list items, unknown blocks and stale nodes reject. Optional block carets must belong to the selected subtree in both captured and current views. Explicit null removes only that override; inline roles then inherit the nearest containing block default. Changed scalars/atoms share one author step, and unchanged values, empty ranges and reference-only selections add no history. Empty text carets leave pending typing styles to the host.
+
+modernSemanticState is a read-only request with target and kind. It returns ModernSemanticState: inherited, role(String) or mixed using the usual Swift enum Codable shape. Text state combines explicit inline roles with the nearest containing block default, including list/table fields; selected blocks report their own defaults. Mixed values remain distinguishable from inherited absence. Hosts map valid palette roles to the agreed light/dark tokens and retain the separate rendered/contrast/selected-state acceptance requirements.
+
+setLink accepts inert http/https URLs with a nonempty host or a nonempty mailto path, bounded to 10,000 UTF-16 units without raw whitespace/control characters. It never fetches or opens the URL. A range sets/removes link marks on captured visible text atoms, retaining backward/forward selection and the active end caret. Atomic references retain their metadata; literal code/expression and title fields reject. A collapsed target with an explicit label inserts scalar-safe text in one author transaction. It inherits captured typing marks, replacing the original link slot without reordering other marks, and returns the new end caret. Labels require a nonnull URL and at most 100,000 UTF-16 units; noncollapsed labeled replacement and partial atomic-label insertion reject. An unchanged link or a caret without a label creates no history. Both commands have independent local command policies and preserve accepted peer content.
+
+duplicate copies the visible source in the author's admission state, retaining the captured selection order after peer moves and the boundary's original placement after anchor moves/deletion. Each selected root needs a fresh newBlockIDs label; known schema descendants receive deterministic fresh labels. Only IDs in typed block/list/table/column collections change. References, consumer objects and opaque fields—including ID-shaped values and arrays—copy verbatim. An admitted opaque block can be copied whole without enabling generic unknown-type insertion. Known text fields use their current materialized content after splits, joins and conversion. Later original edits do not mutate the copy. Duplicate selects the fresh roots and focuses the first editable input, or the copied nodes if no input exists.
+
+The shared duplicate packet contains a checked source/placement target and exact copy plan. Admission re-derives that plan from the author's causal state, including inactive history, and rejects forged content, reused labels, unrelated mutations and unobserved targets. Original edits survive duplicate Undo. As with retained-origin insertion, active peer edits inside a copied subtree survive Undo in their minimal container while this author's copied seed content disappears; Redo/reopen restore both. Copying a two-column layout preserves its split and freshens both column owners and descendants; placing any copied layout beneath an existing layout rejects. A stale source or deleted destination owner never resolves through a reused label. Host policy and composition restrictions leave document/history unchanged.
+
+## Versioned read-only clipboard
+
+modernCopy takes a ModernDeleteTarget used as a captured mixed selection and returns ModernClipboard: version 2, collaborationVersion 7, ordered parts and an explicit plainText fallback. Version 2 separates modern rich data from the legacy version-1 validator. Capabilities advertise clipboardVersion 2 and canCopy; paste uses the captured retained-origin planner described below. Copy creates no transaction, history, focus intent or provider work and remains available under reduced authoring policy/composition. Hosts settle native drafts before capturing their selection.
+
+Whole block copies preserve their current visible materialization, rich/reference data, opaque fields and schema identities. Hidden toggle descendants and both columns use logical order, preserving the split and column metadata. Captured partial ranges copy their observed surviving atoms with current marks in their current fields after peer splits; later peer insertions are excluded. Overlapping ranges do not duplicate atoms and ranges inside whole selected subtrees do not duplicate that content. The fallback separates fields/blocks with newlines and table cells with tabs; code whitespace and empty/trailing multiline paragraphs remain literal. It uses only known visible schema fields, never opaque consumer metadata. Explicit title text copy is separate from body mixed selection. A stale/deleted or foreign target rejects instead of looking up a reused label.
+
+ModernClipboard.json/init(json:) check version/protocol, bounds, schema, duplicate keys, numeric fidelity, unknown wrapper fields and fallback consistency. Fragments retain unknown blocks read-only, without implicitly enabling their authoring. validateForPaste separately checks the host's explicit new-content policy, including modern semantic marks, known schemas and permitted inert image/file/preview metadata. Rejection retains the original payload for explicit retry or fallback; accepted session content is never normalized or stripped. Standalone document/column owners are not clipboard fragments. Plain and multiline imports reuse the existing explicit newline normalization; Markdown import remains opt-in. Captured paste/replacement and explicit layout fallback are implemented below. Full history selection restoration and native clipboard integration remain required.
+
+## Cut publication ordering
+
+Cut composes read-only copy, successful host clipboard publication and the existing captured deletion; it adds no command discriminant or replicated operation. Swift hosts call `prepareCut(target)` to obtain an immutable `ModernCutPreparation` containing the exact captured mixed `ModernDeleteTarget` and rich/plain clipboard. Only after publishing that payload successfully may they call `finishCut(preparation, published: true)`. The synchronous `cut(target, publish:)` invokes its publisher once; false or thrown publication leaves content/history unchanged. Hosts settle native drafts before capture, own OS publication/provider work and apply returned focus only while their invocation still owns it.
+
+For delayed bridges, `modernPrepareCut` takes `target` and returns `preparationID`, `documentID`, `epoch`, `target` and `clipboard`. `modernFinishCut` accepts those scope identifiers and a Boolean `published`; it cannot substitute a new target or clipboard. False acknowledgment retains the exact clipboard with `clipboardPublicationFailed` and no transaction or focus intent. Successful acknowledgment rechecks local policy, composition, pending recovery and captured origins, then deletes only the original selected atoms/subtrees in one author group. Later peer text and children survive in their retained valid owners. Title-only ranges use the existing `replaceTitle` policy; body mixed selection uses `delete`. Mixed title/body selection remains invalid.
+
+Applied preparations consume their acknowledgment. Duplicate delivery returns `noop/cutAlreadyApplied` without transaction/focus and cannot implicitly redo a cut after author Undo. Reentrant delivery is unavailable while applying. Failed policy/composition/recovery keeps the preparation for explicit retry and returns the rich clipboard; cancellation returns it without deletion. `modernCancelCut` takes the exact preparation ID; `modernForgetCut` releases its local storage. Unknown IDs are unavailable for finish and harmless for cancel/forget. A destroyed/restored/replaced session cannot consume an old preparation, even with the same document, epoch, actor or reused handle. Swift preparations bind to their actual session instance; bridge IDs are fresh opaque local UUIDs.
+
+Preparation does not change accepted state, save/sync history, typing group or focus. Only existing shared deletion/text packets are emitted on successful application. Clipboard preparations, publication status and opaque IDs are never saved, replicated or restored. Hosts retain a payload separately if their provider crosses a session lifecycle. The bridge limits live records to 64 and their encoded preparation data to 64 MB, with capacity checked before storage; explicit forget releases capacity without changing the admitted document or stripping its opaque payload. `canCut` reports whether local policy permits body or title authoring and composition/recovery permits preparation. It does not imply that the current selection or native publisher is available. Full native clipboard durability and active-input integration remain with their existing owners.
+
+## Async media completion and local provider state
+
+modernBeginAsyncBlock takes a live media node and a unique requestID and returns ModernAsyncTarget containing document/epoch, a local monotonic generation and a captured ModernAsyncOrigin (node, kind, source, observed frontier). Supported kinds are image, file and embed; capabilities expose asyncKinds, filtered by local completeAsyncBlock policy. Starting a new request for the same origin cancels older pending/retained/failed invocations. The begin endpoint performs no provider work and changes neither accepted content nor history. Hosts separately authorize upload/preview work and recheck their active document/input lifecycle.
+
+completeAsyncBlock admits metadata only at the registered captured origin, with current source, liveness, generation, policy, composition and recovery checks. Image patches allow src/alt/width/height; file patches allow src/name/mimeType/size; generic embed preview patches allow title/description/thumbnail. A preview never replaces its captured URL. Explicit null removes an optional field; required source/name removal rejects. IDs, types, caption/content/structure, consumer metadata and other fields cannot be replaced. Successful completion has one history step separate from initial insertion and returns no focus or selection transfer. Unchanged metadata and repeated successful delivery add no history; delivery after author Undo never implicitly redoes completion. Independent fields compose with peer metadata, and author Undo reveals the remaining peer winner while retaining peer caption/text.
+
+Invalid, deleted, reused, superseded, cancelled, failed or wrong-document/epoch targets cannot recreate content or resolve through the current caret. Valid inert provider results remain available as retainedResult on unavailable command outcomes. Registered requests also retain valid results locally; wrong-session/unregistered outcomes return them for the originating host to retain. Policy/composition/recovery rejection retains a result for explicit resubmission. A changed media source requires a fresh request. A new explicit request can retry a restored live origin. Provider failure and cancellation change only local request state, preserving accepted pending/error consumer fields. When local result storage is full, the command returns the result to the host without applying or acknowledging it.
+
+Read-only modernAsyncRequests returns local records. modernCancelAsyncBlock and modernFailAsyncBlock take the exact target; fail also takes a bounded reason. modernForgetAsyncBlock explicitly discards a terminal/retained record; a pending request must first be cancelled. At most 64 records and 16 MB of canonical local archive data are retained, with capacity checked before local acceptance and space reserved for cancellation/failure messages. Generations remain monotonic after forgetting old IDs. The shared completeAsyncMetadata operation includes only the causal origin proof and validated metadata; requestID/generation, provider failures and local result records never appear in replicated changes.
+
+modernExportAsyncRequests returns a separate version-1 local archive (documentID, epoch, generation, requests). Store it beside accepted modernSave history and host/provider drafts. modernRestoreAsyncRequests takes archive on a fresh local request registry, checks scope, bounds, unique IDs/generations, causal targets and record state, and verifies an applied record's receipt against its actual admitted causal snapshot. Import rejects atomically; it neither starts provider work nor applies results nor acknowledges pending requests. A deleted/changed current target can retain its historical request/result for explicit retry/copy or cancel. Complete native provider durability, presentation and active-document integration remain on their host owners.
+
+Modern file blocks use id/type:file plus nonempty opaque src (at most 100,000 UTF-16 units) and name (at most 10,000). Optional mimeType is a nonempty string bounded to 256 units; optional size is a nonnegative safe integer byte count. Generic insertBlock and deep duplicate admit this protocol-7 schema; consumer metadata stays opaque. Legacy file extensions remain uninterpreted and unchanged. A nonmatching legacy file shape needs the existing archive/read-only compatibility path, not implicit normalization. Asset bytes, source resolution, permissions, open/download actions and network/provider services stay host-owned.
+
+## Column commands and structural payloads
+
+New rich block marks use the same validation as text insertion; opaque consumer metadata remains opaque. Column containers cannot be individually created/moved/deleted through generic commands. Nested layouts reject, including indirect nesting through toggles. Whole-layout deletion deletes the observed subtree; removeColumns instead flattens first-column then second-column children without copying content. Generic insertion/movement remains root or existing column children; captureBoundary also supports a typed block-child collection for explicit column creation outside any layout.
+
+createColumns accepts current contiguous sibling origins or a captured insertion boundary. Its caller supplies fresh layout/column labels, two empty children arrays and splitBasisPoints 5000; consumer metadata remains opaque. Selected blocks retain their origins in the first column and the second stays empty. Empty insertion creates no paragraph. Creation, removal and the final shared resize each form one author Undo step; resize preview/cancel remains personal host work. Optional carets must belong to the affected subtree.
+
+Removal retains column owners as offline routing anchors. Late inserts and text still reach the flattened document, while explicit peer moves outside those owners retain precedence. Concurrent removals select one route and render each origin once. Creation Undo restores original selected placements, then routes active peer children after the restored selection and before following siblings. Inactive derived placements remain anchors, so later root insertions following a flattened child stay outside a restored layout. Unsatisfiable label/identity unions retain recovery rather than silently discarding content.
+
+The protocol-7 columnRoute placement namespace includes the layout, originating route slot and child origin; legacy protocols reject it without advancing receipts. Downstream exhaustive Swift NodePlacementID switches must handle the new case. Modern edited text omits empty marks when the birth field did not explicitly use that representation; untouched run JSON and explicit birth empty marks remain preserved.
+
+## Local result intents
+
+focusIntent is a ModernFocusIntent enum: text(WritingPosition), nodes(ModernNodeSelection) or insertion(ModernBlockBoundary). selectionIntent is text(WritingTextRange), nodes(ModernNodeSelection) or null. Standard Swift enum Codable discriminants are used, matching the existing origin/operation wire conventions.
+
+The earlier focus and selection fields remain compatibility aliases: focus contains a WritingPosition only for text focus, while selection contains the text range or whole-node selection. For insertion focus both aliases are null. Hosts should consume the canonical intents so empty/non-text targets do not become fake paragraphs or title edits.
+
+Deletion first preserves a surviving partial-text caret. Whole-node fallback searches following surviving text, then preceding text at its end. If the body is empty it returns a root insertion boundary with no persisted placeholder. A remaining read-only body falls back to the editable title. Hosts apply the local result only while their invocation/focus ownership remains current; peer receives publish no focus intent.
+
+```swift
+let boundary = try session.captureBoundary()
+let result = try session.insertBlock(Block.paragraph(id: freshID, text: ""), at: boundary)
+// Apply result.focus/result.selection only to the still-current local invocation.
+```
+
+The nineteen advertised commands have shared-core and compiled native ABI checks, including independently authored nested-move/writing fixtures and literal split/merge, code/list conversion, empty-item Enter, retained roles, list hierarchy/reorder/checklist/style and semantic-default/link expectations. Versioned clipboard, the complete command/focus outcomes, async completion, archive-based migration, typed host facades and the complete native/Android/WASM acceptance matrix remain required work. See [implementation evidence](modern-editor-foundation.md); no full host/scenario row is promoted by these command subset checks.
+
+## Captured paste
+
+`modernCaptureInsertionBoundary` accepts a writing `field` and captures a block
+boundary after its containing block. A cell or list item therefore inserts after
+its table or list, preserving the surrounding column/toggle collection. Title
+insertion uses the document end. Catalog query consumption uses that boundary
+and a captured `selection.ranges` in one paste action, with `focusInserted`.
+
+`modernCapturePasteBoundary` accepts `collection` and optional `after` node identity. It supports root blocks, column/toggle children, list items, table rows and cells; it retains the immutable original placement and observed frontier.
+
+`modernCommand` with `command: "paste"` accepts a `ModernPasteTarget` containing either `range`, or `boundary` and optional mixed `selection` (`nodes` plus `ranges`). Arguments are `clipboard` (checked version 2 / collaborationVersion 7, or null for no import result), optional `mode` (`rich`, `plainText`, `flattenedColumns`), optional preorder `newIDs`, and optional `policy` (`allowedBlockTypes`, `allowedMarkTypes`, `allowAssetMetadata`). Default asset permission is false. IDs are fresh schema labels; repeated labels in distinct namespaces remain valid. Consumers retain their opaque IDs and rich reference payloads. Mode selection is explicit; nested rich layouts reject unchanged.
+
+Applied paste returns one transaction, anchored `focusIntent`/`selectionIntent` and compatibility focus/selection fields. Optional `focusInserted: true` lets catalog insertion focus the first editable inserted field, with that focus stored in author history; ordinary paste keeps its trailing caret. Persist `modernSave` and the separate history-selection archive in the same host checkpoint for reopening. Unavailable/recovery results return the exact validated original `retainedClipboard` without changing document, history, receipt or focus; malformed wrappers/extra fields reject at the checked boundary and remain caller-owned. Null/no-result adds no transaction. Paste never reads the current caret, resolves an asset, publishes an OS clipboard or restarts a provider. Native cut publication and invocation use the paired host lifecycle described above.
+
+
+## Explicit migration archive API
+
+Swift uses `ModernCutoverArchive`, `ProtocolMigration.prepareModernCutover`, `ModernCutoverPreparation.remap` and `makeSession`. The archive carries version 1, documentID, a fresh epoch, source and originals. Source is exactly one of `document: {format: "blockArray" | "documentObject", bytes: <base64>}` or `session: {acceptedSnapshot: <base64>, reconciledSnapshot: <base64>, pendingRecovery?: <base64>, unacknowledged: [<base64>]}`. Originals are raw base64 host documents/drafts. Unknown fields, duplicate keys and lossy numeric representations reject. This archive is local preservation data, never a protocol-7 change packet.
+
+| Local endpoint | Input | Result |
+| --- | --- | --- |
+| modernBeginCutoverArchive | byteCount | archiveID, reserved byteCount, receivedBytes, uploading |
+| modernAppendCutoverArchive | archiveID, offset, base64 bytes (at most 8 MB decoded) | contiguous receivedBytes; only exact already-received retries are accepted |
+| modernPrepareCutover | archive or completed archiveID | prepared document and complete originMapping, byteCount, verifiedBytes; incompatible/unreconciled returns unavailable with retained archiveID |
+| modernCutoverArchiveBytes | archiveID, offset, length (at most 8 MB) | canonical archive bytes for host persistence/readback; unavailable uploads remain exportable |
+| modernVerifyCutoverReadback | archiveID, offset, base64 bytes | contiguous verifiedBytes; gaps/changed bytes reject without advancing |
+| modernRemapCutoverPosition | archiveID, kind (text or writing), canonical old position | new anchored WritingPosition resolved from the reconciled old epoch |
+| cutoverToModern | fresh session handle, archiveID, actorID, oldWritersStopped/archivePersisted/resetUndoAcknowledged all true | fresh protocol-7 snapshot, originMapping and archiveID; requires all archive bytes verified and rejects duplicate activation |
+| modernForgetCutoverArchive | archiveID | releases local staging capacity; existing sessions stay intact |
+
+Capabilities now advertise cutoverToModern. The 22 checked author-command discriminants remain unchanged: these helpers do not replicate migration decisions. Eight local preparations/uploads reserve at most 384 MB serialized bytes in aggregate. Canonical outer archive encoding may differ from upload whitespace/key order; embedded original bytes remain exact, and readback must use the exported canonical archive. Missing/incomplete source reconciliation does not create a replacement session. Old Undo stacks and atoms stay in the archive; new author edits have new history. Old position remapping is explicit and rejects missing/deleted/reused origins or wrong scope. See [the compatibility contract](modern-editor-compatibility.md) for host archive checksums, native input settlement, durable new-session save/readback, atomic activation and rollback obligations.

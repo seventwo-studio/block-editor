@@ -1,0 +1,92 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 1]
+[3 / 21] BlockEditorDemoApple
+[17 / 40] BlockEditorDemoApple
+[20 / 40] BlockEditorAppleTests-product
+[23 / 40] BlockEditorDemoApple
+[26 / 41] local-editor-app-product
+[27 / 40] local-editor-app-product
+[29 / 40] BlockEditorAppleTests-product
+[30 / 40] BlockEditorAppleTests-product
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[34 / 40] BlockEditorAppleTests-product
+[36 / 40] BlockEditorAppleTests-product
+Build complete! (2.64 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernNativeClipboardTests started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() started.
+◇ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+✘ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() recorded an issue at ModernNativeClipboardTests.swift:61:9: Expectation failed: rich.parts == [.inline([.object(["type": .string("text"), "text": .string("ABC"), "marks": .array([.object(["type": .string("bold")])])])])]
+↳ rich.parts == [.inline([.object(["type": .string("text"), "text": .string("ABC"), "marks": .array([.object(["type": .string("bold")])])])])] → false
+↳   rich.parts → [BlockEditorCore.WritingClipboardPart.inline([BlockEditorCore.JSONValue.object(["marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])]), "text": BlockEditorCore.JSONValue.string("A"), "type": BlockEditorCore.JSONValue.string("text")]), BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("B"), "marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])])]), BlockEditorCore.JSONValue.object(["marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])]), "text": BlockEditorCore.JSONValue.string("C"), "type": BlockEditorCore.JSONValue.string("text")])])]
+↳   [.inline([.object(["type": .string("text"), "text": .string("ABC"), "marks": .array([.object(["type": .string("bold")])])])])] → [BlockEditorCore.WritingClipboardPart.inline([BlockEditorCore.JSONValue.object(["marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])]), "type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("ABC")])])]
+✘ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() recorded an issue at ModernNativeClipboardTests.swift:89:27: Expectation failed: a.document.blocks[0].text == "ABCREF"
+↳ a.document.blocks[0].text == "ABCREF" → false
+↳   a.document.blocks[0].text → "ABC1REF"
+✘ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() recorded an issue at ModernNativeClipboardTests.swift:121:9: Expectation failed: a.document.blocks[0].text == "SavedABCREF" && a.document.blocks[1].text == "Other"
+↳ a.document.blocks[0].text == "SavedABCREF" && a.document.blocks[1].text == "Other" → false
+↳   a.document.blocks[0].text == "SavedABCREF" → false
+↳   a.document.blocks[1].text == "Other" → <not evaluated>
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.258 seconds.
+✘ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() recorded an issue at ModernNativeClipboardTests.swift:75:9: Expectation failed: a.document.blocks[1].fields["content"] == .array([
+            .object(["type": .string("text"), "text": .string("Other")]),
+            .object(["type": .string("text"), "text": .string("ABC"), "marks": .array([.object(["type": .string("bold")])])])])
+↳ a.document.blocks[1].fields["content"] == .array([
+              .object(["type": .string("text"), "text": .string("Other")]),
+              .object(["type": .string("text"), "text": .string("ABC"), "marks": .array([.object(["type": .string("bold")])])])]) → false
+↳   a.document.blocks[1].fields["content"] → .array([BlockEditorCore.JSONValue.object(["text": BlockEditorCore.JSONValue.string("Other"), "type": BlockEditorCore.JSONValue.string("text"), "marks": BlockEditorCore.JSONValue.array([])]), BlockEditorCore.JSONValue.object(["marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])]), "text": BlockEditorCore.JSONValue.string("ABC"), "type": BlockEditorCore.JSONValue.string("text")])])
+↳     some → .array([BlockEditorCore.JSONValue.object(["text": BlockEditorCore.JSONValue.string("Other"), "type": BlockEditorCore.JSONValue.string("text"), "marks": BlockEditorCore.JSONValue.array([])]), BlockEditorCore.JSONValue.object(["marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])]), "text": BlockEditorCore.JSONValue.string("ABC"), "type": BlockEditorCore.JSONValue.string("text")])])
+↳       array → [BlockEditorCore.JSONValue.object(["text": BlockEditorCore.JSONValue.string("Other"), "type": BlockEditorCore.JSONValue.string("text"), "marks": BlockEditorCore.JSONValue.array([])]), BlockEditorCore.JSONValue.object(["marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])]), "text": BlockEditorCore.JSONValue.string("ABC"), "type": BlockEditorCore.JSONValue.string("text")])]
+↳   .array([
+                .object(["type": .string("text"), "text": .string("Other")]),
+                .object(["type": .string("text"), "text": .string("ABC"), "marks": .array([.object(["type": .string("bold")])])])]) → .array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("Other")]), BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("ABC"), "marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])])])])
+↳     some → .array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("Other")]), BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("ABC"), "marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])])])])
+↳       array → [BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("Other")]), BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("text"), "text": BlockEditorCore.JSONValue.string("ABC"), "marks": BlockEditorCore.JSONValue.array([BlockEditorCore.JSONValue.object(["type": BlockEditorCore.JSONValue.string("bold")])])])]
+✘ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() failed after 0.280 seconds with 2 issues.
+✘ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() failed after 0.300 seconds with 1 issue.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 0.301 seconds.
+✘ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() failed after 0.315 seconds with 1 issue.
+✘ Suite ModernNativeClipboardTests failed after 0.316 seconds with 4 issues.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.335 seconds.
+✔ Suite ModernHostStoreTests passed after 0.336 seconds.
+✘ Test run with 6 tests in 2 suites failed after 0.336 seconds with 4 issues.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

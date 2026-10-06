@@ -28,6 +28,7 @@ export default defineConfig({
   },
   root: "demo",
   build: {
+    rollupOptions: { input: { legacy: new URL("./demo/index.html", import.meta.url).pathname, modern: new URL("./demo/modern.html", import.meta.url).pathname } },
     outDir: "../dist-demo",
     emptyOutDir: true,
   },

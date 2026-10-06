@@ -18,6 +18,8 @@ internal object NativeEngine {
     @Synchronized fun call(request: JSONObject): JSONObject {
         val response = NativeJsonTransport.decode(invoke(request))
         if (!response.getBoolean("ok")) {
+            if (response.optString("error") == "modernRecoveryRequired" && response.has("recovery"))
+                throw ModernRecoveryException(ModernRecovery(response.getJSONObject("recovery")))
             if (response.optString("error") == "writingRecoveryRequired" && response.has("recovery"))
                 throw WritingRecoveryException(WritingRecovery(response.getJSONObject("recovery")))
             if (response.optString("error") == "mergeRecoveryRequired" && response.has("recovery"))

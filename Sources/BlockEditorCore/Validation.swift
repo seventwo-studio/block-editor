@@ -3,27 +3,43 @@ import Foundation
 /// Validates known document shapes while retaining unrecognized block extensions.
 /// Host authorization and media ownership are deliberately outside this validator.
 enum Validation {
-    static func block(_ block: Block, depth: Int = 0) throws {
-        var pending = [(block, depth)]
-        while let (next, level) = pending.popLast() {
-            try inspectBlock(next, depth: level, pending: &pending)
+    static func block(_ block: Block, depth: Int = 0, modern: Bool = false) throws {
+        var pending = [(block, depth, false)]
+        while let (next, level, underColumns) = pending.popLast() {
+            try inspectBlock(next, depth: level, underColumns: underColumns, modern: modern, pending: &pending)
         }
     }
-    private static func inspectBlock(_ block: Block, depth: Int, pending: inout [(Block, Int)]) throws {
+    private static func inspectBlock(_ block: Block, depth: Int, underColumns: Bool, modern: Bool, pending: inout [(Block, Int, Bool)]) throws {
         guard depth < 100 else { throw EditorError.invalidDocument("Too deeply nested") }
         let f = block.fields
+        if modern {
+            for key in ["semanticColor", "semanticBackground"] {
+                if let value = f[key] { try semanticRole(value) }
+            }
+        }
         switch block.type {
-        case "paragraph", "quote": try inline(f["content"])
+        case "columns":
+            guard modern else { return } // Retain opaque legacy extensions without reinterpretation.
+            guard !underColumns, let columns = f["columns"]?.array, columns.count == 2,
+                  case .number(let split) = f["splitBasisPoints"], split.isFinite,
+                  split.rounded() == split, (1000...9000).contains(split) else { throw invalid("columns") }
+            try uniqueIDs(columns)
+            for column in columns.reversed() {
+                guard let children = column["children"]?.array else { throw invalid("column children") }
+                try uniqueIDs(children)
+                for child in children.reversed() { pending.append((try Block(fields: child.object ?? [:]), depth + 1, true)) }
+            }
+        case "paragraph", "quote": try inline(f["content"], modern: modern)
         case "heading":
             guard [.number(1), .number(2), .number(3)].contains(f["level"]) else { throw invalid("heading level") }
-            try inline(f["content"])
+            try inline(f["content"], modern: modern)
         case "list":
             guard ["ordered", "unordered", "todo"].contains(f["style"]?.string ?? ""), let items = f["items"]?.array else { throw invalid("list") }
             var pendingItems = items.reversed().map { ($0, depth + 1) }
             try uniqueIDs(items)
             while let (value, itemDepth) = pendingItems.popLast() {
                 guard itemDepth < 100, let id = value["id"]?.string, !id.isEmpty else { throw invalid("list item") }
-                try inline(value["content"])
+                try inline(value["content"], modern: modern)
                 if let checked = value["checked"], checked != .bool(true), checked != .bool(false) { throw invalid("checked") }
                 if let children = value["children"] {
                     guard let children = children.array else { throw invalid("children") }
@@ -34,16 +50,25 @@ enum Validation {
         case "code": try string(f["code"], name: "code", max: 100_000); try string(f["language"], name: "language", max: 50, optional: true)
         case "callout":
             guard ["info", "warning", "error", "success"].contains(f["variant"]?.string ?? "") else { throw invalid("callout variant") }
-            try inline(f["content"])
+            try inline(f["content"], modern: modern)
             try string(f["icon"], name: "callout icon", optional: true)
             try string(f["color"], name: "callout color", optional: true)
             if let color = f["color"]?.string, color.range(of: #"^#[0-9a-fA-F]{6}$"#, options: .regularExpression) == nil { throw invalid("callout color") }
         case "image":
             try string(f["src"], name: "image source", min: 1)
-            try string(f["alt"], name: "alt", optional: true); try inline(f["caption"])
+            try string(f["alt"], name: "alt", optional: true); try inline(f["caption"], modern: modern)
             for key in ["width", "height"] {
                 if let value = f[key] {
                     guard case .number(let n) = value, n.isFinite, n > 0, n.rounded() == n else { throw invalid(key) }
+                }
+            }
+        case "file":
+            if modern {
+                try string(f["src"], name: "file source", min: 1, max: 100_000)
+                try string(f["name"], name: "file name", min: 1, max: 10_000)
+                try string(f["mimeType"], name: "file media type", min: 1, max: 256, optional: true)
+                if let value = f["size"] {
+                    guard case .number(let n) = value, n.isFinite, n >= 0, n.rounded() == n, n <= 9_007_199_254_740_991 else { throw invalid("file size") }
                 }
             }
         case "table":
@@ -57,7 +82,7 @@ enum Validation {
                 try uniqueIDs(cells)
                 for cell in cells {
                     guard let id = cell["id"]?.string, !id.isEmpty else { throw invalid("table cell") }
-                    try inline(cell["content"])
+                    try inline(cell["content"], modern: modern)
                     if let header = cell["header"], header != .bool(true), header != .bool(false) { throw invalid("cell header") }
                 }
             }
@@ -66,11 +91,11 @@ enum Validation {
             for key in ["title", "description", "thumbnail"] { try string(f[key], name: "embed \(key)", optional: true) }
         case "math": try string(f["expression"], name: "math", min: 1, max: 10_000)
         case "toggle":
-            try inline(f["summary"])
+            try inline(f["summary"], modern: modern)
             if let value = f["children"] {
                 guard let children = value.array else { throw invalid("toggle children") }
                 try uniqueIDs(children)
-                for child in children.reversed() { pending.append((try Block(fields: child.object ?? [:]), depth + 1)) }
+                for child in children.reversed() { pending.append((try Block(fields: child.object ?? [:]), depth + 1, underColumns)) }
             }
         default: break // Unknown blocks are preserved, not implicitly made authorable.
         }
@@ -83,7 +108,7 @@ enum Validation {
             guard let id = value["id"]?.string, !id.isEmpty, ids.insert(id).inserted else { throw invalid("duplicate or empty sibling ID") }
         }
     }
-    static func inline(_ value: JSONValue?) throws {
+    static func inline(_ value: JSONValue?, modern: Bool = false) throws {
         guard let value else { return }
         guard let nodes = value.array else { throw invalid("inline content") }
         for node in nodes {
@@ -92,7 +117,7 @@ enum Validation {
                 try string(node["text"], name: "text")
                 if let value = node["marks"] {
                     guard let marks = value.array else { throw invalid("marks") }
-                    for mark in marks { try self.mark(mark) }
+                    for mark in marks { try self.mark(mark, modern: modern) }
                 }
             case "mention", "entity-ref":
                 try string(node["entityId"], name: "entity ID", min: 1)
@@ -108,7 +133,14 @@ enum Validation {
             }
         }
     }
-    static func mark(_ mark: JSONValue) throws {
+    static func semanticRole(_ value: JSONValue) throws {
+        guard ["neutral", "green", "blue", "purple", "amber", "red"].contains(value.string ?? "") else { throw invalid("semantic role") }
+    }
+    static func mark(_ mark: JSONValue, modern: Bool = false) throws {
+        if modern, ["semantic-color", "semantic-background"].contains(mark["type"]?.string ?? "") {
+            guard let role = mark["value"] else { throw invalid("semantic role") }
+            try semanticRole(role); return
+        }
         guard let type = mark["type"]?.string, ["bold", "italic", "strikethrough", "code", "link"].contains(type) else { throw invalid("mark") }
         if type == "link" { try url(mark["href"]) }
     }

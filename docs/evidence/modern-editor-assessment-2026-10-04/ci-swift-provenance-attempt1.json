@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "runtime": "swift",
+  "source": {
+    "commit": "9fd633d80814b20ba668318a831aa7a8990d58de",
+    "tree": "0c63cf1c6356a47d24c3b816a86556d797fcf3b4"
+  },
+  "workflowRun": "37162111767",
+  "workflowAttempt": "1",
+  "host": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "release": "25.6.0"
+  },
+  "inputs": {
+    "scripts/ci-inputs.json": "f428305c89c89831cc584093e244a4586fe64d413976b57e2776ad050e7d6d15",
+    "bun.lock": "fd27d6ef94296fc3218ed2fdfd45f2e0320cabc074eb74ad304207f528c2cf19",
+    "benchmarks/workloads.json": "e20860e9f7bc8cf85ab34146132b551e4e5a4185225c567d3d49ecadbfffa1be",
+    "benchmarks/workloads-writing.json": "2d44f0428e38d040f88a1ca2463810464c91a662442a2515a646aeff3d9d2b8b",
+    "benchmarks/resources-writing.json": "4cae5fad5d902485e17639bd8ac53f03080ce4ced33532499ab6ff188b0dc650",
+    "tests/BlockEditorCoreTests/Fixtures/blockCommands.json": "52dce61e865c443aecf214d7a7ec4d2eb8e07c695c1d0fafc2e37b88b442a7c6",
+    "tests/BlockEditorCoreTests/Fixtures/boundaryCommands.json": "307974e62f64e323cd2a2b69b8d8c1f8c89e53b0e0929ae1e0cc4ad9be1ab80a",
+    "tests/BlockEditorCoreTests/Fixtures/bridge.json": "55f305d7c87a31db876048e01d21f8080c96ea541edd5009734d57a73c8d3d66",
+    "tests/BlockEditorCoreTests/Fixtures/clipboardCommands.json": "9524651f6caf97e275c174090e94f42462c0f8421f3a2cb7e2cd0df41b7d0201",
+    "tests/BlockEditorCoreTests/Fixtures/collectionCommands.json": "13712280c7cd5a0f7692b41df2e3b8d1356e3da69c15319914bb11ca3c5af5ae",
+    "tests/BlockEditorCoreTests/Fixtures/depthCommands.json": "360906f64959b8e7d67014882397c210bbb3f488dcc077d1cc46428c6d01e7ab",
+    "tests/BlockEditorCoreTests/Fixtures/documents.json": "28a0306a05eeaea035dfff9d1e9694c4b9eb89cf8ff39bddbf7f76a42c6671e2",
+    "tests/BlockEditorCoreTests/Fixtures/exitCommands.json": "5a2cee05fca259671e5674d40c85f180dfdbe49aead0f37eacbd9b3a8ce0f3ea",
+    "tests/BlockEditorCoreTests/Fixtures/importCommands.json": "4a281a3089cdc446059a3d3497ff9a80e20738336b7b59cc6b7ef5d2d3455d97",
+    "tests/BlockEditorCoreTests/Fixtures/paragraph.json": "4e80f24f09cf8cdc4b7869484c433ce45aeeb21e7140fdad0c5333fe9cf2cb50",
+    "tests/BlockEditorCoreTests/Fixtures/paste6Commands.json": "4b302c338404343a92736a9589c1023ab5a3abdc58cc237be19eaa2142e46d3d",
+    "tests/BlockEditorCoreTests/Fixtures/pinCommands.json": "45ad0897166e3e3bde538947f773b146e7d251fa57340a10859b17dd0fa5ea2a",
+    "tests/BlockEditorCoreTests/Fixtures/recovery.json": "32ce3e5b549a1556b640996f6a7725a85628191ad6b6675a9066f3cc82a21d87",
+    "tests/BlockEditorCoreTests/Fixtures/roleCommands.json": "43bcb1a99af3cd463b2eeb1776d869730d32ff905af0c3014a86e79e22e0afac",
+    "tests/BlockEditorCoreTests/Fixtures/schemaCommands.json": "8f2a8bce235862f00e941246a9ce38bbdebd01ebb6f4132af160d34999d6ebaf",
+    "tests/BlockEditorCoreTests/Fixtures/spliceCommands.json": "44b74c27f55e46fc8775ce04fda765b7b36df94b24d5d130991a4f4a80a6f851",
+    "tests/BlockEditorCoreTests/Fixtures/structure.json": "7a82baf6c079de837089c6c1a7043a2cef3bc302a19517fec1bfa4e389d724a2",
+    "tests/BlockEditorCoreTests/Fixtures/thresholdCommands.json": "5c9d041b41cd5636aa09b39bcea048f7e0a86fdf8e948b354e87ff44114c7278",
+    "tests/BlockEditorCoreTests/Fixtures/undoRecoveryCommands.json": "217ea501e353ac6e9c70917ae4310a6976d754ff5278371948de761a47b22698",
+    "tests/BlockEditorCoreTests/Fixtures/writing.json": "a6cff40c808ce75c04cc50bd52dd280978d0d174c48cefa5365a20cc67f1f258"
+  },
+  "installed": {
+    "swift-macos": {
+      "url": "https://download.swift.org/swift-6.4.0-release/xcode/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE-osx.pkg",
+      "sha256": "8fd03185b98fe27f54a54631c2449decf75d5b466ce8e34abbd414141063c6aa",
+      "version": "6.4.0-RELEASE macOS"
+    }
+  },
+  "binaries": {
+    "debug-bridge": {
+      "path": ".build/debug/editor-bridge",
+      "bytes": 4730144,
+      "sha256": "b4e232945b84fceb404c6ab60c5e228004a7d4ec329e92e74217baccfdda37e3"
+    },
+    "release-bridge": {
+      "path": ".build/release/editor-bridge",
+      "bytes": 3476432,
+      "sha256": "e41196a34eb2d57bcb40cd7d69277e9b768c59532f43dbaa2b96c253c5795ce9"
+    },
+    "relay-client": {
+      "path": ".build/debug/relay-client",
+      "bytes": 5020912,
+      "sha256": "d410fff5102fad392ffb5869503961938633311f326dfa1f98b5d0ebe5479d6e"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+# Modern session and checked command verification
+
+ST-122 now has an explicit protocol-7 session over the existing structural and scalar projections, and a checked JSON command subset through the shared bridge. The tests cover causal text/appearance exchange, independent title/appearance snapshots, captured selection behavior, local author history/grouping and reopen, local host policy, separately retained held packets/recovery, safe repair and malformed/resource rejection without receipt or accepted-state changes.
+
+The compiled native C ABI runner uses four independently authored title/appearance snapshots, rather than deriving expected documents from the new engine. It records the loaded library hash and each fixture hash. The receipt links that ABI run to the tested source and full Swift regression, with original reports/logs retained.
+
+Scope remains incomplete: structural insertion/conversion/movement, synchronized column creation/split/flatten/late-child routing, structural/grouped focus fallback and full command outcomes, versioned clipboard, archive-based migration, typed Kotlin/TypeScript facade parity and executed Android/WASM/native host acceptance are pending. Capabilities advertise only the implemented commands. ST-122 remains In Progress; ST-121/ST-143 native checks remain on their owning issues. No full fixture scenario or host row is promoted solely from these subset checks.

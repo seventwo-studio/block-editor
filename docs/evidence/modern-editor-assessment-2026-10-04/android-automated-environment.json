@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "scope": "Existing mixed-document Compose component test: semantics text input, checklist touch, session restore and Undo/Redo. No installed IME, process restart, assets, physical device, TalkBack or modern acceptance.",
+  "sourceCommit": "9830e787f163d9dd10898c58402884dcf15c1be7",
+  "sourceTree": "0e9d61d918962710339d8df97c1d973c319fbf75",
+  "apkSHA256": "c8c0c7b66ddf3d894d8d36abdc83417cdca84281e5c9ea68c1c2c96d64f4de41",
+  "api": "26",
+  "abi": "x86_64",
+  "serial": "emulator-5554",
+  "workflowRun": "37209315355",
+  "files": {
+    "nested-text-edited.png": "df218d8fdd541b4f7a043a8a293d651cca27d4500b382044ce7f61a34194c5ac",
+    "checklist-undone.png": "1717996b2a9c72ba4dd0c4b4363ae0196609fd72593e39507a0e7717d5bc2369",
+    "mixed-document.png": "60966079e6f003a1e3ec837d772678c58a9fd7f69eb3c2179f6e8826778d4df0",
+    "history-restored.png": "951d295e859738fe142fdb5988a93262adb430e5e83d4dce184332a8919c98b8",
+    "interaction-raw.mp4": "ff513952055a1c3d1d86ca9a0bd27e8da88a41db1651f3de4f363d561c5b7436"
+  }
+}

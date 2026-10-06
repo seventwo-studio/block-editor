@@ -1,0 +1,131 @@
+{
+  "format": "seventwo.block-editor.document",
+  "formatVersion": 1,
+  "documentID": "st140-columns",
+  "title": "Field notes",
+  "appearance": {
+    "fontFamily": "sans",
+    "fontSize": "default",
+    "pageWidth": "readable"
+  },
+  "blocks": [
+    {
+      "id": "layout",
+      "type": "columns",
+      "columns": [
+        {
+          "id": "first-column",
+          "children": [
+            {
+              "id": "A",
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ABC",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                }
+              ],
+              "consumer": {
+                "opaque": "retain-A"
+              }
+            },
+            {
+              "id": "B",
+              "type": "toggle",
+              "summary": [
+                {
+                  "type": "text",
+                  "text": "Details"
+                }
+              ],
+              "children": [
+                {
+                  "id": "child",
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Nested paragraph"
+                    }
+                  ]
+                },
+                {
+                  "id": "todo",
+                  "type": "list",
+                  "style": "todo",
+                  "items": [
+                    {
+                      "id": "same",
+                      "checked": false,
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Check this"
+                        }
+                      ],
+                      "children": [
+                        {
+                          "id": "child",
+                          "checked": true,
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Nested task"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "consumer": {
+                "opaque": "keep-toggle"
+              }
+            }
+          ]
+        },
+        {
+          "id": "second-column",
+          "children": [
+            {
+              "id": "D",
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Another thought"
+                }
+              ]
+            },
+            {
+              "id": "C",
+              "type": "code",
+              "language": "swift",
+              "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n"
+            }
+          ]
+        }
+      ],
+      "splitBasisPoints": 3000,
+      "consumer": {
+        "opaque": "retain-layout"
+      }
+    },
+    {
+      "id": "E",
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Outside layout"
+        }
+      ]
+    }
+  ]
+}

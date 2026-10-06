@@ -1,0 +1,37 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 1]
+[2 / 16] BlockEditorApple
+[6 / 20] BlockEditorApple
+[15 / 27] BlockEditorDemoApple
+[21 / 28] local-editor-app-product
+[23 / 28] local-editor-app-product
+[24 / 29] BlockEditorAppleTests-product
+[27 / 30] BlockEditorAppleTests-product
+[29 / 33] BlockEditorAppleTests-product
+Build complete! (2.50 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernNativeClipboardTests started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() started.
+◇ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() started.
+◇ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+✘ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() recorded an issue at ModernNativeClipboardTests.swift:91:27: Expectation failed: a.document.blocks[0].text == "ABCREF"
+↳ a.document.blocks[0].text == "ABCREF" → false
+↳   a.document.blocks[0].text → "ABC1REF"
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.246 seconds.
+✔ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() passed after 0.294 seconds.
+✔ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() passed after 0.298 seconds.
+✘ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() failed after 0.327 seconds with 1 issue.
+✘ Suite ModernNativeClipboardTests failed after 0.327 seconds with 1 issue.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 0.330 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.344 seconds.
+✔ Suite ModernHostStoreTests passed after 0.344 seconds.
+✘ Test run with 6 tests in 2 suites failed after 0.344 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

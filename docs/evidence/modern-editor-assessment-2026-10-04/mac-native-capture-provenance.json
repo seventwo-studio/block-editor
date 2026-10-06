@@ -1,0 +1,69 @@
+{
+  "sourceCommit": "87b4c37d30c000577ac740ef9405971d52c6e2d9",
+  "isolatedLocalDocument": "/private/tmp/block-editor-native-assessment-ntz96ybc/mac-assessment-document.json",
+  "app": "/private/tmp/block-editor-native-assessment-ntz96ybc/LocalEditorLab.app",
+  "bundleID": "studio.seventwo.blockeditor.st116.assessment",
+  "binarySHA256": "839329d81250fa502c6fe3ec3aeaa8f8dc3ba6b0ecaec4e075cd50d07dc9f52e",
+  "wrapperSHA256": "81eb63649e847540b3830b20bdafdb338f51f2a1c7b09e405866342ea082ce99",
+  "qualification": "Assessment-only host wrapper passes an isolated file URL to the existing EditorDemoView. Sources and native components unchanged; wrapper retained separately. No default user draft changed.",
+  "date": "2026-10-04",
+  "host": "arm64 macOS 27.0.1 (26A434)",
+  "sourceTree": "84662caba4bec7876c9a7a787984a6812491552b",
+  "archiveSHA256": "701d406a88ab25dd7adb313382063b780d3d8f331caaba699fc6c800734c2c2c",
+  "productionSourceSHA256": "5a1a846d42496557ab19026a2ae497a98ff0042fdcf1b69d8b3cefe1b96ceb53",
+  "productionHashMethod": "Sorted tracked Sources and android/editor/src/main paths, excluding jniLibs; path NUL bytes NUL. All compared byte for byte with immutable archive.",
+  "inputInterface": "Computer Use via node_repl and bundled @oai/sky macOS client",
+  "captures": [
+    {
+      "name": "mac-typed.jpg",
+      "accessibilityReceipt": "mac-typed.txt",
+      "sha256": "3823cc3b2178b62daeb88118032dc3d8f46c9a246394abb6414f7a7ad38043f5"
+    },
+    {
+      "name": "mac-bold.jpg",
+      "accessibilityReceipt": "mac-bold.txt",
+      "sha256": "0e3f2386ac27885c854b60eed622c1aacd2dcf844972476dced1fb2b08f0ea8c"
+    },
+    {
+      "name": "mac-rich-restored.jpg",
+      "accessibilityReceipt": "mac-rich-restored.txt",
+      "sha256": "adb545217b24d909259850c35d1958660a9e8a1c8bf47bfad10c58e08cb6b5e9"
+    },
+    {
+      "name": "mac-history-restored-undo.jpg",
+      "accessibilityReceipt": "mac-history-restored-undo.txt",
+      "sha256": "26f899b04ab4cbd3892ff383c89cf2fa04c5aadcb1c84a20e1df4387de068fab"
+    },
+    {
+      "name": "mac-history-restored-redo.jpg",
+      "accessibilityReceipt": "mac-history-restored-redo.txt",
+      "sha256": "f8a70b0a44cea33e0ed74cbf58e182a4c839176fec5f0b0099cf7dc5ca919cbd"
+    }
+  ],
+  "verifiedScenarios": [
+    "Typed ST116 native Mac assessment.",
+    "Selected native Mac and used Bold; native Undo/Redo restored plain/bold display.",
+    "Inserted, typed and completed a checklist.",
+    "Edited Table cell A and Table cell B in separate native table cells.",
+    "Two native quit/reopen checks preserve exact host-owned draft bytes before further actions.",
+    "After rich-document relaunch, Undo changed Table cell B to Table cell ; Redo restored Table cell B. This verifies one persisted history action, not every history/caret contract."
+  ],
+  "firstReopen": {
+    "exactDraftBytesPreserved": true,
+    "draftSHA256": "4dc59aa6d6a0d09309f7aec4150a628fd33169f09a299491dde74f310325513e"
+  },
+  "richReopen": {
+    "exactDraftBytesPreserved": true,
+    "draftSHA256": "63aed6240580332fc8756590656f8f3cbe5dfad70d164748e326ddeb681e5f53",
+    "scope": "Exact host-owned draft bytes across native quit/relaunch before any new action; UI content inspected separately."
+  },
+  "buildLog": {
+    "path": "/private/tmp/block-editor-native-assessment-ntz96ybc/mac-isolated-host-build.log",
+    "sha256": "b6868dce2cd1fd821b5f7f2f31d5a01ae6d09853b021dd3c215cafc2f02159f0"
+  },
+  "recording": {
+    "accepted": false,
+    "reason": "QuickTime/system preview showed another reference host, not this isolated host. Recording was stopped and that output is not retained or accepted as ST116 evidence. No reconstructed video substitutes for the missing recording."
+  },
+  "scope": "Actual native Mac reference canvas stills and scoped interaction/restoration receipts. Isolated host wrapper only; production Sources unchanged. No modern shared title/appearance/columns, IME, exact caret, physical-device, assistive-technology, performance, minimum-OS or complete platform-matrix acceptance."
+}

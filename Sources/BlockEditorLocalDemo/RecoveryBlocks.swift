@@ -11,12 +11,14 @@ public struct RecoveryBlock: Identifiable, Sendable {
         func register(_ value: JSONValue, identity: NodeID) {
             var pending: [(JSONValue, NodeID)] = [(value, identity)]
             while let (value, identity) = pending.popLast() {
+                if case .document = identity { continue }
                 blocks[identity] = value
                 guard value["type"]?.string == "toggle" else { continue }
                 for child in value["children"]?.array ?? [] {
                     guard let label = child["id"]?.string else { continue }
                     let childID: NodeID
                     switch identity {
+                    case .document: continue
                     case .baseline(let blockID, let path): childID = .baseline(blockID: blockID, path: path + ["children", label])
                     case .inserted(let creation, let path): childID = .inserted(creation: creation, path: path + ["children", label])
                     }

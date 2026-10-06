@@ -284,6 +284,7 @@ enum WritingNativeKey { case enter, softBreak, backspace }
 extension NodeID {
     func textAddressForApple(_ name: String) -> TextAddress {
         switch self {
+        case .document: return TextAddress("", path: [name], identity: self)
         case .baseline(let root, let path): return TextAddress(root, path: path + [name], identity: self)
         case .inserted(let creation, let path): return TextAddress("@\(creation.change.actor)/\(creation.change.counter)/\(creation.index)", path: path + [name], identity: self)
         }

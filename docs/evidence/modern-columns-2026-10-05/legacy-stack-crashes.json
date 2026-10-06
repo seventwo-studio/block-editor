@@ -1,0 +1,610 @@
+[
+  {
+    "report": "swiftpm-testing-helper-2026-10-05-060606.ips",
+    "exception": {
+      "codes": "0x0000000000000002, 0x000000016d973fd0",
+      "message": "Thread stack size exceeded",
+      "rawCodes": [
+        2,
+        6133596112
+      ],
+      "type": "EXC_BAD_ACCESS",
+      "signal": "SIGBUS",
+      "subtype": "KERN_PROTECTION_FAILURE at 0x000000016d973fd0"
+    },
+    "termination": {
+      "flags": 0,
+      "code": 10,
+      "namespace": "SIGNAL",
+      "indicator": "Bus error: 10",
+      "byProc": "exc handler",
+      "byPid": 45470
+    },
+    "frames": [
+      {
+        "symbol": "_xzm_xzone_malloc_tiny",
+        "symbolLocation": 0
+      },
+      {
+        "symbol": "swift::swift_slowAllocTyped(unsigned long, unsigned long, unsigned long long)",
+        "symbolLocation": 64
+      },
+      {
+        "symbol": "swift_allocObject",
+        "symbolLocation": 136
+      },
+      {
+        "symbol": "__JSONEncoder.container<A>(keyedBy:)",
+        "symbolLocation": 304
+      },
+      {
+        "symbol": "protocol witness for Encoder.container<A>(keyedBy:) in conformance __JSONEncoder",
+        "symbolLocation": 24
+      },
+      {
+        "symbol": "ChangeID.encode(to:)",
+        "symbolLocation": 240
+      },
+      {
+        "symbol": "protocol witness for Encodable.encode(to:) in conformance ChangeID",
+        "symbolLocation": 36
+      },
+      {
+        "symbol": "dispatch thunk of Encodable.encode(to:)",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "__JSONEncoder.wrapGeneric<A, B>(_:for:)",
+        "symbolLocation": 4296
+      },
+      {
+        "symbol": "_JSONKeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 332
+      },
+      {
+        "symbol": "protocol witness for KeyedEncodingContainerProtocol.encode<A>(_:forKey:) in conformance _JSONKeyedEncodingContainer<A>",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "_KeyedEncodingContainerBox.encode<A, B>(_:forKey:)",
+        "symbolLocation": 376
+      },
+      {
+        "symbol": "KeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 60
+      },
+      {
+        "symbol": "ElementID.encode(to:)",
+        "symbolLocation": 348
+      },
+      {
+        "symbol": "protocol witness for Encodable.encode(to:) in conformance ElementID",
+        "symbolLocation": 40
+      },
+      {
+        "symbol": "dispatch thunk of Encodable.encode(to:)",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "__JSONEncoder.wrapGeneric<A, B>(_:for:)",
+        "symbolLocation": 4296
+      },
+      {
+        "symbol": "_JSONKeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 332
+      },
+      {
+        "symbol": "protocol witness for KeyedEncodingContainerProtocol.encode<A>(_:forKey:) in conformance _JSONKeyedEncodingContainer<A>",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "_KeyedEncodingContainerBox.encode<A, B>(_:forKey:)",
+        "symbolLocation": 376
+      },
+      {
+        "symbol": "KeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 60
+      },
+      {
+        "symbol": "NodeID.encode(to:)",
+        "symbolLocation": 1496
+      },
+      {
+        "symbol": "protocol witness for Encodable.encode(to:) in conformance NodeID",
+        "symbolLocation": 52
+      },
+      {
+        "symbol": "dispatch thunk of Encodable.encode(to:)",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "specialized __JSONEncoder.wrapGeneric<A, B>(_:for:)",
+        "symbolLocation": 4460
+      },
+      {
+        "symbol": "JSONEncoder.encode<A>(_:)",
+        "symbolLocation": 304
+      },
+      {
+        "symbol": "dispatch thunk of JSONEncoder.encode<A>(_:)",
+        "symbolLocation": 48
+      },
+      {
+        "symbol": "NodeID.key.getter",
+        "symbolLocation": 100
+      },
+      {
+        "symbol": "WritingField.key.getter",
+        "symbolLocation": 76
+      },
+      {
+        "symbol": "closure #1 in writingAtomsSorted(_:)",
+        "symbolLocation": 332
+      },
+      {
+        "symbol": "partial apply for closure #1 in writingAtomsSorted(_:)",
+        "symbolLocation": 28
+      },
+      {
+        "symbol": "Collection.map<A, B>(_:)",
+        "symbolLocation": 1124
+      },
+      {
+        "symbol": "writingAtomsSorted(_:)",
+        "symbolLocation": 292
+      },
+      {
+        "symbol": "WritingProjection.resolveFields()",
+        "symbolLocation": 324
+      },
+      {
+        "symbol": "WritingProjection.init(seeds:edits:active:emptyFields:hiddenSeeds:redirects:)",
+        "symbolLocation": 16484
+      },
+      {
+        "symbol": "static WritingSession.orderedCuts(structure:edits:seeds:active:fields:births:hidden:aliases:changes:retained:protocolVersion:)",
+        "symbolLocation": 6924
+      },
+      {
+        "symbol": "static WritingSession.projectState(raw:changes:births:protocolVersion:)",
+        "symbolLocation": 316
+      },
+      {
+        "symbol": "WritingSession.replayProjection(_:trustedRoleChanges:)",
+        "symbolLocation": 120104
+      },
+      {
+        "symbol": "WritingSession.replay(_:trustedRoleChanges:)",
+        "symbolLocation": 72
+      },
+      {
+        "symbol": "retainRole #1 (_:change:) in WritingSession.replayProjection(_:trustedRoleChanges:)",
+        "symbolLocation": 5004
+      },
+      {
+        "symbol": "WritingSession.replayProjection(_:trustedRoleChanges:)",
+        "symbolLocation": 15420
+      },
+      {
+        "symbol": "WritingSession.replay(_:trustedRoleChanges:)",
+        "symbolLocation": 72
+      },
+      {
+        "symbol": "WritingSession.perform(_:_:)",
+        "symbolLocation": 1120
+      },
+      {
+        "symbol": "WritingSession.pasteSelection(_:replacing:policy:)",
+        "symbolLocation": 41424
+      },
+      {
+        "symbol": "retainedPasteAcceptsObservedRoleSourceAndRejectsErasedRoleCohort(actor:)",
+        "symbolLocation": 2480
+      },
+      {
+        "symbol": "$s20BlockEditorCoreTests054retainedPasteAcceptsObservedRoleSourceAndRejectsErasedI6Cohort4TestfMp_7__localfMu_ #1 @Sendable (actor:_:) in $s20BlockEditorCoreTests054retainedPasteAcceptsObservedRoleSourceAndRejectsErasedI6Cohort4TestfMp_17Z86d3c0cd694d2306fMu_@Sendable (actor:)",
+        "symbolLocation": 60
+      },
+      {
+        "symbol": "$s20BlockEditorCoreTests054retainedPasteAcceptsObservedRoleSourceAndRejectsErasedI6Cohort4TestfMp_17Z86d3c0cd694d2306fMu_@Sendable (actor:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "thunk for @escaping @callee_guaranteed @Sendable @async (@guaranteed String) -> (@error @owned Error)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "partial apply for thunk for @escaping @callee_guaranteed @Sendable @async (@guaranteed String) -> (@error @owned Error)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Runner._applyScopingTraits(for:testCase:_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized closure #1 in closure #1 in closure #1 in static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "closure #1 in closure #1 in static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Issue.withErrorRecording(at:configuration:isolation:_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "closure #1 in static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized closure #1 in TestCancellable.withCancellationHandling<A>(_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized TestCancellable.withCancellationHandling<A>(_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Test.Case.withCurrent<A>(_:perform:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Runner._runTestCase(_:within:in:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "closure #4 in static Runner._runTestCases<A>(_:within:context:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized closure #1 in closure #1 in static Runner._forEach<A, B>(in:namingTasksWith:_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*)",
+        "symbolLocation": 1
+      }
+    ]
+  },
+  {
+    "report": "swiftpm-testing-helper-2026-10-05-060932.ips",
+    "exception": {
+      "codes": "0x0000000000000002, 0x000000016be2ffd0",
+      "message": "Thread stack size exceeded",
+      "rawCodes": [
+        2,
+        6105006032
+      ],
+      "type": "EXC_BAD_ACCESS",
+      "signal": "SIGBUS",
+      "subtype": "KERN_PROTECTION_FAILURE at 0x000000016be2ffd0"
+    },
+    "termination": {
+      "flags": 0,
+      "code": 10,
+      "namespace": "SIGNAL",
+      "indicator": "Bus error: 10",
+      "byProc": "exc handler",
+      "byPid": 45944
+    },
+    "frames": [
+      {
+        "symbol": "_xzm_xzone_malloc_tiny",
+        "symbolLocation": 0
+      },
+      {
+        "symbol": "swift::swift_slowAllocTyped(unsigned long, unsigned long, unsigned long long)",
+        "symbolLocation": 64
+      },
+      {
+        "symbol": "swift_allocObject",
+        "symbolLocation": 136
+      },
+      {
+        "symbol": "__JSONEncoder.container<A>(keyedBy:)",
+        "symbolLocation": 304
+      },
+      {
+        "symbol": "protocol witness for Encoder.container<A>(keyedBy:) in conformance __JSONEncoder",
+        "symbolLocation": 24
+      },
+      {
+        "symbol": "ChangeID.encode(to:)",
+        "symbolLocation": 240
+      },
+      {
+        "symbol": "protocol witness for Encodable.encode(to:) in conformance ChangeID",
+        "symbolLocation": 36
+      },
+      {
+        "symbol": "dispatch thunk of Encodable.encode(to:)",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "__JSONEncoder.wrapGeneric<A, B>(_:for:)",
+        "symbolLocation": 4296
+      },
+      {
+        "symbol": "_JSONKeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 332
+      },
+      {
+        "symbol": "protocol witness for KeyedEncodingContainerProtocol.encode<A>(_:forKey:) in conformance _JSONKeyedEncodingContainer<A>",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "_KeyedEncodingContainerBox.encode<A, B>(_:forKey:)",
+        "symbolLocation": 376
+      },
+      {
+        "symbol": "KeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 60
+      },
+      {
+        "symbol": "ElementID.encode(to:)",
+        "symbolLocation": 348
+      },
+      {
+        "symbol": "protocol witness for Encodable.encode(to:) in conformance ElementID",
+        "symbolLocation": 40
+      },
+      {
+        "symbol": "dispatch thunk of Encodable.encode(to:)",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "__JSONEncoder.wrapGeneric<A, B>(_:for:)",
+        "symbolLocation": 4296
+      },
+      {
+        "symbol": "_JSONKeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 332
+      },
+      {
+        "symbol": "protocol witness for KeyedEncodingContainerProtocol.encode<A>(_:forKey:) in conformance _JSONKeyedEncodingContainer<A>",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "_KeyedEncodingContainerBox.encode<A, B>(_:forKey:)",
+        "symbolLocation": 376
+      },
+      {
+        "symbol": "KeyedEncodingContainer.encode<A>(_:forKey:)",
+        "symbolLocation": 60
+      },
+      {
+        "symbol": "NodeID.encode(to:)",
+        "symbolLocation": 1496
+      },
+      {
+        "symbol": "protocol witness for Encodable.encode(to:) in conformance NodeID",
+        "symbolLocation": 52
+      },
+      {
+        "symbol": "dispatch thunk of Encodable.encode(to:)",
+        "symbolLocation": 32
+      },
+      {
+        "symbol": "specialized __JSONEncoder.wrapGeneric<A, B>(_:for:)",
+        "symbolLocation": 4460
+      },
+      {
+        "symbol": "JSONEncoder.encode<A>(_:)",
+        "symbolLocation": 304
+      },
+      {
+        "symbol": "dispatch thunk of JSONEncoder.encode<A>(_:)",
+        "symbolLocation": 48
+      },
+      {
+        "symbol": "NodeID.key.getter",
+        "symbolLocation": 100
+      },
+      {
+        "symbol": "WritingField.key.getter",
+        "symbolLocation": 76
+      },
+      {
+        "symbol": "closure #1 in writingAtomsSorted(_:)",
+        "symbolLocation": 332
+      },
+      {
+        "symbol": "partial apply for closure #1 in writingAtomsSorted(_:)",
+        "symbolLocation": 28
+      },
+      {
+        "symbol": "Collection.map<A, B>(_:)",
+        "symbolLocation": 1124
+      },
+      {
+        "symbol": "writingAtomsSorted(_:)",
+        "symbolLocation": 292
+      },
+      {
+        "symbol": "WritingProjection.resolveFields()",
+        "symbolLocation": 324
+      },
+      {
+        "symbol": "WritingProjection.init(seeds:edits:active:emptyFields:hiddenSeeds:redirects:)",
+        "symbolLocation": 16484
+      },
+      {
+        "symbol": "static WritingSession.orderedCuts(structure:edits:seeds:active:fields:births:hidden:aliases:changes:retained:protocolVersion:)",
+        "symbolLocation": 6924
+      },
+      {
+        "symbol": "static WritingSession.projectState(raw:changes:births:protocolVersion:)",
+        "symbolLocation": 316
+      },
+      {
+        "symbol": "WritingSession.replayProjection(_:trustedRoleChanges:)",
+        "symbolLocation": 120104
+      },
+      {
+        "symbol": "WritingSession.replay(_:trustedRoleChanges:)",
+        "symbolLocation": 72
+      },
+      {
+        "symbol": "retainRole #1 (_:change:) in WritingSession.replayProjection(_:trustedRoleChanges:)",
+        "symbolLocation": 5004
+      },
+      {
+        "symbol": "WritingSession.replayProjection(_:trustedRoleChanges:)",
+        "symbolLocation": 15420
+      },
+      {
+        "symbol": "WritingSession.replay(_:trustedRoleChanges:)",
+        "symbolLocation": 72
+      },
+      {
+        "symbol": "WritingSession.perform(_:_:)",
+        "symbolLocation": 1120
+      },
+      {
+        "symbol": "WritingSession.pasteSelection(_:replacing:policy:)",
+        "symbolLocation": 41424
+      },
+      {
+        "symbol": "retainedPasteAcceptsObservedRoleSourceAndRejectsErasedRoleCohort(actor:)",
+        "symbolLocation": 2480
+      },
+      {
+        "symbol": "$s20BlockEditorCoreTests054retainedPasteAcceptsObservedRoleSourceAndRejectsErasedI6Cohort4TestfMp_7__localfMu_ #1 @Sendable (actor:_:) in $s20BlockEditorCoreTests054retainedPasteAcceptsObservedRoleSourceAndRejectsErasedI6Cohort4TestfMp_17Z86d3c0cd694d2306fMu_@Sendable (actor:)",
+        "symbolLocation": 60
+      },
+      {
+        "symbol": "$s20BlockEditorCoreTests054retainedPasteAcceptsObservedRoleSourceAndRejectsErasedI6Cohort4TestfMp_17Z86d3c0cd694d2306fMu_@Sendable (actor:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "thunk for @escaping @callee_guaranteed @Sendable @async (@guaranteed String) -> (@error @owned Error)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "partial apply for thunk for @escaping @callee_guaranteed @Sendable @async (@guaranteed String) -> (@error @owned Error)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Runner._applyScopingTraits(for:testCase:_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized closure #1 in closure #1 in closure #1 in static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "closure #1 in closure #1 in static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Issue.withErrorRecording(at:configuration:isolation:_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "closure #1 in static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized closure #1 in TestCancellable.withCancellationHandling<A>(_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized TestCancellable.withCancellationHandling<A>(_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Test.Case.withCurrent<A>(_:perform:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "static Runner._runSingleTestCaseIteration(_:within:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized static Runner._runTestCase(_:within:in:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "closure #4 in static Runner._runTestCases<A>(_:within:context:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "specialized closure #1 in closure #1 in static Runner._forEach<A, B>(in:namingTasksWith:_:)",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "<deduplicated_symbol>",
+        "symbolLocation": 1
+      },
+      {
+        "symbol": "completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*)",
+        "symbolLocation": 1
+      }
+    ]
+  }
+]

@@ -81,6 +81,7 @@ extension WritingClipboard {
         guard let fields = value.object else { throw EditorError.invalidPath }
         let authoredType: String
         switch kind {
+        case .document, .column: throw EditorError.invalidPath
         case .block:
             guard let type = fields["type"]?.string,
                   ["paragraph", "heading", "quote", "callout", "list", "code", "image", "table", "embed", "math", "toggle", "divider"].contains(type) else { throw EditorError.invalidChange }
@@ -108,20 +109,20 @@ extension WritingClipboard {
 
 /// Clipboard URLs have a deliberately narrower boundary than persisted host
 /// document URLs. Tightening the global validator would reject old content.
-private func validateClipboardURL(_ text: String?) throws {
+func validateClipboardURL(_ text: String?) throws {
     guard let text, !text.isEmpty,
           !text.unicodeScalars.contains(where: { CharacterSet.whitespacesAndNewlines.contains($0) || CharacterSet.controlCharacters.contains($0) }),
           let url = URL(string: text), let scheme = url.scheme?.lowercased(),
           ["http", "https", "mailto"].contains(scheme),
           (scheme == "mailto" ? !url.path.isEmpty : !(url.host ?? "").isEmpty) else { throw EditorError.invalidChange }
 }
-private func validateClipboardAssetURL(_ text: String?) throws {
+func validateClipboardAssetURL(_ text: String?) throws {
     guard let text, !text.isEmpty,
           !text.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) }),
           let url = URL(string: text), let scheme = url.scheme?.lowercased(),
           ["http", "https", "asset", "content", "file", "blob"].contains(scheme) else { throw EditorError.invalidChange }
     if scheme == "http" || scheme == "https" { try validateClipboardURL(text) }
-    else { guard !url.path.isEmpty else { throw EditorError.invalidChange } }
+    else { guard !url.path.isEmpty || (scheme == "asset" && !(url.host ?? "").isEmpty) else { throw EditorError.invalidChange } }
 }
 
 /// External normalization is explicit. Hosts decide whether to adopt the suggested
@@ -218,6 +219,7 @@ private struct WritingImportNormalizer {
         guard var fields = value.object else { return nil }
         let type: String
         switch kind {
+        case .document, .column: return nil
         case .block:
             guard let name = fields["type"]?.string,
                   ["paragraph", "heading", "quote", "callout", "list", "code", "image", "table", "embed", "math", "toggle", "divider"].contains(name) else { return nil }
@@ -265,6 +267,7 @@ private struct WritingImportNormalizer {
             groups.enumerated().flatMap { index, group in (index == 0 ? [] : [textNode(separator)]) + group }
         }
         switch kind {
+        case .document, .column: return []
         case .item: return joined([field("content")] + (fields["children"]?.array ?? []).map { visible($0, kind: .item) })
         case .row: return joined((fields["cells"]?.array ?? []).map { visible($0, kind: .cell) }, separator: "\t")
         case .cell: return field("content")

@@ -1,0 +1,87 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 5]
+[2 / 8] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:327:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+325 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+326 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+327 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+328 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+329 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:349:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+347 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+348 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+349 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+350 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+351 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[3 / 9] BlockEditorCore
+[13 / 17] BlockEditorCore
+[16 / 17] BlockEditorBridge-product
+[25 / 65] editor-bridge-product
+[38 / 65] relay-client-product
+[52 / 74] relay-client-product
+[55 / 76] BlockEditorApple
+[59 / 80] BlockEditorDemoApple
+[62 / 83] BlockEditorCoreTests-product
+[62 / 83] BlockEditorDemoApple
+[67 / 86] local-editor-app-product
+[69 / 86] BlockEditorCoreTests-product
+[69 / 86] BlockEditorApple
+[76 / 85] BlockEditorAppleTests-product
+[78 / 87] local-editor-app-product
+[79 / 88] BlockEditorAppleTests-product
+[83 / 90] BlockEditorAppleTests-product
+[85 / 91] BlockEditorCoreTests-product
+[91 / 93] BlockEditorCoreTests-product
+[95 / 95] BlockEditorBridge-product
+[104 / 104] relay-client-product
+Build complete! (13.05 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernPasteTests started.
+◇ Test titleAndCodeUseExplicitPlainFallbackWithoutRichMarkOrBlockCoercion() started.
+◇ Test hierarchicalFieldsPreserveOwnerMetadataAndUseCompatibleChildCollection() started.
+◇ Test catalogInsertionFocusIsStoredWithAuthorHistoryWhileOrdinaryPasteKeepsItsCaret() started.
+◇ Test inertAssetPolicyAndNewTailAdmissionRejectWithoutChangingOriginalPayload() started.
+◇ Test explicitFlattenedFallbackMatchesAcceptedColumnContentAndRichNestedPasteRejects() started.
+◇ Test explicitPlainRangeUsesNormalInlineAndMultilinePrefixSuffixSemantics() started.
+◇ Test mixedReplacementAndEmptyClipboardAreSingleOrZeroHistorySteps() started.
+◇ Test acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() started.
+◇ Test catalogFromTableCellAndListItemCapturesContainingBlockAndRestoresQuery() started.
+◇ Test tableRowAndCellPasteKeepSemanticMetadataAndFreshNamespaces() started.
+◇ Test inactiveForgedPlanRejectsAndMissingCaptureIsRetainedUntilItsCausalBirthArrives() started.
+◇ Test capturedRichReplacementKeepsAtomicReferenceMetadataAndPeerTextThroughUndoAndReopen() started.
+◇ Test copiedRowAndConvertedListItemCollectionBirthsKeepModernSemanticAdmission() started.
+◇ Test pasteAfterCapturedCodeAliasUsesCurrentFieldAndRejectsForgedRelation() started.
+◇ Test acceptedBlankPlainMultilinePreservesFourLiteralLinesAndLastInputCaret() started.
+◇ Test crossParagraphPastePreservesRetainedEndpointMetadataAndPeerRoutes() started.
+◇ Test pastedLayoutPeerEditSurvivesAuthorUndoAndReopenWithoutDuplication() started.
+◇ Test localPolicyCompositionStaleScopeAndReusedLabelsRejectWithoutPartialReplacement() started.
+◇ Test sameFieldBlockReplacementHasOneRetainedCutAndKeepsPeerInsertion() started.
+✔ Test inertAssetPolicyAndNewTailAdmissionRejectWithoutChangingOriginalPayload() passed after 0.038 seconds.
+✔ Test acceptedBlankPlainMultilinePreservesFourLiteralLinesAndLastInputCaret() passed after 0.038 seconds.
+✔ Test hierarchicalFieldsPreserveOwnerMetadataAndUseCompatibleChildCollection() passed after 0.038 seconds.
+✔ Test inactiveForgedPlanRejectsAndMissingCaptureIsRetainedUntilItsCausalBirthArrives() passed after 0.038 seconds.
+✔ Test mixedReplacementAndEmptyClipboardAreSingleOrZeroHistorySteps() passed after 0.038 seconds.
+✔ Test titleAndCodeUseExplicitPlainFallbackWithoutRichMarkOrBlockCoercion() passed after 0.038 seconds.
+✔ Test explicitPlainRangeUsesNormalInlineAndMultilinePrefixSuffixSemantics() passed after 0.041 seconds.
+✔ Test copiedRowAndConvertedListItemCollectionBirthsKeepModernSemanticAdmission() passed after 0.043 seconds.
+✔ Test localPolicyCompositionStaleScopeAndReusedLabelsRejectWithoutPartialReplacement() passed after 0.044 seconds.
+✔ Test pasteAfterCapturedCodeAliasUsesCurrentFieldAndRejectsForgedRelation() passed after 0.046 seconds.
+✔ Test sameFieldBlockReplacementHasOneRetainedCutAndKeepsPeerInsertion() passed after 0.071 seconds.
+✔ Test capturedRichReplacementKeepsAtomicReferenceMetadataAndPeerTextThroughUndoAndReopen() passed after 0.076 seconds.
+✔ Test catalogInsertionFocusIsStoredWithAuthorHistoryWhileOrdinaryPasteKeepsItsCaret() passed after 0.086 seconds.
+✔ Test tableRowAndCellPasteKeepSemanticMetadataAndFreshNamespaces() passed after 0.088 seconds.
+✔ Test crossParagraphPastePreservesRetainedEndpointMetadataAndPeerRoutes() passed after 0.118 seconds.
+✔ Test catalogFromTableCellAndListItemCapturesContainingBlockAndRestoresQuery() passed after 0.156 seconds.
+✔ Test explicitFlattenedFallbackMatchesAcceptedColumnContentAndRichNestedPasteRejects() passed after 0.220 seconds.
+✔ Test acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() passed after 0.228 seconds.
+✔ Test pastedLayoutPeerEditSurvivesAuthorUndoAndReopenWithoutDuplication() passed after 0.337 seconds.
+✔ Suite ModernPasteTests passed after 0.337 seconds.
+✔ Test run with 19 tests in 1 suite passed after 0.337 seconds.

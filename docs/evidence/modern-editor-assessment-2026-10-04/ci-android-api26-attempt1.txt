@@ -1,0 +1,38 @@
+Run 37162111767 attempt 1; job 111317513368; artifact 11287694119.
+Raw sanitized log SHA256: 345f116ad45fd4431aa6872103c96b7c5bc755ade4b1f44a0e4f44882dc104c2; bytes: 352828.
+First instrumentation exception and secondary settings exception:
+
+2026-10-03T23:42:56.4908191Z Traceback (most recent call last):
+2026-10-03T23:42:56.4909176Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 117, in main
+2026-10-03T23:42:56.4911156Z     instrument("WritingBuiltinImeTest", method, ["-e", "ciWritingSystemIme", "true"], mode + "-instrumentation.log")
+2026-10-03T23:42:56.4912840Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 74, in instrument
+2026-10-03T23:42:56.4913693Z     data = run(command, timeout=180)
+2026-10-03T23:42:56.4914008Z            ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-03T23:42:56.4914645Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 29, in run
+2026-10-03T23:42:56.4915566Z     return subprocess.run(command, cwd=root, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+2026-10-03T23:42:56.4916238Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-03T23:42:56.4916827Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+2026-10-03T23:42:56.4917750Z     raise CalledProcessError(retcode, process.args,
+2026-10-03T23:42:56.4921765Z subprocess.CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'studio.seventwo.blockeditor.WritingBuiltinImeTest#installedLatinImeCommitsBeforeSharedSoftBreakAndKeepsAuthorUndo', '-e', 'nativeInputRun', 'a6aeb368-0c6a-47fd-bd69-720530aa525c', '-e', 'ciWritingSystemIme', 'true', 'studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner']' returned non-zero exit status 255.
+2026-10-03T23:42:56.4925052Z 
+2026-10-03T23:42:56.4925255Z During handling of the above exception, another exception occurred:
+2026-10-03T23:42:56.4925646Z 
+2026-10-03T23:42:56.4925829Z Traceback (most recent call last):
+2026-10-03T23:42:56.4926516Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 171, in <module>
+2026-10-03T23:42:56.4927080Z     main()
+2026-10-03T23:42:56.4927534Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 142, in main
+2026-10-03T23:42:56.4928081Z     report["settingsAfter"] = settings()
+2026-10-03T23:42:56.4928357Z                               ^^^^^^^^^^
+2026-10-03T23:42:56.4928884Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 36, in settings
+2026-10-03T23:42:56.4929714Z     return {key: shell("settings", "get", "secure", key) for key in
+2026-10-03T23:42:56.4930076Z                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-03T23:42:56.4930613Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 33, in shell
+2026-10-03T23:42:56.4931518Z     return run(adb + ["shell", *command]).decode().strip()
+2026-10-03T23:42:56.4931832Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-03T23:42:56.4932350Z   File "/home/runner/work/block-editor/block-editor/scripts/test-android-writing-builtin-ime.py", line 29, in run
+2026-10-03T23:42:56.4933096Z     return subprocess.run(command, cwd=root, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+2026-10-03T23:42:56.4933640Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-03T23:42:56.4934038Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+2026-10-03T23:42:56.4934400Z     raise CalledProcessError(retcode, process.args,
+2026-10-03T23:42:56.4935387Z subprocess.CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'shell', 'settings', 'get', 'secure', 'default_input_method']' returned non-zero exit status 1.
+2026-10-03T23:42:59.1030275Z Traceback (most recent call last):

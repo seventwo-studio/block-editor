@@ -1,0 +1,91 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :editor:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor:preBuild UP-TO-DATE
+> Task :editor:preDebugBuild UP-TO-DATE
+> Task :editor:generateDebugResValues UP-TO-DATE
+> Task :editor:generateDebugResources UP-TO-DATE
+> Task :editor:packageDebugResources UP-TO-DATE
+> Task :editor:parseDebugLocalResources UP-TO-DATE
+> Task :editor:generateDebugRFile UP-TO-DATE
+> Task :editor:javaPreCompileDebug UP-TO-DATE
+> Task :editor:preDebugAndroidTestBuild UP-TO-DATE
+> Task :editor:writeDebugAarMetadata UP-TO-DATE
+> Task :editor:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :editor:compileDebugLibraryResources UP-TO-DATE
+> Task :editor:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :editor:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :editor:generateDebugAndroidTestResources UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :editor:extractDeepLinksDebug UP-TO-DATE
+> Task :editor:processDebugManifest UP-TO-DATE
+> Task :editor:processDebugAndroidTestManifest UP-TO-DATE
+> Task :editor:processDebugAndroidTestResources UP-TO-DATE
+> Task :editor:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestShaders UP-TO-DATE
+> Task :editor:compileDebugAndroidTestShaders NO-SOURCE
+> Task :editor:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:mergeDebugShaders UP-TO-DATE
+> Task :editor:compileDebugShaders NO-SOURCE
+> Task :editor:generateDebugAssets UP-TO-DATE
+> Task :editor:mergeDebugAssets UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :editor:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :editor:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :editor:mergeDebugJniLibFolders
+> Task :editor:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :editor:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :editor:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :editor:mergeDebugNativeLibs
+> Task :editor:copyDebugJniLibsProjectOnly
+> Task :editor:mergeDebugAndroidTestNativeLibs
+
+> Task :editor:stripDebugAndroidTestDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libBlockEditorBridge.so. Run with --info option to learn more.
+
+> Task :editor:compileDebugKotlin
+> Task :editor:compileDebugJavaWithJavac NO-SOURCE
+> Task :editor:processDebugJavaRes
+> Task :editor:bundleLibRuntimeToJarDebug
+> Task :editor:bundleLibCompileToJarDebug
+> Task :editor:bundleLibRuntimeToDirDebug
+> Task :editor:compileDebugAndroidTestKotlin UP-TO-DATE
+> Task :editor:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :editor:dexBuilderDebugAndroidTest
+> Task :editor:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :editor:mergeProjectDexDebugAndroidTest
+> Task :editor:mergeDebugAndroidTestJavaResource
+> Task :editor:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :editor:mergeLibDexDebugAndroidTest
+> Task :editor:packageDebugAndroidTest
+> Task :editor:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+
+> Task :editor:connectedDebugAndroidTest
+Starting 1 tests on SevenChatKeyboardRepair(AVD) - 15
+
+studio.seventwo.blockeditor.ModernEditorComposeTest > modernNativeTypingAndHistoryReopenThroughActualJni[SevenChatKeyboardRepair(AVD) - 15] [31mFAILED [0m
+	java.lang.AssertionError: Failed to assert the following: (Text + EditableText = [])
+	Semantics of the node:
+Tests on SevenChatKeyboardRepair(AVD) - 15 failed: There was 1 failure(s).
+
+Finished 1 tests on SevenChatKeyboardRepair(AVD) - 15
+
+> Task :editor:connectedDebugAndroidTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':editor:connectedDebugAndroidTest'.
+> There were failing tests. See the report at: file:///Users/luca/Developer/block-editor/android/editor/build/reports/androidTests/connected/debug/index.html
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 30s
+49 actionable tasks: 16 executed, 33 up-to-date

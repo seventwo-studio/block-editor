@@ -1,0 +1,86 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:53470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 2 workers
+
+(node:53471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen (7.5s)
+  ✘  2 [webkit] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen (7.5s)
+(node:53494) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium] › tests/modern-editor.swift.ts:43:1 › cancelled slash query and app-owned media insertion retain the original editor (1.5s)
+  ✓  4 [webkit] › tests/modern-editor.swift.ts:43:1 › cancelled slash query and app-owned media insertion retain the original editor (1.7s)
+
+
+  1) [chromium] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen 
+
+    Error: locator.click: Error: strict mode violation: getByRole('option', { name: /columns/i }) resolved to 2 elements:
+        1) <button role="option" aria-selected="true">…</button> aka getByRole('option', { name: 'Simple table Rows and columns' })
+        2) <button role="option" aria-selected="false">…</button> aka getByRole('option', { name: 'Two columns Two ordered' })
+
+    Call log:
+      - waiting for getByRole('option', { name: /columns/i })
+
+
+      28 |   await page.getByRole('button', { name: 'Insert', exact: true }).click();
+      29 |   await page.getByRole('textbox', { name: 'Search blocks' }).fill('columns');
+    > 30 |   await page.getByRole('option', { name: /columns/i }).click();
+         |                                                        ^
+      31 |   await expect(page.getByLabel('Column split')).toHaveValue('5000');
+      32 |   await page.setViewportSize({ width: 390, height: 844 });
+      33 |   await expect(page.getByLabel('Column split')).toHaveValue('5000');
+        at /Users/luca/Developer/block-editor/tests/modern-editor.swift.ts:30:56
+
+    attachment #1: failed-editor-dom (text/html) ───────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+      <script type="module">import { injectIntoGlobalHook } from "/block-editor/@react-refresh";
+    injectIntoGlobalHook(window);
+    window.$RefreshReg$ = () => {};
+    window.$RefreshSig$ = () => (type) => type;</script>
+    
+      <script type="module" src="/block-editor/@vite/clie...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-editor.swift.ts-mod-dff48-s-columns-and-paired-reopen-chromium/error-context.md
+
+  2) [webkit] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen 
+
+    Error: locator.click: Error: strict mode violation: getByRole('option', { name: /columns/i }) resolved to 2 elements:
+        1) <button role="option" aria-selected="true">…</button> aka getByRole('option', { name: 'Simple table Rows and columns' })
+        2) <button role="option" aria-selected="false">…</button> aka getByRole('option', { name: 'Two columns Two ordered' })
+
+    Call log:
+      - waiting for getByRole('option', { name: /columns/i })
+
+
+      28 |   await page.getByRole('button', { name: 'Insert', exact: true }).click();
+      29 |   await page.getByRole('textbox', { name: 'Search blocks' }).fill('columns');
+    > 30 |   await page.getByRole('option', { name: /columns/i }).click();
+         |                                                        ^
+      31 |   await expect(page.getByLabel('Column split')).toHaveValue('5000');
+      32 |   await page.setViewportSize({ width: 390, height: 844 });
+      33 |   await expect(page.getByLabel('Column split')).toHaveValue('5000');
+        at /Users/luca/Developer/block-editor/tests/modern-editor.swift.ts:30:56
+
+    attachment #1: failed-editor-dom (text/html) ───────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+      <script type="module">import { injectIntoGlobalHook } from "/block-editor/@react-refresh";
+    injectIntoGlobalHook(window);
+    window.$RefreshReg$ = () => {};
+    window.$RefreshSig$ = () => (type) => type;</script>
+    
+      <script type="module" src="/block-editor/@vite/clie...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-editor.swift.ts-mod-dff48-s-columns-and-paired-reopen-webkit/error-context.md
+
+  2 failed
+    [chromium] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen 
+    [webkit] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen 
+  2 passed (10.2s)

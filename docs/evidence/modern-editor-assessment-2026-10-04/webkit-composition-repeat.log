@@ -1,0 +1,18 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4174" --strictPort
+[WebServer] (node:84124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+  ✓   1 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (631ms)
+  ✓   2 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (372ms)
+  ✓   3 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (374ms)
+  ✓   4 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (371ms)
+  ✓   5 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (368ms)
+  ✓   6 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (380ms)
+  ✓   7 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (408ms)
+  ✓   8 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (393ms)
+  ✓   9 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (377ms)
+  ✓  10 [webkit] › tests/inline.spec.ts:146:0 › preserves composition text and accepts plain-text paste without HTML insertion (380ms)
+
+  10 passed (7.4s)

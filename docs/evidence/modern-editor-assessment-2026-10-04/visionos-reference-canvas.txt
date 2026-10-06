@@ -1,0 +1,31 @@
+Window: "ST116-baseline-visionOS-01a10410", App: Device Hub.
+0 standard window ST116-baseline-visionOS-01a10410 – visionOS 26.0, ID: deviceWindow-AppWindow-1, Secondary Actions: Raise
+	1 container
+		2 text ST116-baseline-visionOS-01a10410 visionOS 26.0
+		3 button Description: Home, ID: app.grid.3x3
+		4 button Description: Screenshot, ID: camera.viewfinder
+		5 button Description: Record, ID: record.circle
+		6 button Description: Select to interact with visionOS content, ID: cursorarrow.click
+		7 button Description: Drag to tilt the camera, ID: dot.arrowtriangles.up.right.down.left.circle
+		8 button Description: Drag to pan the camera, ID: arrow.up.and.down.and.arrow.left.and.right
+		9 button Description: Drag to orbit the camera, ID: rotate.3d
+		10 button Description: Drag to dolly the camera, ID: arrow.up.left.and.down.right.magnifyingglass
+		11 button Reset Camera
+		12 button Description: Pointer Arrow With Radiating Rays, Help: Capture Pointer, ID: pointer.arrow.rays
+	13 toolbar
+		14 button Description: Show in Device Hub, Help: Expand to view all controls, Secondary Actions: Increment, Decrement, Delete, Cancel, Move previous, Move next, Remove from toolbar
+		15 menu button More, Help: View options, ID: ellipsis
+	16 close button
+	17 zoom button
+	18 minimize button
+19 menu bar
+	20 Device Hub
+	21 File
+	22 Edit
+	23 View
+	24 Device
+	25 Controls
+	26 Window
+	27 Help
+
+The focused UI element is 0 standard window ST116-baseline-visionOS-01a10410 – visionOS 26.0, ID: deviceWindow-AppWindow-1, Secondary Actions: Raise

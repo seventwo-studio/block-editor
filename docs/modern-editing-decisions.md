@@ -20,6 +20,12 @@ Internal document suggestions use `[[` and an accessible Link action. `@` remain
 
 The shared document representation, persistence and platform interfaces must accommodate the title and appearance settings. Swift, Kotlin/JNI and React/WASM must expose equivalent behavior. Exact schema shapes, protocol versions and visual token values are not selected by this record.
 
+## Bounded columns — approved 4 October 2026
+
+Deliver exactly two resizable columns per layout. Full-authoring native hosts and subsequent browsers create, edit and resize them. Persist and synchronize the split as shared document content with author Undo. Narrow screens stack columns in logical reading order; watchOS/tvOS preserve the layout with stacked presentation and their existing smaller editing surface.
+
+Retain list/toggle containment, literal code whitespace and existing nested content. Exclude general document-block indent/outdent, arbitrary nesting, additional columns and nested column layouts. Creation/removal, movement and resizing preserve identities, content, selection, focus and composition. Representation, migration and recovery remain contract work in ST-117/ST-120; reviewed ST-140 fixtures gate ST-122. This is the sole approved feature addition in the current fixed scope.
+
 ## Migration boundary
 
 For the modern document format, preserve materialized content and identities, archive original documents and sessions, and start a fresh collaboration baseline with empty undo history. Prior operations and undo history remain in the archived originals; they are not translated into the new session's history.
@@ -43,4 +49,3 @@ These targets concern the modern editing surface. They do not settle broader eng
 - Accessibility and device evidence: ST-139 and ST-143.
 - Preservation/migration: ST-141; responsiveness targets: ST-142.
 - Project acceptance, including subsequent browser parity: ST-145.
-

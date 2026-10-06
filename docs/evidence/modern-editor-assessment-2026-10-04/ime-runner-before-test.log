@@ -1,0 +1,14 @@
+test_original_instrumentation_failure_survives_failed_settings_and_collection (runner_regression.WritingImeFailureEvidenceTest) ... FAIL
+
+======================================================================
+FAIL: test_original_instrumentation_failure_survives_failed_settings_and_collection (runner_regression.WritingImeFailureEvidenceTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/android_writing_ime_runner_test.py", line 52, in test_original_instrumentation_failure_survives_failed_settings_and_collection
+    self.assertIs(failure.exception, primary)
+AssertionError: CalledProcessError(1, ['/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/tmpfowh692r/platform-tools/adb', '-s', 'fixture-runtime', 'shell', 'settings', 'get', 'secure', 'default_input_method']) is not CalledProcessError(255, ['/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/tmpfowh692r/platform-tools/adb', '-s', 'fixture-runtime', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'studio.seventwo.blockeditor.WritingBuiltinImeTest#installedLatinImeCommitsBeforeSharedEnterAndKeepsAuthorUndo', '-e', 'nativeInputRun', 'fb91dbed-7550-4d63-90fe-325ddaafebab', '-e', 'ciWritingSystemIme', 'true', 'studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner'])
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=1)

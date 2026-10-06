@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "typography": {
+    "sans": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "serif": "ui-serif, Georgia, serif",
+    "mono": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    "bodySizes": {"small": 15, "default": 17, "large": 20},
+    "bodyLineHeight": 1.65,
+    "headingLineHeight": 1.25,
+    "titleScale": 2.1,
+    "headingScale": 1.55,
+    "subheadingScale": 1.2
+  },
+  "layout": {
+    "readingWidths": {"compact": 680, "comfortable": 720, "generous": 760, "wide": 960},
+    "desktopInset": 48,
+    "narrowInset": 20,
+    "gutter": 44,
+    "columnGap": 24,
+    "minimumColumnEm": 20,
+    "targetMinimum": 44,
+    "menuWidth": 288,
+    "menuRadius": 12,
+    "spacing": [4, 8, 12, 16, 24, 32, 48, 64]
+  },
+  "light": {
+    "canvas": "#ffffff", "surface": "#f3f6f4", "raised": "#ffffff",
+    "text": "#242b28", "muted": "#59645e", "line": "#dce3de",
+    "controlBorder": "#64766c", "accent": "#285e4d", "accentSurface": "#e5f1ea",
+    "selection": "#c8e6d6", "focus": "#285e4d", "error": "#9d2e35",
+    "errorSurface": "#fff0f0", "warning": "#775415", "warningSurface": "#fff5db",
+    "blue": "#235a96", "blueSurface": "#edf4ff", "purple": "#65428b", "purpleSurface": "#f5effc"
+  },
+  "dark": {
+    "canvas": "#181d1a", "surface": "#232d27", "raised": "#29332d",
+    "text": "#e7eee9", "muted": "#b0bfb5", "line": "#3d4c42",
+    "controlBorder": "#94ad9d", "accent": "#9be1bd", "accentSurface": "#294b39",
+    "selection": "#2d4c36", "focus": "#9be1bd", "error": "#ffb3b6",
+    "errorSurface": "#432629", "warning": "#f5d38c", "warningSurface": "#3e3321",
+    "blue": "#a8cdf7", "blueSurface": "#273849", "purple": "#d4b8ed", "purpleSurface": "#3b2d49"
+  }
+}

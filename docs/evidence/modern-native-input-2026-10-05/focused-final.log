@@ -1,0 +1,32 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 3] BlockEditorCore
+[2 / 17] BlockEditorApple
+[6 / 21] BlockEditorApple
+[15 / 27] BlockEditorDemoApple
+[19 / 27] BlockEditorAppleTests-product
+[23 / 28] local-editor-app-product
+[24 / 29] BlockEditorAppleTests-product
+[28 / 31] BlockEditorAppleTests-product
+[30 / 34] BlockEditorAppleTests-product
+Build complete! (2.40 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernNativeInputTests started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() started.
+◇ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() started.
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.205 seconds.
+✔ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() passed after 0.286 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 0.287 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.313 seconds.
+✔ Suite ModernHostStoreTests passed after 0.313 seconds.
+✔ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() passed after 0.328 seconds.
+✔ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() passed after 0.461 seconds.
+✔ Suite ModernNativeInputTests passed after 0.461 seconds.
+✔ Test run with 6 tests in 2 suites passed after 0.461 seconds.

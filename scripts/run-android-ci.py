@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run packaged JNI fixtures on a pinned emulator and retain failure diagnostics."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -17,9 +18,12 @@ def main():
     parser.add_argument("abi", choices=["x86_64", "arm64-v8a"])
     parser.add_argument("--performance-profile", choices=["smoke", "baseline"], help="Also measure verified editing/history workloads")
     parser.add_argument("--system-ime", action="store_true", help="Also exercise the installed API26 LatinIME, history reopen and native plain paste")
+    parser.add_argument("--reference-capture", action="store_true", help="Retain mixed-document component screenshots and a native recording on API26")
     args = parser.parse_args()
     if args.system_ime and (args.api, args.abi) != ("26", "x86_64"):
         parser.error("--system-ime is limited to the reviewed API26 x86_64 row")
+    if args.reference_capture and (args.api, args.abi) != ("26", "x86_64"):
+        parser.error("--reference-capture is limited to API26 x86_64")
     sdk = Path(os.environ["ANDROID_HOME"])
     output = Path("test-results/compatibility")
     output.mkdir(parents=True, exist_ok=True)
@@ -96,11 +100,54 @@ def main():
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
         device("install", "-r", "--abi", args.abi, apk)
+        if args.reference_capture:
+            capture = Path("test-results/reference-capture")
+            capture.mkdir(parents=True, exist_ok=True)
+            report = {
+                "passed": False,
+                "scope": "Existing mixed-document Compose component test: semantics text input, checklist touch, session restore and Undo/Redo. No installed IME, process restart, assets, physical device, TalkBack or modern acceptance.",
+                "sourceCommit": run("git", "rev-parse", "HEAD", capture_output=True, text=True).stdout.strip(),
+                "sourceTree": run("git", "rev-parse", "HEAD^{tree}", capture_output=True, text=True).stdout.strip(),
+                "apkSHA256": hashlib.sha256(apk.read_bytes()).hexdigest(),
+                "api": actual_api, "abi": args.abi, "serial": serial,
+                "workflowRun": os.environ.get("GITHUB_RUN_ID"),
+            }
+            receipt = capture / "environment.json"
+            receipt.write_text(json.dumps(report, indent=2) + "\n")
+            with (capture / "screenrecord.log").open("w") as recording_log:
+                recorder = subprocess.Popen([str(adb), "-s", serial, "shell", "screenrecord", "--time-limit", "30",
+                                             "--bit-rate", "2000000", "/sdcard/st116-reference.mp4"],
+                                            stdout=recording_log, stderr=subprocess.STDOUT, env=environment)
+                try:
+                    time.sleep(1)
+                    if recorder.poll() is not None:
+                        raise RuntimeError("Native Android recorder exited before the capture test")
+                    instrument("studio.seventwo.blockeditor.AuthoringControlsTest#nestedUnicodeAndChecklistHistorySurviveSessionRestore",
+                               "reference-capture-instrumentation.txt", 1, extra_args=("-e", "assessmentCapture", "true"))
+                    if recorder.wait(timeout=35) != 0:
+                        raise RuntimeError("Native Android recording failed")
+                    device("pull", "/sdcard/st116-reference.mp4", capture / "interaction-raw.mp4")
+                    for name in ("mixed-document", "nested-text-edited", "checklist-undone", "history-restored"):
+                        with (capture / f"{name}.png").open("wb") as image:
+                            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat",
+                                   f"files/assessment-capture/{name}.png", stdout=image)
+                    report["passed"] = True
+                    report["files"] = {file.name: hashlib.sha256(file.read_bytes()).hexdigest()
+                                       for file in capture.iterdir() if file.suffix in (".png", ".mp4")}
+                finally:
+                    if recorder.poll() is None:
+                        recorder.terminate()
+                        try: recorder.wait(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            recorder.kill()
+                            recorder.wait()
+                    receipt.write_text(json.dumps(report, indent=2) + "\n")
         instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 11)
         instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 6)
         instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
+        instrument("studio.seventwo.blockeditor.ModernSessionTest", "modern-session-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)

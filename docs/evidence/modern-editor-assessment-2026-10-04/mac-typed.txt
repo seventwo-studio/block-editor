@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "Local editor lab" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~		18 button Undo
+~					24 text entry area (settable) Description: Block text, Value: ST116 native Mac assessment
+The focused UI element is 24 text entry area (settable) Description: Block text, Value: ST116 native Mac assessment

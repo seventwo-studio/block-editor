@@ -1,0 +1,69 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :editor:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor:preBuild UP-TO-DATE
+> Task :editor:preDebugBuild UP-TO-DATE
+> Task :editor:generateDebugResValues UP-TO-DATE
+> Task :editor:generateDebugResources UP-TO-DATE
+> Task :editor:packageDebugResources UP-TO-DATE
+> Task :editor:parseDebugLocalResources UP-TO-DATE
+> Task :editor:generateDebugRFile UP-TO-DATE
+> Task :editor:javaPreCompileDebug UP-TO-DATE
+> Task :editor:preDebugAndroidTestBuild UP-TO-DATE
+> Task :editor:writeDebugAarMetadata UP-TO-DATE
+> Task :editor:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :editor:compileDebugLibraryResources UP-TO-DATE
+> Task :editor:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :editor:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :editor:generateDebugAndroidTestResources UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :editor:extractDeepLinksDebug UP-TO-DATE
+> Task :editor:processDebugManifest UP-TO-DATE
+> Task :editor:processDebugAndroidTestManifest UP-TO-DATE
+> Task :editor:processDebugAndroidTestResources UP-TO-DATE
+> Task :editor:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestShaders UP-TO-DATE
+> Task :editor:compileDebugAndroidTestShaders NO-SOURCE
+> Task :editor:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:mergeDebugShaders UP-TO-DATE
+> Task :editor:compileDebugShaders NO-SOURCE
+> Task :editor:generateDebugAssets UP-TO-DATE
+> Task :editor:mergeDebugAssets UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :editor:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :editor:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :editor:mergeDebugJniLibFolders UP-TO-DATE
+> Task :editor:mergeDebugNativeLibs UP-TO-DATE
+> Task :editor:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestNativeLibs UP-TO-DATE
+> Task :editor:stripDebugAndroidTestDebugSymbols UP-TO-DATE
+> Task :editor:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :editor:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :editor:compileDebugKotlin
+> Task :editor:compileDebugJavaWithJavac NO-SOURCE
+> Task :editor:processDebugJavaRes UP-TO-DATE
+> Task :editor:bundleLibRuntimeToJarDebug
+> Task :editor:bundleLibCompileToJarDebug
+> Task :editor:bundleLibRuntimeToDirDebug
+> Task :editor:compileDebugAndroidTestKotlin
+> Task :editor:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :editor:dexBuilderDebugAndroidTest
+> Task :editor:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :editor:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :editor:mergeProjectDexDebugAndroidTest
+> Task :editor:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :editor:mergeLibDexDebugAndroidTest
+> Task :editor:packageDebugAndroidTest
+> Task :editor:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+
+> Task :editor:connectedDebugAndroidTest
+Starting 1 tests on SevenChatKeyboardRepair(AVD) - 15
+
+Finished 1 tests on SevenChatKeyboardRepair(AVD) - 15
+
+BUILD SUCCESSFUL in 22s
+49 actionable tasks: 10 executed, 39 up-to-date

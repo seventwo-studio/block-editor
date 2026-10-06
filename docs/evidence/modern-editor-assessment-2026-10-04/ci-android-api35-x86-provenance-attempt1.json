@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "runtime": "android-api35-x86_64",
+  "source": {
+    "commit": "9fd633d80814b20ba668318a831aa7a8990d58de",
+    "tree": "0c63cf1c6356a47d24c3b816a86556d797fcf3b4"
+  },
+  "workflowRun": "37162111767",
+  "workflowAttempt": "1",
+  "host": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "release": "6.17.0-1022-azure"
+  },
+  "inputs": {
+    "scripts/ci-inputs.json": "f428305c89c89831cc584093e244a4586fe64d413976b57e2776ad050e7d6d15",
+    "bun.lock": "fd27d6ef94296fc3218ed2fdfd45f2e0320cabc074eb74ad304207f528c2cf19",
+    "benchmarks/workloads.json": "e20860e9f7bc8cf85ab34146132b551e4e5a4185225c567d3d49ecadbfffa1be",
+    "benchmarks/workloads-writing.json": "2d44f0428e38d040f88a1ca2463810464c91a662442a2515a646aeff3d9d2b8b",
+    "benchmarks/resources-writing.json": "4cae5fad5d902485e17639bd8ac53f03080ce4ced33532499ab6ff188b0dc650",
+    "tests/BlockEditorCoreTests/Fixtures/blockCommands.json": "52dce61e865c443aecf214d7a7ec4d2eb8e07c695c1d0fafc2e37b88b442a7c6",
+    "tests/BlockEditorCoreTests/Fixtures/boundaryCommands.json": "307974e62f64e323cd2a2b69b8d8c1f8c89e53b0e0929ae1e0cc4ad9be1ab80a",
+    "tests/BlockEditorCoreTests/Fixtures/bridge.json": "55f305d7c87a31db876048e01d21f8080c96ea541edd5009734d57a73c8d3d66",
+    "tests/BlockEditorCoreTests/Fixtures/clipboardCommands.json": "9524651f6caf97e275c174090e94f42462c0f8421f3a2cb7e2cd0df41b7d0201",
+    "tests/BlockEditorCoreTests/Fixtures/collectionCommands.json": "13712280c7cd5a0f7692b41df2e3b8d1356e3da69c15319914bb11ca3c5af5ae",
+    "tests/BlockEditorCoreTests/Fixtures/depthCommands.json": "360906f64959b8e7d67014882397c210bbb3f488dcc077d1cc46428c6d01e7ab",
+    "tests/BlockEditorCoreTests/Fixtures/documents.json": "28a0306a05eeaea035dfff9d1e9694c4b9eb89cf8ff39bddbf7f76a42c6671e2",
+    "tests/BlockEditorCoreTests/Fixtures/exitCommands.json": "5a2cee05fca259671e5674d40c85f180dfdbe49aead0f37eacbd9b3a8ce0f3ea",
+    "tests/BlockEditorCoreTests/Fixtures/importCommands.json": "4a281a3089cdc446059a3d3497ff9a80e20738336b7b59cc6b7ef5d2d3455d97",
+    "tests/BlockEditorCoreTests/Fixtures/paragraph.json": "4e80f24f09cf8cdc4b7869484c433ce45aeeb21e7140fdad0c5333fe9cf2cb50",
+    "tests/BlockEditorCoreTests/Fixtures/paste6Commands.json": "4b302c338404343a92736a9589c1023ab5a3abdc58cc237be19eaa2142e46d3d",
+    "tests/BlockEditorCoreTests/Fixtures/pinCommands.json": "45ad0897166e3e3bde538947f773b146e7d251fa57340a10859b17dd0fa5ea2a",
+    "tests/BlockEditorCoreTests/Fixtures/recovery.json": "32ce3e5b549a1556b640996f6a7725a85628191ad6b6675a9066f3cc82a21d87",
+    "tests/BlockEditorCoreTests/Fixtures/roleCommands.json": "43bcb1a99af3cd463b2eeb1776d869730d32ff905af0c3014a86e79e22e0afac",
+    "tests/BlockEditorCoreTests/Fixtures/schemaCommands.json": "8f2a8bce235862f00e941246a9ce38bbdebd01ebb6f4132af160d34999d6ebaf",
+    "tests/BlockEditorCoreTests/Fixtures/spliceCommands.json": "44b74c27f55e46fc8775ce04fda765b7b36df94b24d5d130991a4f4a80a6f851",
+    "tests/BlockEditorCoreTests/Fixtures/structure.json": "7a82baf6c079de837089c6c1a7043a2cef3bc302a19517fec1bfa4e389d724a2",
+    "tests/BlockEditorCoreTests/Fixtures/thresholdCommands.json": "5c9d041b41cd5636aa09b39bcea048f7e0a86fdf8e948b354e87ff44114c7278",
+    "tests/BlockEditorCoreTests/Fixtures/undoRecoveryCommands.json": "217ea501e353ac6e9c70917ae4310a6976d754ff5278371948de761a47b22698",
+    "tests/BlockEditorCoreTests/Fixtures/writing.json": "a6cff40c808ce75c04cc50bd52dd280978d0d174c48cefa5365a20cc67f1f258"
+  },
+  "installed": {
+    "swift-linux": {
+      "url": "https://download.swift.org/swift-6.4.0-release/ubuntu2404/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE-ubuntu24.04.tar.gz",
+      "sha256": "69f7b2b4dbce6090b6c92194b71149a057e16269093b5a9dded38afc4a05094e",
+      "size": 1124757497,
+      "version": "6.4.0-RELEASE Ubuntu 24.04 x86_64"
+    },
+    "swift-android": {
+      "url": "https://download.swift.org/swift-6.4.0-release/android-sdk/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE_android.artifactbundle.tar.gz",
+      "sha256": "21fb555122a3d801ad943d48df7ebffdd8824de61c25c180bb792d3edaee0b43",
+      "version": "6.4.0-RELEASE_android"
+    },
+    "android-platform": {
+      "url": "https://dl.google.com/android/repository/platform-35_r02.zip",
+      "sha256": "0988cacad01b38a18a47bac14a0695f246bc76c1b06c0eeb8eb0dc825ab0c8e0",
+      "size": 64273788,
+      "version": "35 revision 2",
+      "sdkPath": "platforms/android-35"
+    },
+    "android-ndk": {
+      "url": "https://dl.google.com/android/repository/android-ndk-r30-linux.zip",
+      "sha256": "753611f410d002cfcd3f3dc2ef49aad532089d3180b436c060a90bf0fcb64df2",
+      "size": 738633529,
+      "version": "30.0.16248370",
+      "sdkPath": "ndk/30.0.16248370"
+    },
+    "android-build-tools": {
+      "url": "https://dl.google.com/android/repository/build-tools_r35_linux.zip",
+      "sha256": "bd3a4966912eb8b30ed0d00b0cda6b6543b949d5ffe00bea54c04c81e1561d88",
+      "size": 61958799,
+      "version": "35.0.0",
+      "sdkPath": "build-tools/35.0.0"
+    },
+    "android-command-tools": {
+      "url": "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip",
+      "sha256": "7ec965280a073311c339e571cd5de778b9975026cfcbe79f2b1cdcb1e15317ee",
+      "size": 164760899,
+      "version": "19.0 (13114758)",
+      "sdkPath": "cmdline-tools/19.0"
+    },
+    "android-platform-tools": {
+      "url": "https://dl.google.com/android/repository/platform-tools_r37.0.1-linux.zip",
+      "sha256": "d230f13842f60f782a8645f9c813f8f845bf36089ea7289f28c48f17979313f1",
+      "size": 9054187,
+      "version": "37.0.1",
+      "sdkPath": "platform-tools"
+    },
+    "android-emulator": {
+      "url": "https://dl.google.com/android/repository/emulator-linux_x64-15917651.zip",
+      "sha256": "95771e0ae431897b2a4bd2d97fa095f29a8b0624a7b216baf529f9306161c266",
+      "size": 334378080,
+      "version": "37.1.11 (15917651)",
+      "sdkPath": "emulator"
+    },
+    "android-image-35": {
+      "url": "https://dl.google.com/android/repository/sys-img/google_apis/x86_64-35_r09.zip",
+      "sha256": "c67b9ba0ff5bc0eb6d046871bfa228af14d4d47b02f0cdae94f048e511b7566e",
+      "size": 1738815903,
+      "version": "35 Google APIs x86_64 revision 9",
+      "sdkPath": "system-images/android-35/google_apis/x86_64"
+    },
+    "gradle": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11.1-bin.zip",
+      "sha256": "f397b287023acdba1e9f6fc5ea72d22dd63669d59ed4a289a29b1a76eee151c6",
+      "version": "8.11.1"
+    }
+  },
+  "binaries": {
+    "jni": {
+      "path": "android/editor/src/main/jniLibs/x86_64/libBlockEditorJNI.so",
+      "bytes": 8912,
+      "sha256": "725df8a1c6d97362dc22265f25be0551fd1664f332f13693e86a9f05f054a410"
+    },
+    "swift-bridge": {
+      "path": "android/editor/src/main/jniLibs/x86_64/libBlockEditorBridge.so",
+      "bytes": 77535640,
+      "sha256": "d921a5aac96a539e2811d24a41a4ecb24ed6fa2f3fdd58f2a451d6055ed493e1"
+    },
+    "cxx-runtime": {
+      "path": "android/editor/src/main/jniLibs/x86_64/libc++_shared.so",
+      "bytes": 9091400,
+      "sha256": "7918ebd0b8074c312d0c610205d49760b98c008026e6b817cd92103a3e12241b"
+    },
+    "test-apk": {
+      "path": "android/editor/build/outputs/apk/androidTest/debug/editor-debug-androidTest.apk",
+      "bytes": 102980644,
+      "sha256": "3496fd150ec6c96a577d30801b2a285a80945d9c3210b4368c9be7bc7eef05b5"
+    }
+  }
+}

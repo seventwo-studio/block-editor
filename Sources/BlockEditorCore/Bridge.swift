@@ -4,14 +4,20 @@ import Foundation
 public final class EditorBridge {
     private var sessions: [String: EditorSession] = [:]
     private var writingSessions: [String: WritingSession] = [:]
+    private let modern = ModernBridgeEndpoint()
     public init() {}
     public func call(_ request: Data) -> Data {
         do {
             guard request.count <= 64_000_000 else { throw EditorError.invalidChange }
             let input = try JSONDecoder().decode(JSONValue.self, from: request)
+            if modern.handles(input) { try inspectModernJSONKeys(request, maximumDepth: 128) }
             let result = try dispatch(input)
             return try canonicalEncoder().encode(JSONValue.object(["ok": .bool(true), "value": result]))
         } catch {
+            if case ModernSessionError.recoveryRequired(let recovery) = error, let value = try? encode(recovery) {
+                return (try? canonicalEncoder().encode(JSONValue.object([
+                    "ok": .bool(false), "error": .string("modernRecoveryRequired"), "recovery": value]))) ?? Data()
+            }
             if case WritingSessionError.recoveryRequired(let recovery) = error, let value = try? encode(recovery) {
                 return (try? canonicalEncoder().encode(JSONValue.object([
                     "ok": .bool(false), "error": .string("writingRecoveryRequired"), "recovery": value]))) ?? Data()
@@ -34,9 +40,15 @@ public final class EditorBridge {
     private func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
+        if modern.handles(input) {
+            if command == "createModern" || command == "restoreModern" || command == "cutoverToModern" {
+                guard sessions[handle] == nil, writingSessions[handle] == nil else { throw EditorError.invalidChange }
+            }
+            return try modern.dispatch(input)
+        }
         if (command == "create" && [.number(3), .number(4), .number(5), .number(6)].contains(input["collaborationVersion"])) ||
            (command == "restore" && [.number(3), .number(4), .number(5), .number(6)].contains(input["snapshot"]?["version"])) || command == "cutoverToV3" {
-            guard !handle.isEmpty, sessions[handle] == nil, writingSessions[handle] == nil,
+            guard !handle.isEmpty, sessions[handle] == nil, writingSessions[handle] == nil, !modern.contains(handle),
                   let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             let writing: WritingSession
             if command == "restore" {
@@ -57,7 +69,7 @@ public final class EditorBridge {
         }
         if let writing = writingSessions[handle] { return try dispatchWriting(input, command: command, handle: handle, session: writing) }
         if command == "create" || command == "restore" || command == "cutoverToV2" {
-            guard !handle.isEmpty, sessions[handle] == nil, let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
+            guard !handle.isEmpty, sessions[handle] == nil, !modern.contains(handle), let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             if command == "cutoverToV2" {
                 guard let documentID = input["documentID"]?.string else { throw EditorError.invalidChange }
                 sessions[handle] = try ProtocolMigration.cutoverToV2(canonicalEncoder().encode(input["snapshot"] ?? .null), newDocumentID: documentID, actorID: actor)

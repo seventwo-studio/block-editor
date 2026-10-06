@@ -314,6 +314,7 @@ public final class WritingSession {
     }
     public func node(at address: NodeAddress) throws -> NodeID { try structure.node(at: address) }
     public func address(of node: NodeID) throws -> NodeAddress { try structure.address(of: node) }
+    func cutoverAddresses() throws -> [NodeID: NodeAddress] { try structure.cutoverAddresses() }
     public func textAddress(of node: NodeID, field: String = "content") throws -> TextAddress {
         _ = try structure.address(of: node)
         guard let value = structure.nodes[node], writingFields(value).contains(field) else { throw EditorError.invalidPath }
@@ -338,68 +339,29 @@ public final class WritingSession {
         return WritingPosition(documentID: documentID, epoch: epoch, field: field, affinity: offset == 0 ? .after : .before)
     }
     public func resolve(_ original: WritingPosition) throws -> ResolvedWritingPosition {
-        var position = original, retiredHeads = Set<WritingField>()
+        guard original.documentID == documentID, original.epoch == epoch else { throw WritingSessionError.incompatibleEpoch }
         var retirementStates: [ChangeID: Bool]?
-        while true {
-            guard position.documentID == documentID, position.epoch == epoch else { throw WritingSessionError.incompatibleEpoch }
-            if let anchor = position.anchor { guard anchor.element.index >= 0 else { throw EditorError.invalidChange } }
-            let field = try position.anchor.map { try projection.field(of: $0) } ?? projection.destination(of: position.field)
-            do { _ = try structure.address(of: field.node) }
-            catch {
-                // A protocol-4 split birth retains its exact source boundary after
-                // author Undo retires the new node. Empty-field head positions have
-                // no text atom to follow; resolve them through that immutable birth.
-                // Deleted unrelated nodes and field-end sentinels keep failing.
-                guard usesRetainedOrigins, position.anchor == nil, position.affinity == .after,
-                      position.intraAtomOffset == nil, !retiredHeads.contains(position.field),
-                      case .inserted(let creation, let path) = position.field.node, path.isEmpty,
-                      case .edit(let operations)? = log[creation.change]?.body else { throw error }
-                if retirementStates == nil {
-                    var winning: [ChangeID: (id: ChangeID, enabled: Bool)] = [:]
-                    for change in log.values {
-                        if case .setActive(let target, let enabled) = change.body,
-                           winning[target].map({ $0.id < change.id }) ?? true { winning[target] = (change.id, enabled) }
-                    }
-                    retirementStates = winning.mapValues(\.enabled)
+        return try resolveWritingPosition(original, projection: projection, structure: structure) { field in
+            guard usesRetainedOrigins, case .inserted(let creation, let path) = field.node, path.isEmpty,
+                  case .edit(let operations)? = log[creation.change]?.body else { return nil }
+            if retirementStates == nil {
+                var winning: [ChangeID: (id: ChangeID, enabled: Bool)] = [:]
+                for change in log.values {
+                    if case .setActive(let target, let enabled) = change.body,
+                       winning[target].map({ $0.id < change.id }) ?? true { winning[target] = (change.id, enabled) }
                 }
-                guard retirementStates?[creation.change] == false else { throw error }
-                let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
-                    switch operation {
-                    case .text(.splitBoundary(let source, let destination, let edge, _)),
-                         .text(.spliceBoundary(let source, let destination, let edge, _, _)):
-                        return destination == position.field ? (source, edge) : nil
-                    default: return nil
-                    }
+                retirementStates = winning.mapValues(\.enabled)
+            }
+            guard retirementStates?[creation.change] == false else { return nil }
+            let boundaries = operations.compactMap { operation -> (WritingField, WritingEdge)? in
+                switch operation {
+                case .text(.splitBoundary(let source, let destination, let edge, _)),
+                     .text(.spliceBoundary(let source, let destination, let edge, _, _)):
+                    return destination == field ? (source, edge) : nil
+                default: return nil
                 }
-                guard boundaries.count == 1, let (source, edge) = boundaries.first else { throw error }
-                let affinity: TextAffinity
-                switch edge { case .before: affinity = .before; case .after, .start: affinity = .after }
-                retiredHeads.insert(position.field)
-                position = WritingPosition(documentID: documentID, epoch: epoch, field: source, anchor: edge.anchor, affinity: affinity)
-                continue
             }
-            let keys = projection.visibleKeys(in: field)
-            var offset = 0
-            guard let anchor = position.anchor else {
-                guard position.intraAtomOffset == nil else { throw EditorError.invalidRange }
-                if position.affinity == .before { offset = projection.text(in: field).utf16.count }
-                else { offset = try projection.startOffset(of: position.field) }
-                return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
-            }
-            if let interior = position.intraAtomOffset {
-                let value = try atom(anchor), label = plainText([value])
-                guard value["type"] != .string("text"), interior > 0, interior < label.utf16.count, writingScalarBoundary(interior, in: label) else { throw EditorError.invalidRange }
-                return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: try projection.offset(of: anchor, affinity: .before) + (keys.contains(anchor) ? interior : 0))
-            }
-            for key in keys {
-                if key == anchor, position.affinity == .before { break }
-                offset += plainText([try atom(key)]).utf16.count
-                if key == anchor { break }
-            }
-            // Deleted anchors still own a placement; nearest visible offset is resolved
-            // by the full tombstone order, not by a stale field-local atom number.
-            if !keys.contains(anchor) { offset = try projection.offset(of: anchor, affinity: position.affinity) }
-            return ResolvedWritingPosition(address: field.node.textAddress(field.name), offset: offset)
+            return boundaries.count == 1 ? boundaries[0] : nil
         }
     }
     @discardableResult public func replaceText(at address: TextAddress, range: Range<Int>, with text: String, marks: [JSONValue]? = nil) throws -> WritingPosition {
@@ -430,19 +392,11 @@ public final class WritingSession {
         let id = try nextID(), creation = ElementID(change: id, index: 0), node = NodeID.inserted(creation: creation, path: [])
         let destination = WritingField(node: node, name: "content")
         let value: JSONValue = .object(["id": .string(newBlockID), "type": .string("paragraph"), "content": .array([])])
-        var operations = try retainedRoleOperations(for: [source])
-        operations.append(.structure(.insertNode(value: value, identity: node, collection: parent.collection, placement: creation, after: parent.id)))
-        operations.append(.text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: nextSibling)))
-        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
-        // Observed prefix atoms can themselves be anchored before a suffix atom.
-        // Pin those known atoms to the source before moving the suffix, so native
-        // committed composition does not follow its old anchor into the new field.
-        if usesRetainedOrigins {
-            let prefix = try selection(address, 0..<range.lowerBound).keys
-            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
-        }
+        let prefix = usesRetainedOrigins ? try selection(address, 0..<range.lowerBound).keys : []
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
-        if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
+        let operations = try retainedRoleOperations(for: [source]) + writingSplitOperations(value: value, identity: node,
+            collection: parent.collection, creation: creation, after: parent.id, source: selected.field, destination: destination,
+            edge: selected.edge, before: nextSibling, selected: selected.keys, prefix: prefix, suffix: suffix)
         try perform(id, operations)
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: suffix.first, affinity: suffix.isEmpty ? .after : .before)
     }
@@ -693,6 +647,7 @@ public final class WritingSession {
             guard var fields = value.object else { throw EditorError.invalidPath }
             // Duplication authors new schema nodes, including nested descendants.
             switch kind {
+            case .document, .column: throw EditorError.invalidPath
             case .block:
                 guard let type = fields["type"]?.string else { throw EditorError.invalidPath }
                 try requireAuthoredType(type)
@@ -943,6 +898,7 @@ public final class WritingSession {
         else { before = nil }
         func inlineValue(_ values: [JSONValue]) throws -> JSONValue {
             switch kind {
+            case .document, .column: throw EditorError.invalidPath
             case .block:
                 try requireAuthoredType("paragraph")
                 guard policy.allowedBlockTypes?.contains("paragraph") ?? true else { throw EditorError.restrictedBlock("paragraph") }
@@ -1141,6 +1097,7 @@ public final class WritingSession {
         func authored(_ value: JSONValue, kind: NodeKind) throws {
             guard let fields = value.object else { throw EditorError.invalidPath }
             switch kind {
+            case .document, .column: throw EditorError.invalidPath
             case .block:
                 guard let type = fields["type"]?.string else { throw EditorError.invalidPath }
                 try requireAuthoredType(type)
@@ -1361,36 +1318,15 @@ public final class WritingSession {
             }
         }
         func validationShape(_ original: Materialized, mutations: [Mutation], retainedRoles: Set<NodeID> = [], inactive: Bool = false) -> Materialized {
-            var copy = original
-            guard usesRetainedOrigins else { return copy }
-            for mutation in mutations {
-                let collection: NodeCollection
-                switch mutation {
-                case .insertNode(_, _, let destination, _, _), .moveNode(_, let destination, _, _): collection = destination
-                default: continue
-                }
-                if inactive, case .moveNode(let identity, _, _, _) = mutation, retainedRoles.contains(identity),
-                   (try? copy.structure?.kind(in: collection)) == .block, var value = copy.structure?.nodes[identity], value.kind == .item {
-                    value.kind = .block; value.fields["type"] = .string("paragraph"); copy.structure?.nodes[identity] = value
-                }
-                if (try? copy.structure?.kind(in: collection)) == nil,
-                   collection.field == "children",
-                   let owner = collection.owner, var value = copy.structure?.nodes[owner], value.birthKind == .item {
-                    value.kind = .item; copy.structure?.nodes[owner] = value
-                }
-                if (try? copy.structure?.kind(in: collection)) == nil,
-                   collectionBirths[collection] == .item, collection.field == "items",
-                   let owner = collection.owner, var value = copy.structure?.nodes[owner], value.kind == .block {
-                    value.fields["type"] = .string("list"); value.fields["style"] = .string("unordered")
-                    value.collections.insert("items"); copy.structure?.nodes[owner] = value
-                }
-            }
-            return copy
+            guard usesRetainedOrigins else { return original }
+            return writingRetainedCollectionShape(original, mutations: mutations, collectionBirths: collectionBirths,
+                retainedRoles: retainedRoles, inactive: inactive)
         }
         var validatedRoleChanges = trustedRoleChanges
         var exposures: [[ChangeID]: StructuralState] = [:]
         func roleNode(_ identity: NodeID, before change: ChangeID) throws -> StructuralState.Node {
             switch identity {
+            case .document: throw EditorError.invalidChange
             case .baseline(let label, let path):
                 guard !label.isEmpty, path.count <= 100, path.count % 2 == 0, path.allSatisfy({ !$0.isEmpty }) else { throw EditorError.invalidChange }
             case .inserted(let creation, let path):
@@ -1406,6 +1342,7 @@ public final class WritingSession {
         }
         func roleAnchor(_ after: NodePlacementID?, before change: ChangeID) throws {
             switch after {
+            case .some(.columnRoute): throw EditorError.invalidChange
             case .some(.initial(let identity)): _ = try roleNode(identity, before: change)
             case .some(.role(let owner, let node)): _ = try roleNode(owner, before: change); _ = try roleNode(node, before: change)
             case .some(.edit(let element)):
@@ -1419,7 +1356,7 @@ public final class WritingSession {
                   validToken(role.retirement.actor), role.retirement < change.id,
                   !role.exposure.isEmpty, role.exposure.count <= 100_000 else { throw EditorError.invalidChange }
             let owner = try roleNode(role.owner, before: change.id)
-            var value = try roleNode(role.node, before: change.id)
+            let value = try roleNode(role.node, before: change.id)
             try roleAnchor(role.after, before: change.id)
             let cohort = try observedClosure(role.exposure, before: change.id, in: candidate)
             guard cohort.contains(role.retirement) else { throw EditorError.invalidChange }
@@ -1456,36 +1393,8 @@ public final class WritingSession {
                     ($0.collection.field == "children" && $0.collection.owner.map { itemOwners.contains($0) } == true) ||
                     $0.id == .role(owner: role.owner, node: role.node))
             }) else { throw EditorError.invalidChange }
-            guard value.kind != .item || value.fields["type"] == nil || value.fields["type"] == .string("paragraph") else {
-                throw EditorError.invalidDocument("Peer item role metadata collision")
-            }
-            let selected = try raw.structure!.effectivePlacements()
-            guard let root = selected[role.owner] else { throw EditorError.invalidDocument("Retired role owner is unavailable") }
-            let id = NodePlacementID.role(owner: role.owner, node: role.node)
-            let priority = raw.structure?.placements[id]?.rolePriority
-            let origin = raw.structure?.placements[id]?.roleOrigin
-            guard role.after != id else { throw EditorError.invalidChange }
-            if let after = role.after {
-                guard let anchor = raw.structure?.placements[after] else { throw WritingProjectionError.missingAtom }
-                guard anchor.collection == root.collection else { throw EditorError.invalidDocument("Retained role anchor moved between collections") }
-            }
-            if let existing = raw.structure?.placements[id], existing.collection != root.collection {
-                throw EditorError.invalidDocument("Retired role owner moved between collections")
-            }
-            let enabled = active[change.id] ?? true
-            if value.kind == .item { value.kind = .block; value.fields["type"] = .string("paragraph") }
-            raw.structure?.nodes[role.node] = value
-            if enabled {
-                raw.structure?.touched.insert(role.node)
-                for (key, old) in raw.structure!.placements where old.node == role.node && old.active {
-                    raw.structure?.placements[key] = StructuralState.Placement(id: old.id, after: old.after,
-                        node: old.node, collection: old.collection, active: false, rolePriority: old.rolePriority, roleOrigin: old.roleOrigin)
-                }
-            }
-            if enabled || raw.structure?.placements[id] == nil {
-                raw.structure?.placements[id] = StructuralState.Placement(id: id, after: role.after,
-                    node: role.node, collection: root.collection, active: enabled, rolePriority: priority, roleOrigin: origin)
-            }
+            try applyWritingParagraphRole(node: role.node, owner: role.owner, after: role.after,
+                enabled: active[change.id] ?? true, raw: &raw)
         }
         var available = Set<WritingAtomKey>()
         func seededKeys(_ shape: StructuralState) -> Set<WritingAtomKey> {
@@ -1517,34 +1426,13 @@ public final class WritingSession {
                     guard let original = raw.structure?.placements[source] else { throw WritingProjectionError.missingAtom }
                     guard original.node == identity, original.collection == NodeCollection(owner: owner, field: "items") else { throw EditorError.invalidChange }
                     let wrapper = try roleNode(owner, before: change.id)
-                    var item = try roleNode(identity, before: change.id)
+                    let item = try roleNode(identity, before: change.id)
                     guard wrapper.kind == .block, item.birthKind == .item,
                           births[WritingField(node: identity, name: "content")] != nil,
                           raw.structure!.placements.values.contains(where: { $0.node == identity && $0.collection == NodeCollection(owner: owner, field: "items") }),
                           item.kind == .item || raw.structure?.placements[.role(owner: owner, node: identity)] != nil else { throw EditorError.invalidChange }
-                    guard item.kind != .item || item.fields["type"] == nil else { throw EditorError.invalidDocument("Exited item type metadata collision") }
-                    let placements = try raw.structure!.effectivePlacements()
-                    guard let root = placements[owner] else { throw EditorError.invalidDocument("Exited item owner unavailable") }
-                    let placement = NodePlacementID.role(owner: owner, node: identity)
-                    guard after != placement else { throw EditorError.invalidChange }
-                    if let after {
-                        guard let anchor = raw.structure?.placements[after] else { throw WritingProjectionError.missingAtom }
-                        guard anchor.collection == root.collection else { throw EditorError.invalidChange }
-                    }
-                    if item.kind == .item { item.kind = .block; item.fields["type"] = .string("paragraph") }
-                    raw.structure?.nodes[identity] = item
-                    let enabled = active[change.id] ?? true
-                    if enabled {
-                        raw.structure?.touched.insert(identity)
-                        for (key, old) in raw.structure!.placements where old.node == identity && old.active {
-                            raw.structure?.placements[key] = StructuralState.Placement(id: old.id, after: old.after, node: old.node, collection: old.collection, active: false, rolePriority: old.rolePriority, roleOrigin: old.roleOrigin)
-                        }
-                    }
-                    if enabled || raw.structure?.placements[placement] == nil {
-                        raw.structure?.placements[placement] = StructuralState.Placement(id: placement, after: after,
-                            node: identity, collection: root.collection, active: enabled,
-                            rolePriority: ElementID(change: change.id, index: 0), roleOrigin: source)
-                    }
+                    try applyWritingListExit(node: identity, owner: owner, source: source, after: after,
+                        change: change.id, enabled: active[change.id] ?? true, raw: &raw)
                 } else { passedRolePrefix = true }
             }
             if operations.contains(where: { if case .retainParagraphRole = $0 { return true }; return false }) {
@@ -1609,6 +1497,7 @@ public final class WritingSession {
             var introduced = Set<ElementID>()
             func node(_ identity: NodeID) throws {
                 switch identity {
+                case .document: throw EditorError.invalidChange
                 case .baseline(let label, let path):
                     guard !label.isEmpty, path.count <= 100, path.count % 2 == 0, path.allSatisfy({ !$0.isEmpty }), raw.structure?.nodes[identity] != nil else { throw EditorError.invalidChange }
                 case .inserted(let creation, let path):
@@ -1664,6 +1553,7 @@ public final class WritingSession {
                 if let anchor = boundary.edge.anchor { try observed(anchor, allowOwn: true) }
                 for key in boundary.sourceKeys { try observed(key) }
                 switch boundary.sourcePlacement {
+                case .columnRoute: throw EditorError.invalidChange
                 case .edit(let edit):
                     guard edit.change < change.id, cohort.contains(edit.change), edit.index >= 0,
                           edit.index <= 2_147_483_647 else { throw EditorError.invalidChange }
@@ -1736,6 +1626,7 @@ public final class WritingSession {
                             guard !path.isEmpty, cohort.contains(creation.change) else { throw EditorError.invalidChange }
                         }
                         try selfReference(identity)
+                    case .columnRoute: throw EditorError.invalidChange
                     case .role(let owner, let node):
                         try selfReference(owner); try selfReference(node)
                         guard let role = operations.compactMap({ operation -> WritingParagraphRole? in
@@ -1893,96 +1784,15 @@ public final class WritingSession {
                 case .schemaConvert(let conversion):
                     guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(conversion.node); try field(conversion.source)
-                    guard conversion.source.node == conversion.node || conversion.type != "list",
-                          let original = raw.structure?.nodes[conversion.node], original.kind == .block,
-                          ["paragraph", "heading", "quote", "callout", "list", "code"].contains(original.fields["type"]?.string ?? ""),
-                          ["paragraph", "heading", "quote", "callout", "list", "code"].contains(conversion.type) else { throw EditorError.invalidChange }
-                    if conversion.source.node != conversion.node {
-                        guard raw.structure?.nodes[conversion.source.node]?.kind == .item,
-                              raw.structure!.placements.values.contains(where: {
-                                  $0.node == conversion.source.node && $0.collection == NodeCollection(owner: conversion.node, field: "items")
-                              }) else { throw EditorError.invalidChange }
-                    }
-                    var value = original
-                    if conversion.type == "list" {
-                        guard let creation = conversion.creation, creation.change == change.id, creation.index >= 0, creation.index <= 2_147_483_647,
-                              original.fields["items"] == nil, introduced.insert(creation).inserted, let itemID = conversion.itemID, !itemID.isEmpty,
-                              conversion.destination == WritingField(node: .inserted(creation: creation, path: []), name: "content"),
-                              conversion.attributes.keys.allSatisfy({ $0 == "style" }) else { throw EditorError.invalidChange }
-                        if active[change.id] ?? true, original.fields["type"] == .string("list") {
-                            throw EditorError.invalidDocument("Concurrent list conversions require reconciliation")
-                        }
-                        var item: [String: JSONValue] = ["id": .string(itemID), "content": .array([])]
-                        if conversion.attributes["style"] == .string("todo") { item["checked"] = .bool(false) }
-                        let enabled = active[change.id] ?? true
-                        raw.structure?.register(.object(item), identity: conversion.destination.node, kind: .item, active: enabled)
-                        let placement = NodePlacementID.edit(creation)
-                        raw.structure?.placements[placement] = StructuralState.Placement(id: placement, after: nil,
-                            node: conversion.destination.node, collection: NodeCollection(owner: conversion.node, field: "items"), active: enabled)
-                        births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: .array([]), active: enabled)
-                        collectionBirths[NodeCollection(owner: conversion.node, field: "items")] = .item
-                        value.collections.insert("items")
-                    } else {
-                        guard conversion.creation == nil, conversion.itemID == nil,
-                              (conversion.source == conversion.destination || original.fields[conversion.destination.name] == nil || births[conversion.destination] != nil),
-                              conversion.destination == WritingField(node: conversion.node, name: conversion.type == "code" ? "code" : "content") else { throw EditorError.invalidChange }
-                        let allowed: Set<String> = conversion.type == "heading" ? ["level"] : conversion.type == "callout" ? ["variant"] : conversion.type == "code" ? ["language"] : []
-                        guard Set(conversion.attributes.keys).isSubset(of: allowed) else { throw EditorError.invalidChange }
-                        births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: conversion.type == "code" ? .string("") : .array([]), active: true)
-                        value.collections.remove("items")
-                    }
-                    if conversion.source.node != conversion.node {
-                        guard let item = raw.structure?.nodes[conversion.source.node], item.kind == .item else { throw EditorError.invalidChange }
-                        guard item.fields.filter({ $0.key != "id" && $0.key != "content" }) == conversion.preservedItemFields.filter({ $0.key != "children" }) else {
-                            throw EditorError.invalidDocument("Converted item metadata requires reconciliation")
-                        }
-                        if item.collections.contains("children") {
-                            guard conversion.preservedItemFields["children"] == nil || conversion.preservedItemFields["children"] == .array([]) else { throw EditorError.invalidChange }
-                        }
-                    } else { guard conversion.preservedItemFields.isEmpty else { throw EditorError.invalidChange } }
-                    guard conversion.preservedItemFields.keys.allSatisfy({ !["id", "type", "content", "code", "summary", "caption", "expression", "items", "rows"].contains($0) }) else { throw EditorError.invalidChange }
-                    for (key, preserved) in conversion.preservedItemFields {
-                        guard original.fields[key] == nil || original.fields[key] == preserved else { throw EditorError.invalidChange }
-                        value.fields[key] = preserved
-                    }
-                    value.fields.removeValue(forKey: conversion.source.name)
-                    value.fields["type"] = .string(conversion.type)
-                    value.fields[conversion.destination.name] = conversion.type == "list" ? nil : conversion.type == "code" ? .string("") : .array([])
-                    for (key, attribute) in conversion.attributes {
-                        guard !(active[change.id] ?? true) || original.fields["type"]?.string == conversionAttributeOwner(key) || value.fields[key] == nil || value.fields[key] == attribute else {
-                            throw EditorError.invalidDocument("Conversion attribute metadata requires reconciliation")
-                        }
-                        value.fields[key] = attribute
-                    }
-                    var shape = value.fields
-                    for collection in value.collections { shape[collection] = .array([]) }
-                    try validateNode(.object(shape), kind: .block)
-                    if active[change.id] ?? true {
-                        raw.structure?.nodes[conversion.node] = value; raw.structure?.touched.insert(conversion.node)
-                        if conversion.source.node != conversion.node { raw.structure?.deleted.insert(conversion.source.node) }
-                    }
+                    try applyWritingSchemaConversion(conversion, change: change.id, enabled: active[change.id] ?? true,
+                        raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced)
                 case .convertBlock(let identity, let type, let attributes):
                     guard usesRetainedOrigins else { throw EditorError.invalidChange }
                     try node(identity)
                     guard var value = raw.structure?.nodes[identity], value.kind == .block else { throw EditorError.invalidChange }
-                    let original = value.fields["type"]?.string ?? ""
-                    let inline = ["paragraph", "heading", "quote", "callout"]
-                    let retiredList = usesRetainedOrigins && original != "list" && type == "list" &&
+                    let retiredList = usesRetainedOrigins && value.fields["type"] != .string("list") && type == "list" &&
                         collectionBirths[NodeCollection(owner: identity, field: "items")] == .item
-                    guard (inline.contains(original) && inline.contains(type)) || (original == "list" && type == "list") || retiredList else { throw EditorError.invalidChange }
-                    let allowed: Set<String> = type == "heading" ? ["level"] : type == "callout" ? ["variant"] : type == "list" ? ["style"] : []
-                    guard Set(attributes.keys).isSubset(of: allowed) else { throw EditorError.invalidChange }
-                    if type == "list" { guard ["ordered", "unordered", "todo"].contains(attributes["style"]?.string ?? "") else { throw EditorError.invalidChange } }
-                    if !retiredList { value.fields["type"] = .string(type) }
-                    for (key, attribute) in attributes {
-                        guard !(active[change.id] ?? true) || original == conversionAttributeOwner(key) || retiredList || value.fields[key] == nil || value.fields[key] == attribute else {
-                            throw EditorError.invalidDocument("Conversion attribute metadata requires reconciliation")
-                        }
-                        value.fields[key] = attribute
-                    }
-                    var shape = value.fields
-                    for collection in value.collections { shape[collection] = .array([]) }
-                    try validateNode(.object(shape), kind: .block)
+                    value = try writingConvertedBlock(value, type: type, attributes: attributes, retiredList: retiredList, active: active[change.id] ?? true)
                     if active[change.id] ?? true { raw.structure?.nodes[identity] = value; raw.structure?.touched.insert(identity) }
                 case .structure(let mutation):
                     switch mutation {
@@ -2019,13 +1829,14 @@ public final class WritingSession {
         guard try document.json().count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
         return (state.0, state.1, document)
     }
-    private static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
-        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained)
+    static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3,
+                             activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride)
         let (structure, edits) = try orderedCuts(structure: inputs.structure, edits: inputs.edits,
             seeds: inputs.seeds, active: inputs.active, fields: inputs.fields, births: inputs.births,
             hidden: inputs.hidden, aliases: inputs.aliases, changes: changes,
             retained: retained, protocolVersion: protocolVersion)
-        return try assembleProjection(structure: structure, edits: edits, inputs: inputs, retained: retained)
+        return try assembleProjection(structure: structure, edits: edits, inputs: inputs, retained: retained, omitEmptyMarks: omitEmptyMarks)
     }
     private struct ProjectionInputs {
         let structure: StructuralState
@@ -2038,35 +1849,13 @@ public final class WritingSession {
         let aliases: [WritingField: WritingField]
     }
     @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
-        births retained: [WritingField: WritingFieldBirth]?) throws -> ProjectionInputs {
+        births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil) throws -> ProjectionInputs {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
         fields = Set(retainedWritingFields(structure).keys)
-        for (field, birth) in births {
-                var previous: WritingAtomKey?, index = 0
-                let value = birth.value
-                for payload in value.array ?? value.string.map({ [textNode($0)] }) ?? [] {
-                    let parts: [JSONValue]
-                    if payload["type"] == .string("text") {
-                        parts = (payload["text"]?.string ?? "").unicodeScalars.map {
-                            var object = payload.object!; object["text"] = .string(String($0)); return .object(object)
-                        }
-                        if parts.isEmpty, value.array != nil {
-                            let key = WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: index))
-                            seeds.append(WritingAtomSeed(key: key, node: payload, edge: previous.map(WritingEdge.after) ?? .start, route: .field(field)))
-                            if !birth.active { hidden.insert(key) }
-                            previous = key; index += 1
-                        }
-                    } else { parts = [payload] }
-                    for part in parts {
-                        let key = WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: index))
-                        seeds.append(WritingAtomSeed(key: key, node: part, edge: previous.map(WritingEdge.after) ?? .start, route: .field(field)))
-                        if !birth.active { hidden.insert(key) }
-                        previous = key; index += 1
-                    }
-                }
-        }
+        let seeded = seedWritingAtoms(births)
+        seeds = seeded.atoms; hidden = seeded.hidden
         var active: [ChangeID: Bool] = [:], edits: [WritingEdit] = []
         for change in changes {
             switch change.body {
@@ -2075,6 +1864,7 @@ public final class WritingSession {
                 edits.append(WritingEdit(id: change.id, mutations: operations.compactMap { if case .text(let mutation) = $0 { return mutation }; return nil }))
             }
         }
+        if let activeOverride { active = activeOverride }
         var aliases: [WritingField: WritingField] = [:]
         if retained != nil {
             var groups: [NodeID: Set<WritingField>] = [:], destinations: [NodeID: WritingField] = [:]
@@ -2269,41 +2059,12 @@ public final class WritingSession {
     }
     @inline(never) private static func assembleProjection(structure input: StructuralState,
         edits: [WritingEdit], inputs: ProjectionInputs,
-        retained: [WritingField: WritingFieldBirth]?) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        retained: [WritingField: WritingFieldBirth]?, omitEmptyMarks: Bool = false) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
         var structure = input
         let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
         let hidden = inputs.hidden, aliases = inputs.aliases
         let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
-        var values: [NodeID: [String: JSONValue]] = [:]
-        var baselineNodesByField: [WritingField: [JSONValue]] = [:]
-        for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
-        for field in fields {
-            let nodes = projection.nodes(in: field)
-            if retained != nil, field.name == "code", !nodes.allSatisfy({
-                $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
-                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
-            }) { throw EditorError.invalidDocument("Code conversion cannot flatten rich atoms") }
-            if !nodes.isEmpty { structure.touched.insert(field.node) }
-            // Preserve exact baseline JSON for untouched fields, including empty
-            // text runs and host extensions that have no visible scalar atoms.
-            let original = structure.nodes[field.node]!.fields[field.name]!
-            let baselineNodes = baselineNodesByField[field] ?? []
-            if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
-               retained == nil || original == births[field]?.value { continue }
-            var runs: [JSONValue] = []
-            for node in nodes {
-                if node["type"] == .string("text"), var last = runs.last?.object, last["type"] == .string("text") {
-                    var lhs = last, rhs = node.object!
-                    lhs.removeValue(forKey: "text"); rhs.removeValue(forKey: "text")
-                    if lhs == rhs {
-                        last["text"] = .string((last["text"]?.string ?? "") + (node["text"]?.string ?? ""))
-                        runs[runs.count - 1] = .object(last); continue
-                    }
-                }
-                runs.append(node)
-            }
-            values[field.node, default: [:]][field.name] = original.string == nil ? .array(runs) : .string(plainText(runs))
-        }
+        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks)
         for field in projection.joinedSources {
             if let node = structure.nodes[field.node], node.kind == .block,
                Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {
@@ -2589,7 +2350,7 @@ public final class WritingSession {
     private static func json<T: Encodable>(_ value: T) throws -> JSONValue { try JSONDecoder().decode(JSONValue.self, from: canonicalEncoder().encode(value)) }
 }
 
-private func validToken(_ value: String) -> Bool { !value.isEmpty && value.utf8.count <= 256 && value.utf8.allSatisfy { (33...126).contains($0) } }
+func validToken(_ value: String) -> Bool { !value.isEmpty && value.utf8.count <= 256 && value.utf8.allSatisfy { (33...126).contains($0) } }
 
 private func writingScalarBoundary(_ offset: Int, in text: String) -> Bool {
     if offset == 0 { return true }
@@ -2606,7 +2367,8 @@ private func writingFields(_ node: StructuralState.Node) -> [String] {
     let names: [String]
     switch node.kind {
     case .item, .cell: names = ["content"]
-    case .row: names = []
+    case .row, .column: names = []
+    case .document: names = ["title"]
     case .block:
         switch node.fields["type"]?.string {
         case "paragraph", "quote", "heading", "callout": names = ["content"]
@@ -2636,17 +2398,7 @@ extension WritingSession {
     private func requireAuthoredType(_ type: String) throws {
         if let allowedBlockTypes, !allowedBlockTypes.contains(type) { throw EditorError.restrictedBlock(type) }
     }
-    private func listOwner(of item: NodeID) throws -> NodeID {
-        let placements = try structure.effectivePlacements()
-        var current = item, visited = Set<NodeID>()
-        while let owner = placements[current]?.collection.owner {
-            guard visited.insert(owner).inserted else { throw EditorError.invalidPath }
-            if structure.nodes[owner]?.fields["type"] == .string("list"), structure.nodes[owner]?.kind == .block { return owner }
-            guard structure.nodes[owner]?.kind == .item else { throw EditorError.invalidPath }
-            current = owner
-        }
-        throw EditorError.invalidPath
-    }
+    private func listOwner(of item: NodeID) throws -> NodeID { try writingListOwner(of: item, structure: structure) }
     private func conversion(at address: TextAddress, target: WritingBlockTarget) throws -> WritingOperation {
         let source = try field(address).node
         let owner = structure.nodes[source]?.kind == .item && target.type == "list" ? try listOwner(of: source) : source
@@ -2724,48 +2476,14 @@ extension WritingSession {
         guard let index = siblings.firstIndex(of: source) else { throw EditorError.invalidPath }
         let empty = projection.nodes(in: selected.field).allSatisfy { $0["type"] == .string("text") && ($0["text"]?.string ?? "").isEmpty }
         if empty, range.isEmpty {
-            if let immediate = parent.collection.owner, structure.nodes[immediate]?.kind == .item {
-                guard let outer = placements[immediate] else { throw EditorError.invalidPath }
-                guard !(try structure.visibleOrder(in: outer.collection)).contains(where: { $0 != source && structure.nodes[$0]?.label == value.label }) else { throw EditorError.invalidChange }
-                let id = try nextID(), placement = ElementID(change: id, index: 0)
-                try perform(id, [.structure(.moveNode(identity: source, collection: outer.collection, placement: placement, after: outer.id))])
-                return selected.position
+            let nested = parent.collection.owner.flatMap { structure.nodes[$0]?.kind } == .item
+            if !nested {
+                try requireAuthoredType("paragraph")
+                if siblings.count > 1, index > 0, index + 1 < siblings.count { try requireAuthoredType("list") }
             }
-            if usesRetainedOrigins, siblings.count == 1 {
-                let id = try nextID(), operation = try schemaConversion(at: address, target: WritingBlockTarget(type: "paragraph"), id: id)
-                try perform(id, [.schemaConvert(operation)])
-                return selected.position
-            }
-            guard siblings.count > 1, let listPlacement = placements[owner] else { throw EditorError.invalidChange }
-            try requireAuthoredType("paragraph")
-            guard !value.fields.keys.contains("type"),
-                  !structure.placements.values.contains(where: { $0.collection == listPlacement.collection && $0.node != owner && $0.node != source && structure.nodes[$0.node]?.label == value.label }) else { throw EditorError.invalidChange }
-            let id = try nextID(), role = NodePlacementID.role(owner: owner, node: source)
-            var operations: [WritingOperation] = [.exitListItem(node: source, owner: owner, source: parent.id,
-                after: listPlacement.id)]
-            if index == 0 {
-                // Keep the original list owner as the tail, and move its root
-                // placement after the exiting first item's retained role.
-                operations.append(.structure(.moveNode(identity: owner, collection: listPlacement.collection,
-                    placement: ElementID(change: id, index: 0), after: role)))
-            } else if index + 1 < siblings.count {
-                try requireAuthoredType("list")
-                guard !newItemID.isEmpty, newItemID != value.label,
-                      !structure.placements.values.contains(where: { $0.collection == listPlacement.collection && structure.nodes[$0.node]?.label == newItemID }) else { throw EditorError.invalidChange }
-                let creation = ElementID(change: id, index: 0), tail = NodeID.inserted(creation: creation, path: [])
-                var fields = structure.nodes[owner]!.fields
-                fields["id"] = .string(newItemID); fields["items"] = .array([])
-                operations.append(.structure(.insertNode(value: .object(fields), identity: tail,
-                    collection: listPlacement.collection, placement: creation, after: role)))
-                var after: NodePlacementID?
-                for (offset, item) in siblings[(index + 1)...].enumerated() {
-                    let placement = ElementID(change: id, index: offset + 1)
-                    operations.append(.structure(.moveNode(identity: item, collection: NodeCollection(owner: tail, field: "items"),
-                        placement: placement, after: after)))
-                    after = .edit(placement)
-                }
-            }
-            try perform(id, operations)
+            let id = try nextID()
+            try perform(id, planWritingEmptyListEnter(source: selected.field, id: id, newItemID: newItemID,
+                structure: structure, projection: projection))
             return selected.position
         }
         if usesRetainedOrigins { try requireAuthoredType("list") }
@@ -2776,18 +2494,11 @@ extension WritingSession {
         if structure.nodes[owner]?.fields["style"] == .string("todo") { fields["checked"] = .bool(false) }
         if value.collections.contains("children") { fields["children"] = .array([]) }
         let next = index + 1 < siblings.count ? siblings[index + 1] : nil
-        var operations: [WritingOperation] = [.structure(.insertNode(value: .object(fields), identity: destinationNode, collection: parent.collection, placement: creation, after: parent.id)),
-            .text(.splitBoundary(source: selected.field, destination: destination, edge: selected.edge, before: next))]
-        if !selected.keys.isEmpty { operations.append(.text(.delete(keys: selected.keys))) }
-        // Observed prefix atoms can themselves be anchored before a suffix atom.
-        // Pin those known atoms to the source before moving the suffix, so native
-        // committed composition does not follow its old anchor into the new field.
-        if usesRetainedOrigins {
-            let prefix = try selection(address, 0..<range.lowerBound).keys
-            if !prefix.isEmpty { operations.append(.text(.transfer(keys: prefix, destination: selected.field, edge: .start))) }
-        }
+        let prefix = usesRetainedOrigins ? try selection(address, 0..<range.lowerBound).keys : []
         let suffix = try selection(address, range.upperBound..<projection.text(in: selected.field).utf16.count).keys
-        if !suffix.isEmpty { operations.append(.text(.transfer(keys: suffix, destination: destination, edge: .start))) }
+        let operations = writingSplitOperations(value: .object(fields), identity: destinationNode, collection: parent.collection,
+            creation: creation, after: parent.id, source: selected.field, destination: destination, edge: selected.edge,
+            before: next, selected: selected.keys, prefix: prefix, suffix: suffix)
         try perform(id, operations)
         return WritingPosition(documentID: documentID, epoch: epoch, field: destination, anchor: suffix.first, affinity: suffix.isEmpty ? .after : .before)
     }
@@ -2805,7 +2516,7 @@ public struct WritingSchemaConversion: Codable, Equatable, Sendable {
     public let creation: ElementID?
     public let preservedItemFields: [String: JSONValue]
 }
-private func conversionAttributeOwner(_ name: String) -> String? {
+func conversionAttributeOwner(_ name: String) -> String? {
     switch name {
     case "level": return "heading"
     case "variant": return "callout"
@@ -2814,11 +2525,11 @@ private func conversionAttributeOwner(_ name: String) -> String? {
     default: return nil
     }
 }
-private struct WritingFieldBirth {
+struct WritingFieldBirth {
     let value: JSONValue
     let active: Bool
 }
-private func retainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
+func retainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
     var result: [WritingField: WritingFieldBirth] = [:]
     for (identity, node) in structure.nodes {
         for name in writingFields(node) {
@@ -2831,54 +2542,9 @@ extension WritingSession {
     private func schemaConversion(at address: TextAddress, target: WritingBlockTarget, id: ChangeID) throws -> WritingSchemaConversion {
         guard usesRetainedOrigins else { throw EditorError.invalidChange }
         try requireAuthoredType(target.type)
-        let source = try field(address)
-        let root = structure.nodes[source.node]?.kind == .item ? try listOwner(of: source.node) : source.node
-        guard let node = structure.nodes[root], node.kind == .block,
-              ["paragraph", "heading", "quote", "callout", "list", "code"].contains(node.fields["type"]?.string ?? ""),
-              ["paragraph", "heading", "quote", "callout", "list", "code"].contains(target.type) else { throw EditorError.invalidChange }
-        var preserved: [String: JSONValue] = [:]
-        if node.fields["type"] == .string("list") {
-            let items = try structure.visibleOrder(in: NodeCollection(owner: root, field: "items"))
-            guard items == [source.node], let item = structure.nodes[source.node] else { throw EditorError.invalidChange }
-            // Unknown item properties are retained only where the root has no
-            // conflicting value. No overwrite can make a conversion lossless.
-            for (key, value) in item.fields where key != "id" && key != "content" {
-                guard !["type", "code", "summary", "caption", "expression", "items", "rows"].contains(key),
-                      node.fields[key] == nil || node.fields[key] == value else { throw EditorError.invalidChange }
-                preserved[key] = value
-            }
-            if item.collections.contains("children") {
-                guard node.fields["children"] == nil || node.fields["children"] == .array([]) else { throw EditorError.invalidChange }
-                preserved["children"] = .array([])
-            }
-        }
-        if target.type == "code" {
-            guard projection.nodes(in: source).allSatisfy({
-                $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
-                Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
-            }) else { throw EditorError.invalidChange }
-        }
-        var attributes: [String: JSONValue] = [:]
-        if target.type == "heading" { attributes["level"] = .number(Double(target.level ?? 1)) }
-        if target.type == "callout" { attributes["variant"] = .string(target.variant ?? "info") }
-        if target.type == "list" {
-            guard node.fields["items"] == nil, node.fields["type"] != .string("list") else { throw EditorError.invalidChange }
-            attributes["style"] = .string(target.style ?? "unordered")
-            guard node.fields["style"] == nil || node.fields["style"] == attributes["style"] else { throw EditorError.invalidChange }
-            let creation = ElementID(change: id, index: 0)
-            return WritingSchemaConversion(node: root, type: target.type, attributes: attributes, source: source,
-                destination: WritingField(node: .inserted(creation: creation, path: []), name: "content"),
-                itemID: node.label + "-item", creation: creation, preservedItemFields: [:])
-        }
-        for (key, attribute) in attributes {
-            let previous = preserved[key] ?? node.fields[key]
-            guard node.fields["type"]?.string == conversionAttributeOwner(key) || previous == nil || previous == attribute else { throw EditorError.invalidChange }
-        }
-        let name = target.type == "code" ? "code" : "content"
-        guard name == source.name && root == source.node || node.fields[name] == nil else { throw EditorError.invalidChange }
-        return WritingSchemaConversion(node: root, type: target.type, attributes: attributes, source: source,
-            destination: WritingField(node: root, name: name), itemID: nil, creation: nil, preservedItemFields: preserved)
+        return try planWritingSchemaConversion(source: field(address), target: target, id: id, structure: structure, projection: projection)
     }
+
 }
 
 /// A later structural command explicitly retains a paragraph role exposed by a
@@ -2896,45 +2562,18 @@ public struct WritingParagraphRole: Codable, Equatable, Sendable {
 private func retirement(_ change: WritingChange, belongsTo owner: NodeID, node: NodeID? = nil, in changes: [ChangeID: WritingChange]) -> Bool {
     switch change.body {
     case .edit(let operations):
-        return operations.contains { operation in
-            if case .schemaConvert(let conversion) = operation { return conversion.node == owner && conversion.type != "list" && conversion.source.node != owner }
-            if case .exitListItem(let exited, let wrapper, _, _) = operation { return wrapper == owner && exited == node }
-            return false
-        }
+        return writingRetirementOperations(operations, owner: owner, node: node)
     case .setActive(let target, let enabled):
         guard !enabled, let original = changes[target], case .edit(let operations) = original.body else { return false }
-        return operations.contains { operation in
-            if case .schemaConvert(let conversion) = operation { return conversion.node == owner && conversion.type == "list" }
-            return false
-        }
+        return writingListCreationOperations(operations, owner: owner)
     }
 }
 extension WritingSession {
     private func retainedRoleOperations(for identities: [NodeID]) throws -> [WritingOperation] {
         guard usesRetainedOrigins else { return [] }
-        let selected = try structure.effectivePlacements()
-        var visiting = Set<NodeID>(), done = Set<NodeID>(), result: [WritingOperation] = []
-        func visit(_ identity: NodeID) throws {
-            guard !done.contains(identity), let placement = selected[identity], case .role(let owner, let node) = placement.id else { return }
-            guard visiting.insert(identity).inserted else { throw EditorError.invalidChange }
-            guard node == identity, let proof = log.values.sorted(by: { $1.id < $0.id }).first(where: {
-                      retirement($0, belongsTo: owner, node: identity, in: log)
-                  }) else { throw EditorError.invalidChange }
-            let after = placement.after
-            if let after, case .role(_, let predecessor) = after, selected[predecessor]?.id == after { try visit(predecessor) }
-            let prior = log.values.sorted(by: { $1.id < $0.id }).compactMap { change -> WritingParagraphRole? in
-                guard case .edit(let operations) = change.body else { return nil }
-                return operations.compactMap { operation -> WritingParagraphRole? in
-                    if case .retainParagraphRole(let role) = operation, role.node == identity, role.owner == owner { return role }
-                    return nil
-                }.first
-            }.first
-            result.append(.retainParagraphRole(WritingParagraphRole(node: identity, owner: owner,
-                retirement: prior?.retirement ?? proof.id, exposure: prior?.exposure ?? observedFrontier(log), after: after)))
-            visiting.remove(identity); done.insert(identity)
+        return try planWritingParagraphRoles(for: identities, structure: structure, changes: Array(log.values), frontier: observedFrontier(log)) {
+            retirement(log[$0]!, belongsTo: $1, node: $2, in: log)
         }
-        for identity in Set(identities).sorted(by: { $0.key < $1.key }) { try visit(identity) }
-        return result
     }
 }
 
@@ -2956,7 +2595,7 @@ private func observedClosure(_ frontier: [ChangeID], before current: ChangeID, i
     return found
 }
 
-private func validateObservedFrontier(_ ids: [ChangeID], before bound: ChangeID) throws {
+func validateObservedFrontier(_ ids: [ChangeID], before bound: ChangeID) throws {
     guard ids.count <= 100_000, ids == ids.sorted(), Set(ids.map(\.actor)).count == ids.count,
           ids.allSatisfy({ $0.counter > 0 && $0.counter <= 9_007_199_254_740_991 && validToken($0.actor) && $0 < bound }) else { throw EditorError.invalidChange }
 }

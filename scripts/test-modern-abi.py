@@ -1,0 +1,1206 @@
+#!/usr/bin/env python3
+"""Exercise modern JSON endpoints through the compiled C ABI and independent fixtures."""
+import argparse
+import base64
+import ctypes
+import hashlib
+import json
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--library', required=True, type=Path)
+    parser.add_argument('--output', required=True, type=Path)
+    args = parser.parse_args()
+    library = args.library.resolve()
+    runtime = ctypes.CDLL(str(library))
+    pointer = ctypes.POINTER(ctypes.c_uint8)
+    runtime.block_editor_alloc.argtypes = [ctypes.c_int32]
+    runtime.block_editor_alloc.restype = pointer
+    runtime.block_editor_call.argtypes = [pointer, ctypes.c_int32]
+    runtime.block_editor_call.restype = pointer
+    runtime.block_editor_free.argtypes = [pointer]
+    runtime.block_editor_free.restype = None
+    root = Path(__file__).resolve().parents[1]
+    fixtures = root / 'docs/acceptance/modern-editor/documents'
+    hashes = {}
+    responses = 0
+
+    def fixture(name):
+        path = fixtures / (name + '.json')
+        data = path.read_bytes()
+        hashes[str(path.relative_to(root))] = hashlib.sha256(data).hexdigest()
+        return json.loads(data)
+
+    def raw_call(data):
+        nonlocal responses
+        source = runtime.block_editor_alloc(len(data))
+        assert source, 'ABI input allocation failed'
+        output = None
+        try:
+            ctypes.memmove(source, data, len(data))
+            output = runtime.block_editor_call(source, len(data))
+            assert output, 'ABI returned no response'
+            result = json.loads(ctypes.string_at(output))
+            responses += 1
+            return result
+        finally:
+            if output:
+                runtime.block_editor_free(output)
+            runtime.block_editor_free(source)
+
+    def call(command, handle='a', **fields):
+        fields.update(command=command, session=handle)
+        return raw_call(json.dumps(fields, ensure_ascii=False, separators=(',', ':')).encode())
+
+    def success(command, handle='a', **fields):
+        result = call(command, handle, **fields)
+        assert result.get('ok') is True, result
+        return result['value']
+
+    baseline = fixture('unicode')
+    expected_both = fixture('unicode-title-both')
+    expected_size = fixture('unicode-title-size-both')
+    expected_peer = fixture('unicode-title-peer')
+    document_id = baseline['documentID']
+    epoch = 'modern-abi-1'
+    for actor in ('a', 'b'):
+        created = success('createModern', actor, actorID=actor, documentID=document_id,
+                          epoch=epoch, collaborationVersion=7, document=baseline)
+        assert created['document'] == baseline and created['canUndo'] is False
+    capabilities = success('modernCapabilities')
+    assert capabilities['protocolVersion'] == 7 and capabilities['formatVersion'] == 1
+    assert capabilities['cutoverToModern'] is True
+    assert all(name in capabilities['commands'] for name in ('createColumns', 'removeColumns', 'resizeColumns'))
+    title = {'node': {'document': {'documentID': document_id}}, 'name': 'title'}
+    document_origin = title['node']
+
+    def capture(actor, start, end):
+        return success('modernCaptureTextRange', actor, field=title, start=start, end=end)
+
+    def command(actor, name, target=None, **arguments):
+        result = success('modernCommand', actor, request=dict(documentID=document_id, epoch=epoch,
+                         command=name, target=target, arguments=arguments))
+        assert result['status'] in ('applied', 'noop', 'unavailable', 'recoveryRequired'), result
+        return result
+
+    first = command('a', 'replaceTitle', capture('a', 0, 0), text='Studio ')
+    assert first['status'] == 'applied' and first['transaction']['actor'] == 'a'
+    assert first['focus']['field'] == title
+    end = len(baseline['title'].encode('utf-16-le')) // 2
+    command('b', 'replaceTitle', capture('b', end, end), text=' 2026')
+    command('b', 'setAppearance', document_origin, field='pageWidth', value='wide')
+    first_packet = success('modernChanges', 'a')
+    second_packet = success('modernChanges', 'b')
+    assert success('modernReceive', 'a', batch=second_packet)['document'] == expected_both
+    assert success('modernReceive', 'b', batch=first_packet)['document'] == expected_both
+    assert command('a', 'setAppearance', document_origin, field='fontSize', value='large')['document'] == expected_size
+    command('a', 'undo')
+    assert command('a', 'undo')['document'] == expected_peer
+    saved = success('modernSave', 'a')
+    success('destroy', 'a')  # Stop this author before resuming its saved actor/history.
+    restored = success('restoreModern', 'resumed', actorID='a', snapshot=saved)
+    assert restored['canRedo'] is True and restored['document'] == expected_peer
+    command('resumed', 'redo')
+    assert command('resumed', 'redo')['document'] == expected_size
+    no_change = command('resumed', 'setAppearance', document_origin, field='fontSize', value='large')
+    assert no_change['status'] == 'noop' and no_change['transaction'] is None
+    unsupported = command('resumed', 'indent')
+    assert unsupported['status'] == 'unavailable' and unsupported['document'] == expected_size
+    assert success('modernReceive', 'b', batch=success('modernChanges', 'resumed'))['document'] == expected_size
+    assert call('create', 'legacy-seven', actorID='old', documentID=document_id,
+                collaborationVersion=7, blocks=[])['ok'] is False
+    assert call('createModern', 'wrong-version', actorID='bad', documentID=document_id,
+                epoch=epoch, collaborationVersion=6, document=baseline)['ok'] is False
+    duplicate = b'{"command":"modernCapabilities","command":"modernCapabilities"}'
+    assert raw_call(duplicate)['ok'] is False
+    lossy_document = json.dumps(baseline, ensure_ascii=False)[:-1] + ',"opaque":9007199254740993}'
+    malformed = ('{"command":"createModern","session":"lossy","actorID":"lossy",'
+                 '"collaborationVersion":7,"documentID":' + json.dumps(document_id) + ',"epoch":'
+                 + json.dumps(epoch) + ',"document":' + lossy_document + '}').encode()
+    assert raw_call(malformed)['ok'] is False
+    # Failed creation must leave the handle available for an admitted document.
+    assert success('createModern', 'lossy', actorID='lossy', documentID=document_id,
+                   epoch=epoch, collaborationVersion=7, document=baseline)['document'] == baseline
+    # Receive a real protocol-7 structural birth through the same compiled ABI.
+    # Checked structural request/result scenarios follow below.
+    created_id = {'counter': 1, 'actor': 'structural-peer'}
+    element = {'change': created_id, 'index': 0}
+    identity = {'inserted': {'creation': element, 'path': []}}
+    paragraph = {'id': 'abi-inserted', 'type': 'paragraph',
+                 'content': [{'type': 'text', 'text': 'seed', 'marks': []}]}
+    structural = dict(version=7, documentID=document_id, epoch=epoch, baseline=baseline,
+                      changes=[dict(id=created_id, observed=[], body={'edit': {'_0': [
+                          {'structure': {'_0': {'insertNode': dict(value=paragraph, identity=identity,
+                              collection={'field': 'blocks'}, placement=element)}}}]}})])
+    assert success('createModern', 'structure', actorID='structure', documentID=document_id,
+                   epoch=epoch, collaborationVersion=7, document=baseline)['document'] == baseline
+    expected_structural = dict(baseline, blocks=[paragraph] + baseline['blocks'])
+    assert success('modernReceive', 'structure', batch=structural)['document'] == expected_structural
+    body_field = dict(node=identity, name='content')
+    body_target = success('modernCaptureTextRange', 'structure', field=body_field, start=4, end=4)
+    edited = command('structure', 'replaceText', body_target, text=' peer')
+    assert edited['status'] == 'applied' and edited['document']['blocks'][0]['content'][0]['text'] == 'seed peer'
+    assert command('structure', 'undo')['document'] == expected_structural
+    assert command('structure', 'redo')['document'] == edited['document']
+    structural_saved = success('modernSave', 'structure')
+    success('destroy', 'structure')
+    structural_restored = success('restoreModern', 'structure-resumed', actorID='structure', snapshot=structural_saved)
+    assert structural_restored['document'] == edited['document'] and structural_restored['canUndo'] is True
+    assert all(name in capabilities['commands'] for name in ('insertBlock', 'move', 'delete'))
+    # Checked structural results use the independent nested move snapshots.
+    nested = fixture('nested')
+    nested_moved = fixture('nested-moved')
+    success('createModern', 'nested', actorID='nested', documentID=nested['documentID'],
+            epoch=epoch, collaborationVersion=7, document=nested)
+    origin_a = {'baseline': {'blockID': 'A', 'path': []}}
+    selected = success('modernCaptureNodes', 'nested', nodes=[origin_a])
+    root_boundary = success('modernCaptureBoundary', 'nested', collection={'field': 'blocks'})
+    def structural_command(name, target=None, **arguments):
+        return success('modernCommand', 'nested', request=dict(documentID=nested['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    moved = structural_command('move', dict(selection=selected, boundary=root_boundary))
+    assert moved['status'] == 'applied' and moved['document'] == nested_moved
+    assert moved['selection']['nodes'] == [origin_a]
+    assert moved['focusIntent']['nodes']['_0'] == moved['selection']
+    assert structural_command('undo')['document'] == nested
+    assert structural_command('redo')['document'] == nested_moved
+    captured = success('modernCaptureBoundary', 'nested', collection={'field': 'blocks'})
+    inserted = structural_command('insertBlock', captured, block=dict(id='checked', type='paragraph',
+                                   content=[dict(type='text', text='Writing', marks=[])]))
+    assert inserted['status'] == 'applied' and inserted['focusIntent']['text']['_0'] == inserted['focus']
+    assert inserted['selectionIntent']['text']['_0'] == inserted['selection']
+    inserted_id = {'inserted': {'creation': {'change': inserted['transaction'], 'index': 0}, 'path': []}}
+    ordered = [inserted_id, origin_a] + [{'baseline': {'blockID': label, 'path': []}} for label in ('toggle', 'list')]
+    all_nodes = success('modernCaptureNodes', 'nested', nodes=ordered)
+    removed = structural_command('delete', dict(nodes=all_nodes, ranges=[]))
+    assert removed['status'] == 'applied' and removed['document']['blocks'] == []
+    assert removed['document']['title'] == nested['title']
+    assert removed['focus'] is None and removed['selection'] is None
+    insertion = removed['focusIntent']['insertion']['_0']
+    assert insertion['collection'] == {'field': 'blocks'}
+    assert structural_command('undo')['document'] == inserted['document']
+    assert structural_command('redo')['document'] == removed['document']
+    resumed_body = structural_command('insertBlock', insertion, block=dict(id='resumed', type='paragraph',
+                                      content=[dict(type='text', text='Resume', marks=[])]))
+    assert [block['id'] for block in resumed_body['document']['blocks']] == ['resumed']
+    # Stale targets cannot select another origin; malformed nested targets leave receipts intact.
+    saved_structural = success('modernSave', 'nested')
+    stale = call('modernCommand', 'nested', request=dict(documentID=nested['documentID'], epoch=epoch,
+                 command='delete', target=dict(nodes=all_nodes, ranges=[]), arguments={}))
+    assert stale['ok'] is False
+    assert success('modernSave', 'nested') == saved_structural
+    unsafe_block = dict(id='unsafe', type='paragraph', content=[dict(type='text', text='Bad',
+                        marks=[dict(type='link', href='javascript:bad')])])
+    rejected = call('modernCommand', 'nested', request=dict(documentID=nested['documentID'], epoch=epoch,
+                    command='insertBlock', target=root_boundary, arguments=dict(block=unsafe_block)))
+    assert rejected['ok'] is False
+    assert success('modernSave', 'nested') == saved_structural
+    # Compound column commands compare original accepted snapshots through the C ABI.
+    before_columns, created_columns = fixture('before-columns'), fixture('columns-created')
+    create_peer, create_undone_peer = fixture('columns-create-peer'), fixture('columns-create-undone-peer')
+    layout = json.loads(json.dumps(created_columns['blocks'][0]))
+    for column in layout['columns']:
+        column['children'] = []
+    def column_session(handle, document):
+        success('createModern', handle, actorID=handle, documentID=document['documentID'], epoch=epoch,
+                collaborationVersion=7, document=document)
+    def column_command(handle, name, target=None, **arguments):
+        return success('modernCommand', handle, request=dict(documentID=before_columns['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    column_session('columns-a', before_columns)
+    selected = success('modernCaptureNodes', 'columns-a', nodes=[{'baseline': {'blockID': label, 'path': []}} for label in ('A', 'B')])
+    grouped = column_command('columns-a', 'createColumns', dict(selection=selected), layout=layout)
+    assert grouped['status'] == 'applied' and grouped['document'] == created_columns
+    layout_origin = grouped['selection']['nodes'][0]
+    assert column_command('columns-a', 'undo')['document'] == before_columns
+    assert column_command('columns-a', 'redo')['document'] == created_columns
+    column_session('columns-b', before_columns)
+    success('modernReceive', 'columns-b', batch=success('modernChanges', 'columns-a'))
+    second_origin = json.loads(json.dumps(layout_origin))
+    second_origin['inserted']['path'] = ['columns', 'second-column']
+    peer_boundary = success('modernCaptureBoundary', 'columns-b', collection=dict(owner=second_origin, field='children'))
+    peer_block = create_peer['blocks'][0]['columns'][1]['children'][0]
+    assert column_command('columns-b', 'insertBlock', peer_boundary, block=peer_block)['document'] == create_peer
+    success('modernReceive', 'columns-a', batch=success('modernChanges', 'columns-b'))
+    assert column_command('columns-a', 'undo')['document'] == create_undone_peer
+    saved_columns = success('modernSave', 'columns-a')
+    success('restoreModern', 'columns-reopened', actorID='columns-a', snapshot=saved_columns)
+    assert column_command('columns-reopened', 'redo')['document'] == create_peer
+    column_session('columns-remove', fixture('columns-3000'))
+    baseline_layout = dict(baseline=dict(blockID='layout', path=[]))
+    removed = column_command('columns-remove', 'removeColumns', dict(layout=baseline_layout))
+    assert removed['document'] == fixture('columns-flattened') and removed['status'] == 'applied'
+    assert len(removed['selection']['nodes']) == 3
+    assert column_command('columns-remove', 'undo')['document'] == fixture('columns-3000')
+    column_session('split-a', fixture('columns-5000'))
+    column_session('split-b', fixture('columns-5000'))
+    assert column_command('split-a', 'resizeColumns', dict(layout=baseline_layout), splitBasisPoints=6000)['document'] == fixture('columns-split-a')
+    assert column_command('split-b', 'resizeColumns', dict(layout=baseline_layout), splitBasisPoints=4000)['document'] == fixture('columns-split-b')
+    success('modernReceive', 'split-a', batch=success('modernChanges', 'split-b'))
+    success('modernReceive', 'split-b', batch=success('modernChanges', 'split-a'))
+    assert column_command('split-b', 'undo')['document'] == fixture('columns-split-a')
+    success('modernReceive', 'split-a', batch=success('modernChanges', 'split-b'))
+    assert column_command('split-a', 'undo')['document'] == fixture('columns-5000')
+    unchanged_split = success('modernSave', 'split-a')
+    for invalid in (999, 9001, 5000.5):
+        rejected = column_command('split-a', 'resizeColumns', dict(layout=baseline_layout), splitBasisPoints=invalid)
+        assert rejected['status'] == 'unavailable' and rejected['transaction'] is None
+        assert success('modernSave', 'split-a') == unchanged_split
+    # Creation inside an existing column rejects without receipt/history changes.
+    nested_boundary = success('modernCaptureBoundary', 'columns-reopened', collection=dict(owner=second_origin, field='children'))
+    saved_before_nested = success('modernSave', 'columns-reopened')
+    denied_nested = column_command('columns-reopened', 'createColumns', dict(boundary=nested_boundary), layout=layout)
+    assert denied_nested['status'] == 'unavailable'
+    assert success('modernSave', 'columns-reopened') == saved_before_nested
+    column_session('empty-columns', before_columns)
+    empty_boundary = success('modernCaptureBoundary', 'empty-columns', collection=dict(field='blocks'), after=dict(baseline=dict(blockID='B', path=[])))
+    empty_created = column_command('empty-columns', 'createColumns', dict(boundary=empty_boundary), layout=layout)
+    empty_removed = column_command('empty-columns', 'removeColumns', dict(layout=empty_created['selection']['nodes'][0]))
+    assert empty_removed['document'] == before_columns and empty_removed['selection'] is None
+    resumed_boundary = empty_removed['focusIntent']['insertion']['_0']
+    empty_resumed = column_command('empty-columns', 'insertBlock', resumed_boundary, block=dict(id='Resume', type='paragraph', content=[dict(type='text', text='Write here')]))
+    assert [block['id'] for block in empty_resumed['document']['blocks']] == ['A', 'B', 'Resume', 'C', 'E']
+    # Same-content conversion retains an observed caret while peer text arrives.
+    assert all(name in capabilities['commands'] for name in ('convertBlock', 'softBreak'))
+    body_a = dict(node=dict(baseline=dict(blockID='A', path=[])), name='content')
+    expected_heading, expected_suffix = fixture('unicode-peer-heading'), fixture('unicode-peer-suffix')
+    for peer_first in (False, True):
+        author, peer = ('convert-first-a', 'convert-first-b') if peer_first else ('convert-last-a', 'convert-last-b')
+        column_session(author, baseline)
+        column_session(peer, baseline)
+        caret = success('modernCaptureTextRange', author, field=body_a, start=3, end=3)
+        peer_caret = success('modernCaptureTextRange', peer, field=body_a, start=3, end=3)
+        command(peer, 'replaceText', peer_caret, text=' remote')
+        peer_packet = success('modernChanges', peer)
+        if peer_first:
+            success('modernReceive', author, batch=peer_packet)
+        converted = command(author, 'convertBlock', caret, type='heading', level=2)
+        assert converted['status'] == 'applied' and converted['focus'] == caret['start']
+        assert success('modernReceive', author, batch=peer_packet)['document'] == expected_heading
+        assert success('modernReceive', peer, batch=success('modernChanges', author))['document'] == expected_heading
+        assert success('modernResolvePosition', author, position=converted['focus'])['offset'] == 3
+        assert command(author, 'undo')['document'] == expected_suffix
+        saved_conversion = success('modernSave', author)
+        success('destroy', author)
+        resumed = author + '-reopened'
+        assert success('restoreModern', resumed, actorID=author, snapshot=saved_conversion)['document'] == expected_suffix
+        assert command(resumed, 'redo')['document'] == expected_heading
+        assert success('modernResolvePosition', resumed, position=converted['focus'])['offset'] == 3
+        unchanged_conversion = success('modernSave', resumed)
+        invalid_conversion = command(resumed, 'convertBlock', caret, type='heading', level=4)
+        assert invalid_conversion['status'] == 'unavailable' and invalid_conversion['transaction'] is None
+        assert success('modernSave', resumed) == unchanged_conversion
+        deferred_conversion = command(resumed, 'convertBlock', caret, type='consumer-card')
+        assert deferred_conversion['status'] == 'unavailable' and deferred_conversion['transaction'] is None
+        assert success('modernSave', resumed) == unchanged_conversion
+    column_session('soft-break', baseline)
+    soft_caret = success('modernCaptureTextRange', 'soft-break', field=body_a, start=1, end=1)
+    broken = command('soft-break', 'softBreak', soft_caret)
+    assert broken['status'] == 'applied' and broken['document'] == fixture('unicode-soft-break')
+    assert success('modernResolvePosition', 'soft-break', position=broken['focus'])['offset'] == 2
+    assert command('soft-break', 'undo')['document'] == baseline
+    assert command('soft-break', 'redo')['document'] == broken['document']
+    # Retained cuts use independently written literal ABC expectations; these
+    # supplement the committed fixture checks without modifying that catalog.
+    assert all(name in capabilities['commands'] for name in ('splitBlock', 'mergeBlocks'))
+    column_session('cut-a', baseline)
+    column_session('cut-b', baseline)
+    cut_target = success('modernCaptureTextRange', 'cut-a', field=body_a, start=1, end=1)
+    tail_result = command('cut-a', 'splitBlock', cut_target, newBlockID='tail')
+    tail_origin = tail_result['focus']['field']['node']
+    expected_cut = json.loads(json.dumps(baseline))
+    expected_cut['blocks'][0]['content'] = [dict(type='text', text='A')]
+    expected_cut['blocks'].insert(1, dict(id='tail', type='paragraph', content=[dict(type='text', text='BC')]))
+    assert tail_result['document'] == expected_cut and tail_result['status'] == 'applied'
+    assert success('modernResolvePosition', 'cut-a', position=tail_result['focus'])['offset'] == 0
+    assert success('modernReceive', 'cut-b', batch=success('modernChanges', 'cut-a'))['document'] == expected_cut
+    tail_field = dict(node=tail_origin, name='content')
+    edited_tail = success('modernCaptureTextRange', 'cut-b', field=tail_field, start=0, end=1)
+    command('cut-b', 'replaceText', edited_tail, text='X')
+    success('modernReceive', 'cut-a', batch=success('modernChanges', 'cut-b'))
+    expected_undo = json.loads(json.dumps(baseline))
+    expected_undo['blocks'][0]['content'] = [dict(type='text', text='AXC')]
+    assert command('cut-a', 'undo')['document'] == expected_undo
+    cut_saved = success('modernSave', 'cut-a')
+    success('destroy', 'cut-a')
+    success('restoreModern', 'cut-reopened', actorID='cut-a', snapshot=cut_saved)
+    replayed = command('cut-reopened', 'redo')
+    assert [block['id'] for block in replayed['document']['blocks']][:2] == ['A', 'tail']
+    assert replayed['document']['blocks'][1]['content'] == [dict(type='text', text='XC')]
+    merge_target = success('modernCaptureNodes', 'cut-reopened', nodes=[body_a['node'], tail_origin])
+    merged = command('cut-reopened', 'mergeBlocks', merge_target)
+    assert merged['document'] == expected_undo and merged['status'] == 'applied'
+    assert success('modernResolvePosition', 'cut-reopened', position=merged['focus'])['offset'] == 1
+    assert command('cut-reopened', 'undo')['document'] == replayed['document']
+    # Explicit metadata incompatibility leaves both saved history and receipt intact.
+    unchanged_cut = success('modernSave', 'cut-reopened')
+    invalid_split = command('cut-reopened', 'splitBlock', cut_target, newBlockID='A')
+    assert invalid_split['status'] == 'unavailable' and invalid_split['transaction'] is None
+    assert success('modernSave', 'cut-reopened') == unchanged_cut
+    # Schema conversions use literal expectations, independently of runtime output.
+    column_session('schema-code-a', baseline)
+    column_session('schema-code-b', baseline)
+    schema_caret = success('modernCaptureTextRange', 'schema-code-a', field=body_a, start=2, end=2)
+    old_replacement = success('modernCaptureTextRange', 'schema-code-b', field=body_a, start=1, end=2)
+    code_result = command('schema-code-a', 'convertBlock', schema_caret, type='code')
+    assert code_result['status'] == 'applied'
+    assert code_result['document']['blocks'][0] == dict(id='A', type='code', code='ABC')
+    assert success('modernResolvePosition', 'schema-code-a', position=schema_caret['start'])['address']['path'] == ['code']
+    success('modernReceive', 'schema-code-b', batch=success('modernChanges', 'schema-code-a'))
+    command('schema-code-b', 'replaceText', old_replacement, text='X')
+    success('modernReceive', 'schema-code-a', batch=success('modernChanges', 'schema-code-b'))
+    assert command('schema-code-a', 'undo')['document']['blocks'][0] == dict(id='A', type='paragraph', content=[dict(type='text', text='AXC')])
+    schema_saved = success('modernSave', 'schema-code-a')
+    success('restoreModern', 'schema-code-reopened', actorID='schema-code-a', snapshot=schema_saved)
+    assert command('schema-code-reopened', 'redo')['document']['blocks'][0] == dict(id='A', type='code', code='AXC')
+    assert success('modernResolvePosition', 'schema-code-reopened', position=schema_caret['start'])['offset'] == 2
+    column_session('schema-list-a', baseline)
+    column_session('schema-list-b', baseline)
+    list_caret = success('modernCaptureTextRange', 'schema-list-a', field=body_a, start=1, end=1)
+    listed = command('schema-list-a', 'convertBlock', list_caret, type='list', style='todo')
+    assert listed['document']['blocks'][0] == dict(id='A', type='list', style='todo', items=[dict(id='A-item', checked=False, content=[dict(type='text', text='ABC')])])
+    item_origin = dict(inserted=dict(creation=dict(change=listed['transaction'], index=0), path=[]))
+    item_field = dict(node=item_origin, name='content')
+    success('modernReceive', 'schema-list-b', batch=success('modernChanges', 'schema-list-a'))
+    item_cut = success('modernCaptureTextRange', 'schema-list-b', field=item_field, start=1, end=1)
+    schema_cut = command('schema-list-b', 'splitBlock', item_cut, newBlockID='schema-tail')
+    success('modernReceive', 'schema-list-a', batch=success('modernChanges', 'schema-list-b'))
+    retired = command('schema-list-a', 'undo')['document']['blocks']
+    assert retired[0] == dict(id='A', type='paragraph', content=[dict(type='text', text='A')])
+    assert retired[1] == dict(id='schema-tail', type='paragraph', checked=False, content=[dict(type='text', text='BC')])
+    assert success('modernResolvePosition', 'schema-list-a', position=item_cut['start'])['address']['identity'] == schema_cut['focus']['field']['node']
+    list_saved = success('modernSave', 'schema-list-a')
+    success('restoreModern', 'schema-list-reopened', actorID='schema-list-a', snapshot=list_saved)
+    assert len(command('schema-list-reopened', 'redo')['document']['blocks'][0]['items']) == 2
+    column_session('schema-empty', baseline)
+    empty_caret = success('modernCaptureTextRange', 'schema-empty', field=body_a, start=0, end=0)
+    empty_list = command('schema-empty', 'convertBlock', empty_caret, type='list', style='todo')
+    empty_origin = dict(inserted=dict(creation=dict(change=empty_list['transaction'], index=0), path=[]))
+    empty_field = dict(node=empty_origin, name='content')
+    all_text = success('modernCaptureTextRange', 'schema-empty', field=empty_field, start=0, end=3)
+    command('schema-empty', 'replaceText', all_text, text='')
+    empty_enter = success('modernCaptureTextRange', 'schema-empty', field=empty_field, start=0, end=0)
+    exited = command('schema-empty', 'splitBlock', empty_enter, newBlockID='unused')
+    assert exited['document']['blocks'][0] == dict(id='A', type='paragraph', style='todo', checked=False, content=[])
+    assert success('modernResolvePosition', 'schema-empty', position=exited['focus'])['offset'] == 0
+    assert command('schema-empty', 'undo')['document']['blocks'][0] == dict(id='A', type='list', style='todo', items=[dict(id='A-item', checked=False, content=[])])
+    assert command('schema-empty', 'redo')['document'] == exited['document']
+    opaque_code_document = dict(baseline, blocks=[dict(id='A', type='code', code='ABC', content=dict(consumer='retain'))])
+    column_session('schema-opaque', opaque_code_document)
+    opaque_target = success('modernCaptureTextRange', 'schema-opaque', field=dict(node=body_a['node'], name='code'), start=0, end=0)
+    opaque_saved = success('modernSave', 'schema-opaque')
+    rejected_opaque = command('schema-opaque', 'convertBlock', opaque_target, type='list')
+    assert rejected_opaque['status'] == 'unavailable' and rejected_opaque['transaction'] is None
+    assert rejected_opaque['document'] == opaque_code_document
+    assert success('modernSave', 'schema-opaque') == opaque_saved
+    # Retired peer roles remain authorable through the native command envelope.
+    retained_field = schema_cut['focus']['field']
+    retained_range = success('modernCaptureTextRange', 'schema-list-a', field=retained_field, start=1, end=1)
+    headed = command('schema-list-a', 'convertBlock', retained_range, type='heading', level=2)
+    expected_heading = dict(id='schema-tail', type='heading', level=2, checked=False, content=[dict(type='text', text='BC')])
+    assert headed['status'] == 'applied' and headed['document']['blocks'][1] == expected_heading
+    assert success('modernReceive', 'schema-list-b', batch=success('modernChanges', 'schema-list-a'))['document'] == headed['document']
+    role_saved = success('modernSave', 'schema-list-a')
+    success('restoreModern', 'role-reopened', actorID='schema-list-a', snapshot=role_saved)
+    assert command('role-reopened', 'undo')['document']['blocks'][1] == dict(id='schema-tail', type='paragraph', checked=False, content=[dict(type='text', text='BC')])
+    assert command('role-reopened', 'redo')['document']['blocks'][1] == expected_heading
+    # First/middle/last empty root exits use independently written literal plans.
+    for index in range(3):
+        items = [dict(id=f'i{i}', checked=(i == 0), content=[] if i == index else [dict(type='text', text=f'I{i}')]) for i in range(3)]
+        list_block = dict(id='list', type='list', style='todo', consumer='keep', items=items)
+        enter_document = dict(baseline, blocks=[list_block])
+        handle = f'enter-{index}'
+        column_session(handle, enter_document)
+        empty_field = dict(node=dict(baseline=dict(blockID='list', path=['items', f'i{index}'])), name='content')
+        target = success('modernCaptureTextRange', handle, field=empty_field, start=0, end=0)
+        exited = command(handle, 'splitBlock', target, newBlockID='tail')
+        paragraph = dict(id=f'i{index}', type='paragraph', checked=(index == 0), content=[])
+        if index == 0:
+            expected = [paragraph, dict(list_block, items=items[1:])]
+        elif index == 1:
+            expected = [dict(list_block, items=items[:1]), paragraph, dict(list_block, id='tail', items=items[2:])]
+        else:
+            expected = [dict(list_block, items=items[:2]), paragraph]
+        assert exited['status'] == 'applied' and exited['document']['blocks'] == expected
+        assert success('modernResolvePosition', handle, position=exited['focus'])['address']['identity'] == empty_field['node']
+        saved = success('modernSave', handle)
+        reopened = handle + '-reopened'
+        success('restoreModern', reopened, actorID=handle, snapshot=saved)
+        assert command(reopened, 'undo')['document'] == enter_document
+        assert command(reopened, 'redo')['document']['blocks'] == expected
+    # List-only multi-item hierarchy, scalar state and scoped moves use literal
+    # expectations written independently of runtime output and accepted fixtures.
+    list_items = [dict(id=name, content=[dict(type='text', text=name.upper())], checked=False, consumer='keep-' + name) for name in ('a', 'b', 'c')]
+    list_document = dict(baseline, blocks=[dict(id='L', type='list', style='todo', consumer='root', items=list_items),
+                                         dict(id='M', type='list', style='todo', items=[dict(id='m', content=[dict(type='text', text='M')], checked=False)])])
+    column_session('list-a', list_document)
+    column_session('list-b', list_document)
+    origins = [dict(baseline=dict(blockID='L', path=['items', name])) for name in ('b', 'c')]
+    list_field = dict(node=origins[0], name='content')
+    selected = success('modernCaptureListNodes', 'list-a', nodes=origins)
+    caret = success('modernPosition', 'list-a', field=list_field, offset=1)
+    target = dict(selection=selected, caret=caret)
+    indented = command('list-a', 'listStructure', target, action='indent')
+    expected_indent = dict(list_document, blocks=[dict(list_document['blocks'][0], items=[dict(list_items[0], children=list_items[1:])]), list_document['blocks'][1]])
+    assert indented['status'] == 'applied' and indented['document'] == expected_indent
+    peer_range = success('modernCaptureTextRange', 'list-b', field=list_field, start=1, end=1)
+    command('list-b', 'replaceText', peer_range, text='!')
+    success('modernReceive', 'list-a', batch=success('modernChanges', 'list-b'))
+    success('modernReceive', 'list-b', batch=success('modernChanges', 'list-a'))
+    expected_peer_items = [list_items[0], dict(list_items[1], content=[dict(type='text', text='B!')]), list_items[2]]
+    expected_restored = dict(list_document, blocks=[dict(list_document['blocks'][0], items=expected_peer_items), list_document['blocks'][1]])
+    assert command('list-a', 'undo')['document'] == expected_restored
+    boundary = success('modernCaptureListBoundary', 'list-a', collection=dict(owner=dict(baseline=dict(blockID='M', path=[])), field='items'),
+                       after=dict(baseline=dict(blockID='M', path=['items', 'm'])))
+    selected = success('modernCaptureListNodes', 'list-a', nodes=origins)
+    moved = command('list-a', 'listStructure', dict(selection=selected, caret=caret, boundary=boundary), action='reorder')
+    expected_moved = dict(list_document, blocks=[dict(list_document['blocks'][0], items=expected_peer_items[:1]),
+                                               dict(list_document['blocks'][1], items=list_document['blocks'][1]['items'] + expected_peer_items[1:])])
+    assert moved['status'] == 'applied' and moved['document'] == expected_moved
+    resolved_caret = success('modernResolvePosition', 'list-a', position=caret)
+    assert resolved_caret['address']['identity'] == origins[0] and resolved_caret['offset'] == 1
+    moved_save = success('modernSave', 'list-a')
+    success('restoreModern', 'list-reopened', actorID='list-a', snapshot=moved_save)
+    assert command('list-reopened', 'undo')['document'] == expected_restored
+    assert command('list-reopened', 'redo')['document'] == expected_moved
+    selected = success('modernCaptureListNodes', 'list-reopened', nodes=origins)
+    checks = command('list-reopened', 'listStructure', dict(selection=selected), action='setChecked', checked=True)
+    expected_checked_items = [dict(item, checked=True) for item in expected_peer_items[1:]]
+    expected_checked = dict(list_document, blocks=[expected_moved['blocks'][0], dict(list_document['blocks'][1], items=list_document['blocks'][1]['items'] + expected_checked_items)])
+    assert checks['status'] == 'applied' and checks['document'] == expected_checked
+    assert command('list-reopened', 'undo')['document'] == expected_moved
+    assert command('list-reopened', 'redo')['document'] == expected_checked
+    success('modernSetListPolicy', 'list-reopened', allowedListActions=['setChecked', 'reorder'])
+    policy = success('modernCapabilities', 'list-reopened')
+    assert policy['listActions'] == ['reorder', 'setChecked'] and 'listStructure' in policy['commands']
+    denied = command('list-reopened', 'listStructure', dict(selection=selected), action='setStyle', style='ordered')
+    assert denied['status'] == 'unavailable' and denied['reason'] == 'hostPolicy' and denied['transaction'] is None
+    success('modernSetListPolicy', 'list-reopened', allowedListActions=None)
+    styled = command('list-reopened', 'listStructure', dict(selection=selected), action='setStyle', style='ordered')
+    assert styled['status'] == 'applied' and styled['document']['blocks'] == [expected_checked['blocks'][0], dict(expected_checked['blocks'][1], style='ordered')]
+    assert command('list-reopened', 'undo')['document'] == expected_checked
+    # Semantic defaults and links use independent literal documents and marks,
+    # preserving captured atoms, peer text and author-local Undo/reopen.
+    bold = dict(type='bold')
+    green = dict(type='semantic-color', value='green')
+    link = dict(type='link', href='https://example.com/path')
+    inline_document = dict(baseline, blocks=[dict(id='A', type='paragraph', consumer=dict(color='custom'), content=[dict(type='text', text='ABC', marks=[bold])]),
+                                            dict(id='B', type='paragraph', content=[])])
+    column_session('ink-a', inline_document)
+    column_session('ink-b', inline_document)
+    origin_a = dict(baseline=dict(blockID='A', path=[]))
+    origin_b = dict(baseline=dict(blockID='B', path=[]))
+    inline_field = dict(node=origin_a, name='content')
+    text_target = success('modernCaptureTextRange', 'ink-a', field=inline_field, start=3, end=0)
+    selection = success('modernCaptureNodes', 'ink-a', nodes=[origin_a, origin_b])
+    nodes_target = dict(nodes=selection)
+    peer_target = success('modernCaptureTextRange', 'ink-b', field=inline_field, start=1, end=1)
+    command('ink-b', 'replaceText', peer_target, text='peer')
+    peer_nodes = success('modernCaptureNodes', 'ink-b', nodes=[origin_a])
+    command('ink-b', 'setSemanticColor', dict(nodes=peer_nodes), kind='fill', role='amber')
+    colored = command('ink-a', 'setSemanticColor', nodes_target, kind='ink', role='blue')
+    assert colored['status'] == 'applied' and colored['selectionIntent']['nodes']
+    success('modernReceive', 'ink-a', batch=success('modernChanges', 'ink-b'))
+    success('modernReceive', 'ink-b', batch=success('modernChanges', 'ink-a'))
+    peer_document = dict(inline_document, blocks=[dict(inline_document['blocks'][0], semanticBackground='amber', content=[dict(type='text', text='ApeerBC', marks=[bold])]), inline_document['blocks'][1]])
+    expected_defaults = dict(inline_document, blocks=[dict(peer_document['blocks'][0], semanticColor='blue'), dict(inline_document['blocks'][1], semanticColor='blue')])
+    saved = success('modernSave', 'ink-a')
+    success('restoreModern', 'ink-reopen', actorID='ink-a', snapshot=saved)
+    assert command('ink-reopen', 'undo')['document'] == peer_document
+    assert command('ink-reopen', 'redo')['document'] == expected_defaults
+    assert success('modernSemanticState', 'ink-reopen', target=nodes_target, kind='ink') == dict(role=dict(_0='blue'))
+    assert success('modernSemanticState', 'ink-reopen', target=nodes_target, kind='fill') == dict(mixed={})
+    rich = command('ink-reopen', 'setSemanticColor', dict(range=text_target), kind='ink', role='green')
+    expected_rich = dict(expected_defaults, blocks=[dict(expected_defaults['blocks'][0], content=[dict(type='text', text='A', marks=[bold, green]), dict(type='text', text='peer', marks=[bold]), dict(type='text', text='BC', marks=[bold, green])]), expected_defaults['blocks'][1]])
+    assert rich['document'] == expected_rich and rich['focus'] == text_target['end']
+    full_range = success('modernCaptureTextRange', 'ink-reopen', field=inline_field, start=0, end=7)
+    assert success('modernSemanticState', 'ink-reopen', target=dict(range=full_range), kind='ink') == dict(mixed={})
+    linked = command('ink-reopen', 'setLink', text_target, href='https://example.com/path')
+    expected_linked = dict(expected_defaults, blocks=[dict(expected_defaults['blocks'][0], content=[dict(type='text', text='A', marks=[bold, link, green]), dict(type='text', text='peer', marks=[bold]), dict(type='text', text='BC', marks=[bold, link, green])]), expected_defaults['blocks'][1]])
+    assert linked['document'] == expected_linked and linked['focus'] == text_target['end']
+    saved = success('modernSave', 'ink-reopen')
+    assert command('ink-reopen', 'setLink', text_target, href='https://example.com/path')['status'] == 'noop'
+    assert success('modernSave', 'ink-reopen') == saved
+    reset = command('ink-reopen', 'setSemanticColor', dict(range=text_target), kind='ink', role=None)
+    expected_reset = dict(expected_defaults, blocks=[dict(expected_defaults['blocks'][0], content=[dict(type='text', text='A', marks=[bold, link]), dict(type='text', text='peer', marks=[bold]), dict(type='text', text='BC', marks=[bold, link])]), expected_defaults['blocks'][1]])
+    assert reset['document'] == expected_reset
+    assert success('modernSemanticState', 'ink-reopen', target=dict(range=text_target), kind='ink') == dict(role=dict(_0='blue'))
+    assert command('ink-reopen', 'undo')['document'] == expected_linked
+    assert command('ink-reopen', 'undo')['document'] == expected_rich
+    assert command('ink-reopen', 'redo')['document'] == expected_linked
+    caret = success('modernCaptureTextRange', 'ink-reopen', field=inline_field, start=7, end=7)
+    label = command('ink-reopen', 'setLink', caret, href='mailto:hello@example.com', label='😀 link')
+    expected_label = dict(expected_defaults, blocks=[dict(expected_linked['blocks'][0], content=expected_linked['blocks'][0]['content'] + [dict(type='text', text='😀 link', marks=[bold, dict(type='link', href='mailto:hello@example.com'), green])]), expected_defaults['blocks'][1]])
+    assert label['document'] == expected_label
+    assert success('modernResolvePosition', 'ink-reopen', position=label['focus'])['offset'] == 14
+    assert command('ink-reopen', 'undo')['document'] == expected_linked
+    saved = success('modernSave', 'ink-reopen')
+    for name, target, arguments in [('setLink', text_target, dict(href='javascript:alert(1)')),
+                                    ('setSemanticColor', nodes_target, dict(kind='ink', role='custom'))]:
+        denied = command('ink-reopen', name, target, **arguments)
+        assert denied['status'] == 'unavailable' and denied['transaction'] is None
+        assert success('modernSave', 'ink-reopen') == saved
+    success('modernSetAuthoringPolicy', 'ink-reopen', allowedCommands=['setLink', 'undo', 'redo'])
+    assert success('modernCapabilities', 'ink-reopen')['commands'] == ['setLink', 'undo', 'redo']
+    denied = command('ink-reopen', 'setSemanticColor', nodes_target, kind='ink', role='red')
+    assert denied['status'] == 'unavailable' and denied['reason'] == 'hostPolicy' and denied['document'] == expected_linked
+    # A captured range follows suffix atoms into a peer-created field. State
+    # uses the actual field's default, while marks cover both retained segments.
+    column_session('cross-a', inline_document)
+    column_session('cross-b', inline_document)
+    cross_range = success('modernCaptureTextRange', 'cross-a', field=inline_field, start=3, end=0)
+    split_range = success('modernCaptureTextRange', 'cross-b', field=inline_field, start=1, end=1)
+    split = command('cross-b', 'splitBlock', split_range, newBlockID='tail')
+    tail_nodes = success('modernCaptureNodes', 'cross-b', nodes=[split['focus']['field']['node']])
+    command('cross-b', 'setSemanticColor', dict(nodes=tail_nodes), kind='ink', role='blue')
+    success('modernReceive', 'cross-a', batch=success('modernChanges', 'cross-b'))
+    assert success('modernSemanticState', 'cross-a', target=dict(range=cross_range), kind='ink') == dict(mixed={})
+    expected_cross_peer = dict(inline_document, blocks=[dict(inline_document['blocks'][0], content=[dict(type='text', text='A', marks=[bold])]),
+                                                     dict(id='tail', type='paragraph', semanticColor='blue', content=[dict(type='text', text='BC', marks=[bold])]), inline_document['blocks'][1]])
+    command('cross-a', 'setSemanticColor', dict(range=cross_range), kind='ink', role='green')
+    cross = command('cross-a', 'setLink', cross_range, href='https://example.com/path')
+    expected_cross = dict(inline_document, blocks=[dict(expected_cross_peer['blocks'][0], content=[dict(type='text', text='A', marks=[bold, link, green])]),
+                                                dict(expected_cross_peer['blocks'][1], content=[dict(type='text', text='BC', marks=[bold, link, green])]), inline_document['blocks'][1]])
+    assert cross['document'] == expected_cross
+    assert success('modernSemanticState', 'cross-a', target=dict(range=cross_range), kind='ink') == dict(role=dict(_0='green'))
+    cross_save = success('modernSave', 'cross-a')
+    success('restoreModern', 'cross-reopen', actorID='cross-a', snapshot=cross_save)
+    command('cross-reopen', 'undo')
+    assert command('cross-reopen', 'undo')['document'] == expected_cross_peer
+    assert success('modernSemanticState', 'cross-reopen', target=dict(range=cross_range), kind='ink') == dict(mixed={})
+    command('cross-reopen', 'redo')
+    assert command('cross-reopen', 'redo')['document'] == expected_cross
+    # ACC-12 has a separately authored full document, including exact reference
+    # and opaque consumer fields. No expected document is captured from runtime.
+    mixed, mixed_copy = fixture('mixed'), fixture('mixed-duplicated')
+    column_session('copy-a', mixed)
+    column_session('copy-b', mixed)
+    def duplicate_command(handle, name, target=None, **arguments):
+        return success('modernCommand', handle, request=dict(documentID=mixed['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    copy_nodes = success('modernCaptureNodes', 'copy-a', nodes=[origin_a])
+    copy_boundary = success('modernCaptureBoundary', 'copy-a', collection=dict(field='blocks'), after=origin_a)
+    copied = duplicate_command('copy-a', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['copy-A'])
+    assert copied['status'] == 'applied' and copied['document'] == mixed_copy
+    copy_origin = copied['selection']['nodes'][0]
+    assert copied['selectionIntent']['nodes']['_0']['nodes'] == [copy_origin]
+    assert copied['focus']['field'] == dict(node=copy_origin, name='content')
+    assert success('modernResolvePosition', 'copy-a', position=copied['focus'])['offset'] == 0
+    success('modernReceive', 'copy-b', batch=success('modernChanges', 'copy-a'))
+    body = dict(node=origin_a, name='content')
+    copy_peer_range = success('modernCaptureTextRange', 'copy-b', field=body, start=0, end=0)
+    expected_copy_peer = json.loads(json.dumps(mixed_copy))
+    expected_copy_peer['blocks'][0]['content'][0]['text'] = 'peer Bold '
+    assert duplicate_command('copy-b', 'replaceText', copy_peer_range, text='peer ')['document'] == expected_copy_peer
+    success('modernReceive', 'copy-a', batch=success('modernChanges', 'copy-b'))
+    assert success('modernDocument', 'copy-a') == expected_copy_peer
+    copy_save = success('modernSave', 'copy-a')
+    success('restoreModern', 'copy-reopen', actorID='copy-a', snapshot=copy_save)
+    expected_copy_undo = json.loads(json.dumps(mixed))
+    expected_copy_undo['blocks'][0]['content'][0]['text'] = 'peer Bold '
+    assert duplicate_command('copy-reopen', 'undo')['document'] == expected_copy_undo
+    assert duplicate_command('copy-reopen', 'redo')['document'] == expected_copy_peer
+    success('modernSetAuthoringPolicy', 'copy-reopen', allowedCommands=['replaceTitle'])
+    copy_unchanged = success('modernSave', 'copy-reopen')
+    assert duplicate_command('copy-reopen', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['policy-copy'])['status'] == 'unavailable'
+    assert success('modernSave', 'copy-reopen') == copy_unchanged
+    success('modernSetAuthoringPolicy', 'copy-reopen', allowedCommands=None)
+    copy_unchanged = success('modernSave', 'copy-reopen')
+    assert duplicate_command('copy-reopen', 'duplicate', dict(selection=copy_nodes, boundary=copy_boundary), newBlockIDs=['A'])['status'] == 'unavailable'
+    assert success('modernSave', 'copy-reopen') == copy_unchanged
+
+    # Inert providers exercise the accepted late-result switch without any
+    # upload, URL fetch or replacement-document acknowledgment.
+    column_session('async-origin', mixed)
+    column_session('async-replacement', baseline)
+    media_origin = dict(baseline=dict(blockID='media', path=[]))
+    def async_command(handle, name, target=None, document=mixed, **arguments):
+        return success('modernCommand', handle, request=dict(documentID=document['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+    provider_result = dict(src='asset://fixture/completed', width=640, height=480)
+    async_target = success('modernBeginAsyncBlock', 'async-origin', node=media_origin, requestID='fixture-provider')
+    origin_save, replacement_save = success('modernSave', 'async-origin'), success('modernSave', 'async-replacement')
+    switched = async_command('async-replacement', 'completeAsyncBlock', async_target, metadata=provider_result)
+    assert switched['status'] == 'unavailable' and switched['retainedResult'] == provider_result
+    assert switched['document'] == baseline and switched['transaction'] is None and switched['focus'] is None
+    assert success('modernSave', 'async-replacement') == replacement_save
+    assert success('modernSave', 'async-origin') == origin_save
+    assert success('modernAsyncRequests', 'async-origin')[0]['status'] == 'pending'
+    success('modernCancelAsyncBlock', 'async-origin', target=async_target)
+    cancelled = async_command('async-origin', 'completeAsyncBlock', async_target, metadata=provider_result)
+    assert cancelled['status'] == 'unavailable' and cancelled['document'] == mixed
+    assert success('modernAsyncRequests', 'async-origin')[0]['status'] == 'cancelled'
+    retry_target = success('modernBeginAsyncBlock', 'async-origin', node=media_origin, requestID='retry-provider')
+    assert retry_target['generation'] > async_target['generation']
+    success('modernSetAuthoringPolicy', 'async-origin', allowedCommands=['replaceTitle'])
+    assert async_command('async-origin', 'completeAsyncBlock', retry_target, metadata=provider_result)['reason'] == 'hostPolicy'
+    assert success('modernAsyncRequests', 'async-origin')[-1]['result'] == provider_result
+    success('modernSetAuthoringPolicy', 'async-origin', allowedCommands=None)
+    success('modernComposition', 'async-origin', active=True)
+    assert async_command('async-origin', 'completeAsyncBlock', retry_target, metadata=provider_result)['reason'] == 'compositionActive'
+    success('modernComposition', 'async-origin', active=False)
+    completed_media = json.loads(json.dumps(mixed))
+    next(block for block in completed_media['blocks'] if block['id'] == 'media').update(provider_result)
+    completed = async_command('async-origin', 'completeAsyncBlock', retry_target, metadata=provider_result)
+    assert completed['status'] == 'applied' and completed['document'] == completed_media
+    assert all(completed[field] is None for field in ['focus', 'selection', 'focusIntent', 'selectionIntent', 'retainedResult'])
+    shared_async = json.dumps(success('modernChanges', 'async-origin'))
+    assert 'requestID' not in shared_async and 'generation' not in shared_async and 'retry-provider' not in shared_async
+    async_saved = success('modernSave', 'async-origin')
+    async_archive = success('modernExportAsyncRequests', 'async-origin')
+    success('restoreModern', 'async-reopen', actorID='async-origin', snapshot=async_saved)
+    success('modernRestoreAsyncRequests', 'async-reopen', archive=async_archive)
+    assert success('modernSave', 'async-reopen') == async_saved
+    assert async_command('async-reopen', 'undo')['document'] == mixed
+    undo_saved = success('modernSave', 'async-reopen')
+    assert async_command('async-reopen', 'completeAsyncBlock', retry_target, metadata=provider_result)['status'] == 'noop'
+    assert success('modernSave', 'async-reopen') == undo_saved
+    assert async_command('async-reopen', 'redo')['document'] == completed_media
+    delete_target = success('modernBeginAsyncBlock', 'async-origin', node=media_origin, requestID='deleted-provider')
+    media_selection = success('modernCaptureNodes', 'async-origin', nodes=[media_origin])
+    deleted_media = json.loads(json.dumps(completed_media))
+    deleted_media['blocks'] = [block for block in deleted_media['blocks'] if block['id'] != 'media']
+    assert async_command('async-origin', 'delete', dict(nodes=media_selection, ranges=[]))['document'] == deleted_media
+    deleted_save = success('modernSave', 'async-origin')
+    assert async_command('async-origin', 'completeAsyncBlock', delete_target, metadata=provider_result)['status'] == 'unavailable'
+    assert success('modernSave', 'async-origin') == deleted_save
+    assert success('modernAsyncRequests', 'async-origin')[-1]['result'] == provider_result
+
+    # File metadata is a protocol-7 schema; asset bytes and consumer state stay
+    # with the host. Initial insertion and completion have independent history.
+    column_session('async-file', baseline)
+    file_boundary = success('modernCaptureBoundary', 'async-file', collection=dict(field='blocks'))
+    pending_file = dict(id='file', type='file', src='asset://pending/file', name='Research notes.pdf',
+                        consumer=dict(assetID='fixture-only', status='pending'))
+    expected_pending_file = json.loads(json.dumps(baseline)); expected_pending_file['blocks'].insert(0, pending_file)
+    inserted_file = async_command('async-file', 'insertBlock', file_boundary, document=baseline, block=pending_file)
+    assert inserted_file['document'] == expected_pending_file
+    file_origin = inserted_file['selection']['nodes'][0]
+    file_target = success('modernBeginAsyncBlock', 'async-file', node=file_origin, requestID='file-provider')
+    file_metadata = dict(src='asset://fixture/notes', name='研究😀.pdf', mimeType='application/pdf', size=240000)
+    expected_file = json.loads(json.dumps(expected_pending_file)); expected_file['blocks'][0].update(file_metadata)
+    assert async_command('async-file', 'completeAsyncBlock', file_target, document=baseline, metadata=file_metadata)['document'] == expected_file
+    assert async_command('async-file', 'undo', document=baseline)['document'] == expected_pending_file
+    assert async_command('async-file', 'undo', document=baseline)['document'] == baseline
+    assert async_command('async-file', 'redo', document=baseline)['document'] == expected_pending_file
+    assert async_command('async-file', 'redo', document=baseline)['document'] == expected_file
+    file_save, file_archive = success('modernSave', 'async-file'), success('modernExportAsyncRequests', 'async-file')
+    success('restoreModern', 'async-file-reopen', actorID='async-file', snapshot=file_save)
+    success('modernRestoreAsyncRequests', 'async-file-reopen', archive=file_archive)
+    assert success('modernSave', 'async-file-reopen') == file_save
+
+    column_session('async-preview', baseline)
+    preview_boundary = success('modernCaptureBoundary', 'async-preview', collection=dict(field='blocks'))
+    pending_preview = dict(id='preview', type='embed', url='https://example.org/notes', title='Pending', consumer=dict(opaque='keep'))
+    inserted_preview = async_command('async-preview', 'insertBlock', preview_boundary, document=baseline, block=pending_preview)
+    preview_origin = inserted_preview['selection']['nodes'][0]
+    preview_target = success('modernBeginAsyncBlock', 'async-preview', node=preview_origin, requestID='preview-provider')
+    preview_metadata = dict(title='Local preview', description='Inert fixture provider', thumbnail='asset://fixture/thumbnail')
+    expected_preview = json.loads(json.dumps(baseline)); expected_preview['blocks'].insert(0, dict(pending_preview, **preview_metadata))
+    assert async_command('async-preview', 'completeAsyncBlock', preview_target, document=baseline, metadata=preview_metadata)['document'] == expected_preview
+    error_target = success('modernBeginAsyncBlock', 'async-preview', node=preview_origin, requestID='failed-provider')
+    success('modernFailAsyncBlock', 'async-preview', target=error_target, reason='Provider interrupted')
+    preview_save, preview_archive = success('modernSave', 'async-preview'), success('modernExportAsyncRequests', 'async-preview')
+    success('restoreModern', 'async-preview-reopen', actorID='async-preview', snapshot=preview_save)
+    success('modernRestoreAsyncRequests', 'async-preview-reopen', archive=preview_archive)
+    assert success('modernSave', 'async-preview-reopen') == preview_save
+    assert success('modernAsyncRequests', 'async-preview-reopen')[-1]['status'] == 'failed'
+    assert async_command('async-preview-reopen', 'completeAsyncBlock', error_target, document=baseline, metadata=preview_metadata)['status'] == 'unavailable'
+    assert success('modernSave', 'async-preview-reopen') == preview_save
+    success('modernCancelAsyncBlock', 'async-preview-reopen', target=error_target)
+    success('modernForgetAsyncBlock', 'async-preview-reopen', target=error_target)
+    assert len(success('modernAsyncRequests', 'async-preview-reopen')) == 1
+
+    # Modern read-only clipboard uses a separate version and literal fallback.
+    # Copy performs no provider work or author mutation, even under local policy.
+    column_session('clipboard-rich', mixed)
+    clipboard_save = success('modernSave', 'clipboard-rich')
+    whole_a = success('modernCaptureNodes', 'clipboard-rich', nodes=[dict(baseline=dict(blockID='A', path=[]))])
+    copied_a = success('modernCopy', 'clipboard-rich', target=dict(nodes=whole_a, ranges=[]))
+    expected_a = next(block for block in mixed['blocks'] if block['id'] == 'A')
+    assert copied_a == dict(version=2, collaborationVersion=7, parts=[dict(node=dict(value=expected_a, kind='block'))], plainText='Bold italic世界😀 link')
+    assert success('modernSave', 'clipboard-rich') == clipboard_save
+    toggle_selection = success('modernCaptureNodes', 'clipboard-rich', nodes=[dict(baseline=dict(blockID='toggle', path=[]))])
+    field_a = dict(node=dict(baseline=dict(blockID='A', path=[])), name='content')
+    range_a = success('modernCaptureTextRange', 'clipboard-rich', field=field_a, start=5, end=0)
+    mixed_copy = success('modernCopy', 'clipboard-rich', target=dict(nodes=toggle_selection, ranges=[range_a]))
+    assert mixed_copy['plainText'] == 'Bold \nDetails\nNested paragraph\nCheck this\nNested task'
+    assert mixed_copy['parts'][1] == dict(node=dict(value=mixed['blocks'][1], kind='block'))
+    assert success('modernSave', 'clipboard-rich') == clipboard_save
+    success('modernSetAuthoringPolicy', 'clipboard-rich', allowedCommands=[])
+    success('modernComposition', 'clipboard-rich', active=True)
+    assert success('modernCopy', 'clipboard-rich', target=dict(nodes=whole_a, ranges=[])) == copied_a
+    assert success('modernSave', 'clipboard-rich') == clipboard_save
+    forged_selection = dict(whole_a, epoch='foreign')
+    assert call('modernCopy', 'clipboard-rich', target=dict(nodes=forged_selection, ranges=[]))['ok'] is False
+    assert call('modernCopy', 'clipboard-rich', target=dict(nodes=whole_a, ranges=[], extra=True))['ok'] is False
+    assert success('modernSave', 'clipboard-rich') == clipboard_save
+    caps = success('modernCapabilities', 'clipboard-rich')
+    assert caps['clipboardVersion'] == 2 and caps['canCopy'] is True and 'paste' not in caps['commands']
+
+    column_session('clipboard-columns', created_columns)
+    layout_selection = success('modernCaptureNodes', 'clipboard-columns', nodes=[dict(baseline=dict(blockID='layout', path=[]))])
+    layout_copy = success('modernCopy', 'clipboard-columns', target=dict(nodes=layout_selection, ranges=[]))
+    assert layout_copy == dict(version=2, collaborationVersion=7, parts=[dict(node=dict(value=created_columns['blocks'][0], kind='block'))], plainText='ABC\nDetails\nNested paragraph\nCheck this\nNested task\n')
+    assert success('modernDocument', 'clipboard-columns') == created_columns
+    assert success('modernChanges', 'clipboard-columns')['changes'] == []
+
+    # Paste uses unchanged independent ACC-37/38/39 documents, including IDs
+    # repeated in distinct child namespaces. Never derive expected state from replay.
+    def pasted_command(handle, document, target=None, name='paste', **arguments):
+        return success('modernCommand', handle, request=dict(documentID=document['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments))
+
+    def schema_ids(value, kind='block'):
+        fields = {}
+        if kind == 'block':
+            fields = dict(columns='column') if value.get('type') == 'columns' else dict(children='block') if value.get('type') == 'toggle' else dict(items='item') if value.get('type') == 'list' else dict(rows='row') if value.get('type') == 'table' else {}
+        elif kind == 'column': fields = dict(children='block')
+        elif kind == 'item': fields = dict(children='item') if 'children' in value else {}
+        elif kind == 'row': fields = dict(cells='cell')
+        result = [value['id']]
+        for field, child_kind in sorted(fields.items()):
+            for child in value.get(field, []): result.extend(schema_ids(child, child_kind))
+        return result
+
+    paste_base = fixture('columns-3000')
+    root_copy, flattened = fixture('columns-root-copy'), fixture('columns-flattened-paste')
+    for handle in ('paste-root', 'paste-column'): column_session(handle, paste_base)
+    layout_node = dict(baseline=dict(blockID='layout', path=[]))
+    selected = success('modernCaptureNodes', 'paste-root', nodes=[layout_node])
+    clipboard = success('modernCopy', 'paste-root', target=dict(nodes=selected, ranges=[]))
+    boundary = success('modernCapturePasteBoundary', 'paste-root', collection=dict(field='blocks'), after=layout_node)
+    target = dict(boundary=boundary)
+    copied = root_copy['blocks'][1]
+    pasted = pasted_command('paste-root', paste_base, target, clipboard=clipboard, newIDs=schema_ids(copied))
+    assert pasted['status'] == 'applied' and pasted['document'] == root_copy and pasted['retainedClipboard'] is None
+    assert len(pasted['selection']['nodes']) == 1 and pasted['selectionIntent']['nodes']['_0'] == pasted['selection']
+    assert pasted['focus']['field']['node']['inserted']['path'] == ['columns', 'copy-first-column', 'children', 'copy-A']
+    assert success('modernResolvePosition', 'paste-root', position=pasted['focus'])['offset'] == 0
+    assert len(success('modernChanges', 'paste-root')['changes']) == 1
+    saved = success('modernSave', 'paste-root')
+    success('restoreModern', 'paste-root-reopen', actorID='paste-root', snapshot=saved)
+    assert pasted_command('paste-root-reopen', paste_base, name='undo')['document'] == paste_base
+    assert pasted_command('paste-root-reopen', paste_base, name='redo')['document'] == root_copy
+
+    column = dict(baseline=dict(blockID='layout', path=['columns', 'first-column']))
+    last = dict(baseline=dict(blockID='layout', path=['columns', 'first-column', 'children', 'B']))
+    boundary = success('modernCapturePasteBoundary', 'paste-column', collection=dict(owner=column, field='children'), after=last)
+    target = dict(boundary=boundary)
+    before = success('modernSave', 'paste-column')
+    unavailable = pasted_command('paste-column', paste_base, target, clipboard=clipboard)
+    assert unavailable['status'] == 'unavailable' and unavailable['retainedClipboard'] == clipboard and unavailable['focus'] is None
+    assert success('modernSave', 'paste-column') == before
+    children = flattened['blocks'][0]['columns'][0]['children'][2:]
+    ids = [label for value in children for label in schema_ids(value)]
+    pasted = pasted_command('paste-column', paste_base, target, clipboard=clipboard, mode='flattenedColumns', newIDs=ids)
+    assert pasted['status'] == 'applied' and pasted['document'] == flattened and len(pasted['selection']['nodes']) == 3
+    assert pasted_command('paste-column', paste_base, name='undo')['document'] == paste_base
+    assert pasted_command('paste-column', paste_base, name='redo')['document'] == flattened
+
+    blank, blank_pasted = fixture('blank'), fixture('blank-plain-paste')
+    column_session('paste-blank', blank)
+    boundary = success('modernCapturePasteBoundary', 'paste-blank', collection=dict(field='blocks'))
+    blank_clipboard = dict(version=2, collaborationVersion=7, parts=[dict(inline={'_0': [dict(type='text', text='\nHello\n\n')]})], plainText='\nHello\n\n')
+    target = dict(boundary=boundary)
+    before = success('modernSave', 'paste-blank')
+    assert pasted_command('paste-blank', blank, target, clipboard=None)['status'] == 'noop'
+    assert success('modernSave', 'paste-blank') == before
+    success('modernComposition', 'paste-blank', active=True)
+    refused = pasted_command('paste-blank', blank, target, clipboard=blank_clipboard, mode='plainText')
+    assert refused['status'] == 'unavailable' and refused['reason'] == 'compositionActive' and refused['retainedClipboard'] == blank_clipboard
+    success('modernComposition', 'paste-blank', active=False)
+    success('modernSetAuthoringPolicy', 'paste-blank', allowedCommands=[])
+    refused = pasted_command('paste-blank', blank, target, clipboard=blank_clipboard, mode='plainText')
+    assert refused['reason'] == 'hostPolicy' and refused['retainedClipboard'] == blank_clipboard
+    assert success('modernSave', 'paste-blank') == before
+    success('modernSetAuthoringPolicy', 'paste-blank', allowedCommands=None)
+    pasted = pasted_command('paste-blank', blank, target, clipboard=blank_clipboard, mode='plainText', newIDs=['paste-0', 'paste-1', 'paste-2', 'paste-3'])
+    assert pasted['status'] == 'applied' and pasted['document'] == blank_pasted
+    assert success('modernResolvePosition', 'paste-blank', position=pasted['focus'])['offset'] == 0
+    assert pasted['focus']['field']['node']['inserted']['creation']['index'] == 3
+    assert len(success('modernChanges', 'paste-blank')['changes']) == 1
+    assert pasted_command('paste-blank', blank, name='undo')['document'] == blank
+    assert pasted_command('paste-blank', blank, name='redo')['document'] == blank_pasted
+    assert 'paste' in success('modernCapabilities', 'paste-blank')['commands']
+
+    # Cut is local publication ordering around existing shared deletion, never a
+    # new replicated command. Expected content below is literal, not replay output.
+    cut_base = dict(format='seventwo.block-editor.document', formatVersion=1,
+                    documentID='cut-publication', title='Title',
+                    appearance=dict(fontFamily='sans', fontSize='default', pageWidth='readable'),
+                    blocks=[dict(id='p', type='paragraph', content=[dict(type='text', text='ABC')], consumer=dict(opaque='keep')),
+                            dict(id='q', type='paragraph', content=[dict(type='text', text='Other')])])
+    cut_field = dict(node=dict(baseline=dict(blockID='p', path=[])), name='content')
+    for handle in ('publication-a', 'publication-b'): column_session(handle, cut_base)
+    partial = success('modernCaptureTextRange', 'publication-a', field=cut_field, start=2, end=1)
+    whole = success('modernCaptureNodes', 'publication-a', nodes=[dict(baseline=dict(blockID='q', path=[]))])
+    cut_target = dict(nodes=whole, ranges=[partial])
+    before = success('modernSave', 'publication-a')
+    preparation = success('modernPrepareCut', 'publication-a', target=cut_target)
+    assert preparation['clipboard'] == dict(version=2, collaborationVersion=7,
+        parts=[dict(inline={'_0': [dict(type='text', text='B')]}), dict(node=dict(value=cut_base['blocks'][1], kind='block'))], plainText='B\nOther')
+    assert success('modernSave', 'publication-a') == before
+    def finish_cut(handle, prepared, published=True, scope=None):
+        return success('modernFinishCut', handle, preparationID=prepared['preparationID'],
+                       documentID=prepared['documentID'], epoch=scope or prepared['epoch'], published=published)
+    failed = finish_cut('publication-a', preparation, False)
+    assert failed['document'] == cut_base and failed['reason'] == 'clipboardPublicationFailed'
+    assert failed['retainedClipboard'] == preparation['clipboard'] and failed['transaction'] is None and failed['focusIntent'] is None
+    assert success('modernSave', 'publication-a') == before
+    peer_range = success('modernCaptureTextRange', 'publication-b', field=cut_field, start=0, end=0)
+    with_peer = json.loads(json.dumps(cut_base)); with_peer['blocks'][0]['content'] = [dict(type='text', text='RABC')]
+    assert pasted_command('publication-b', cut_base, peer_range, name='replaceText', text='R')['document'] == with_peer
+    assert success('modernReceive', 'publication-a', batch=success('modernChanges', 'publication-b'))['document'] == with_peer
+    peer_save = success('modernSave', 'publication-a')
+    for restriction in ('policy', 'composition'):
+        if restriction == 'policy': success('modernSetAuthoringPolicy', 'publication-a', allowedCommands=[])
+        else: success('modernComposition', 'publication-a', active=True)
+        assert success('modernCapabilities', 'publication-a')['canCut'] is False
+        rejected = finish_cut('publication-a', preparation)
+        assert rejected['reason'] == ('hostPolicy' if restriction == 'policy' else 'compositionActive')
+        assert rejected['retainedClipboard'] == preparation['clipboard'] and rejected['document'] == with_peer and rejected['focusIntent'] is None
+        if restriction == 'policy': success('modernSetAuthoringPolicy', 'publication-a', allowedCommands=None)
+        else: success('modernComposition', 'publication-a', active=False)
+    assert finish_cut('publication-a', preparation, scope='foreign')['reason'] == 'cutSessionChanged'
+    assert finish_cut('publication-b', preparation)['reason'] == 'unknownCutPreparation'
+    assert call('modernFinishCut', 'publication-a', preparationID=preparation['preparationID'], documentID=cut_base['documentID'], epoch=epoch, published='true')['ok'] is False
+    assert success('modernSave', 'publication-a') == peer_save
+    cut_expected = json.loads(json.dumps(cut_base)); cut_expected['blocks'] = [dict(id='p', type='paragraph', content=[dict(type='text', text='RAC')], consumer=dict(opaque='keep'))]
+    cut_result = finish_cut('publication-a', preparation)
+    assert cut_result['status'] == 'applied' and cut_result['document'] == cut_expected and cut_result['transaction']['actor'] == 'publication-a'
+    assert cut_result['retainedClipboard'] is None and cut_result['focusIntent'] is not None
+    changes = success('modernChanges', 'publication-a')
+    assert len([change for change in changes['changes'] if change['id']['actor'] == 'publication-a']) == 1
+    assert all(name not in json.dumps(changes) for name in ('preparationID', 'published', 'clipboard', 'cut-publication-failed'))
+    assert success('modernReceive', 'publication-b', batch=changes)['document'] == cut_expected
+    assert pasted_command('publication-a', cut_base, name='undo')['document'] == with_peer
+    undone_save = success('modernSave', 'publication-a')
+    duplicate = finish_cut('publication-a', preparation)
+    assert duplicate['status'] == 'noop' and duplicate['reason'] == 'cutAlreadyApplied' and duplicate['focusIntent'] is None and duplicate['transaction'] is None
+    assert success('modernSave', 'publication-a') == undone_save
+    assert pasted_command('publication-a', cut_base, name='redo')['document'] == cut_expected
+    remaining_range = success('modernCaptureTextRange', 'publication-a', field=cut_field, start=0, end=1)
+    cancelled = success('modernPrepareCut', 'publication-a', target=dict(ranges=[remaining_range]))
+    stable = success('modernSave', 'publication-a')
+    success('modernCancelCut', 'publication-a', preparationID=cancelled['preparationID'])
+    assert finish_cut('publication-a', cancelled)['reason'] == 'cutCancelled'
+    success('modernForgetCut', 'publication-a', preparationID=cancelled['preparationID'])
+    assert finish_cut('publication-a', cancelled)['reason'] == 'unknownCutPreparation'
+    assert success('modernSave', 'publication-a') == stable
+    success('destroy', 'publication-a')
+    success('restoreModern', 'publication-a', actorID='publication-a', snapshot=stable)
+    assert finish_cut('publication-a', preparation)['reason'] == 'unknownCutPreparation'
+    assert success('modernSave', 'publication-a') == stable
+    assert pasted_command('publication-a', cut_base, name='undo')['document'] == with_peer
+    assert pasted_command('publication-a', cut_base, name='redo')['document'] == cut_expected
+
+    column_session('publication-title', cut_base)
+    success('modernSetAuthoringPolicy', 'publication-title', allowedCommands=['replaceTitle', 'undo', 'redo'])
+    title_field = dict(node=dict(document=dict(documentID=cut_base['documentID'])), name='title')
+    title_range = success('modernCaptureTextRange', 'publication-title', field=title_field, start=5, end=0)
+    prepared_title = success('modernPrepareCut', 'publication-title', target=dict(ranges=[title_range]))
+    assert prepared_title['clipboard']['plainText'] == 'Title'
+    empty_title = dict(cut_base, title='')
+    assert finish_cut('publication-title', prepared_title)['document'] == empty_title
+    assert pasted_command('publication-title', cut_base, name='undo')['document'] == cut_base
+    title_undone = success('modernSave', 'publication-title')
+    assert finish_cut('publication-title', prepared_title)['reason'] == 'cutAlreadyApplied'
+    assert success('modernSave', 'publication-title') == title_undone
+    assert pasted_command('publication-title', cut_base, name='redo')['document'] == empty_title
+
+    for handle in ('publication-layout-a', 'publication-layout-b'): column_session(handle, paste_base)
+    layout_selection = success('modernCaptureNodes', 'publication-layout-a', nodes=[layout_node])
+    prepared_layout = success('modernPrepareCut', 'publication-layout-a', target=dict(nodes=layout_selection, ranges=[]))
+    assert prepared_layout['clipboard']['parts'] == [dict(node=dict(value=paste_base['blocks'][0], kind='block'))]
+    second_column = dict(baseline=dict(blockID='layout', path=['columns', 'second-column']))
+    boundary = success('modernCaptureBoundary', 'publication-layout-b', collection=dict(owner=second_column, field='children'))
+    peer_child = dict(id='peer-child', type='paragraph', content=[dict(type='text', text='Peer child')], consumer=dict(opaque='keep-peer'))
+    layout_with_peer = json.loads(json.dumps(paste_base)); layout_with_peer['blocks'][0]['columns'][1]['children'].insert(0, peer_child)
+    assert pasted_command('publication-layout-b', paste_base, boundary, name='insertBlock', block=peer_child)['document'] == layout_with_peer
+    success('modernReceive', 'publication-layout-a', batch=success('modernChanges', 'publication-layout-b'))
+    cut_layout = json.loads(json.dumps(paste_base)); cut_layout['blocks'][0]['columns'][0]['children'] = []
+    cut_layout['blocks'][0]['columns'][1]['children'] = [peer_child]
+    assert finish_cut('publication-layout-a', prepared_layout)['document'] == cut_layout
+    assert prepared_layout['clipboard']['parts'][0]['node']['value'] == paste_base['blocks'][0]
+    assert success('modernReceive', 'publication-layout-b', batch=success('modernChanges', 'publication-layout-a'))['document'] == cut_layout
+    assert pasted_command('publication-layout-a', paste_base, name='undo')['document'] == layout_with_peer
+    layout_saved = success('modernSave', 'publication-layout-a')
+    success('restoreModern', 'publication-layout-reopen', actorID='publication-layout-a', snapshot=layout_saved)
+    assert finish_cut('publication-layout-reopen', prepared_layout)['reason'] == 'unknownCutPreparation'
+    assert pasted_command('publication-layout-reopen', paste_base, name='redo')['document'] == cut_layout
+
+    # Local input history is a paired sidecar, never replicated document data.
+    assert capabilities['localHistorySelectionVersion'] == 1
+    def local_context(document, captured, selection=None):
+        return dict(documentID=document['documentID'], epoch=epoch, observed=captured['observed'],
+                    focus={'text': {'_0': captured['end']}},
+                    selection=selection or {'text': {'_0': dict(start=captured['start'], end=captured['end'])}})
+    def input_offset(handle, position):
+        return success('modernResolvePosition', handle, position=position)['offset']
+    def history_command(handle, name, target=None, arguments=None, **extra):
+        return success('modernCommand', handle, request=dict(documentID=cut_base['documentID'], epoch=epoch,
+                       command=name, target=target, arguments=arguments or {}, **extra))
+    for handle in ('history-a', 'history-b'): column_session(handle, cut_base)
+    captured = success('modernCaptureTextRange', 'history-a', field=cut_field, start=2, end=1)
+    success('modernSetLocalSelection', 'history-a', selection=local_context(cut_base, captured))
+    replaced = json.loads(json.dumps(cut_base)); replaced['blocks'][0]['content'] = [dict(type='text', text='AXC')]
+    assert history_command('history-a', 'replaceText', captured, dict(text='X'))['document'] == replaced
+    prefix = success('modernCaptureTextRange', 'history-b', field=cut_field, start=0, end=0)
+    history_command('history-b', 'replaceText', prefix, dict(text='R'))
+    with_peer = json.loads(json.dumps(cut_base)); with_peer['blocks'][0]['content'] = [dict(type='text', text='RABC')]
+    replaced_peer = json.loads(json.dumps(cut_base)); replaced_peer['blocks'][0]['content'] = [dict(type='text', text='RAXC')]
+    assert success('modernReceive', 'history-a', batch=success('modernChanges', 'history-b'))['document'] == replaced_peer
+    saved = success('modernSave', 'history-a'); metadata = success('modernExportHistorySelection', 'history-a')
+    changes = success('modernChanges', 'history-a')
+    assert all(key not in json.dumps(changes) for key in ('historySelection', 'focusIntent', 'selectionIntent', 'records', 'current'))
+    success('destroy', 'history-a')
+    assert success('restoreModern', 'history-a', actorID='history-a', snapshot=saved)['document'] == replaced_peer
+    success('modernRestoreHistorySelection', 'history-a', archive=metadata)
+    assert success('modernSave', 'history-a') == saved and success('modernExportHistorySelection', 'history-a') == metadata
+    undone = history_command('history-a', 'undo')
+    assert undone['document'] == with_peer and undone['selectionIntent'] == local_context(cut_base, captured)['selection']
+    assert input_offset('history-a', undone['selection']['start']) == 3 and input_offset('history-a', undone['selection']['end']) == 2
+    stable = success('modernSave', 'history-a'); stable_local = success('modernExportHistorySelection', 'history-a')
+    noop = history_command('history-a', 'undo')
+    assert noop['status'] == 'noop' and noop['focusIntent'] is None and noop['selectionIntent'] is None
+    assert success('modernSave', 'history-a') == stable and success('modernExportHistorySelection', 'history-a') == stable_local
+    redone = history_command('history-a', 'redo')
+    assert redone['document'] == replaced_peer and input_offset('history-a', redone['focus']) == 3
+    assert redone['selection']['start'] == redone['selection']['end'] == redone['focus']
+    assert success('modernLocalSelection', 'history-a')['selection'] == redone['selectionIntent']
+
+    # A menu/provider invocation keeps its original input even after local focus changes.
+    column_session('history-override', cut_base)
+    original = success('modernCaptureTextRange', 'history-override', field=cut_field, start=2, end=1)
+    qfield = dict(node=dict(baseline=dict(blockID='q', path=[])), name='content')
+    later = success('modernCaptureTextRange', 'history-override', field=qfield, start=3, end=3)
+    success('modernSetLocalSelection', 'history-override', selection=local_context(cut_base, later))
+    history_command('history-override', 'paste', dict(range=original), dict(clipboard=dict(version=2, collaborationVersion=7, parts=[dict(inline={'_0': [dict(type='text', text='X')]})], plainText='X')),
+                    historySelection=local_context(cut_base, original))
+    undone = history_command('history-override', 'undo')
+    assert undone['document'] == cut_base and undone['selectionIntent'] == local_context(cut_base, original)['selection']
+    history_command('history-override', 'setAppearance', dict(document=dict(documentID=cut_base['documentID'])),
+                    dict(field='fontSize', value='large'), historySelection=None)
+    absent = history_command('history-override', 'undo')
+    assert absent['status'] == 'applied' and absent['focusIntent'] is None and absent['selectionIntent'] is None
+
+    # Cut captures the whole mixed input before a later selection change.
+    column_session('history-mixed', cut_base)
+    part = success('modernCaptureTextRange', 'history-mixed', field=cut_field, start=2, end=1)
+    qorigin = dict(baseline=dict(blockID='q', path=[]))
+    whole = success('modernCaptureLocalNodes', 'history-mixed', nodes=[qorigin])
+    mixed_target = dict(nodes=whole, ranges=[part])
+    mixed_selection = {'mixed': {'_0': mixed_target}}
+    success('modernSetLocalSelection', 'history-mixed', selection=local_context(cut_base, part, mixed_selection))
+    prepared = success('modernPrepareCut', 'history-mixed', target=mixed_target)
+    later = success('modernCaptureTextRange', 'history-mixed', field=qfield, start=3, end=3)
+    success('modernSetLocalSelection', 'history-mixed', selection=local_context(cut_base, later))
+    cut_document = json.loads(json.dumps(cut_base)); cut_document['blocks'] = [dict(cut_base['blocks'][0], content=[dict(type='text', text='AC')])]
+    assert finish_cut('history-mixed', prepared)['document'] == cut_document
+    undone = history_command('history-mixed', 'undo')
+    assert undone['document'] == cut_base and undone['selectionIntent']['mixed']['_0'] == undone['selection']
+    assert undone['selection']['ranges'][0]['start'] == part['start'] and undone['selection']['ranges'][0]['end'] == part['end']
+    assert undone['selection']['nodes']['nodes'] == [qorigin] and input_offset('history-mixed', undone['selection']['ranges'][0]['start']) == 2
+    assert input_offset('history-mixed', undone['focus']) == 1
+    assert history_command('history-mixed', 'redo')['document'] == cut_document
+
+    # Malformed/foreign sidecars leave accepted history and the fresh registry intact.
+    success('restoreModern', 'history-import', actorID='history-a', snapshot=saved)
+    empty_local = success('modernExportHistorySelection', 'history-import')
+    for field, value in (('version', 2), ('epoch', 'foreign'), ('actorID', 'foreign'), ('unknown', True)):
+        malformed = dict(metadata, **{field: value})
+        assert call('modernRestoreHistorySelection', 'history-import', archive=malformed)['ok'] is False
+        assert success('modernSave', 'history-import') == saved and success('modernExportHistorySelection', 'history-import') == empty_local
+    success('modernRestoreHistorySelection', 'history-import', archive=metadata)
+    assert call('modernRestoreHistorySelection', 'history-import', archive=metadata)['ok'] is False
+    success('restoreModern', 'history-other', actorID='history-other', snapshot=saved)
+    assert call('modernRestoreHistorySelection', 'history-other', archive=metadata)['ok'] is False
+    foreign = dict(local_context(cut_base, captured), epoch='foreign')
+    assert call('modernSetLocalSelection', 'history-import', selection=foreign)['ok'] is False
+    assert success('modernExportHistorySelection', 'history-import') == metadata
+
+    # Local typed selection does not grant unsupported generic row mutations.
+    table_document = dict(cut_base, title='', blocks=[dict(id='table', type='table', rows=[dict(id='row', cells=[dict(id='cell', content=[dict(type='text', text='A')])])])])
+    column_session('history-table', table_document)
+    row = dict(baseline=dict(blockID='table', path=['rows', 'row']))
+    selected = success('modernCaptureLocalNodes', 'history-table', nodes=[row])
+    stable = success('modernSave', 'history-table')
+    assert call('modernCommand', 'history-table', request=dict(documentID=cut_base['documentID'], epoch=epoch,
+                command='delete', target=dict(nodes=selected, ranges=[]), arguments={}))['ok'] is False
+    assert success('modernSave', 'history-table') == stable
+
+    # Cutover is explicit local archival preparation, never a legacy receive.
+    def encoded(value):
+        return json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()
+
+    def b64(data):
+        return base64.b64encode(data).decode()
+
+    def cutover_archive(doc_id, source, originals=()):
+        return dict(version=1, documentID=doc_id, epoch='cutover-new', source=source,
+                    originals=[b64(value) for value in originals])
+
+    def cutover_flags(archive_id):
+        return dict(archiveID=archive_id, actorID='cutover-author', oldWritersStopped=True,
+                    archivePersisted=True, resetUndoAcknowledged=True)
+
+    def archive_readback(handle, ready, expected):
+        archive_id, count = ready['archiveID'], ready['byteCount']
+        assert call('cutoverToModern', handle, **cutover_flags(archive_id))['ok'] is False
+        data = b''
+        for offset in range(0, count, 8_000_000):
+            part = success('modernCutoverArchiveBytes', handle, archiveID=archive_id,
+                           offset=offset, length=min(8_000_000, count - offset))
+            chunk = base64.b64decode(part['bytes']); data += chunk
+            result = success('modernVerifyCutoverReadback', handle, archiveID=archive_id,
+                             offset=offset, bytes=part['bytes'])
+            assert result['verifiedBytes'] == len(data) and 'document' not in result
+        assert json.loads(data) == expected
+        for flag in ('oldWritersStopped', 'archivePersisted', 'resetUndoAcknowledged'):
+            fields = cutover_flags(archive_id); fields[flag] = False
+            assert call('cutoverToModern', handle, **fields)['ok'] is False
+        return data
+
+    for name in ('mixed', '5001'):
+        handle = 'migration-' + name
+        fixture('legacy-' + name)
+        raw = (fixtures / ('legacy-' + name + '.json')).read_bytes()
+        expected = fixture('migrated-' + name)
+        archive = cutover_archive(expected['documentID'], dict(document=dict(format='documentObject', bytes=b64(raw))), [raw])
+        if name == 'mixed':
+            upload = encoded(archive)
+            started = success('modernBeginCutoverArchive', handle, byteCount=len(upload))
+            archive_id = started['archiveID']
+            assert call('modernAppendCutoverArchive', handle, archiveID=archive_id, offset=1, bytes=b64(upload[:37]))['ok'] is False
+            fields = dict(archiveID=archive_id, offset=0, bytes=b64(upload[:37]))
+            assert success('modernAppendCutoverArchive', handle, **fields)['receivedBytes'] == 37
+            assert success('modernAppendCutoverArchive', handle, **fields)['receivedBytes'] == 37
+            assert call('modernAppendCutoverArchive', handle, **dict(fields, bytes=b64(b'wrong')))['ok'] is False
+            assert call('modernPrepareCutover', handle, archiveID=archive_id)['ok'] is False
+            success('modernAppendCutoverArchive', handle, archiveID=archive_id, offset=37, bytes=b64(upload[37:]))
+            ready = success('modernPrepareCutover', handle, archiveID=archive_id)
+            assert call('modernVerifyCutoverReadback', handle, archiveID=archive_id, offset=1, bytes=b64(b'wrong'))['ok'] is False
+            assert success('modernPrepareCutover', handle, archiveID=archive_id)['verifiedBytes'] == 0
+        else:
+            ready = success('modernPrepareCutover', handle, archive=archive)
+        assert ready['status'] == 'prepared' and ready['document'] == expected
+        assert len([entry for entry in ready['originMapping'] if not entry['address']['path']]) == len(expected['blocks'])
+        archive_readback(handle, ready, archive)
+        result = success('cutoverToModern', handle, **cutover_flags(ready['archiveID']))
+        assert result['document'] == expected and result['version'] == 7 and result['canUndo'] is False
+        assert success('modernChanges', handle)['changes'] == []
+        saved = success('modernSave', handle)
+        assert call('cutoverToModern', handle + '-duplicate', **cutover_flags(ready['archiveID']))['ok'] is False
+        assert success('modernSave', handle) == saved
+        success('restoreModern', handle + '-reopen', actorID='cutover-author', snapshot=saved)
+        assert success('modernDocument', handle + '-reopen') == expected
+        success('modernForgetCutoverArchive', handle, archiveID=ready['archiveID'])
+
+    for name in ('legacy-collision', 'unsupported-inline'):
+        fixture(name); raw = (fixtures / (name + '.json')).read_bytes()
+        archive = cutover_archive('d', dict(document=dict(format='documentObject', bytes=b64(raw))))
+        ready = success('modernPrepareCutover', 'migration-refused', archive=archive)
+        assert ready['status'] == 'unavailable' and ready['reason'] == 'incompatibleLegacyRepresentation'
+        count = success('modernCutoverArchiveBytes', archiveID=ready['archiveID'], offset=0, length=0)['byteCount']
+        part = success('modernCutoverArchiveBytes', archiveID=ready['archiveID'], offset=0, length=count)
+        # Swift canonicalizes the outer archive; the source bytes remain exact.
+        assert json.loads(base64.b64decode(part['bytes'])) == archive
+        assert call('cutoverToModern', 'migration-refused', **cutover_flags(ready['archiveID']))['ok'] is False
+        success('modernForgetCutoverArchive', archiveID=ready['archiveID'])
+
+    # Every supported old protocol must reconcile the offline packet first.
+    for version in range(1, 7):
+        author, peer, handle = (f'legacy-cutover-{version}-{side}' for side in ('a', 'b', 'new'))
+        old_blocks = [dict(id='p', type='paragraph', content=[dict(type='text', text='ABC')])]
+        for owner in (author, peer):
+            success('create', owner, actorID=owner, documentID='old-d', epoch='old-epoch',
+                    collaborationVersion=version, blocks=old_blocks)
+        address = dict(blockID='p', path=['content'])
+        success('replaceText', author, address=address, start=0, end=0, text='L')
+        accepted = success('save', author)
+        position = success('position', author, address=address, offset=2)
+        success('replaceText', peer, address=address, start=3, end=3, text='R')
+        packet = success('changes', peer)
+        source = dict(session=dict(acceptedSnapshot=b64(encoded(accepted)), reconciledSnapshot=b64(encoded(accepted)),
+                                   unacknowledged=[b64(encoded(packet))]))
+        premature = cutover_archive('old-d', source, [b'native settled input'])
+        refused = success('modernPrepareCutover', handle, archive=premature)
+        assert refused['status'] == 'unavailable' and refused['reason'] == 'unreconciledLegacyInput'
+        success('modernForgetCutoverArchive', archiveID=refused['archiveID'])
+        success('receive', author, batch=packet)
+        reconciled = success('save', author)
+        source['session']['reconciledSnapshot'] = b64(encoded(reconciled))
+        archive = cutover_archive('old-d', source, [b'native settled input'])
+        ready = success('modernPrepareCutover', handle, archive=archive)
+        literal = dict(format='seventwo.block-editor.document', formatVersion=1, documentID='old-d', title='',
+                       appearance=dict(fontFamily='sans', fontSize='default', pageWidth='readable'),
+                       blocks=[dict(id='p', type='paragraph', content=[dict(type='text', text='LABCR')])])
+        literal['blocks'][0]['content'] = [dict(type='text', text='L', marks=[]),
+                                          dict(type='text', text='ABC'), dict(type='text', text='R', marks=[])]
+        assert ready['document'] == literal, (version, ready['document'], literal)
+        remapped = success('modernRemapCutoverPosition', handle, archiveID=ready['archiveID'],
+                           kind='text' if version <= 2 else 'writing', position=position)
+        assert remapped['epoch'] == 'cutover-new'
+        assert call('modernRemapCutoverPosition', handle, archiveID=ready['archiveID'],
+                    kind='text' if version <= 2 else 'writing', position=dict(position, unknown=True))['ok'] is False
+        archive_readback(handle, ready, archive)
+        # A prepared migration cannot overwrite its existing legacy writer.
+        assert call('cutoverToModern', author, **cutover_flags(ready['archiveID']))['ok'] is False
+        assert success('save', author) == reconciled
+        success('close', author); success('close', peer)
+        result = success('cutoverToModern', handle, **cutover_flags(ready['archiveID']))
+        assert result['document'] == literal and result['canUndo'] is False
+        assert success('modernResolvePosition', handle, position=remapped)['offset'] == 2
+        saved = success('modernSave', handle)
+        assert call('modernReceive', handle, batch=packet)['ok'] is False
+        assert success('modernSave', handle) == saved
+        title_field = dict(node=dict(document=dict(documentID='old-d')), name='title')
+        target = success('modernCaptureTextRange', handle, field=title_field, start=0, end=0)
+        request = dict(documentID='old-d', epoch='cutover-new', command='replaceTitle', target=target, arguments=dict(text='New'))
+        assert success('modernCommand', handle, request=request)['document'] == dict(literal, title='New')
+        request.update(command='undo', target=None, arguments={})
+        assert success('modernCommand', handle, request=request)['document'] == literal
+        success('restoreModern', handle + '-reopen', actorID='cutover-author', snapshot=success('modernSave', handle))
+        assert success('modernDocument', handle + '-reopen') == literal
+        success('restore', author + '-archive', actorID=author, snapshot=accepted)
+        assert success('document', author + '-archive')['canUndo'] is True
+        success('modernForgetCutoverArchive', archiveID=ready['archiveID'])
+
+    # Valid opaque content and a second exact original exceed the request limit
+    # only as an archive. The actual C ABI must accept the chunked transfer.
+    payload = 'x' * 25_000_000
+    raw = encoded([dict(id='opaque', type='vendor', payload=payload)])
+    archive = cutover_archive('large-d', dict(document=dict(format='blockArray', bytes=b64(raw))), [raw])
+    upload = encoded(archive)
+    assert len(raw) < 32_000_000 and len(upload) > 64_000_000
+    handle = 'migration-large'
+    started = success('modernBeginCutoverArchive', handle, byteCount=len(upload))
+    for offset in range(0, len(upload), 8_000_000):
+        result = success('modernAppendCutoverArchive', handle, archiveID=started['archiveID'], offset=offset,
+                         bytes=b64(upload[offset:offset + 8_000_000]))
+        assert result['receivedBytes'] == min(len(upload), offset + 8_000_000)
+    ready = success('modernPrepareCutover', handle, archiveID=started['archiveID'])
+    assert ready['document']['blocks'] == [dict(id='opaque', type='vendor', payload=payload)]
+    archive_readback(handle, ready, archive)
+    created = success('cutoverToModern', handle, **cutover_flags(ready['archiveID']))
+    assert created['document'] == ready['document'] and created['canUndo'] is False
+    assert success('modernChanges', handle)['changes'] == []
+    success('modernForgetCutoverArchive', archiveID=ready['archiveID'])
+
+    report = dict(runtime='native C ABI', library=str(library),
+                  librarySHA256=hashlib.sha256(library.read_bytes()).hexdigest(),
+                  verifiedResponses=responses, independentFixtureHashes=hashes,
+                  literalScenarios=['Local author-history input: paired accepted/local archive restore, backward selection with peer prefix, canonical Undo/Redo and no-op preservation, original delayed invocation despite later input, explicit absent focus, mixed cut input captured at preparation, malformed/foreign/repeated archive rejection without accepted-state mutation, typed local row selection without generic mutation authority and no replicated local metadata', 'Local cut publication ordering: exact prepared mixed rich payload, failed publication/policy/composition unchanged, retained peer text and opaque metadata, scoped and malformed acknowledgment rejection, one shared deletion/Undo/Redo/reopen, duplicate callback after Undo, cancellation/forget/session replacement, title-only policy, whole layout retaining a later peer child in two valid original containers', 'Captured paste: independent full ACC-37 root layout, ACC-38 explicit flattened fallback and unchanged nested rejection, ACC-39 blank multiline/caret, whole-node selection, one Undo/Redo/reopen, retained rich policy/composition payloads and no-result no history', 'Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history', 'ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text', 'ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged', 'Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen', 'Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy', 'Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history', 'ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection', 'Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions'],
+                  qualification='Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Captured paste has full independent root layout, explicit flattened layout and blank multiline native ABI checks with local focus/selection, Undo/Redo/reopen and retained unavailable payloads. Local cut preparation/publication acknowledgment has literal native bridge checks; preparation IDs, clipboard payloads and callback state are never replicated or restored. Local author-history selection restoration has paired archive, backward/mixed, delayed invocation, peer-preservation and malformed import checks. Native UI input/focus ownership and atomic paired persistence, OS clipboard publication and active native invocation integration, migration, typed Kotlin/TypeScript facades and complete provider/host acceptance remain pending.')
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    report['literalScenarios'].insert(0, 'Explicit archived cutover: complete independent mixed/5001 documents, exact retained original bytes, chunk retry/gap and readback rejection, all three activation acknowledgments, incompatible content retained/exportable, all six legacy protocols/offline reconciliation, explicit remapped positions, fresh history/receipts, existing handle protection, old peer refusal, new author Undo/reopen and original archived Undo retained')
+    report['qualification'] = report['qualification'].replace('active native invocation integration, migration, typed', 'active native invocation integration, durable host migration activation/rollback, typed') + ' Explicit cutover preparation and local bridge activation are checked separately from durable host storage; no active host pointer is replaced by these checks.'
+    args.output.write_text(json.dumps(report, indent=2) + '\n')
+    print(f'Verified {responses} native C ABI responses against {len(hashes)} independent fixtures.')
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,240 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Examples/AppleDemo/EditorLab.xcodeproj -scheme EditorLab-iOS -destination "platform=iOS Simulator,id=C5F014E4-2673-4B4D-97D1-E8A09E0C4398" -derivedDataPath .build/modern-apple-candidate CODE_SIGNING_ALLOWED=NO "-only-testing:EditorLab-UITests/ModernEditingTests" test
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BlockEditor: /Users/luca/Developer/block-editor
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (8 targets)
+    Target 'EditorLab-UITests' in project 'EditorLab'
+        ➜ Explicit dependency on target 'EditorLab-iOS' in project 'EditorLab'
+        ➜ Explicit dependency on target 'BlockEditorLocalDemo-product' in project 'BlockEditor'
+    Target 'BlockEditorLocalDemo-product' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorLocalDemo' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorCore' in project 'BlockEditor'
+    Target 'EditorLab-iOS' in project 'EditorLab'
+        ➜ Explicit dependency on target 'BlockEditorDemoApple-product' in project 'BlockEditor'
+    Target 'BlockEditorDemoApple-product' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorDemoApple' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorCore' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorApple' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorLocalDemo' in project 'BlockEditor'
+    Target 'BlockEditorDemoApple' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorCore' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorApple' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorLocalDemo' in project 'BlockEditor'
+    Target 'BlockEditorLocalDemo' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorCore' in project 'BlockEditor'
+    Target 'BlockEditorApple' in project 'BlockEditor'
+        ➜ Explicit dependency on target 'BlockEditorCore' in project 'BlockEditor'
+    Target 'BlockEditorCore' in project 'BlockEditor' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo/EditorLab.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -o /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache
+
+ProcessInfoPlistFile /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/Info.plist /Users/luca/Developer/block-editor/Examples/AppleDemo/Generated/EditorLab-iOS-Info.plist (in target 'EditorLab-iOS' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-infoPlistUtility /Users/luca/Developer/block-editor/Examples/AppleDemo/Generated/EditorLab-iOS-Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -o /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/Info.plist
+
+SwiftDriver EditorLab-UITests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name EditorLab_UITests -Onone @/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/Developer/Library/Frameworks -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex -sdk-module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-generated-files.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-own-target-headers.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-a611e6079eccfeee1f4fc093cde80951-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-project-headers.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources-normal/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests-Swift.h -working-directory /Users/luca/Developer/block-editor/Examples/AppleDemo -experimental-emit-module-separately -disable-cmo
+
+CopySwiftLibs /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app (in target 'EditorLab-iOS' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/EditorLab-iOS.debug.dylib --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/Frameworks --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/PlugIns --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/SystemExtensions --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.aQZs6I/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-iOS.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-iOS.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+SwiftCompile normal arm64 Compiling\ ModernEditingTests.swift /Users/luca/Developer/block-editor/Examples/AppleDemo/UITests/ModernEditingTests.swift (in target 'EditorLab-UITests' from project 'EditorLab')
+
+SwiftCompile normal arm64 /Users/luca/Developer/block-editor/Examples/AppleDemo/UITests/ModernEditingTests.swift (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-SwiftPerFileCompile ModernEditingTests.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ EditorLab_UITests (in target 'EditorLab-UITests' from project 'EditorLab')
+
+SwiftCompile normal arm64 (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for EditorLab_UITests (in target 'EditorLab-UITests' from project 'EditorLab')
+
+SwiftDriver\ Compilation\ Requirements EditorLab-UITests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name EditorLab_UITests -Onone @/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/Developer/Library/Frameworks -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex -sdk-module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-generated-files.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-own-target-headers.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-a611e6079eccfeee1f4fc093cde80951-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-project-headers.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources-normal/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests-Swift.h -working-directory /Users/luca/Developer/block-editor/Examples/AppleDemo -experimental-emit-module-separately -disable-cmo
+
+Copy /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab_UITests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.swiftsourceinfo (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.swiftsourceinfo /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab_UITests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+Copy /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab_UITests.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.abi.json (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.abi.json /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab_UITests.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+SwiftDriverJobDiscovery normal arm64 Compiling ModernEditingTests.swift (in target 'EditorLab-UITests' from project 'EditorLab')
+
+SwiftDriver\ Compilation EditorLab-UITests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name EditorLab_UITests -Onone @/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/Developer/Library/Frameworks -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKStatCaches.noindex/iphonesimulator27.0-24A430-e829b21a6f8c9b70876ba0858053c0448dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex -sdk-module-cache-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/luca/Developer/block-editor/.build/modern-apple-candidate/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-generated-files.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-own-target-headers.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-a611e6079eccfeee1f4fc093cde80951-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests-project-headers.hmap -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources-normal/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests-Swift.h -working-directory /Users/luca/Developer/block-editor/Examples/AppleDemo -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/EditorLab-UITests normal (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -bundle -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/Developer/Library/Frameworks -filelist /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests.LinkFileList -Xlinker -rpath -Xlinker @loader_path -Xlinker -rpath -Xlinker /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @loader_path/Frameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab_UITests.swiftmodule -Xlinker -needed_framework -Xlinker XCTest -framework XCTest -Xlinker -needed-lXCTestSwiftSupport -lXCTestSwiftSupport -o /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/EditorLab-UITests
+
+CopySwiftLibs /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/EditorLab-UITests --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/Frameworks --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/PlugIns --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/SystemExtensions --scan-folder /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.aQZs6I/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'EditorLab-UITests' from project 'EditorLab')
+    cd /Users/luca/Developer/block-editor/Examples/AppleDemo
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v27.1.266.1.aQZs6I/Metal.xctoolchain --module-name EditorLab_UITests --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk --xcode-version 27A266a --platform-family iOS --deployment-target 26.0 --bundle-identifier studio.seventwo.blockeditor.lab.ui-tests --output /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest --target-triple arm64-apple-ios26.0-simulator --binary-file /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Products/Debug-iphonesimulator/EditorLab-UITests-Runner.app/PlugIns/EditorLab-UITests.xctest/EditorLab-UITests --dependency-file /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests_dependency_info.dat --stringsdata-file /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests.SwiftFileList --metadata-file-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests.DependencyMetadataFileList --static-metadata-file-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/EditorLab-UITests.DependencyStaticMetadataFileList --swift-const-vals-list /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/EditorLab.build/Debug-iphonesimulator/EditorLab-UITests.build/Objects-normal/arm64/EditorLab-UITests.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-06 03:45:16.792 appintentsmetadataprocessor[54704:18765228] Starting appintentsmetadataprocessor export
+2026-10-06 03:45:16.793 appintentsmetadataprocessor[54704:18765228] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+PruneExplicitPrecompiledModules /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/luca/Developer/block-editor/.build/modern-apple-candidate/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/luca/Developer/block-editor/.build/modern-apple-candidate/SDKExplicitPrecompiledModules
+
+2026-10-06 03:45:17.415166+0200 EditorLab-UITests-Runner[54706:18765381] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-06 03:45:17.837.
+Test Suite 'EditorLab-UITests.xctest' started at 2026-10-06 03:45:17.838.
+Test Suite 'ModernEditingTests' started at 2026-10-06 03:45:17.838.
+Test Case '-[EditorLab_UITests.ModernEditingTests testModernTitleBodyCodeAndPairedReopen]' started.
+    t =     0.00s Start Test at 2026-10-06 03:45:17.838
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     0.02s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+2026-10-06 03:45:17.901 xcodebuild[54695:18765082] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-06 03:45:17.901 xcodebuild[54695:18765082] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.47s         Setting up automation session
+objc[54706]: Class UIAccessibilityLoaderWebShared is implemented in both /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x11f380310) and /private/var/run/com.apple.security.cryptexd/mnt/iOS_23A343/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x11f31c398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     0.94s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     2.25s Waiting 20.0s for "Document title" TextView to exist
+    t =     3.30s     Checking `Expect predicate `existsNoRetry == 1` for object "Document title" TextView`
+    t =     3.30s         Checking existence of `"Document title" TextView`
+    t =     3.36s Tap "Document title" TextView
+    t =     3.36s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     3.37s     Find the "Document title" TextView
+    t =     3.39s     Check for interrupting elements affecting "Document title" TextView
+    t =     3.40s     Synthesize event
+    t =     3.69s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     3.73s Type ' Updated
+' into "Document title" TextView
+    t =     3.73s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.12s     Find the "Document title" TextView
+    t =     4.16s     Check for interrupting elements affecting "Document title" TextView
+    t =     4.19s     Synthesize event
+    t =     4.54s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.85s Waiting 10.0s for "Block text" TextView to exist
+    t =     5.90s     Checking `Expect predicate `existsNoRetry == 1` for object "Block text" TextView`
+    t =     5.90s         Checking existence of `"Block text" TextView`
+    t =     5.93s Type 'Modern body' into "Block text" TextView
+    t =     5.93s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     5.93s     Find the "Block text" TextView
+    t =     5.95s     Check for interrupting elements affecting "Block text" TextView
+    t =     5.98s     Synthesize event
+    t =     6.36s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.84s Tap "Format" Button
+    t =     6.84s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.84s     Find the "Format" Button
+    t =     6.87s     Check for interrupting elements affecting "Format" Button
+    t =     6.90s     Synthesize event
+    t =     7.19s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.19s Waiting 5.0s for "Bold" Button to exist
+    t =     8.20s     Checking `Expect predicate `existsNoRetry == 1` for object "Bold" Button`
+    t =     8.20s         Checking existence of `"Bold" Button`
+    t =     8.23s Tap "Cancel" Button
+    t =     8.23s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     8.23s     Find the "Cancel" Button
+    t =     8.25s     Check for interrupting elements affecting "Cancel" Button
+    t =     8.27s     Synthesize event
+    t =     8.56s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     8.58s Type ' after menu' into "Block text" TextView
+    t =     8.58s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     9.11s     Find the "Block text" TextView
+    t =     9.14s     Check for interrupting elements affecting "Block text" TextView
+    t =     9.16s     Synthesize event
+    t =     9.54s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    10.02s Tap "Code" TextView
+    t =    10.02s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    10.02s     Find the "Code" TextView
+    t =    10.05s     Check for interrupting elements affecting "Code" TextView
+    t =    10.07s     Synthesize event
+    t =    10.08s         Scroll element to visible
+    t =    10.08s         Find the "Code" TextView
+    t =    10.12s         Computed hit point {89, 392.66666666666669} after scrolling to visible
+    t =    10.40s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    10.40s Type '  literal
+line' into "Code" TextView
+    t =    10.40s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    10.41s     Find the "Code" TextView
+    t =    10.44s     Check for interrupting elements affecting "Code" TextView
+    t =    10.46s     Synthesize event
+    t =    10.89s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    11.57s Tap "Save locally" Button
+    t =    11.57s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    11.58s     Find the "Save locally" Button
+    t =    11.61s     Check for interrupting elements affecting "Save locally" Button
+    t =    11.63s     Synthesize event
+    t =    11.91s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    11.92s Waiting 10.0s for "Saved with recovery and author history" StaticText to exist
+    t =    12.97s     Checking `Expect predicate `existsNoRetry == 1` for object "Saved with recovery and author history" StaticText`
+    t =    12.97s         Checking existence of `"Saved with recovery and author history" StaticText`
+    t =    12.99s Find the Target Application 'studio.seventwo.blockeditor.lab.EditorLab-iOS'
+    t =    13.08s Added attachment named 'Modern integrated candidate'
+    t =    13.08s Terminate studio.seventwo.blockeditor.lab.EditorLab-iOS:54711
+    t =    14.15s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =    14.15s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+2026-10-06 03:45:31.994 xcodebuild[54695:18765082] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-06 03:45:31.994 xcodebuild[54695:18765082] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    14.37s         Setting up automation session
+    t =    14.93s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    16.04s Waiting 20.0s for "Document title" TextView to exist
+    t =    17.08s     Checking `Expect predicate `existsNoRetry == 1` for object "Document title" TextView`
+    t =    17.09s         Checking existence of `"Document title" TextView`
+    t =    17.14s Find the "Block text" TextView
+    t =    17.15s Find the "Code" TextView
+    t =    17.17s Tear Down
+Test Case '-[EditorLab_UITests.ModernEditingTests testModernTitleBodyCodeAndPairedReopen]' passed (17.411 seconds).
+Test Suite 'ModernEditingTests' passed at 2026-10-06 03:45:35.250.
+	 Executed 1 test, with 0 failures (0 unexpected) in 17.411 (17.412) seconds
+Test Suite 'EditorLab-UITests.xctest' passed at 2026-10-06 03:45:35.250.
+	 Executed 1 test, with 0 failures (0 unexpected) in 17.411 (17.412) seconds
+Test Suite 'Selected tests' passed at 2026-10-06 03:45:35.250.
+	 Executed 1 test, with 0 failures (0 unexpected) in 17.411 (17.413) seconds
+2026-10-06 03:45:35.532 xcodebuild[54695:18765082] [MT] IDETestOperationsObserverDebug: 18.732 elapsed -- Testing started completed.
+2026-10-06 03:45:35.532 xcodebuild[54695:18765082] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-06 03:45:35.532 xcodebuild[54695:18765082] [MT] IDETestOperationsObserverDebug: 18.732 sec, +18.732 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/luca/Developer/block-editor/.build/modern-apple-candidate/Logs/Test/Test-EditorLab-iOS-2026.10.06_03-45-15-+0200.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "scope": "Typed Kotlin protocol-7 host facade, local compilation and Android focused-test packaging. Actual JNI execution is open.",
+  "parentCommit": "88e95906de031998f3cda50a41a58c38f1e59635",
+  "sourceInputs": {
+    "android/editor/src/main/java/studio/seventwo/blockeditor/ModernTypes.kt": "ac0b555189aa783caac1c074d4dd1834cad4bf2b9aa857187c55259de9ae1364",
+    "android/editor/src/main/java/studio/seventwo/blockeditor/ModernSession.kt": "71e21f3594a09330e7d40f159ad022ccc871f9d3d00212a53eb75fa12287b8ef",
+    "android/editor/src/main/java/studio/seventwo/blockeditor/EditorSession.kt": "e21bc0db91f15d8feb0f55ad3c34302543aea092d0529e16bdc490a157d0fb33",
+    "android/editor/src/androidTest/java/studio/seventwo/blockeditor/ModernSessionTest.kt": "51ac9160818ed6978a23163d907220a80e677b8a5b98e8fd8e9ece8dc6c9f5f0",
+    "scripts/run-android-ci.py": "ff269728a40048572174b851a42f3089c8ae00cede4432c6b9243a687723129b",
+    "tests/modern-adapter.swift.ts": "1c631269e0eec2af2ee89a90ecb9095e8c73f51f5b371957f0c00e87829339f0",
+    "docs/modern-editor-command-api.md": "bd40d0999de043cff252af6a0512c81ee2908a7f666877929bf73d8d66bd8435",
+    "docs/modern-editor-foundation.md": "ab1c71ae448b724a4a022b94e639d03c839f163aa825e1b44d2e86511a47b4e6"
+  },
+  "verification": {
+    "androidTasks": [
+      ":editor:assembleDebugAndroidTest"
+    ],
+    "result": "BUILD SUCCESSFUL",
+    "offlineDependencies": true,
+    "testABI": "arm64-v8a",
+    "apkSHA256": "0d3afb4f087e0f9382cca84f7af0fe00e41dd1d5ab2c3abdf61ad300230692d1",
+    "compiledClasses": {
+      "android/editor/build/tmp/kotlin-classes/debug/studio/seventwo/blockeditor/ModernSession$Companion.class": "546d5a8033352b561d4500024ee3d76ee8b4c417c0ff4341b8218bb5a59f6749",
+      "android/editor/build/tmp/kotlin-classes/debug/studio/seventwo/blockeditor/ModernSession.class": "d5f034e78e19ac6870efc7ea285ee62a4088813a27d5b46d26eae1dd746862b6",
+      "android/editor/build/tmp/kotlin-classes/debugAndroidTest/studio/seventwo/blockeditor/ModernSessionTest.class": "3eb7c9ac2c6ea48d554715a78bb6b3caabeb710119edbab44faccc80b485f0d8"
+    },
+    "originalLog": "android-build.txt",
+    "originalLogSHA256": "91cbca5b2972029d1f411fc93146feeec9417dfa3f17dc47f4e279cee59ce97b"
+  },
+  "runtimeExecution": {
+    "status": "notExecutedLocally",
+    "reason": "The bundled local JNI engine predates protocol 7; no current Android native binary was built locally.",
+    "ciClass": "studio.seventwo.blockeditor.ModernSessionTest",
+    "ciExpectedTests": 1
+  },
+  "remaining": [
+    "Executed Kotlin JNI consumer assertions on the supported Android rows",
+    "Complete native input/focus, clipboard/provider and atomic paired persistence integration",
+    "Durable migration activation/restart/rollback and complete host acceptance"
+  ],
+  "ciBrowserChange": {
+    "run": "37333297532",
+    "failure": "The typed consumer contract timed out at 30 seconds on hosted WebKit; 166 other browser scenarios passed, 7 skipped.",
+    "change": "Allow 120 seconds for this whole-fixture consumer test; assertions and browser matrix remain intact.",
+    "verification": "New CI execution required; no timeout remedy pass is claimed."
+  }
+}

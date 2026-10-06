@@ -1,0 +1,278 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Examples/AppleDemo/EditorLab.xcodeproj -scheme EditorLab-iOS -destination "platform=iOS Simulator,id=7BD0787D-E1F1-4D5B-B4B4-DBC441E6694A" -derivedDataPath /private/tmp/block-editor-native-assessment-ntz96ybc/derived -resultBundlePath /private/tmp/block-editor-native-assessment-ntz96ybc/iphone.xcresult -collect-test-diagnostics never -parallel-testing-enabled NO "-only-testing:EditorLab-UITests/LocalEditingTests" "-only-testing:EditorLab-UITests/RichBlockTests" "-only-testing:EditorLab-UITests/TextLayoutTests" CODE_SIGNING_ALLOWED=NO test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BlockEditor: /tmp/block-editor-native-assessment-ntz96ybc
+
+Writing result bundle at path:
+	/private/tmp/block-editor-native-assessment-ntz96ybc/iphone.xcresult
+
+Resolve Package Graph
+
+2026-10-04 03:24:49.035483+0200 EditorLab-UITests-Runner[91358:10933248] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-04 03:24:51.624.
+Test Suite 'EditorLab-UITests.xctest' started at 2026-10-04 03:24:51.624.
+Test Suite 'LocalEditingTests' started at 2026-10-04 03:24:51.624.
+Test Case '-[EditorLab_UITests.LocalEditingTests testStandaloneTypingAndHistorySurviveRestart]' started.
+    t =     0.00s Start Test at 2026-10-04 03:24:51.626
+    t =     0.03s Set Up
+    t =     0.03s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     0.03s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+2026-10-04 03:24:51.913 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-04 03:24:51.913 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: no debugger version
+objc[91358]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_24A434/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x105be4398) and /Library/Developer/CoreSimulator/Volumes/iOS_24A434/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x1060d0310). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+Resolve Package Graph
+
+    t =     0.91s         Setting up automation session
+    t =     2.75s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.00s Tap "Open local document" Button
+    t =     4.01s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.01s     Find the "Open local document" Button
+    t =     4.05s     Check for interrupting elements affecting "Open local document" Button
+    t =     4.07s     Synthesize event
+    t =     4.50s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.50s Waiting 10.0s for TextView (First Match) to exist
+    t =     5.52s     Checking `Expect predicate `existsNoRetry == 1` for object TextView (First Match)`
+    t =     5.52s         Checking existence of `TextView (First Match)`
+    t =     5.56s Tap TextView (First Match)
+    t =     5.56s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     5.57s     Find the TextView (First Match)
+    t =     5.58s     Check for interrupting elements affecting "Block text" TextView
+    t =     5.59s     Synthesize event
+    t =     5.89s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.63s Type 'Offline document' into "Block text" TextView
+    t =     6.63s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.00s     Find the "Block text" TextView
+    t =     7.06s     Check for interrupting elements affecting "Block text" TextView
+    t =     7.08s     Synthesize event
+    t =     7.54s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.55s Find the "Block text" TextView
+    t =     7.58s Checking existence of `"Saved locally" StaticText`
+    t =     7.60s Terminate studio.seventwo.blockeditor.lab.EditorLab-iOS:91371
+    t =     8.63s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     8.64s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+2026-10-04 03:25:00.266 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-04 03:25:00.266 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     8.86s         Setting up automation session
+    t =    10.66s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    11.83s Tap "Open local document" Button
+    t =    11.83s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    11.84s     Find the "Open local document" Button
+    t =    11.86s     Check for interrupting elements affecting "Open local document" Button
+    t =    11.87s     Synthesize event
+    t =    12.17s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    12.17s Waiting 10.0s for "Offline document" TextView to exist
+    t =    13.20s     Checking `Expect predicate `existsNoRetry == 1` for object "Offline document" TextView`
+    t =    13.20s         Checking existence of `"Offline document" TextView`
+    t =    13.23s Find the "Offline document" TextView
+    t =    13.25s Tap "Undo" Button
+    t =    13.25s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    13.25s     Find the "Undo" Button
+    t =    13.26s     Check for interrupting elements affecting "Undo" Button
+    t =    13.28s     Synthesize event
+    t =    13.57s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    13.57s Find the "Block text" TextView
+    t =    13.58s Tap "Redo" Button
+    t =    13.58s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    13.59s     Find the "Redo" Button
+    t =    13.60s     Check for interrupting elements affecting "Redo" Button
+    t =    13.61s     Synthesize event
+    t =    13.89s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    13.90s Find the "Block text" TextView
+    t =    13.91s Checking existence of `"Local demo token" SecureTextField`
+    t =    13.92s Find the Target Application 'studio.seventwo.blockeditor.lab.EditorLab-iOS'
+    t =    13.99s Added attachment named 'Restored standalone document'
+    t =    13.99s Tear Down
+Test Case '-[EditorLab_UITests.LocalEditingTests testStandaloneTypingAndHistorySurviveRestart]' passed (14.220 seconds).
+Test Suite 'LocalEditingTests' passed at 2026-10-04 03:25:05.847.
+	 Executed 1 test, with 0 failures (0 unexpected) in 14.220 (14.222) seconds
+Test Suite 'RichBlockTests' started at 2026-10-04 03:25:05.847.
+Test Case '-[EditorLab_UITests.RichBlockTests testTableAndNestedToggleEditsSurviveRestart]' started.
+    t =     0.00s Start Test at 2026-10-04 03:25:05.848
+    t =     0.02s Set Up
+    t =     0.02s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     0.02s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     0.03s         Terminate studio.seventwo.blockeditor.lab.EditorLab-iOS:91378
+Resolve Package Graph
+
+2026-10-04 03:25:06.924 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-04 03:25:06.924 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.28s         Setting up automation session
+    t =     3.07s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.26s Tap "Open local document" Button
+    t =     4.26s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.26s     Find the "Open local document" Button
+    t =     4.28s     Check for interrupting elements affecting "Open local document" Button
+    t =     4.29s     Synthesize event
+    t =     4.59s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.59s Waiting 10.0s for "Row 1, column 1" TextView to exist
+    t =     5.61s     Checking `Expect predicate `existsNoRetry == 1` for object "Row 1, column 1" TextView`
+    t =     5.61s         Checking existence of `"Row 1, column 1" TextView`
+    t =     5.67s Find the "Row 1, column 1" TextView
+    t =     5.69s Tap "Row 1, column 1" TextView
+    t =     5.69s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     5.69s     Find the "Row 1, column 1" TextView
+    t =     5.71s     Check for interrupting elements affecting "Row 1, column 1" TextView
+    t =     5.73s     Synthesize event
+    t =     6.02s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.40s Type ' edited' into "Row 1, column 1" TextView
+    t =     6.40s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.40s     Find the "Row 1, column 1" TextView
+    t =     6.44s     Check for interrupting elements affecting "Row 1, column 1" TextView
+    t =     6.46s     Synthesize event
+    t =     6.78s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.78s Find the "Row 1, column 1" TextView
+    t =     6.81s Checking existence of `"Block text" TextView`
+    t =     6.84s Tap "Block text" TextView
+    t =     6.84s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.84s     Find the "Block text" TextView
+    t =     6.87s     Check for interrupting elements affecting "Block text" TextView
+    t =     6.89s     Synthesize event
+    t =     7.18s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.18s Type ' changed' into "Block text" TextView
+    t =     7.18s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.18s     Find the "Block text" TextView
+    t =     7.21s     Check for interrupting elements affecting "Block text" TextView
+    t =     7.24s     Synthesize event
+    t =     7.57s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.58s Find the "Block text" TextView
+    t =     7.60s Tap "Collapse toggle" Button
+    t =     7.60s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     7.61s     Find the "Collapse toggle" Button
+    t =     7.63s     Check for interrupting elements affecting "chevron.down" Button
+    t =     7.66s     Synthesize event
+    t =     7.94s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     8.09s Checking existence of `TextView (First Match)`
+    t =     8.13s Tap "Expand toggle" Button
+    t =     8.13s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     8.13s     Find the "Expand toggle" Button
+    t =     8.15s     Check for interrupting elements affecting "chevron.right" Button
+    t =     8.17s     Synthesize event
+    t =     8.47s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     8.47s Checking existence of `TextView (First Match)`
+    t =     8.48s Find the "List item" TextView
+    t =     8.51s Checking existence of `"List item" TextView`
+    t =     8.53s Tap "List item" TextView
+    t =     8.53s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     8.53s     Find the "List item" TextView
+    t =     8.55s     Check for interrupting elements affecting "List item" TextView
+    t =     8.57s     Synthesize event
+    t =     8.85s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     9.12s Type ' updated' into "List item" TextView
+    t =     9.12s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     9.12s     Find the "List item" TextView
+    t =     9.15s     Check for interrupting elements affecting "List item" TextView
+    t =     9.18s     Synthesize event
+    t =     9.51s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     9.51s Find the "List item" TextView
+    t =     9.54s Terminate studio.seventwo.blockeditor.lab.EditorLab-iOS:91381
+    t =    10.58s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =    10.58s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+2026-10-04 03:25:16.432 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-04 03:25:16.432 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    10.80s         Setting up automation session
+    t =    12.54s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    13.73s Tap "Open local document" Button
+    t =    13.73s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    13.73s     Find the "Open local document" Button
+    t =    13.76s     Check for interrupting elements affecting "Open local document" Button
+    t =    13.77s     Synthesize event
+    t =    14.08s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    14.08s Waiting 10.0s for "Row 1, column 1" TextView to exist
+    t =    15.10s     Checking `Expect predicate `existsNoRetry == 1` for object "Row 1, column 1" TextView`
+    t =    15.10s         Checking existence of `"Row 1, column 1" TextView`
+    t =    15.16s Find the "Row 1, column 1" TextView
+    t =    15.18s Checking existence of `TextView (First Match)`
+    t =    15.19s Checking existence of `TextView (First Match)`
+    t =    15.21s Find the Target Application 'studio.seventwo.blockeditor.lab.EditorLab-iOS'
+    t =    15.28s Added attachment named 'Restored rich blocks'
+    t =    15.28s Tear Down
+Test Case '-[EditorLab_UITests.RichBlockTests testTableAndNestedToggleEditsSurviveRestart]' passed (15.516 seconds).
+Test Suite 'RichBlockTests' passed at 2026-10-04 03:25:21.364.
+	 Executed 1 test, with 0 failures (0 unexpected) in 15.516 (15.517) seconds
+Test Suite 'TextLayoutTests' started at 2026-10-04 03:25:21.365.
+Test Case '-[EditorLab_UITests.TextLayoutTests testWrappedParagraphGrowsAndRestoresItsHeight]' started.
+    t =     0.00s Start Test at 2026-10-04 03:25:21.366
+Resolve Package Graph
+
+    t =     0.02s Set Up
+    t =     0.03s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     0.03s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =     0.03s         Terminate studio.seventwo.blockeditor.lab.EditorLab-iOS:91398
+2026-10-04 03:25:22.426 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-04 03:25:22.426 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.27s         Setting up automation session
+    t =     3.01s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.13s Tap "Open local document" Button
+    t =     4.13s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.14s     Find the "Open local document" Button
+    t =     4.17s     Check for interrupting elements affecting "Open local document" Button
+    t =     4.18s     Synthesize event
+    t =     4.48s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     4.48s Waiting 10.0s for TextView (First Match) to exist
+    t =     5.51s     Checking `Expect predicate `existsNoRetry == 1` for object TextView (First Match)`
+    t =     5.51s         Checking existence of `TextView (First Match)`
+    t =     5.55s Find the TextView (First Match)
+    t =     5.57s Tap "Block text" TextView
+    t =     5.57s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     5.58s     Find the "Block text" TextView
+    t =     5.59s     Check for interrupting elements affecting "Block text" TextView
+    t =     5.60s     Synthesize event
+    t =     5.89s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     5.93s Type 'wrapped text wrapp...' into "Block text" TextView
+    t =     5.93s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =     6.31s     Find the "Block text" TextView
+    t =     6.36s     Check for interrupting elements affecting "Block text" TextView
+    t =     6.39s     Synthesize event
+    t =    16.33s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+Resolve Package Graph
+
+    t =    31.31s Find the "Block text" TextView
+    t =    31.99s Find the "Block text" TextView
+    t =    32.05s Terminate studio.seventwo.blockeditor.lab.EditorLab-iOS:91400
+    t =    33.16s Open studio.seventwo.blockeditor.lab.EditorLab-iOS
+    t =    33.17s     Launch studio.seventwo.blockeditor.lab.EditorLab-iOS
+2026-10-04 03:25:54.657 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-04 03:25:54.657 xcodebuild[91342:10932682] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    33.83s         Setting up automation session
+    t =    35.99s         Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    37.18s Tap "Open local document" Button
+    t =    37.18s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    37.19s     Find the "Open local document" Button
+    t =    37.21s     Check for interrupting elements affecting "Open local document" Button
+    t =    37.23s     Synthesize event
+    t =    37.54s     Wait for studio.seventwo.blockeditor.lab.EditorLab-iOS to idle
+    t =    37.56s Waiting 10.0s for TextView at {{60.0, 122.0}, {310.0, 412.0}} to exist
+    t =    38.61s     Checking `Expect predicate `existsNoRetry == 1` for object TextView at {{60.0, 122.0}, {310.0, 412.0}}`
+    t =    38.61s         Checking existence of `TextView at {{60.0, 122.0}, {310.0, 412.0}}`
+    t =    38.64s Find the TextView at {{60.0, 122.0}, {310.0, 412.0}}
+    t =    38.66s Find the "Block text" TextView
+    t =    38.68s Find the Target Application 'studio.seventwo.blockeditor.lab.EditorLab-iOS'
+    t =    38.76s Added attachment named 'Restored wrapped paragraph'
+    t =    38.76s Tear Down
+Test Case '-[EditorLab_UITests.TextLayoutTests testWrappedParagraphGrowsAndRestoresItsHeight]' passed (38.984 seconds).
+Test Suite 'TextLayoutTests' passed at 2026-10-04 03:26:00.350.
+	 Executed 1 test, with 0 failures (0 unexpected) in 38.984 (38.985) seconds
+Test Suite 'EditorLab-UITests.xctest' passed at 2026-10-04 03:26:00.351.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 68.720 (68.727) seconds
+Test Suite 'Selected tests' passed at 2026-10-04 03:26:00.352.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 68.720 (68.728) seconds
+Resolve Package Graph
+
+2026-10-04 03:26:00.726 xcodebuild[91342:10932682] [MT] IDETestOperationsObserverDebug: 76.057 elapsed -- Testing started completed.
+2026-10-04 03:26:00.726 xcodebuild[91342:10932682] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-04 03:26:00.726 xcodebuild[91342:10932682] [MT] IDETestOperationsObserverDebug: 76.057 sec, +76.057 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/block-editor-native-assessment-ntz96ybc/iphone.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

@@ -1,0 +1,152 @@
+{
+  "contractVersion": 1,
+  "qualification": "Reviewed expected inputs, not implemented modern runtime or acceptance passes",
+  "fixtures": {
+    "blank": {
+      "path": "documents/blank.json",
+      "documentID": "st140-blank",
+      "epoch": "st140-blank-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "unicode": {
+      "path": "documents/unicode.json",
+      "documentID": "st140-unicode",
+      "epoch": "st140-unicode-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "mixed": {
+      "path": "documents/mixed.json",
+      "documentID": "st140-mixed",
+      "epoch": "st140-mixed-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "nested": {
+      "path": "documents/nested.json",
+      "documentID": "st140-nested",
+      "epoch": "st140-nested-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "wide-table": {
+      "path": "documents/wide-table.json",
+      "documentID": "st140-table",
+      "epoch": "st140-wide-table-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "long": {
+      "path": "documents/long.json",
+      "documentID": "st140-long",
+      "epoch": "st140-long-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "columns-3000": {
+      "path": "documents/columns-3000.json",
+      "documentID": "st140-columns",
+      "epoch": "st140-columns-3000-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "columns-5000": {
+      "path": "documents/columns-5000.json",
+      "documentID": "st140-columns",
+      "epoch": "st140-columns-5000-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "columns-7000": {
+      "path": "documents/columns-7000.json",
+      "documentID": "st140-columns",
+      "epoch": "st140-columns-7000-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "before-columns": {
+      "path": "documents/before-columns.json",
+      "documentID": "st140-columns",
+      "epoch": "st140-before-columns-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "semantic-colors": {
+      "path": "documents/semantic-colors.json",
+      "documentID": "st140-colors",
+      "epoch": "st140-semantic-colors-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "legacy-mixed": {
+      "path": "documents/legacy-mixed.json",
+      "documentID": "st140-legacy-mixed",
+      "epoch": "st140-legacy-mixed-epoch-1",
+      "qualification": "Legacy object; original archive and scoped identities required before fresh-epoch activation"
+    },
+    "legacy-collision": {
+      "path": "documents/legacy-collision.json",
+      "documentID": "st140-legacy-collision",
+      "epoch": "st140-legacy-collision-epoch-1",
+      "qualification": "Legacy opaque reserved-tag collision; archive/read-only refusal, never modern reinterpretation"
+    },
+    "unsupported-inline": {
+      "path": "documents/unsupported-inline.json",
+      "documentID": "st140-unsupported-inline",
+      "epoch": "st140-unsupported-inline-epoch-1",
+      "qualification": "Unadmittable inline representation; original bytes retained, no stripping projection"
+    },
+    "legacy-5001": {
+      "path": "documents/legacy-5001.json",
+      "documentID": "st140-legacy-5001",
+      "epoch": "st140-legacy-5001-epoch-1",
+      "qualification": "Valid Swift-size legacy document beyond old TypeScript root limit; preserve all 5001 blocks"
+    },
+    "migrated-mixed": {
+      "path": "documents/migrated-mixed.json",
+      "documentID": "st140-legacy-mixed",
+      "epoch": "st140-migrated-mixed-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "migrated-5001": {
+      "path": "documents/migrated-5001.json",
+      "documentID": "st140-legacy-5001",
+      "epoch": "st140-migrated-5001-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "columns-with-child": {
+      "path": "documents/columns-with-child.json",
+      "documentID": "st140-columns",
+      "epoch": "st140-columns-with-child-epoch-1",
+      "qualification": "Modern expected input; protocol 7 not yet implemented"
+    },
+    "columns-rich": {
+      "path": "documents/columns-rich.json",
+      "documentID": "st140-columns",
+      "epoch": "st140-columns-rich-epoch-1",
+      "qualification": "Marked/nested/media/code/table content within two stable containers; no network assets"
+    },
+    "nested-list-tail": {
+      "path": "documents/nested-list-tail.json",
+      "documentID": "st140-nested",
+      "epoch": "st140-list-tail-epoch-1",
+      "qualification": "Scoped list-only hierarchy authoring input"
+    }
+  },
+  "identityContract": {
+    "documentOrigin": "$document",
+    "allocationPolicy": "Harness maps initial scoped content IDs to stable engine origins once at load; commands and expectations use those origins after moves. New labels are reserved fixture allocation results, not private wire NodeID encodings.",
+    "scopedExamples": [
+      "A",
+      "toggle/child",
+      "toggle/todo/same",
+      "toggle/todo/same/child",
+      "list/same",
+      "list/same/child",
+      "layout/first-column",
+      "layout/second-column",
+      "B/child",
+      "B/todo/same/child"
+    ],
+    "newIdentities": [
+      "new-A",
+      "new-heading",
+      "copy-A",
+      "layout",
+      "first-column",
+      "second-column",
+      "D"
+    ],
+    "historyPolicy": "Counts are deliberate author groups after checkpoint; peer history never becomes local author Undo. Pending typing/menu/resize are not extra groups."
+  }
+}
