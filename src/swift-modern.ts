@@ -207,6 +207,7 @@ export class SwiftModernSession {
   resolvePosition(position: ModernPosition): ModernResolvedPosition { return this.call("modernResolvePosition", { position }); }
   captureTextRange(field: ModernField, start: number, end: number): ModernTextRange { return this.call("modernCaptureTextRange", { field, start, end }); }
   captureBoundary(collection: ModernCollection = { field: "blocks" }, after?: ModernNodeID): ModernBoundary { return this.call("modernCaptureBoundary", { collection, after }); }
+  captureInsertionBoundary(field: ModernField): ModernBoundary { return this.call("modernCaptureInsertionBoundary", { field }); }
   capturePasteBoundary(collection: ModernCollection = { field: "blocks" }, after?: ModernNodeID): ModernBoundary { return this.call("modernCapturePasteBoundary", { collection, after }); }
   captureListBoundary(collection: ModernCollection, after?: ModernNodeID): ModernBoundary { return this.call("modernCaptureListBoundary", { collection, after }); }
   captureNodes(nodes: readonly ModernNodeID[]): ModernNodes { return this.call("modernCaptureNodes", { nodes }); }

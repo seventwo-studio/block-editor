@@ -282,6 +282,12 @@ The nineteen advertised commands have shared-core and compiled native ABI checks
 
 ## Captured paste
 
+`modernCaptureInsertionBoundary` accepts a writing `field` and captures a block
+boundary after its containing block. A cell or list item therefore inserts after
+its table or list, preserving the surrounding column/toggle collection. Title
+insertion uses the document end. Catalog query consumption uses that boundary
+and a captured `selection.ranges` in one paste action, with `focusInserted`.
+
 `modernCapturePasteBoundary` accepts `collection` and optional `after` node identity. It supports root blocks, column/toggle children, list items, table rows and cells; it retains the immutable original placement and observed frontier.
 
 `modernCommand` with `command: "paste"` accepts a `ModernPasteTarget` containing either `range`, or `boundary` and optional mixed `selection` (`nodes` plus `ranges`). Arguments are `clipboard` (checked version 2 / collaborationVersion 7, or null for no import result), optional `mode` (`rich`, `plainText`, `flattenedColumns`), optional preorder `newIDs`, and optional `policy` (`allowedBlockTypes`, `allowedMarkTypes`, `allowAssetMetadata`). Default asset permission is false. IDs are fresh schema labels; repeated labels in distinct namespaces remain valid. Consumers retain their opaque IDs and rich reference payloads. Mode selection is explicit; nested rich layouts reject unchanged.

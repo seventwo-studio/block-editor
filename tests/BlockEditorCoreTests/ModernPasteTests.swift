@@ -41,6 +41,25 @@ import Testing
             #expect(restored.localSelection?.focus == result.focus)
         }
     }
+    @Test func catalogFromTableCellAndListItemCapturesContainingBlockAndRestoresQuery() throws {
+        let table = try ModernInsertionCatalog.block("table", id: "table", childIDs: ["r1", "c1", "c2", "r2", "c3", "c4"])
+        let list = try ModernInsertionCatalog.block("todo", id: "list", childIDs: ["item"])
+        let document = try ModernDocument(documentID: "nested-catalog", blocks: [table, list])
+        for address in [NodeAddress("table", path: ["rows", "r1", "cells", "c1"]), NodeAddress("list", path: ["items", "item"])] {
+            let s = try session(document: document), field = try s.field(node: s.node(at: address))
+            try s.replaceText(in: field, range: 0..<0, with: "/code")
+            let before = s.document, range = try s.captureTextRange(in: field, start: 0, end: 5), boundary = try s.captureInsertionBoundary(after: field)
+            #expect(boundary.collection == .root)
+            let clipboard = try ModernClipboard(parts: [.node(value: .object(["id": .string("fresh"), "type": .string("code"), "code": .string("")]), kind: "block")])
+            let result = try s.paste(clipboard, at: .init(boundary: boundary, selection: ModernDeleteTarget(ranges: [range])), focusInserted: true)
+            #expect(s.document.blocks.map(\.type) == (address.blockID == "table" ? ["table", "code", "list"] : ["table", "list", "code"]))
+            #expect(try s.text(in: field) == "")
+            guard case .text(let focus) = result.focus else { Issue.record("Expected inserted code focus"); continue }
+            #expect(focus.field.name == "code")
+            try s.undo(); #expect(s.document == before)
+            try s.redo(); #expect(try s.text(in: field) == "")
+        }
+    }
     @Test func acceptedRootLayoutPasteMatchesFullIndependentSnapshotAndFreshensOnlySchemaIDs() throws {
         let d = try fixture("columns-3000"), expected = try fixture("columns-root-copy"), s = try session(document: d)
         let layout = try node(s, "layout"), clipboard = try s.copyClipboard(ModernDeleteTarget(nodes: s.captureNodes([layout])))

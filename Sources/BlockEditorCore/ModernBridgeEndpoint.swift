@@ -149,6 +149,9 @@ final class ModernBridgeEndpoint {
         case "modernCaptureTextRange":
             try allowed(input, ["command", "session", "field", "start", "end"])
             return try encode(session.captureTextRange(in: decode(input["field"], as: WritingField.self), start: integer(input["start"]), end: integer(input["end"])))
+        case "modernCaptureInsertionBoundary":
+            try allowed(input, ["command", "session", "field"])
+            return try encode(session.captureInsertionBoundary(after: decode(input["field"], as: WritingField.self)))
         case "modernCaptureBoundary":
             try allowed(input, ["command", "session", "collection", "after"])
             let collection = try decode(input["collection"], as: NodeCollection.self)

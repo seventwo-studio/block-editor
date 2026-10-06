@@ -133,14 +133,11 @@ public struct ModernEditorHostActions {
         }
         guard insertion == nil, !model.session.isComposing,
               let range = try? model.captureTextSelection(), range.start.field != model.session.titleField,
-              range.start.field.name == "content", let text = try? model.session.text(in: range.start.field), text.hasPrefix("/"), !text.contains("\n"),
-              let address = try? model.session.address(of: range.start.field.node), let root = model.document.blocks.first(where: { $0.id == address.blockID }),
-              JSONValue.object(root.fields).value(at: address.path)?["type"] == .string("paragraph") else { return }
+              range.start.field.name == "content", let text = try? model.session.text(in: range.start.field), text.hasPrefix("/"), !text.contains("\n") else { return }
         run {
             try? model.captureInteractionFocus()
             insertionRange = try model.session.captureTextRange(in: range.start.field, start: 0, end: text.utf16.count)
-            let collection = try parentCollection(range.start.field.node)
-            insertion = try model.session.captureBoundary(in: collection, after: range.start.field.node)
+            insertion = try model.session.captureInsertionBoundary(after: range.start.field)
             query = String(text.dropFirst())
         }
     }
@@ -528,7 +525,7 @@ public struct ModernEditorHostActions {
                     Button("Color") { openPalette() }
                     Button("Cancel selection") { self.selection = nil; command { try $0.resolvedLocalSelection()?.focus } }
                 } else {
-                    Button("Insert") { run { if let range = try? model.captureTextSelection(), range.start.field != model.session.titleField { openInsertion(try parentCollection(range.start.field.node), after: range.start.field.node) } else { openInsertion(.root, after: (try? model.session.nodes())?.last) } } }
+                    Button("Insert") { run { try? model.captureInteractionFocus(); if let range = try? model.captureTextSelection() { insertion = try model.session.captureInsertionBoundary(after: range.start.field) } else { insertion = try model.session.captureBoundary(after: model.session.nodes().last) }; insertionRange = nil; query = "" } }
                     ForEach(["bold", "italic", "strikethrough", "code"], id: \.self) { mark in Button(mark.capitalized) { run { let target = try textTargets(); command { try $0.format(in: target, markType: mark, mark: try $0.markState(in: target, type: mark) == .on ? nil : .object(["type": .string(mark)])).focus } } } }
                     Button("Link") { run { try? model.captureInteractionFocus(); linkRange = try model.captureTextSelection(); link = ""; internalLink = false } }
                     Button("Undo") { run { try model.undo() } }.disabled(!model.canUndo)
@@ -570,13 +567,13 @@ public struct ModernEditorHostActions {
         command { session in
             if descriptor.id == "columns" {
                 let layout = JSONValue.object(["id": .string(UUID().uuidString), "type": .string("columns"), "splitBasisPoints": .number(5000), "columns": .array((0..<2).map { _ in .object(["id": .string(UUID().uuidString), "children": .array([])]) })])
-                let result = try insertionRange.map { range in try session.paste(ModernClipboard(parts: [.node(value: layout, kind: "block")]), at: .init(range: range), focusInserted: true) } ?? session.createColumns(.init(boundary: insertion), layout: layout)
+                let result = try insertionRange.map { range in try session.paste(ModernClipboard(parts: [.node(value: layout, kind: "block")]), at: .init(boundary: insertion, selection: ModernDeleteTarget(ranges: [range])), focusInserted: true) } ?? session.createColumns(.init(boundary: insertion), layout: layout)
                 self.insertion = nil; insertionRange = nil; return result.focus
             }
             let count = descriptor.blockType == "list" ? 1 : descriptor.blockType == "table" ? 6 : 0
             let block = try ModernInsertionCatalog.block(descriptor.id, id: UUID().uuidString, childIDs: (0..<count).map { _ in UUID().uuidString })
             let result: ModernStructuralResult
-            if let insertionRange { result = try session.paste(ModernClipboard(parts: [.node(value: .object(block.fields), kind: "block")]), at: .init(range: insertionRange), focusInserted: true) }
+            if let insertionRange { result = try session.paste(ModernClipboard(parts: [.node(value: .object(block.fields), kind: "block")]), at: .init(boundary: insertion, selection: ModernDeleteTarget(ranges: [insertionRange])), focusInserted: true) }
             else { result = try session.insertBlock(block, at: insertion) }
             self.insertion = nil; insertionRange = nil; return result.focus
         }

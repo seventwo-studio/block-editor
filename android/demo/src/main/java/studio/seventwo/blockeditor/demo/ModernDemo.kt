@@ -73,7 +73,7 @@ import java.util.UUID
                     metadata.put("id", UUID.randomUUID().toString()).put("type", if (plain) "paragraph" else descriptor.blockType)
                     if (descriptor.blockType == "image") metadata.put("caption", JSONArray())
                     val payload = editor.session.clipboardParts(JSONArray().put(JSONObject().put("node", JSONObject().put("kind", "block").put("value", metadata))))
-                    val target = range?.let { ModernPasteTarget.Range(it) } ?: ModernPasteTarget.Boundary(boundary)
+                    val target = ModernPasteTarget.Boundary(boundary, range?.let { ModernDeleteTarget(ranges = listOf(it)) })
                     editor.execute(ModernCommand.Paste(target, payload, policy = ModernPastePolicy(allowAssetMetadata = true))); editor.host.save()
                 } catch (error: Throwable) { failure = error.toString() }
             } }

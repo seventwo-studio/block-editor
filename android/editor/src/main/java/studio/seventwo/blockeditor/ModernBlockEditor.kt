@@ -261,7 +261,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                 if (old != next.text && field.name == "content" && next.text.startsWith("/") && !next.text.contains('\n') && state.insertion == null) {
                     // Capture once, before the picker takes native focus.
                     state.insertionRange = session.captureTextRange(field, 0, next.text.length)
-                    state.insertion = session.captureBoundary(session.parentCollection(field.node), field.node)
+                    state.insertion = session.captureInsertionBoundary(field)
                     state.query = next.text.drop(1)
                 }
             } catch (failure: Throwable) { value = next; pending = true; state.retainDraft(id, original, next, "Target unavailable"); state.reportError(failure) }
@@ -358,7 +358,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
             }
         }
         Row(Modifier.horizontalScroll(rememberScrollState())) {
-            TextButton(onClick = { state.insertionRange = null; state.insertion = session.captureBoundary(after = session.nodes().lastOrNull()); state.query = "" }) { Text("Insert") }
+            TextButton(onClick = { state.insertionRange = null; state.insertion = state.textSelection?.let { session.captureInsertionBoundary(it.start.field) } ?: session.captureBoundary(after = session.nodes().lastOrNull()); state.query = "" }) { Text("Insert") }
             ModernFormattingMenu(state)
             TextButton(onClick = { state.linkTarget = state.textSelection; state.linkURL = ""; state.internalLink = false }) { Text("Link") }
             TextButton(enabled = session.snapshot.canUndo, onClick = { state.execute(ModernCommand.Undo) }) { Text("Undo") }
@@ -405,7 +405,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                     val count = when (descriptor.blockType) { "list" -> 1; "table" -> 6; "columns" -> 2; else -> 0 }
                     val block = session.insertionValue(descriptor.id, UUID.randomUUID().toString(), List(count) { UUID.randomUUID().toString() }).export()
                     val range = state.insertionRange
-                    if (range != null) state.execute(ModernCommand.Paste(ModernPasteTarget.Range(range), session.clipboardParts(JSONArray().put(modernObject("node" to modernObject("kind" to "block", "value" to block)))), focusInserted = true))
+                    if (range != null) state.execute(ModernCommand.Paste(ModernPasteTarget.Boundary(boundary, ModernDeleteTarget(ranges = listOf(range))), session.clipboardParts(JSONArray().put(modernObject("node" to modernObject("kind" to "block", "value" to block)))), focusInserted = true))
                     else if (descriptor.blockType == "columns") state.execute(ModernCommand.CreateColumns(ModernCreateColumnsTarget.Boundary(boundary), ModernPayload.restore(block)))
                     else state.execute(ModernCommand.InsertBlock(boundary, ModernPayload.restore(block)))
                 }

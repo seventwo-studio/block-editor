@@ -47,7 +47,7 @@ public struct ModernEditorDemoView: View {
                         if plainLink, let url = metadata["url"]?.string { metadata = ["content": .array([.object(["type": .string("text"), "text": .string(url), "marks": .array([.object(["type": .string("link"), "href": .string(url)])])])])] }
                         metadata["id"] = .string(UUID().uuidString); metadata["type"] = .string(plainLink ? "paragraph" : descriptor.blockType)
                         if descriptor.blockType == "image" { metadata["caption"] = .array([]) }
-                        try model.perform { try $0.paste(ModernClipboard(parts: [.node(value: .object(metadata), kind: "block")]), at: range.map { .init(range: $0) } ?? .init(boundary: boundary), policy: WritingPastePolicy(allowAssetMetadata: true)).focus }
+                        try model.perform { try $0.paste(ModernClipboard(parts: [.node(value: .object(metadata), kind: "block")]), at: .init(boundary: boundary, selection: range.map { ModernDeleteTarget(ranges: [$0]) }), policy: WritingPastePolicy(allowAssetMetadata: true), focusInserted: true).focus }
                         try await persistence?.save()
                     } catch { failure = String(describing: error) } }
                 }), providers: providers)

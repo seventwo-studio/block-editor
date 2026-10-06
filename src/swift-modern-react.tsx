@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
 import { SwiftEditorRuntime } from "./swift.js";
-import { SwiftModernSession, type ModernAuthorCommand, type ModernDocument, type ModernField, type ModernNodeID, type ModernObject, type ModernPosition, type ModernTextRange, type ModernResult, type ModernNodes, type ModernBoundary, type ModernCollection, type ModernInsertionDescriptor, type ModernPolicy } from "./swift-modern.js";
+import { SwiftModernSession, type ModernAuthorCommand, type ModernDocument, type ModernField, type ModernNodeID, type ModernObject, type ModernPosition, type ModernTextRange, type ModernResult, type ModernNodes, type ModernBoundary, type ModernCollection, type ModernInsertionDescriptor, type ModernPolicy, type ModernSemanticTarget } from "./swift-modern.js";
 import { ModernBrowserHost } from "./swift-modern-host.js";
 import { inlineSelection, selectInline } from "./inline-react.js";
 
@@ -286,6 +286,15 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   }, [session]);
   function selectedTarget(): { ranges: readonly ModernTextRange[] } { return { ranges: textSpan.length ? textSpan : selected.current ? [selected.current] : [] }; }
   function formattingState(mark: string): "on" | "off" | "mixed" { try { const ranges = selectedTarget().ranges; return ranges.length ? session.markState(ranges, mark) : "off"; } catch { return "off"; } }
+  function palette(): ReactNode {
+    const target: ModernSemanticTarget | undefined = nodes ? { nodes } : selected.current ? { range: selected.current } : undefined;
+    return (["ink", "fill"] as const).map(kind => {
+      let current: ReturnType<SwiftModernSession["semanticState"]> | undefined;
+      try { if (target) current = session.semanticState(target, kind); } catch { /* Stale captures remain unavailable. */ }
+      const state = current && "role" in current ? current.role._0 : current && "mixed" in current ? "mixed" : "reset";
+      return <details key={kind}><summary>{kind === "ink" ? "Text color" : "Background"}: {state === "reset" ? "Default" : state}</summary>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button key={role} aria-pressed={state === role} disabled={readOnly || !target} onClick={() => { if (target) execute({ command: "setSemanticColor", target, arguments: { kind, role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>;
+    });
+  }
   function spanPasteTarget() {
     const backward = session.resolvePosition(textSpan[0].start).offset > session.resolvePosition(textSpan[0].end).offset;
     return { range: { start: backward ? textSpan.at(-1)!.start : textSpan[0].start, end: backward ? textSpan[0].end : textSpan.at(-1)!.end, observed: textSpan[0].observed } };
@@ -300,7 +309,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       query={(field, value, range, element) => {
         if (field.name !== "content") return;
         if (value.startsWith("/") && !value.includes("\n")) {
-          safe(() => { const collection = parent(field.node); setMenu({ boundary: session.captureBoundary(collection, field.node), range: session.captureTextRange(field, 0, value.length), query: value.slice(1), index: 0, anchor: element.getBoundingClientRect() }); });
+          safe(() => { setMenu({ boundary: session.captureInsertionBoundary(field), range: session.captureTextRange(field, 0, value.length), query: value.slice(1), index: 0, anchor: element.getBoundingClientRect() }); });
         } else if (props.suggestLinks) {
           const at = value.lastIndexOf("[["); if (at >= 0 && !value.slice(at).includes("]]")) setLink({ range: session.captureTextRange(field, at, value.length), query: value.slice(at + 2), internal: true });
         }
@@ -396,7 +405,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       const block = session.insertionValue(descriptor.id, id(), Array.from({ length: count }, id));
       if (descriptor.blockType === "columns" && !menu.range) {
         execute({ command: "createColumns", target: { boundary: menu.boundary }, arguments: { layout: block as ModernObject } });
-      } else if (menu.range) execute({ command: "paste", target: { range: menu.range }, arguments: { clipboard: session.clipboardParts([{ node: { kind: "block", value: block as ModernObject } }]), focusInserted: true } });
+      } else if (menu.range) execute({ command: "paste", target: { boundary: menu.boundary, selection: { ranges: [menu.range] } }, arguments: { clipboard: session.clipboardParts([{ node: { kind: "block", value: block as ModernObject } }]), focusInserted: true } });
       else execute({ command: "insertBlock", target: menu.boundary, arguments: { block: block as ModernObject } });
       setMenu(undefined);
     });
@@ -488,12 +497,12 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     <div className="modern-accessory" role="toolbar" aria-label="Editing actions" onPointerDown={event => { if (event.target instanceof HTMLButtonElement) event.preventDefault(); }}>
       {nodes ? <><span>{nodes.nodes.length} selected</span><details><summary>Convert</summary>{["paragraph", "heading", "quote", "callout", "list", "code"].map(type => <button key={type} disabled={readOnly} onClick={() => execute({ command: "convertBlock", target: nodes, arguments: { type: type as "paragraph" } })}>{type}</button>)}</details>
         <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
-        <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
-        <button disabled={readOnly} onClick={() => safe(() => { const node = selected.current?.start.field.node, collection = node && !("document" in node) ? parent(node) : { field: "blocks" } as ModernCollection; setMenu({ boundary: session.captureBoundary(collection, node && !("document" in node) ? node : session.nodes(collection).at(-1)), query: "", index: 0 }); })}>Insert</button>
+        <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><details><summary>Color</summary>{palette()}</details><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
+        <button disabled={readOnly} onClick={() => safe(() => { setMenu({ boundary: selected.current ? session.captureInsertionBoundary(selected.current.start.field) : session.captureBoundary({ field: "blocks" }, session.nodes().at(-1)), query: "", index: 0 }); })}>Insert</button>
         <details className="modern-format-menu"><summary>Format</summary><div>{["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { if (selected.current) execute({ command: "format", target: textSpan.length ? { ranges: textSpan } : selected.current, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
         <button disabled={readOnly || !selected.current} onClick={() => { if (selected.current) setLink({ range: selected.current, query: "", internal: false }); }}>Link</button>
         <button disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button>
-        <details><summary>More</summary><button disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{(["ink", "fill"] as const).map(kind => <details key={kind}><summary>{kind === "ink" ? "Text color" : "Background"}</summary>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button key={role} disabled={readOnly} onClick={() => { if (selected.current) execute({ command: "setSemanticColor", target: { range: selected.current }, arguments: { kind, role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>)}</details>
+        <details><summary>More</summary><button disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{palette()}</details>
       </>}{focusMode && <button onClick={() => setFocusMode(false)}>Leave focus mode</button>}
     </div>
     {menu && <div className="modern-picker" role="dialog" aria-label="Insert block" style={{ left: menu.anchor ? Math.max(8, Math.min(window.innerWidth - 300, menu.anchor.left)) : 16, top: menu.anchor ? Math.max(8, Math.min(window.innerHeight - 440, menu.anchor.bottom)) : 64 }}>

@@ -57,6 +57,7 @@ sealed class ModernCollection {
 class ModernPosition internal constructor(value: JSONObject) : ModernValue(value) {
     val documentID get() = string("documentID")
     val epoch get() = string("epoch")
+    val field get() = objectValue("field").let { ModernField(ModernNodeID.restore(it.getJSONObject("node")), it.getString("name")) }
     companion object { fun restore(value: JSONObject) = ModernPosition(value) }
 }
 class ModernRange(start: ModernPosition, end: ModernPosition) : ModernValue(modernObject("start" to start, "end" to end))

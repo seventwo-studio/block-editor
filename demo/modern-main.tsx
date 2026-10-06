@@ -38,7 +38,7 @@ function App() {
     const kind = asset.descriptor?.blockType;
     if (!plainLink && !kind) throw new Error("Original insertion kind unavailable");
     const value: ModernObject = plainLink ? { id: crypto.randomUUID(), type: "paragraph", content: [{ type: "text", text: String(metadata.url), marks: [{ type: "link", href: String(metadata.url) }] }] } : { id: crypto.randomUUID(), type: kind!, ...metadata, ...(kind === "image" ? { caption: [], alt: String(metadata.name ?? "Image") } : {}) };
-    const result = asset.host.session.execute({ command: "paste", target: asset.range ? { range: asset.range } : { boundary: asset.boundary! }, arguments: {
+    const result = asset.host.session.execute({ command: "paste", target: { boundary: asset.boundary!, ...(asset.range ? { selection: { ranges: [asset.range] } } : {}) }, arguments: {
       clipboard: asset.host.session.clipboardParts([{ node: { kind: "block", value } }]), policy: { allowAssetMetadata: true },
     } });
     if (result.status !== "applied" && result.status !== "noop") throw new Error(result.reason ?? result.status);

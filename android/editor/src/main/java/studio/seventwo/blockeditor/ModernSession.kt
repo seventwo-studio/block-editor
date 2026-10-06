@@ -111,6 +111,7 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     private fun boundary(command: String, collection: ModernCollection, after: ModernNodeID?) = ModernBoundary(objectCall(command,
         modernObject("collection" to collection.wire()).also { value -> after?.let { value.put("after", it.export()) } }))
     fun captureBoundary(collection: ModernCollection = ModernCollection.Blocks, after: ModernNodeID? = null) = boundary("modernCaptureBoundary", collection, after)
+    fun captureInsertionBoundary(field: ModernField) = ModernBoundary(objectCall("modernCaptureInsertionBoundary", modernObject("field" to field.wire())))
     fun capturePasteBoundary(collection: ModernCollection = ModernCollection.Blocks, after: ModernNodeID? = null) = boundary("modernCapturePasteBoundary", collection, after)
     fun captureListBoundary(collection: ModernCollection.Owned, after: ModernNodeID? = null) = boundary("modernCaptureListBoundary", collection, after)
     fun captureNodes(nodes: List<ModernNodeID>) = ModernNodes(objectCall("modernCaptureNodes", modernObject("nodes" to modernArray(nodes))))

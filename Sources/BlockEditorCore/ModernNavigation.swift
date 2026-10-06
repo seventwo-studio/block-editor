@@ -1,6 +1,20 @@
 import Foundation
 
 extension ModernSession {
+    /// Catalog blocks are siblings of the containing block, never cells or list
+    /// items. Capture this once before a picker takes the native input focus.
+    public func captureInsertionBoundary(after field: WritingField) throws -> ModernBlockBoundary {
+        _ = try text(in: field)
+        if field == titleField { return try captureBoundary(after: nodes().last) }
+        var node = field.node, visited = Set<NodeID>()
+        while visited.insert(node).inserted {
+            let collection = try parentCollection(of: node)
+            if try structure.kind(in: collection) == .block { return try captureBoundary(in: collection, after: node) }
+            guard let owner = collection.owner else { throw EditorError.invalidPath }
+            node = owner
+        }
+        throw EditorError.invalidPath
+    }
     /// Logical reading order, independent of the visual column presentation.
     /// A disclosed container retains its own field while hidden descendants are
     /// omitted only from this local navigation projection.
