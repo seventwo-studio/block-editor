@@ -47,7 +47,10 @@ import UIKit
             try model.clipboard.retainInput(text, at: .init(boundary: boundary), id: id, reason: marked ? "compositionActive" : "awaitingCommit")
             guard !marked else { return }
             composing = false; model.composition(id, active: false)
-            guard !text.isEmpty, model.isActive, model.isEditable else { return }
+            guard !text.isEmpty, model.isActive, model.isEditable else {
+                if text.isEmpty { try model.clipboard.forget(id) }
+                let finish = release; release = nil; try finish?(); return
+            }
             let result = model.clipboard.retryPaste(id, mode: .plainText)
             try finish(result)
             let finish = release; release = nil; try finish?()

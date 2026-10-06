@@ -51,6 +51,15 @@ try {
     assert.equal(typeof SwiftModernCutover, 'function');
     assert.equal(typeof SwiftModernRecoveryError, 'function');
     assert.equal(typeof SwiftBlockEditor, 'function');
+    const runtime = await SwiftEditorRuntime.initialize(readFileSync(new URL(import.meta.resolve('@seventwo-studio/block-editor/swift/modern.wasm'))));
+    const session = runtime.createModern({ documentID: 'isolated-install', actorID: 'consumer', epoch: 'isolated-candidate', document: {
+      format: 'seventwo.block-editor.document', formatVersion: 1, documentID: 'isolated-install', title: 'Help', appearance: { fontFamily: 'sans', fontSize: 'default', pageWidth: 'readable' }, blocks: []
+    } });
+    const inserted = session.execute({ command: 'insertBlock', target: session.captureBoundary(), arguments: { block: session.insertionValue('paragraph', 'local', []) } });
+    assert.equal(inserted.status, 'applied');
+    const field = session.field(session.nodes()[0]);
+    assert.equal(session.execute({ command: 'replaceText', target: session.captureTextRange(field, 0, 0), arguments: { text: 'Installed Unicode 😀' } }).status, 'applied');
+    assert.equal(session.text(field), 'Installed Unicode 😀'); session.close();
     assert.equal(typeof SwiftModernBlockEditor, 'function');
     assert.equal(typeof SwiftModernEditorSurface, 'function');
     assert.equal(typeof ModernBrowserHost, 'function');

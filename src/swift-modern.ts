@@ -90,7 +90,7 @@ export type ModernAuthorCommand =
   | Command<"createColumns", ModernCreateColumnsTarget, { readonly layout: ModernObject }>
   | Command<"removeColumns", ModernColumnTarget, EmptyArguments>
   | Command<"resizeColumns", ModernColumnTarget, { readonly splitBasisPoints: number }>
-  | Command<"convertBlock", ModernTextRange, { readonly type: "paragraph" | "heading" | "quote" | "callout" | "list" | "code"; readonly level?: 1 | 2 | 3; readonly style?: "ordered" | "unordered" | "todo"; readonly variant?: "info" | "warning" | "error" | "success" }>
+  | Command<"convertBlock", ModernTextRange | ModernNodes, { readonly type: "paragraph" | "heading" | "quote" | "callout" | "list" | "code"; readonly level?: 1 | 2 | 3; readonly style?: "ordered" | "unordered" | "todo"; readonly variant?: "info" | "warning" | "error" | "success" }>
   | Command<"softBreak" | "typingShortcut", ModernTextRange, EmptyArguments>
   | Command<"splitBlock", ModernTextRange, { readonly newBlockID: string }>
   | Command<"codeProperties", ModernCodeTarget, { readonly language: string | null }>

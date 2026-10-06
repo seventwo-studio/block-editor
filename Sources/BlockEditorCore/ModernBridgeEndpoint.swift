@@ -457,7 +457,9 @@ final class ModernBridgeEndpoint {
                 try allowed(arguments, ["splitBasisPoints"])
                 try structural(session.resizeColumns(decode(request["target"], as: ModernColumnTarget.self), splitBasisPoints: integer(arguments["splitBasisPoints"])))
             case "convertBlock":
-                try structural(session.convertBlock(in: decode(request["target"], as: ModernTextRange.self), to: decode(arguments, as: WritingBlockTarget.self)))
+                if request["target"]?["nodes"] != nil {
+                    try structural(session.convertBlocks(decode(request["target"], as: ModernNodeSelection.self), to: decode(arguments, as: WritingBlockTarget.self)))
+                } else { try structural(session.convertBlock(in: decode(request["target"], as: ModernTextRange.self), to: decode(arguments, as: WritingBlockTarget.self))) }
             case "typingShortcut":
                 try allowed(arguments, [])
                 try structural(session.typingShortcut(in: decode(request["target"], as: ModernTextRange.self)))

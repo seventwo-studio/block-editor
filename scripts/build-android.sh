@@ -22,3 +22,5 @@ for ABI in ${ANDROID_ABIS:-arm64-v8a x86_64}; do
     -shared -fPIC -Wl,-z,max-page-size=16384 android/editor/src/main/cpp/bridge.c \
     -L"$OUTPUT" -lBlockEditorBridge -o "$OUTPUT/libBlockEditorJNI.so"
 done
+
+SWIFT_BIN="$SWIFT_BIN" "${JS_RUNTIME:-bun}" scripts/record-modern-build.mjs android

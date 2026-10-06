@@ -42,7 +42,7 @@ class ModernActivationStore(private val directory: File, private val documentID:
     suspend fun active(): JSONObject? = withContext(Dispatchers.IO) { locked { readActive()?.let { NativeJsonTransport.copy(it) } } }
     suspend fun activate(archive: ModernCutoverArchive, candidate: JSONObject, expectedRevision: String?, oldWritersStopped: Boolean): JSONObject {
         check(oldWritersStopped) { "Old writers must be quiesced" }
-        val pair = NativeJsonTransport.copy(candidate); val original = archive.export().toString().toByteArray(Charsets.UTF_8)
+        val pair = NativeJsonTransport.copy(candidate); var original = archive.export().toString().toByteArray(Charsets.UTF_8)
         require(pair.getString("documentID") == documentID && archive.export().getString("documentID") == documentID && pair.getString("epoch") == archive.export().getString("epoch"))
         val id = UUID.fromString(pair.getString("revision")).toString(); val cutover = ModernCutover()
         val archiveID = withContext(Dispatchers.Main.immediate) {
@@ -53,6 +53,13 @@ class ModernActivationStore(private val directory: File, private val documentID:
                 check(prepared.status == "prepared" && prepared.document != null) { prepared.reason ?: "Migration rejected" }
                 val restored = ModernAndroidHost.restore(pair, ModernHostStore(File(directory, "live-$id.json"))).first.session
                 try { check(restored.snapshot.syncState.received.isEmpty() && restored.snapshot.document.export().toString() == prepared.document!!.export().toString()) { "Candidate does not match migration" } } finally { restored.close() }
+                val count = cutover.bytes(handle, 0, 0).export().getInt("byteCount")
+                val canonical = ByteArray(count)
+                for (offset in canonical.indices step 131072) {
+                    val chunk = cutover.bytes(handle, offset.toLong(), minOf(131072, count - offset)).export()
+                    Base64.decode(chunk.getString("bytes"), Base64.NO_WRAP).copyInto(canonical, offset)
+                }
+                original = canonical
                 handle
             } catch (failure: Throwable) { cutover.forget(handle); throw failure }
         }

@@ -44,7 +44,7 @@
     "rich-text"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && node scripts/record-modern-build.mjs javascript",
+    "build": "tsc -p tsconfig.build.json && bun scripts/record-modern-build.mjs javascript",
     "dev": "vite --host 127.0.0.1",
     "demo:dev": "vite --host 127.0.0.1",
     "demo:build": "vite build",
@@ -55,7 +55,7 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test src",
     "prepublishOnly": "bun run test && bun run build",
-    "check:package": "bun run build && node scripts/check-package.mjs",
+    "check:package": "bun run build && bun scripts/check-package.mjs",
     "test:browser": "playwright test",
     "build:wasm": "sh scripts/build-wasm.sh",
     "build:android": "sh scripts/build-android.sh",

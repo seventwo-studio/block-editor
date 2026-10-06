@@ -12,7 +12,7 @@ import Observation
     public var isEditable = true
     /// Deactivate the outgoing document before switching its mounted host.
     public var isActive = true { didSet { if isActive != oldValue { invocationGeneration &+= 1; if !isActive { blur() } } } }
-    @ObservationIgnored private(set) var invocationGeneration: UInt64 = 0
+    @ObservationIgnored public private(set) var invocationGeneration: UInt64 = 0
     @ObservationIgnored public lazy var clipboard = ModernClipboardController(model: self, retained: restoredClipboard)
     @ObservationIgnored private let restoredClipboard: [ModernRetainedClipboard]
     public private(set) var focusIntent: ModernFocusIntent?
@@ -25,6 +25,7 @@ import Observation
     @ObservationIgnored private var performing = false
     @ObservationIgnored private var compositionOwners = Set<UUID>()
     @ObservationIgnored private var pendingFocus: PendingFocus?
+    @ObservationIgnored private var interactionFocus: (PendingFocus, UInt64)?
     @ObservationIgnored private var focusScheduled = false
     @ObservationIgnored var restoringFocus = false
     private final class PendingFocus {
@@ -55,7 +56,7 @@ import Observation
     func unregister(_ input: ModernInputController) { inputs.removeValue(forKey: input.id); composition(input.id, active: false); draftsChanged() }
     func activate(_ input: ModernInputController) {
         if activeInput !== input { session.endTypingGroup() }
-        activeInput = input; focusIntent = nil
+        activeInput = input; focusIntent = nil; interactionFocus = nil
         pendingFocus = nil
     }
     public func blur() { activeInput = nil; pendingFocus = nil; focusIntent = nil; session.endTypingGroup() }
@@ -65,6 +66,19 @@ import Observation
         let start = try session.resolve(range.start), end = try session.resolve(range.end)
         guard range.start.field == range.end.field else { throw EditorError.invalidRange }
         return try session.captureTextRange(in: range.start.field, start: start.offset, end: end.offset)
+    }
+    /// Capture the original native window and directed selection before a menu
+    /// takes focus. Dismissal may restore only while that window still permits it.
+    public func captureInteractionFocus() throws {
+        let range = try captureTextSelection()
+        guard let source = activeInput, let window = source.window, let permitted = source.permitsFocusTransfer else { return }
+        interactionFocus = (PendingFocus(source: source, window: window, range: WritingTextRange(start: range.start, end: range.end), permitted: permitted), invocationGeneration)
+    }
+    public func restoreInteractionFocus() {
+        guard let (lease, generation) = interactionFocus else { return }; interactionFocus = nil
+        guard isActive, generation == invocationGeneration, activeInput == nil || activeInput === lease.source, let window = lease.window else { return }
+        pendingFocus = PendingFocus(source: activeInput, window: window, range: lease.range, permitted: lease.permitted)
+        scheduleFocus()
     }
     func ownsInput(_ input: ModernInputController) -> Bool { activeInput === input }
     func composition(_ id: UUID, active: Bool) {
@@ -110,6 +124,10 @@ import Observation
             let intent = try operation(session)
             focusIntent = intent; error = nil; publish()
             if let intent, let source, let window { transfer(intent, source: source, window: window) }
+            else if let intent, let (lease, generation) = interactionFocus, generation == invocationGeneration, let window = lease.window {
+                requestFocus(intent, in: window, permitted: lease.permitted)
+            }
+            interactionFocus = nil
         } catch { report(error); publish(); throw error }
     }
     public func undo() throws { try perform { try $0.undo(); return try $0.resolvedLocalSelection()?.focus } }

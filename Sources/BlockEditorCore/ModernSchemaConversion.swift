@@ -23,7 +23,7 @@ func validateModernSchemaShape(_ conversion: WritingSchemaConversion, change: Ch
           conversion.preservedItemFields.keys.allSatisfy({ !["id", "type", "content", "code", "summary", "caption", "expression", "items", "rows"].contains($0) }) else { throw EditorError.invalidChange }
     switch conversion.type {
     case "list":
-        guard let creation = conversion.creation, creation.change == change, creation.index == 0,
+        guard let creation = conversion.creation, creation.change == change, creation.index >= 0, creation.index < 10_000,
               let label = conversion.itemID, !label.isEmpty, conversion.source.node == conversion.node,
               conversion.destination == WritingField(node: .inserted(creation: creation, path: []), name: "content"),
               conversion.preservedItemFields.isEmpty, Set(conversion.attributes.keys) == ["style"],
@@ -56,7 +56,7 @@ func validateModernSchemaConversion(_ conversion: WritingSchemaConversion, chang
     let target = WritingBlockTarget(type: conversion.type, level: conversion.attributes["level"].flatMap { value in
         if case .number(let number) = value { return Int(number) }; return nil
     }, style: conversion.attributes["style"]?.string, variant: conversion.attributes["variant"]?.string)
-    let expected = try planWritingSchemaConversion(source: conversion.source, target: target, id: change, structure: structure, projection: projection)
+    let expected = try planWritingSchemaConversion(source: conversion.source, target: target, id: change, structure: structure, projection: projection, creationIndex: conversion.creation?.index ?? 0)
     guard conversion == expected else { throw EditorError.invalidChange }
 }
 

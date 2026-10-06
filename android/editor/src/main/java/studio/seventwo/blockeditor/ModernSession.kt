@@ -117,6 +117,7 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     fun captureListNodes(nodes: List<ModernNodeID>) = ModernNodes(objectCall("modernCaptureListNodes", modernObject("nodes" to modernArray(nodes))))
     fun captureLocalNodes(nodes: List<ModernNodeID>) = ModernNodes(objectCall("modernCaptureLocalNodes", modernObject("nodes" to modernArray(nodes))))
     fun clipboardText(text: String, mode: String = "plain") = ModernClipboard.restore(objectCall("modernClipboard", modernObject("text" to text, "mode" to mode)))
+    fun clipboardEncoded(encoded: String) = ModernClipboard.restore(objectCall("modernClipboard", modernObject("encoded" to encoded)))
     fun clipboardParts(parts: JSONArray) = ModernClipboard.restore(objectCall("modernClipboard", modernObject("parts" to parts)))
     fun copy(target: ModernDeleteTarget) = ModernClipboard.restore(objectCall("modernCopy", modernObject("target" to target)))
     fun prepareCut(target: ModernDeleteTarget) = ModernCutPreparation(objectCall("modernPrepareCut", modernObject("target" to target)))

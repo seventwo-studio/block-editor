@@ -14,7 +14,7 @@ func writingListOwner(of item: NodeID, structure: StructuralState) throws -> Nod
 
 /// Pure conversion planning shared by retained legacy and modern sessions.
 func planWritingSchemaConversion(source: WritingField, target: WritingBlockTarget, id: ChangeID,
-                                 structure: StructuralState, projection: WritingProjection) throws -> WritingSchemaConversion {
+                                 structure: StructuralState, projection: WritingProjection, creationIndex: Int = 0) throws -> WritingSchemaConversion {
     let root = structure.nodes[source.node]?.kind == .item ? try writingListOwner(of: source.node, structure: structure) : source.node
     guard let node = structure.nodes[root], node.kind == .block,
           ["paragraph", "heading", "quote", "callout", "list", "code"].contains(node.fields["type"]?.string ?? ""),
@@ -48,7 +48,7 @@ func planWritingSchemaConversion(source: WritingField, target: WritingBlockTarge
         guard node.fields["items"] == nil, node.fields["type"] != .string("list") else { throw EditorError.invalidChange }
         attributes["style"] = .string(target.style ?? "unordered")
         guard node.fields["style"] == nil || node.fields["style"] == attributes["style"] else { throw EditorError.invalidChange }
-        let creation = ElementID(change: id, index: 0)
+        let creation = ElementID(change: id, index: creationIndex)
         return WritingSchemaConversion(node: root, type: target.type, attributes: attributes, source: source,
             destination: WritingField(node: .inserted(creation: creation, path: []), name: "content"),
             itemID: node.label + "-item", creation: creation, preservedItemFields: [:])

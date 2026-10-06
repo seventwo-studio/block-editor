@@ -30,7 +30,7 @@ loading, retry and incompatibility presentation for initial documents.
 Run `bun run build:wasm` and `bun run demo:dev`, then open the reference
 integration at `/block-editor/modern.html` with the existing
 demo server. `demo/modern-main.tsx` demonstrates local Help
-writing, paired reopen, explicit Save and internal Help suggestions. No backend
+writing, paired reopen, explicit Save, internal Help suggestions and app-owned IndexedDB asset storage. Image/file insertion and replacement store bytes before shared insertion; resolution is access-controlled by the host callback. No backend
 is required. Supply real navigation, asset insertion and access-filtered
 suggestions from Foliostrate. `[[` invokes internal suggestions; `@` is reserved
 for optional application mentions.
@@ -46,9 +46,10 @@ Apple: create `ModernEditorModel(session:)` and render `ModernBlockEditorView`.
 Use `ModernHostStore` and one `ModernPersistenceController` per local pair. Pass
 that controller to `ModernProviderController`; the application explicitly starts
 providers and retries retained results. Reopening restores inert provider records.
-Use `ModernReducedEditorView` on watchOS/tvOS while retaining the same full document.
-`ModernEditorDemoView(storageURL:)` is the runnable Apple reference. Launch
+The same `ModernBlockEditorView` entrypoint selects reduced reading, text, checklist and reorder controls on watchOS/tvOS while retaining the full document.
+`ModernEditorDemoView(file:)` is the runnable Apple reference. Launch
 EditorLab with `EDITOR_LAB_MODERN=1` to select it; its legacy routes remain available.
+The reference uses app-private asset files, explicit file/preview pickers and retained provider results.
 Restore `pendingInputs` and `retainedClipboard` into the model before saving again.
 
 Android: create `ModernSession`, `ModernAndroidHost` and
@@ -57,7 +58,7 @@ an existing app-private directory through `ModernHostStore`. Keep JNI calls on
 the creating UI thread; the storage adapter moves only immutable bytes to IO.
 The typed Kotlin table/media/catalog APIs match Swift and TypeScript.
 Launch the demo with the Boolean intent extra `modern=true` to use its paired
-local Help reference. It keeps providers and failed input inert after reopen.
+local Help reference. It demonstrates app-private assets, explicit replacement and filtered Help suggestions. It keeps providers and failed input inert after reopen.
 
 ## Migration and recovery
 
@@ -81,7 +82,7 @@ unreadable or incompatible pair with an empty document.
 ## Candidate preparation and approval
 
 Build JavaScript declarations and actual WASM from one clean, committed source.
-Run `node scripts/modern-package-provenance.mjs` before the isolated package check.
+Run `bun scripts/modern-package-provenance.mjs` before the isolated package check.
 The resulting package includes versioned source/tree and artifact SHA-256
 identities in `modern-provenance.json`. The matching Swift source and Kotlin/JNI
 delivery must reference that same reviewed commit and record binary hashes in

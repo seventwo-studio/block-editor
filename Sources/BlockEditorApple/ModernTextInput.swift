@@ -317,6 +317,26 @@ extension ModernNativeCoordinator: UITextViewDelegate {
     override func deleteBackward() { if markedTextRange == nil, boundary?("deleteBackward:") == true { return }; edit { super.deleteBackward() } }
     override func setMarkedText(_ text: String?, selectedRange: NSRange) { edit(marked: true) { super.setMarkedText(text, selectedRange: selectedRange) } }
     override func unmarkText() { edit { super.unmarkText() } }
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if markedTextRange == nil, presses.count == 1, let key = presses.first?.key {
+            let shifted = key.modifierFlags.contains(.shift)
+            if key.keyCode == .keyboardReturnOrEnter && shifted {
+                edit { super.insertText("\n") }; return
+            }
+            let selector: String?
+            switch key.keyCode {
+            case .keyboardLeftArrow: selector = shifted ? "moveLeftAndModifySelection:" : "moveLeft:"
+            case .keyboardRightArrow: selector = shifted ? "moveRightAndModifySelection:" : "moveRight:"
+            case .keyboardUpArrow: selector = shifted ? "moveUpAndModifySelection:" : "moveUp:"
+            case .keyboardDownArrow: selector = shifted ? "moveDownAndModifySelection:" : "moveDown:"
+            case .keyboardTab: selector = shifted ? "insertBacktab:" : "insertTab:"
+            case .keyboardDeleteForward: selector = "deleteForward:"
+            default: selector = nil
+            }
+            if let selector, boundary?(selector) == true { return }
+        }
+        super.pressesBegan(presses, with: event)
+    }
     override var undoManager: UndoManager? { nil }
     override func copy(_ sender: Any?) { clipboardAction?("copy") }
     override func cut(_ sender: Any?) { clipboardAction?("cut") }

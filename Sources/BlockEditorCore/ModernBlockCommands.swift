@@ -27,6 +27,38 @@ extension ModernSession {
         endTypingGroup()
         return try performReturning(id, [.schemaConvert(conversion)], historyBefore: historySelection(range), result: outcome)
     }
+    /// A captured ordered block cohort converts atomically. Every lossless plan
+    /// is checked before publication; one incompatible member rejects the action.
+    public func convertBlocks(_ selection: ModernNodeSelection, to target: WritingBlockTarget) throws -> ModernStructuralResult {
+        try authoringAllowed(command: "convertBlock")
+        _ = try validateSelection(selection)
+        let attributes = try modernConversionAttributes(target), id = try nextID()
+        var operations: [ModernOperation] = []
+        let inline = ["paragraph", "heading", "quote", "callout"]
+        for (index, node) in selection.nodes.enumerated() {
+            guard let original = structure.nodes[node] else { throw EditorError.invalidPath }
+            let type = original.fields["type"]?.string ?? ""
+            if (inline.contains(type) && inline.contains(target.type)) || (type == "list" && target.type == "list") {
+                let converted = try writingConvertedBlock(original, type: target.type, attributes: attributes, modern: true)
+                if converted.fields != original.fields { operations.append(.convertBlock(node: node, type: target.type, attributes: attributes)) }
+            } else if !(type == "code" && target.type == "code") {
+                let field: WritingField
+                if type == "list" {
+                    let items = try structure.visibleOrder(in: NodeCollection(owner: node, field: "items"))
+                    guard items.count == 1 else { throw ModernSessionError.unavailable("lossyRangeConversion") }
+                    field = WritingField(node: items[0], name: "content")
+                } else { field = WritingField(node: node, name: type == "code" ? "code" : "content") }
+                let conversion = try planWritingSchemaConversion(source: field, target: target, id: id, structure: structure, projection: modernCurrentReplay.0, creationIndex: index)
+                try validateModernSchemaShape(conversion, change: id)
+                operations.append(.schemaConvert(conversion))
+            }
+        }
+        guard !operations.isEmpty else { return moveResult(selection.nodes, caret: nil, observed: modernObserved) }
+        endTypingGroup()
+        return try performReturning(id, operations, historyBefore: historySelection(selection)) { _, observed in
+            self.moveResult(selection.nodes, caret: nil, observed: observed)
+        }
+    }
     @discardableResult public func softBreak(in range: ModernTextRange) throws -> WritingPosition {
         try authoringAllowed(command: "softBreak")
         guard range.start.field == range.end.field, range.start.field != titleField else { throw EditorError.invalidPath }

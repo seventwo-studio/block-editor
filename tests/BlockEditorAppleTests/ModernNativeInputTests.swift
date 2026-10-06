@@ -85,6 +85,18 @@ import Testing
         #expect(first.firstResponder === external)
         #expect(a.document.blocks.map(\.id) == ["p", "q"])
     }
+    @Test func dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() async throws {
+        let (_, _, model) = try pair(), window = window(model); defer { window.close() }
+        let view = try input("p", in: window.contentView)
+        #expect(window.makeFirstResponder(view)); view.setSelectedRange(NSRange(location: 1, length: 2))
+        try model.captureInteractionFocus(); #expect(window.makeFirstResponder(nil))
+        model.restoreInteractionFocus(); try await Task.sleep(for: .milliseconds(50))
+        #expect(window.firstResponder === view && view.selectedRange() == NSRange(location: 1, length: 2))
+        try model.captureInteractionFocus()
+        let external = NSTextView(frame: NSRect(x: 0, y: 0, width: 100, height: 40)); window.contentView?.addSubview(external)
+        #expect(window.makeFirstResponder(external)); model.restoreInteractionFocus(); try await Task.sleep(for: .milliseconds(50))
+        #expect(window.firstResponder === external)
+    }
     @Test func rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() throws {
         let (a, _, model) = try pair(), window = window(model); defer { window.close() }
         let view = try input("p", in: window.contentView), before = try a.save()

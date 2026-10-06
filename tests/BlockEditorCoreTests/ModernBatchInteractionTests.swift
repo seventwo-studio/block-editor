@@ -106,3 +106,30 @@ struct ModernBatchInteractionTests {
     }
 
 }
+
+struct ModernRangeConversionTests {
+    @Test func rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() throws {
+        let doc = try ModernDocument(documentID: "cohort", blocks: [.paragraph(id: "a", text: "Alpha"), .paragraph(id: "b", text: "Beta")])
+        let a = try ModernSession(documentID: "cohort", actorID: "a", epoch: "e", document: doc)
+        let b = try ModernSession(documentID: "cohort", actorID: "b", epoch: "e", document: doc)
+        let selected = try a.captureNodes(a.nodes())
+        _ = try a.convertBlocks(selected, to: WritingBlockTarget(type: "list", style: "todo"))
+        #expect(a.document.blocks.allSatisfy { $0.fields["type"] == .string("list") })
+        let fields = try a.logicalFields(includingTitle: false)
+        #expect(fields.count == 2 && fields[0].node != fields[1].node)
+        #expect(try a.text(in: fields[0]) == "Alpha" && a.text(in: fields[1]) == "Beta")
+        try b.receive(a.changes()); try b.replaceText(in: fields[1], range: 4..<4, with: " peer")
+        try a.receive(b.changes()); try a.undo()
+        #expect(a.document.blocks.map(\.text) == ["Alpha", "Beta peer"])
+        #expect(a.document.blocks.allSatisfy { $0.fields["type"] == .string("paragraph") })
+        try a.redo(); #expect(try a.text(in: fields[1]) == "Beta peer")
+        #expect(try ModernSession.restore(a.save(), actorID: "a").document == a.document)
+    }
+    @Test func oneLossyMemberRejectsCompleteRangeWithoutWriting() throws {
+        let rich = try Block(fields: ["id": .string("rich"), "type": .string("paragraph"), "content": .array([.object(["type": .string("text"), "text": .string("Keep"), "marks": .array([.object(["type": .string("bold")])])])])])
+        let s = try ModernSession(documentID: "lossless", actorID: "a", epoch: "e", document: ModernDocument(documentID: "lossless", blocks: [.paragraph(id: "plain", text: "Literal"), rich]))
+        let before = try s.save()
+        #expect(throws: (any Error).self) { try s.convertBlocks(s.captureNodes(s.nodes()), to: WritingBlockTarget(type: "code")) }
+        #expect(try s.save() == before && !s.canUndo)
+    }
+}

@@ -76,6 +76,13 @@ export class ModernBrowserStore {
       const detached = ModernBrowserHost.restore(transport, pair, this, "validation");
       try { if (detached.host.session.getSnapshot().syncState.received.length || JSON.stringify(detached.host.session.getSnapshot().document) !== JSON.stringify(prepared.document)) throw new Error("Migration candidate differs from original projection"); }
       finally { detached.host.session.close(); }
+      const canonicalCount = cutover.bytes(upload.archiveID, 0, 0).byteCount;
+      const canonicalBytes = new Uint8Array(canonicalCount);
+      for (let offset = 0; offset < canonicalCount; offset += 1_000_000) {
+        const chunk = cutover.bytes(upload.archiveID, offset, Math.min(1_000_000, canonicalCount - offset));
+        canonicalBytes.set(Uint8Array.from(atob(chunk.bytes), value => value.charCodeAt(0)), offset);
+      }
+      archive = new TextDecoder("utf-8", { fatal: true }).decode(canonicalBytes);
       const scope = JSON.parse(archive) as { documentID: string; epoch: string };
       if (scope.documentID !== pair.documentID || scope.epoch !== pair.epoch) throw new Error("Migration scope mismatch");
       const previous = await this.active(key);
@@ -100,7 +107,7 @@ export class ModernBrowserStore {
         const savedArchive = await this.read<string>("archives", revision), savedPair = await this.load(revision);
         if (savedArchive !== archive || JSON.stringify(savedPair) !== JSON.stringify(pair)) throw new Error("Migration readback mismatch");
         const savedBytes = new TextEncoder().encode(savedArchive);
-        for (let offset = 0; offset < bytes.length; offset += 1_000_000) cutover.verifyReadback(upload.archiveID, offset, encodeBase64(savedBytes.subarray(offset, offset + 1_000_000)));
+        for (let offset = 0; offset < savedBytes.length; offset += 1_000_000) cutover.verifyReadback(upload.archiveID, offset, encodeBase64(savedBytes.subarray(offset, offset + 1_000_000)));
         await this.publishPointer(db, key, pointer, expected);
         const saved = await this.active(key);
         if (saved?.revision !== revision) throw new Error("Activation readback mismatch");
@@ -274,7 +281,7 @@ function validateCheckpoint(pair: ModernBrowserCheckpoint): void {
   const target = (value: ModernPasteTarget) => {
     if (!value || (!!value.range === !!value.boundary) || (value.range && value.selection)) return false;
     const ranges = [...(value.range ? [value.range] : []), ...(value.selection?.ranges ?? [])];
-    return (!value.boundary || scoped(value.boundary)) && (!value.selection?.nodes || scoped(value.selection.nodes)) && ranges.every(range => scoped(range.start) && scoped(range.end) && JSON.stringify(range.start.field) === JSON.stringify(range.end.field));
+    return (!value.boundary || scoped(value.boundary)) && (!value.selection?.nodes || scoped(value.selection.nodes)) && ranges.every(range => scoped(range.start) && scoped(range.end));
   };
   const identifiers = new Set<string>();
   for (const entry of [...pair.inputs, ...pair.clipboard]) {

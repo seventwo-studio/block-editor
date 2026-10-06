@@ -11,7 +11,8 @@ const text = (value: unknown): string => typeof value === "string" ? value : "";
 function visible(nodes: readonly ModernObject[]): string { return nodes.map(node => node.type === "text" ? text(node.text) : text(node.label ?? node.date ?? node.expression ?? node.name)).join(""); }
 function inline(nodes: readonly ModernObject[], open?: (id: string, type: string) => void): ReactNode {
   return nodes.map((node, index) => {
-    if (node.type !== "text") return <span key={index} contentEditable={false} className="modern-reference" role="link" tabIndex={0} onClick={() => open?.(text(node.entityId), text(node.entityType))}>{visible([node]) || "Unavailable reference"}</span>;
+    if (node.type === "soft-break") return <br key={index} />;
+    if (node.type !== "text") return <span key={index} contentEditable={false} className="modern-reference" role="link" tabIndex={0} onClick={() => open?.(text(node.entityId), text(node.entityType))} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open?.(text(node.entityId), text(node.entityType)); } }}>{visible([node]) || "Unavailable reference"}</span>;
     let result: ReactNode = text(node.text);
     for (const mark of array(node.marks)) {
       switch (mark.type) {
@@ -141,7 +142,8 @@ function ModernEmptyInput({ session, host, readOnly, execute, report }: Pick<Inp
   function commit(): void {
     const value = root.current?.textContent ?? "";
     if (value) host?.retainInput({ boundary: boundary.current }, value, composing.current ? "compositionActive" : "awaitingCommit", id.current);
-    if (composing.current || !value) return;
+    if (composing.current) return;
+    if (!value) { if (host) host.inputs = host.inputs.filter(item => item.id !== id.current); return; }
     try {
       const result = execute({ command: "paste", target: { boundary: boundary.current }, arguments: { clipboard: session.clipboard(value, "multiline") } });
       if (result.status === "applied" || result.status === "noop") { if (host) host.inputs = host.inputs.filter(item => item.id !== id.current); }
@@ -153,12 +155,53 @@ function ModernEmptyInput({ session, host, readOnly, execute, report }: Pick<Inp
     onCompositionEnd={() => { composing.current = false; session.setComposing(false); commit(); const finish = release.current; release.current = undefined; finish?.(); }} />;
 }
 
+export type ModernMediaPresentation = { readonly status: "available"; readonly url: string; readonly dispose?: () => void } | { readonly status: "denied" | "offline" | "unavailable"; readonly reason?: string };
+function ModernMediaView({ session, host, node, value, width, readOnly, resolve, replace, execute, open, report }: {
+  session: SwiftModernSession; host?: ModernBrowserHost; node: ModernNodeID; value: ModernObject; width: number; readOnly: boolean;
+  resolve?: SwiftModernEditorProps["resolveMedia"]; replace?: SwiftModernEditorProps["requestMediaReplacement"]; execute: InputProps["execute"];
+  open?: SwiftModernEditorProps["onOpenReference"]; report: InputProps["report"];
+}) {
+  const [presentation, setPresentation] = useState<ModernMediaPresentation>(), [failure, setFailure] = useState<string>(), [retry, setRetry] = useState(0);
+  const [preview, setPreview] = useState<number>(), target = useRef<ReturnType<SwiftModernSession["captureMediaTarget"]> | undefined>(undefined);
+  const source = text(value.src ?? value.url), kind = text(value.type), originalWidth = Number(value.width ?? width), originalHeight = Number(value.height ?? originalWidth);
+  useEffect(() => {
+    const controller = new AbortController(); let disposed: (() => void) | undefined;
+    setPresentation(undefined); setFailure(undefined);
+    if (!resolve) { setPresentation({ status: "unavailable", reason: "The application has not supplied media resolution" }); return; }
+    resolve(node, value, controller.signal).then(result => {
+      if (controller.signal.aborted) { if (result.status === "available") result.dispose?.(); return; }
+      disposed = result.status === "available" ? result.dispose : undefined; setPresentation(result);
+    }).catch(error => { if (!controller.signal.aborted) setFailure(String(error)); });
+    return () => { controller.abort(); disposed?.(); };
+  }, [resolve, source, key(node), retry]);
+  function commitResize(): void {
+    if (preview === undefined || !target.current) return;
+    try { const result = execute({ command: "mediaProperties", target: target.current, arguments: { metadata: { width: Math.round(preview), height: Math.max(1, Math.round(originalHeight * preview / Math.max(1, originalWidth))) } } });
+      if (result.status !== "applied" && result.status !== "noop") throw new Error(result.reason ?? result.status);
+      setPreview(undefined); target.current = undefined;
+    } catch (error) { setFailure(String(error)); report(error); }
+  }
+  const request = session.asyncRequests().find(item => key(item.target.origin.node) === key(node) && item.status !== "applied");
+  return <div className="modern-media">
+    {presentation?.status === "available" && kind === "image" ? <img src={presentation.url} alt={text(value.alt)} style={{ maxWidth: "100%", width: preview ?? (typeof value.width === "number" ? value.width : undefined), height: "auto" }} onError={() => setFailure("Image could not be displayed")} /> : <p role="status">{failure ?? (presentation ? presentation.status === "available" ? text(value.name ?? value.title ?? value.url) : presentation.reason ?? presentation.status : "Loading media…")}</p>}
+    {kind !== "image" && <button disabled={!open} onClick={() => open?.(source, kind)}>{text(value.name ?? value.title ?? value.url) || "Open attachment"}</button>}
+    {(failure || presentation?.status === "offline" || presentation?.status === "unavailable") && resolve && <button onClick={() => setRetry(value => value + 1)}>Retry media resolution</button>}
+    {request && <p role="status">{request.status === "pending" ? "Uploading or resolving…" : request.reason ?? request.status}</p>}
+    {replace && host && <button disabled={readOnly || !!session.capabilities().isComposing} onClick={() => void host.runProvider(node, target => replace(target, value)).catch(report)}>Replace or resolve {kind}</button>}
+    {kind === "image" && <label>Image width<input type="range" aria-label="Image width" min={64} max={Math.max(64, width)} value={Math.min(Math.max(64, preview ?? originalWidth), Math.max(64, width))} disabled={readOnly || !!session.capabilities().isComposing}
+      onPointerDown={() => { target.current = session.captureMediaTarget(node); }} onChange={event => { target.current ??= session.captureMediaTarget(node); setPreview(Number(event.target.value)); }} onPointerUp={commitResize} onKeyUp={commitResize}
+      onPointerCancel={() => { setPreview(undefined); target.current = undefined; }} /></label>}
+  </div>;
+}
+
 export interface ModernLinkSuggestion { readonly id: string; readonly type: string; readonly label: string; readonly availability: "available" | "denied" | "unavailable" }
 export interface SwiftModernEditorProps {
   readonly session: SwiftModernSession; readonly host?: ModernBrowserHost; readonly readOnly?: boolean;
   readonly onError?: (error: unknown) => void; readonly onOpenReference?: (id: string, type: string) => void;
   readonly onCopyBlockLink?: (node: ModernNodeID) => void;
-  readonly onInsertAsset?: (descriptor: ModernInsertionDescriptor, boundary: ModernBoundary) => void;
+  readonly onInsertAsset?: (descriptor: ModernInsertionDescriptor, boundary: ModernBoundary, range?: ModernTextRange) => void;
+  readonly resolveMedia?: (node: ModernNodeID, value: ModernObject, signal: AbortSignal) => Promise<ModernMediaPresentation>;
+  readonly requestMediaReplacement?: (target: Parameters<ModernBrowserHost["retryResult"]>[0], value: ModernObject) => Promise<ModernObject>;
   readonly suggestLinks?: (query: string, signal: AbortSignal) => Promise<readonly ModernLinkSuggestion[]>;
 }
 
@@ -337,7 +380,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   function insert(descriptor: ModernInsertionDescriptor): void {
     if (!menu) return;
     safe(() => {
-      if (descriptor.requiresHost) { if (!props.onInsertAsset) throw new Error("The application has not supplied asset insertion"); props.onInsertAsset(descriptor, menu.boundary); setMenu(undefined); return; }
+      if (descriptor.requiresHost) { if (!props.onInsertAsset) throw new Error("The application has not supplied asset insertion"); props.onInsertAsset(descriptor, menu.boundary, menu.range); setMenu(undefined); return; }
       const id = () => crypto.randomUUID();
       const count = descriptor.blockType === "list" ? 1 : descriptor.blockType === "table" ? 6 : descriptor.blockType === "columns" ? 2 : 0;
       const block = session.insertionValue(descriptor.id, id(), Array.from({ length: count }, id));
@@ -353,7 +396,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       const root = rootID ?? text(value.id), current = rootID ? [...path, text(value.id)] : [], node = origin(root, current), nodeKey = key(node), type = text(value.type);
       let content: ReactNode;
       if (type === "columns") {
-        const containers = array(value.columns), usable = available - 24, minimum = (snapshot.document.appearance.fontSize === "large" ? 20 : snapshot.document.appearance.fontSize === "small" ? 15 : 17) * 20;
+        const containers = array(value.columns), usable = available - 24, minimum = (viewport.current ? Number.parseFloat(getComputedStyle(viewport.current).fontSize) : snapshot.document.appearance.fontSize === "large" ? 20 : snapshot.document.appearance.fontSize === "small" ? 15 : 17) * 20;
         const stored = Number(value.splitBasisPoints ?? 5000), preview = split[nodeKey] ?? stored, ratio = Math.max(minimum / Math.max(1, usable), Math.min(1 - minimum / Math.max(1, usable), preview / 10000));
         content = containers.length !== 2 ? <p role="status">Incompatible columns preserved</p> : <>
           <div className="modern-columns" style={{ display: "grid", gap: 24, gridTemplateColumns: usable < 2 * minimum ? "1fr" : `${ratio}fr ${1 - ratio}fr` }}>
@@ -373,18 +416,18 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
           </li>;
         }
         const itemView = item;
-        content = value.style === "ordered" ? <ol>{array(value.items).map((value, i) => item(value, [...current, "items"], i))}</ol> : <ul className={value.style === "todo" ? "modern-checklist" : ""}>{array(value.items).map((value, i) => item(value, [...current, "items"], i))}</ul>;
+        content = !array(value.items).length ? <button disabled={readOnly} onClick={() => safe(() => execute({ command: "paste", target: { boundary: session.captureListBoundary({ owner: node, field: "items" }) }, arguments: { clipboard: session.clipboardParts([{ node: { kind: "item", value: { id: crypto.randomUUID(), content: [], checked: false } } }]) } }))}>Add list item</button> : value.style === "ordered" ? <ol>{array(value.items).map((value, i) => item(value, [...current, "items"], i))}</ol> : <ul className={value.style === "todo" ? "modern-checklist" : ""}>{array(value.items).map((value, i) => item(value, [...current, "items"], i))}</ul>;
       } else if (type === "table") {
         const tableRows = array(value.rows), cellFields = tableRows.flatMap(row => array(row.cells).map(cell => session.field(origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]))));
         content = <div className="modern-table-scroll"><table><tbody>{tableRows.map(row => <tr key={text(row.id)}>{array(row.cells).map(cell => {
-          const rowNode = origin(root, [...current, "rows", text(row.id)]), cellNode = origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]), Tag = cell.header ? "th" : "td";
+          const rowNode = origin(root, [...current, "rows", text(row.id)]), cellNode = origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]), capturedCell = session.captureTableTarget(node, rowNode, cellNode), Tag = cell.header ? "th" : "td";
           return <Tag key={text(cell.id)} scope={cell.header ? "col" : undefined}>
             {input(cellNode, "content", array(cell.content), cell.header ? "Table header" : "Table cell", false, (event, range) => {
               if (event.key !== "Tab" && event.key !== "Enter") return false;
               const index = cellFields.findIndex(field => key(field) === key(range.start.field)), next = cellFields[index + (event.shiftKey ? -1 : 1)];
               if (next) setFocused(session.position(next, 0)); return !!next;
             })}
-            <details><summary aria-label="Cell actions">⋯</summary>{["insertRow", "removeRow", "insertColumn", "removeColumn", "setHeader"].map(action => <button key={action} disabled={readOnly} onClick={() => execute({ command: "tableStructure", target: session.captureTableTarget(node, rowNode, cellNode), arguments: { action: action as "insertRow", newIDs: Array.from({ length: action === "insertRow" ? array(row.cells).length + 1 : action === "insertColumn" ? tableRows.length : 0 }, () => crypto.randomUUID()), ...(action === "setHeader" ? { header: !cell.header } : {}) } })}>{action.replace(/([A-Z])/g, " $1")}</button>)}</details>
+            <details><summary aria-label="Cell actions">⋯</summary>{["insertRow", "removeRow", "insertColumn", "removeColumn", "setHeader"].map(action => <button key={action} disabled={readOnly} onClick={() => execute({ command: "tableStructure", target: capturedCell, arguments: { action: action as "insertRow", newIDs: Array.from({ length: action === "insertRow" ? array(row.cells).length + 1 : action === "insertColumn" ? tableRows.length : 0 }, () => crypto.randomUUID()), ...(action === "setHeader" ? { header: !cell.header } : {}) } })}>{action.replace(/([A-Z])/g, " $1")}</button>)}</details>
           </Tag>;
         })}</tr>)}</tbody></table></div>;
       } else if (type === "toggle") content = <div><button aria-expanded={!collapsed.has(nodeKey)} onClick={() => {
@@ -393,8 +436,10 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       }}>{collapsed.has(nodeKey) ? "▸" : "▾"}</button>{input(node, "summary", array(value.summary), "Toggle title")}
         {!collapsed.has(nodeKey) && <div className="modern-nested">{renderBlocks(array(value.children), { owner: node, field: "children" }, root, [...current, "children"], available - 24)}<button onClick={() => setMenu({ boundary: session.captureBoundary({ owner: node, field: "children" }, session.nodes({ owner: node, field: "children" }).at(-1)), query: "", index: 0 })}>Add inside toggle</button></div>}</div>;
       else if (type === "code") content = <div className="modern-code"><div><label>Language<select aria-label="Code language" disabled={readOnly} value={text(value.language)} onChange={event => execute({ command: "codeProperties", target: session.captureCodeTarget(node), arguments: { language: event.target.value || null } })}><option value="">Plain text</option>{session.capabilities().codeLanguages.map(language => <option key={language}>{language}</option>)}</select></label><button onClick={() => navigator.clipboard.writeText(text(value.code)).catch(report)}>Copy code</button></div>{input(node, "code", text(value.code), "Code", false)}</div>;
-      else if (type === "image") content = <figure>{/^(https?:\/\/|blob:)/i.test(text(value.src)) ? <img src={text(value.src)} alt={text(value.alt)} style={{ maxWidth: "100%", width: typeof value.width === "number" ? value.width : undefined, height: "auto" }} /> : <p>Image requires application resolution</p>}{input(node, "caption", array(value.caption), "Image caption", false)}</figure>;
-      else if (type === "file" || type === "embed") content = <div className="modern-preview"><button onClick={() => props.onOpenReference?.(text(value.src ?? value.url), type)}>{text(value.name ?? value.title ?? value.url) || "Unavailable attachment"}</button><p>{text(value.description)}</p></div>;
+      else if (type === "image" || type === "file" || type === "embed") content = <figure>
+        <ModernMediaView session={session} host={props.host} node={node} value={value} width={available} readOnly={readOnly} resolve={props.resolveMedia} replace={props.requestMediaReplacement} execute={execute} open={props.onOpenReference} report={report} />
+        {type === "image" && input(node, "caption", array(value.caption), "Image caption", false)}
+      </figure>;
       else if (type === "divider") content = <hr />;
       else if (["paragraph", "heading", "quote", "callout"].includes(type)) content = input(node, "content", array(value.content), type === "heading" ? "Heading" : "Block text");
       else content = <p role="status">Unsupported content preserved</p>;
@@ -429,16 +474,18 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       {error && <div role="alert">{error}</div>}
     </div></div>
     <div className="modern-accessory" role="toolbar" aria-label="Editing actions" onPointerDown={event => { if (event.target instanceof HTMLButtonElement) event.preventDefault(); }}>
-      {nodes ? <><span>{nodes.nodes.length} selected</span><button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
+      {nodes ? <><span>{nodes.nodes.length} selected</span><details><summary>Convert</summary>{["paragraph", "heading", "quote", "callout", "list", "code"].map(type => <button key={type} disabled={readOnly} onClick={() => execute({ command: "convertBlock", target: nodes, arguments: { type: type as "paragraph" } })}>{type}</button>)}</details>
+        <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
+        <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
         <button disabled={readOnly} onClick={() => safe(() => { const node = selected.current?.start.field.node, collection = node && !("document" in node) ? parent(node) : { field: "blocks" } as ModernCollection; setMenu({ boundary: session.captureBoundary(collection, node && !("document" in node) ? node : session.nodes(collection).at(-1)), query: "", index: 0 }); })}>Insert</button>
         {["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { if (selected.current) execute({ command: "format", target: textSpan.length ? { ranges: textSpan } : selected.current, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}
         <button disabled={readOnly || !selected.current} onClick={() => { if (selected.current) setLink({ range: selected.current, query: "", internal: false }); }}>Link</button>
         <button disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button><button disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button>
-        <details><summary>More</summary><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button key={role} disabled={readOnly} onClick={() => { if (selected.current) execute({ command: "setSemanticColor", target: { range: selected.current }, arguments: { kind: "ink", role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>
+        <details><summary>More</summary><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{(["ink", "fill"] as const).map(kind => <details key={kind}><summary>{kind === "ink" ? "Text color" : "Background"}</summary>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button key={role} disabled={readOnly} onClick={() => { if (selected.current) execute({ command: "setSemanticColor", target: { range: selected.current }, arguments: { kind, role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>)}</details>
       </>}{focusMode && <button onClick={() => setFocusMode(false)}>Leave focus mode</button>}
     </div>
     {menu && <div className="modern-picker" role="dialog" aria-label="Insert block" style={{ left: menu.anchor ? Math.max(8, Math.min(window.innerWidth - 300, menu.anchor.left)) : 16, top: menu.anchor ? Math.max(8, Math.min(window.innerHeight - 440, menu.anchor.bottom)) : 64 }}>
-      <input aria-label="Search blocks" autoFocus value={menu.query} onChange={event => setMenu({ ...menu, query: event.target.value, index: 0 })} onKeyDown={event => { if (event.key === "Escape") setMenu(undefined); if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setMenu({ ...menu, index: Math.max(0, Math.min(catalog.length - 1, menu.index + (event.key === "ArrowDown" ? 1 : -1))) }); } if (event.key === "Enter" && catalog[menu.index]) insert(catalog[menu.index]); }} />
+      <input aria-label="Search blocks" autoFocus value={menu.query} onChange={event => setMenu({ ...menu, query: event.target.value, index: 0 })} onKeyDown={event => { if (event.key === "Escape") { setMenu(undefined); if (menu.range) setFocused(menu.range.end); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setMenu({ ...menu, index: Math.max(0, Math.min(catalog.length - 1, menu.index + (event.key === "ArrowDown" ? 1 : -1))) }); } if (event.key === "Enter" && catalog[menu.index]) insert(catalog[menu.index]); }} />
       <div role="listbox">{catalog.map((descriptor, index) => <button role="option" aria-selected={menu.index === index} key={descriptor.id} onClick={() => insert(descriptor)}><strong>{descriptor.title}</strong><small>{descriptor.description}</small></button>)}</div><button onClick={() => { setMenu(undefined); if (menu.range) setFocused(menu.range.end); }}>Cancel</button>
     </div>}
     {link && <div className="modern-picker" role="dialog" aria-label="Link"><input autoFocus aria-label={link.internal ? "Search internal links" : "Link URL"} value={link.query} onChange={event => setLink({ ...link, query: event.target.value })} />

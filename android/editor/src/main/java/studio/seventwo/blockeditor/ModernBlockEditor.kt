@@ -2,7 +2,19 @@ package studio.seventwo.blockeditor
 
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInRoot
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
@@ -58,6 +70,32 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
     var extending by mutableStateOf(false)
     var linkTarget by mutableStateOf<ModernTextRange?>(null)
     var linkURL by mutableStateOf("")
+    val blockFrames = mutableMapOf<String, Triple<ModernNodeID, ModernCollection, Rect>>()
+    var dragSelection by mutableStateOf<ModernNodes?>(null)
+    var dragPosition: Offset? = null
+    var dropBoundary: ModernBoundary? = null
+    var dropNode by mutableStateOf<String?>(null)
+    var dropBefore by mutableStateOf(false)
+    var viewportFrame: Rect? = null
+    var edgeScroll: ((Float) -> Unit)? = null
+    fun previewDrop(point: Offset) {
+        dragPosition = point
+        val candidate = blockFrames.entries.filter { (_, value) -> value.third.contains(point) && dragSelection?.nodes?.none { it.export().toString() == value.first.export().toString() } == true }.minByOrNull { it.value.third.width * it.value.third.height }
+        if (candidate == null) { dropNode = null; dropBoundary = null; return }
+        val (node, collection, rect) = candidate.value; val before = point.y < rect.center.y
+        try {
+            val siblings = session.nodes(collection); val index = siblings.indexOfFirst { it.export().toString() == node.export().toString() }
+            dropBoundary = session.captureBoundary(collection, if (before) siblings.getOrNull(index - 1) else node)
+            dropNode = candidate.key; dropBefore = before
+        } catch (_: Throwable) { dropNode = null; dropBoundary = null }
+        viewportFrame?.let { frame -> when { point.y < frame.top + 64 -> edgeScroll?.invoke(-16f); point.y > frame.bottom - 64 -> edgeScroll?.invoke(16f) } }
+    }
+    fun cancelDrag() { dragSelection = null; dragPosition = null; dropBoundary = null; dropNode = null }
+    var clipboard: ClipboardManager? = null
+    var resolveMedia: (suspend (ModernNodeID, ModernPayload) -> ModernMediaPresentation)? = null
+    var replaceMedia: (suspend (ModernAsyncTarget) -> ModernPayload)? = null
+    var suggestLinks: (suspend (String) -> List<ModernLinkSuggestion>)? = null
+    var internalLink by mutableStateOf(false)
     val composing = mutableSetOf<String>()
     fun composition(id: String, active: Boolean) { if (active) composing.add(id) else composing.remove(id); session.setComposing(composing.isNotEmpty()) }
     fun execute(command: ModernCommand, transferFocus: Boolean = true): ModernResult? = try {
@@ -110,7 +148,12 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
     var release by remember(id) { mutableStateOf<(() -> Unit)?>(null) }
     var typing by remember(id) { mutableStateOf(UUID.randomUUID().toString()) }
     val original = remember(id) { session.captureTextRange(field, 0, session.text(field).length) }
-    val request = remember(id) { FocusRequester() }; val shared = session.text(field)
+    val request = remember(id) { FocusRequester() }; val bring = remember(id) { BringIntoViewRequester() }; val shared = session.text(field)
+    val rich = remember(shared, session.snapshot.document.export().toString()) {
+        if (field.name in listOf("code", "title")) JSONArray() else try {
+            session.copy(ModernDeleteTarget(ranges = listOf(session.captureTextRange(field, 0, shared.length)))).export().getJSONArray("parts").optJSONObject(0)?.optJSONObject("inline")?.optJSONArray("_0") ?: JSONArray()
+        } catch (_: Throwable) { JSONArray() }
+    }
     LaunchedEffect(shared, session.snapshot.syncState.received) {
         if (value.composition == null && !pending) {
             val selection = if (focused && anchors != null) try {
@@ -123,7 +166,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         val position = state.focus ?: return@LaunchedEffect
         if (position.export().getJSONObject("field").toString() == field.wire().toString()) {
             val offset = session.resolvePosition(position).export().getInt("offset")
-            value = value.copy(selection = TextRange(offset)); request.requestFocus(); state.focus = null
+            value = value.copy(selection = TextRange(offset)); request.requestFocus(); bring.bringIntoView(); state.focus = null
         }
     }
     DisposableEffect(id) { onDispose { if (value.composition != null) state.composition(id, false); release?.invoke() } }
@@ -171,7 +214,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         } catch (failure: Throwable) { state.reportError(failure); return true }
     }
     BasicTextField(value = value, readOnly = state.host.readOnly || !state.host.active || pending,
-        textStyle = style, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).focusRequester(request)
+        textStyle = style, visualTransformation = if (value.text == shared && field.name != "code") ModernRichTransformation(rich) else VisualTransformation.None, modifier = Modifier.bringIntoViewRequester(bring).fillMaxWidth().heightIn(min = 44.dp).focusRequester(request)
             .semantics { contentDescription = label }.onFocusChanged { focused = it.isFocused; if (focused && value.composition == null) try { selected(value) } catch (failure: Throwable) { state.reportError(failure) } }
             .onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown || value.composition != null || state.host.readOnly) false
@@ -208,6 +251,13 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                 } else if (next.selection != value.selection) { session.endTypingGroup(); typing = UUID.randomUUID().toString() }
                 value = next; selected(next); state.forgetDraft(id)
                 if (old != next.text && session.availability(ModernCommandName.TYPING_SHORTCUT).available) state.execute(ModernCommand.TypingShortcut(session.captureTextRange(field, next.selection.start, next.selection.end)))
+                if (old != next.text && field.name == "content" && state.suggestLinks != null && state.linkTarget == null) {
+                    val marker = next.text.lastIndexOf("[[")
+                    if (marker >= 0 && !next.text.substring(marker + 2).contains("]]")) {
+                        state.linkTarget = session.captureTextRange(field, marker, next.text.length)
+                        state.linkURL = next.text.substring(marker + 2); state.internalLink = true
+                    }
+                }
                 if (old != next.text && field.name == "content" && next.text.startsWith("/") && !next.text.contains('\n') && state.insertion == null) {
                     // Capture once, before the picker takes native focus.
                     state.insertionRange = session.captureTextRange(field, 0, next.text.length)
@@ -224,17 +274,25 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
 @Composable fun ModernBlockEditor(state: ModernBlockEditorState, modifier: Modifier = Modifier,
     insertAsset: ((ModernInsertionDescriptor, ModernBoundary) -> Unit)? = null,
     openReference: ((String) -> Unit)? = null,
+    resolveMedia: (suspend (ModernNodeID, ModernPayload) -> ModernMediaPresentation)? = null,
+    replaceMedia: (suspend (ModernAsyncTarget) -> ModernPayload)? = null,
+    suggestLinks: (suspend (String) -> List<ModernLinkSuggestion>)? = null,
+    insertAssetSelection: ((ModernInsertionDescriptor, ModernBoundary, ModernTextRange?) -> Unit)? = null,
 ) {
+    SideEffect { state.resolveMedia = resolveMedia; state.replaceMedia = replaceMedia; state.suggestLinks = suggestLinks }
     val session = state.session; val document = session.snapshot.document.export(); val appearance = document.getJSONObject("appearance")
     val size = when (appearance.getString("fontSize")) { "small" -> 15; "large" -> 20; else -> 17 }
     val family = when (appearance.getString("fontFamily")) { "serif" -> FontFamily.Serif; "monospace" -> FontFamily.Monospace; else -> FontFamily.SansSerif }
     val style = TextStyle(fontFamily = family, fontSize = size.sp, lineHeight = (size * 1.65).sp)
     val clipboard = LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    SideEffect { state.clipboard = clipboard }
     fun titleEnter() {
         val blocks = document.getJSONArray("blocks")
         if (blocks.length() == 0) state.execute(ModernCommand.InsertBlock(session.captureBoundary(), ModernPayload.restore(modernObject("id" to UUID.randomUUID().toString(), "type" to "paragraph", "content" to JSONArray()))))
         else try { session.logicalFields(includingTitle = false).firstOrNull()?.let { state.focus = session.position(it, 0) } } catch (failure: Throwable) { state.reportError(failure) }
     }
+    val documentScroll = rememberScrollState(); val dragScope = rememberCoroutineScope()
+    SideEffect { state.edgeScroll = { amount -> dragScope.launch { documentScroll.scrollBy(amount) }; Unit } }
     Column(modifier.imePadding().navigationBarsPadding()) {
         if (!state.focusMode) Row(Modifier.horizontalScroll(rememberScrollState())) {
             TextButton(onClick = { state.outline = !state.outline }) { Text("Outline") }
@@ -255,7 +313,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                 }
             }
         }
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).widthIn(max = if (appearance.getString("pageWidth") == "wide") 960.dp else 680.dp).align(Alignment.CenterHorizontally).padding(horizontal = 20.dp, vertical = 24.dp)) {
+        Column(Modifier.weight(1f).onGloballyPositioned { state.viewportFrame = it.boundsInRoot() }.verticalScroll(documentScroll).widthIn(max = if (appearance.getString("pageWidth") == "wide") 960.dp else 680.dp).align(Alignment.CenterHorizontally).padding(horizontal = 20.dp, vertical = 24.dp)) {
             ModernInput(state, ModernField(ModernNodeID.document(document.getString("documentID")), "title"), "Document title", style.copy(fontSize = (size * 2.1).sp, fontWeight = FontWeight.Bold), ::titleEnter)
             if (document.getJSONArray("blocks").length() == 0) ModernEmptyInput(state, style)
             ModernCollectionView(state, document.getJSONArray("blocks"), null, emptyList(), style, insertAsset, openReference)
@@ -267,9 +325,17 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                 }) { Text("Retry retained text") }
             }
             state.host.retainedClipboard.forEach { entry -> Text("Clipboard retained: ${entry.optString("reason")}"); TextButton(enabled = !state.host.readOnly, onClick = {
-                val target = ModernPasteTarget.restore(entry.getJSONObject("target")); val payload = ModernClipboard.restore(entry.getJSONObject("clipboard")); val result = state.execute(ModernCommand.Paste(target, payload))
+                val target = ModernPasteTarget.restore(entry.getJSONObject("target")); val payload = ModernNativeClipboard.decode(entry, session); val result = state.execute(ModernCommand.Paste(target, payload))
                 if (result?.status in listOf(ModernResultStatus.APPLIED, ModernResultStatus.NOOP)) state.host.retainedClipboard = state.host.retainedClipboard.filter { it.optString("id") != entry.getString("id") }
-            }) { Text("Retry original paste") } }
+            }) { Text("Retry original paste") }
+                TextButton(enabled = !state.host.readOnly, onClick = {
+                    try {
+                        val target = ModernPasteTarget.restore(entry.getJSONObject("target")); val payload = ModernNativeClipboard.decode(entry, session, true)
+                        val result = state.execute(ModernCommand.Paste(target, payload, ModernPasteMode.PLAIN_TEXT))
+                        if (result?.status in listOf(ModernResultStatus.APPLIED, ModernResultStatus.NOOP)) state.host.retainedClipboard = state.host.retainedClipboard.filter { it.optString("id") != entry.getString("id") }
+                    } catch (failure: Throwable) { state.reportError(failure) }
+                }) { Text("Paste retained plain text") }
+            }
         }
         Row(Modifier.horizontalScroll(rememberScrollState())) {
             TextButton(onClick = { state.insertionRange = null; state.insertion = session.captureBoundary(after = session.nodes().lastOrNull()); state.query = "" }) { Text("Insert") }
@@ -277,7 +343,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                 val ranges = state.textSpan.ifEmpty { listOf(range) }; val value = if (session.markState(ranges, mark) == "on") null else ModernPayload.restore(modernObject("type" to mark))
                 state.execute(if (ranges.size > 1) ModernCommand.FormatSpan(ranges, mark, value) else ModernCommand.Format(range, mark, value))
             } }) { Text(mark) } }
-            TextButton(onClick = { state.linkTarget = state.textSelection; state.linkURL = "" }) { Text("Link") }
+            TextButton(onClick = { state.linkTarget = state.textSelection; state.linkURL = ""; state.internalLink = false }) { Text("Link") }
             TextButton(enabled = session.snapshot.canUndo, onClick = { state.execute(ModernCommand.Undo) }) { Text("Undo") }
             ModernSecondaryActions(state, clipboard)
             if (state.focusMode) TextButton(onClick = { state.focusMode = false }) { Text("Leave focus") }
@@ -285,6 +351,28 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         state.selection?.let { selected -> Row(Modifier.horizontalScroll(rememberScrollState())) {
             Text("${selected.nodes.size} selected")
             TextButton(onClick = { state.extending = !state.extending }) { Text(if (state.extending) "Finish range" else "Extend selection") }
+            var converting by remember { mutableStateOf(false) }
+            Box { TextButton(onClick = { converting = true }) { Text("Convert") }
+                DropdownMenu(expanded = converting, onDismissRequest = { converting = false }) {
+                    listOf(ModernBlockConversion.Paragraph, ModernBlockConversion.Heading(1), ModernBlockConversion.Quote, ModernBlockConversion.Callout(ModernCalloutVariant.INFO), ModernBlockConversion.List(ModernListStyle.UNORDERED), ModernBlockConversion.Code).forEach { conversion ->
+                        DropdownMenuItem(text = { Text(conversion.wire().getString("type")) }, onClick = { state.execute(ModernCommand.ConvertBlocks(selected, conversion)); converting = false })
+                    }
+                }
+            }
+            var destinations by remember { mutableStateOf(false) }
+            Box { TextButton(onClick = { destinations = true }) { Text("Move to") }
+                DropdownMenu(expanded = destinations, onDismissRequest = { destinations = false }) {
+                    DropdownMenuItem(text = { Text("Document end") }, onClick = { state.execute(ModernCommand.Move(selected, session.captureBoundary(after = session.nodes().lastOrNull()))); destinations = false })
+                    val blocks = document.getJSONArray("blocks")
+                    for (index in 0 until blocks.length()) { val block = blocks.getJSONObject(index)
+                        if (block.optString("type") == "columns") { val columns = block.getJSONArray("columns")
+                            for (column in 0 until columns.length()) { val container = columns.getJSONObject(column)
+                                DropdownMenuItem(text = { Text("Column ${column + 1}") }, onClick = { val collection = ModernCollection.Owned(session.node(block.getString("id"), listOf("columns", container.getString("id"))), ModernCollectionField.CHILDREN); state.execute(ModernCommand.Move(selected, session.captureBoundary(collection, session.nodes(collection).lastOrNull()))); destinations = false })
+                            }
+                        }
+                    }
+                }
+            }
             TextButton(onClick = { state.move(false) }) { Text("Move up") }; TextButton(onClick = { state.move(true) }) { Text("Move down") }
             TextButton(onClick = { state.execute(ModernCommand.Duplicate(selected, session.captureBoundary(session.parentCollection(selected.nodes.last()), selected.nodes.last()), selected.nodes.map { UUID.randomUUID().toString() })) }) { Text("Duplicate") }
             TextButton(onClick = { state.execute(ModernCommand.Delete(ModernDeleteTarget(selected))); state.selection = null }) { Text("Delete") }
@@ -295,7 +383,7 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
         text = { Column(Modifier.verticalScroll(rememberScrollState())) {
             TextField(value = state.query, onValueChange = { state.query = it }, label = { Text("Search blocks") })
             session.insertionCatalog(state.query).forEach { descriptor -> TextButton(onClick = {
-                if (descriptor.requiresHost) insertAsset?.invoke(descriptor, boundary)
+                if (descriptor.requiresHost) { if (insertAssetSelection != null) insertAssetSelection(descriptor, boundary, state.insertionRange) else insertAsset?.invoke(descriptor, boundary) }
                 else {
                     val count = when (descriptor.blockType) { "list" -> 1; "table" -> 6; "columns" -> 2; else -> 0 }
                     val block = session.insertionValue(descriptor.id, UUID.randomUUID().toString(), List(count) { UUID.randomUUID().toString() }).export()
@@ -307,9 +395,8 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                 state.insertion = null; state.insertionRange = null
             }) { Column { Text(descriptor.title); Text(descriptor.description, style = MaterialTheme.typography.bodySmall) } } }
         } }, confirmButton = {}, dismissButton = { TextButton(onClick = { state.focus = state.insertionRange?.end; state.insertion = null; state.insertionRange = null }) { Text("Cancel") } }) }
-    state.linkTarget?.let { range -> AlertDialog(onDismissRequest = { state.linkTarget = null }, title = { Text("Link") }, text = { TextField(value = state.linkURL, onValueChange = { state.linkURL = it }, label = { Text("URL") }) },
-        confirmButton = { TextButton(onClick = { state.execute(ModernCommand.SetLink(range, state.linkURL)); state.linkTarget = null }) { Text("Apply") } },
-        dismissButton = { TextButton(onClick = { state.execute(ModernCommand.SetLink(range, null)); state.linkTarget = null }) { Text("Remove link") } }) }
+    state.linkTarget?.let { range -> ModernLinkPicker(state, range) }
+
 }
 
 @Composable private fun ModernCollectionView(state: ModernBlockEditorState, values: JSONArray, rootID: String?, path: List<String>, style: TextStyle,
@@ -317,8 +404,22 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
     for (index in 0 until values.length()) {
         val value = values.getJSONObject(index); val root = rootID ?: value.getString("id"); val current = if (rootID == null) emptyList() else path + value.getString("id")
         val node = state.session.node(root, current)
-        key(node.export().toString()) { Row(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-            TextButton(onClick = { state.select(node) }, modifier = Modifier.width(44.dp)) { Text("⋮") }
+        key(node.export().toString()) {
+            val nodeKey = node.export().toString()
+            DisposableEffect(nodeKey) { onDispose { state.blockFrames.remove(nodeKey) } }
+            Column {
+                if (state.dropNode == nodeKey && state.dropBefore) HorizontalDivider(color = MaterialTheme.colorScheme.primary, thickness = 2.dp)
+                Row(Modifier.fillMaxWidth().onGloballyPositioned { state.blockFrames[nodeKey] = Triple(node, state.session.parentCollection(node), it.boundsInRoot()) }.background(if (state.selection?.nodes?.any { it.export().toString() == node.export().toString() } == true) MaterialTheme.colorScheme.primaryContainer else androidx.compose.ui.graphics.Color.Transparent).padding(vertical = 6.dp)) {
+            TextButton(onClick = { state.select(node) }, modifier = Modifier.width(44.dp).heightIn(min = 44.dp).pointerInput(nodeKey, state.host.readOnly) {
+                if (!state.host.readOnly) detectDragGesturesAfterLongPress(onDragStart = { position ->
+                    try { state.dragSelection = state.session.captureNodes(if (state.selection?.nodes?.any { it.export().toString() == nodeKey } == true) state.selection!!.nodes else listOf(node))
+                        state.dragPosition = (state.blockFrames[nodeKey]?.third?.topLeft ?: Offset.Zero) + position
+                    } catch (failure: Throwable) { state.reportError(failure) }
+                }, onDragCancel = { state.cancelDrag() }, onDragEnd = {
+                    val selection = state.dragSelection; val boundary = state.dropBoundary; state.cancelDrag()
+                    if (selection != null && boundary != null) state.execute(ModernCommand.Move(selection, boundary))
+                }) { change, amount -> change.consume(); state.dragPosition?.let { state.previewDrop(it + amount) } }
+            }) { Text("⋮") }
             Column(Modifier.weight(1f)) {
                 when (value.optString("type")) {
                     "columns" -> {
@@ -326,22 +427,30 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                         var preview by remember(node.export().toString()) { mutableStateOf<Int?>(null) }
                         if (columns.length() == 2) BoxWithConstraints {
                             val split = preview ?: value.optInt("splitBasisPoints", 5000); val stacked = maxWidth < (style.fontSize.value * LocalDensity.current.fontScale * 40 + 24).dp
-                            @Composable fun column(index: Int, modifier: Modifier = Modifier) { val container = columns.getJSONObject(index); Column(modifier) { ModernCollectionView(state, container.getJSONArray("children"), root, current + "columns" + container.getString("id") + "children", style, insertAsset, openReference) } }
-                            Column { if (stacked) Column { column(0); column(1) } else Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) { column(0, Modifier.weight(split / 10000f)); column(1, Modifier.weight(1 - split / 10000f)) }
+                            val latestColumns by rememberUpdatedState(columns); val latestStyle by rememberUpdatedState(style)
+                            val contents = remember(node.export().toString()) { (0..1).map { index -> movableContentOf {
+                                // Captured container IDs are immutable; shared values are
+                                // refreshed by the recursive renderer on each snapshot.
+                                val container = latestColumns.getJSONObject(index)
+                                ModernCollectionView(state, container.getJSONArray("children"), root, current + "columns" + container.getString("id") + "children", latestStyle, insertAsset, openReference)
+                            } } }
+                            Column { if (stacked) Column { contents[0](); contents[1]() } else Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                Column(Modifier.weight(split / 10000f)) { contents[0]() }; Column(Modifier.weight(1 - split / 10000f)) { contents[1]() }
+                            }
                             Column(Modifier.padding(top = 8.dp)) { Slider(value = split.toFloat(), onValueChange = { preview = it.toInt() }, valueRange = 1000f..9000f, onValueChangeFinished = { state.execute(ModernCommand.ResizeColumns(ModernColumnTarget(node), preview ?: split)); preview = null }) } }
                         }
                     }
                     "table" -> Column(Modifier.horizontalScroll(rememberScrollState())) {
                         val rows = value.getJSONArray("rows")
                         for (r in 0 until rows.length()) { val row = rows.getJSONObject(r); val cells = row.getJSONArray("cells"); val rowNode = state.session.node(root, current + "rows" + row.getString("id"))
-                            Row { for (c in 0 until cells.length()) { val cell = cells.getJSONObject(c); val cellNode = state.session.node(root, current + "rows" + row.getString("id") + "cells" + cell.getString("id"))
+                            Row { for (c in 0 until cells.length()) { val cell = cells.getJSONObject(c); val cellNode = state.session.node(root, current + "rows" + row.getString("id") + "cells" + cell.getString("id")); val capturedCell = state.session.captureTableTarget(node, rowNode, cellNode)
                                 Column(Modifier.width(160.dp).padding(8.dp)) {
                                     ModernInput(state, state.session.field(cellNode), if (cell.optBoolean("header")) "Table header" else "Table cell", style)
-                                    TextButton(onClick = { state.execute(ModernCommand.TableStructure(state.session.captureTableTarget(node, rowNode, cellNode), ModernTableAction.INSERT_ROW, List(cells.length() + 1) { UUID.randomUUID().toString() })) }) { Text("Add row") }
-                                    TextButton(onClick = { state.execute(ModernCommand.TableStructure(state.session.captureTableTarget(node, rowNode, cellNode), ModernTableAction.INSERT_COLUMN, List(rows.length()) { UUID.randomUUID().toString() })) }) { Text("Add column") }
-                                    TextButton(enabled = rows.length() > 1, onClick = { state.execute(ModernCommand.TableStructure(state.session.captureTableTarget(node, rowNode, cellNode), ModernTableAction.REMOVE_ROW)) }) { Text("Remove row") }
-                                    TextButton(enabled = cells.length() > 1, onClick = { state.execute(ModernCommand.TableStructure(state.session.captureTableTarget(node, rowNode, cellNode), ModernTableAction.REMOVE_COLUMN)) }) { Text("Remove column") }
-                                    TextButton(onClick = { state.execute(ModernCommand.TableStructure(state.session.captureTableTarget(node, rowNode, cellNode), ModernTableAction.SET_HEADER, header = !cell.optBoolean("header"))) }) { Text(if (cell.optBoolean("header")) "Make body cell" else "Make header") }
+                                    TextButton(onClick = { state.execute(ModernCommand.TableStructure(capturedCell, ModernTableAction.INSERT_ROW, List(cells.length() + 1) { UUID.randomUUID().toString() })) }) { Text("Add row") }
+                                    TextButton(onClick = { state.execute(ModernCommand.TableStructure(capturedCell, ModernTableAction.INSERT_COLUMN, List(rows.length()) { UUID.randomUUID().toString() })) }) { Text("Add column") }
+                                    TextButton(enabled = rows.length() > 1, onClick = { state.execute(ModernCommand.TableStructure(capturedCell, ModernTableAction.REMOVE_ROW)) }) { Text("Remove row") }
+                                    TextButton(enabled = cells.length() > 1, onClick = { state.execute(ModernCommand.TableStructure(capturedCell, ModernTableAction.REMOVE_COLUMN)) }) { Text("Remove column") }
+                                    TextButton(onClick = { state.execute(ModernCommand.TableStructure(capturedCell, ModernTableAction.SET_HEADER, header = !cell.optBoolean("header"))) }) { Text(if (cell.optBoolean("header")) "Make body cell" else "Make header") }
                                 }
                             } }
                         }
@@ -369,15 +478,23 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                         DropdownMenu(expanded = languages, onDismissRequest = { languages = false }) {
                             (listOf("") + state.session.capabilities().export().getJSONArray("codeLanguages").let { values -> (0 until values.length()).map { values.getString(it) } }).forEach { language -> DropdownMenuItem(text = { Text(language.ifEmpty { "Plain text" }) }, onClick = { state.execute(ModernCommand.CodeProperties(state.session.captureCodeTarget(node), language.ifEmpty { null })); languages = false }) }
                         }
+                        TextButton(onClick = { try {
+                            val field = state.session.field(node, "code"); val range = state.session.captureTextRange(field, 0, state.session.text(field).length)
+                            val manager = state.clipboard
+                            if (manager != null) ModernNativeClipboard.publish(manager, state.session.copy(ModernDeleteTarget(ranges = listOf(range))))
+                        } catch (failure: Throwable) { state.reportError(failure) } }) { Text("Copy code") }
                         ModernInput(state, state.session.field(node, "code"), "Code", style.copy(fontFamily = FontFamily.Monospace))
                     }
-                    "image" -> { Text(value.optString("alt", "Image requires application resolution")); ModernInput(state, state.session.field(node, "caption"), "Image caption", style) }
-                    "file", "embed" -> TextButton(onClick = { openReference?.invoke(value.optString("src", value.optString("url"))) }) { Text(value.optString("name", value.optString("title", value.optString("url")))) }
+                    "image" -> { ModernMediaView(state, node, value, openReference); ModernInput(state, state.session.field(node, "caption"), "Image caption", style) }
+                    "file", "embed" -> ModernMediaView(state, node, value, openReference)
                     "divider" -> HorizontalDivider()
                     else -> if (value.opt("content") is JSONArray) ModernInput(state, state.session.field(node), "Block text", if (value.optString("type") == "heading") style.copy(fontSize = (style.fontSize.value * 1.55).sp, fontWeight = FontWeight.Bold) else style) { state.textSelection?.let { state.execute(ModernCommand.SplitBlock(it, UUID.randomUUID().toString())) } } else Text("Unsupported content preserved")
                 }
             }
-        } }
+                }
+                if (state.dropNode == nodeKey && !state.dropBefore) HorizontalDivider(color = MaterialTheme.colorScheme.primary, thickness = 2.dp)
+            }
+        }
     }
 }
 
@@ -404,7 +521,10 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
                     }
                 } catch (failure: Throwable) { state.reportError(failure) }
             }
-            if (next.composition == null) { val finish = release; release = null; finish?.invoke() }
+            if (next.composition == null) {
+                if (next.text.isEmpty()) state.host.retainedClipboard = state.host.retainedClipboard.filter { it.optString("id") != id }
+                val finish = release; release = null; finish?.invoke()
+            }
         })
 }
 
@@ -453,12 +573,13 @@ class ModernBlockEditorState(val host: ModernAndroidHost, val reportError: (Thro
     fun target(): ModernDeleteTarget = ModernDeleteTarget(state.selection, state.textSpan.ifEmpty { state.textSelection?.let { listOf(it) } ?: emptyList() })
     fun paste(plainOnly: Boolean) {
         try {
-            val range = state.textSelection ?: return; val payload = ModernNativeClipboard.read(clipboard, session, plainOnly) ?: return
+            val range = state.textSelection ?: return; val capturedClipboard = ModernNativeClipboard.capture(clipboard) ?: return
             val captured = if (state.textSpan.isEmpty()) range else ModernTextRange.restore(modernObject("start" to state.textSpan.first().start, "end" to state.textSpan.last().end, "observed" to state.textSpan.first().export().getJSONArray("observed")))
             val pasteTarget = ModernPasteTarget.Range(captured); val id = UUID.randomUUID().toString()
-            val entry = modernObject("id" to id, "target" to pasteTarget.wire(), "clipboard" to payload, "reason" to "awaitingPaste")
+            val entry = capturedClipboard.put("id", id).put("target", pasteTarget.wire()).put("reason", "awaitingPaste")
             require(state.host.retainedClipboard.size < 64 && JSONArray(state.host.retainedClipboard + entry).toString().length <= 64_000_000)
             state.host.retainedClipboard = state.host.retainedClipboard + entry
+            val payload = ModernNativeClipboard.decode(entry, session, plainOnly)
             val result = state.execute(ModernCommand.Paste(pasteTarget, payload, if (plainOnly) ModernPasteMode.PLAIN_TEXT else ModernPasteMode.RICH))
             if (result?.status in listOf(ModernResultStatus.APPLIED, ModernResultStatus.NOOP)) state.host.retainedClipboard = state.host.retainedClipboard.filter { it.optString("id") != id }
         } catch (failure: Throwable) { state.reportError(failure) }

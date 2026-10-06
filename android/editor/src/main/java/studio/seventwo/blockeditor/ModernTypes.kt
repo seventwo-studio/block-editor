@@ -308,6 +308,7 @@ sealed class ModernCommand(val name: ModernCommandName) {
     class RemoveColumns(val column: ModernColumnTarget) : Author(ModernCommandName.REMOVE_COLUMNS) { override fun target() = column.wire(); override fun arguments() = JSONObject() }
     class ResizeColumns(val column: ModernColumnTarget, val splitBasisPoints: Int) : Author(ModernCommandName.RESIZE_COLUMNS) { override fun target() = column.wire(); override fun arguments() = modernObject("splitBasisPoints" to splitBasisPoints) }
     class ConvertBlock(val range: ModernTextRange, val conversion: ModernBlockConversion) : Author(ModernCommandName.CONVERT_BLOCK) { override fun target() = range.export(); override fun arguments() = conversion.wire() }
+    class ConvertBlocks(val selection: ModernNodes, val conversion: ModernBlockConversion) : Author(ModernCommandName.CONVERT_BLOCK) { override fun target() = selection.export(); override fun arguments() = conversion.wire() }
     class TypingShortcut(val range: ModernTextRange) : Author(ModernCommandName.TYPING_SHORTCUT) { override fun target() = range.export(); override fun arguments() = JSONObject() }
     class SoftBreak(val range: ModernTextRange) : Author(ModernCommandName.SOFT_BREAK) { override fun target() = range.export(); override fun arguments() = JSONObject() }
     class SplitBlock(val range: ModernTextRange, val newBlockID: String) : Author(ModernCommandName.SPLIT_BLOCK) { override fun target() = range.export(); override fun arguments() = modernObject("newBlockID" to newBlockID) }

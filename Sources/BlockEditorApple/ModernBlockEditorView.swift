@@ -14,12 +14,17 @@ public struct ModernEditorLinkSuggestion: Identifiable, Sendable {
 
 public struct ModernEditorHostActions {
     public var insertAsset: ((ModernInsertionDescriptor, ModernBlockBoundary) -> Void)?
+    public var insertAssetSelection: ((ModernInsertionDescriptor, ModernBlockBoundary, ModernTextRange?) -> Void)?
     public var openReference: ((String) -> Void)?
     public var suggestLinks: ((String) async throws -> [ModernEditorLinkSuggestion])?
     public var copyBlockLink: ((NodeID) -> Void)?
+    public var resolveMedia: ((NodeID, JSONValue) async throws -> ModernMediaPresentation)?
     public init(insertAsset: ((ModernInsertionDescriptor, ModernBlockBoundary) -> Void)? = nil,
-                openReference: ((String) -> Void)? = nil, suggestLinks: ((String) async throws -> [ModernEditorLinkSuggestion])? = nil, copyBlockLink: ((NodeID) -> Void)? = nil) {
+                openReference: ((String) -> Void)? = nil, suggestLinks: ((String) async throws -> [ModernEditorLinkSuggestion])? = nil, copyBlockLink: ((NodeID) -> Void)? = nil,
+                resolveMedia: ((NodeID, JSONValue) async throws -> ModernMediaPresentation)? = nil,
+                insertAssetSelection: ((ModernInsertionDescriptor, ModernBlockBoundary, ModernTextRange?) -> Void)? = nil) {
         self.insertAsset = insertAsset; self.openReference = openReference; self.suggestLinks = suggestLinks; self.copyBlockLink = copyBlockLink
+        self.resolveMedia = resolveMedia; self.insertAssetSelection = insertAssetSelection
     }
 }
 
@@ -50,6 +55,12 @@ public struct ModernEditorHostActions {
     @State private var emptyText = ""
     @State private var drag: ModernNodeSelection?
     @State private var drop: ModernBlockBoundary?
+    @State private var dropNode: NodeID?
+    @State private var dropBefore = false
+    @State private var viewportBounds = CGRect.zero
+    @State private var rowBounds: [NodeID: CGRect] = [:]
+    @State private var scrollRequest: NodeID?
+    @State private var catalogIndex = 0
     @ScaledMetric(relativeTo: .body) private var textScale = 1.0
     public init(model: ModernEditorModel, host: ModernEditorHostActions = .init(), providers: ModernProviderController? = nil) {
         self.model = model; self.host = host; self.providers = providers
@@ -94,9 +105,16 @@ public struct ModernEditorHostActions {
                     contextualTools
                 }
                 .font(.system(size: bodySize, design: model.document.appearance.fontFamily == .serif ? .serif : model.document.appearance.fontFamily == .monospace ? .monospaced : .default))
+                .coordinateSpace(name: "modern-canvas")
+                .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { viewportBounds = $0 }
+                .onChange(of: scrollRequest) { _, node in if let node { withAnimation(.easeOut(duration: 0.1)) { proxy.scrollTo(node, anchor: .bottom) } } }
+                #if !os(macOS)
                 .sheet(isPresented: Binding(get: { insertion != nil }, set: { if !$0 { insertion = nil; insertionRange = nil } })) { insertionPicker }
-                .sheet(isPresented: Binding(get: { linkRange != nil }, set: { if !$0 { linkRange = nil } })) { linkEditor }
-                .sheet(isPresented: Binding(get: { paletteTarget != nil }, set: { if !$0 { paletteTarget = nil } })) { palette }
+                #else
+                .popover(isPresented: Binding(get: { insertion != nil && insertionRange == nil }, set: { if !$0 { insertion = nil; model.restoreInteractionFocus() } })) { insertionPicker }
+                #endif
+                .sheet(isPresented: Binding(get: { linkRange != nil }, set: { if !$0 { linkRange = nil; model.restoreInteractionFocus() } })) { linkEditor }
+                .sheet(isPresented: Binding(get: { paletteTarget != nil }, set: { if !$0 { paletteTarget = nil; model.restoreInteractionFocus() } })) { palette }
                 .onChange(of: model.document) { _, _ in detectSlash() }
             }
         }
@@ -104,13 +122,13 @@ public struct ModernEditorHostActions {
     private func run(_ action: () throws -> Void) { do { try action() } catch { model.report(error) } }
     private func command(_ action: (ModernSession) throws -> ModernFocusIntent?) { run { try model.perform(action) } }
     private func openInsertion(_ collection: NodeCollection, after: NodeID? = nil) {
-        run { insertion = try model.session.captureBoundary(in: collection, after: after); insertionRange = nil; query = "" }
+        run { try? model.captureInteractionFocus(); insertion = try model.session.captureBoundary(in: collection, after: after); insertionRange = nil; query = "" }
     }
     private func detectSlash() {
         if host.suggestLinks != nil, linkRange == nil, !model.session.isComposing,
            let range = try? model.captureTextSelection(), range.start.field.name == "content",
            let value = try? model.session.text(in: range.start.field), let marker = value.range(of: "[[", options: .backwards), !value[marker.upperBound...].contains("]]") {
-            run { linkRange = try model.session.captureTextRange(in: range.start.field, start: value[..<marker.lowerBound].utf16.count, end: value.utf16.count); link = String(value[marker.upperBound...]); internalLink = true }
+            run { try? model.captureInteractionFocus(); linkRange = try model.session.captureTextRange(in: range.start.field, start: value[..<marker.lowerBound].utf16.count, end: value.utf16.count); link = String(value[marker.upperBound...]); internalLink = true }
             return
         }
         guard insertion == nil, !model.session.isComposing,
@@ -119,6 +137,7 @@ public struct ModernEditorHostActions {
               let address = try? model.session.address(of: range.start.field.node), let root = model.document.blocks.first(where: { $0.id == address.blockID }),
               JSONValue.object(root.fields).value(at: address.path)?["type"] == .string("paragraph") else { return }
         run {
+            try? model.captureInteractionFocus()
             insertionRange = try model.session.captureTextRange(in: range.start.field, start: 0, end: text.utf16.count)
             let collection = try parentCollection(range.start.field.node)
             insertion = try model.session.captureBoundary(in: collection, after: range.start.field.node)
@@ -155,6 +174,9 @@ public struct ModernEditorHostActions {
     @ViewBuilder private func field(_ field: WritingField, label: String, submit: (() -> Bool)? = nil) -> some View {
         #if os(macOS) || os(iOS) || os(visionOS)
         ModernTextInput(model: model, field: field, label: label, onSubmit: submit, onBoundary: { boundary(field, selector: $0) })
+            #if os(macOS)
+            .popover(isPresented: Binding(get: { insertion != nil && insertionRange?.start.field == field }, set: { if !$0 { insertion = nil; insertionRange = nil; model.restoreInteractionFocus() } }), arrowEdge: .bottom) { insertionPicker }
+            #endif
         #else
         TextField(label, text: Binding(get: { (try? model.session.text(in: field)) ?? "" }, set: { value in
             command { session in
@@ -216,7 +238,7 @@ public struct ModernEditorHostActions {
     }
     private func textTargets() throws -> [ModernTextRange] { textSpan.isEmpty ? [try model.captureTextSelection()] : textSpan }
     private func openPalette() {
-        run { if let selection { paletteTarget = ModernSemanticTarget(nodes: selection) } else { paletteTarget = ModernSemanticTarget(range: try model.captureTextSelection()) } }
+        run { try? model.captureInteractionFocus(); if let selection { paletteTarget = ModernSemanticTarget(nodes: selection) } else { paletteTarget = ModernSemanticTarget(range: try model.captureTextSelection()) } }
     }
     private func semanticLabel(_ target: ModernSemanticTarget, kind: ModernSemanticKind) -> String {
         switch try? model.session.semanticState(target, kind: kind) { case .role(let role): role.capitalized; case .mixed: "Mixed"; default: "Default" }
@@ -282,13 +304,26 @@ public struct ModernEditorHostActions {
             #endif
             block(node, value: value, width: max(1, width - 44)).frame(maxWidth: .infinity, alignment: .leading)
         }.padding(4).background(selection?.nodes.contains(node) == true ? Color.accentColor.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 8))
-            .overlay(alignment: .top) { if drop?.collection == collection && drop?.after == nil { Rectangle().fill(.tint).frame(height: 2) } }
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { rowBounds[node] = $0 }
+            .overlay(alignment: dropBefore ? .top : .bottom) { if dropNode == node { Rectangle().fill(.tint).frame(height: 2) } }
             .onDrag { drag = (try? model.session.captureNodes(selection?.nodes.contains(node) == true ? selection!.nodes : [node])); return NSItemProvider(object: "modern-local-block" as NSString) }
-            .onDrop(of: ["public.text"], isTargeted: Binding(get: { false }, set: { active in drop = active ? try? model.session.captureBoundary(in: collection, after: node) : nil })) { _ in
-                guard let drag, let boundary = try? model.session.captureBoundary(in: collection, after: node) else { return false }
-                command { try $0.move(ModernMoveTarget(selection: drag, boundary: boundary)).focus }
-                self.drag = nil; drop = nil; return true
-            })
+            .onDrop(of: ["public.text"], delegate: ModernLocalDropDelegate(allowed: { drag != nil && model.isEditable }, preview: { location in
+                run {
+                    let siblings = try model.session.nodes(in: collection), index = siblings.firstIndex(of: node) ?? 0
+                    let before = location.y < (rowBounds[node]?.height ?? 44) / 2
+                    drop = try model.session.captureBoundary(in: collection, after: before ? (index > 0 ? siblings[index - 1] : nil) : node)
+                    dropNode = node; dropBefore = before
+                    if let frame = rowBounds[node] {
+                        let y = frame.minY + location.y
+                        if y > viewportBounds.maxY - 64, index + 1 < siblings.count { scrollRequest = siblings[index + 1] }
+                        else if y < viewportBounds.minY + 64, index > 0 { scrollRequest = siblings[index - 1] }
+                    }
+                }
+            }, cancel: { drop = nil; dropNode = nil }, commit: {
+                guard let drag, let drop else { return false }
+                command { try $0.move(ModernMoveTarget(selection: drag, boundary: drop)).focus }
+                self.drag = nil; self.drop = nil; dropNode = nil; scrollRequest = nil; return true
+            })))
     }
     private func block(_ node: NodeID, value: JSONValue, width: Double) -> AnyView {
         let type = value["type"]?.string ?? ""
@@ -309,12 +344,8 @@ public struct ModernEditorHostActions {
             })
         case "image":
             return AnyView(VStack(alignment: .leading) {
-                if let source = value["src"]?.string, let url = URL(string: source), ["http", "https"].contains(url.scheme ?? "") {
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image { image.resizable().scaledToFit() }
-                        else { Text(phase.error == nil ? "Loading image…" : "Image unavailable").frame(minHeight: 80) }
-                    }.frame(maxWidth: min(width, imagePreview[node] ?? numeric(value["width"]) ?? width)).accessibilityLabel(value["alt"]?.string ?? "Image")
-                } else { Text(value["alt"]?.string ?? "Image — application resolution required") }
+                ModernResolvedMediaView(node: node, value: value, resolve: host.resolveMedia, open: host.openReference)
+                    .frame(maxWidth: min(width, imagePreview[node] ?? numeric(value["width"]) ?? width))
                 if let caption = try? model.session.field(node: node, name: "caption") { field(caption, label: "Image caption") }
                 Slider(value: Binding(get: { imagePreview[node] ?? numeric(value["width"]) ?? width }, set: { imagePreview[node] = $0 }), in: 64...max(64, width), onEditingChanged: { editing in
                     if editing { imageTarget[node] = try? model.session.captureMediaTarget(node) }
@@ -327,7 +358,10 @@ public struct ModernEditorHostActions {
 
             })
         case "file", "embed":
-            return AnyView(Button(value["name"]?.string ?? value["title"]?.string ?? value["url"]?.string ?? "File") { host.openReference?(value["url"]?.string ?? value["src"]?.string ?? "") }.buttonStyle(.bordered))
+            return AnyView(VStack(alignment: .leading) {
+                ModernResolvedMediaView(node: node, value: value, resolve: host.resolveMedia, open: host.openReference)
+                if let providers { Button("Replace \(type)") { run { _ = try providers.start(node: node) } }.disabled(!model.isEditable) }
+            })
         case "divider": return AnyView(Divider())
         case "code":
             return AnyView(VStack(alignment: .leading) {
@@ -349,6 +383,14 @@ public struct ModernEditorHostActions {
         let items = (try? model.session.nodes(in: NodeCollection(owner: node, field: "items"))) ?? []
         return AnyView(VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(items.enumerated()), id: \.element) { index, item in listItem(item, style: style, number: index + 1, width: width) }
+            if items.isEmpty {
+                Button("Add list item") {
+                    command { session in
+                        let item = JSONValue.object(["id": .string(UUID().uuidString), "content": .array([]), "checked": .bool(false)])
+                        return try session.paste(ModernClipboard(parts: [.node(value: item, kind: "item")]), at: .init(boundary: session.captureListBoundary(in: NodeCollection(owner: node, field: "items")))).focus
+                    }
+                }.disabled(!model.isEditable)
+            }
         })
     }
     private func listItem(_ item: NodeID, style: String, number: Int, width: Double) -> AnyView {
@@ -381,11 +423,14 @@ public struct ModernEditorHostActions {
         })
     }
     @ViewBuilder private func tableActions(_ table: NodeID, row: NodeID, cell: NodeID) -> some View {
+        let captured = try? model.session.captureTableTarget(table: table, row: row, cell: cell)
+        let cellCount = (try? model.session.nodes(in: NodeCollection(owner: row, field: "cells")).count) ?? 0
+        let rowCount = (try? model.session.nodes(in: NodeCollection(owner: table, field: "rows")).count) ?? 0
         ForEach(ModernTableAction.allCases, id: \.rawValue) { action in
             Button(action.rawValue) {
                 command { session in
-                    let target = try session.captureTableTarget(table: table, row: row, cell: cell)
-                    let count = action == .insertRow ? (try session.nodes(in: NodeCollection(owner: row, field: "cells")).count + 1) : action == .insertColumn ? try session.nodes(in: NodeCollection(owner: table, field: "rows")).count : 0
+                    guard let target = captured else { throw EditorError.invalidPath }
+                    let count = action == .insertRow ? cellCount + 1 : action == .insertColumn ? rowCount : 0
                     return try session.tableStructure(target, action: action, newIDs: (0..<count).map { _ in UUID().uuidString }, header: action == .setHeader ? nodeValue(cell)?["header"] != .bool(true) : nil).focus
                 }
             }
@@ -463,6 +508,21 @@ public struct ModernEditorHostActions {
                 if let selection {
                     Text("\(selection.nodes.count) selected")
                     Button("Move up") { moveSelection(down: false) }; Button("Move down") { moveSelection(down: true) }
+                    Menu("Convert") {
+                        ForEach(["paragraph", "heading", "quote", "callout", "list", "code"], id: \.self) { type in
+                            Button(type.capitalized) { command { try $0.convertBlocks(selection, to: WritingBlockTarget(type: type)).focus } }
+                        }
+                    }
+                    Menu("Move to") {
+                        Button("Document end") { command { try $0.move(ModernMoveTarget(selection: selection, boundary: $0.captureBoundary(after: $0.nodes().last))).focus } }
+                        ForEach((try? model.session.nodes()) ?? [], id: \.self) { node in
+                            if nodeValue(node)?["type"] == .string("columns") {
+                                ForEach(Array(((try? model.session.nodes(in: NodeCollection(owner: node, field: "columns"))) ?? []).enumerated()), id: \.element) { index, container in
+                                    Button("Column \(index + 1)") { command { session in let collection = NodeCollection(owner: container, field: "children"); return try session.move(ModernMoveTarget(selection: selection, boundary: session.captureBoundary(in: collection, after: session.nodes(in: collection).last))).focus } }
+                                }
+                            }
+                        }
+                    }
                     Button("Duplicate") { duplicateSelection() }; Button("Delete") { deleteSelection() }
                     Button("Copy link") { if let node = selection.nodes.first { host.copyBlockLink?(node) } }.disabled(host.copyBlockLink == nil)
                     Button("Color") { openPalette() }
@@ -470,7 +530,7 @@ public struct ModernEditorHostActions {
                 } else {
                     Button("Insert") { run { if let range = try? model.captureTextSelection(), range.start.field != model.session.titleField { openInsertion(try parentCollection(range.start.field.node), after: range.start.field.node) } else { openInsertion(.root, after: (try? model.session.nodes())?.last) } } }
                     ForEach(["bold", "italic", "strikethrough", "code"], id: \.self) { mark in Button(mark.capitalized) { run { let target = try textTargets(); command { try $0.format(in: target, markType: mark, mark: try $0.markState(in: target, type: mark) == .on ? nil : .object(["type": .string(mark)])).focus } } } }
-                    Button("Link") { run { linkRange = try model.captureTextSelection(); link = ""; internalLink = false } }
+                    Button("Link") { run { try? model.captureInteractionFocus(); linkRange = try model.captureTextSelection(); link = ""; internalLink = false } }
                     Button("Undo") { run { try model.undo() } }.disabled(!model.canUndo)
                     Menu("More") {
                         Button("Color") { openPalette() }
@@ -487,18 +547,26 @@ public struct ModernEditorHostActions {
     }
     private var insertionPicker: some View {
         VStack(alignment: .leading, spacing: 12) {
-            TextField("Search blocks", text: $query)
+            TextField("Search blocks", text: $query).onChange(of: query) { _, _ in catalogIndex = 0 }
+                .onSubmit { let values = ModernInsertionCatalog.search(query).filter { model.session.allowedBlockTypes?.contains($0.blockType) ?? true }; if values.indices.contains(catalogIndex) { insert(values[catalogIndex]) } }
+                #if os(macOS)
+                .onMoveCommand { direction in let count = ModernInsertionCatalog.search(query).filter { model.session.allowedBlockTypes?.contains($0.blockType) ?? true }.count; if direction == .down { catalogIndex = min(max(0, count - 1), catalogIndex + 1) }; if direction == .up { catalogIndex = max(0, catalogIndex - 1) } }
+                #endif
             ScrollView {
-                ForEach(ModernInsertionCatalog.search(query), id: \.id) { descriptor in
-                    Button { insert(descriptor) } label: { VStack(alignment: .leading) { Text(descriptor.title); Text(descriptor.description).font(.caption).foregroundStyle(.secondary) }.frame(maxWidth: .infinity, alignment: .leading).padding(8) }
+                ForEach(Array(ModernInsertionCatalog.search(query).filter { model.session.allowedBlockTypes?.contains($0.blockType) ?? true }.enumerated()), id: \.element.id) { index, descriptor in
+                    Button { insert(descriptor) } label: { VStack(alignment: .leading) { Text(descriptor.title); Text(descriptor.description).font(.caption).foregroundStyle(.secondary) }.frame(maxWidth: .infinity, alignment: .leading).padding(8).background(index == catalogIndex ? Color.accentColor.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 8)) }
                 }
             }
-            Button("Cancel") { insertion = nil; insertionRange = nil }
+            Button("Cancel") { insertion = nil; insertionRange = nil; model.restoreInteractionFocus() }
         }.padding(24).frame(minWidth: 280, idealHeight: 440)
     }
     private func insert(_ descriptor: ModernInsertionDescriptor) {
         guard let insertion else { return }
-        if descriptor.requiresHost { host.insertAsset?(descriptor, insertion); self.insertion = nil; return }
+        if descriptor.requiresHost {
+            if let action = host.insertAssetSelection { action(descriptor, insertion, insertionRange) }
+            else { host.insertAsset?(descriptor, insertion) }
+            self.insertion = nil; insertionRange = nil; return
+        }
         command { session in
             if descriptor.id == "columns" {
                 let layout = JSONValue.object(["id": .string(UUID().uuidString), "type": .string("columns"), "splitBasisPoints": .number(5000), "columns": .array((0..<2).map { _ in .object(["id": .string(UUID().uuidString), "children": .array([])]) })])

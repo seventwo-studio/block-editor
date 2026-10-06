@@ -123,18 +123,49 @@ class ModernAndroidHost(val session: ModernSession, val actorID: String, private
     suspend fun cancelProvider(target: ModernAsyncTarget) { session.cancelAsyncBlock(target); providerRecords = session.asyncRequests(); save() }
     companion object {
         fun restore(pair: JSONObject, store: ModernHostStore, policy: ModernPolicy = ModernPolicy()): Pair<ModernAndroidHost, () -> Unit> {
-            require(pair.getInt("version") == 1)
+            validatePair(pair)
             val session = ModernSession.restore(ModernPayload.restore(pair.getJSONObject("accepted")), pair.getString("actorID"), policy)
-            require(session.snapshot.syncState.documentID == pair.getString("documentID") && session.snapshot.syncState.epoch == pair.getString("epoch"))
-            session.restoreHistorySelection(ModernHistorySelectionArchive.restore(pair.getJSONObject("historySelection")))
-            session.restoreAsyncRequests(ModernAsyncArchive.restore(pair.getJSONObject("providers")))
-            pair.optJSONObject("recovery")?.let { session.restoreRecovery(ModernRecovery.restore(it)) }
-            val release = session.holdRemoteChanges(); val packets = pair.getJSONArray("deferred")
-            session.restoreDeferredChanges((0 until packets.length()).map { ModernBatch.restore(packets.getJSONObject(it)) })
-            val host = ModernAndroidHost(session, pair.getString("actorID"), store, pair.getString("revision"))
-            fun records(name: String): List<JSONObject> = pair.getJSONArray(name).let { array -> (0 until array.length()).map { NativeJsonTransport.copy(array.getJSONObject(it)) } }
-            host.drafts = records("drafts"); host.retainedClipboard = records("clipboard")
-            return host to release // restored provider records remain inert
+            try {
+                require(session.snapshot.syncState.documentID == pair.getString("documentID") && session.snapshot.syncState.epoch == pair.getString("epoch"))
+                session.restoreHistorySelection(ModernHistorySelectionArchive.restore(pair.getJSONObject("historySelection")))
+                session.restoreAsyncRequests(ModernAsyncArchive.restore(pair.getJSONObject("providers")))
+                pair.optJSONObject("recovery")?.let { session.restoreRecovery(ModernRecovery.restore(it)) }
+                val release = session.holdRemoteChanges(); val packets = pair.getJSONArray("deferred")
+                session.restoreDeferredChanges((0 until packets.length()).map { ModernBatch.restore(packets.getJSONObject(it)) })
+                val host = ModernAndroidHost(session, pair.getString("actorID"), store, pair.getString("revision"))
+                fun records(name: String): List<JSONObject> = pair.getJSONArray(name).let { array -> (0 until array.length()).map { NativeJsonTransport.copy(array.getJSONObject(it)) } }
+                host.drafts = records("drafts"); host.retainedClipboard = records("clipboard")
+                host.retainedClipboard.forEach { it.optJSONObject("clipboard")?.let { value -> session.clipboardEncoded(value.toString()) } }
+                return host to release // restored provider records remain inert
+            } catch (failure: Throwable) { session.close(); throw failure }
+
+        }
+    }
+}
+
+private fun validatePair(pair: JSONObject) {
+    require(pair.getInt("version") == 1)
+    val documentID = pair.getString("documentID"); val epoch = pair.getString("epoch")
+    pair.getString("actorID"); UUID.fromString(pair.getString("revision"))
+    fun bounded(name: String, limit: Int) { require(pair.get(name).toString().toByteArray(Charsets.UTF_8).size <= limit) { "Oversized $name" } }
+    bounded("accepted", 64_000_000); bounded("historySelection", 16_000_000); bounded("providers", 16_000_000)
+    bounded("recovery", 64_000_000); bounded("deferred", 64_000_000); bounded("drafts", 16_000_000); bounded("clipboard", 64_000_000)
+    require(pair.getJSONArray("deferred").length() <= 64)
+    val identifiers = mutableSetOf<String>()
+    fun scoped(value: JSONObject) { require(value.getString("documentID") == documentID && value.getString("epoch") == epoch) }
+    fun range(value: JSONObject) { scoped(value.getJSONObject("start")); scoped(value.getJSONObject("end")) }
+    for (name in listOf("drafts", "clipboard")) {
+        val array = pair.getJSONArray(name); require(array.length() <= 64)
+        for (index in 0 until array.length()) {
+            val value = array.getJSONObject(index); require(identifiers.add(value.getString("id")))
+            require(value.getString("reason").length <= 1000)
+            val target = value.getJSONObject("target")
+            if (name == "drafts") { range(target); value.getString("text"); value.optString("nativeText") }
+            else {
+                require(target.has("range") != target.has("boundary"))
+                target.optJSONObject("range")?.let { range(it) }; target.optJSONObject("boundary")?.let { scoped(it) }
+                require(value.has("clipboard") || value.has("raw") || value.has("plainText"))
+            }
         }
     }
 }
@@ -147,17 +178,29 @@ object ModernNativeClipboard {
         val read = manager.primaryClip ?: return false
         return read.itemCount == 2 && read.getItemAt(0).text?.toString() == plain && read.getItemAt(1).text?.toString() == encoded
     }
+    fun capture(manager: ClipboardManager): JSONObject? {
+        val clip = manager.primaryClip ?: return null
+        val plain = clip.getItemAt(0).text?.toString() ?: ""
+        require(plain.length <= 32_000_000)
+        val raw = if (clip.description.hasMimeType(MIME)) {
+            require(clip.itemCount == 2) { "Malformed internal clipboard" }
+            clip.getItemAt(1).text?.toString() ?: error("Clipboard is not inert text")
+        } else null
+        require(raw == null || raw.length <= 32_000_000)
+        return modernObject("plainText" to plain).also { if (raw != null) it.put("raw", raw) }
+    }
+    fun decode(record: JSONObject, session: ModernSession, plainOnly: Boolean = false): ModernClipboard {
+        record.optJSONObject("clipboard")?.let { if (!plainOnly) return session.clipboardEncoded(it.toString()) }
+        if (!plainOnly && record.has("raw")) return session.clipboardEncoded(record.getString("raw"))
+        return session.clipboardText(record.getString("plainText"), "multiline")
+    }
     fun read(manager: ClipboardManager, session: ModernSession, plainOnly: Boolean = false): ModernClipboard? {
         val clip = manager.primaryClip ?: return null
         if (!plainOnly && clip.description.hasMimeType(MIME)) {
             require(clip.itemCount == 2) { "Malformed internal clipboard" }
             val encoded = clip.getItemAt(1).text?.toString() ?: error("Clipboard is not inert text")
             require(encoded.length <= 32_000_000)
-            val value = JSONObject(encoded)
-            // This MIME is emitted canonically by this adapter. Reject ignored
-            // keys/numeric encodings before org.json can hide duplicate keys.
-            require(value.toString() == encoded) { "Noncanonical internal clipboard" }
-            return ModernClipboard.restore(value)
+            return session.clipboardEncoded(encoded)
         }
         val plain = clip.getItemAt(0).text?.toString() ?: return null
         return session.clipboardText(plain.replace("\r\n", "\n").replace('\r', '\n'), "multiline")

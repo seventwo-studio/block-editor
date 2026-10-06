@@ -17,6 +17,7 @@ const builds = ["wasm", "javascript"].map(runtime => {
 });
 const artifacts = {};
 for (const entry of readdirSync("dist", { withFileTypes: true })) if (entry.isFile() && /\.(js|d\.ts|wasm)$/.test(entry.name)) artifacts[`dist/${entry.name}`] = digest(readFileSync(`dist/${entry.name}`));
+for (const path of ["src/swift-modern.css", "docs/modern-editor-handoff.md"]) artifacts[path] = digest(readFileSync(path));
 if (!artifacts["dist/block-editor.wasm"]) throw new Error("Build the actual matching WASM before preparing this candidate");
 writeFileSync("dist/modern-provenance.json", JSON.stringify({ version: 1, packageName: manifest.name, packageVersion: manifest.version,
   documentFormatVersion: 1, protocolVersion: 7,
