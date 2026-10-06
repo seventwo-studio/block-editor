@@ -13,6 +13,10 @@ final class ModernEditingTests: XCTestCase {
         let body = app.textViews["Block text"].firstMatch
         XCTAssertTrue(body.waitForExistence(timeout: 10))
         body.typeText("Modern body")
+        app.buttons["Format"].tap()
+        XCTAssertTrue(app.buttons["Bold"].waitForExistence(timeout: 5))
+        app.buttons["Cancel"].tap()
+        body.typeText(" after menu")
         let code = app.textViews["Code"]
         code.tap(); code.typeText("  literal\nline")
         app.buttons["Save locally"].tap()
@@ -20,7 +24,7 @@ final class ModernEditingTests: XCTestCase {
         let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "Modern integrated candidate"; screenshot.lifetime = .keepAlways; add(screenshot)
         app.terminate(); app.launch()
         XCTAssertTrue(title.waitForExistence(timeout: 20))
-        XCTAssertTrue((body.value as? String)?.contains("Modern body") == true)
+        XCTAssertTrue((body.value as? String)?.contains("Modern body after menu") == true)
         XCTAssertTrue((code.value as? String)?.contains("  literal\nline") == true)
     }
 }

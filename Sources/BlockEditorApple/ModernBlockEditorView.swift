@@ -52,6 +52,7 @@ public struct ModernEditorHostActions {
     @State private var suggestionsLoading = false
     @State private var paletteTarget: ModernSemanticTarget?
     @State private var textSpan: [ModernTextRange] = []
+    @State private var formattingRanges: [ModernTextRange]?
     @State private var emptyText = ""
     @State private var drag: ModernNodeSelection?
     @State private var drop: ModernBlockBoundary?
@@ -110,6 +111,7 @@ public struct ModernEditorHostActions {
                 .onChange(of: scrollRequest) { _, node in if let node { withAnimation(.easeOut(duration: 0.1)) { proxy.scrollTo(node, anchor: .bottom) } } }
                 #if !os(macOS)
                 .sheet(isPresented: Binding(get: { insertion != nil }, set: { if !$0 { insertion = nil; insertionRange = nil } })) { insertionPicker }
+                .sheet(isPresented: Binding(get: { formattingRanges != nil }, set: { if !$0 { formattingRanges = nil; model.restoreInteractionFocus() } })) { formattingPicker }
                 #else
                 .popover(isPresented: Binding(get: { insertion != nil && insertionRange == nil }, set: { if !$0 { insertion = nil; model.restoreInteractionFocus() } })) { insertionPicker }
                 #endif
@@ -173,6 +175,7 @@ public struct ModernEditorHostActions {
         ModernTextInput(model: model, field: field, label: label, onSubmit: submit, onBoundary: { boundary(field, selector: $0) })
             #if os(macOS)
             .popover(isPresented: Binding(get: { insertion != nil && insertionRange?.start.field == field }, set: { if !$0 { insertion = nil; insertionRange = nil; model.restoreInteractionFocus() } }), arrowEdge: .bottom) { insertionPicker }
+            .popover(isPresented: Binding(get: { formattingRanges?.last?.end.field == field }, set: { if !$0 { formattingRanges = nil; model.restoreInteractionFocus() } }), arrowEdge: .bottom) { formattingPicker }
             #endif
         #else
         TextField(label, text: Binding(get: { (try? model.session.text(in: field)) ?? "" }, set: { value in
@@ -526,21 +529,34 @@ public struct ModernEditorHostActions {
                     Button("Cancel selection") { self.selection = nil; command { try $0.resolvedLocalSelection()?.focus } }
                 } else {
                     Button("Insert") { run { try? model.captureInteractionFocus(); if let range = try? model.captureTextSelection() { insertion = try model.session.captureInsertionBoundary(after: range.start.field) } else { insertion = try model.session.captureBoundary(after: model.session.nodes().last) }; insertionRange = nil; query = "" } }
-                    ForEach(["bold", "italic", "strikethrough", "code"], id: \.self) { mark in Button(mark.capitalized) { run { let target = try textTargets(); command { try $0.format(in: target, markType: mark, mark: try $0.markState(in: target, type: mark) == .on ? nil : .object(["type": .string(mark)])).focus } } } }
+                    Button("Format") { run { try model.captureInteractionFocus(); formattingRanges = try textTargets() } }
                     Button("Link") { run { try? model.captureInteractionFocus(); linkRange = try model.captureTextSelection(); link = ""; internalLink = false } }
                     Button("Undo") { run { try model.undo() } }.disabled(!model.canUndo)
                     Menu("More") {
+                        Button("Redo") { run { try model.redo() } }.disabled(!model.canRedo)
                         Button("Color") { openPalette() }
                         Button("Extend text selection") { extendTextSelection(backward: false) }
                         Button("Copy selection") { run { _ = try model.clipboard.copy(ModernDeleteTarget(ranges: textTargets()), to: ModernNativeClipboard()) } }
                         Button("Delete text selection") { run { let target = ModernDeleteTarget(ranges: try textTargets()); command { try $0.delete(target).focus }; textSpan = [] } }
                     }
                     if !textSpan.isEmpty { Text("Text across \(textSpan.count) fields"); Button("Cancel text selection") { textSpan = [] } }
-                    Button("Redo") { run { try model.redo() } }.disabled(!model.canRedo)
                     if focusMode { Button("Leave focus mode") { focusMode = false } }
                 }
             }.buttonStyle(.bordered).padding(12)
         }.background(.bar).disabled(!model.isEditable || model.session.isComposing)
+    }
+    private var formattingPicker: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(["bold", "italic", "strikethrough", "code"], id: \.self) { mark in
+                let state = formattingRanges.flatMap { try? model.session.markState(in: $0, type: mark) } ?? .off
+                Button("\(mark.capitalized)\(state == .on ? " ✓" : state == .mixed ? " — Mixed" : "")") {
+                    guard let captured = formattingRanges else { return }
+                    command { try $0.format(in: captured, markType: mark, mark: state == .on ? nil : .object(["type": .string(mark)])).focus }
+                    formattingRanges = nil
+                }
+            }
+            Button("Cancel") { formattingRanges = nil; model.restoreInteractionFocus() }
+        }.padding(24).frame(minWidth: 240).disabled(!model.isEditable || model.session.isComposing)
     }
     private var insertionPicker: some View {
         VStack(alignment: .leading, spacing: 12) {

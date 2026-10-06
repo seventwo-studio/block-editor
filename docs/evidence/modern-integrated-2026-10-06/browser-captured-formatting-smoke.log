@@ -1,0 +1,18 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:54481) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 2 workers
+
+(node:54483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:54482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [webkit] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen (9.0s)
+  ✓  2 [chromium] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen (9.2s)
+  ✓  3 [webkit] › tests/modern-editor.swift.ts:43:1 › cancelled slash query and app-owned media insertion retain the original editor (1.7s)
+  ✓  4 [chromium] › tests/modern-editor.swift.ts:43:1 › cancelled slash query and app-owned media insertion retain the original editor (1.6s)
+  ✓  6 [chromium] › tests/modern-editor.swift.ts:59:1 › formatting keeps its captured Unicode selection and shared Undo (710ms)
+  ✓  5 [webkit] › tests/modern-editor.swift.ts:59:1 › formatting keeps its captured Unicode selection and shared Undo (829ms)
+
+  6 passed (12.4s)

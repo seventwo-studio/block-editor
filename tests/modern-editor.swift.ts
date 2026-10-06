@@ -27,7 +27,7 @@ test('modern integrated editor preserves local writing through blocks, columns a
   await page.getByRole('textbox', { name: 'Table cell', exact: true }).first().fill('Cell 😀');
   await page.getByRole('button', { name: 'Insert', exact: true }).click();
   await page.getByRole('textbox', { name: 'Search blocks' }).fill('columns');
-  await page.getByRole('option', { name: /columns/i }).click();
+  await page.getByRole('option', { name: /^Two columns/ }).click();
   await expect(page.getByLabel('Column split')).toHaveValue('5000');
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByLabel('Column split')).toHaveValue('5000');
@@ -54,4 +54,21 @@ test('cancelled slash query and app-owned media insertion retain the original ed
   await expect(page.getByRole('textbox', { name: 'Image caption', exact: true })).toHaveText('Local caption 😀', { timeout: 30000 });
   await expect(page.getByRole('img')).toBeVisible();
   await testInfo.attach('local-media-reopen', { body: await page.screenshot(), contentType: 'image/png' });
+});
+
+test('formatting keeps its captured Unicode selection and shared Undo', async ({ page }) => {
+  await page.goto('modern.html');
+  const body = page.getByRole('textbox', { name: 'Block text', exact: true }).first();
+  await expect(body).toBeVisible({ timeout: 30000 }); await body.fill('Alpha 😀 omega');
+  await body.evaluate(root => {
+    const text = root.firstChild!; const selection = document.getSelection()!;
+    selection.setBaseAndExtent(text, 0, text, 8);
+  });
+  await page.getByText('Format', { exact: true }).click();
+  const bold = page.getByRole('button', { name: 'bold', exact: true });
+  await expect(bold).toHaveAttribute('aria-pressed', 'false'); await bold.click();
+  await expect(body.locator('strong')).toHaveText('Alpha 😀');
+  await expect(body).toHaveText('Alpha 😀 omega');
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(body.locator('strong')).toHaveCount(0); await expect(body).toHaveText('Alpha 😀 omega');
 });

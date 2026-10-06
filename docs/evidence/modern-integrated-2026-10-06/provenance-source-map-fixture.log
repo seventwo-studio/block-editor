@@ -1,0 +1,9 @@
+bun test v1.4.2 (744846f84)
+
+tests/modern-build-provenance.test.ts:
+(pass) provenance compares every source digest independently of enumeration order [2.54ms]
+
+ 1 pass
+ 0 fail
+ 4 expect() calls
+Ran 1 test across 1 file. [64.00ms]

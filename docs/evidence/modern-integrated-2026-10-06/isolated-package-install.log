@@ -1,0 +1,6 @@
+npm notice
+npm notice New major version of npm available! 11.6.2 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+{"name":"@seventwo-studio/block-editor","version":"0.2.0","packedBytes":22869371,"unpackedBytes":67058872,"integrity":"sha512-3plCZ41EZkwrWX/lyz3/0iZIKzAyqVNQ+9062bHGCqtyazwz46i0vJB27t3iN16EH2pOlgtbwHxngVhRnu1f4A=="}

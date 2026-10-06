@@ -70,7 +70,10 @@ class ModernSessionTest {
                 val recovered = restore(x, "x")
                 try { recovered.restoreRecovery(failure.recovery); fail("Restored union remains unresolved") } catch (_: ModernRecoveryException) { }
                 recovered.repairUndo(listOf(own)); assertEquals(3, recovered.snapshot.document.blocks.size)
-                assertEquals("Y", recovered.snapshot.document.blocks.last().export().getJSONArray("content").getJSONObject(0).getString("text"))
+                val retainedPeer = recovered.snapshot.document.blocks.single { it.export().optString("id") == "same" }.export()
+                assertEquals("paragraph", retainedPeer.getString("type"))
+                assertEquals("Y", retainedPeer.getJSONArray("content").getJSONObject(0).getString("text"))
+                assertEquals("asset://pending", recovered.snapshot.document.blocks.single { it.export().optString("id") == "image" }.export().getString("src"))
             }
             val closeRelease = a.holdRemoteChanges(); a.close(); closeRelease(); a.close()
             try { a.save(); fail("Closed handle must reject") } catch (_: IllegalStateException) { }

@@ -218,6 +218,8 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [split, setSplit] = useState<Record<string, number>>({}), [focused, setFocused] = useState<ModernPosition>();
   const [textSpan, setTextSpan] = useState<readonly ModernTextRange[]>([]), [, redrawSelection] = useState(0);
+  const [formatAnchor, setFormatAnchor] = useState<{ left: number; top: number }>();
+  const formatCapture = useRef<{ ranges: readonly ModernTextRange[] } | undefined>(undefined);
   const fields = useRef(new Map<string, HTMLElement>()), selected = useRef<ModernTextRange | undefined>(undefined), drag = useRef<ModernNodes | undefined>(undefined), drop = useRef<ModernBoundary | undefined>(undefined);
   const viewport = useRef<HTMLDivElement>(null), [width, setWidth] = useState(680);
   const readOnly = !!props.readOnly || !!snapshot.recovery;
@@ -285,7 +287,17 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     document.addEventListener("selectionchange", changed); return () => document.removeEventListener("selectionchange", changed);
   }, [session]);
   function selectedTarget(): { ranges: readonly ModernTextRange[] } { return { ranges: textSpan.length ? textSpan : selected.current ? [selected.current] : [] }; }
-  function formattingState(mark: string): "on" | "off" | "mixed" { try { const ranges = selectedTarget().ranges; return ranges.length ? session.markState(ranges, mark) : "off"; } catch { return "off"; } }
+  function captureFormatting(open: boolean): void {
+    if (!open) { formatCapture.current = undefined; setFormatAnchor(undefined); return; }
+    formatCapture.current = selectedTarget();
+    const selection = document.getSelection();
+    const rect = selection?.rangeCount ? selection.getRangeAt(0).getBoundingClientRect() : undefined;
+    if (rect && window.matchMedia("(pointer: fine)").matches) setFormatAnchor({
+      left: Math.max(8, Math.min(window.innerWidth - 328, rect.left)),
+      top: Math.max(8, Math.min(window.innerHeight - 160, rect.bottom + 8)),
+    });
+  }
+  function formattingState(mark: string): "on" | "off" | "mixed" { try { const ranges = (formatCapture.current ?? selectedTarget()).ranges; return ranges.length ? session.markState(ranges, mark) : "off"; } catch { return "off"; } }
   function palette(): ReactNode {
     const target: ModernSemanticTarget | undefined = nodes ? { nodes } : selected.current ? { range: selected.current } : undefined;
     return (["ink", "fill"] as const).map(kind => {
@@ -499,7 +511,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
         <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
         <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><details><summary>Color</summary>{palette()}</details><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
         <button disabled={readOnly} onClick={() => safe(() => { setMenu({ boundary: selected.current ? session.captureInsertionBoundary(selected.current.start.field) : session.captureBoundary({ field: "blocks" }, session.nodes().at(-1)), query: "", index: 0 }); })}>Insert</button>
-        <details className="modern-format-menu"><summary>Format</summary><div>{["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { if (selected.current) execute({ command: "format", target: textSpan.length ? { ranges: textSpan } : selected.current, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
+        <details className="modern-format-menu" onToggle={event => captureFormatting(event.currentTarget.open)}><summary>Format</summary><div style={formatAnchor ? { position: "fixed", left: formatAnchor.left, top: formatAnchor.top, bottom: "auto" } : undefined}>{["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { const target = formatCapture.current ?? selectedTarget(); if (target.ranges.length) execute({ command: "format", target, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
         <button disabled={readOnly || !selected.current} onClick={() => { if (selected.current) setLink({ range: selected.current, query: "", internal: false }); }}>Link</button>
         <button disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button>
         <details><summary>More</summary><button disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{palette()}</details>

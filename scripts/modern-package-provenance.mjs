@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
-import { sourceInputs } from "./record-modern-build.mjs";
+import { sourceInputs, sameSourceInputs } from "./record-modern-build.mjs";
 
 const manifest = JSON.parse(readFileSync("package.json", "utf8"));
 if (manifest.version !== "0.2.0") throw new Error("Unexpected modern candidate version");
@@ -11,7 +11,7 @@ const sourceFiles = sourceInputs();
 const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 const builds = ["wasm", "javascript"].map(runtime => {
   const receipt = JSON.parse(readFileSync(`dist/modern-build-${runtime}.json`, "utf8"));
-  if (!receipt.sourceClean || receipt.sourceCommit !== sourceCommit || JSON.stringify(receipt.sourceInputs) !== JSON.stringify(sourceFiles)) throw new Error(`Rebuild ${runtime} from the frozen candidate before recording provenance`);
+  if (!receipt.sourceClean || receipt.sourceCommit !== sourceCommit || !sameSourceInputs(receipt.sourceInputs, sourceFiles)) throw new Error(`Rebuild ${runtime} from the frozen candidate before recording provenance (clean=${receipt.sourceClean}, commit=${receipt.sourceCommit}, sourceInputsMatch=${sameSourceInputs(receipt.sourceInputs, sourceFiles)})`);
   for (const [path, expected] of Object.entries(receipt.artifacts)) if (digest(readFileSync(path)) !== expected) throw new Error(`Stale ${runtime} artifact: ${path}`);
   return receipt;
 });

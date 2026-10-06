@@ -1,0 +1,14 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Examples/AppleDemo/EditorLab.xcodeproj -scheme EditorLab-iOS -destination "platform=iOS Simulator,id=C5F014E4-2673-4B4D-97D1-E8A09E0C4398" -derivedDataPath .build/modern-apple-candidate CODE_SIGNING_ALLOWED=NO "-only-testing:EditorLab-iOS-UITests/ModernEditingTests" test
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BlockEditor: /Users/luca/Developer/block-editor
+
+2026-10-06 03:42:50.625 xcodebuild[54517:18763169] Writing error result bundle to /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/ResultBundle_2026-06-10_03-42-0050.xcresult
+xcodebuild: error: Failed to build project EditorLab with scheme EditorLab-iOS.: Tests in the target “EditorLab-iOS-UITests” can’t be run because “EditorLab-iOS-UITests” isn’t a member of the specified test plan or scheme.
