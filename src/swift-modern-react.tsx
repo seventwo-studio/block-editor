@@ -218,7 +218,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [split, setSplit] = useState<Record<string, number>>({}), [focused, setFocused] = useState<ModernPosition>();
   const [textSpan, setTextSpan] = useState<readonly ModernTextRange[]>([]), [, redrawSelection] = useState(0);
-  const fields = useRef(new Map<string, HTMLElement>()), selected = useRef<ModernTextRange | undefined>(undefined), drag = useRef<ModernNodes | undefined>(undefined);
+  const fields = useRef(new Map<string, HTMLElement>()), selected = useRef<ModernTextRange | undefined>(undefined), drag = useRef<ModernNodes | undefined>(undefined), drop = useRef<ModernBoundary | undefined>(undefined);
   const viewport = useRef<HTMLDivElement>(null), [width, setWidth] = useState(680);
   const readOnly = !!props.readOnly || !!snapshot.recovery;
   const report = (failure: unknown) => { setError(String(failure)); props.onError?.(failure); };
@@ -350,11 +350,16 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
         }
       }); return true;
     }
-    if (event.shiftKey && !("document" in field.node)) {
-      safe(() => { const siblings = session.nodes(parent(field.node)), index = siblings.findIndex(id => key(id) === key(field.node)), other = siblings[index + (backward ? -1 : 1)]; if (other) setNodes(session.captureNodes(backward ? [other, field.node] : [field.node, other])); }); return true;
-    }
     const visibleFields = session.logicalFields().filter(value => fields.current.has(key(value))), index = visibleFields.findIndex(value => key(value) === key(field)), next = visibleFields[index + (backward ? -1 : 1)];
     if (!next) return false;
+    if (event.shiftKey && !("document" in field.node) && !("document" in next.node)) {
+      safe(() => {
+        const ranges = session.captureTextSpan(range.start, session.position(next, backward ? session.text(next).length : 0));
+        setTextSpan(ranges); selected.current = ranges.at(-1); restoreSpan(ranges);
+        session.setLocalSelection({ documentID: range.start.documentID, epoch: range.start.epoch, observed: ranges[0].observed,
+          focus: { text: { _0: backward ? ranges[0].end : ranges.at(-1)!.end } }, selection: { mixed: { _0: { ranges } } } });
+      }); return true;
+    }
     setFocused(session.position(next, backward ? session.text(next).length : 0)); return true;
   }
   function firstEditable(values: readonly ModernObject[], path: string[], rootID?: string): ModernField | undefined {
@@ -449,12 +454,14 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       else if (["paragraph", "heading", "quote", "callout"].includes(type)) content = input(node, "content", array(value.content), type === "heading" ? "Heading" : "Block text");
       else content = <p role="status">Unsupported content preserved</p>;
       return <div key={nodeKey} id={`modern-${encodeURIComponent(nodeKey)}`} data-block-type={type} data-level={value.level} data-ink={value.semanticColor} data-fill={value.semanticBackground}
-        className={`modern-block ${nodes?.nodes.some(id => key(id) === nodeKey) ? "modern-selected" : ""}`} draggable={!readOnly}
+        className={`modern-block ${nodes?.nodes.some(id => key(id) === nodeKey) ? "modern-selected" : ""}`}
         onDragStart={event => { event.stopPropagation(); drag.current = session.captureNodes(nodes?.nodes.some(id => key(id) === nodeKey) ? nodes.nodes : [node]); event.dataTransfer.setData("text/plain", "modern-local-move"); }}
-        onDragOver={event => { if (!drag.current) return; event.preventDefault(); event.currentTarget.dataset.drop = "true"; const top = viewport.current?.getBoundingClientRect().top ?? 0; if (event.clientY < top + 48) viewport.current?.scrollBy(0, -16); else if (event.clientY > (viewport.current?.getBoundingClientRect().bottom ?? 0) - 48) viewport.current?.scrollBy(0, 16); }}
-        onDragLeave={event => { delete event.currentTarget.dataset.drop; }} onDragEnd={() => { drag.current = undefined; viewport.current?.querySelectorAll("[data-drop]").forEach(element => element.removeAttribute("data-drop")); }}
-        onDrop={event => { if (!drag.current) return; event.preventDefault(); event.stopPropagation(); const selection = drag.current; drag.current = undefined; delete event.currentTarget.dataset.drop; safe(() => execute({ command: "move", target: { selection, boundary: session.captureBoundary(collection, node) }, arguments: {} })); }}>
-        <button className="modern-handle" aria-label="Select block" onClick={event => selectedBlocks(node, event.shiftKey)}>⋮⋮</button>{content}
+        onDragOver={event => { if (!drag.current) return; event.preventDefault(); event.stopPropagation(); const bounds = event.currentTarget.getBoundingClientRect(), before = event.clientY < bounds.top + bounds.height / 2;
+          safe(() => { const siblings = session.nodes(collection), index = siblings.findIndex(value => key(value) === nodeKey); drop.current = session.captureBoundary(collection, before ? siblings[index - 1] : node); });
+          event.currentTarget.dataset.drop = before ? "before" : "after"; const top = viewport.current?.getBoundingClientRect().top ?? 0; if (event.clientY < top + 48) viewport.current?.scrollBy(0, -16); else if (event.clientY > (viewport.current?.getBoundingClientRect().bottom ?? 0) - 48) viewport.current?.scrollBy(0, 16); }}
+        onDragLeave={event => { delete event.currentTarget.dataset.drop; }} onDragEnd={() => { drag.current = undefined; drop.current = undefined; viewport.current?.querySelectorAll("[data-drop]").forEach(element => element.removeAttribute("data-drop")); }}
+        onDrop={event => { if (!drag.current || !drop.current) return; event.preventDefault(); event.stopPropagation(); const selection = drag.current, boundary = drop.current; drag.current = undefined; drop.current = undefined; delete event.currentTarget.dataset.drop; safe(() => execute({ command: "move", target: { selection, boundary }, arguments: {} })); }}>
+        <button className="modern-handle" draggable={!readOnly} aria-label="Select block" onClick={event => selectedBlocks(node, event.shiftKey)}>⋮⋮</button>{content}
       </div>;
     });
   }
@@ -483,10 +490,10 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
         <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
         <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
         <button disabled={readOnly} onClick={() => safe(() => { const node = selected.current?.start.field.node, collection = node && !("document" in node) ? parent(node) : { field: "blocks" } as ModernCollection; setMenu({ boundary: session.captureBoundary(collection, node && !("document" in node) ? node : session.nodes(collection).at(-1)), query: "", index: 0 }); })}>Insert</button>
-        {["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { if (selected.current) execute({ command: "format", target: textSpan.length ? { ranges: textSpan } : selected.current, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}
+        <details className="modern-format-menu"><summary>Format</summary><div>{["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { if (selected.current) execute({ command: "format", target: textSpan.length ? { ranges: textSpan } : selected.current, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
         <button disabled={readOnly || !selected.current} onClick={() => { if (selected.current) setLink({ range: selected.current, query: "", internal: false }); }}>Link</button>
-        <button disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button><button disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button>
-        <details><summary>More</summary><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{(["ink", "fill"] as const).map(kind => <details key={kind}><summary>{kind === "ink" ? "Text color" : "Background"}</summary>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button key={role} disabled={readOnly} onClick={() => { if (selected.current) execute({ command: "setSemanticColor", target: { range: selected.current }, arguments: { kind, role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>)}</details>
+        <button disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button>
+        <details><summary>More</summary><button disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button><button onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{(["ink", "fill"] as const).map(kind => <details key={kind}><summary>{kind === "ink" ? "Text color" : "Background"}</summary>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button key={role} disabled={readOnly} onClick={() => { if (selected.current) execute({ command: "setSemanticColor", target: { range: selected.current }, arguments: { kind, role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>)}</details>
       </>}{focusMode && <button onClick={() => setFocusMode(false)}>Leave focus mode</button>}
     </div>
     {menu && <div className="modern-picker" role="dialog" aria-label="Insert block" style={{ left: menu.anchor ? Math.max(8, Math.min(window.innerWidth - 300, menu.anchor.left)) : 16, top: menu.anchor ? Math.max(8, Math.min(window.innerHeight - 440, menu.anchor.bottom)) : 64 }}>

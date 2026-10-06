@@ -40,6 +40,26 @@ admission. Host restrictions never remove existing blocks or marks. Clipboard
 and provider failures retain their original destination. An unsupported rich
 paste requires an explicit plain-text choice.
 
+## Foliostrate Help consumer boundary
+
+At Foliostrate source `d8c171f77bf576008fc4e0043aa67a6c11d230c9`,
+`packages/help/content.ts` accepts a strict block-array subset; its translation
+endpoint accepts `{title, body, expectedVersion}`. That API does not accept the
+modern envelope, columns, tables, toggles, callouts, checklists, internal references
+or semantic colors. `apps/dashboard/src/components/HelpEditor.tsx` currently uses
+the legacy React surface and retains application-owned save/conflict and image
+authorization behavior.
+
+Use the runnable modern Help example to begin local integration. Keep its paired
+protocol-7 checkpoint separate from server draft projection. Foliostrate must
+validate any server projection against its own current schema and retain the
+complete local document when projection fails; never strip richer content to
+make a request succeed. Before enabling richer server-authored Help, its API and
+public renderer need an explicit versioned contract update in Foliostrate's
+consumer work. Preserve `expectedVersion`, uncertain-save reconciliation, draft
+navigation guards, authenticated image resolution and separate publication.
+This package does not change those application contracts or deploy Foliostrate.
+
 ## Apple and Android
 
 Apple: create `ModernEditorModel(session:)` and render `ModernBlockEditorView`.

@@ -22,7 +22,7 @@ test('modern integrated editor preserves local writing through blocks, columns a
   await page.getByLabel('Code language').selectOption('swift');
   await page.getByRole('button', { name: 'Insert', exact: true }).click();
   await page.getByRole('textbox', { name: 'Search blocks' }).fill('table');
-  await page.getByRole('option', { name: /Table/ }).click();
+  await page.getByRole('option', { name: /Simple table/ }).click();
   await page.getByRole('textbox', { name: 'Table header', exact: true }).first().fill('Header');
   await page.getByRole('textbox', { name: 'Table cell', exact: true }).first().fill('Cell 😀');
   await page.getByRole('button', { name: 'Insert', exact: true }).click();
@@ -47,7 +47,7 @@ test('cancelled slash query and app-owned media insertion retain the original ed
   await page.getByRole('textbox', { name: 'Search blocks' }).press('Escape');
   await expect(body).toHaveText('/imag'); await expect(body).toBeFocused();
   await body.fill('/image'); await page.getByRole('option', { name: /Image/ }).click();
-  await page.getByLabel('Choose local asset').setInputFiles({ name: 'tiny.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64') });
+  await page.getByLabel('Choose local asset').setInputFiles({ name: 'tiny.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64') });
   await expect(page.getByRole('img')).toBeVisible();
   await page.getByRole('textbox', { name: 'Image caption', exact: true }).fill('Local caption 😀');
   await page.getByRole('button', { name: 'Save and retain local input' }).click(); await page.reload();

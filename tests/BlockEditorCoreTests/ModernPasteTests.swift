@@ -37,6 +37,7 @@ import Testing
             try s.undo(); #expect(try s.text(in: field) == "/code")
             try s.redo(); #expect(s.localSelection?.focus == result.focus)
             let restored = try ModernSession.restore(s.save(), actorID: "a")
+            try restored.restoreHistorySelection(s.exportHistorySelection())
             #expect(restored.localSelection?.focus == result.focus)
         }
     }

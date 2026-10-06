@@ -20,14 +20,16 @@ import java.util.UUID
 @Composable fun ModernDemo() {
     val context = LocalContext.current; val scope = rememberCoroutineScope()
     var asset by remember { mutableStateOf<Pair<String, CompletableDeferred<ModernPayload>>?>(null) }
+    var allowPlainLink by remember { mutableStateOf(false) }
     var previewURL by remember { mutableStateOf("") }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         val original = asset ?: return@rememberLauncherForActivityResult
         if (uri == null) { original.second.completeExceptionally(kotlinx.coroutines.CancellationException("Asset selection cancelled")); asset = null }
         else scope.launch { try { original.second.complete(storeModernAsset(context, uri, original.first)) } catch (failure: Throwable) { original.second.completeExceptionally(failure) } finally { if (asset === original) asset = null } }
     }
-    suspend fun chooseAsset(kind: String): ModernPayload {
+    suspend fun chooseAsset(kind: String, plainLink: Boolean = false): ModernPayload {
         check(asset == null) { "Asset picker busy" }; val pending = CompletableDeferred<ModernPayload>(); asset = kind to pending
+        allowPlainLink = plainLink
         if (kind != "embed") picker.launch(arrayOf(if (kind == "image") "image/*" else "*/*"))
         return pending.await()
     }
@@ -63,9 +65,12 @@ import java.util.UUID
             suggestLinks = { query -> listOf(ModernLinkSuggestion("getting-started", "help", "Getting started")).filter { it.label.contains(query, true) || query.isEmpty() } },
             insertAssetSelection = { descriptor, boundary, range -> scope.launch {
                 try {
-                    val metadata = chooseAsset(descriptor.blockType).export()
-                    check(editor.host.active && !editor.host.readOnly) { "Original document inactive" }
-                    metadata.put("id", UUID.randomUUID().toString()).put("type", descriptor.blockType)
+                    val isCurrent = editor.host.captureInvocation()
+                    var metadata = chooseAsset(descriptor.blockType, descriptor.blockType == "embed").export()
+                    check(isCurrent()) { "Original document inactive" }
+                    val plain = metadata.optBoolean("plainLink", false); metadata.remove("plainLink")
+                    if (plain) { val url = metadata.getString("url"); metadata = JSONObject().put("content", JSONArray().put(JSONObject().put("type", "text").put("text", url).put("marks", JSONArray().put(JSONObject().put("type", "link").put("href", url))))) }
+                    metadata.put("id", UUID.randomUUID().toString()).put("type", if (plain) "paragraph" else descriptor.blockType)
                     if (descriptor.blockType == "image") metadata.put("caption", JSONArray())
                     val payload = editor.session.clipboardParts(JSONArray().put(JSONObject().put("node", JSONObject().put("kind", "block").put("value", metadata))))
                     val target = range?.let { ModernPasteTarget.Range(it) } ?: ModernPasteTarget.Boundary(boundary)
@@ -75,7 +80,10 @@ import java.util.UUID
         ) }
         asset?.takeIf { it.first == "embed" }?.let { request -> AlertDialog(onDismissRequest = { request.second.completeExceptionally(kotlinx.coroutines.CancellationException()); asset = null },
             title = { Text("Application preview") }, text = { TextField(value = previewURL, onValueChange = { previewURL = it }, label = { Text("URL") }) },
-            confirmButton = { TextButton(onClick = { request.second.complete(ModernPayload.restore(JSONObject().put("url", previewURL).put("title", previewURL))); asset = null }) { Text("Use preview") } },
+            confirmButton = { Column {
+                TextButton(onClick = { request.second.complete(ModernPayload.restore(JSONObject().put("url", previewURL).put("title", previewURL))); asset = null }) { Text("Use preview") }
+                if (allowPlainLink) TextButton(onClick = { request.second.complete(ModernPayload.restore(JSONObject().put("url", previewURL).put("plainLink", true))); asset = null }) { Text("Use plain link") }
+            } },
             dismissButton = { TextButton(onClick = { request.second.completeExceptionally(kotlinx.coroutines.CancellationException()); asset = null }) { Text("Cancel") } }) }
         failure?.let { Text("Could not complete the editor action: $it"); if (state == null) TextButton(onClick = { retry++ }) { Text("Retry opening") } }
     }

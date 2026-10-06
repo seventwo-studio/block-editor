@@ -7,14 +7,14 @@ import ImageIO
 /// Application-owned local asset example. The editor only stores inert asset
 /// references; this host bounds, persists and resolves the original file bytes.
 @MainActor @Observable final class ModernExampleAssets {
-    struct Request: Identifiable { let id = UUID(); let kind: String }
+    struct Request: Identifiable { let id = UUID(); let kind: String; let allowPlainLink: Bool }
     var request: Request?
     let directory: URL
     @ObservationIgnored private var continuation: CheckedContinuation<[String: JSONValue], any Error>?
     init(directory: URL) { self.directory = directory }
-    func choose(kind: String) async throws -> [String: JSONValue] {
+    func choose(kind: String, allowPlainLink: Bool = false) async throws -> [String: JSONValue] {
         guard request == nil else { throw ModernSessionError.unavailable("assetPickerBusy") }
-        return try await withCheckedThrowingContinuation { continuation = $0; request = Request(kind: kind) }
+        return try await withCheckedThrowingContinuation { continuation = $0; request = Request(kind: kind, allowPlainLink: allowPlainLink) }
     }
     func cancel() { continuation?.resume(throwing: CancellationError()); continuation = nil; request = nil }
     func finish(_ metadata: [String: JSONValue]) { continuation?.resume(returning: metadata); continuation = nil; request = nil }

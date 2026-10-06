@@ -41,9 +41,11 @@ public struct ModernEditorDemoView: View {
                 }, insertAssetSelection: { descriptor, boundary, range in
                     guard let assets else { return }; let generation = model.invocationGeneration
                     Task { @MainActor in do {
-                        var metadata = try await assets.choose(kind: descriptor.blockType)
+                        var metadata = try await assets.choose(kind: descriptor.blockType, allowPlainLink: descriptor.blockType == "embed")
                         guard model.isActive, model.isEditable, generation == model.invocationGeneration else { throw ModernSessionError.unavailable("originalDocumentInactive") }
-                        metadata["id"] = .string(UUID().uuidString); metadata["type"] = .string(descriptor.blockType)
+                        let plainLink = metadata.removeValue(forKey: "plainLink") == .bool(true)
+                        if plainLink, let url = metadata["url"]?.string { metadata = ["content": .array([.object(["type": .string("text"), "text": .string(url), "marks": .array([.object(["type": .string("link"), "href": .string(url)])])])])] }
+                        metadata["id"] = .string(UUID().uuidString); metadata["type"] = .string(plainLink ? "paragraph" : descriptor.blockType)
                         if descriptor.blockType == "image" { metadata["caption"] = .array([]) }
                         try model.perform { try $0.paste(ModernClipboard(parts: [.node(value: .object(metadata), kind: "block")]), at: range.map { .init(range: $0) } ?? .init(boundary: boundary), policy: WritingPastePolicy(allowAssetMetadata: true)).focus }
                         try await persistence?.save()
@@ -56,12 +58,23 @@ public struct ModernEditorDemoView: View {
                     switch result { case .success(let url): assets?.importFile(url); case .failure: assets?.cancel() }
                 }
                 .sheet(isPresented: Binding(get: { assets?.request?.kind == "embed" }, set: { if !$0 { assets?.cancel() } })) {
-                    VStack { TextField("Preview URL", text: $previewURL); Button("Use preview") { assets?.finish(["url": .string(previewURL), "title": .string(previewURL)]) }; Button("Cancel") { assets?.cancel() } }.padding()
+                    VStack {
+                        TextField("Preview URL", text: $previewURL)
+                        Button("Use preview") { assets?.finish(["url": .string(previewURL), "title": .string(previewURL)]) }
+                        if assets?.request?.allowPlainLink == true { Button("Use plain link") { assets?.finish(["url": .string(previewURL), "plainLink": .bool(true)]) } }
+                        Button("Cancel") { assets?.cancel() }
+                    }.padding()
                 }
                 #else
                 ModernBlockEditorView(model: model)
                 #endif
-                if let failure { Text(failure).foregroundStyle(.red).textSelection(.enabled) }
+                if let failure {
+                    #if os(macOS) || os(iOS) || os(visionOS)
+                    Text(failure).foregroundStyle(.red).textSelection(.enabled)
+                    #else
+                    Text(failure).foregroundStyle(.red)
+                    #endif
+                }
             } else if let failure { VStack { Text("The saved editor could not open. \(failure)"); Button("Retry opening") { Task { await open() } } }.padding() }
             else { ProgressView("Opening modern editor…").task { await open() } }
         }.onDisappear { model?.isActive = false

@@ -149,6 +149,10 @@ export class ModernBrowserHost {
   private tail: Promise<void> = Promise.resolve();
   constructor(readonly session: SwiftModernSession, readonly actorID: string, private readonly store: ModernBrowserStore, private readonly key: string, loadedRevision?: string) { this.revision = loadedRevision; }
   setActive(active: boolean): void { if (active !== this.active) { this.active = active; this.generation++; } }
+  captureInvocation(): () => boolean {
+    const generation = this.generation;
+    return () => this.active && !this.readOnly && generation === this.generation;
+  }
   checkpoint(): ModernBrowserCheckpoint {
     const scope = this.session.getSnapshot().syncState;
     const pair: ModernBrowserCheckpoint = { version: 1, revision: crypto.randomUUID(), documentID: scope.documentID, actorID: this.actorID, epoch: scope.epoch,

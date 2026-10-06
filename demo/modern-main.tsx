@@ -9,7 +9,7 @@ import "../src/swift-modern.css";
 
 function App() {
   const [host, setHost] = useState<ModernBrowserHost>(), [error, setError] = useState<string>(), [failure, setFailure] = useState<string>(), [retry, setRetry] = useState(0);
-  const [asset, setAsset] = useState<{ host: ModernBrowserHost; descriptor?: ModernInsertionDescriptor; boundary?: ModernBoundary; range?: ModernTextRange; replacement?: ModernAsyncTarget; finish?: (value: ModernObject) => void; cancel?: (reason: Error) => void }>();
+  const [asset, setAsset] = useState<{ host: ModernBrowserHost; isCurrent: () => boolean; descriptor?: ModernInsertionDescriptor; boundary?: ModernBoundary; range?: ModernTextRange; replacement?: ModernAsyncTarget; finish?: (value: ModernObject) => void; cancel?: (reason: Error) => void }>();
   const [resume, setResume] = useState<(() => void)>();
   const resolveMedia = useCallback(async (_node: unknown, value: ModernObject, signal: AbortSignal) => {
     if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
@@ -33,7 +33,7 @@ function App() {
     return () => { disposed = true; active?.setActive(false); active?.session.close(); };
   }, [retry]);
   async function insertAsset(metadata: ModernObject, plainLink = false): Promise<void> {
-    if (!asset || !asset.host.active || asset.host.readOnly) throw new Error("The original document is no longer active");
+    if (!asset || !asset.isCurrent()) throw new Error("The original document is no longer active");
     if (asset.finish) { asset.finish(metadata); setAsset(undefined); return; }
     const kind = asset.descriptor?.blockType;
     if (!plainLink && !kind) throw new Error("Original insertion kind unavailable");
@@ -49,8 +49,8 @@ function App() {
   return <div style={{ height: "100dvh" }}><button onClick={() => host.save().catch(failure => setFailure(String(failure)))}>Save and retain local input</button>
     {resume && <button onClick={() => { resume(); setResume(undefined); }}>Resume retained peer changes</button>}
     <SwiftModernBlockEditor session={host.session} host={host} onError={failure => setFailure(String(failure))}
-      onInsertAsset={(descriptor, boundary, range) => { setURL(""); setAsset({ host, descriptor, boundary, range }); }}
-      requestMediaReplacement={target => new Promise((finish, cancel) => { setAsset({ host, replacement: target, finish, cancel }); })}
+      onInsertAsset={(descriptor, boundary, range) => { setURL(""); setAsset({ host, isCurrent: host.captureInvocation(), descriptor, boundary, range }); }}
+      requestMediaReplacement={target => new Promise((finish, cancel) => { setAsset({ host, isCurrent: host.captureInvocation(), replacement: target, finish, cancel }); })}
       resolveMedia={resolveMedia}
       suggestLinks={async query => [{ id: "help-getting-started", type: "help", label: "Getting started", availability: "available" as const }].filter(item => item.label.toLowerCase().includes(query.toLowerCase()))}
       onOpenReference={(id, type) => setFailure(`Application navigation hook: ${type}/${id}`)} />

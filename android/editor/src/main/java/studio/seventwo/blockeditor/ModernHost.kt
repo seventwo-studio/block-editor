@@ -71,6 +71,10 @@ class ModernAndroidHost(val session: ModernSession, val actorID: String, private
     private var revision = loadedRevision
     private val saves = Mutex()
     fun setActive(value: Boolean) { if (active != value) { active = value; generation++ } }
+    fun captureInvocation(): () -> Boolean {
+        val captured = generation
+        return { active && !readOnly && generation == captured }
+    }
     fun checkpoint(): JSONObject = modernObject("version" to 1, "revision" to UUID.randomUUID().toString(), "actorID" to actorID,
         "documentID" to session.snapshot.syncState.documentID, "epoch" to session.snapshot.syncState.epoch,
         "accepted" to session.save(), "historySelection" to session.exportHistorySelection(), "providers" to session.exportAsyncRequests(),
