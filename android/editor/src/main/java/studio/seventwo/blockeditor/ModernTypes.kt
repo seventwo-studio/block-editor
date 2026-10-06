@@ -45,6 +45,9 @@ class ModernNodeID private constructor(value: JSONObject) : ModernValue(value) {
 data class ModernField(val node: ModernNodeID, val name: String) { internal fun wire() = modernObject("node" to node, "name" to name) }
 enum class ModernCollectionField(val wireValue: String) { CHILDREN("children"), COLUMNS("columns"), ITEMS("items"), ROWS("rows"), CELLS("cells") }
 sealed class ModernCollection {
+    companion object {
+        fun restore(value: JSONObject): ModernCollection = if (value.getString("field") == "blocks") Blocks else Owned(ModernNodeID.restore(value.getJSONObject("owner")), ModernCollectionField.entries.first { it.wireValue == value.getString("field") })
+    }
     internal abstract fun wire(): JSONObject
     data object Blocks : ModernCollection() { override fun wire() = modernObject("field" to "blocks") }
     data class Owned(val owner: ModernNodeID, val field: ModernCollectionField) : ModernCollection() {
@@ -156,14 +159,24 @@ class ModernCutPreparation internal constructor(value: JSONObject) : ModernValue
     val clipboard get() = ModernClipboard.restore(objectValue("clipboard"))
 }
 enum class ModernListAction(val wireValue: String) { INDENT("indent"), OUTDENT("outdent"), REORDER("reorder"), SET_STYLE("setStyle"), SET_CHECKED("setChecked") }
+enum class ModernTableAction(val wireValue: String) { INSERT_ROW("insertRow"), REMOVE_ROW("removeRow"), INSERT_COLUMN("insertColumn"), REMOVE_COLUMN("removeColumn"), SET_HEADER("setHeader") }
+class ModernTableTarget internal constructor(value: JSONObject) : ModernValue(value)
+class ModernCodeTarget internal constructor(value: JSONObject) : ModernValue(value)
+class ModernMediaTarget internal constructor(value: JSONObject) : ModernValue(value)
+class ModernAvailability internal constructor(value: JSONObject) : ModernValue(value) { val available get() = boolean("available"); val reason get() = optionalString("reason") }
+class ModernInsertionDescriptor internal constructor(value: JSONObject) : ModernValue(value) {
+    val id get() = string("id"); val title get() = string("title"); val description get() = string("description"); val blockType get() = string("blockType"); val requiresHost get() = boolean("requiresHost")
+}
 enum class ModernCommandName(val wireValue: String) {
     REPLACE_TEXT("replaceText"), REPLACE_TITLE("replaceTitle"), SET_APPEARANCE("setAppearance"), FORMAT("format"), INSERT_BLOCK("insertBlock"), DUPLICATE("duplicate"), PASTE("paste"), MOVE("move"), DELETE("delete"),
-    CREATE_COLUMNS("createColumns"), REMOVE_COLUMNS("removeColumns"), RESIZE_COLUMNS("resizeColumns"), CONVERT_BLOCK("convertBlock"), SOFT_BREAK("softBreak"), SPLIT_BLOCK("splitBlock"), MERGE_BLOCKS("mergeBlocks"),
-    LIST_STRUCTURE("listStructure"), SET_SEMANTIC_COLOR("setSemanticColor"), SET_LINK("setLink"), COMPLETE_ASYNC_BLOCK("completeAsyncBlock"), UNDO("undo"), REDO("redo")
+    CREATE_COLUMNS("createColumns"), REMOVE_COLUMNS("removeColumns"), RESIZE_COLUMNS("resizeColumns"), CONVERT_BLOCK("convertBlock"), SOFT_BREAK("softBreak"), TYPING_SHORTCUT("typingShortcut"), SPLIT_BLOCK("splitBlock"), MERGE_BLOCKS("mergeBlocks"),
+    CODE_PROPERTIES("codeProperties"), TABLE_STRUCTURE("tableStructure"), MEDIA_PROPERTIES("mediaProperties"), LIST_STRUCTURE("listStructure"), SET_SEMANTIC_COLOR("setSemanticColor"), SET_LINK("setLink"), COMPLETE_ASYNC_BLOCK("completeAsyncBlock"), UNDO("undo"), REDO("redo")
 }
-data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val allowedListActions: Set<ModernListAction>? = null) {
+data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val allowedListActions: Set<ModernListAction>? = null, val allowedBlockTypes: Set<String>? = null, val allowedMarkTypes: Set<String>? = null) {
     internal fun apply(value: JSONObject) {
         allowedCommands?.let { value.put("allowedCommands", JSONArray(it.map { it.wireValue }.sorted())) }
+        allowedBlockTypes?.let { value.put("allowedBlockTypes", JSONArray(it.sorted())) }
+        allowedMarkTypes?.let { value.put("allowedMarkTypes", JSONArray(it.sorted())) }
         allowedListActions?.let { value.put("allowedListActions", JSONArray(it.map { it.wireValue }.sorted())) }
     }
 }
@@ -201,6 +214,12 @@ data class ModernPastePolicy(val allowedBlockTypes: Set<String>? = null, val all
     }
 }
 sealed class ModernPasteTarget {
+    companion object {
+        fun restore(value: JSONObject): ModernPasteTarget = if (value.has("range")) Range(ModernTextRange.restore(value.getJSONObject("range"))) else Boundary(ModernBoundary.restore(value.getJSONObject("boundary")), value.optJSONObject("selection")?.let { selected ->
+            val ranges = selected.optJSONArray("ranges") ?: JSONArray()
+            ModernDeleteTarget(selected.optJSONObject("nodes")?.let { ModernNodes.restore(it) }, (0 until ranges.length()).map { ModernTextRange.restore(ranges.getJSONObject(it)) })
+        })
+    }
     internal abstract fun wire(): JSONObject
     data class Range(val range: ModernTextRange) : ModernPasteTarget() { override fun wire() = modernObject("range" to range) }
     data class Boundary(val boundary: ModernBoundary, val selection: ModernDeleteTarget? = null) : ModernPasteTarget() {
@@ -268,6 +287,9 @@ sealed class ModernCommand(val name: ModernCommandName) {
     class Format(val range: ModernTextRange, val markType: String, val mark: ModernPayload?) : Author(ModernCommandName.FORMAT) {
         override fun target() = range.export(); override fun arguments() = modernObject("markType" to markType, "mark" to mark)
     }
+    class FormatSpan(val ranges: List<ModernTextRange>, val markType: String, val mark: ModernPayload?) : Author(ModernCommandName.FORMAT) {
+        override fun target() = modernObject("ranges" to JSONArray(ranges.map { it.export() })); override fun arguments() = modernObject("markType" to markType, "mark" to mark)
+    }
     class InsertBlock(val boundary: ModernBoundary, val block: ModernPayload) : Author(ModernCommandName.INSERT_BLOCK) {
         override fun target() = boundary.export(); override fun arguments() = modernObject("block" to block)
     }
@@ -286,12 +308,21 @@ sealed class ModernCommand(val name: ModernCommandName) {
     class RemoveColumns(val column: ModernColumnTarget) : Author(ModernCommandName.REMOVE_COLUMNS) { override fun target() = column.wire(); override fun arguments() = JSONObject() }
     class ResizeColumns(val column: ModernColumnTarget, val splitBasisPoints: Int) : Author(ModernCommandName.RESIZE_COLUMNS) { override fun target() = column.wire(); override fun arguments() = modernObject("splitBasisPoints" to splitBasisPoints) }
     class ConvertBlock(val range: ModernTextRange, val conversion: ModernBlockConversion) : Author(ModernCommandName.CONVERT_BLOCK) { override fun target() = range.export(); override fun arguments() = conversion.wire() }
+    class TypingShortcut(val range: ModernTextRange) : Author(ModernCommandName.TYPING_SHORTCUT) { override fun target() = range.export(); override fun arguments() = JSONObject() }
     class SoftBreak(val range: ModernTextRange) : Author(ModernCommandName.SOFT_BREAK) { override fun target() = range.export(); override fun arguments() = JSONObject() }
     class SplitBlock(val range: ModernTextRange, val newBlockID: String) : Author(ModernCommandName.SPLIT_BLOCK) { override fun target() = range.export(); override fun arguments() = modernObject("newBlockID" to newBlockID) }
+    class CodeProperties(val target: ModernCodeTarget, val language: String?) : Author(ModernCommandName.CODE_PROPERTIES) { override fun target() = target.export(); override fun arguments() = modernObject("language" to language) }
     class MergeBlocks(val selection: ModernNodes) : Author(ModernCommandName.MERGE_BLOCKS) { override fun target() = selection.export(); override fun arguments() = JSONObject() }
     class ListStructure(val list: ModernListTarget, val operation: ModernListOperation) : Author(ModernCommandName.LIST_STRUCTURE) { override fun target() = list.wire(); override fun arguments() = operation.wire() }
     class SetSemanticColor(val selection: ModernSemanticTarget, val kind: ModernSemanticKind, val role: ModernSemanticRole?) : Author(ModernCommandName.SET_SEMANTIC_COLOR) { override fun target() = selection.wire(); override fun arguments() = modernObject("kind" to kind.wireValue, "role" to role?.wireValue) }
     class SetLink(val range: ModernTextRange, val href: String?, val label: String? = null) : Author(ModernCommandName.SET_LINK) { override fun target() = range.export(); override fun arguments() = modernObject("href" to href).also { value -> label?.let { value.put("label", it) } } }
+    class TableStructure(val table: ModernTableTarget, val action: ModernTableAction, val newIDs: List<String> = emptyList(), val header: Boolean? = null) : Author(ModernCommandName.TABLE_STRUCTURE) {
+        override fun target() = table.export()
+        override fun arguments() = modernObject("action" to action.wireValue, "newIDs" to JSONArray(newIDs)).also { value -> header?.let { value.put("header", it) } }
+    }
+    class MediaProperties(val media: ModernMediaTarget, val metadata: ModernPayload) : Author(ModernCommandName.MEDIA_PROPERTIES) {
+        override fun target() = media.export(); override fun arguments() = modernObject("metadata" to metadata)
+    }
     class CompleteAsyncBlock(val invocation: ModernAsyncTarget, val metadata: ModernPayload) : Author(ModernCommandName.COMPLETE_ASYNC_BLOCK) { override fun target() = invocation.export(); override fun arguments() = modernObject("metadata" to metadata) }
     data object Undo : ModernCommand(ModernCommandName.UNDO) { override fun arguments() = JSONObject() }
     data object Redo : ModernCommand(ModernCommandName.REDO) { override fun arguments() = JSONObject() }

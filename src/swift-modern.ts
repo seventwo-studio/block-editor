@@ -58,6 +58,11 @@ export type ModernSemanticTarget = ({ readonly range: ModernTextRange; readonly 
 export type ModernSemanticKind = "ink" | "fill";
 export type ModernSemanticRole = "neutral" | "green" | "blue" | "purple" | "amber" | "red";
 export type ModernSemanticState = { readonly inherited: Record<string, never> } | { readonly mixed: Record<string, never> } | { readonly role: { readonly _0: ModernSemanticRole } };
+export type ModernTableAction = "insertRow" | "removeRow" | "insertColumn" | "removeColumn" | "setHeader";
+export interface ModernTableTarget extends ModernScope { readonly table: ModernNodeID; readonly row?: ModernNodeID; readonly cell?: ModernNodeID; readonly observed: readonly ModernChangeID[] }
+export interface ModernMediaTarget extends ModernScope { readonly origin: ModernAsyncTarget["origin"] }
+export interface ModernInsertionDescriptor { readonly id: string; readonly title: string; readonly description: string; readonly blockType: string; readonly requiresHost: boolean }
+export interface ModernAvailability { readonly command: string; readonly available: boolean; readonly reason?: string }
 export type ModernListAction = "indent" | "outdent" | "reorder" | "setStyle" | "setChecked";
 export interface ModernListTarget { readonly selection: ModernNodes; readonly caret?: ModernPosition; readonly boundary?: ModernBoundary }
 export interface ModernAsyncTarget extends ModernScope {
@@ -76,7 +81,7 @@ type Command<C extends string, T, A> = { readonly command: C; readonly target: T
 export type ModernAuthorCommand =
   | Command<"replaceText" | "replaceTitle", ModernTextRange, { readonly text: string; readonly typingGroup?: string }>
   | Command<"setAppearance", { readonly document: { readonly documentID: string } }, { [F in keyof ModernAppearancePresets]: { readonly field: F; readonly value: ModernAppearancePresets[F] } }[keyof ModernAppearancePresets]>
-  | Command<"format", ModernTextRange, { readonly markType: string; readonly mark: ModernObject | null }>
+  | Command<"format", ModernTextRange | { readonly ranges: readonly ModernTextRange[] }, { readonly markType: string; readonly mark: ModernObject | null }>
   | Command<"insertBlock", ModernBoundary, { readonly block: ModernObject }>
   | Command<"duplicate", { readonly selection: ModernNodes; readonly boundary: ModernBoundary }, { readonly newBlockIDs: readonly string[] }>
   | Command<"paste", ModernPasteTarget, { readonly clipboard: ModernClipboard | null; readonly mode?: "rich" | "flattenedColumns" | "plainText"; readonly newIDs?: readonly string[]; readonly policy?: ModernPastePolicy }>
@@ -86,9 +91,12 @@ export type ModernAuthorCommand =
   | Command<"removeColumns", ModernColumnTarget, EmptyArguments>
   | Command<"resizeColumns", ModernColumnTarget, { readonly splitBasisPoints: number }>
   | Command<"convertBlock", ModernTextRange, { readonly type: "paragraph" | "heading" | "quote" | "callout" | "list" | "code"; readonly level?: 1 | 2 | 3; readonly style?: "ordered" | "unordered" | "todo"; readonly variant?: "info" | "warning" | "error" | "success" }>
-  | Command<"softBreak", ModernTextRange, EmptyArguments>
+  | Command<"softBreak" | "typingShortcut", ModernTextRange, EmptyArguments>
   | Command<"splitBlock", ModernTextRange, { readonly newBlockID: string }>
+  | Command<"codeProperties", ModernCodeTarget, { readonly language: string | null }>
   | Command<"mergeBlocks", ModernNodes, EmptyArguments>
+  | Command<"tableStructure", ModernTableTarget, { readonly action: ModernTableAction; readonly newIDs?: readonly string[]; readonly header?: boolean }>
+  | Command<"mediaProperties", ModernMediaTarget, { readonly metadata: ModernObject }>
   | Command<"listStructure", ModernListTarget, { readonly action: "indent" | "outdent" | "reorder" } | { readonly action: "setStyle"; readonly style: "ordered" | "unordered" | "todo" } | { readonly action: "setChecked"; readonly checked: boolean }>
   | Command<"setSemanticColor", ModernSemanticTarget, { readonly kind: ModernSemanticKind; readonly role: ModernSemanticRole | null }>
   | Command<"setLink", ModernTextRange, { readonly href: string | null; readonly label?: string }>
@@ -101,15 +109,17 @@ export interface ModernResult extends ModernSnapshot {
   readonly focusIntent: ModernFocusIntent | null; readonly selectionIntent: ModernSelectionIntent | null;
   readonly reason?: string | null; readonly retainedClipboard?: ModernClipboard | null; readonly retainedResult?: ModernObject | null;
 }
+export interface ModernCodeTarget extends ModernScope { readonly node: ModernNodeID; readonly observed: readonly ModernChangeID[] }
 export interface ModernCapabilities {
   readonly protocolVersion: 7; readonly format: ModernDocument["format"]; readonly formatVersion: 1;
   readonly commands: readonly ModernCommandName[]; readonly cutoverToModern: true; readonly clipboardVersion: 2;
   readonly localHistorySelectionVersion: 1; readonly canCopy: boolean; readonly canCut: boolean;
-  readonly listActions: readonly ModernListAction[]; readonly asyncKinds: readonly ("image" | "file" | "embed")[];
+  readonly allowedBlockTypes: readonly string[] | null; readonly allowedMarkTypes: readonly string[] | null;
+  readonly codeLanguages: readonly string[]; readonly tableActions: readonly ModernTableAction[]; readonly listActions: readonly ModernListAction[]; readonly asyncKinds: readonly ("image" | "file" | "embed")[];
   readonly canUndo?: boolean; readonly canRedo?: boolean; readonly isComposing?: boolean; readonly recoveryRequired?: boolean;
 }
 export interface ModernCutPreparation extends ModernScope { readonly preparationID: string; readonly target: ModernDeleteTarget; readonly clipboard: ModernClipboard }
-export interface ModernPolicy { readonly allowedCommands?: readonly ModernCommandName[]; readonly allowedListActions?: readonly ModernListAction[] }
+export interface ModernPolicy { readonly allowedCommands?: readonly ModernCommandName[]; readonly allowedListActions?: readonly ModernListAction[]; readonly allowedBlockTypes?: readonly string[]; readonly allowedMarkTypes?: readonly string[] }
 /** A synchronous, serialized bridge with newly owned decoded values on each call.
  * SwiftEditorRuntime implements this contract for WASM. No network/provider work is implicit. */
 export interface ModernTransport { call<T>(request: Record<string, unknown>): T }
@@ -166,6 +176,13 @@ export class SwiftModernSession {
     }
   }
   private update(command: string, args: Record<string, unknown> = {}): void { this.publish(this.call<ModernSnapshot>(command, args)); }
+  insertionValue(descriptorID: string, id: string, childIDs: readonly string[] = []): ModernObject { return this.call("modernInsertionValue", { descriptorID, id, childIDs }); }
+  insertionCatalog(query = ""): readonly ModernInsertionDescriptor[] { return this.call("modernInsertionCatalog", { query }); }
+  availability(name: ModernCommandName): ModernAvailability { return this.call("modernAvailability", { name }); }
+  captureTableTarget(table: ModernNodeID, row?: ModernNodeID, cell?: ModernNodeID): ModernTableTarget { return this.call("modernCaptureTableTarget", { table, ...(row ? { row } : {}), ...(cell ? { cell } : {}) }); }
+  captureCodeTarget(node: ModernNodeID): ModernCodeTarget { return this.call("modernCaptureCodeTarget", { node }); }
+  captureMediaTarget(node: ModernNodeID): ModernMediaTarget { return this.call("modernCaptureMediaTarget", { node }); }
+  retainAsyncResult(target: ModernAsyncTarget, metadata: ModernObject, reason = "awaitingPersistence"): void { this.update("modernRetainAsyncResult", { target, metadata, reason }); }
   capabilities(): ModernCapabilities { return this.call("modernCapabilities"); }
   execute(command: ModernAuthorCommand): ModernResult {
     const scope = this.snapshot.syncState;
@@ -179,6 +196,13 @@ export class SwiftModernSession {
   restoreRecovery(recovery: ModernRecovery): void { this.update("modernRestoreRecovery", { recovery }); }
   repairUndo(targets: readonly ModernChangeID[]): void { this.update("modernRepairUndo", { targets }); }
   repairRedo(targets: readonly ModernChangeID[]): void { this.update("modernRepairRedo", { targets }); }
+  node(address: { readonly blockID: string; readonly path: readonly string[] }): ModernNodeID { return this.call("modernNode", { address }); }
+  nodes(collection: ModernCollection = { field: "blocks" }): readonly ModernNodeID[] { return this.call("modernNodes", { collection }); }
+  field(node: ModernNodeID, name = "content"): ModernField { return this.call("modernField", { node, name }); }
+  text(field: ModernField): string { return this.call("modernText", { field }); }
+  logicalFields(collapsed: readonly ModernNodeID[] = [], includingTitle = true): readonly ModernField[] { return this.call("modernLogicalFields", { collapsed, includingTitle }); }
+  parentCollection(node: ModernNodeID): ModernCollection { return this.call("modernParentCollection", { node }); }
+  captureTextSpan(start: ModernPosition, end: ModernPosition, collapsed: readonly ModernNodeID[] = []): readonly ModernTextRange[] { return this.call("modernCaptureTextSpan", { start, end, collapsed }); }
   position(field: ModernField, offset: number, affinity: ModernPosition["affinity"] = "before"): ModernPosition { return this.call("modernPosition", { field, offset, affinity }); }
   resolvePosition(position: ModernPosition): ModernResolvedPosition { return this.call("modernResolvePosition", { position }); }
   captureTextRange(field: ModernField, start: number, end: number): ModernTextRange { return this.call("modernCaptureTextRange", { field, start, end }); }
@@ -188,6 +212,9 @@ export class SwiftModernSession {
   captureNodes(nodes: readonly ModernNodeID[]): ModernNodes { return this.call("modernCaptureNodes", { nodes }); }
   captureListNodes(nodes: readonly ModernNodeID[]): ModernNodes { return this.call("modernCaptureListNodes", { nodes }); }
   captureLocalNodes(nodes: readonly ModernNodeID[]): ModernNodes { return this.call("modernCaptureLocalNodes", { nodes }); }
+  clipboard(text: string, mode: "plain" | "multiline" | "markdown" = "plain"): ModernClipboard { return this.call("modernClipboard", { text, mode }); }
+  clipboardFromJSON(encoded: string): ModernClipboard { return this.call("modernClipboard", { encoded }); }
+  clipboardParts(parts: readonly ModernObject[]): ModernClipboard { return this.call("modernClipboard", { parts }); }
   copy(target: ModernDeleteTarget): ModernClipboard { return this.call("modernCopy", { target }); }
   prepareCut(target: ModernDeleteTarget): ModernCutPreparation { return this.call("modernPrepareCut", { target }); }
   /** Call only after the host's clipboard publication succeeds or fails. No deletion
@@ -199,6 +226,7 @@ export class SwiftModernSession {
   }
   cancelCut(preparationID: string): void { this.update("modernCancelCut", { preparationID }); }
   forgetCut(preparationID: string): void { this.update("modernForgetCut", { preparationID }); }
+  markState(range: ModernTextRange | readonly ModernTextRange[], type: string): "on" | "off" | "mixed" { return this.call("modernMarkState", Array.isArray(range) ? { ranges: range, type } : { range, type }); }
   semanticState(target: ModernSemanticTarget, kind: ModernSemanticKind): ModernSemanticState { return this.call("modernSemanticState", { target, kind }); }
   beginAsyncBlock(node: ModernNodeID, requestID: string): ModernAsyncTarget { return this.call("modernBeginAsyncBlock", { node, requestID }); }
   asyncRequests(): readonly ModernAsyncRecord[] { return this.call("modernAsyncRequests"); }
@@ -209,6 +237,7 @@ export class SwiftModernSession {
   failAsyncBlock(target: ModernAsyncTarget, reason: string): void { this.update("modernFailAsyncBlock", { target, reason }); }
   setComposing(active: boolean): void { this.update("modernComposition", { active }); }
   setAuthoringPolicy(allowedCommands: readonly ModernCommandName[] | null): void { this.update("modernSetAuthoringPolicy", { allowedCommands }); }
+  setContentPolicy(allowedBlockTypes: readonly string[] | null, allowedMarkTypes: readonly string[] | null): void { this.update("modernSetContentPolicy", { allowedBlockTypes, allowedMarkTypes }); }
   setListPolicy(allowedListActions: readonly ModernListAction[] | null): void { this.update("modernSetListPolicy", { allowedListActions }); }
   endTypingGroup(): void { this.update("modernEndTypingGroup"); }
   holdRemoteChanges(): () => void {

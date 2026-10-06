@@ -82,6 +82,16 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     /** This override applies only to author commands; history commands restore their stored input. */
     fun execute(command: ModernCommand.Author, historySelection: ModernLocalSelection?): ModernResult =
         executeRequest(command.wire().put("historySelection", historySelection?.export() ?: JSONObject.NULL))
+    fun insertionValue(descriptorID: String, id: String, childIDs: List<String> = emptyList()) = ModernPayload.restore(objectCall("modernInsertionValue", modernObject("descriptorID" to descriptorID, "id" to id, "childIDs" to JSONArray(childIDs))))
+    fun logicalFields(collapsed: List<ModernNodeID> = emptyList(), includingTitle: Boolean = true): List<ModernField> = (call("modernLogicalFields", modernObject("collapsed" to JSONArray(collapsed.map { it.export() }), "includingTitle" to includingTitle)) as JSONArray).let { array -> (0 until array.length()).map { val field = array.getJSONObject(it); ModernField(ModernNodeID.restore(field.getJSONObject("node")), field.getString("name")) } }
+    fun captureTextSpan(start: ModernPosition, end: ModernPosition, collapsed: List<ModernNodeID> = emptyList()): List<ModernTextRange> = (call("modernCaptureTextSpan", modernObject("start" to start, "end" to end, "collapsed" to modernArray(collapsed))) as JSONArray).let { values -> (0 until values.length()).map { ModernTextRange.restore(values.getJSONObject(it)) } }
+    fun parentCollection(node: ModernNodeID): ModernCollection = ModernCollection.restore(call("modernParentCollection", modernObject("node" to node)) as JSONObject)
+    fun insertionCatalog(query: String = ""): List<ModernInsertionDescriptor> = (call("modernInsertionCatalog", modernObject("query" to query)) as JSONArray).let { values -> (0 until values.length()).map { ModernInsertionDescriptor(values.getJSONObject(it)) } }
+    fun availability(name: ModernCommandName) = ModernAvailability(objectCall("modernAvailability", modernObject("name" to name.wireValue)))
+    fun captureTableTarget(table: ModernNodeID, row: ModernNodeID? = null, cell: ModernNodeID? = null) = ModernTableTarget(objectCall("modernCaptureTableTarget", modernObject("table" to table).also { value -> row?.let { value.put("row", it.export()) }; cell?.let { value.put("cell", it.export()) } }))
+    fun captureCodeTarget(node: ModernNodeID) = ModernCodeTarget(objectCall("modernCaptureCodeTarget", modernObject("node" to node)))
+    fun captureMediaTarget(node: ModernNodeID) = ModernMediaTarget(objectCall("modernCaptureMediaTarget", modernObject("node" to node)))
+    fun retainAsyncResult(target: ModernAsyncTarget, metadata: ModernPayload, reason: String = "awaitingPersistence") = update("modernRetainAsyncResult", modernObject("target" to target, "metadata" to metadata, "reason" to reason))
     fun capabilities() = ModernCapabilities(objectCall("modernCapabilities"))
     fun save() = ModernPayload.restore(objectCall("modernSave"))
     fun changes(since: ModernReceipt? = null) = ModernBatch.restore(objectCall("modernChanges", JSONObject().also { value -> since?.let { value.put("since", it.export()) } }))
@@ -90,6 +100,10 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     fun restoreRecovery(recovery: ModernRecovery) = update("modernRestoreRecovery", modernObject("recovery" to recovery))
     fun repairUndo(targets: List<ModernChangeID>) = update("modernRepairUndo", modernObject("targets" to JSONArray(targets.map { it.wire() })))
     fun repairRedo(targets: List<ModernChangeID>) = update("modernRepairRedo", modernObject("targets" to JSONArray(targets.map { it.wire() })))
+    fun node(blockID: String, path: List<String> = emptyList()) = ModernNodeID.restore(objectCall("modernNode", modernObject("address" to modernObject("blockID" to blockID, "path" to JSONArray(path)))))
+    fun nodes(collection: ModernCollection = ModernCollection.Blocks): List<ModernNodeID> = (call("modernNodes", modernObject("collection" to collection.wire())) as JSONArray).let { values -> (0 until values.length()).map { ModernNodeID.restore(values.getJSONObject(it)) } }
+    fun field(node: ModernNodeID, name: String = "content"): ModernField { val value = objectCall("modernField", modernObject("node" to node, "name" to name)); return ModernField(ModernNodeID.restore(value.getJSONObject("node")), value.getString("name")) }
+    fun text(field: ModernField) = call("modernText", modernObject("field" to field.wire())) as String
     fun position(field: ModernField, offset: Int, affinity: PositionAffinity = PositionAffinity.BEFORE) =
         ModernPosition(objectCall("modernPosition", modernObject("field" to field.wire(), "offset" to offset, "affinity" to affinity.wireValue)))
     fun resolvePosition(position: ModernPosition) = ModernResolvedPosition(objectCall("modernResolvePosition", modernObject("position" to position)))
@@ -102,6 +116,8 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     fun captureNodes(nodes: List<ModernNodeID>) = ModernNodes(objectCall("modernCaptureNodes", modernObject("nodes" to modernArray(nodes))))
     fun captureListNodes(nodes: List<ModernNodeID>) = ModernNodes(objectCall("modernCaptureListNodes", modernObject("nodes" to modernArray(nodes))))
     fun captureLocalNodes(nodes: List<ModernNodeID>) = ModernNodes(objectCall("modernCaptureLocalNodes", modernObject("nodes" to modernArray(nodes))))
+    fun clipboardText(text: String, mode: String = "plain") = ModernClipboard.restore(objectCall("modernClipboard", modernObject("text" to text, "mode" to mode)))
+    fun clipboardParts(parts: JSONArray) = ModernClipboard.restore(objectCall("modernClipboard", modernObject("parts" to parts)))
     fun copy(target: ModernDeleteTarget) = ModernClipboard.restore(objectCall("modernCopy", modernObject("target" to target)))
     fun prepareCut(target: ModernDeleteTarget) = ModernCutPreparation(objectCall("modernPrepareCut", modernObject("target" to target)))
     /** Supply the actual OS publication outcome. Preparation itself never deletes content. */
@@ -111,6 +127,8 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     }
     fun cancelCut(preparationID: String) = update("modernCancelCut", modernObject("preparationID" to preparationID))
     fun forgetCut(preparationID: String) = update("modernForgetCut", modernObject("preparationID" to preparationID))
+    fun markState(range: ModernTextRange, type: String) = call("modernMarkState", modernObject("range" to range, "type" to type)) as String
+    fun markState(ranges: List<ModernTextRange>, type: String) = call("modernMarkState", modernObject("ranges" to JSONArray(ranges.map { it.export() }), "type" to type)) as String
     fun semanticState(target: ModernSemanticTarget, kind: ModernSemanticKind) = ModernSemanticState(objectCall("modernSemanticState", modernObject("target" to target.wire(), "kind" to kind.wireValue)))
     fun beginAsyncBlock(node: ModernNodeID, requestID: String) = ModernAsyncTarget(objectCall("modernBeginAsyncBlock", modernObject("node" to node, "requestID" to requestID)))
     fun asyncRequests(): List<ModernAsyncRecord> = (call("modernAsyncRequests") as JSONArray).let { values -> (0 until values.length()).map { ModernAsyncRecord(values.getJSONObject(it)) } }
@@ -121,6 +139,7 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     fun failAsyncBlock(target: ModernAsyncTarget, reason: String) = update("modernFailAsyncBlock", modernObject("target" to target, "reason" to reason))
     fun setComposing(active: Boolean) = update("modernComposition", modernObject("active" to active))
     fun setAuthoringPolicy(commands: Set<ModernCommandName>?) = update("modernSetAuthoringPolicy", modernObject("allowedCommands" to commands?.let { JSONArray(it.map { it.wireValue }.sorted()) }))
+    fun setContentPolicy(blocks: Set<String>?, marks: Set<String>?) = update("modernSetContentPolicy", modernObject("allowedBlockTypes" to blocks?.let { JSONArray(it.sorted()) }, "allowedMarkTypes" to marks?.let { JSONArray(it.sorted()) }))
     fun setListPolicy(actions: Set<ModernListAction>?) = update("modernSetListPolicy", modernObject("allowedListActions" to actions?.let { JSONArray(it.map { it.wireValue }.sorted()) }))
     fun endTypingGroup() = update("modernEndTypingGroup")
     fun holdRemoteChanges(): () -> Unit {

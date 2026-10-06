@@ -66,6 +66,7 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
             case .removeColumns(let layout, let source):
                 try modernStructuralIdentityShape(layout); try modernColumnPlacementShape(source)
                 guard introduced.insert(ElementID(change: change.id, index: 0)).inserted else { throw EditorError.invalidChange }
+            case .codeProperties(let edit): try validateModernCodeProperties(edit, change: change.id)
             case .resizeColumns(let layout, let split):
                 try modernStructuralIdentityShape(layout)
                 guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
@@ -80,6 +81,15 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
                     registry.register(.object(item), identity: conversion.destination.node, kind: .item, active: true)
                 }
                 births[conversion.destination] = births[conversion.destination] ?? WritingFieldBirth(value: conversion.type == "code" ? .string("") : .array([]), active: true)
+            case .tableStructure(let command):
+                guard operations.count == 1 else { throw EditorError.invalidChange }
+                try validateModernTableShape(command, change: change.id)
+                for mutation in command.operations {
+                    if case .insertNode(let value, let identity, let collection, let placement, _) = mutation {
+                        guard introduced.insert(placement).inserted, registry.nodes[identity] == nil else { throw EditorError.invalidChange }
+                        registry.register(value, identity: identity, kind: collection.field == "rows" ? .row : .cell, active: true)
+                    }
+                }
             case .listStructure(let command):
                 try validateModernListShape(command, change: change.id)
                 for operation in command.operations {
@@ -113,7 +123,7 @@ func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) t
             default: break
             }
             switch operation {
-            case .paste, .structure(.insertNode), .duplicateBlocks, .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
+            case .tableStructure, .paste, .structure(.insertNode), .duplicateBlocks, .createColumns, .splitBlock, .enterListItem: retainModernFieldBirths(in: registry, births: &births)
             default: break
             }
         }
@@ -186,7 +196,8 @@ func modernReference(_ identity: NodeID, before change: ChangeID, cohort: Set<Ch
 /// Columns themselves and document metadata require explicit compound commands.
 func modernBlockCollection(_ collection: NodeCollection, structure: StructuralState) throws {
     if collection == .root { return }
-    guard let owner = collection.owner, structure.nodes[owner]?.kind == .column,
+    guard let owner = collection.owner,
+          (structure.nodes[owner]?.kind == .column || structure.nodes[owner]?.fields["type"] == .string("toggle")),
           collection.field == "children" else { throw EditorError.invalidChange }
 }
 

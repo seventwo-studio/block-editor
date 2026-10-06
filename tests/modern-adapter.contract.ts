@@ -36,7 +36,7 @@ export function runModernAdapterContract(sourceTransport: ModernTransport, fixtu
   const applied = (r: ModernResult) => { check(r.status === "applied" && r.transaction !== null, `Expected applied, got ${r.status}/${r.reason}`); return r; };
   try {
     const shared = document("adapter-shared"), a = create("a", shared), b = create("b", shared);
-    check(a.capabilities().commands.length === 22, "All core commands available");
+    check(a.capabilities().commands.length === 26, "All core commands available");
     const initial = a.getSnapshot(); check(Object.isFrozen(initial) && Object.isFrozen(initial.document.blocks) && Object.isFrozen(initial.document.consumer), "Published state is deeply immutable");
     rejected(() => { (initial.document as { title: string }).title = "corrupt"; }, "Snapshot cannot be overwritten");
     let observed = 0; a.subscribe(() => { observed++; check(a.getSnapshot().syncState.received.length > 0, "Publish before notification"); });
@@ -182,6 +182,25 @@ export function runModernAdapterContract(sourceTransport: ModernTransport, fixtu
       check(newSession.resolvePosition(mapped).offset === 1 && mapped.epoch === "mapped", "Typed old position resolves in fresh epoch"); cutover.forget(mappedPlan.archiveID);
     } finally { transport.call({ command: "close", session: oldHandle }); }
     checks.push("chunked cutover, mandatory readback, fresh history, origin map and incompatible archival export");
+
+    const batchDoc = document("adapter-batch", [
+      { id: "table", type: "table", rows: [{ id: "row", cells: [{ id: "cell", content: [] }] }] },
+      { id: "image", type: "image", src: "asset://pending", caption: [] },
+      { id: "code", type: "code", code: "\t😀\n  literal" }, paragraph("shortcut", "# "),
+    ]);
+    const batch = create("batch", batchDoc), tableNode = batch.node({ blockID: "table", path: [] }), rowNode = batch.node({ blockID: "table", path: ["rows", "row"] });
+    check(batch.insertionCatalog("two")[0]?.id === "columns", "Shared insertion vocabulary through typed bridge");
+    applied(batch.execute({ command: "tableStructure", target: batch.captureTableTarget(tableNode, rowNode), arguments: { action: "insertRow", newIDs: ["new-row", "new-cell"] } }));
+    same((batch.getSnapshot().document.blocks[0].rows as readonly ModernObject[]).map(row => row.id), ["row", "new-row"], "Independent table insertion expectation");
+    applied(batch.execute({ command: "mediaProperties", target: batch.captureMediaTarget(batch.node({ blockID: "image", path: [] })), arguments: { metadata: { width: 320, height: 160 } } }));
+    check(batch.getSnapshot().document.blocks[1].width === 320 && batch.getSnapshot().document.blocks[1].height === 160, "Direct checked media dimensions");
+    applied(batch.execute({ command: "codeProperties", target: batch.captureCodeTarget(batch.node({ blockID: "code", path: [] })), arguments: { language: "swift" } }));
+    check(batch.getSnapshot().document.blocks[2].code === "\t😀\n  literal" && batch.getSnapshot().document.blocks[2].language === "swift", "Code metadata retains literal text");
+    const shortcutField = batch.field(batch.node({ blockID: "shortcut", path: [] }));
+    applied(batch.execute({ command: "typingShortcut", target: batch.captureTextRange(shortcutField, 2, 2), arguments: {} }));
+    check(batch.getSnapshot().document.blocks[3].type === "heading" && (batch.getSnapshot().document.blocks[3].content as readonly unknown[]).length === 0, "Shared heading shortcut consumes captured delimiter");
+    const foreign = create("foreign", document("foreign", [{ id: "image", type: "image", src: "asset://pending" }]));
+    rejected(() => foreign.execute({ command: "mediaProperties", target: batch.captureMediaTarget(batch.node({ blockID: "image", path: [] })), arguments: { metadata: { alt: "wrong document" } } }), "Media capture must include original document scope");
 
     const closedHold = create("closed"), releaseClosed = closedHold.holdRemoteChanges(); closedHold.close(); releaseClosed(); releaseClosed();
     for (const s of sessions) s.close(); rejected(() => a.save(), "Closed handle rejects access"); checks.push("closed session lifecycle");

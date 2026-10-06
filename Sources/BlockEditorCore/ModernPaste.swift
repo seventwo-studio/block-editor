@@ -179,6 +179,8 @@ extension ModernSession {
     public func paste(_ clipboard: ModernClipboard, at target: ModernPasteTarget, mode: ModernPasteMode = .rich,
                       newIDs: [String]? = nil, policy: WritingPastePolicy = WritingPastePolicy()) throws -> ModernStructuralResult {
         try authoringAllowed(command: "paste")
+        func intersect(_ a: Set<String>?, _ b: Set<String>?) -> Set<String>? { a.map { value in b.map { value.intersection($0) } ?? value } ?? b }
+        let policy = WritingPastePolicy(allowedBlockTypes: intersect(policy.allowedBlockTypes, allowedBlockTypes), allowedMarkTypes: intersect(policy.allowedMarkTypes, allowedMarkTypes), allowAssetMetadata: policy.allowAssetMetadata)
         try clipboard.validate()
         try validatePasteCaptures(target)
         let currentField = try target.range.map { range in

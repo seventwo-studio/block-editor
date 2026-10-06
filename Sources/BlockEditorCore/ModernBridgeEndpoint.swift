@@ -7,7 +7,7 @@ final class ModernBridgeEndpoint {
     private var holds: [String: [String: () throws -> Void]] = [:]
     private struct CutPublication { let preparation: ModernCutPreparation; let bytes: Int }
     private var cuts: [String: [String: CutPublication]] = [:]
-    private let commands = ["replaceText", "replaceTitle", "setAppearance", "format", "insertBlock", "duplicate", "paste", "move", "delete", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink", "completeAsyncBlock", "undo", "redo"]
+    private let commands = ModernSession.authorCommands
     private let cutover = ModernCutoverBridge()
     func contains(_ handle: String) -> Bool { sessions[handle] != nil }
     func handles(_ input: JSONValue) -> Bool {
@@ -27,6 +27,10 @@ final class ModernBridgeEndpoint {
                 values["isComposing"] = .bool(session.isComposing); values["recoveryRequired"] = .bool(session.mergeRecovery != nil)
             }
             let asyncEnabled = sessions[handle]?.allowedCommands?.contains("completeAsyncBlock") ?? true
+            values["codeLanguages"] = .array(ModernCodeLanguages.supported.map(JSONValue.string))
+            values["tableActions"] = .array((sessions[handle]?.allowedCommands?.contains("tableStructure") ?? true) ? ModernTableAction.allCases.map { .string($0.rawValue) } : [])
+            values["allowedBlockTypes"] = sessions[handle]?.allowedBlockTypes.map { .array($0.sorted().map(JSONValue.string)) } ?? .null
+            values["allowedMarkTypes"] = sessions[handle]?.allowedMarkTypes.map { .array($0.sorted().map(JSONValue.string)) } ?? .null
             values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
             values["localHistorySelectionVersion"] = .number(1)
@@ -39,22 +43,51 @@ final class ModernBridgeEndpoint {
             }.map { .string($0.rawValue) })
             return .object(values)
         }
+        if command == "modernClipboard" {
+            try allowed(input, ["command", "session", "parts", "text", "mode", "encoded"])
+            if let encoded = input["encoded"]?.string {
+                guard input["parts"] == nil, input["text"] == nil, input["mode"] == nil else { throw EditorError.invalidChange }
+                return try encode(ModernClipboard(json: Data(encoded.utf8)))
+            }
+            if let parts = input["parts"] {
+                guard input["text"] == nil, input["mode"] == nil else { throw EditorError.invalidChange }
+                return try encode(ModernClipboard(parts: decode(parts, as: [WritingClipboardPart].self)))
+            }
+            guard let text = input["text"]?.string else { throw EditorError.invalidChange }
+            switch input["mode"]?.string ?? "plain" {
+            case "plain": return try encode(ModernClipboard.plain(text))
+            case "multiline": return try encode(ModernClipboard.multiline(text))
+            case "markdown": return try encode(ModernClipboard.markdown(text))
+            default: throw EditorError.invalidChange
+            }
+        }
+        if command == "modernInsertionValue" {
+            try allowed(input, ["command", "session", "descriptorID", "id", "childIDs"])
+            guard let descriptorID = input["descriptorID"]?.string, let id = input["id"]?.string else { throw EditorError.invalidChange }
+            return try ModernInsertionCatalog.value(descriptorID, id: id, childIDs: decode(input["childIDs"], as: [String].self))
+        }
+        if command == "modernInsertionCatalog" {
+            try allowed(input, ["command", "session", "query"])
+            return try encode(ModernInsertionCatalog.search(input["query"]?.string ?? "").filter { sessions[handle]?.allowedBlockTypes?.contains($0.blockType) ?? true })
+        }
         if command == "createModern" || command == "restoreModern" {
             guard !handle.isEmpty, sessions[handle] == nil, let actor = input["actorID"]?.string else { throw EditorError.invalidChange }
             let session: ModernSession
             if command == "createModern" {
-                try allowed(input, ["command", "session", "actorID", "documentID", "epoch", "collaborationVersion", "document", "allowedCommands", "allowedListActions"])
+                try allowed(input, ["command", "session", "actorID", "documentID", "epoch", "collaborationVersion", "document", "allowedCommands", "allowedListActions", "allowedBlockTypes", "allowedMarkTypes"])
                 guard let version = input["collaborationVersion"]?.numberAsInt else { throw EditorError.invalidChange }
                 guard version == 7 else { throw EditorError.unsupportedVersion(version) }
                 guard let documentID = input["documentID"]?.string, let epoch = input["epoch"]?.string,
                       let fields = input["document"]?.object else { throw EditorError.invalidChange }
                 session = try ModernSession(documentID: documentID, actorID: actor, epoch: epoch, document: ModernDocument(fields: fields))
             } else {
-                try allowed(input, ["command", "session", "actorID", "snapshot", "allowedCommands", "allowedListActions"])
+                try allowed(input, ["command", "session", "actorID", "snapshot", "allowedCommands", "allowedListActions", "allowedBlockTypes", "allowedMarkTypes"])
                 session = try ModernSession.restore(canonicalEncoder().encode(input["snapshot"] ?? .null), actorID: actor)
             }
             if let policy = input["allowedCommands"] { session.allowedCommands = try authoringPolicy(policy) }
             if let policy = input["allowedListActions"] { session.allowedListActions = try listPolicy(policy) }
+            if let policy = input["allowedBlockTypes"] { session.allowedBlockTypes = try contentPolicy(policy, blocks: true) }
+            if let policy = input["allowedMarkTypes"] { session.allowedMarkTypes = try contentPolicy(policy, blocks: false) }
             sessions[handle] = session; return try snapshot(session)
         }
         if cutover.handles(command) {
@@ -86,6 +119,27 @@ final class ModernBridgeEndpoint {
             try allowed(input, ["command", "session", "targets"])
             let targets = try decode(input["targets"], as: [ChangeID].self)
             if command == "modernRepairUndo" { try session.repairUndo(targets) } else { try session.repairRedo(targets) }
+        case "modernNode":
+            try allowed(input, ["command", "session", "address"])
+            return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
+        case "modernNodes":
+            try allowed(input, ["command", "session", "collection"])
+            return try encode(session.nodes(in: decode(input["collection"], as: NodeCollection.self)))
+        case "modernField":
+            try allowed(input, ["command", "session", "node", "name"])
+            return try encode(session.field(node: decode(input["node"], as: NodeID.self), name: input["name"]?.string ?? "content"))
+        case "modernText":
+            try allowed(input, ["command", "session", "field"])
+            return .string(try session.text(in: decode(input["field"], as: WritingField.self)))
+        case "modernLogicalFields":
+            try allowed(input, ["command", "session", "collapsed", "includingTitle"])
+            return try encode(session.logicalFields(collapsed: Set(input["collapsed"].map { try decode($0, as: [NodeID].self) } ?? []), includingTitle: input["includingTitle"] != .bool(false)))
+        case "modernParentCollection":
+            try allowed(input, ["command", "session", "node"])
+            return try encode(session.parentCollection(of: decode(input["node"], as: NodeID.self)))
+        case "modernCaptureTextSpan":
+            try allowed(input, ["command", "session", "start", "end", "collapsed"])
+            return try encode(session.captureTextSpan(from: decode(input["start"], as: WritingPosition.self), to: decode(input["end"], as: WritingPosition.self), collapsed: Set(input["collapsed"].map { try decode($0, as: [NodeID].self) } ?? [])))
         case "modernPosition":
             try allowed(input, ["command", "session", "field", "offset", "affinity"])
             return try encode(session.position(in: decode(input["field"], as: WritingField.self), offset: integer(input["offset"]),
@@ -108,6 +162,25 @@ final class ModernBridgeEndpoint {
             try allowed(input, ["command", "session", "collection", "after"])
             let after = try input["after"].map { try decode($0, as: NodeID.self) }
             return try encode(session.captureListBoundary(in: decode(input["collection"], as: NodeCollection.self), after: after))
+        case "modernAvailability":
+            try allowed(input, ["command", "session", "name"])
+            guard let name = input["name"]?.string else { throw EditorError.invalidChange }
+            return try encode(session.availability(for: name))
+        case "modernCaptureTableTarget":
+            try allowed(input, ["command", "session", "table", "row", "cell"])
+            let row = try input["row"].map { try decode($0, as: NodeID.self) }
+            let cell = try input["cell"].map { try decode($0, as: NodeID.self) }
+            return try encode(session.captureTableTarget(table: decode(input["table"], as: NodeID.self), row: row, cell: cell))
+        case "modernCaptureCodeTarget":
+            try allowed(input, ["command", "session", "node"])
+            return try encode(session.captureCodeTarget(decode(input["node"], as: NodeID.self)))
+        case "modernCaptureMediaTarget":
+            try allowed(input, ["command", "session", "node"])
+            return try encode(session.captureMediaTarget(decode(input["node"], as: NodeID.self)))
+        case "modernRetainAsyncResult":
+            try allowed(input, ["command", "session", "target", "metadata", "reason"])
+            guard let metadata = input["metadata"]?.object else { throw EditorError.invalidChange }
+            try session.retainAsyncBlockResult(decode(input["target"], as: ModernAsyncTarget.self), metadata: metadata, reason: input["reason"]?.string ?? "awaitingPersistence")
         case "modernCaptureListNodes":
             try allowed(input, ["command", "session", "nodes"])
             return try encode(session.captureListNodes(decode(input["nodes"], as: [NodeID].self)))
@@ -146,6 +219,11 @@ final class ModernBridgeEndpoint {
             guard let identifier = input["preparationID"]?.string else { throw EditorError.invalidChange }
             if command == "modernForgetCut" { cuts[handle]?.removeValue(forKey: identifier) }
             else if let record = cuts[handle]?[identifier] { try session.cancelCut(record.preparation) }
+        case "modernMarkState":
+            try allowed(input, ["command", "session", "range", "ranges", "type"])
+            guard let type = input["type"]?.string else { throw EditorError.invalidChange }
+            guard (input["range"] != nil) != (input["ranges"] != nil) else { throw EditorError.invalidChange }
+            return try encode(session.markState(in: input["ranges"].map { try decode($0, as: [ModernTextRange].self) } ?? [decode(input["range"], as: ModernTextRange.self)], type: type))
         case "modernSemanticState":
             try allowed(input, ["command", "session", "target", "kind"])
             return try encode(session.semanticState(decode(input["target"], as: ModernSemanticTarget.self), kind: decode(input["kind"], as: ModernSemanticKind.self)))
@@ -174,6 +252,12 @@ final class ModernBridgeEndpoint {
             guard let policy = input["allowedCommands"] else { throw EditorError.invalidChange }
             session.allowedCommands = policy == .null ? nil : try authoringPolicy(policy)
             session.endTypingGroup()
+        case "modernSetContentPolicy":
+            try allowed(input, ["command", "session", "allowedBlockTypes", "allowedMarkTypes"])
+            guard let blocks = input["allowedBlockTypes"], let marks = input["allowedMarkTypes"] else { throw EditorError.invalidChange }
+            let blockTypes = try blocks == .null ? nil : contentPolicy(blocks, blocks: true)
+            let markTypes = try marks == .null ? nil : contentPolicy(marks, blocks: false)
+            session.allowedBlockTypes = blockTypes; session.allowedMarkTypes = markTypes
         case "modernSetListPolicy":
             try allowed(input, ["command", "session", "allowedListActions"])
             guard let policy = input["allowedListActions"] else { throw EditorError.invalidChange }
@@ -331,13 +415,22 @@ final class ModernBridgeEndpoint {
                 guard let href = arguments["href"], href == .null || href.string != nil else { throw EditorError.invalidChange }
                 if let label = arguments["label"], label.string == nil { throw EditorError.invalidChange }
                 try structural(session.setLink(in: decode(request["target"], as: ModernTextRange.self), href: href.string, label: arguments["label"]?.string))
+            case "codeProperties":
+                try allowed(arguments, ["language"])
+                guard let language = arguments["language"], language == .null || language.string != nil else { throw EditorError.invalidChange }
+                try structural(session.codeProperties(decode(request["target"], as: ModernCodeTarget.self), language: language.string))
             case "format":
                 try allowed(arguments, ["markType", "mark"])
                 guard let type = arguments["markType"]?.string else { throw EditorError.invalidChange }
-                let target = try decode(request["target"], as: ModernTextRange.self)
-                try session.format(in: target, markType: type, mark: arguments["mark"] == .null ? nil : arguments["mark"])
-                let range = WritingTextRange(start: target.start, end: target.end)
-                selection = try encode(range); selectionIntent = .text(range)
+                if request["target"]?["ranges"] != nil {
+                    guard case .object(let fields) = request["target"] else { throw EditorError.invalidChange }
+                    try allowed(.object(fields), ["ranges"])
+                    let target = try decode(request["target"], as: ModernTextSpanTarget.self)
+                    try structural(session.format(in: target.ranges, markType: type, mark: arguments["mark"] == .null ? nil : arguments["mark"]))
+                } else {
+                    let target = try decode(request["target"], as: ModernTextRange.self)
+                    try structural(session.format(in: target, markType: type, mark: arguments["mark"] == .null ? nil : arguments["mark"]))
+                }
             case "insertBlock":
                 try allowed(arguments, ["block"])
                 let boundary = try decode(request["target"], as: ModernBlockBoundary.self)
@@ -365,6 +458,9 @@ final class ModernBridgeEndpoint {
                 try structural(session.resizeColumns(decode(request["target"], as: ModernColumnTarget.self), splitBasisPoints: integer(arguments["splitBasisPoints"])))
             case "convertBlock":
                 try structural(session.convertBlock(in: decode(request["target"], as: ModernTextRange.self), to: decode(arguments, as: WritingBlockTarget.self)))
+            case "typingShortcut":
+                try allowed(arguments, [])
+                try structural(session.typingShortcut(in: decode(request["target"], as: ModernTextRange.self)))
             case "softBreak":
                 try allowed(arguments, [])
                 position = try session.softBreak(in: decode(request["target"], as: ModernTextRange.self))
@@ -372,6 +468,16 @@ final class ModernBridgeEndpoint {
                 try allowed(arguments, ["newBlockID"])
                 guard let label = arguments["newBlockID"]?.string else { throw EditorError.invalidChange }
                 try structural(session.splitBlock(in: decode(request["target"], as: ModernTextRange.self), newBlockID: label))
+            case "tableStructure":
+                try allowed(arguments, ["action", "newIDs", "header"])
+                let action = try decode(arguments["action"], as: ModernTableAction.self)
+                let ids = try arguments["newIDs"].map { try decode($0, as: [String].self) } ?? []
+                let header = try arguments["header"].map { try decode($0, as: Bool.self) }
+                try structural(session.tableStructure(decode(request["target"], as: ModernTableTarget.self), action: action, newIDs: ids, header: header))
+            case "mediaProperties":
+                try allowed(arguments, ["metadata"])
+                guard let metadata = arguments["metadata"]?.object else { throw EditorError.invalidChange }
+                try structural(session.mediaProperties(decode(request["target"], as: ModernMediaTarget.self), metadata: metadata))
             case "listStructure":
                 try allowed(arguments, ["action", "style", "checked"])
                 let action = try decode(arguments["action"], as: ModernListAction.self)
@@ -399,8 +505,8 @@ final class ModernBridgeEndpoint {
         catch ModernSessionError.recoveryRequired { return try result("recoveryRequired", reason: "schemaOrIdentityConflict") }
         catch let error as EditorError {
             if command == "convertBlock", case .invalidDocument = error { return try result("unavailable", reason: "conversionMetadataConflict") }
-            if ["duplicate", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command), error == .invalidChange || error == .invalidPath {
-                return try result("unavailable", reason: ["duplicate", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
+            if ["tableStructure", "mediaProperties", "duplicate", "createColumns", "removeColumns", "resizeColumns", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command), error == .invalidChange || error == .invalidPath {
+                return try result("unavailable", reason: ["tableStructure", "mediaProperties", "duplicate", "convertBlock", "softBreak", "splitBlock", "mergeBlocks", "listStructure", "setSemanticColor", "setLink"].contains(command) ? "invalidWritingTargetOrArguments" : "invalidColumnTargetOrArguments")
             }
             throw error
         }
@@ -427,6 +533,12 @@ final class ModernBridgeEndpoint {
             switch $0 { case .text(let range): return try encode(range); case .nodes(let nodes): return try encode(nodes); case .mixed(let mixed): return try encode(mixed) }
         } ?? .null
         return .object(response)
+    }
+    private func contentPolicy(_ value: JSONValue, blocks: Bool) throws -> Set<String> {
+        let values = try decode(value, as: [String].self)
+        let supported: Set<String> = blocks ? ["paragraph", "heading", "quote", "callout", "list", "toggle", "code", "table", "divider", "columns", "image", "file", "embed", "math"] : ["bold", "italic", "strikethrough", "code", "link", "semantic-color", "semantic-background"]
+        guard values.count == Set(values).count, Set(values).isSubset(of: supported) else { throw EditorError.invalidChange }
+        return Set(values)
     }
     private func authoringPolicy(_ value: JSONValue) throws -> Set<String> {
         let policy = try decode(value, as: [String].self)

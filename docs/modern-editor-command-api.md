@@ -1,6 +1,57 @@
 # Implemented modern command API
 
-ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript and Kotlin entrypoints now expose the implemented modern contract. Kotlin JNI execution and complete native host acceptance remain open.
+ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Create with createModern and collaborationVersion 7; legacy create/restore do not promote an old session. The shared C ABI routes the new JSON endpoints. The opt-in TypeScript and Kotlin entrypoints now expose the implemented modern contract. The cumulative candidate adds modern native/Compose/React surfaces and explicit host lifecycle adapters. Actual integrated runtime validation and complete native host acceptance must be recorded separately.
+
+## Cumulative candidate additions (ST-122–ST-138, ST-47)
+
+The current candidate advertises 26 author commands. Historical receipts below
+retain their original 22-command source/runtime identities and qualifications.
+The four new commands are `typingShortcut`, `tableStructure`, `mediaProperties`
+and `codeProperties`; document format 1 and protocol 7 remain explicit.
+
+`captureTableTarget(table:row:cell:)` captures scope, opaque origins and frontier.
+`tableStructure` supports row/column insertion and removal plus header toggling.
+Fresh IDs are explicit; deletion of the last row/column, ragged structural edits,
+foreign scope and changed captured cells reject before publication. Header and
+structural edits use shared author history. Viewport resizing never authors table data.
+
+`captureMediaTarget` returns document/epoch plus the original media origin/source.
+`mediaProperties` accepts checked image/file/generic-preview metadata independently
+of provider completion. Caption text remains an origin-bound writing field.
+`captureCodeTarget` and `codeProperties` change supported language metadata without
+rewriting literal Unicode, whitespace or unknown admitted language metadata.
+
+`logicalFields`, `parentCollection` and `captureTextSpan` expose logical navigation
+independently of column stacking. Directed spans capture one cohort across fields.
+`format` accepts the legacy single range or `{ ranges: [...] }`, using one transaction,
+original selection and author Undo. `modernMarkState` accepts one range or a range
+array and returns on/off/mixed. Cross-field plain/rich replacement uses the existing
+captured `ModernPasteTarget.range` endpoints. Copy/delete use ordered captured ranges.
+
+One insertion catalog supplies vocabulary, descriptions and factories. Slash
+conversion consumes its captured query in the same paste transaction, including
+exactly two columns. `typingShortcut` consumes approved paragraph/inline delimiters
+in one author transaction; literal code/title/caption fields stay outside shortcuts.
+`availability` reports local command policy, composition, recovery and history state.
+
+`allowedBlockTypes` and `allowedMarkTypes` restrict newly authored content through
+the shared engine. Creation, paste, conversion, duplication and explicit marks
+respect these restrictions; restore, admitted rich typing, peer history and Undo
+preserve existing data. `modernSetContentPolicy` updates both local restrictions
+atomically. Policy is not application authorization and is never replicated.
+
+`ModernPersistenceController`, `ModernBrowserHost` and `ModernAndroidHost` serialize
+paired saves. Providers persist pending requests before invoking application code,
+retain responses, save them before application, then recheck original active
+invocation/generation. Restored requests never invoke providers automatically.
+Failed saves retain response data for explicit retry. Native/browser/Android
+activation adapters validate the detached fresh session, persist/read back originals
+and candidate, then atomically compare/switch a pointer with recoverable previous
+activation. Later autosave uses a separate live pair for that epoch.
+
+See [the integration candidate](modern-editor-handoff.md) for reference applications,
+package preparation and external ST-34/ST-144 delivery boundaries. Current build
+or focused fixture results do not replace the integrated validation matrix.
 
 ## Native input and focus
 
@@ -21,7 +72,7 @@ Text focus intents retain the original weak window lease and anchored range thro
 
 `model.pendingInputs` and `model.checkpoint()` expose retained failures and marked drafts. Each native draft stores the captured replacement and the complete native buffer/selection; a deleted target cannot become a later block with the same label. Failed detached controls retain their buffers in the model for explicit host recovery/export. A commit followed by a failed peer drain remains committed, with recovery/deferred state separately retained. Reopen never reapplies a draft or restarts composition automatically.
 
-Three [actual AppKit scenarios](evidence/modern-native-input-2026-10-05/receipt.json) pass: real marked Unicode input with held peer edits, unchanged rich/reference data and shared Undo/Redo; split focus in the original of two windows plus intentional-blur cancellation; rejected native input preserving the exact buffer and accepted checkpoint. The three affected disk-pair scenarios also pass. The UIKit adapter compiles in the existing iOS host; its full runtime/device/assistive campaign remains deferred. Canvas/starter/structural Return integration, provider invocation and migration activation remain implementation work. Native clipboard integration is described below.
+Three [actual AppKit scenarios](evidence/modern-native-input-2026-10-05/receipt.json) pass: real marked Unicode input with held peer edits, unchanged rich/reference data and shared Undo/Redo; split focus in the original of two windows plus intentional-blur cancellation; rejected native input preserving the exact buffer and accepted checkpoint. The three affected disk-pair scenarios also pass. The UIKit adapter compiles in the existing iOS host; its full runtime/device/assistive campaign remains deferred. That dated receipt precedes the cumulative canvas/provider/activation implementation described below; it does not verify those later changes. Native clipboard integration is described below.
 
 ## Native clipboard and document invocation
 
@@ -31,7 +82,7 @@ Three [actual AppKit scenarios](evidence/modern-native-input-2026-10-05/receipt.
 
 `clipboard.retained` exposes original payloads, captured destinations and failure reasons for host presentation/export. Records have a combined 64 MB encoded budget and 64-record limit; at most eight live Cut tickets are retained. Capacity is reserved before publication or shared paste. Checkpoints include these payloads atomically with accepted history and local sidecars. After reopen, initialize `ModernEditorModel(session: restored.session, retainedClipboard: restored.retainedClipboard)`. Restored data is inert: publication acknowledgment and live Cut preparations are never restored. Explicit paste retry uses its saved destination and admitted rich/plain mode, never the current caret or a new clipboard read. `forget` releases a record without changing the shared document.
 
-The [focused clipboard receipt](evidence/modern-native-clipboard-2026-10-05/receipt.json) covers actual AppKit Copy/Cut/Paste, rich/reference preservation, a peer edit during publication, author Undo, failed-publication typing continuity, document-switch cancellation, original payload disk reopen, malformed-rich refusal and captured-destination retry. The affected input/storage scenarios also pass. UIKit compilation checks the native bindings; UIKit runtime and the broad clipboard/device/assistive campaign remain deferred. Provider invocation/presentation and durable migration activation remain implementation work.
+The [focused clipboard receipt](evidence/modern-native-clipboard-2026-10-05/receipt.json) covers actual AppKit Copy/Cut/Paste, rich/reference preservation, a peer edit during publication, author Undo, failed-publication typing continuity, document-switch cancellation, original payload disk reopen, malformed-rich refusal and captured-destination retry. The affected input/storage scenarios also pass. UIKit compilation checks the native bindings; UIKit runtime and the broad clipboard/device/assistive campaign remain deferred. The dated clipboard receipt does not verify the subsequent provider or migration activation implementation.
 
 ## Native paired storage
 
@@ -66,7 +117,7 @@ const result = session.execute({ command: "replaceTitle", target, arguments: { t
 // result.status and result.focusIntent are checked local outcomes.
 ```
 
-`execute` discriminates all 22 commands, pairing their captured targets with typed arguments. Published snapshots and returned objects are deeply frozen, including opaque metadata. Publication precedes subscriber notification. Subscriber errors go to `onListenerError` and do not make a committed command appear to fail. `getSnapshot`/`subscribe` can serve an external store; no modern editor view is provided here.
+`execute` discriminates all 26 commands, pairing their captured targets with typed arguments. Published snapshots and returned objects are deeply frozen, including opaque metadata. Publication precedes subscriber notification. Subscriber errors go to `onListenerError` and do not make a committed command appear to fail. `getSnapshot`/`subscribe` can serve an external store; `SwiftModernBlockEditor` and its lifecycle adapter are exported separately through `swift/modern/react` and `swift/modern/host`.
 
 Commit platform input before direct `receive`, or hold remote changes while the platform owns an uncommitted buffer. Nested `holdRemoteChanges()` releases are idempotent, including after a recovery failure or session close. A typed recovery error refreshes the accepted snapshot/recovery before propagating; persist its proposal separately, then explicitly repair. Result intent does not move focus automatically. Host generation, active document and composition checks remain required around delayed actions.
 
@@ -80,7 +131,7 @@ A modernCommand request has documentID, epoch, command, target and arguments. Re
 
 ## Kotlin consumer
 
-The Android library exposes `ModernSession`, `ModernCommand` and the `Modern*` contracts in `studio.seventwo.blockeditor`. Create explicitly with an admitted `ModernDocument`; old `EditorSession` and `WritingSession` protocols retain their defaults. All 22 author commands couple their captured targets with their own argument types. Appearance presets use separate enum-typed operations; opaque appearance data cannot become an authorable register. Text/collection paste and column targets are separate sealed alternatives, and only `ModernCommand.Author` accepts an explicit history-selection override.
+The Android library exposes `ModernSession`, `ModernCommand` and the `Modern*` contracts in `studio.seventwo.blockeditor`. Create explicitly with an admitted `ModernDocument`; old `EditorSession` and `WritingSession` protocols retain their defaults. All 26 author commands couple their captured targets with their own argument types. Appearance presets use separate enum-typed operations; opaque appearance data cannot become an authorable register. Text/collection paste and column targets are separate sealed alternatives, and only `ModernCommand.Author` accepts an explicit history-selection override.
 
 ```kotlin
 val session = ModernSession.create(ModernDocument.restore(documentJSON), actorID, epoch)

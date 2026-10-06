@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import type { ModernDocument } from "../src/swift-modern.js";
 
 test("typed protocol 7 consumer contract through actual browser WASM", async ({ page }, testInfo) => {
-  // The whole 55-fixture/22-command consumer run is slower on hosted WebKit than local builds.
+  // The whole 55-fixture/26-command consumer run is slower on hosted WebKit than local builds.
   test.setTimeout(120_000);
   const root = resolve("docs/acceptance/modern-editor/documents");
   const fixtures = readdirSync(root).filter(name => name.endsWith(".json")).flatMap(name => {
@@ -22,6 +22,6 @@ test("typed protocol 7 consumer contract through actual browser WASM", async ({ 
     return runModernAdapterContract(runtime, fixtures);
   }, { root: `/block-editor/@fs${process.cwd()}`, fixtures });
   expect(result.fixtures).toBe(55); expect(result.checks).toHaveLength(11);
-  expect(result.appliedCommands).toHaveLength(22);
+  expect(result.appliedCommands).toHaveLength(26);
   await testInfo.attach("modern-adapter-contract", { body: JSON.stringify({ ...result, wasmSHA256: createHash("sha256").update(readFileSync(wasm)).digest("hex") }, null, 2), contentType: "application/json" });
 });

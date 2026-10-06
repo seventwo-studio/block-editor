@@ -71,6 +71,11 @@ extension ModernSession {
         let copy = try planModernDuplication(target, newBlockIDs: newBlockIDs, change: id,
             captured: captured, boundaryCaptured: modernCapturedStructure(target.boundary.observed), authored: structure, document: document)
         try validateModernDuplicationShape(copy, change: id)
+        for operation in copy.operations {
+            if case .insertNode(let value, _, _, _, _) = operation {
+                try ModernClipboard(parts: [.node(value: value, kind: "block")]).validateForPaste(policy: WritingPastePolicy(allowedBlockTypes: allowedBlockTypes, allowedMarkTypes: allowedMarkTypes, allowAssetMetadata: true))
+            }
+        }
         let nodes = (0..<newBlockIDs.count).map { NodeID.inserted(creation: ElementID(change: id, index: $0), path: []) }
         endTypingGroup()
         return try performReturning(id, [.duplicateBlocks(copy)], historyBefore: historySelection(target.selection)) { replay, observed in

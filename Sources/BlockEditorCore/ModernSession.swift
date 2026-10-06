@@ -5,6 +5,9 @@ import Foundation
 public enum ModernOperation: Codable, Equatable, Sendable {
     case paste(ModernPaste)
     case completeAsyncMetadata(ModernAsyncMetadataEdit)
+    case mediaProperties(ModernAsyncMetadataEdit)
+    case codeProperties(ModernCodeProperties)
+    case tableStructure(ModernTableStructure)
     case duplicateBlocks(ModernDuplication)
     case createColumns(ModernColumnCreation)
     case removeColumns(layout: NodeID, source: NodePlacementID)
@@ -80,6 +83,8 @@ public final class ModernSession {
     public private(set) var document: ModernDocument
     public private(set) var mergeRecovery: ModernRecovery?
     /// Local host policy restricts authoring only; peer admission/preservation is unchanged.
+    public var allowedBlockTypes: Set<String>? { didSet { endTypingGroup() } }
+    public var allowedMarkTypes: Set<String>? { didSet { endTypingGroup() } }
     public var allowedCommands: Set<String>? { didSet { endTypingGroup() } }
     public var allowedListActions: Set<ModernListAction>? { didSet { endTypingGroup() } }
     public var onWillReceive: (() -> Void)?
@@ -495,7 +500,16 @@ public final class ModernSession {
             }
         let change = ModernChange(id: id, observed: frontier(log), body: .edit(roles + operations))
         var candidate = log; candidate[id] = change; try capacity(candidate)
-        let result = try replay(candidate), outcome = try makeResult(result, frontier(candidate))
+        let result = try replay(candidate)
+        // Restrictions apply only to newly authored content. Receives, restore,
+        // existing rich typing, moves and author Undo retain admitted data.
+        for (node, value) in result.2.nodes where value.kind == .block && structure.nodes[node]?.fields["type"] != value.fields["type"] {
+            if let type = value.fields["type"]?.string, allowedBlockTypes?.contains(type) == false { throw ModernSessionError.unavailable("hostBlockPolicy") }
+        }
+        for operation in operations {
+            if case .text(.format(_, let type, let mark)) = operation, mark != nil, allowedMarkTypes?.contains(type) == false { throw ModernSessionError.unavailable("hostMarkPolicy") }
+        }
+        let outcome = try makeResult(result, frontier(candidate))
         let coalescing = group != nil && group == typingGroup && !undoStack.isEmpty
         let history = try planHistorySelection(id, priorGroup: coalescing ? undoStack.last : nil, outcome: outcome, observed: frontier(candidate), defaultBefore: historyBefore)
         if coalescing { undoStack[undoStack.count - 1].append(id) }
@@ -706,7 +720,17 @@ public final class ModernSession {
                             }
                         }
                         try applyModernPaste(paste, enabled: active[change.id] ?? true, raw: &raw, births: &births, collectionBirths: &collectionBirths)
-                    case .completeAsyncMetadata(let edit):
+                    case .codeProperties(let edit):
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernCodeProperties(edit, change: change.id)
+                        try validateTargetScope(edit.target.documentID, edit.target.epoch)
+                        try modernReference(edit.target.node, before: change.id, cohort: cohort, registry: registry)
+                        let capturedIDs = try closure(edit.target.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        try validateModernCodeTarget(edit.target, in: causalColumnStructure(capturedIDs, in: candidate))
+                        try validateModernCodeTarget(edit.target, in: causalColumnStructure(cohort, in: candidate))
+                        try applyModernCodeProperties(edit, enabled: active[change.id] ?? true, raw: &raw)
+                    case .completeAsyncMetadata(let edit), .mediaProperties(let edit):
                         guard operations.count == 1 else { throw EditorError.invalidChange }
                         try validateModernAsyncShape(edit, change: change.id)
                         try modernReference(edit.origin.node, before: change.id, cohort: cohort, registry: registry)
@@ -783,6 +807,19 @@ public final class ModernSession {
                         try validateModernSchemaConversion(conversion, change: change.id, structure: authored.1, projection: authored.0)
                         try applyWritingSchemaConversion(conversion, change: change.id, enabled: active[change.id] ?? true,
                             raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced, modern: true)
+                    case .tableStructure(let command):
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernTableShape(command, change: change.id)
+                        try validateTargetScope(command.target.documentID, command.target.epoch)
+                        let capturedIDs = try closure(command.target.observed, before: change.id, in: candidate)
+                        guard capturedIDs.isSubset(of: cohort) else { throw EditorError.invalidChange }
+                        for node in [command.target.table, command.target.row, command.target.cell].compactMap({ $0 }) {
+                            try modernReference(node, before: change.id, cohort: cohort, registry: registry)
+                        }
+                        let expected = try planModernTable(command.target, action: command.action, newIDs: command.newIDs, header: command.header,
+                            change: change.id, captured: causalColumnStructure(capturedIDs, in: candidate), authored: causalColumnStructure(cohort, in: candidate))
+                        guard command == expected else { throw EditorError.invalidChange }
+                        try applyModernTable(command, enabled: active[change.id] ?? true, raw: &raw, births: &births, collectionBirths: &collectionBirths)
                     case .listStructure(let command):
                         try validateTargetScope(command.target.selection.documentID, command.target.selection.epoch)
                         let capturedIDs = try closure(command.target.selection.observed, before: change.id, in: candidate)
@@ -943,7 +980,9 @@ public final class ModernSession {
                     collectionBirths.merge(modernCollectionBirths(raw.structure!)) { old, _ in old }
                 case .paste(let paste):
                     try applyModernPaste(paste, enabled: enabled, raw: &raw, births: &births, collectionBirths: &collectionBirths)
-                case .completeAsyncMetadata(let edit):
+                case .codeProperties(let edit):
+                    try applyModernCodeProperties(edit, enabled: enabled, raw: &raw)
+                case .completeAsyncMetadata(let edit), .mediaProperties(let edit):
                     try applyModernAsyncMetadata(edit, enabled: enabled, raw: &raw)
                 case .duplicateBlocks(let copy):
                     try apply(copy.operations, enabled: enabled, to: &raw)
@@ -965,6 +1004,8 @@ public final class ModernSession {
                     var introduced = Set<ElementID>()
                     try applyWritingSchemaConversion(conversion, change: change.id, enabled: enabled,
                         raw: &raw, births: &births, collectionBirths: &collectionBirths, introduced: &introduced, modern: true)
+                case .tableStructure(let command):
+                    try applyModernTable(command, enabled: enabled, raw: &raw, births: &births, collectionBirths: &collectionBirths)
                 case .listStructure(let command):
                     var introduced = Set<ElementID>()
                     try applyModernListStructure(command, change: change.id, enabled: enabled, raw: &raw,
@@ -1021,6 +1062,9 @@ public final class ModernSession {
                         guard modernDuplicationIsOnlyCommand(operations) else { throw EditorError.invalidChange }
                         try validateModernDuplicationShape(copy, change: change.id)
                     }
+                    if case .codeProperties(let edit) = operation { try validateModernCodeProperties(edit, change: change.id) }
+                    if case .mediaProperties(let edit) = operation { try validateModernAsyncShape(edit, change: change.id) }
+                    if case .tableStructure(let command) = operation { try validateModernTableShape(command, change: change.id) }
                     if case .listStructure(let command) = operation { try validateModernListShape(command, change: change.id) }
                     if case .enterListItem(let enter) = operation { try validateModernEnterShape(enter, change: change.id) }
                     if case .splitBlock(let split) = operation {
@@ -1113,6 +1157,14 @@ public final class ModernSession {
                         try fieldShape(conversion.source)
                         if let creation = conversion.creation { guard elements.insert(creation).inserted else { throw EditorError.invalidChange } }
                         guard registers.insert("convert:" + conversion.node.key).inserted else { throw EditorError.invalidChange }
+                    case .codeProperties(let edit):
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernCodeProperties(edit, change: change.id)
+                        try validateTargetScope(edit.target.documentID, edit.target.epoch)
+                    case .tableStructure(let command):
+                        guard operations.count == 1 else { throw EditorError.invalidChange }
+                        try validateModernTableShape(command, change: change.id)
+                        try validateTargetScope(command.target.documentID, command.target.epoch)
                     case .listStructure(let command):
                         try validateModernListShape(command, change: change.id)
                         try validateTargetScope(command.target.selection.documentID, command.target.selection.epoch)
@@ -1164,7 +1216,7 @@ public final class ModernSession {
                     case .paste(let paste):
                         guard modernPasteIsOnlyCommand(operations) else { throw EditorError.invalidChange }
                         try validateModernPasteShape(paste, change: change.id)
-                    case .completeAsyncMetadata(let edit):
+                    case .completeAsyncMetadata(let edit), .mediaProperties(let edit):
                         guard operations.count == 1 else { throw EditorError.invalidChange }
                         try validateModernAsyncShape(edit, change: change.id)
                     case .duplicateBlocks(let copy):

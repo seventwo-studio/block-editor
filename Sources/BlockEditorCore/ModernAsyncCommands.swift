@@ -7,6 +7,11 @@ public struct ModernAsyncOrigin: Codable, Equatable, Sendable {
     public let source: String
     public let observed: [ChangeID]
 }
+public struct ModernMediaTarget: Codable, Equatable, Sendable {
+    public let documentID: String
+    public let epoch: String
+    public let origin: ModernAsyncOrigin
+}
 /// Request identity/generation are local invocation state, never shared content.
 public struct ModernAsyncTarget: Codable, Equatable, Sendable {
     public let documentID: String
@@ -98,6 +103,41 @@ func applyModernAsyncMetadata(_ edit: ModernAsyncMetadataEdit, enabled: Bool, ra
 
 extension ModernSession {
     public var asyncRequests: [ModernAsyncRecord] { modernAsyncRequests.values.sorted { $0.target.generation < $1.target.generation } }
+
+    /// Store a provider response locally before a host attempts any shared edit.
+    /// This does not invoke the provider or restore a live request on reopen.
+    public func retainAsyncBlockResult(_ target: ModernAsyncTarget, metadata: [String: JSONValue], reason: String = "awaitingPersistence") throws {
+        try validateTargetScope(target.documentID, target.epoch)
+        try validateModernAsyncMetadata(metadata, kind: target.origin.kind)
+        guard reason.utf16.count <= 1000, var record = modernAsyncRequests[target.requestID], record.target == target,
+              record.status != .applied else { throw EditorError.invalidChange }
+        record.result = metadata
+        if record.status == .pending || record.status == .retained { record.status = .retained; record.reason = reason }
+        var proposed = modernAsyncRequests; proposed[target.requestID] = record
+        _ = try checkedModernAsyncArchive(proposed, generation: modernAsyncGeneration)
+        modernAsyncRequests = proposed
+    }
+
+    public func captureMediaTarget(_ node: NodeID) throws -> ModernMediaTarget {
+        _ = try structure.address(of: node)
+        guard let value = structure.nodes[node], let kind = ModernAsyncKind(rawValue: value.fields["type"]?.string ?? ""),
+              let source = value.fields[modernAsyncSourceField(kind)]?.string else { throw EditorError.invalidPath }
+        return ModernMediaTarget(documentID: documentID, epoch: epoch, origin: ModernAsyncOrigin(node: node, kind: kind, source: source, observed: modernObserved))
+    }
+    /// Direct author edits (replacement, alt/name and aspect-preserving size) use
+    /// the same checked metadata replay as provider results, without a request.
+    public func mediaProperties(_ target: ModernMediaTarget, metadata: [String: JSONValue]) throws -> ModernStructuralResult {
+        try authoringAllowed(command: "mediaProperties"); try validateTargetScope(target.documentID, target.epoch)
+        let origin = target.origin
+        let edit = ModernAsyncMetadataEdit(origin: origin, metadata: metadata)
+        try validateModernAsyncMetadata(metadata, kind: origin.kind)
+        try validateModernAsyncEdit(edit, captured: modernCapturedStructure(origin.observed), authored: structure)
+        let selection = try captureLocalNodes([origin.node])
+        let result = ModernStructuralResult(focus: .nodes(selection), selection: .nodes(selection))
+        if metadata.allSatisfy({ key, value in structure.nodes[origin.node]!.fields[key] == (value == .null ? nil : value) }) { return result }
+        endTypingGroup()
+        return try performReturning(nextID(), [.mediaProperties(edit)]) { _, _ in result }
+    }
 
     public func beginAsyncBlock(_ node: NodeID, requestID: String) throws -> ModernAsyncTarget {
         try authoringAllowed(command: "completeAsyncBlock")
