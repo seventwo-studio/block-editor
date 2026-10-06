@@ -14,7 +14,8 @@ defaults:
     shell: bash
 
 concurrency:
-  group: editor-ci-${{ github.workflow }}-${{ github.ref }}
+  # Preserve evidence from distinct candidates; only duplicate runs cancel.
+  group: editor-ci-${{ github.workflow }}-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -38,7 +39,8 @@ jobs:
 
   swift-runtime:
     runs-on: macos-26
-    timeout-minutes: 45
+    # The prior successful job needed 44.9 minutes, including release builds.
+    timeout-minutes: 75
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
