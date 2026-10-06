@@ -44,4 +44,9 @@ jobs:
       - run: bun run demo:typecheck
       - run: bun run test
       - run: bun run demo:build
+      - run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libsqlite3-dev libncurses-dev libzstd-dev
+      - run: python3 scripts/install-ci-toolchains.py wasm "$RUNNER_TEMP/editor-toolchains"
+      - run: bun run build:wasm
+      - run: bun run build
+      - run: node scripts/modern-package-provenance.mjs
       - run: bun run check:package

@@ -33,7 +33,6 @@ jobs:
       - run: python3 -m unittest discover -s tests -p android_writing_ime_runner_test.py -v
       - run: bunx playwright install --with-deps chromium webkit
       - run: bun run test:browser
-      - run: bun run check:package
       - run: bun run demo:build
 
   swift-runtime:
@@ -107,6 +106,9 @@ jobs:
           "$SWIFT_BIN" --version > "$COMPATIBILITY_OUTPUT/swift-version.txt"
           "$SWIFT_BIN" sdk list > "$COMPATIBILITY_OUTPUT/swift-sdks.txt"
           bun run build:wasm 2>&1 | tee "$COMPATIBILITY_OUTPUT/wasm-build.txt"
+      - run: bun run build
+      - run: node scripts/modern-package-provenance.mjs
+      - run: bun run check:package
       - name: Build the relay engine from the same checkout as WASM
         run: |
           "$SWIFT_BIN" build --product editor-bridge

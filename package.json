@@ -1,11 +1,12 @@
 {
   "name": "@seventwo-studio/block-editor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-neutral block document model, markdown conversion, and CRDT operation layer for rich block editors.",
   "license": "MIT",
   "type": "module",
   "sideEffects": [
-    "src/*.css"
+    "src/*.css",
+    "src/swift-modern.css"
   ],
   "packageManager": "bun@1.4.2",
   "engines": {
@@ -29,7 +30,11 @@
     "README.md",
     "docs/shared-swift-editor.md",
     "docs/nested-collaboration.md",
-    "LICENSE"
+    "LICENSE",
+    "dist/block-editor.wasm",
+    "dist/modern-provenance.json",
+    "src/swift-modern.css",
+    "docs/modern-editor-handoff.md"
   ],
   "keywords": [
     "block-editor",
@@ -39,7 +44,7 @@
     "rich-text"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/record-modern-build.mjs javascript",
     "dev": "vite --host 127.0.0.1",
     "demo:dev": "vite --host 127.0.0.1",
     "demo:build": "vite build",
@@ -115,7 +120,21 @@
     "./swift/react": {
       "types": "./dist/swift-react.d.ts",
       "import": "./dist/swift-react.js"
-    }
+    },
+    "./swift/modern": {
+      "types": "./dist/swift-modern.d.ts",
+      "import": "./dist/swift-modern.js"
+    },
+    "./swift/modern/react": {
+      "types": "./dist/swift-modern-react.d.ts",
+      "import": "./dist/swift-modern-react.js"
+    },
+    "./swift/modern/host": {
+      "types": "./dist/swift-modern-host.d.ts",
+      "import": "./dist/swift-modern-host.js"
+    },
+    "./swift/modern.css": "./src/swift-modern.css",
+    "./swift/modern.wasm": "./dist/block-editor.wasm"
   },
   "types": "./dist/index.d.ts"
 }

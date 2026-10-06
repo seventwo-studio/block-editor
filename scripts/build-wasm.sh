@@ -11,3 +11,5 @@ mkdir -p dist
 cp "$WASM_BIN_DIR/block-editor-wasm.wasm" dist/block-editor.wasm
 mkdir -p demo/public
 cp dist/block-editor.wasm demo/public/block-editor.wasm
+
+SWIFT_BIN="$SWIFT_BIN" node scripts/record-modern-build.mjs wasm

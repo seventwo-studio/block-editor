@@ -46,7 +46,9 @@ public struct ModernHostCheckpoint: Codable, Sendable {
     public var retainedClipboard: [ModernRetainedClipboard] { clipboardPayloads ?? [] }
 
     @MainActor public init(session: ModernSession, pendingInputs: [ModernPendingInput] = [], retainedClipboard: [ModernRetainedClipboard] = []) throws {
-        guard !session.isComposing || !pendingInputs.isEmpty else { throw ModernSessionError.compositionActive }
+        guard !session.isComposing || !pendingInputs.isEmpty || retainedClipboard.contains(where: { record in
+            if case .paste(let target) = record.purpose { return record.reason == "compositionActive" && target.boundary != nil }; return false
+        }) else { throw ModernSessionError.compositionActive }
         version = 1; revision = UUID(); documentID = session.documentID; actorID = session.actorID; epoch = session.epoch
         accepted = try session.save(); historySelection = try session.exportHistorySelection()
         providers = try session.exportAsyncRequests(); recovery = try session.exportRecovery()

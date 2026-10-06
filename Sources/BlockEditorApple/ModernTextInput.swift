@@ -16,14 +16,15 @@ private typealias ModernPlatformView = ModernUIKitTextView
     private let field: WritingField
     private let label: String
     private let submit: (() -> Bool)?
+    private let boundary: ((String) -> Bool)?
     private let clipboardAccess: any ModernClipboardAccess
-    public init(model: ModernEditorModel, field: WritingField, label: String = "Block text", onSubmit: (() -> Bool)? = nil, clipboard: any ModernClipboardAccess = ModernNativeClipboard()) {
-        self.model = model; self.field = field; self.label = label; submit = onSubmit; clipboardAccess = clipboard
+    public init(model: ModernEditorModel, field: WritingField, label: String = "Block text", onSubmit: (() -> Bool)? = nil, onBoundary: ((String) -> Bool)? = nil, clipboard: any ModernClipboardAccess = ModernNativeClipboard()) {
+        self.model = model; self.field = field; self.label = label; submit = onSubmit; boundary = onBoundary; clipboardAccess = clipboard
     }
     public var body: some View {
         // An explicit changing value invalidates the representable even while
         // its observable model reference and opaque field remain stable.
-        ModernPlatformInput(model: model, field: field, label: label, submit: submit, clipboard: clipboardAccess,
+        ModernPlatformInput(model: model, field: field, label: label, submit: submit, boundary: boundary, clipboard: clipboardAccess,
             projectedText: (try? model.session.text(in: field)) ?? "", document: model.document,
             editable: model.isEditable && model.isActive, intent: model.focusIntent).id(field)
     }
@@ -34,12 +35,13 @@ private typealias ModernPlatformView = ModernUIKitTextView
     let field: WritingField
     let label: String
     let submit: (() -> Bool)?
+    let boundary: ((String) -> Bool)?
     let clipboard: any ModernClipboardAccess
     let projectedText: String
     let document: ModernDocument
     let editable: Bool
     let intent: ModernFocusIntent?
-    func makeCoordinator() -> ModernNativeCoordinator { ModernNativeCoordinator(model: model, field: field, submit: submit, clipboard: clipboard) }
+    func makeCoordinator() -> ModernNativeCoordinator { ModernNativeCoordinator(model: model, field: field, submit: submit, boundary: boundary, clipboard: clipboard) }
 }
 
 #if os(macOS)
@@ -88,10 +90,12 @@ extension ModernPlatformInput: UIViewRepresentable {
     weak var view: ModernPlatformView?
     private var rendering = false
     private let submit: (() -> Bool)?
+    private let boundary: ((String) -> Bool)?
     private let clipboard: any ModernClipboardAccess
-    init(model: ModernEditorModel, field: WritingField, submit: (() -> Bool)?, clipboard: any ModernClipboardAccess) {
+    init(model: ModernEditorModel, field: WritingField, submit: (() -> Bool)?, boundary: ((String) -> Bool)?, clipboard: any ModernClipboardAccess) {
         self.model = model; input = try? ModernInputController(model: model, field: field); self.submit = submit
         self.clipboard = clipboard
+        self.boundary = boundary
     }
     func connect(_ view: ModernPlatformView) {
         self.view = view; view.delegate = self; view.isEditable = input != nil && model.isEditable
@@ -101,6 +105,7 @@ extension ModernPlatformInput: UIViewRepresentable {
         view.didFocus = { [weak self] in guard let self, !self.model.restoringFocus else { return }; do { try self.input?.activate(selection: self.selectedRange) } catch { self.model.report(error) } }
         view.didBlur = { [weak self] in guard let self, !self.model.restoringFocus else { return }; self.model.blur() }
         view.submit = submit
+        view.boundary = boundary
         view.clipboardAction = { [weak self] action in self?.clipboardAction(action) }
         view.history = { [weak self] redo in
             guard let self else { return }; do { if redo { try self.model.redo() } else { try self.model.undo() } } catch { self.model.report(error) }
@@ -110,10 +115,10 @@ extension ModernPlatformInput: UIViewRepresentable {
             guard let self, let view = self.view, view.window != nil else { return false }
             #if os(macOS)
             let success = view.window?.makeFirstResponder(view) == true
-            if success { view.setSelectedRange(range) }
+            if success { view.setSelectedRange(range); view.scrollRangeToVisible(range) }
             #else
             let success = view.becomeFirstResponder()
-            if success { view.selectedRange = range }
+            if success { view.selectedRange = range; view.scrollRangeToVisible(range) }
             #endif
             return success
         }
@@ -188,7 +193,15 @@ extension ModernPlatformInput: UIViewRepresentable {
         #else
         let marked = view.markedTextRange != nil
         #endif
-        do { try input?.update(text: nativeText, selection: selectedRange, marked: marked) }
+        do {
+            try input?.update(text: nativeText, selection: selectedRange, marked: marked)
+            if !marked, let input, input.pendingInput == nil, model.session.availability(for: "typingShortcut").available {
+                let before = model.session.syncState
+                let range = try model.session.captureTextRange(in: input.field, start: input.selection.location, end: NSMaxRange(input.selection))
+                let result = try model.session.typingShortcut(in: range)
+                if before != model.session.syncState { model.clipboardApplied(result, source: input) }
+            }
+        }
         catch { model.report(error) }
     }
     func render() {
@@ -200,6 +213,8 @@ extension ModernPlatformInput: UIViewRepresentable {
         #endif
         rendering = true; defer { rendering = false }
         let value = attributedText(input)
+        let sample = attributedText(input, placeholder: true)
+        view.typingAttributes = value.length > 0 ? value.attributes(at: max(0, min(value.length - 1, selectedRange.location - 1)), effectiveRange: nil) : sample.attributes(at: 0, effectiveRange: nil)
         #if os(macOS)
         if view.textStorage?.isEqual(to: value) != true { view.textStorage?.setAttributedString(value) }
         view.setSelectedRange(input.selection); view.enclosingScrollView?.invalidateIntrinsicContentSize()
@@ -208,15 +223,15 @@ extension ModernPlatformInput: UIViewRepresentable {
         view.selectedRange = input.selection; view.invalidateIntrinsicContentSize()
         #endif
     }
-    private func attributedText(_ input: ModernInputController) -> NSAttributedString {
+    private func attributedText(_ input: ModernInputController, placeholder: Bool = false) -> NSAttributedString {
         if case .document = input.field.node {
-            return nativeRichAttributedText([.object(["type": .string("text"), "text": .string(input.text)])],
-                container: .object(["type": .string("heading"), "level": .number(1)]), address: TextAddress(model.session.documentID, path: ["title"]))
+            return nativeRichAttributedText([.object(["type": .string("text"), "text": .string(placeholder ? " " : input.text)])],
+                container: .object(["type": .string("heading"), "level": .number(1)]), address: TextAddress(model.session.documentID, path: ["title"]), appearance: model.document.appearance)
         }
         guard let position = try? model.session.position(in: input.field, offset: 0), let address = try? model.session.resolve(position).address,
               let block = model.document.blocks.first(where: { $0.id == address.blockID }) else { return NSAttributedString(string: input.text) }
         let root = JSONValue.object(block.fields), value = root.value(at: address.path)
-        return nativeRichAttributedText(value?.array ?? [.object(["type": .string("text"), "text": .string(input.text)])], container: root.value(at: Array(address.path.dropLast())), address: address)
+        return nativeRichAttributedText(placeholder ? [.object(["type": .string("text"), "text": .string(" ")])] : value?.array ?? [.object(["type": .string("text"), "text": .string(placeholder ? " " : input.text)])], container: root.value(at: Array(address.path.dropLast())), address: address, appearance: model.document.appearance)
     }
     func close() {
         do { try input?.settle(); try input?.close() } catch { model.report(error) }
@@ -224,7 +239,7 @@ extension ModernPlatformInput: UIViewRepresentable {
         // recovery; it cannot keep callbacks to a dismantled native control.
         input?.onProjection = nil; input?.settleNativeInput = nil; input?.applyNativeFocus = nil
         view?.delegate = nil; view?.beforeEdit = nil; view?.afterEdit = nil; view?.didMove = nil
-        view?.didFocus = nil; view?.didBlur = nil; view?.submit = nil; view?.history = nil; view?.clipboardAction = nil; view = nil
+        view?.didFocus = nil; view?.didBlur = nil; view?.submit = nil; view?.boundary = nil; view?.history = nil; view?.clipboardAction = nil; view = nil
     }
 }
 
@@ -239,6 +254,7 @@ extension ModernNativeCoordinator: NSTextViewDelegate {
 @MainActor private final class ModernMacTextView: NSTextView {
     var beforeEdit: ((Bool) -> Void)?, afterEdit: (() -> Void)?, didMove: (() -> Void)?
     var didFocus: (() -> Void)?, didBlur: (() -> Void)?, submit: (() -> Bool)?
+    var boundary: ((String) -> Bool)?
     var history: ((Bool) -> Void)?
     var clipboardAction: ((String) -> Void)?
     private var depth = 0, detaching = false
@@ -256,6 +272,7 @@ extension ModernNativeCoordinator: NSTextViewDelegate {
     override func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) { edit(marked: true) { super.setMarkedText(string, selectedRange: selectedRange, replacementRange: replacementRange) } }
     override func unmarkText() { edit { super.unmarkText() } }
     override func doCommand(by selector: Selector) {
+        if !hasMarkedText(), boundary?(NSStringFromSelector(selector)) == true { return }
         if NSStringFromSelector(selector) == "insertNewline:", submit?() == true { return }
         edit { super.doCommand(by: selector) }
     }
@@ -281,6 +298,7 @@ extension ModernNativeCoordinator: UITextViewDelegate {
 @MainActor private final class ModernUIKitTextView: UITextView {
     var beforeEdit: ((Bool) -> Void)?, afterEdit: (() -> Void)?, didMove: (() -> Void)?
     var didFocus: (() -> Void)?, didBlur: (() -> Void)?, submit: (() -> Bool)?
+    var boundary: ((String) -> Bool)?
     var history: ((Bool) -> Void)?
     var clipboardAction: ((String) -> Void)?
     private var depth = 0, detaching = false
@@ -296,7 +314,7 @@ extension ModernNativeCoordinator: UITextViewDelegate {
     }
     override func insertText(_ text: String) { if text == "\n", submit?() == true { return }; edit { super.insertText(text) } }
     override func replace(_ range: UITextRange, withText text: String) { edit { super.replace(range, withText: text) } }
-    override func deleteBackward() { edit { super.deleteBackward() } }
+    override func deleteBackward() { if markedTextRange == nil, boundary?("deleteBackward:") == true { return }; edit { super.deleteBackward() } }
     override func setMarkedText(_ text: String?, selectedRange: NSRange) { edit(marked: true) { super.setMarkedText(text, selectedRange: selectedRange) } }
     override func unmarkText() { edit { super.unmarkText() } }
     override var undoManager: UndoManager? { nil }

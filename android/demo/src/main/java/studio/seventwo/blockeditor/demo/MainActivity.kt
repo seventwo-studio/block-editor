@@ -22,7 +22,7 @@ import java.util.UUID
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { LocalDemo() } }
+        setContent { MaterialTheme { if (intent.getBooleanExtra("modern", false)) ModernDemo() else LocalDemo() } }
     }
 }
 

@@ -1,0 +1,50 @@
+.modern-editor { --modern-ink:#242b28; --modern-canvas:#fff; --modern-surface:#f3f6f4; --modern-line:#dce3de; --modern-accent:#285e4d; --modern-selection:#c8e6d6; color:var(--modern-ink); background:var(--modern-canvas); font:var(--modern-body-size,17px)/1.65 system-ui,sans-serif; height:100%; display:flex; flex-direction:column; min-width:0; position:relative; }
+.modern-editor[data-font=serif] { font-family:ui-serif,Georgia,serif; }
+.modern-editor[data-font=monospace] { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.modern-viewport { overflow:auto; min-height:0; overscroll-behavior:contain; }
+.modern-page { max-width:var(--modern-page-width,680px); padding:48px 48px 64px; margin:auto; box-sizing:content-box; }
+.modern-block { position:relative; min-width:0; border-radius:8px; margin:12px 0; padding:4px; }
+.modern-handle { position:absolute; left:-44px; width:40px; opacity:0; }
+.modern-block:hover>.modern-handle,.modern-block:focus-within>.modern-handle { opacity:1; }
+.modern-selected { background:var(--modern-selection); outline:1px solid var(--modern-accent); }
+.modern-block[data-drop=true] { border-bottom:2px solid var(--modern-accent); }
+.modern-input { min-height:1.65em; outline:none; white-space:pre-wrap; overflow-wrap:anywhere; }
+.modern-input:focus-visible { box-shadow:0 0 0 2px var(--modern-accent); border-radius:4px; }
+.modern-title { font-size:2.1em; font-weight:700; line-height:1.25; margin-bottom:32px; }
+.modern-block[data-block-type=heading] { font-weight:700; line-height:1.25; font-size:1.55em; margin-top:32px; }
+.modern-block[data-block-type=heading][data-level="2"],.modern-block[data-block-type=heading][data-level="3"] { font-size:1.2em; }
+.modern-block[data-block-type=quote] { border-left:3px solid var(--modern-line); padding-left:16px; }
+.modern-block[data-block-type=callout],.modern-preview { background:var(--modern-surface); padding:16px; border-radius:8px; }
+.modern-nested { margin-left:24px; }
+.modern-code { background:var(--modern-surface); border-radius:8px; padding:12px; }
+.modern-code-input { font:0.9em/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; tab-size:4; }
+.modern-code>div:first-child { display:flex; align-items:center; justify-content:space-between; font-size:0.88em; }
+.modern-table-scroll { overflow-x:auto; max-width:100%; overscroll-behavior-x:contain; }
+.modern-table-scroll table { border-collapse:collapse; }
+.modern-table-scroll td,.modern-table-scroll th { border:1px solid var(--modern-line); padding:8px; min-width:160px; vertical-align:top; text-align:start; }
+.modern-table-scroll th { background:var(--modern-surface); }
+.modern-editor figure { margin:0; }
+.modern-editor figure .modern-input { font-size:0.88em; }
+.modern-editor button,.modern-editor select,.modern-editor input,.modern-picker button,.modern-picker input { font:inherit; color:inherit; min-height:44px; box-sizing:border-box; }
+.modern-editor button { border:1px solid var(--modern-line); border-radius:8px; background:var(--modern-canvas); padding:4px 12px; cursor:pointer; }
+.modern-editor button:disabled { opacity:0.55; cursor:default; }
+.modern-accessory,.modern-topbar { display:flex; gap:8px; padding:8px 12px; background:var(--modern-surface); align-items:center; flex-shrink:0; }
+.modern-accessory { overflow-x:auto; padding-bottom:max(8px,env(safe-area-inset-bottom)); }
+.modern-accessory>button { white-space:nowrap; }
+.modern-checklist { list-style:none; padding-left:0; }
+.modern-checklist li { display:flex; gap:12px; flex-wrap:wrap; }
+.modern-checklist li>.modern-input { flex:1; min-width:0; }
+.modern-reference { border-radius:4px; background:var(--modern-surface); padding:0 4px; cursor:pointer; }
+.modern-picker { position:fixed; z-index:20; width:288px; max-width:calc(100vw - 16px); max-height:calc(100dvh - 16px); overflow:auto; border:1px solid var(--modern-line,#dce3de); border-radius:12px; padding:12px; background:var(--modern-canvas,#fff); color:var(--modern-ink,#242b28); box-shadow:0 8px 28px #0002; }
+.modern-picker [role=listbox] { max-height:320px; overflow:auto; }
+.modern-picker button { display:flex; flex-direction:column; width:100%; text-align:left; }
+.modern-picker [aria-selected=true] { background:var(--modern-selection); }
+.modern-picker small { font-size:0.88em; opacity:0.8; }
+.modern-editor [data-ink=neutral] { color:var(--modern-ink); }.modern-editor [data-ink=green] { color:#285e4d; }.modern-editor [data-ink=blue] { color:#235a96; }.modern-editor [data-ink=purple] { color:#65428b; }.modern-editor [data-ink=amber] { color:#775415; }.modern-editor [data-ink=red] { color:#9d2e35; }
+.modern-editor [data-fill=neutral] { background:#f3f6f4; }.modern-editor [data-fill=green] { background:#e5f1ea; }.modern-editor [data-fill=blue] { background:#edf4ff; }.modern-editor [data-fill=purple] { background:#f5effc; }.modern-editor [data-fill=amber] { background:#fff5db; }.modern-editor [data-fill=red] { background:#fff0f0; }
+@media (max-width:720px) { .modern-page { padding:24px 20px 48px 52px; }.modern-handle { opacity:1; }.modern-accessory { position:sticky; bottom:0; } }
+@media (prefers-color-scheme:dark) {
+  .modern-editor { --modern-ink:#e7eee9; --modern-canvas:#181d1a; --modern-surface:#232d27; --modern-line:#3d4c42; --modern-accent:#9be1bd; --modern-selection:#2d4c36; }
+  .modern-editor [data-ink=green] { color:#9be1bd; }.modern-editor [data-ink=blue] { color:#a8cdf7; }.modern-editor [data-ink=purple] { color:#d4b8ed; }.modern-editor [data-ink=amber] { color:#f5d38c; }.modern-editor [data-ink=red] { color:#ffb3b6; }
+  .modern-editor [data-fill=neutral] { background:#232d27; }.modern-editor [data-fill=green] { background:#294b39; }.modern-editor [data-fill=blue] { background:#273849; }.modern-editor [data-fill=purple] { background:#3b2d49; }.modern-editor [data-fill=amber] { background:#3e3321; }.modern-editor [data-fill=red] { background:#432629; }
+}

@@ -128,6 +128,15 @@ public enum ModernHostClipboardResult: Equatable, Sendable {
         if let index = retained.firstIndex(where: { $0.id == id }) { retained[index] = retained[index].withReason(reason) }
         return .retained(id, reason)
     }
+    /// Retain an uncommitted native empty-body buffer without applying it. The
+    /// boundary was captured before composition; restored records remain inert.
+    public func retainInput(_ text: String, at target: ModernPasteTarget, id: UUID, reason: String) throws {
+        guard let model else { throw EditorError.invalidChange }
+        let record = ModernRetainedClipboard(id: id, documentID: model.session.documentID, epoch: model.session.epoch, payload: .text(text), purpose: .paste(target), reason: reason)
+        let candidate = retained.filter { $0.id != id } + [record]
+        try validateRetainedClipboard(candidate, documentID: model.session.documentID, epoch: model.session.epoch)
+        retained = candidate
+    }
     public func copy(_ target: ModernDeleteTarget, to access: any ModernClipboardAccess, source: ModernInputController? = nil) throws -> Bool {
         guard let model else { throw EditorError.invalidChange }
         try model.captureClipboardSelection(source)
