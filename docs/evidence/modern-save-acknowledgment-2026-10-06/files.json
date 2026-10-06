@@ -1,0 +1,26 @@
+{
+  "wasm-job.json": {
+    "sha256": "e1e71bfcb37a603c38e1ae35e70e4633a70af02610de52ab3a46a803c4d0a78f",
+    "bytes": 5389
+  },
+  "failure-summary.json": {
+    "sha256": "0a6c2445bcd97922b9b65cb986341652d724cd2657979d51da4282225efa015b",
+    "bytes": 364
+  },
+  "playwright-original.txt.gz": {
+    "sha256": "2fbb78175083dc728dacab883e49080e613923ed1b9834c95c21ee0645f4ab12",
+    "bytes": 383292
+  },
+  "README.md": {
+    "sha256": "aa3d17fc95cb862c485611be98123026467a75cdf27eea1b66f9620b2b637386",
+    "bytes": 1902
+  },
+  "local-smoke.log": {
+    "sha256": "cbb4c43e007cbfb6f7129c71c441bc130f43aade60f9cebdae44222cf090996f",
+    "bytes": 6858
+  },
+  "wasm-job.log": {
+    "sha256": "054025a874b0412765d8cf4af54b37d530f821ff0840009e575aa55f263376a6",
+    "bytes": 164349
+  }
+}

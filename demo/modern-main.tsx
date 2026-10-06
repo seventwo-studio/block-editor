@@ -11,6 +11,7 @@ function App() {
   const [host, setHost] = useState<ModernBrowserHost>(), [error, setError] = useState<string>(), [failure, setFailure] = useState<string>(), [retry, setRetry] = useState(0);
   const [asset, setAsset] = useState<{ host: ModernBrowserHost; isCurrent: () => boolean; descriptor?: ModernInsertionDescriptor; boundary?: ModernBoundary; range?: ModernTextRange; replacement?: ModernAsyncTarget; finish?: (value: ModernObject) => void; cancel?: (reason: Error) => void }>();
   const [resume, setResume] = useState<(() => void)>();
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const resolveMedia = useCallback(async (_node: unknown, value: ModernObject, signal: AbortSignal) => {
     if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
     const blob = await loadExampleAsset(String(value.src ?? ""));
@@ -19,7 +20,7 @@ function App() {
   }, []);
   const [url, setURL] = useState(""), [uploading, setUploading] = useState(false);
   useEffect(() => {
-    let disposed = false, active: ModernBrowserHost | undefined; setError(undefined); setHost(undefined);
+    let disposed = false, active: ModernBrowserHost | undefined; setError(undefined); setHost(undefined); setSaveState("idle");
     (async () => {
       const response = await fetch(`${import.meta.env.BASE_URL}block-editor.wasm`); if (!response.ok) throw new Error("Build the matching WASM candidate first");
       const runtime = await SwiftEditorRuntime.initialize(await response.arrayBuffer());
@@ -46,7 +47,11 @@ function App() {
   }
   if (error) return <div role="alert">The original saved editor could not open. {error}<button onClick={() => setRetry(value => value + 1)}>Retry opening</button></div>;
   if (!host) return <p role="status">Loading editor…</p>;
-  return <div style={{ height: "100dvh" }}><button onClick={() => host.save().catch(failure => setFailure(String(failure)))}>Save and retain local input</button>
+  return <div style={{ height: "100dvh" }}><button disabled={saveState === "saving"} onClick={() => {
+    setSaveState("saving");
+    void host.save().then(() => setSaveState("saved")).catch(failure => { setSaveState("idle"); setFailure(String(failure)); });
+  }}>Save and retain local input</button>
+    {saveState !== "idle" && <p role="status">{saveState === "saving" ? "Saving local checkpoint…" : "Local checkpoint saved"}</p>}
     {resume && <button onClick={() => { resume(); setResume(undefined); }}>Resume retained peer changes</button>}
     <SwiftModernBlockEditor session={host.session} host={host} onError={failure => setFailure(String(failure))}
       onInsertAsset={(descriptor, boundary, range) => { setURL(""); setAsset({ host, isCurrent: host.captureInvocation(), descriptor, boundary, range }); }}

@@ -1,0 +1,9 @@
+# Confirm the paired save before reopening
+
+[CI run 37442777988](https://github.com/seventwo-studio/block-editor/actions/runs/37442777988), source `7b8efe7cf9bbac7c9e89f8c2cfc5546776fab127`, WASM job `112200289096` failed its Chromium integrated reopen assertion: expected `Candidate Help`, received the initial `Help` document. The actual-WASM browser suite recorded 175 passed, seven skipped, one failed and no flaky cases. Later required WASM steps did not execute; this is not a passed required job.
+
+The reference Save button returned immediately after starting an asynchronous IndexedDB transaction. The test then reloaded before the host's save promise settled. The reference now disables Save while pending and announces a saved checkpoint only after the strict transaction completes. A failed save exposes the existing failure surface and returns the button to its retryable state. Both document and media reopen tests wait for that acknowledgment before reload; no timeout relaxation or test retry masks the race.
+
+Focused actual-WASM checks after the repair: all six Chromium/WebKit scenarios passed, covering document/columns/code/table reopen, image/caption reopen, formatting selection and Undo. All three local Firefox attempts failed during browser launch with the existing missing-profile error before editor assertions. The original local log retains those failures; Firefox remains a required CI check. Demo TypeScript checking passed. The shared engine and persistence transaction implementation are unchanged.
+
+The original CI job log/receipt and complete Playwright report are retained here. The report is losslessly gzip-compressed; `files.json` hashes the retained files and `failure-summary.json` also pins the uncompressed original report. Live job artifacts contain compiler/runtime receipts and screenshots. No original failed result is replaced by the local repair result.

@@ -32,6 +32,7 @@ test('modern integrated editor preserves local writing through blocks, columns a
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByLabel('Column split')).toHaveValue('5000');
   await page.getByRole('button', { name: 'Save and retain local input' }).click();
+  await expect(page.getByRole('status')).toHaveText('Local checkpoint saved');
   await page.reload(); await expect(title).toHaveText('Candidate Help', { timeout: 30000 });
   await expect(page.getByRole('textbox', { name: 'Block text', exact: true }).first()).toContainText('Unicode 😀 and é');
   await expect(page.getByLabel('Code language')).toHaveValue('swift');
@@ -50,7 +51,8 @@ test('cancelled slash query and app-owned media insertion retain the original ed
   await page.getByLabel('Choose local asset').setInputFiles({ name: 'tiny.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==', 'base64') });
   await expect(page.getByRole('img')).toBeVisible();
   await page.getByRole('textbox', { name: 'Image caption', exact: true }).fill('Local caption 😀');
-  await page.getByRole('button', { name: 'Save and retain local input' }).click(); await page.reload();
+  await page.getByRole('button', { name: 'Save and retain local input' }).click();
+  await expect(page.getByRole('status')).toHaveText('Local checkpoint saved'); await page.reload();
   await expect(page.getByRole('textbox', { name: 'Image caption', exact: true })).toHaveText('Local caption 😀', { timeout: 30000 });
   await expect(page.getByRole('img')).toBeVisible();
   await testInfo.attach('local-media-reopen', { body: await page.screenshot(), contentType: 'image/png' });

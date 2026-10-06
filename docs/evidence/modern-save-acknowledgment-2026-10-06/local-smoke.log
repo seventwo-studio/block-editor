@@ -1,0 +1,106 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4297" --strictPort
+
+[WebServer] (node:23202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 9 tests using 3 workers
+
+[1/9] [firefox] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[2/9] [chromium] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[3/9] [webkit] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+  1) [firefox] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen 
+
+    Error: launch: Failed to launch the browser process.
+    Browser logs:
+
+    <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-zPpGPU -juggler-pipe -silent
+    <launched> pid=23207
+    [pid=23207][err] *** You are running in headless mode.
+    [pid=23207][err] Could not find profile folder.
+    [pid=23207] <process did exit: exitCode=1, signal=null>
+    [pid=23207] starting temporary directories cleanup
+    Call log:
+      - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-zPpGPU -juggler-pipe -silent
+      - <launched> pid=23207
+      - [pid=23207][err] *** You are running in headless mode.
+      - [pid=23207][err] Could not find profile folder.
+      - [pid=23207] <process did exit: exitCode=1, signal=null>
+      - [pid=23207] starting temporary directories cleanup
+      - [pid=23207] <gracefully close start>
+      - [pid=23207] <kill>
+      - [pid=23207] <skipped force kill spawnedProcess.killed=false processClosed=true>
+      - [pid=23207] finished temporary directories cleanup
+      - [pid=23207] <gracefully close end>
+
+
+    Error Context: test-results/modern-editor.swift.ts-mod-dff48-s-columns-and-paired-reopen-firefox/error-context.md
+
+
+[4/9] [firefox] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+  2) [firefox] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor 
+
+    Error: launch: Failed to launch the browser process.
+    Browser logs:
+
+    <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-PFO3Xf -juggler-pipe -silent
+    <launched> pid=23225
+    [pid=23225][err] *** You are running in headless mode.
+    [pid=23225][err] Could not find profile folder.
+    [pid=23225] <process did exit: exitCode=1, signal=null>
+    [pid=23225] starting temporary directories cleanup
+    Call log:
+      - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-PFO3Xf -juggler-pipe -silent
+      - <launched> pid=23225
+      - [pid=23225][err] *** You are running in headless mode.
+      - [pid=23225][err] Could not find profile folder.
+      - [pid=23225] <process did exit: exitCode=1, signal=null>
+      - [pid=23225] starting temporary directories cleanup
+      - [pid=23225] <gracefully close start>
+      - [pid=23225] <kill>
+      - [pid=23225] <skipped force kill spawnedProcess.killed=false processClosed=true>
+      - [pid=23225] finished temporary directories cleanup
+      - [pid=23225] <gracefully close end>
+
+
+    Error Context: test-results/modern-editor.swift.ts-can-d5731--retain-the-original-editor-firefox/error-context.md
+
+
+[5/9] [firefox] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+  3) [firefox] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo 
+
+    Error: launch: Failed to launch the browser process.
+    Browser logs:
+
+    <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-JITDmS -juggler-pipe -silent
+    <launched> pid=23229
+    [pid=23229][err] *** You are running in headless mode.
+    [pid=23229][err] Could not find profile folder.
+    [pid=23229] <process did exit: exitCode=1, signal=null>
+    [pid=23229] starting temporary directories cleanup
+    Call log:
+      - <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-JITDmS -juggler-pipe -silent
+      - <launched> pid=23229
+      - [pid=23229][err] *** You are running in headless mode.
+      - [pid=23229][err] Could not find profile folder.
+      - [pid=23229] <process did exit: exitCode=1, signal=null>
+      - [pid=23229] starting temporary directories cleanup
+      - [pid=23229] <gracefully close start>
+      - [pid=23229] <kill>
+      - [pid=23229] <skipped force kill spawnedProcess.killed=false processClosed=true>
+      - [pid=23229] finished temporary directories cleanup
+      - [pid=23229] <gracefully close end>
+
+
+    Error Context: test-results/modern-editor.swift.ts-for-3e078-e-selection-and-shared-Undo-firefox/error-context.md
+
+
+[6/9] [webkit] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[7/9] [chromium] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[8/9] [chromium] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[9/9] [webkit] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+  3 failed
+    [firefox] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen 
+    [firefox] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor 
+    [firefox] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo 
+  6 passed (13.0s)
