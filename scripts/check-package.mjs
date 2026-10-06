@@ -18,6 +18,7 @@ try {
   assert.ok(!packed.files.some(file => /(?:^|\/)(?:\.npmrc|\.env|node_modules|demo|scripts)(?:\/|$)/.test(file.path)));
   assert.ok(files.has('dist/block-editor.wasm'), 'Modern delivery requires its matching WASM');
   const provenance = JSON.parse(readFileSync('dist/modern-provenance.json', 'utf8'));
+  assert.equal(provenance.packageName, manifest.name);
   assert.equal(provenance.packageVersion, manifest.version);
   assert.equal(provenance.protocolVersion, 7);
   assert.equal(provenance.documentFormatVersion, 1);
@@ -28,18 +29,19 @@ try {
   }
   writeFileSync(join(fixture, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
   execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', '--prefix', fixture, join(fixture, packed.filename)], { stdio: 'pipe' });
+  const moduleName = suffix => JSON.stringify(manifest.name + suffix);
   writeFileSync(join(fixture, 'verify.mjs'), `
     import assert from 'node:assert/strict';
     import { readFileSync } from 'node:fs';
-    import { makeBlock } from '@seventwo-studio/block-editor';
-    import * as model from '@seventwo-studio/block-editor/model';
-    import * as crdt from '@seventwo-studio/block-editor/crdt';
-    import { Content } from '@seventwo-studio/block-editor/schema';
-    import { BlockEditor } from '@seventwo-studio/block-editor/react';
-    import { SwiftEditorRuntime, SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError } from '@seventwo-studio/block-editor/swift';
-    import { SwiftModernBlockEditor, SwiftModernEditorSurface } from '@seventwo-studio/block-editor/swift/modern/react';
-    import { ModernBrowserHost, ModernBrowserStore } from '@seventwo-studio/block-editor/swift/modern/host';
-    import { SwiftBlockEditor } from '@seventwo-studio/block-editor/swift/react';
+    import { makeBlock } from ${moduleName('')};
+    import * as model from ${moduleName('/model')};
+    import * as crdt from ${moduleName('/crdt')};
+    import { Content } from ${moduleName('/schema')};
+    import { BlockEditor } from ${moduleName('/react')};
+    import { SwiftEditorRuntime, SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError } from ${moduleName('/swift')};
+    import { SwiftModernBlockEditor, SwiftModernEditorSurface } from ${moduleName('/swift/modern/react')};
+    import { ModernBrowserHost, ModernBrowserStore } from ${moduleName('/swift/modern/host')};
+    import { SwiftBlockEditor } from ${moduleName('/swift/react')};
     import { createElement } from 'react';
     import { renderToStaticMarkup } from 'react-dom/server';
     const blocks = [makeBlock('paragraph')];
@@ -51,7 +53,7 @@ try {
     assert.equal(typeof SwiftModernCutover, 'function');
     assert.equal(typeof SwiftModernRecoveryError, 'function');
     assert.equal(typeof SwiftBlockEditor, 'function');
-    const runtime = await SwiftEditorRuntime.initialize(readFileSync(new URL(import.meta.resolve('@seventwo-studio/block-editor/swift/modern.wasm'))));
+    const runtime = await SwiftEditorRuntime.initialize(readFileSync(new URL(import.meta.resolve(${moduleName('/swift/modern.wasm')}))));
     const session = runtime.createModern({ documentID: 'isolated-install', actorID: 'consumer', epoch: 'isolated-candidate', document: {
       format: 'seventwo.block-editor.document', formatVersion: 1, documentID: 'isolated-install', title: 'Help', appearance: { fontFamily: 'sans', fontSize: 'default', pageWidth: 'readable' }, blocks: []
     } });
@@ -65,7 +67,7 @@ try {
     assert.equal(typeof ModernBrowserHost, 'function');
     assert.equal(typeof ModernBrowserStore, 'function');
     assert.ok(renderToStaticMarkup(createElement(BlockEditor, { value: blocks, onChange() {}, allowMarkdown: false })).length > 0);
-    assert.ok(readFileSync(new URL(import.meta.resolve('@seventwo-studio/block-editor/react.css')), 'utf8').length > 0);
+    assert.ok(readFileSync(new URL(import.meta.resolve(${moduleName('/react.css')})), 'utf8').length > 0);
   `);
   execFileSync(process.execPath, [join(fixture, 'verify.mjs')], { stdio: 'inherit' });
   console.log(JSON.stringify({ name: packed.name, version: packed.version, packedBytes: packed.size, unpackedBytes: packed.unpackedSize, integrity: packed.integrity }));

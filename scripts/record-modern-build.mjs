@@ -18,7 +18,7 @@ export function sourceInputs() {
     }
   }
   for (const path of ["Sources", "src", "android/editor/src/main/java", "android/editor/src/main/cpp"]) walk(path);
-  for (const path of ["Package.swift", "package.json", "tsconfig.build.json", "scripts/build-wasm.sh", "scripts/build-android.sh", "scripts/record-modern-build.mjs", "scripts/modern-package-provenance.mjs"]) files[path] = digest(readFileSync(path));
+  for (const path of ["Package.swift", "package.json", "tsconfig.build.json", "scripts/build-wasm.sh", "scripts/build-android.sh", "scripts/record-modern-build.mjs", "scripts/modern-package-provenance.mjs", "scripts/check-package.mjs", "scripts/prepare-private-modern-package.mjs"]) files[path] = digest(readFileSync(path));
   return files;
 }
 if (process.argv[1]?.endsWith("record-modern-build.mjs")) {

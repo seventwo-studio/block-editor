@@ -101,6 +101,32 @@ unreadable or incompatible pair with an empty document.
 
 ## Candidate preparation and approval
 
+The reviewed private-delivery proposal uses replacement
+`@seventwo-studio/block-editor-internal@0.2.0` linked only to private publisher
+`seventwo-studio/block-editor-internal-packages`. This remains a proposal until
+the exact remote actions are approved. Do not republish the removed exposed
+identity or first publish from the public source repository. The earlier 0.1.0
+replacement proposal is historical; this batch proposes 0.2.0 without overwriting
+any existing version.
+
+`scripts/prepare-private-modern-package.mjs` prepares an isolated replacement
+tarball from a clean exact source commit and matching build receipts. It preserves
+runtime hashes and records the original/transformed manifest digests, public
+source commit/tree and private publisher in provenance. It installs and exercises
+the actual replacement-name WASM package before producing `private-candidate.json`.
+It performs no registry publication, provisioning, grant, credential or billing
+change. See [the concrete delivery proposal](private-delivery-review/modern-0.2.0-candidate.md).
+
+After approved private publication and verified Foliostrate Actions Read, pin
+the exact replacement version and registry integrity in Foliostrate's manifest
+and lockfile. Change example imports from the source package name to the approved
+replacement name, keeping `/swift/modern`, `/swift/modern/react`,
+`/swift/modern/host`, `/swift/modern.css` and `/swift/modern.wasm` suffixes.
+Use the consumer's own ephemeral Actions token with `contents: read` and
+`packages: read`; keep the auth file outside the checkout and delete it afterward.
+Never commit a credential or use the publisher token in Foliostrate. Local
+tarball installation verifies preparation, not registry access.
+
 Build JavaScript declarations and actual WASM from one clean, committed source.
 Run `bun scripts/modern-package-provenance.mjs` before the isolated package check.
 The resulting package includes versioned source/tree and artifact SHA-256
