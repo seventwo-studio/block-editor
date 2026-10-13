@@ -1,0 +1,244 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.modern-relay.config.ts",
+      "--project=chromium",
+      "--reporter=line,json",
+      "--global-timeout=180000",
+      "--trace=retain-on-failure",
+      "--output=.build/finishing/20261014/modern-relay/browser-held-repaired-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.modern-relay.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 180000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-held-repaired-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-held-repaired-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-held-repaired-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4290 --strictPort",
+      "url": "http://127.0.0.1:4290/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-relay.swift.ts",
+      "file": "modern-relay.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4070,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:29:55.561Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICJjNWE0MTEzOGNlYWU3OTQ3ZjQ5NjRjZGQyZGRkNjM0MWM5MDcwMzRmIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjViMGY5ZjdkNTE5OTZkZWRlNTNlYjJiODg2MTkyNzMzMjQyNmFhMDQwYzIzNTZkYThlMDNhZTI0MzZkZGY0MDYiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogIjRmNzI3MjkwNjhjYzYxNGY2YTM3ZjkzZWFhZmFhZjM3ZTJhZDk2ZmE2OTVmYWU5M2YyNjg1Y2ExNzNhMDU4M2UiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJmMjNhZGRlMWQ2YzJkYzBmNDk5ZTRiNDkwNzcwZWI0ZTUzNTI2MmJhZjU3YmEyNmU3ZjEwOGZhNzIzYmJjOTFkIiwKICAgICJzcmMvc3dpZnQudHMiOiAiM2Q2N2VjOGM2ZjgxOTRmODFjNWExMDg5Y2Y5ZTNjNGZkNjM5NWM4MGRjNmI4YmNkM2ZlMWY3OWQwMjdjMTM4MCIKICB9LAogICJydW50aW1lTWFuaWZlc3QiOiBudWxsLAogICJwbGF0Zm9ybSI6ICJkYXJ3aW4iLAogICJhcmNoaXRlY3R1cmUiOiAiYXJtNjQiLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAiYnJpZGdlU0hBMjU2IjogImUxNjJlY2U3ZTM0Y2Q1NmI1ZGI0ZDNjZmM0MGFkMGY2NGQ3MDUxYWI5NjMzNmY0YTY3NTJjMjBjZGI2NTZkN2MiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA2NzkzMCwKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3OTMyLAogICAgICAidmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDIwMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3OTMyLAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2NzkzMCwKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDY3OTQ5LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogNjc5NTEsCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLXJlc3RhcnQtcmVqb2luIiwKICAgICAgInByb3RvY29sIjogNywKICAgICAgInBhaXJlZE9yaWdpbmFsSGlzdG9yeSI6IHRydWUsCiAgICAgICJhY3R1YWxCcm93c2VyQW5kU2VydmVyUHJvY2Vzc2VzIjogdHJ1ZSwKICAgICAgInBlZXJTcGxpdEFuZEFwcGVhcmFuY2VSZXRhaW5lZCI6IHRydWUsCiAgICAgICJvcmlnaW5hbERvY3VtZW50UHJlc2VydmVkIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3OTUxLAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2Nzk0OSwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAyCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-3348688e033d04fa4375",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2486,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:29:59.642Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICJjNWE0MTEzOGNlYWU3OTQ3ZjQ5NjRjZGQyZGRkNjM0MWM5MDcwMzRmIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjViMGY5ZjdkNTE5OTZkZWRlNTNlYjJiODg2MTkyNzMzMjQyNmFhMDQwYzIzNTZkYThlMDNhZTI0MzZkZGY0MDYiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogIjRmNzI3MjkwNjhjYzYxNGY2YTM3ZjkzZWFhZmFhZjM3ZTJhZDk2ZmE2OTVmYWU5M2YyNjg1Y2ExNzNhMDU4M2UiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJmMjNhZGRlMWQ2YzJkYzBmNDk5ZTRiNDkwNzcwZWI0ZTUzNTI2MmJhZjU3YmEyNmU3ZjEwOGZhNzIzYmJjOTFkIiwKICAgICJzcmMvc3dpZnQudHMiOiAiM2Q2N2VjOGM2ZjgxOTRmODFjNWExMDg5Y2Y5ZTNjNGZkNjM5NWM4MGRjNmI4YmNkM2ZlMWY3OWQwMjdjMTM4MCIKICB9LAogICJydW50aW1lTWFuaWZlc3QiOiBudWxsLAogICJwbGF0Zm9ybSI6ICJkYXJ3aW4iLAogICJhcmNoaXRlY3R1cmUiOiAiYXJtNjQiLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAiYnJpZGdlU0hBMjU2IjogImUxNjJlY2U3ZTM0Y2Q1NmI1ZGI0ZDNjZmM0MGFkMGY2NGQ3MDUxYWI5NjMzNmY0YTY3NTJjMjBjZGI2NTZkN2MiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA2Nzk3NCwKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3OTc2LAogICAgICAidmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDQwOQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3OTc2LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2Nzk3NCwKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDY3OTkyLAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogNjc5OTQsCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLXJlY292ZXJ5LXJlc3RhcnQiLAogICAgICAiYWNjZXB0ZWRBbmRSZWNlaXB0VW5jaGFuZ2VkT25SZWplY3Rpb24iOiB0cnVlLAogICAgICAicmV0YWluZWRQcm9wb3NhbFJlb3BlbmVkIjogdHJ1ZSwKICAgICAgImV4cGxpY2l0T3duVW5kb1JldGFpbnNQZWVyIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3OTk0LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2Nzk5MiwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAyCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-c2171d020aa204faf377",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5010,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:30:02.132Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICJjNWE0MTEzOGNlYWU3OTQ3ZjQ5NjRjZGQyZGRkNjM0MWM5MDcwMzRmIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjViMGY5ZjdkNTE5OTZkZWRlNTNlYjJiODg2MTkyNzMzMjQyNmFhMDQwYzIzNTZkYThlMDNhZTI0MzZkZGY0MDYiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogIjRmNzI3MjkwNjhjYzYxNGY2YTM3ZjkzZWFhZmFhZjM3ZTJhZDk2ZmE2OTVmYWU5M2YyNjg1Y2ExNzNhMDU4M2UiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJmMjNhZGRlMWQ2YzJkYzBmNDk5ZTRiNDkwNzcwZWI0ZTUzNTI2MmJhZjU3YmEyNmU3ZjEwOGZhNzIzYmJjOTFkIiwKICAgICJzcmMvc3dpZnQudHMiOiAiM2Q2N2VjOGM2ZjgxOTRmODFjNWExMDg5Y2Y5ZTNjNGZkNjM5NWM4MGRjNmI4YmNkM2ZlMWY3OWQwMjdjMTM4MCIKICB9LAogICJydW50aW1lTWFuaWZlc3QiOiBudWxsLAogICJwbGF0Zm9ybSI6ICJkYXJ3aW4iLAogICJhcmNoaXRlY3R1cmUiOiAiYXJtNjQiLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAiYnJpZGdlU0hBMjU2IjogImUxNjJlY2U3ZTM0Y2Q1NmI1ZGI0ZDNjZmM0MGFkMGY2NGQ3MDUxYWI5NjMzNmY0YTY3NTJjMjBjZGI2NTZkN2MiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA2ODAxNywKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY4MDE5LAogICAgICAidmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDQxMwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY4MDE5LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2ODAxNywKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDY4MDM0LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogNjgwMzYsCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDEzCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLWNhcGFjaXR5LXJlc3RhcnQiLAogICAgICAibWF4Qnl0ZXMiOiA4MDAwMDAwLAogICAgICAib3JpZ2luYWxDb21wbGV0ZUJ5dGVzIjogdHJ1ZSwKICAgICAgInJlY2VpcHRVbmNoYW5nZWQiOiB0cnVlLAogICAgICAicmV0cnlSZW1haW5zUmVjb3ZlcmFibGUiOiB0cnVlLAogICAgICAiZXhwb3J0U0hBMjU2IjogIjJiNDBhMTNmMWJmYWY4NTQ4MTY0NWEwYThiNTI0MTAwNGQ4ZWVmZDdlNWY3ZGRjZjQ3NjMyOGQxZTc1NDRhNGIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogNjgwMzYsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDY4MDM0LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9CiAgXSwKICAicmVsYXlSZXF1ZXN0cyI6IDIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-002f036451ca73a219a4",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T22:29:54.980Z",
+    "duration": 12187.721,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

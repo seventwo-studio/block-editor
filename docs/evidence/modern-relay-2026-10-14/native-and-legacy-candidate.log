@@ -1,0 +1,25 @@
+bun test v1.4.2 (744846f84)
+
+tests/relay.test.ts:
+(pass) relay returns an unapplied recovery proposal and admits a client repair after server and client restart [70.66ms]
+(pass) versioned nested moves recover offline through the central relay and preserve remote author text [63.58ms]
+(pass) independent Swift processes converge through a persistent local relay after offline edits [1059.11ms]
+(pass) generated overlapping edits recover through the central relay for independent seeds [5840.75ms]
+(pass) stress configuration rejects invalid counts and seeds before connecting [1.31ms]
+(pass) presence expires, rejects stale revisions and leaves saved content unchanged [17.50ms]
+(pass) native draft survives process restart with relay unavailable and preserves remote edits through undo [362.51ms]
+
+tests/modern-relay.test.ts:
+(pass) modern relay preserves columns, concurrent title work and author Undo through real client/server process restart [693.49ms]
+(pass) modern identity conflict retains server bytes and the author's rejected proposal through restart and explicit repair [119.55ms]
+(pass) modern 8 MB boundary and oversized authored data retain pending history and receipts after process restart [1041.45ms]
+(pass) modern relay persistence failure and incompatible saved rooms reject without replacing originals or acknowledging edits [133.39ms]
+
+tests/relay-recovery-limits.test.ts:
+(pass) transport capacity rejects without receipts and the author archive survives restart [495.07ms]
+(pass) relay admits exactly 8 MB and rejects the next byte without changing accepted state [17.61ms]
+
+ 13 pass
+ 0 fail
+ 210 expect() calls
+Ran 13 tests across 3 files. [9.99s]
