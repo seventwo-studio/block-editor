@@ -41,6 +41,7 @@ try {
     import { SwiftEditorRuntime, SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError } from ${moduleName('/swift')};
     import { SwiftModernBlockEditor, SwiftModernEditorSurface } from ${moduleName('/swift/modern/react')};
     import { ModernBrowserHost, ModernBrowserStore } from ${moduleName('/swift/modern/host')};
+    import { ModernBrowserRelay, ModernRelayCapacityError } from ${moduleName('/swift/modern/relay')};
     import { SwiftBlockEditor } from ${moduleName('/swift/react')};
     import { createElement } from 'react';
     import { renderToStaticMarkup } from 'react-dom/server';
@@ -61,7 +62,13 @@ try {
     assert.equal(inserted.status, 'applied');
     const field = session.field(session.nodes()[0]);
     assert.equal(session.execute({ command: 'replaceText', target: session.captureTextRange(field, 0, 0), arguments: { text: 'Installed Unicode 😀' } }).status, 'applied');
-    assert.equal(session.text(field), 'Installed Unicode 😀'); session.close();
+    assert.equal(session.text(field), 'Installed Unicode 😀');
+    assert.equal(typeof ModernBrowserRelay.open, 'function');
+    assert.equal(typeof ModernRelayCapacityError, 'function');
+    const host = new ModernBrowserHost(session, 'consumer', new ModernBrowserStore('not-opened-during-import'), 'document');
+    const relay = new ModernBrowserRelay(host, { documentID: 'isolated-install', actorID: 'consumer', epoch: 'isolated-candidate',
+      endpoint: 'http://127.0.0.1:9/rooms/isolated-install', relayKey: 'isolated-install', token: '' });
+    assert.equal(relay.connected, false); assert.equal(relay.pendingChanges, 2); relay.close(); session.close();
     assert.equal(typeof SwiftModernBlockEditor, 'function');
     assert.equal(typeof SwiftModernEditorSurface, 'function');
     assert.equal(typeof ModernBrowserHost, 'function');

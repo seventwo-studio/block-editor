@@ -34,7 +34,8 @@
     "dist/block-editor.wasm",
     "dist/modern-provenance.json",
     "src/swift-modern.css",
-    "docs/modern-editor-handoff.md"
+    "docs/modern-editor-handoff.md",
+    "docs/modern-relay-reference.md"
   ],
   "keywords": [
     "block-editor",
