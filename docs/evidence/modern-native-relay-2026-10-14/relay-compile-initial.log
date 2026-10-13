@@ -1,0 +1,48 @@
+Building for debugging...
+[Planning deferred tasks]
+[5 / 17] BlockEditorCore
+[7 / 19] BlockEditorCore
+[9 / 33] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:327:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+325 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+326 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+327 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+328 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+329 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:349:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+347 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+348 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+349 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+350 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+351 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[11 / 33] BlockEditorCore
+[18 / 36] BlockEditorCore
+[20 / 36] BlockEditorCore
+[21 / 36] BlockEditorCore
+[24 / 36] BlockEditorCore
+[25 / 36] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[26 / 36] BlockEditorApple
+[29 / 37] BlockEditorCore
+[32 / 47] BlockEditorApple
+[33 / 47] BlockEditorApple
+[35 / 46] BlockEditorApple
+[42 / 46] BlockEditorApple
+[44 / 47] BlockEditorApple
+[45 / 47] BlockEditorApple
+[45 / 47]
+[45 / 47] BlockEditorApple
+Build complete! (7.31 sec)

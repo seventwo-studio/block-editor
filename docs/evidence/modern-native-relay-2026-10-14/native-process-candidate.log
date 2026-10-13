@@ -1,0 +1,78 @@
+Building for debugging...
+[Provisioning 1 / 22]
+[2 / 4] modern-relay-client-product
+Build complete! (0.44 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeInputTests started.
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernProviderActivationTests started.
+◇ Suite ModernNativeRelayProcessTests started.
+◇ Suite ModernNativeRelayTests started.
+◇ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() started.
+◇ Test unchangedReplayDoesNotLeaveFocusCaptureForALaterReparent() started.
+◇ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() started.
+◇ Test focusHandoffDoesNotOverrideAnotherNativeResponder() started.
+◇ Test migrationActivationRetainsOriginalsAndRollbackSurvivesConflict() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() started.
+◇ Suite ModernNativeClipboardTests started.
+◇ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() started.
+◇ Test failedResultSaveLeavesResponseForExplicitRetry() started.
+◇ Test documentAndCredentialABARejectDelayedResponses() started.
+◇ Test heldPeerReceiptAndOriginalDraftReopenWithoutResumingComposition() started.
+◇ Test dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() started.
+◇ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() started.
+◇ Test rejectedRecoveryIsDurableAndOnlyOwnBirthIsExplicitlyRepaired() started.
+◇ Test case passing 1 argument scenario → .selectionRebase to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument scenario → .reparent to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument scenario → .consecutiveReceives to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test capacityFailureRetainsCompleteLocalHistoryAndReceipt() started.
+◇ Test delayedResultIsDurableButDoesNotApplyAfterDocumentSwitch() started.
+◇ Test failedAcknowledgmentSaveKeepsPendingAndRetryPreservesPeerUndo() started.
+◇ Test fullEditorFocusHandoffWaitsForCompositionCommit() started.
+◇ Test inputAuthoredDuringTransmissionRemainsUnacknowledged() started.
+◇ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() started.
+◇ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() started.
+◇ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() started.
+◇ Test malformedScopeDuplicateKeysAndUnknownReceiptCannotPublishPeerWork() started.
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 1.873 seconds.
+✔ Test fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) with 3 test cases passed after 1.901 seconds.
+✔ Test fullEditorFocusHandoffWaitsForCompositionCommit() passed after 3.040 seconds.
+✔ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() passed after 3.120 seconds.
+✔ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() passed after 3.150 seconds.
+✔ Test focusHandoffDoesNotOverrideAnotherNativeResponder() passed after 3.169 seconds.
+✔ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() passed after 3.169 seconds.
+✔ Test unchangedReplayDoesNotLeaveFocusCaptureForALaterReparent() passed after 3.170 seconds.
+✔ Test dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() passed after 3.172 seconds.
+✔ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() passed after 3.179 seconds.
+✔ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() passed after 3.178 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 3.179 seconds.
+✔ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() passed after 3.191 seconds.
+✔ Suite ModernNativeClipboardTests passed after 3.191 seconds.
+✔ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() passed after 5.924 seconds.
+✔ Suite ModernNativeInputTests passed after 5.924 seconds.
+✔ Test capacityFailureRetainsCompleteLocalHistoryAndReceipt() passed after 7.194 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 7.199 seconds.
+✔ Suite ModernHostStoreTests passed after 7.199 seconds.
+✔ Test heldPeerReceiptAndOriginalDraftReopenWithoutResumingComposition() passed after 7.283 seconds.
+✔ Test documentAndCredentialABARejectDelayedResponses() passed after 7.283 seconds.
+✔ Test migrationActivationRetainsOriginalsAndRollbackSurvivesConflict() passed after 7.425 seconds.
+✔ Test failedResultSaveLeavesResponseForExplicitRetry() passed after 7.469 seconds.
+✔ Test inputAuthoredDuringTransmissionRemainsUnacknowledged() passed after 7.495 seconds.
+✔ Test delayedResultIsDurableButDoesNotApplyAfterDocumentSwitch() passed after 7.497 seconds.
+✔ Suite ModernProviderActivationTests passed after 7.497 seconds.
+✔ Test malformedScopeDuplicateKeysAndUnknownReceiptCannotPublishPeerWork() passed after 7.497 seconds.
+✔ Test rejectedRecoveryIsDurableAndOnlyOwnBirthIsExplicitlyRepaired() passed after 7.498 seconds.
+✔ Test failedAcknowledgmentSaveKeepsPendingAndRetryPreservesPeerUndo() passed after 7.530 seconds.
+✔ Suite ModernNativeRelayTests passed after 7.530 seconds.
+✔ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() passed after 8.159 seconds.
+Native relay process-restart evidence: 13 exited client processes, PIDs [75008, 75009, 75010, 75011, 75012, 75013, 75014, 75019, 75020, 75021, 75022, 75023, 75024]
+✔ Test independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() passed after 8.689 seconds.
+✔ Suite ModernNativeRelayProcessTests passed after 8.689 seconds.
+✔ Test run with 27 tests in 6 suites passed after 8.689 seconds.

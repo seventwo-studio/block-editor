@@ -1,0 +1,56 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 40] BlockEditorApple
+[4 / 44] block-editor-wasm-product
+[6 / 44] BlockEditorCoreTests-product
+[9 / 45] BlockEditorApple
+[15 / 51]
+[16 / 51] BlockEditorApple
+[18 / 86] collaborative-editor-product
+[27 / 88]
+[33 / 88]
+[36 / 88]
+[37 / 88]
+[39 / 88]
+[42 / 88]
+[44 / 88]
+[47 / 88]
+[49 / 88]
+[51 / 91] relay-client-product
+[54 / 91]
+[56 / 91]
+[57 / 91]
+[60 / 91] BlockEditorCoreTests-product
+[62 / 91] BlockEditorCoreTests-product
+[64 / 91] BlockEditorApple
+[69 / 94] BlockEditorLocalDemo
+[70 / 97] BlockEditorLocalDemo
+[71 / 96] BlockEditorDemoApple
+[73 / 96] BlockEditorLocalDemoTests-product
+[73 / 97] BlockEditorCoreTests-product
+[80 / 106] BlockEditorDemoApple
+[92 / 105] BlockEditorDemoApple
+[95 / 108] local-editor-app-product
+[102 / 109] BlockEditorAppleTests-product
+[104 / 114]
+[106 / 114] BlockEditorLocalDemoTests-product
+[108 / 116] BlockEditorAppleTests-product
+[110 / 116] local-editor-app-product
+[114 / 118] BlockEditorAppleTests-product
+[116 / 118] BlockEditorAppleTests-product
+[124 / 124] collaborative-editor-product
+Build complete! (12.84 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 0.050 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 0.085 seconds.
+✔ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() passed after 0.113 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 0.125 seconds.
+✔ Suite ModernHostStoreTests passed after 0.125 seconds.
+✔ Test run with 4 tests in 1 suite passed after 0.125 seconds.

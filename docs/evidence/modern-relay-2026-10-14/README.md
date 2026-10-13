@@ -11,6 +11,7 @@ durability, scope, capacity and recovery. [receipt.json](receipt.json) and
 | Executed boundary | Result |
 | --- | --- |
 | Protocol 7 browser lifecycle in Chromium, WebKit and Firefox | 12 passed; normal exit 0; no skipped/flaky/unexpected cases |
+| Affected editor/contextual/preservation/adapter regressions in three engines | 36 passed; no skipped/flaky/unexpected cases |
 | Existing protocol 1/2 browser process-restart regressions | 9 passed; normal exit 0 |
 | Modern and legacy native relay regressions | 13 passed, 210 assertions |
 | Source/demo/modern-test/relay type checks; workflow syntax | Passed |

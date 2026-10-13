@@ -1,0 +1,48 @@
+
+
+
+Running 36 tests using 1 worker
+
+
+
+[1/36] [chromium] › tests/modern-adapter.swift.ts:7:1 › typed protocol 7 consumer contract through actual browser WASM
+[2/36] [chromium] › tests/modern-context.swift.ts:29:1 › keyboard column resize releases its preview before a peer resize
+[3/36] [chromium] › tests/modern-context.swift.ts:48:1 › Escape cancels a column drag without authoring or changing history
+[4/36] [chromium] › tests/modern-context.swift.ts:62:1 › accessible insertion cancellation returns to the original text caret
+[5/36] [chromium] › tests/modern-context.swift.ts:79:1 › Escape dismisses the Link action and retains its captured input
+[6/36] [chromium] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[7/36] [chromium] › tests/modern-editor.swift.ts:44:1 › cancelled slash query and app-owned media insertion retain the original editor
+[8/36] [chromium] › tests/modern-editor.swift.ts:61:1 › formatting keeps its captured Unicode selection and shared Undo
+[9/36] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+[10/36] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-activation
+[11/36] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-refusal
+[12/36] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: large-migration
+
+
+[13/36] [webkit] › tests/modern-adapter.swift.ts:7:1 › typed protocol 7 consumer contract through actual browser WASM
+[14/36] [webkit] › tests/modern-context.swift.ts:29:1 › keyboard column resize releases its preview before a peer resize
+[15/36] [webkit] › tests/modern-context.swift.ts:48:1 › Escape cancels a column drag without authoring or changing history
+[16/36] [webkit] › tests/modern-context.swift.ts:62:1 › accessible insertion cancellation returns to the original text caret
+[17/36] [webkit] › tests/modern-context.swift.ts:79:1 › Escape dismisses the Link action and retains its captured input
+[18/36] [webkit] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[19/36] [webkit] › tests/modern-editor.swift.ts:44:1 › cancelled slash query and app-owned media insertion retain the original editor
+[20/36] [webkit] › tests/modern-editor.swift.ts:61:1 › formatting keeps its captured Unicode selection and shared Undo
+[21/36] [webkit] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+[22/36] [webkit] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-activation
+[23/36] [webkit] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-refusal
+[24/36] [webkit] › tests/modern-preservation.swift.ts:8:3 › modern preservation: large-migration
+
+
+[25/36] [firefox] › tests/modern-adapter.swift.ts:7:1 › typed protocol 7 consumer contract through actual browser WASM
+[26/36] [firefox] › tests/modern-context.swift.ts:29:1 › keyboard column resize releases its preview before a peer resize
+[27/36] [firefox] › tests/modern-context.swift.ts:48:1 › Escape cancels a column drag without authoring or changing history
+[28/36] [firefox] › tests/modern-context.swift.ts:62:1 › accessible insertion cancellation returns to the original text caret
+[29/36] [firefox] › tests/modern-context.swift.ts:79:1 › Escape dismisses the Link action and retains its captured input
+[30/36] [firefox] › tests/modern-editor.swift.ts:7:1 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[31/36] [firefox] › tests/modern-editor.swift.ts:44:1 › cancelled slash query and app-owned media insertion retain the original editor
+[32/36] [firefox] › tests/modern-editor.swift.ts:61:1 › formatting keeps its captured Unicode selection and shared Undo
+[33/36] [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+[34/36] [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-activation
+[35/36] [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-refusal
+[36/36] [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: large-migration
+  36 passed (1.9m)

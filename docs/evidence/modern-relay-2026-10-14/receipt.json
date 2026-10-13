@@ -39,5 +39,18 @@
     "registryPublished": false,
     "localPackageVersion": "0.2.0",
     "qualification": "Local verification tarball only; never overwrite existing private registry 0.2.0. Later delivery needs a new reviewed version."
+  },
+  "affectedEditorHostRegression": {
+    "source": "d2ceb6e2a2f2fc09b0063e90a0612d71176bc456",
+    "stats": {
+      "startTime": "2026-10-13T22:57:21.604Z",
+      "duration": 114689.397,
+      "expected": 36,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "exitCode": 0,
+    "runtimeSourceUnchangedFrom": "a939dfc6600d08436a06ce0fb917fa4a157984a2"
   }
 }
