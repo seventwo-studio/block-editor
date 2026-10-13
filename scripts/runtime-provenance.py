@@ -36,7 +36,7 @@ def digest(path):
 
 def roles(label):
     if label == "swift":
-        return {"debug-bridge", "release-bridge", "relay-client"}
+        return {"debug-bridge", "release-bridge", "relay-client", "modern-relay-client"}
     if label == "wasm":
         return {"wasm", "debug-bridge", "relay-client"}
     return {"jni", "swift-bridge", "cxx-runtime", "test-apk"}

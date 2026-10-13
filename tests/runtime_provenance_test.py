@@ -94,6 +94,15 @@ class RuntimeProvenanceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Empty binary"):
             provenance.record("wasm", "wasm-installed.json", ["wasm=wasm.binary"], "reports")
 
+    def test_native_restart_requires_the_modern_client_binary(self):
+        path = Path("reports/runtime-provenance-swift.json")
+        value = json.loads(path.read_text())
+        self.assertIn("modern-relay-client", value["binaries"])
+        value["binaries"].pop("modern-relay-client")
+        path.write_text(json.dumps(value))
+        with self.assertRaisesRegex(ValueError, "missing or unexpected built binaries"):
+            provenance.verify("reports")
+
     def test_tracked_and_untracked_source_edits_fail_capture(self):
         self.source_patch.stop()
         for status in (" M Sources/BlockEditorCore/EditorSession.swift", "?? Sources/BlockEditorCore/Extra.swift"):
