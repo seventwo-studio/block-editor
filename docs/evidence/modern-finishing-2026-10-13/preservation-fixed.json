@@ -1,0 +1,626 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.swift.config.ts",
+      "tests/modern-preservation.swift.ts",
+      "--reporter=line,json",
+      "--global-timeout=180000",
+      "--workers=1",
+      "--trace=retain-on-failure",
+      "--output=.build/finishing/20261013/preservation-fixed-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.swift.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 180000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-fixed-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-fixed-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-fixed-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4287 --strictPort",
+      "url": "http://127.0.0.1:4287/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-preservation.swift.ts",
+      "file": "modern-preservation.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern preservation: paired-reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1212,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:04.583Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJwYWlyZWQtcmVvcGVuIiwKICAiY2hlY2tzIjogWwogICAgIkFDQy0yNCBzaGFyZWQgc3RhdGUsIGNhcmV0LCBpbmRlcGVuZGVudCBwZW5kaW5nIGlucHV0LCBpZGVtcG90ZW50IGR1cGxpY2F0ZSwgZW1wdHkgaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-d8cd3e2563a0780d1fba",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-activation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1205,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:05.876Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tYWN0aXZhdGlvbiIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjU6IGZ1bGwgbWlncmF0aW9uLCBleGFjdCBvcmlnaW5hbHMsIHJlYWRiYWNrIGZhaWx1cmUsIGlkZW1wb3RlbnQgc3RhZ2UgcmV0cnksIGZyZXNoIGVwb2Nocywgcm9sbGJhY2sgcmV0YWluaW5nIGxhdGVyIHdvcmsiCiAgXSwKICAiZXZpZGVuY2UiOiAic2hhcmVkIHNlbWFudGljcyBhbmQgSW5kZXhlZERCIGxpZmVjeWNsZSBvbmx5IiwKICAiYnJvd3NlclZlcnNpb24iOiAiMTUzLjAuODAxMC4xMiIsCiAgIndhc21TSEEyNTYiOiAiNmY1ZmViY2ZiOTYyZjczNWFiZGU0YmI4OTgwYWExNzVlNTY4YzY0ZmQ2M2MwMDQwNGI4M2Q1MTJjNzMwMTRmYiIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-a1618a01c4a9e630c0d8",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-refusal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1114,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:07.086Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tcmVmdXNhbCIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjYgbGVnYWN5LWNvbGxpc2lvbjogdW5hdmFpbGFibGUsIG9yaWdpbmFsIGJ5dGVzIGV4cG9ydGFibGUsIG5vIGFjdGl2YXRpb24iLAogICAgIkFDQy0yNiB1bnN1cHBvcnRlZC1pbmxpbmU6IHVuYXZhaWxhYmxlLCBvcmlnaW5hbCBieXRlcyBleHBvcnRhYmxlLCBubyBhY3RpdmF0aW9uIgogIF0sCiAgImV2aWRlbmNlIjogInNoYXJlZCBzZW1hbnRpY3MgYW5kIEluZGV4ZWREQiBsaWZlY3ljbGUgb25seSIsCiAgImJyb3dzZXJWZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-71456ff723548fd2a71b",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: large-migration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7831,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:08.207Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJsYXJnZS1taWdyYXRpb24iLAogICJjaGVja3MiOiBbCiAgICAiQUNDLTI3OiBhbGwgNTAwMSBibG9ja3MgYW5kIG9wYXF1ZSBmaWVsZHMsIGR1cmFibGUgZXhhY3Qgb3JpZ2luYWxzLCBmdWxsIHJlb3BlbiwgZnJlc2ggaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-2540a604a69131e0663f",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: paired-reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2014,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:16.235Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJwYWlyZWQtcmVvcGVuIiwKICAiY2hlY2tzIjogWwogICAgIkFDQy0yNCBzaGFyZWQgc3RhdGUsIGNhcmV0LCBpbmRlcGVuZGVudCBwZW5kaW5nIGlucHV0LCBpZGVtcG90ZW50IGR1cGxpY2F0ZSwgZW1wdHkgaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIyNi42IiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-5c0fc0df886f660ab2d8",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-activation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1627,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:18.457Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tYWN0aXZhdGlvbiIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjU6IGZ1bGwgbWlncmF0aW9uLCBleGFjdCBvcmlnaW5hbHMsIHJlYWRiYWNrIGZhaWx1cmUsIGlkZW1wb3RlbnQgc3RhZ2UgcmV0cnksIGZyZXNoIGVwb2Nocywgcm9sbGJhY2sgcmV0YWluaW5nIGxhdGVyIHdvcmsiCiAgXSwKICAiZXZpZGVuY2UiOiAic2hhcmVkIHNlbWFudGljcyBhbmQgSW5kZXhlZERCIGxpZmVjeWNsZSBvbmx5IiwKICAiYnJvd3NlclZlcnNpb24iOiAiMjYuNiIsCiAgIndhc21TSEEyNTYiOiAiNmY1ZmViY2ZiOTYyZjczNWFiZGU0YmI4OTgwYWExNzVlNTY4YzY0ZmQ2M2MwMDQwNGI4M2Q1MTJjNzMwMTRmYiIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-263f5c1bbf49542ef360",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-refusal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1498,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:20.088Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tcmVmdXNhbCIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjYgbGVnYWN5LWNvbGxpc2lvbjogdW5hdmFpbGFibGUsIG9yaWdpbmFsIGJ5dGVzIGV4cG9ydGFibGUsIG5vIGFjdGl2YXRpb24iLAogICAgIkFDQy0yNiB1bnN1cHBvcnRlZC1pbmxpbmU6IHVuYXZhaWxhYmxlLCBvcmlnaW5hbCBieXRlcyBleHBvcnRhYmxlLCBubyBhY3RpdmF0aW9uIgogIF0sCiAgImV2aWRlbmNlIjogInNoYXJlZCBzZW1hbnRpY3MgYW5kIEluZGV4ZWREQiBsaWZlY3ljbGUgb25seSIsCiAgImJyb3dzZXJWZXJzaW9uIjogIjI2LjYiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-0a1bdda38773a9b09d45",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: large-migration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:21.591Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJsYXJnZS1taWdyYXRpb24iLAogICJjaGVja3MiOiBbCiAgICAiQUNDLTI3OiBhbGwgNTAwMSBibG9ja3MgYW5kIG9wYXF1ZSBmaWVsZHMsIGR1cmFibGUgZXhhY3Qgb3JpZ2luYWxzLCBmdWxsIHJlb3BlbiwgZnJlc2ggaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIyNi42IiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-0f9d0bd73e20b78572ff",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: paired-reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1630,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:29.605Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJwYWlyZWQtcmVvcGVuIiwKICAiY2hlY2tzIjogWwogICAgIkFDQy0yNCBzaGFyZWQgc3RhdGUsIGNhcmV0LCBpbmRlcGVuZGVudCBwZW5kaW5nIGlucHV0LCBpZGVtcG90ZW50IGR1cGxpY2F0ZSwgZW1wdHkgaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMCIsCiAgIndhc21TSEEyNTYiOiAiNmY1ZmViY2ZiOTYyZjczNWFiZGU0YmI4OTgwYWExNzVlNTY4YzY0ZmQ2M2MwMDQwNGI4M2Q1MTJjNzMwMTRmYiIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-e5f6416b4d54c4d62a18",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-activation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1241,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:31.675Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tYWN0aXZhdGlvbiIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjU6IGZ1bGwgbWlncmF0aW9uLCBleGFjdCBvcmlnaW5hbHMsIHJlYWRiYWNrIGZhaWx1cmUsIGlkZW1wb3RlbnQgc3RhZ2UgcmV0cnksIGZyZXNoIGVwb2Nocywgcm9sbGJhY2sgcmV0YWluaW5nIGxhdGVyIHdvcmsiCiAgXSwKICAiZXZpZGVuY2UiOiAic2hhcmVkIHNlbWFudGljcyBhbmQgSW5kZXhlZERCIGxpZmVjeWNsZSBvbmx5IiwKICAiYnJvd3NlclZlcnNpb24iOiAiMTU1LjAiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-8bdd4f894f296ba86333",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-refusal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1122,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:32.921Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tcmVmdXNhbCIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjYgbGVnYWN5LWNvbGxpc2lvbjogdW5hdmFpbGFibGUsIG9yaWdpbmFsIGJ5dGVzIGV4cG9ydGFibGUsIG5vIGFjdGl2YXRpb24iLAogICAgIkFDQy0yNiB1bnN1cHBvcnRlZC1pbmxpbmU6IHVuYXZhaWxhYmxlLCBvcmlnaW5hbCBieXRlcyBleHBvcnRhYmxlLCBubyBhY3RpdmF0aW9uIgogIF0sCiAgImV2aWRlbmNlIjogInNoYXJlZCBzZW1hbnRpY3MgYW5kIEluZGV4ZWREQiBsaWZlY3ljbGUgb25seSIsCiAgImJyb3dzZXJWZXJzaW9uIjogIjE1NS4wIiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-d18cc713372beca228f5",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: large-migration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9340,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:27:34.047Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJsYXJnZS1taWdyYXRpb24iLAogICJjaGVja3MiOiBbCiAgICAiQUNDLTI3OiBhbGwgNTAwMSBibG9ja3MgYW5kIG9wYXF1ZSBmaWVsZHMsIGR1cmFibGUgZXhhY3Qgb3JpZ2luYWxzLCBmdWxsIHJlb3BlbiwgZnJlc2ggaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMCIsCiAgIndhc21TSEEyNTYiOiAiNmY1ZmViY2ZiOTYyZjczNWFiZGU0YmI4OTgwYWExNzVlNTY4YzY0ZmQ2M2MwMDQwNGI4M2Q1MTJjNzMwMTRmYiIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-e7f4a0fd7734b8753e94",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T21:27:04.295Z",
+    "duration": 39255.016,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

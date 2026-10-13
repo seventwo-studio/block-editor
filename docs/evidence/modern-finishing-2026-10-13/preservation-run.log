@@ -1,0 +1,768 @@
+
+
+
+Running 8 tests using 2 workers
+
+
+
+
+
+[1/8] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+[2/8] [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  1) [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen ──────
+
+    Error: page.evaluate: Error: invalidChange
+        at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)
+        at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)
+        at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)
+        at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)
+        at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)
+        at eval (eval at evaluate (:311:30), <anonymous>:13:14)
+        at async <anonymous>:337:30
+        at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)
+        at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)
+        at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)
+        at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)
+        at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)
+        at eval (eval at evaluate (:311:30), <anonymous>:13:14)
+        at async <anonymous>:337:30
+        at /Users/luca/Developer/block-editor/tests/modern-preservation.swift.ts:17:31
+
+    Error Context: .build/finishing/20261013/preservation-results/modern-preservation.swift.-98d1c--preservation-paired-reopen-chromium/error-context.md
+
+
+
+
+[3/8] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-activation
+
+
+
+
+
+
+
+
+
+
+
+
+
+  2) [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen ───────
+
+    Error: page.evaluate: invalidChange
+    call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11
+    call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32
+    update@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21
+    setLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8
+    runModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12
+    @debugger eval code line 311 > eval:13:14
+    async*evaluate@debugger eval code:313:16
+    @debugger eval code:1:44
+    @debugger eval code:1:62
+
+        at call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11
+        at call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32
+        at update@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21
+        at setLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8
+        at runModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12
+        at @debugger eval code line 311 > eval:13:14
+        at async*evaluate@debugger eval code:313:16
+        at @debugger eval code:1:44
+        at @debugger eval code:1:62
+        at /Users/luca/Developer/block-editor/tests/modern-preservation.swift.ts:17:31
+
+    Error Context: .build/finishing/20261013/preservation-results/modern-preservation.swift.-98d1c--preservation-paired-reopen-firefox/error-context.md
+
+
+[4/8] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-refusal
+
+
+
+
+
+[5/8] [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: large-migration
+
+
+
+
+
+
+
+
+
+
+  2 failed
+    [chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen ───────
+    [firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen ────────
+  3 did not run
+  3 passed (2.2m)
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.swift.config.ts",
+      "tests/modern-preservation.swift.ts",
+      "--project=chromium",
+      "--project=firefox",
+      "--reporter=line,json",
+      "--global-timeout=180000",
+      "--output=.build/finishing/20261013/preservation-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.swift.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 180000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 7,
+    "webServer": {
+      "command": "bun run demo:dev --port 4287 --strictPort",
+      "url": "http://127.0.0.1:4287/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-preservation.swift.ts",
+      "file": "modern-preservation.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern preservation: paired-reopen",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1174,
+                  "error": {
+                    "message": "Error: page.evaluate: Error: invalidChange\n    at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)\n    at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)\n    at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)\n    at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)\n    at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)\n    at eval (eval at evaluate (:311:30), <anonymous>:13:14)\n    at async <anonymous>:337:30",
+                    "stack": "Error: page.evaluate: Error: invalidChange\n    at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)\n    at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)\n    at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)\n    at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)\n    at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)\n    at eval (eval at evaluate (:311:30), <anonymous>:13:14)\n    at async <anonymous>:337:30\n    at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)\n    at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)\n    at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)\n    at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)\n    at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)\n    at eval (eval at evaluate (:311:30), <anonymous>:13:14)\n    at async <anonymous>:337:30\n    at /Users/luca/Developer/block-editor/tests/modern-preservation.swift.ts:17:31",
+                    "location": {
+                      "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts",
+                      "column": 11,
+                      "line": 70
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts",
+                        "column": 11,
+                        "line": 70
+                      },
+                      "message": "Error: page.evaluate: Error: invalidChange\n    at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)\n    at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)\n    at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)\n    at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)\n    at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)\n    at eval (eval at evaluate (:311:30), <anonymous>:13:14)\n    at async <anonymous>:337:30\n    at SwiftEditorRuntime.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11)\n    at SwiftModernSession.call (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32)\n    at SwiftModernSession.update (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21)\n    at SwiftModernSession.setLocalSelection (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8)\n    at runModernPreservation (http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12)\n    at eval (eval at evaluate (:311:30), <anonymous>:13:14)\n    at async <anonymous>:337:30\n    at /Users/luca/Developer/block-editor/tests/modern-preservation.swift.ts:17:31"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m<launching> /Users/luca/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_chromiumdev_profile-IRZW7V --remote-debugging-pipe --no-startup-window \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m<launched> pid=61174 \u001b[30m+2ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174][err] [1013/232453.683536:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+282ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174][err] [1013/232453.748097:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+64ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174][err] [1013/232453.774715:INFO:CONSOLE:883] \"[vite] connecting...\", source: http://127.0.0.1:4287/block-editor/@vite/client (883) \u001b[30m+26ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174][err] [1013/232453.782598:INFO:CONSOLE:996] \"[vite] connected.\", source: http://127.0.0.1:4287/block-editor/@vite/client (996) \u001b[30m+8ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174][err] [1013/232453.814461:INFO:CONSOLE:14392] \"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold\", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174] <gracefully close start> \u001b[30m+998ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174] <process did exit: exitCode=0, signal=null> \u001b[30m+10ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174] starting temporary directories cleanup \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174] finished temporary directories cleanup \u001b[30m+2ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61174] <gracefully close end> \u001b[30m+0ms\u001b[0m\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:24:53.388Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-results/modern-preservation.swift.-98d1c--preservation-paired-reopen-chromium/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts",
+                    "column": 11,
+                    "line": 70
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-d8cd3e2563a0780d1fba",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-activation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1126,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m<launching> /Users/luca/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_chromiumdev_profile-rhhycm --remote-debugging-pipe --no-startup-window \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m<launched> pid=61186 \u001b[30m+2ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232455.117273:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+107ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232455.127551:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+9ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232455.143072:INFO:CONSOLE:883] \"[vite] connecting...\", source: http://127.0.0.1:4287/block-editor/@vite/client (883) \u001b[30m+16ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232455.145012:INFO:CONSOLE:996] \"[vite] connected.\", source: http://127.0.0.1:4287/block-editor/@vite/client (996) \u001b[30m+2ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232455.178380:INFO:CONSOLE:14392] \"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold\", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:24:54.996Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tYWN0aXZhdGlvbiIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjU6IGZ1bGwgbWlncmF0aW9uLCBleGFjdCBvcmlnaW5hbHMsIHJlYWRiYWNrIGZhaWx1cmUsIGlkZW1wb3RlbnQgc3RhZ2UgcmV0cnksIGZyZXNoIGVwb2Nocywgcm9sbGJhY2sgcmV0YWluaW5nIGxhdGVyIHdvcmsiCiAgXSwKICAiZXZpZGVuY2UiOiAic2hhcmVkIHNlbWFudGljcyBhbmQgSW5kZXhlZERCIGxpZmVjeWNsZSBvbmx5IiwKICAiYnJvd3NlclZlcnNpb24iOiAiMTUzLjAuODAxMC4xMiIsCiAgIndhc21TSEEyNTYiOiAiNmY1ZmViY2ZiOTYyZjczNWFiZGU0YmI4OTgwYWExNzVlNTY4YzY0ZmQ2M2MwMDQwNGI4M2Q1MTJjNzMwMTRmYiIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-a1618a01c4a9e630c0d8",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-refusal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 921,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232456.217079:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+1s\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232456.254356:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+37ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232456.268238:INFO:CONSOLE:883] \"[vite] connecting...\", source: http://127.0.0.1:4287/block-editor/@vite/client (883) \u001b[30m+14ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232456.269828:INFO:CONSOLE:996] \"[vite] connected.\", source: http://127.0.0.1:4287/block-editor/@vite/client (996) \u001b[30m+1ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232456.300103:INFO:CONSOLE:14392] \"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold\", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:24:56.211Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJtaWdyYXRpb24tcmVmdXNhbCIsCiAgImNoZWNrcyI6IFsKICAgICJBQ0MtMjYgbGVnYWN5LWNvbGxpc2lvbjogdW5hdmFpbGFibGUsIG9yaWdpbmFsIGJ5dGVzIGV4cG9ydGFibGUsIG5vIGFjdGl2YXRpb24iLAogICAgIkFDQy0yNiB1bnN1cHBvcnRlZC1pbmxpbmU6IHVuYXZhaWxhYmxlLCBvcmlnaW5hbCBieXRlcyBleHBvcnRhYmxlLCBubyBhY3RpdmF0aW9uIgogIF0sCiAgImV2aWRlbmNlIjogInNoYXJlZCBzZW1hbnRpY3MgYW5kIEluZGV4ZWREQiBsaWZlY3ljbGUgb25seSIsCiAgImJyb3dzZXJWZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-71456ff723548fd2a71b",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: large-migration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7665,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232457.145232:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+845ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232457.179681:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 \u001b[30m+34ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232457.191565:INFO:CONSOLE:883] \"[vite] connecting...\", source: http://127.0.0.1:4287/block-editor/@vite/client (883) \u001b[30m+12ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232457.195043:INFO:CONSOLE:996] \"[vite] connected.\", source: http://127.0.0.1:4287/block-editor/@vite/client (996) \u001b[30m+4ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61186][err] [1013/232457.224349:INFO:CONSOLE:14392] \"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold\", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:24:57.137Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-preservation",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY2VuYXJpbyI6ICJsYXJnZS1taWdyYXRpb24iLAogICJjaGVja3MiOiBbCiAgICAiQUNDLTI3OiBhbGwgNTAwMSBibG9ja3MgYW5kIG9wYXF1ZSBmaWVsZHMsIGR1cmFibGUgZXhhY3Qgb3JpZ2luYWxzLCBmdWxsIHJlb3BlbiwgZnJlc2ggaGlzdG9yeSIKICBdLAogICJldmlkZW5jZSI6ICJzaGFyZWQgc2VtYW50aWNzIGFuZCBJbmRleGVkREIgbGlmZWN5Y2xlIG9ubHkiLAogICJicm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-2540a604a69131e0663f",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: paired-reopen",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 1545,
+                  "error": {
+                    "message": "Error: page.evaluate: invalidChange\ncall@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11\ncall@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32\nupdate@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21\nsetLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8\nrunModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12\n@debugger eval code line 311 > eval:13:14\nasync*evaluate@debugger eval code:313:16\n@debugger eval code:1:44\n@debugger eval code:1:62\n",
+                    "stack": "Error: page.evaluate: invalidChange\ncall@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11\ncall@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32\nupdate@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21\nsetLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8\nrunModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12\n@debugger eval code line 311 > eval:13:14\nasync*evaluate@debugger eval code:313:16\n@debugger eval code:1:44\n@debugger eval code:1:62\n\n    at call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11\n    at call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32\n    at update@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21\n    at setLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8\n    at runModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12\n    at @debugger eval code line 311 > eval:13:14\n    at async*evaluate@debugger eval code:313:16\n    at @debugger eval code:1:44\n    at @debugger eval code:1:62\n    at /Users/luca/Developer/block-editor/tests/modern-preservation.swift.ts:17:31",
+                    "location": {
+                      "file": "call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts",
+                      "column": 11,
+                      "line": 70
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts",
+                        "column": 11,
+                        "line": 70
+                      },
+                      "message": "Error: page.evaluate: invalidChange\ncall@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11\ncall@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32\nupdate@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21\nsetLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8\nrunModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12\n@debugger eval code line 311 > eval:13:14\nasync*evaluate@debugger eval code:313:16\n@debugger eval code:1:44\n@debugger eval code:1:62\n\n    at call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts:70:11\n    at call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:103:32\n    at update@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:117:21\n    at setLocalSelection@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift-modern.ts:381:8\n    at runModernPreservation@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-preservation.contract.ts:110:12\n    at @debugger eval code line 311 > eval:13:14\n    at async*evaluate@debugger eval code:313:16\n    at @debugger eval code:1:44\n    at @debugger eval code:1:62\n    at /Users/luca/Developer/block-editor/tests/modern-preservation.swift.ts:17:31"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m<launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-JT7my7 -juggler-pipe -silent \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m<launched> pid=61173 \u001b[30m+2ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] *** You are running in headless mode. \u001b[30m+77ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] JavaScript warning: resource://services-settings/Utils.sys.mjs, line 125: unreachable code after return statement \u001b[30m+182ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out]  \u001b[30m+139ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] Juggler listening to the pipe \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) \u001b[30m+9ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] [WARN  rkv::backend::impl_safe::environment] `load_ratio()` is irrelevant for this storage backend. \u001b[30m+135ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) \u001b[30m+64ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) \u001b[30m+24ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) \u001b[30m+118ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) \u001b[30m+79ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] console.warn: services.settings: #fetchAttachment: Forcing fallbackToDump to false due to Utils.LOAD_DUMPS being false \u001b[30m+151ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] console.error: (new NotFoundError(\"Could not find fa0fc42c-d91d-fca7-34eb-806ff46062dc in cache or dump\", \"resource://services-settings/Attachments.sys.mjs\", 48)) \u001b[30m+14ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] console.warn: \"Unable to find the attachment for\" \"fa0fc42c-d91d-fca7-34eb-806ff46062dc\" \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] JavaScript error: , line 0: SyntaxError: JSON.parse: unexpected end of data at line 1 column 1 of the JSON data \u001b[30m+12ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] console.error: services.settings:  \u001b[30m+2ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out]   Message: EmptyDatabaseError: \"main/nimbus-desktop-experiments\" has not been synced yet \u001b[30m+1ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out]   Stack: \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out]     EmptyDatabaseError@resource://services-settings/Database.sys.mjs:19:5 \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] list@resource://services-settings/Database.sys.mjs:96:13 \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out]  \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) \u001b[30m+136ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][out] console.error: [Exception... \"Favicon at \"http://127.0.0.1:4287/favicon.ico\" failed to load.\"  nsresult: \"0x80004004 (NS_ERROR_ABORT)\"  location: \"JS frame :: resource:///modules/FaviconLoader.sys.mjs :: onStopRequest :: line 279\"  data: no] \u001b[30m+116ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173] <gracefully close start> \u001b[30m+741ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173][err] JavaScript error: chrome://juggler/content/Helper.js, line 82: NS_ERROR_FAILURE: Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIWebProgress.removeProgressListener] \u001b[30m+7ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173] <process did exit: exitCode=0, signal=null> \u001b[30m+167ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173] starting temporary directories cleanup \u001b[30m+0ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173] finished temporary directories cleanup \u001b[30m+4ms\u001b[0m\n"
+                    },
+                    {
+                      "text": "  \u001b[30;1mpw:browser \u001b[0m[pid=61173] <gracefully close end> \u001b[30m+0ms\u001b[0m\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:24:53.389Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/preservation-results/modern-preservation.swift.-98d1c--preservation-paired-reopen-firefox/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "call@http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/src/swift.ts",
+                    "column": 11,
+                    "line": 70
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-e5f6416b4d54c4d62a18",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-activation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-8bdd4f894f296ba86333",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: migration-refusal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-d18cc713372beca228f5",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        },
+        {
+          "title": "modern preservation: large-migration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1f069317cd7d757b14ad-e7f4a0fd7734b8753e94",
+          "file": "modern-preservation.swift.ts",
+          "line": 8,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T21:24:52.801Z",
+    "duration": 129380.287,
+    "expected": 3,
+    "skipped": 3,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

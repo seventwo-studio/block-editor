@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-13T21:32:09.945Z",
+  "runtimeSource": "1bb9a89c3f73c043588f8acabcde62c4e1b16be3",
+  "harnessCommit": "5a5f813cb1c3a76ae55bb8e30a9aeb61f5dcb12b",
+  "runtimeSourcesUnchanged": true,
+  "wasmSHA256": "6f5febcfb962f735abde4bb8980aa175e568c64fd63c00404b83d512c73014fb",
+  "nativeLibrarySHA256": "5228869c40acfb389940aaba05545ea78a55861dd12e3676c155bf470d24ded3",
+  "environment": {
+    "platform": "macOS 27.0.1",
+    "hardware": "Mac16,9",
+    "playwright": "1.63.0",
+    "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+    "node": "v24.19.0"
+  },
+  "browser": {
+    "startTime": "2026-10-13T21:28:30.591Z",
+    "duration": 100571.84999999999,
+    "expected": 24,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "casesPerBrowser": 8,
+    "engines": [
+      "chromium",
+      "webkit",
+      "firefox"
+    ],
+    "sharedDocumentsPerEngine": 55,
+    "commandsPerEngine": 26
+  },
+  "native": {
+    "verifiedResponses": 963,
+    "independentFixtures": 30,
+    "adapterRequests": 504,
+    "adapterFixtures": 55,
+    "adapterCommands": 26
+  },
+  "failedEvidence": [
+    {
+      "file": "browser-baseline.json",
+      "result": "6 passed, 3 Firefox launch failures before editor assertions"
+    },
+    {
+      "file": "firefox-profile-probe.json",
+      "result": "fresh profile failed; changed profile alone did not fix launch"
+    },
+    {
+      "file": "firefox-repaired.json",
+      "result": "3 editor tests passed, but runner did not finish normally; interrupted after teardown stalled"
+    },
+    {
+      "file": "preservation-run.log",
+      "result": "initial new harness supplied extra selection fields: invalidChange in Chromium and Firefox; interrupted a stalled worker; original failure retained"
+    }
+  ],
+  "qualification": "Targeted shared/runtime and browser interaction evidence. Not full ST-104/ST-141 acceptance, all 44 scenarios, native rendered/assistive input, physical device/performance campaign or final product acceptance. Published 0.2.0 is unchanged."
+}

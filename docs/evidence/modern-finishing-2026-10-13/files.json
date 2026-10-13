@@ -1,0 +1,18 @@
+{
+  "README.md": "647a4abc6e2b21140bc23739c21a2503c0dd0c02b0770e32a4bf2679894717b3",
+  "browser-baseline.json": "8eb0d12a0db7e8c52470151eed6d51043b82a83ba43b07125a79e1420c72aa19",
+  "browser-candidate.json": "71ed54e7fcedbb72b892356e84de58351482e568d3fcca7e8b9f5c1eb1add977",
+  "firefox-isolated-home-probe.json": "2058cde3c0774da871eeeace313118bf3165b30d2e498fdaef563bbe30973512",
+  "firefox-profile-probe.json": "a51878e9776c042629adbf818ed03babe3f5a7b6878e082acce3f754f9dd99bf",
+  "firefox-repaired.json": "0f3f65c35bf2eb46ddeaf05d379df2cc8f60c1a1baea0415e89f83dfcdbf3ada",
+  "integrated-chromium.png": "71ecfe5f31eb7b934da23a3fa03a84c7d3eafc77582ae4886d6044bd0b3135a3",
+  "integrated-firefox.png": "d4bd68253535ad82e79b2ff1aa9b24b1516c579f0cddddedf49c324d4410b7d1",
+  "integrated-webkit.png": "a31560067b7c07763f2c9d21d3d5bac93fccbc7fc9b9fb81306e851391c4f739",
+  "native-build.log": "4b729002c5265da7ba6797d1116b25cf633be7fc9317f692b872ba9a3c9c3b19",
+  "native-modern-abi.json": "d9c5778572e83f3fd5cc46d62c5a400cd1c6e29ba5223357bf9c9f5775f3c8c5",
+  "native-modern-adapter.json": "01bbd3347c5fb205bc09f76d18453fbbacea325a6683885644b78ac7ad48da09",
+  "preservation-browser.log": "2a45a9af8fc9e6fdf0de7367d33f004f2ef879b7708f065ac15b201e146fd977",
+  "preservation-fixed.json": "0f8ef807d083129b7b54b3f0001ea5a5bb888e783f61fbd230bd800efd8c269d",
+  "preservation-run.log": "171db02b1e997c21f074168547b0d8b3c0076bed48db08d994a08c7e9101700c",
+  "receipt.json": "ef0eb14b6207f63972a2fb15a92dbb315bc3a68b82e3206e0cbebfad77f5cb6f"
+}
