@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { browserLaunchOptions } from "./tests/helpers/browser-launch.js";
 
 export default defineConfig({
   testDir: "./tests", testMatch: "relay-process-restart.spec.ts",
@@ -11,6 +12,6 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     { name: "webkit", use: { browserName: "webkit" } },
-    { name: "firefox", use: { browserName: "firefox" } },
+    { name: "firefox", use: { browserName: "firefox", launchOptions: browserLaunchOptions("firefox") } },
   ],
 });

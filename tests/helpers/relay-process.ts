@@ -7,6 +7,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Block } from "../../src/schema.ts";
+import { browserLaunchOptions } from "./browser-launch.js";
 
 export const executable = resolve(process.env.BLOCK_EDITOR_BRIDGE ?? ".build/debug/editor-bridge");
 export const token = "relay-process-test";
@@ -77,7 +78,7 @@ export async function processLab(browserType: BrowserType, testInfo: TestInfo) {
     },
     async savedRoom(room: string) { return readFile(join(directory, "relay", `${room}.json`), "utf8"); },
     async launch() {
-      context = await browserType.launchPersistentContext(profile, { executablePath: wrapper, headless: true, baseURL, acceptDownloads: true });
+      context = await browserType.launchPersistentContext(profile, { ...browserLaunchOptions(browserType.name()), executablePath: wrapper, headless: true, baseURL, acceptDownloads: true });
       const pid = Number((await readFile(pidFile, "utf8")).trim());
       expect(pid).toBeGreaterThan(0);
       launcherPid = pid;
