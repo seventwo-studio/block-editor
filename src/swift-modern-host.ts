@@ -1,4 +1,4 @@
-import { SwiftModernSession, SwiftModernCutover, type ModernObject, type ModernAsyncTarget, type ModernAsyncRecord, type ModernPasteTarget, type ModernClipboard, type ModernHistorySelectionArchive, type ModernAsyncArchive, type ModernBatch, type ModernRecovery, type ModernDeleteTarget, type ModernPolicy, type ModernTransport } from "./swift-modern.js";
+import { SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError, type ModernObject, type ModernAsyncTarget, type ModernAsyncRecord, type ModernPasteTarget, type ModernClipboard, type ModernHistorySelectionArchive, type ModernAsyncArchive, type ModernBatch, type ModernReceipt, type ModernRecovery, type ModernDeleteTarget, type ModernPolicy, type ModernTransport } from "./swift-modern.js";
 import { parseClipboardHtml } from "./clipboard.js";
 
 export interface ModernRetainedInput { readonly id: string; readonly target: ModernPasteTarget; readonly text: string; readonly reason: string }
@@ -8,6 +8,7 @@ export interface ModernBrowserCheckpoint {
   readonly accepted: ModernObject; readonly historySelection: ModernHistorySelectionArchive; readonly providers: ModernAsyncArchive;
   readonly recovery: ModernRecovery | null; readonly deferred: readonly ModernBatch[];
   readonly inputs: readonly ModernRetainedInput[]; readonly clipboard: readonly ModernRetainedPaste[];
+  readonly relay?: { readonly key: string; readonly receipt: ModernReceipt };
 }
 export interface ModernBrowserActivation {
   readonly revision: string; readonly documentID: string; readonly epoch: string; readonly liveKey: string;
@@ -142,6 +143,7 @@ export class ModernBrowserHost {
   clipboard: ModernRetainedPaste[] = [];
   active = true;
   readOnly = false;
+  relay?: ModernBrowserCheckpoint["relay"];
   private readonly running = new Set<string>();
   private readonly unsaved = new Map<string, { target: ModernAsyncTarget; metadata: ModernObject }>();
   private generation = 0;
@@ -153,11 +155,18 @@ export class ModernBrowserHost {
     const generation = this.generation;
     return () => this.active && !this.readOnly && generation === this.generation;
   }
+  /** Receiving authorized peer work is compatible with a read-only surface. */
+  captureSynchronization(): () => boolean {
+    const generation = this.generation;
+    return () => this.active && generation === this.generation;
+  }
   checkpoint(): ModernBrowserCheckpoint {
     const scope = this.session.getSnapshot().syncState;
     const pair: ModernBrowserCheckpoint = { version: 1, revision: crypto.randomUUID(), documentID: scope.documentID, actorID: this.actorID, epoch: scope.epoch,
       accepted: this.session.save(), historySelection: this.session.exportHistorySelection(), providers: this.session.exportAsyncRequests(),
-      recovery: this.session.recovery(), deferred: this.session.deferredChanges(), inputs: structuredClone(this.inputs), clipboard: structuredClone(this.clipboard) };
+      recovery: this.session.recovery(), deferred: this.session.deferredChanges(), inputs: structuredClone(this.inputs), clipboard: structuredClone(this.clipboard),
+      ...(this.relay ? { relay: structuredClone(this.relay) } : {}) };
+    if (pair.relay) this.session.changes(pair.relay.receipt);
     validateCheckpoint(pair); return pair;
   }
   save(): Promise<void> {
@@ -178,12 +187,21 @@ export class ModernBrowserHost {
       const scope = session.getSnapshot().syncState;
       if (scope.documentID !== pair.documentID || scope.epoch !== pair.epoch) throw new Error("Checkpoint scope mismatch");
       session.restoreHistorySelection(pair.historySelection); session.restoreAsyncRequests(pair.providers);
-      if (pair.recovery) session.restoreRecovery(pair.recovery);
-      const resumeDeferred = session.holdRemoteChanges(); session.restoreDeferredChanges(pair.deferred);
+      if (pair.recovery) {
+        try { session.restoreRecovery(pair.recovery); }
+        catch (error) { if (!(error instanceof SwiftModernRecoveryError)) throw error; }
+      }
+      if (pair.relay) session.changes(pair.relay.receipt);
+      const resumeDeferred = pair.deferred.length ? session.holdRemoteChanges() : () => {};
+      if (pair.deferred.length) {
+        session.restoreDeferredChanges(pair.deferred);
+        if (!session.deferredChanges().length) resumeDeferred();
+      }
       // Validate retained rich data through Swift without applying any request.
       for (const item of pair.clipboard) if (item.clipboard) session.clipboardFromJSON(JSON.stringify(item.clipboard));
       const host = new ModernBrowserHost(session, pair.actorID, store, key, pair.revision);
       host.inputs = structuredClone([...pair.inputs]); host.clipboard = structuredClone([...pair.clipboard]);
+      host.relay = pair.relay ? structuredClone(pair.relay) : undefined;
       return { host, resumeDeferred };
     } catch (failure) { session.close(); throw failure; }
   }
@@ -293,4 +311,5 @@ function validateCheckpoint(pair: ModernBrowserCheckpoint): void {
     identifiers.add(entry.id);
   }
   if (pair.inputs.some(item => typeof item.text !== "string") || pair.clipboard.some(item => (item.plainText !== undefined && typeof item.plainText !== "string") || (item.rawHTML !== undefined && typeof item.rawHTML !== "string") || (!item.clipboard && item.plainText === undefined))) throw new Error("Invalid retained clipboard or input");
+  if (pair.relay && (typeof pair.relay.key !== "string" || !pair.relay.key || pair.relay.key.length > 1000 || size(pair.relay) > 16_000_000)) throw new Error("Invalid relay checkpoint");
 }

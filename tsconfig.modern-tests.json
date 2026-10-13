@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "types": ["bun"] },
-  "include": ["src", "tests/modern-adapter.contract.ts", "tests/modern-preservation.contract.ts", "tests/modern-preservation.swift.ts", "tests/modern-context.swift.ts", "tests/helpers/modern-surface.tsx", "tests/helpers/browser-launch.ts", "playwright.swift.config.ts"],
+  "compilerOptions": { "types": ["bun"], "allowImportingTsExtensions": true },
+  "include": ["src", "tests/modern-adapter.contract.ts", "tests/modern-preservation.contract.ts", "tests/modern-preservation.swift.ts", "tests/modern-context.swift.ts", "tests/modern-relay.swift.ts", "tests/modern-relay-client.swift.ts", "tests/modern-relay-client.contract.ts", "tests/helpers/modern-surface.tsx", "tests/helpers/browser-launch.ts", "playwright.swift.config.ts", "playwright.modern-relay.config.ts"],
   "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

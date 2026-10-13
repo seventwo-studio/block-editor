@@ -66,7 +66,7 @@ jobs:
           bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
           bun scripts/run-native-writing-resource.mjs .build/debug/editor-bridge
           "$SWIFT_BIN" build --product relay-client
-          bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
+          bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts tests/modern-relay.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
       - name: Verify optimized measurement harness
         run: |
           "$SWIFT_BIN" build -c release --product editor-bridge
@@ -154,6 +154,15 @@ jobs:
           EVIDENCE_SOURCE_SHA="$(git rev-parse HEAD)"
           export EVIDENCE_SOURCE_SHA
           bunx playwright test --config playwright.relay-restart.config.ts --forbid-only --fail-on-flaky-tests --reporter=line,json,junit --trace=retain-on-failure --output=test-results/relay-process-restart 2>&1 | tee "$RUNNER_TEMP/wasm-reports/relay-restart-playwright.txt"
+      - name: Verify modern browser and relay lifecycle in three engines
+        env:
+          EVIDENCE_RUNTIME_MANIFEST: ${{ runner.temp }}/wasm-reports/runtime-provenance-wasm.json
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/modern-relay-playwright.json
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ runner.temp }}/wasm-reports/modern-relay-junit.xml
+        run: |
+          EVIDENCE_SOURCE_SHA="$(git rev-parse HEAD)"
+          export EVIDENCE_SOURCE_SHA
+          bunx playwright test --config playwright.modern-relay.config.ts --forbid-only --fail-on-flaky-tests --reporter=line,json,junit --trace=retain-on-failure --output=test-results/modern-relay-process 2>&1 | tee "$RUNNER_TEMP/wasm-reports/modern-relay-playwright.txt"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
