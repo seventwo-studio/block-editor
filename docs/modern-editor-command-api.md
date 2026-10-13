@@ -103,6 +103,15 @@ The separate storage actor keeps disk I/O off the UI actor. A POSIX lock and exp
 
 Reopen validates owner, format, size and every engine sidecar before returning a detached live session. Deferred packets remain held, provider records do not launch tasks, and native drafts remain bound to their captured atoms even when their target was deleted. Reopen does not author a draft, transfer focus, acknowledge cut publication or activate a migration pointer. The private checkpoint admits its exact canonical encoding, refusing ignored/duplicate outer fields. Serialized checkpoint and component budgets are bounds on encoded data, not total process memory.
 
+An empty restored packet queue releases its temporary hold, allowing future
+authorized peer work without an unrelated Resume action. An additive optional
+`relay` checkpoint record pairs a stable service/room key with its protocol-7
+receipt. Supply that record as `relayReceipt` when manually rebuilding the
+model. `ModernNativeRelayClient` uses the existing persistence queue to confirm
+receipts only after durable save; `open` restores locally before attempting any
+network request. See the [native relay contract](modern-relay-reference.md#native-swift-reference)
+for original-scope guards, actual HTTP verification and integration.
+
 Three [focused native disk scenarios](evidence/modern-native-storage-2026-10-05/receipt.json) pass: paired Unicode draft/history/provider/held-peer reopen with backward-selection Undo; retained conflicting recovery and explicit repair/save; stale-writer/invalid-draft/owner/outer-field rejection preserving the prior pair. Power-loss, every device/filesystem, UI integration and migration activation/rollback campaigns remain separately tracked finishing work.
 
 ## TypeScript consumer

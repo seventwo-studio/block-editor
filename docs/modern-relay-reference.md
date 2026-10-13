@@ -1,7 +1,7 @@
 # Modern local relay integration
 
 The optional protocol 7 reference exercises shared document format 1 through
-the actual Swift engine, browser WASM, local disk and IndexedDB. It preserves
+the actual Swift engine, native URLSession, browser WASM, local disk and IndexedDB. It preserves
 legacy protocol 1/2 reference entrypoints. This is a loopback development service;
 Foliostrate still owns production authorization, synchronization scheduling,
 storage policy and rollout.
@@ -102,6 +102,59 @@ unacknowledged transactions and invokes shared repair, retaining peer work and
 the original log. `Export recovery` exports the complete paired checkpoint.
 It does not publish the document or grant a consumer access.
 
+## Native Swift reference
+
+`BlockEditorApple.ModernNativeRelayClient` is an opt-in transport around the
+existing modern native model and paired persistence controller. The consumer
+supplies a stable actor, room/service identity, app-owned file and authorized
+token. The same queue serializes autosave, provider results and relay receipts.
+
+```swift
+let store = ModernHostStore(url: appOwnedFile,
+    documentID: roomID, actorID: stableLocalActor)
+let relay = try await ModernNativeRelayClient.open(store: store,
+    endpoint: localRelayURL, relayKey: "application-service:room",
+    token: applicationToken)
+let model = relay.persistence.model
+// Mount ModernBlockEditorView(model: model) using the existing host options.
+try await relay.persistence.save() // app-controlled autosave
+try await relay.exchange()         // app-controlled synchronization
+```
+
+The default ephemeral URLSession rejects redirects and embedded URL credentials,
+queries and fragments. HTTP is confined to loopback; other endpoints require
+HTTPS. Applications can provide a `ModernNativeRelayTransport` callable for
+their environment. It returns status and exact response bytes; it must preserve
+credential/redirect policy. No polling or publication starts automatically.
+
+Opening an existing checkpoint performs no request and needs no token. A fresh
+room requires an authorized GET and durable initial save. A mismatched service
+identity, owner, epoch or invalid saved receipt fails explicitly. Attach only
+one active relay per model. Before a document switch, deactivate the original
+model and close its relay; reactivation or changing credentials back does not
+revive an older response.
+
+The client transmits the immutable accepted history actually captured by its
+completed save. New input during an asynchronous write/request stays pending.
+It validates response batches from their original JSON envelope through Swift's
+duplicate-key and causal-identity checks. Unknown receipts cannot acknowledge
+missing work. A confirmed receipt is published to the native model only after
+the same paired write queue saves it; an ordinary autosave therefore cannot
+overwrite it with an older captured receipt. Save failure leaves pending work
+retryable. The existing persistence controller inspects the active revision
+after an unconfirmed rename before another write.
+
+Native checkpoint version 1 has an additive optional `relay` record containing
+only the stable key and protocol-7 receipt. Older pairs remain readable. When
+restoring manually, pass `checkpoint.relay` into the model's `relayReceipt`
+initializer so subsequent autosave retains it. Saved packet queues remain held
+until `relay.restoredHost?.resumeDeferredChanges()` is explicitly called after
+draft/input reconciliation; an empty queue releases its restoration hold.
+Provider requests, original input and failed clipboard records remain inert.
+Export `model.checkpoint()` with JSONEncoder for the complete local archive;
+tokens and ephemeral presence are absent. Rejected recovery still uses explicit
+shared `repairUndo`/`repairRedo`, and transport failure never strips input.
+
 ## Verification boundaries
 
 `tests/modern-relay.test.ts` uses separate real server and Swift client processes
@@ -113,7 +166,14 @@ locally; this is relay-offline recovery, not a service-worker or disk-cold offli
 browser-start claim. `tests/modern-relay-client.contract.ts` adds real WASM/IDB
 expectations with deliberate HTTP delay/failure injection for lifecycle edges.
 
-The native Swift/Kotlin modern transport bindings, complete physical/assistive
+`ModernNativeRelayTests` verifies lifecycle failure injection against actual
+Swift sessions and native paired disk storage. `ModernNativeRelayProcessTests`
+uses the default URLSession against a separate real server/native-bridge process,
+then exits/restarts the server, opens offline without credentials and verifies
+the complete independent two-column fixture plus peer-preserving author history.
+These tests do not simulate a power loss or prove physical native input.
+
+The Kotlin modern transport binding, complete physical/assistive
 platform campaigns, broader performance and final product acceptance remain
 separate finishing work. The new JavaScript is not the existing published 0.2.0
 artifact; private delivery needs a new reviewed version and its concrete approval.

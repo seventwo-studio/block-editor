@@ -43,7 +43,11 @@ import Testing
         #expect(reopened.session.asyncRequests.first?.status == .pending && !reopened.session.isComposing)
         #expect(try reopened.session.exportDeferredChanges() == a.exportDeferredChanges())
         #expect(reopened.session.document.blocks[0].text == "AXC😀")
+        try b.replaceTitle(range: 0..<5, with: "Peer title")
+        try reopened.session.receive(b.changes())
+        #expect(reopened.session.document.title == "Title")
         try reopened.resumeDeferredChanges()
+        #expect(reopened.session.document.title == "Peer title")
         #expect(reopened.session.document.blocks[0].text == "RAXC😀")
         try reopened.session.undo()
         #expect(reopened.session.document.blocks[0].text == "RABC😀")
@@ -53,6 +57,32 @@ import Testing
         #expect(reopened.pendingInputs == [draft])
         try reopened.session.redo()
         #expect(reopened.session.document.blocks[0].text == "RAXC😀")
+    }
+
+    @Test func ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() async throws {
+        let directory = try directory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = ModernHostStore(url: directory.appendingPathComponent("active.json"), documentID: "host", actorID: "author")
+        let a = try session(), b = try session("peer")
+        try a.replaceText(in: field(a), range: 0..<0, with: "Own ")
+        let draft = ModernPendingInput(target: try a.captureTextRange(in: field(a), start: 4, end: 4), text: "未確定", selection: 3..<3, reason: "Saved original input")
+        let checkpoint = try await store.save(ModernHostCheckpoint(session: a, pendingInputs: [draft]), replacing: nil)
+        let reopened = try #require(try await store.load()).restore()
+        let model = ModernEditorModel(session: reopened.session, pendingInputs: reopened.pendingInputs)
+        try b.replaceTitle(range: 0..<5, with: "Peer title")
+        try model.receive(b.changes())
+        #expect(model.document.title == "Peer title")
+        #expect(Array(model.pendingInputs.values) == [draft])
+        #expect(try model.session.exportDeferredChanges() == Data("[]".utf8))
+        try model.undo()
+        let undone = try ModernDocument(documentID: "host", title: "Peer title", blocks: document().blocks)
+        #expect(model.document == undone)
+        try model.redo()
+        #expect(model.document.blocks[0].text == "Own ABC😀")
+        let saved = try await store.save(model.checkpoint(), replacing: checkpoint.revision)
+        let twice = try #require(try await store.load()).restore()
+        #expect(twice.checkpoint.revision == saved.revision && twice.session.document == model.document)
+        // Empty Resume remains idempotent for callers that already invoke it.
+        try twice.resumeDeferredChanges(); try twice.resumeDeferredChanges()
     }
 
     @Test func conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() async throws {

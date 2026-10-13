@@ -61,6 +61,17 @@ public struct ModernBatch: Encodable, Equatable, Sendable {
         self.version = version; self.documentID = documentID; self.epoch = epoch; self.baseline = baseline; self.changes = changes
     }
     public init(json: Data) throws { self = try decodeModernBatch(modernWireValue(json)) }
+    /// Read a batch inside a transport envelope without round-tripping through
+    /// a JSON decoder that discards duplicate keys or rounds causal identities.
+    public init(json: Data, atKeyPath path: [String]) throws {
+        guard path.count <= 8 else { throw EditorError.invalidChange }
+        var value = try modernWireValue(json)
+        for key in path {
+            guard let next = value.object?[key] else { throw EditorError.invalidChange }
+            value = next
+        }
+        self = try decodeModernBatch(value)
+    }
     public func json() throws -> Data { try canonicalEncoder().encode(self) }
 }
 public struct ModernRecovery: Encodable, Equatable, Sendable {
