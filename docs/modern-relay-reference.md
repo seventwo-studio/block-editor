@@ -155,6 +155,27 @@ Export `model.checkpoint()` with JSONEncoder for the complete local archive;
 tokens and ephemeral presence are absent. Rejected recovery still uses explicit
 shared `repairUndo`/`repairRedo`, and transport failure never strips input.
 
+The runnable `modern-relay-client` executable uses this exact native adapter.
+It opens/saves the complete host pair and exits after each explicit action, so
+another invocation restores a new client process. With the local relay running:
+
+```sh
+MODERN_RELAY_TOKEN=local-test swift run modern-relay-client \
+  /tmp/modern-a.json http://127.0.0.1:4319/rooms/native-room \
+  local-service:native-room native-room author-a title-prefix 'Own '
+MODERN_RELAY_TOKEN=local-test swift run modern-relay-client \
+  /tmp/modern-a.json http://127.0.0.1:4319/rooms/native-room \
+  local-service:native-room native-room author-a exchange
+```
+
+Supported explicit actions are `inspect`, `title-prefix`, `appearance`,
+`columns`, `exchange`, `undo`, `redo`, `resume-held`, `repair-undo` and `export`.
+Existing checkpoints support local actions with no token while the server is
+stopped. Tokens come only from `MODERN_RELAY_TOKEN`; output contains the complete
+document, confirmed receipt and pending count, without credentials. This is a
+reference integration and process-restart fixture, not a production network
+service or physical keyboard/touch proof.
+
 ## Verification boundaries
 
 `tests/modern-relay.test.ts` uses separate real server and Swift client processes
@@ -169,7 +190,8 @@ expectations with deliberate HTTP delay/failure injection for lifecycle edges.
 `ModernNativeRelayTests` verifies lifecycle failure injection against actual
 Swift sessions and native paired disk storage. `ModernNativeRelayProcessTests`
 uses the default URLSession against a separate real server/native-bridge process,
-then exits/restarts the server, opens offline without credentials and verifies
+then exits/restarts thirteen independent native client processes and the server,
+opens offline without credentials and verifies
 the complete independent two-column fixture plus peer-preserving author history.
 These tests do not simulate a power loss or prove physical native input.
 

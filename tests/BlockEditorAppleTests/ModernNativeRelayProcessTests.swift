@@ -8,7 +8,7 @@ import Testing
 /// transport/reopen evidence, not physical native-input or assistive acceptance.
 @MainActor @Suite struct ModernNativeRelayProcessTests {
     private let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-    private final class Server {
+    @MainActor private final class Server {
         let process: Process
         let endpoint: URL
         private init(process: Process, endpoint: URL) { self.process = process; self.endpoint = endpoint }
@@ -86,6 +86,73 @@ import Testing
             let saved = try #require(try await storeA.load())
             #expect(try saved.relay?.receipt.received == saved.restore().session.syncState.received)
             #expect(!String(decoding: try JSONEncoder().encode(saved), as: UTF8.self).contains("native-relay-test"))
+            try await server.stop()
+        } catch { try? await server.stop(); throw error }
+    }
+
+    @Test func independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("native-client-process-\(UUID())")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let original = try ModernDocument(json: Data(contentsOf: repository.appendingPathComponent("docs/acceptance/modern-editor/documents/columns-7000.json")))
+        var server = try await Server.start(root: root, repository: repository, document: original)
+        var clientPIDs: [Int32] = []
+        @MainActor func invoke(_ actor: String, _ action: [String], token: String = "native-relay-test") async throws -> [String: Any] {
+            let output = root.appendingPathComponent("output-\(UUID()).json")
+            FileManager.default.createFile(atPath: output.path, contents: nil, attributes: [.posixPermissions: 0o600])
+            let file = try FileHandle(forWritingTo: output); defer { try? file.close() }
+            let process = Process(); process.executableURL = repository.appendingPathComponent(".build/debug/modern-relay-client")
+            process.arguments = [root.appendingPathComponent("\(actor).json").path, server.endpoint.absoluteString, "native-room", original.documentID, actor] + action
+            var environment = ProcessInfo.processInfo.environment; environment["MODERN_RELAY_TOKEN"] = token
+            process.environment = environment; process.standardOutput = file; process.standardError = FileHandle.standardError
+            try process.run(); clientPIDs.append(process.processIdentifier)
+            for _ in 0..<600 {
+                if !process.isRunning {
+                    guard process.terminationStatus == 0 else { throw ModernNativeRelayError.rejected(status: Int(process.terminationStatus)) }
+                    return try #require(JSONSerialization.jsonObject(with: Data(contentsOf: output)) as? [String: Any])
+                }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            process.terminate(); throw ModernNativeRelayError.rejected(status: 504)
+        }
+        func expected(_ title: String) throws -> [String: JSONValue] {
+            var fields = original.fields; fields["title"] = .string(title)
+            var appearance = try #require(fields["appearance"]?.object); appearance["fontFamily"] = .string("serif")
+            fields["appearance"] = .object(appearance)
+            var blocks = try #require(fields["blocks"]?.array), layout = try #require(blocks[0].object)
+            layout["splitBasisPoints"] = .number(3000); blocks[0] = .object(layout); fields["blocks"] = .array(blocks)
+            return fields
+        }
+        func document(_ reply: [String: Any]) throws -> ModernDocument {
+            try ModernDocument(json: JSONSerialization.data(withJSONObject: #require(reply["document"])))
+        }
+        do {
+            _ = try await invoke("a", ["title-prefix", "Own "])
+            _ = try await invoke("b", ["appearance", "fontFamily", "serif"])
+            _ = try await invoke("b", ["columns", "layout", "3000"])
+            _ = try await invoke("b", ["exchange"])
+            let joined = try await invoke("a", ["exchange"])
+            #expect(try document(joined) == ModernDocument(fields: expected("Own Field notes")))
+            #expect(joined["pendingChanges"] as? Int == 0)
+            try await server.stop()
+            _ = try await invoke("a", ["title-prefix", "Offline "], token: "")
+            let offline = try await invoke("a", ["inspect"], token: "")
+            #expect(offline["pendingChanges"] as? Int == 1)
+            #expect(try document(offline) == ModernDocument(fields: expected("Offline Own Field notes")))
+            server = try await Server.start(root: root, repository: repository, document: original)
+            let rejoined = try await invoke("a", ["exchange"])
+            #expect(rejoined["pendingChanges"] as? Int == 0)
+            #expect(try document(rejoined) == ModernDocument(fields: expected("Offline Own Field notes")))
+            _ = try await invoke("a", ["undo"], token: "")
+            let undone = try await invoke("a", ["undo"], token: "")
+            #expect(try document(undone) == ModernDocument(fields: expected("Field notes")))
+            _ = try await invoke("a", ["redo"], token: "")
+            let redone = try await invoke("a", ["redo"], token: "")
+            #expect(try document(redone) == ModernDocument(fields: expected("Offline Own Field notes")))
+            let final = try await invoke("a", ["exchange"])
+            #expect(final["pendingChanges"] as? Int == 0)
+            #expect(Set(clientPIDs).count == clientPIDs.count && clientPIDs.count == 13)
+            print("Native relay process-restart evidence: \(clientPIDs.count) exited client processes, PIDs \(clientPIDs)")
             try await server.stop()
         } catch { try? await server.stop(); throw error }
     }
