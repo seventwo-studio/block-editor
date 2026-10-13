@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "sourceCommit": "32ddbfa4210db64e81eb66a919ecd1e636aec8c4",
+  "previousCandidate": "040d3b2c2108c9ed49e255c0a2829bb63d997649",
+  "coreAndWasmSource": "1bb9a89c3f73c043588f8acabcde62c4e1b16be3",
+  "wasmSHA256": "6f5febcfb962f735abde4bb8980aa175e568c64fd63c00404b83d512c73014fb",
+  "reactSourceSHA256": "a5293002fd9d60567100faf7bcc56488f9ed31dd7d3384d5ecdce56d95978427",
+  "browserStats": {
+    "startTime": "2026-10-13T21:47:57.474Z",
+    "duration": 115090.22,
+    "expected": 36,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "requiredRepairs": [
+    "Keyboard split preview clears on commit so a peer split is presented",
+    "Escape and pointer cancellation do not author a split or history",
+    "Accessible Insert cancellation restores the captured text caret",
+    "Escape dismisses Link and retains accepted input"
+  ],
+  "failedQualifications": [
+    "original.json and reproduction.json: test host lacked the Vite React preamble; no editor assertions ran",
+    "product-reproduction.json: four actual Chromium interaction failures against original React code",
+    "repaired.json: seven passed; five failures, including an incorrect End-key test assumption on macOS",
+    "repaired-final.json: eleven passed; Firefox late native input recreated the cancelled local preview",
+    "firefox-drag-events.json and firefox-drag-state.json: keydown/keyup cancellation worked; input/change arrived after pointerup; accepted split stayed 7000"
+  ],
+  "verification": [
+    "candidate.json: 36 passed across Chromium, WebKit and Firefox with normal exit 0",
+    "Source, demo and modern-test TypeScript checks passed",
+    "JavaScript artifact built; published registry 0.2.0 was not changed"
+  ],
+  "qualification": "Browser contextual interaction repairs and targeted shared/runtime regressions. Physical input, native accessibility, all 44 scenarios, performance, modern relay and final product acceptance remain open."
+}

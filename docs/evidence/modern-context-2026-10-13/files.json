@@ -1,0 +1,14 @@
+{
+  "README.md": "88625b27cf7cc6d54a8f8c54a93eb717bd190c8f723ac30462d70b13d32ad507",
+  "candidate.json": "1ac11a83c3f3c7c3e8fc4e5b314442b552bf805637b3cb6c46de2edde8f79a50",
+  "firefox-drag-events.json": "9c4b3b1893c17c142c6da94cb2ebac86d147bfc604d50d83f38829ef9bbcc8ef",
+  "firefox-drag-fixed.json": "3169c9544c3a64867a4a798578a7c5687dff577e9b0f5644ae09c9ef2c602769",
+  "firefox-drag-state.json": "9bb86e43495133d16f2b6195d92f007f444ab1bfd596df9d5578710ba76f6470",
+  "javascript-build.log": "cbdb8b8ffcaebbaa28d826dd854e06f9fd930872502c7577f6281e2db98affbb",
+  "original.json": "28e8ac4a6cbf2aa5ea12bfeefb4a30101f7d7c1dfa976bcff8c1be4b6e3a6140",
+  "product-reproduction.json": "1b9e53c8bb8965ff5665f5120c02bceacbcd25dca30595a3ccad59cc6c32a6e0",
+  "receipt.json": "4d0ca0de41e4990cffa782922531ce6cd0daffc5946d03ae4c7a388d397d7e94",
+  "repaired-final.json": "6d8fe08ad9cc617ae51586a1ad4099f450dadaf12d7964fe6a8e5c88a55f6210",
+  "repaired.json": "bb49a8eab39c645b6f8d7861d62933bad61cb2d1f2a55ab4032ea2d3592a419f",
+  "reproduction.json": "b293e6020a6aa97d0de26580adbc9b130c533acbe3229fcd0229297128829486"
+}
