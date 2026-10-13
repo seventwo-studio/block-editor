@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "types": ["bun"] },
-  "include": ["src", "tests/modern-adapter.contract.ts", "tests/modern-preservation.contract.ts", "tests/modern-preservation.swift.ts", "tests/helpers/browser-launch.ts", "playwright.swift.config.ts"],
+  "include": ["src", "tests/modern-adapter.contract.ts", "tests/modern-preservation.contract.ts", "tests/modern-preservation.swift.ts", "tests/modern-context.swift.ts", "tests/helpers/modern-surface.tsx", "tests/helpers/browser-launch.ts", "playwright.swift.config.ts"],
   "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

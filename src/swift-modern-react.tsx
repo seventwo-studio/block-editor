@@ -213,10 +213,11 @@ export interface SwiftModernEditorProps {
 export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const { session } = props, snapshot = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
   const [error, setError] = useState<string>(), [focusMode, setFocusMode] = useState(false), [outline, setOutline] = useState(false);
-  const [nodes, setNodes] = useState<ModernNodes>(), [menu, setMenu] = useState<{ boundary: ModernBoundary; range?: ModernTextRange; query: string; index: number; anchor?: DOMRect }>();
+  const [nodes, setNodes] = useState<ModernNodes>(), [menu, setMenu] = useState<{ boundary: ModernBoundary; range?: ModernTextRange; returnFocus?: ModernPosition; query: string; index: number; anchor?: DOMRect }>();
   const [link, setLink] = useState<{ range: ModernTextRange; query: string; internal: boolean }>(), [suggestions, setSuggestions] = useState<readonly ModernLinkSuggestion[]>([]);
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [split, setSplit] = useState<Record<string, number>>({}), [focused, setFocused] = useState<ModernPosition>();
+  const resizeGesture = useRef<{ key: string; cancelled: boolean } | undefined>(undefined);
   const [textSpan, setTextSpan] = useState<readonly ModernTextRange[]>([]), [, redrawSelection] = useState(0);
   const [formatAnchor, setFormatAnchor] = useState<{ left: number; top: number }>();
   const formatCapture = useRef<{ ranges: readonly ModernTextRange[] } | undefined>(undefined);
@@ -237,6 +238,34 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     return result;
   };
   const safe = (action: () => void) => { try { action(); } catch (failure) { report(failure); } };
+  function clearSplit(nodeKey: string): void {
+    setSplit(previous => { const next = { ...previous }; delete next[nodeKey]; return next; });
+  }
+  function commitSplit(node: ModernNodeID, nodeKey: string, value: number): void {
+    safe(() => execute({ command: "resizeColumns", target: { layout: node }, arguments: { splitBasisPoints: value } }));
+    resizeGesture.current = undefined;
+    clearSplit(nodeKey);
+  }
+  function dismissMenu(): void {
+    const focus = menu?.returnFocus ?? menu?.range?.end;
+    setMenu(undefined); if (focus) setFocused(focus);
+  }
+  function dismissLink(): void {
+    const focus = link?.range.end;
+    setLink(undefined); if (focus) setFocused(focus);
+  }
+  useEffect(() => {
+    // Native range dragging need not focus the input (notably on macOS).
+    // The active gesture owns Escape even when key events target the page.
+    const cancelResize = (event: globalThis.KeyboardEvent) => {
+      const gesture = resizeGesture.current;
+      if (event.key !== "Escape" || event.isComposing || !gesture || gesture.cancelled) return;
+      event.preventDefault(); event.stopPropagation();
+      gesture.cancelled = true; clearSplit(gesture.key);
+    };
+    window.addEventListener("keydown", cancelResize, true);
+    return () => window.removeEventListener("keydown", cancelResize, true);
+  }, []);
   useLayoutEffect(() => {
     if (!focused) return;
     const root = fields.current.get(key(focused.field)); if (!root) return;
@@ -433,9 +462,30 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
           <div className="modern-columns" style={{ display: "grid", gap: 24, gridTemplateColumns: usable < 2 * minimum ? "1fr" : `${ratio}fr ${1 - ratio}fr` }}>
             {containers.map((container, index) => { const columnNode = origin(root, [...current, "columns", text(container.id)]), children: ModernCollection = { owner: columnNode, field: "children" }; return <div key={text(container.id)}>{renderBlocks(array(container.children), children, root, [...current, "columns", text(container.id), "children"], usable < 2 * minimum ? available : usable * (index === 0 ? ratio : 1 - ratio))}<button disabled={readOnly} onClick={() => setMenu({ boundary: session.captureBoundary(children, session.nodes(children).at(-1)), query: "", index: 0 })}>Add to column {index + 1}</button></div>; })}
           </div>
-          <input aria-label="Column split" type="range" min={1000} max={9000} value={preview} disabled={readOnly} onChange={event => setSplit({ ...split, [nodeKey]: Number(event.target.value) })}
-            onPointerUp={() => { execute({ command: "resizeColumns", target: { layout: node }, arguments: { splitBasisPoints: preview } }); setSplit(previous => { const next = { ...previous }; delete next[nodeKey]; return next; }); }}
-            onKeyUp={() => { execute({ command: "resizeColumns", target: { layout: node }, arguments: { splitBasisPoints: preview } }); }} />
+          <input aria-label="Column split" type="range" min={1000} max={9000} value={preview} disabled={readOnly} onChange={event => {
+              if (resizeGesture.current?.key === nodeKey && resizeGesture.current.cancelled) return;
+              const value = Number(event.target.value); setSplit(previous => ({ ...previous, [nodeKey]: value }));
+            }}
+            onPointerDown={() => { resizeGesture.current = { key: nodeKey, cancelled: false }; }}
+            onPointerCancel={() => { resizeGesture.current = { key: nodeKey, cancelled: true }; clearSplit(nodeKey); }}
+            onPointerUp={event => {
+              if (resizeGesture.current?.key === nodeKey && resizeGesture.current.cancelled) {
+                const gesture = resizeGesture.current; clearSplit(nodeKey);
+                // Firefox emits its last native input/change after pointerup.
+                // Retain cancellation through that dispatch without authoring.
+                requestAnimationFrame(() => { if (resizeGesture.current === gesture) resizeGesture.current = undefined; });
+                return;
+              }
+              commitSplit(node, nodeKey, Number(event.currentTarget.value));
+            }}
+            onKeyDown={event => {
+              if (event.key === "Escape" && !event.nativeEvent.isComposing) {
+                event.preventDefault(); resizeGesture.current = { key: nodeKey, cancelled: true }; clearSplit(nodeKey);
+              } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) resizeGesture.current = undefined;
+            }}
+            onKeyUp={event => {
+              if (!event.nativeEvent.isComposing && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) commitSplit(node, nodeKey, Number(event.currentTarget.value));
+            }} />
           <button disabled={readOnly} onClick={() => execute({ command: "removeColumns", target: { layout: node }, arguments: {} })}>Remove columns</button>
         </>;
       } else if (type === "list") {
@@ -510,7 +560,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       {nodes ? <><span>{nodes.nodes.length} selected</span><details><summary>Convert</summary>{["paragraph", "heading", "quote", "callout", "list", "code"].map(type => <button key={type} disabled={readOnly} onClick={() => execute({ command: "convertBlock", target: nodes, arguments: { type: type as "paragraph" } })}>{type}</button>)}</details>
         <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
         <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><details><summary>Color</summary>{palette()}</details><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
-        <button disabled={readOnly} onClick={() => safe(() => { setMenu({ boundary: selected.current ? session.captureInsertionBoundary(selected.current.start.field) : session.captureBoundary({ field: "blocks" }, session.nodes().at(-1)), query: "", index: 0 }); })}>Insert</button>
+        <button disabled={readOnly} onClick={() => safe(() => { setMenu({ boundary: selected.current ? session.captureInsertionBoundary(selected.current.start.field) : session.captureBoundary({ field: "blocks" }, session.nodes().at(-1)), returnFocus: selected.current?.end, query: "", index: 0 }); })}>Insert</button>
         <details className="modern-format-menu" onToggle={event => captureFormatting(event.currentTarget.open)}><summary>Format</summary><div style={formatAnchor ? { position: "fixed", left: formatAnchor.left, top: formatAnchor.top, bottom: "auto" } : undefined}>{["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { const target = formatCapture.current ?? selectedTarget(); if (target.ranges.length) execute({ command: "format", target, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
         <button disabled={readOnly || !selected.current} onClick={() => { if (selected.current) setLink({ range: selected.current, query: "", internal: false }); }}>Link</button>
         <button disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button>
@@ -518,12 +568,12 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       </>}{focusMode && <button onClick={() => setFocusMode(false)}>Leave focus mode</button>}
     </div>
     {menu && <div className="modern-picker" role="dialog" aria-label="Insert block" style={{ left: menu.anchor ? Math.max(8, Math.min(window.innerWidth - 300, menu.anchor.left)) : 16, top: menu.anchor ? Math.max(8, Math.min(window.innerHeight - 440, menu.anchor.bottom)) : 64 }}>
-      <input aria-label="Search blocks" autoFocus value={menu.query} onChange={event => setMenu({ ...menu, query: event.target.value, index: 0 })} onKeyDown={event => { if (event.key === "Escape") { setMenu(undefined); if (menu.range) setFocused(menu.range.end); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setMenu({ ...menu, index: Math.max(0, Math.min(catalog.length - 1, menu.index + (event.key === "ArrowDown" ? 1 : -1))) }); } if (event.key === "Enter" && catalog[menu.index]) insert(catalog[menu.index]); }} />
-      <div role="listbox">{catalog.map((descriptor, index) => <button role="option" aria-selected={menu.index === index} key={descriptor.id} onClick={() => insert(descriptor)}><strong>{descriptor.title}</strong><small>{descriptor.description}</small></button>)}</div><button onClick={() => { setMenu(undefined); if (menu.range) setFocused(menu.range.end); }}>Cancel</button>
+      <input aria-label="Search blocks" autoFocus value={menu.query} onChange={event => setMenu({ ...menu, query: event.target.value, index: 0 })} onKeyDown={event => { if (event.nativeEvent.isComposing) return; if (event.key === "Escape") { event.preventDefault(); dismissMenu(); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setMenu({ ...menu, index: Math.max(0, Math.min(catalog.length - 1, menu.index + (event.key === "ArrowDown" ? 1 : -1))) }); } if (event.key === "Enter" && catalog[menu.index]) insert(catalog[menu.index]); }} />
+      <div role="listbox">{catalog.map((descriptor, index) => <button role="option" aria-selected={menu.index === index} key={descriptor.id} onClick={() => insert(descriptor)}><strong>{descriptor.title}</strong><small>{descriptor.description}</small></button>)}</div><button onClick={dismissMenu}>Cancel</button>
     </div>}
-    {link && <div className="modern-picker" role="dialog" aria-label="Link"><input autoFocus aria-label={link.internal ? "Search internal links" : "Link URL"} value={link.query} onChange={event => setLink({ ...link, query: event.target.value })} />
+    {link && <div className="modern-picker" role="dialog" aria-label="Link" onKeyDown={event => { if (event.key === "Escape" && !event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation(); dismissLink(); } }}><input autoFocus aria-label={link.internal ? "Search internal links" : "Link URL"} value={link.query} onChange={event => setLink({ ...link, query: event.target.value })} />
       {link.internal ? suggestions.map(suggestion => <button key={suggestion.id} disabled={suggestion.availability !== "available"} onClick={() => { execute({ command: "paste", target: { range: link.range }, arguments: { clipboard: session.clipboardParts([{ inline: { _0: [{ type: "entity-ref", entityId: suggestion.id, entityType: suggestion.type, label: suggestion.label }] } }]) } }); setLink(undefined); }}>{suggestion.label} {suggestion.availability === "available" ? "" : suggestion.availability}</button>) : <><button onClick={() => { execute({ command: "setLink", target: link.range, arguments: { href: link.query } }); setLink(undefined); }}>Apply link</button><button onClick={() => { execute({ command: "setLink", target: link.range, arguments: { href: null } }); setLink(undefined); }}>Remove link</button><button disabled={!props.suggestLinks} onClick={() => setLink({ ...link, internal: true })}>Find internal link</button></>}
-      <button onClick={() => { setLink(undefined); setFocused(link.range.end); }}>Cancel</button>
+      <button onClick={dismissLink}>Cancel</button>
     </div>}
   </section>;
 }
