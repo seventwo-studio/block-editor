@@ -49,6 +49,16 @@ recognizes only successfully completed ownership walks, not foreign shallow
 freezes. Kotlin reports the optional capability and retains its full-response
 default.
 
+The shared engine may reuse a fully admitted baseline under its strong
+structural read lease. It revalidates changed roots with the original schema
+and depth rules, checks title/appearance, and uses exact canonical byte deltas
+to enforce the unchanged 32 MB document limit. Structural changes detach the
+view and retain full construction. The baseline, root index, size and field
+birth caches are ephemeral and never replace causal admission or author
+history. Activity on already active births retains the view; activity that
+can change visibility invalidates it. These optimizations do not establish
+performance, physical-device or consumer-installation acceptance.
+
 ## React and WASM
 
 The package exposes `swift/modern`, `swift/modern/react`, `swift/modern/host`,
