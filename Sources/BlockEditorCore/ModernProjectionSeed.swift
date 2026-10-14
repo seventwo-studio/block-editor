@@ -10,7 +10,9 @@ struct ModernProjectionSeed {
     let atoms: [WritingAtomSeed]
     let hidden: Set<WritingAtomKey>
     let atomIndex: WritingSeedIndex?
-    var fields: Set<WritingField> { Set(births.keys) }
+    let atomKeys: Set<WritingAtomKey>
+    let fields: Set<WritingField>
+    let collectionBirths: [NodeCollection: NodeKind]
     var title: WritingField { WritingField(node: .document(documentID: documentID), name: "title") }
 
     /// Modern replay starts from these immutable births and only appends new
@@ -18,18 +20,22 @@ struct ModernProjectionSeed {
     /// for baseline atoms: inactive edits and conversions still retain them.
     func retainedAtoms(_ retained: [WritingField: WritingFieldBirth]) -> WritingSeedData {
         let additional = retained.filter { births[$0.key] == nil }
-        guard !additional.isEmpty else { return WritingSeedData(atoms: atoms, hidden: hidden, index: atomIndex) }
+        guard !additional.isEmpty else { return WritingSeedData(atoms: atoms, hidden: hidden, index: atomIndex, keys: atomKeys) }
         let fresh = seedWritingAtoms(additional)
         let index = atomIndex.flatMap { WritingSeedIndex(atoms: fresh.atoms, hiddenKeys: fresh.hidden, fields: Set(additional.keys), extending: $0) }
-        return WritingSeedData(atoms: atoms + fresh.atoms, hidden: hidden.union(fresh.hidden), index: index)
+        return WritingSeedData(atoms: atoms + fresh.atoms, hidden: hidden.union(fresh.hidden), index: index,
+            keys: atomKeys.union(fresh.atoms.map(\.key)))
     }
 
     init(_ document: ModernDocument) {
         documentID = document.documentID
         structure = StructuralState.seed(document)
         births = retainedWritingFields(structure)
+        fields = Set(births.keys)
+        collectionBirths = modernCollectionBirths(structure)
         let seeded = seedWritingAtoms(births)
         atoms = seeded.atoms; hidden = seeded.hidden
+        atomKeys = Set(seeded.atoms.map(\.key))
         atomIndex = WritingSeedIndex(atoms: seeded.atoms, hiddenKeys: seeded.hidden, fields: Set(births.keys))
     }
 

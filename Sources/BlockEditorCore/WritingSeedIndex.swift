@@ -38,6 +38,7 @@ struct WritingSeedData {
     let atoms: [WritingAtomSeed]
     let hidden: Set<WritingAtomKey>
     let index: WritingSeedIndex?
+    let keys: Set<WritingAtomKey>
 }
 
 /// Each snapshot owns its small field dictionary and shares immutable baseline

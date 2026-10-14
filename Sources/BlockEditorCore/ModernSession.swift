@@ -637,7 +637,7 @@ public final class ModernSession {
 
     private func replay(_ candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         let ordered = candidate.values.sorted { $0.id < $1.id }
-        let registered = try modernBirthRegistry(ordered, baseline: seed.structure)
+        let registered = try modernBirthRegistry(ordered, seed: seed)
         let registry = registered.structure, registeredBirths = registered.births
         let schemaFields = Set(ordered.flatMap { change -> [WritingField] in
             guard case .edit(let operations) = change.body else { return [] }
@@ -648,12 +648,18 @@ public final class ModernSession {
             }
         })
         let registeredSeeds = seed.retainedAtoms(registeredBirths)
-        try preflight(ordered, fields: Set(registeredBirths.keys), seeds: registeredSeeds.atoms)
+        try preflight(ordered, fields: Set(registeredBirths.keys), baselineKeys: registeredSeeds.keys)
         let active = activeStates(candidate)
         var raw = Materialized(); raw.structure = seed.structure
         var births = seed.births
-        var collectionBirths = modernCollectionBirths(seed.structure)
-        var available = Dictionary(uniqueKeysWithValues: registeredSeeds.atoms.map { ($0.key, $0.node) })
+        var collectionBirths = seed.collectionBirths
+        // Baseline atoms are immutable membership proofs, not mutable values.
+        // Keep authored membership separate to avoid copying the whole baseline
+        // when a single scalar is admitted. Causal/value checks below are intact.
+        var authoredAtoms = Set<WritingAtomKey>()
+        func atomAvailable(_ key: WritingAtomKey) -> Bool {
+            registeredSeeds.keys.contains(key) || authoredAtoms.contains(key)
+        }
         var routes: [ModernColumnRoute] = []
         var appearance = baseline.fields["appearance"]!.object!
         var previousAuthor: [String: ChangeID] = [:]
@@ -683,7 +689,7 @@ public final class ModernSession {
                     let id = key.element
                     guard id.index >= 0, id.index <= 2_147_483_647,
                           id.change.counter == 0 ? id.change.actor.isEmpty : validModernChangeID(id.change) && (id.change == change.id || cohort.contains(id.change)),
-                          available[key] != nil else { throw EditorError.invalidChange }
+                          atomAvailable(key) else { throw EditorError.invalidChange }
                 }
                 func keys(_ keys: [WritingAtomKey]) throws {
                     guard !keys.isEmpty, keys.count <= 100_000, Set(keys).count == keys.count else { throw EditorError.invalidChange }
@@ -757,8 +763,8 @@ public final class ModernSession {
                             case .structure(.insertNode(_, _, _, let placement, _)), .structure(.moveNode(_, _, let placement, _)):
                                 guard introduced.insert(placement).inserted else { throw EditorError.invalidChange }
                             case .text(.insert(let atom)):
-                                guard introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
-                                available[atom.key] = atom.node
+                                guard introduced.insert(atom.key.element).inserted, !atomAvailable(atom.key) else { throw EditorError.invalidChange }
+                                authoredAtoms.insert(atom.key)
                             default: break
                             }
                         }
@@ -949,7 +955,7 @@ public final class ModernSession {
                             try modernReference(atom.key.origin.node, before: change.id, cohort: cohort, registry: registry)
                             guard registeredBirths[atom.key.origin] != nil, raw.structure!.nodes[atom.key.origin.node] != nil else { throw EditorError.invalidChange }
                             guard atom.key.element.change == change.id, atom.key.element.index >= 0, atom.key.element.index <= 2_147_483_647,
-                                  introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
+                                  introduced.insert(atom.key.element).inserted, !atomAvailable(atom.key) else { throw EditorError.invalidChange }
                             let ownBirth: Bool
                             if case .inserted(let creation, _) = atom.key.origin.node { ownBirth = creation.change == change.id }
                             else { ownBirth = false }
@@ -971,7 +977,7 @@ public final class ModernSession {
                             case .follow(let anchor): guard atom.edge.anchor == anchor else { throw EditorError.invalidChange }; try reference(anchor)
                             }
                             try validateAtom(atom.node, field: atom.key.origin)
-                            available[atom.key] = atom.node
+                            authoredAtoms.insert(atom.key)
                         case .delete(let span): try keys(span)
                         case .format(let span, let type, let mark):
                             try keys(span); try validateModernMark(type: type, mark: mark)
@@ -1006,7 +1012,7 @@ public final class ModernSession {
         let subset = candidate.filter { cohort.contains($0.key) }, active = activeStates(subset)
         var raw = Materialized(); raw.structure = seed.structure
         var births = seed.births
-        var collectionBirths = modernCollectionBirths(seed.structure)
+        var collectionBirths = seed.collectionBirths
         var routes: [ModernColumnRoute] = []
         for change in subset.values.sorted(by: { $0.id < $1.id }) {
             guard case .edit(let operations) = change.body else { continue }
@@ -1154,8 +1160,7 @@ public final class ModernSession {
     }
     /// Check intrinsic operation shape even when a missing predecessor means
     /// causal replay must be retained for later. Undo never hides malformed input.
-    private func preflight(_ changes: [ModernChange], fields: Set<WritingField>, seeds: [WritingAtomSeed]) throws {
-        let baselineKeys = Set(seeds.map(\.key))
+    private func preflight(_ changes: [ModernChange], fields: Set<WritingField>, baselineKeys: Set<WritingAtomKey>) throws {
         for change in changes {
             guard validModernChangeID(change.id) else { throw EditorError.invalidChange }
             try validateObservedFrontier(change.observed, before: change.id)
