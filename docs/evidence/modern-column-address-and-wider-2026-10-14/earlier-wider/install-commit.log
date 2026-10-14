@@ -1,0 +1,3 @@
+[codex/editor-finishing-acceptance 219a690] fix: avoid streamed Android test package installation
+ Date: Wed Oct 14 21:43:47 2026 +0200
+ 2 files changed, 11 insertions(+), 2 deletions(-)

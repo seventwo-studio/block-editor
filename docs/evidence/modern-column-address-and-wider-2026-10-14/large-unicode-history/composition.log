@@ -1,0 +1,56 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:62993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+  ✘  1 [firefox] › tests/modern-context.swift.ts:36:0 › large-document Unicode typing remains one author history group (19.5s)
+
+
+  1) [firefox] › tests/modern-context.swift.ts:36:0 › large-document Unicode typing remains one author history group 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -50006,11 +50006,11 @@
+            "type": "paragraph",
+          },
+          Object {
+            "content": Array [
+              Object {
+    -           "text": "Preserved legacy paragraph 5000",
+    +           "text": "Preserved legacy paragraph 5000 世界",
+                "type": "text",
+              },
+            ],
+            "id": "legacy-5000",
+            "type": "paragraph",
+
+      57 |   await info.attach("unicode-history-trace", { path: tracePath, contentType: "application/json" });
+      58 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+    > 59 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(document);
+         |                                                                                            ^
+      60 |   await body.press(process.platform === "darwin" ? "Meta+Shift+z" : "Control+Shift+z");
+      61 |   await expect(body).toHaveText("Preserved legacy paragraph 5000 世界😀");
+      62 |   expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:59:92
+
+    attachment #1: unicode-history-trace (application/json) ────────────────────────────────────────
+    .build/finishing/20261014/large-unicode-history/composition-results/modern-context.swift.ts-la-ac55b-ns-one-author-history-group-firefox/attachments/unicode-history-trace-04281531fcc4d0e49a0a769841becf362a39777a.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/large-unicode-history/composition-results/modern-context.swift.ts-la-ac55b-ns-one-author-history-group-firefox/error-context.md
+
+  1 failed
+    [firefox] › tests/modern-context.swift.ts:36:0 › large-document Unicode typing remains one author history group 

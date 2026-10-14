@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "passed": true,
+      "remote": "files/modern-process-45cc6c80-9b1c-4bc1-a7c6-a32380409df8-rejoin.json",
+      "expectedSHA256": "59e28d154c4bcf004e8c305d24d0cb906efb52af7cc6ed5af9b03fe74a65d371",
+      "actualSHA256": "59e28d154c4bcf004e8c305d24d0cb906efb52af7cc6ed5af9b03fe74a65d371",
+      "byteCount": 1602
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+tests/modern-wider.swift.ts(52,48): error TS2540: Cannot assign to 'appearance' because it is a read-only property.
+tests/modern-wider.swift.ts(65,25): error TS2589: Type instantiation is excessively deep and possibly infinite.
+tests/modern-wider.swift.ts(89,44): error TS2542: Index signature in type 'readonly ModernObject[]' only permits reading.
+tests/modern-wider.swift.ts(94,143): error TS2721: Cannot invoke an object which is possibly 'null'.
+tests/modern-wider.swift.ts(94,143): error TS18047: 'document.createRange' is possibly 'null'.
+tests/modern-wider.swift.ts(94,152): error TS2349: This expression is not callable.
+  No constituent of type 'string | number | boolean | readonly ModernJSON[] | { readonly [key: string]: ModernJSON; } | ModernAppearance' is callable.
+tests/modern-wider.swift.ts(94,232): error TS2721: Cannot invoke an object which is possibly 'null'.
+tests/modern-wider.swift.ts(94,241): error TS2349: This expression is not callable.
+  No constituent of type 'string | number | boolean | readonly ModernJSON[] | { readonly [key: string]: ModernJSON; } | ModernAppearance' is callable.
+tests/modern-wider.swift.ts(96,50): error TS2721: Cannot invoke an object which is possibly 'null'.
+tests/modern-wider.swift.ts(96,59): error TS2349: This expression is not callable.
+  No constituent of type 'string | number | boolean | readonly ModernJSON[] | { readonly [key: string]: ModernJSON; } | ModernAppearance' is callable.
+tests/modern-wider.swift.ts(116,5): error TS2542: Index signature in type 'ModernObject' only permits reading.

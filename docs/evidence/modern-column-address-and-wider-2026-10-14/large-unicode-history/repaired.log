@@ -1,0 +1,14 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:63849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+  ✓  1 [chromium] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (14.9s)
+  ✓  2 [chromium] › tests/modern-context.swift.ts:155:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (9.0s)
+  ✓  3 [webkit] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (15.1s)
+  ✓  4 [webkit] › tests/modern-context.swift.ts:155:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (9.7s)
+  ✓  5 [firefox] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (17.2s)
+  ✓  6 [firefox] › tests/modern-context.swift.ts:155:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (9.0s)
+
+  6 passed (1.3m)
