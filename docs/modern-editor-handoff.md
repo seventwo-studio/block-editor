@@ -95,8 +95,16 @@ internal proofs never enter a saved session or authorize incoming operations.
 The browser renderer reuses identity maps only within one session and the exact
 immutable binding batch returned after shared confirmation. Accepted content
 and node/address/kind validation still refresh. A changed batch replaces the
-maps; older engines retain fresh individual lookups. Local callbacks, provider
+maps; older engines retain fresh individual lookups. Exact immutable roots may
+reuse their already checked binding records within that same confirmed batch
+and session; changed roots traverse actual schema. Local callbacks, provider
 presentation, composition and geometry retain their existing invalidation. Rendered top-level controls may also retain an exact immutable root within that same confirmed identity and presentation context. Selection, column geometry, appearance, policy/provider state, composition registration and host callbacks replace the cache. Handlers read the live session; title navigation reads the current document outside the cache. Nested controls retain only with their unchanged root.
+
+Hidden formatting and color controls defer readonly state queries until they
+open; actions still read current shared state against captured targets. Browser
+Undo/Redo restores the shared local history selection through current field
+registrations, including backward text direction, focus and caret scrolling.
+These interactions do not author or reconstruct document data in JavaScript.
 
 Run `bun run build:wasm` and `bun run demo:dev`, then open the reference
 integration at `/block-editor/modern.html` with the existing

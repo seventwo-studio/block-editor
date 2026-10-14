@@ -1,0 +1,764 @@
+{
+  "runID": "3dd5aa75-6dc1-43e3-8f4d-f787d558f455",
+  "passed": true,
+  "serial": "emulator-5554",
+  "adbPort": "5037",
+  "epoch": "modern-android-process-epoch",
+  "fixtureSHA256": "aeef0022543c093e27eba7f94db19974e311df0b011744a9328a3e760e0fa643",
+  "source": "5bb9f318af37e92e441d05901bb17be3986f5829",
+  "phases": [
+    {
+      "passed": true,
+      "phase": "seed",
+      "runID": "3dd5aa75-6dc1-43e3-8f4d-f787d558f455",
+      "pid": 5344,
+      "packageName": "studio.seventwo.blockeditor.test",
+      "document": {
+        "appearance": {
+          "fontFamily": "sans",
+          "fontSize": "default",
+          "pageWidth": "readable"
+        },
+        "blocks": [
+          {
+            "columns": [
+              {
+                "children": [
+                  {
+                    "consumer": {
+                      "opaque": "retain-A"
+                    },
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "type": "bold"
+                          }
+                        ],
+                        "text": "ABC",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "children": [
+                      {
+                        "content": [
+                          {
+                            "text": "Nested paragraph",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "child",
+                        "type": "paragraph"
+                      },
+                      {
+                        "id": "todo",
+                        "items": [
+                          {
+                            "checked": false,
+                            "children": [
+                              {
+                                "checked": true,
+                                "content": [
+                                  {
+                                    "text": "Nested task",
+                                    "type": "text"
+                                  }
+                                ],
+                                "id": "child"
+                              }
+                            ],
+                            "content": [
+                              {
+                                "text": "Check this",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "same"
+                          }
+                        ],
+                        "style": "todo",
+                        "type": "list"
+                      }
+                    ],
+                    "consumer": {
+                      "opaque": "keep-toggle"
+                    },
+                    "id": "B",
+                    "summary": [
+                      {
+                        "text": "Details",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "toggle"
+                  }
+                ],
+                "id": "first-column"
+              },
+              {
+                "children": [
+                  {
+                    "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                    "id": "C",
+                    "language": "swift",
+                    "type": "code"
+                  }
+                ],
+                "id": "second-column"
+              }
+            ],
+            "consumer": {
+              "opaque": "retain-layout"
+            },
+            "id": "layout",
+            "splitBasisPoints": 7000,
+            "type": "columns"
+          },
+          {
+            "content": [
+              {
+                "text": "Own Outside layout",
+                "type": "text"
+              }
+            ],
+            "id": "E",
+            "type": "paragraph"
+          }
+        ],
+        "documentID": "st140-columns",
+        "format": "seventwo.block-editor.document",
+        "formatVersion": 1,
+        "title": "Field notes"
+      },
+      "pending": 1,
+      "receipt": {
+        "documentID": "st140-columns",
+        "epoch": "modern-android-process-epoch",
+        "received": [],
+        "version": 7
+      },
+      "api": 26,
+      "abi": "x86_64"
+    },
+    {
+      "passed": true,
+      "phase": "offline",
+      "runID": "3dd5aa75-6dc1-43e3-8f4d-f787d558f455",
+      "pid": 5394,
+      "packageName": "studio.seventwo.blockeditor.test",
+      "document": {
+        "appearance": {
+          "fontFamily": "sans",
+          "fontSize": "default",
+          "pageWidth": "readable"
+        },
+        "blocks": [
+          {
+            "columns": [
+              {
+                "children": [
+                  {
+                    "consumer": {
+                      "opaque": "retain-A"
+                    },
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "type": "bold"
+                          }
+                        ],
+                        "text": "ABC",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "children": [
+                      {
+                        "content": [
+                          {
+                            "text": "Nested paragraph",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "child",
+                        "type": "paragraph"
+                      },
+                      {
+                        "id": "todo",
+                        "items": [
+                          {
+                            "checked": false,
+                            "children": [
+                              {
+                                "checked": true,
+                                "content": [
+                                  {
+                                    "text": "Nested task",
+                                    "type": "text"
+                                  }
+                                ],
+                                "id": "child"
+                              }
+                            ],
+                            "content": [
+                              {
+                                "text": "Check this",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "same"
+                          }
+                        ],
+                        "style": "todo",
+                        "type": "list"
+                      }
+                    ],
+                    "consumer": {
+                      "opaque": "keep-toggle"
+                    },
+                    "id": "B",
+                    "summary": [
+                      {
+                        "text": "Details",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "toggle"
+                  }
+                ],
+                "id": "first-column"
+              },
+              {
+                "children": [
+                  {
+                    "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                    "id": "C",
+                    "language": "swift",
+                    "type": "code"
+                  }
+                ],
+                "id": "second-column"
+              }
+            ],
+            "consumer": {
+              "opaque": "retain-layout"
+            },
+            "id": "layout",
+            "splitBasisPoints": 7000,
+            "type": "columns"
+          },
+          {
+            "content": [
+              {
+                "text": "Own Outside layout",
+                "type": "text"
+              }
+            ],
+            "id": "E",
+            "type": "paragraph"
+          }
+        ],
+        "documentID": "st140-columns",
+        "format": "seventwo.block-editor.document",
+        "formatVersion": 1,
+        "title": "Offline Field notes"
+      },
+      "pending": 2,
+      "receipt": {
+        "documentID": "st140-columns",
+        "epoch": "modern-android-process-epoch",
+        "received": [],
+        "version": 7
+      },
+      "api": 26,
+      "abi": "x86_64"
+    },
+    {
+      "passed": true,
+      "phase": "rejoin",
+      "runID": "3dd5aa75-6dc1-43e3-8f4d-f787d558f455",
+      "pid": 5437,
+      "packageName": "studio.seventwo.blockeditor.test",
+      "document": {
+        "appearance": {
+          "fontFamily": "serif",
+          "fontSize": "default",
+          "pageWidth": "readable"
+        },
+        "blocks": [
+          {
+            "columns": [
+              {
+                "children": [
+                  {
+                    "consumer": {
+                      "opaque": "retain-A"
+                    },
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "type": "bold"
+                          }
+                        ],
+                        "text": "ABC",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "children": [
+                      {
+                        "content": [
+                          {
+                            "text": "Nested paragraph",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "child",
+                        "type": "paragraph"
+                      },
+                      {
+                        "id": "todo",
+                        "items": [
+                          {
+                            "checked": false,
+                            "children": [
+                              {
+                                "checked": true,
+                                "content": [
+                                  {
+                                    "text": "Nested task",
+                                    "type": "text"
+                                  }
+                                ],
+                                "id": "child"
+                              }
+                            ],
+                            "content": [
+                              {
+                                "text": "Check this",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "same"
+                          }
+                        ],
+                        "style": "todo",
+                        "type": "list"
+                      }
+                    ],
+                    "consumer": {
+                      "opaque": "keep-toggle"
+                    },
+                    "id": "B",
+                    "summary": [
+                      {
+                        "text": "Details",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "toggle"
+                  }
+                ],
+                "id": "first-column"
+              },
+              {
+                "children": [
+                  {
+                    "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                    "id": "C",
+                    "language": "swift",
+                    "type": "code"
+                  }
+                ],
+                "id": "second-column"
+              }
+            ],
+            "consumer": {
+              "opaque": "retain-layout"
+            },
+            "id": "layout",
+            "splitBasisPoints": 3000,
+            "type": "columns"
+          },
+          {
+            "content": [
+              {
+                "text": "Own Outside layout",
+                "type": "text"
+              }
+            ],
+            "id": "E",
+            "type": "paragraph"
+          }
+        ],
+        "documentID": "st140-columns",
+        "format": "seventwo.block-editor.document",
+        "formatVersion": 1,
+        "title": "Offline Field notes"
+      },
+      "pending": 0,
+      "receipt": {
+        "documentID": "st140-columns",
+        "epoch": "modern-android-process-epoch",
+        "received": [
+          {
+            "actor": "android-process-author",
+            "counter": 1
+          },
+          {
+            "actor": "native-peer",
+            "counter": 1
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 2
+          },
+          {
+            "actor": "native-peer",
+            "counter": 2
+          }
+        ],
+        "version": 7
+      },
+      "api": 26,
+      "abi": "x86_64"
+    },
+    {
+      "passed": true,
+      "phase": "undo",
+      "runID": "3dd5aa75-6dc1-43e3-8f4d-f787d558f455",
+      "pid": 5486,
+      "packageName": "studio.seventwo.blockeditor.test",
+      "document": {
+        "appearance": {
+          "fontFamily": "serif",
+          "fontSize": "default",
+          "pageWidth": "readable"
+        },
+        "blocks": [
+          {
+            "columns": [
+              {
+                "children": [
+                  {
+                    "consumer": {
+                      "opaque": "retain-A"
+                    },
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "type": "bold"
+                          }
+                        ],
+                        "text": "ABC",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "children": [
+                      {
+                        "content": [
+                          {
+                            "text": "Nested paragraph",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "child",
+                        "type": "paragraph"
+                      },
+                      {
+                        "id": "todo",
+                        "items": [
+                          {
+                            "checked": false,
+                            "children": [
+                              {
+                                "checked": true,
+                                "content": [
+                                  {
+                                    "text": "Nested task",
+                                    "type": "text"
+                                  }
+                                ],
+                                "id": "child"
+                              }
+                            ],
+                            "content": [
+                              {
+                                "text": "Check this",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "same"
+                          }
+                        ],
+                        "style": "todo",
+                        "type": "list"
+                      }
+                    ],
+                    "consumer": {
+                      "opaque": "keep-toggle"
+                    },
+                    "id": "B",
+                    "summary": [
+                      {
+                        "text": "Details",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "toggle"
+                  }
+                ],
+                "id": "first-column"
+              },
+              {
+                "children": [
+                  {
+                    "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                    "id": "C",
+                    "language": "swift",
+                    "type": "code"
+                  }
+                ],
+                "id": "second-column"
+              }
+            ],
+            "consumer": {
+              "opaque": "retain-layout"
+            },
+            "id": "layout",
+            "splitBasisPoints": 3000,
+            "type": "columns"
+          },
+          {
+            "content": [
+              {
+                "text": "Outside layout",
+                "type": "text"
+              }
+            ],
+            "id": "E",
+            "type": "paragraph"
+          }
+        ],
+        "documentID": "st140-columns",
+        "format": "seventwo.block-editor.document",
+        "formatVersion": 1,
+        "title": "Field notes"
+      },
+      "pending": 2,
+      "receipt": {
+        "documentID": "st140-columns",
+        "epoch": "modern-android-process-epoch",
+        "received": [
+          {
+            "actor": "android-process-author",
+            "counter": 1
+          },
+          {
+            "actor": "native-peer",
+            "counter": 1
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 2
+          },
+          {
+            "actor": "native-peer",
+            "counter": 2
+          }
+        ],
+        "version": 7
+      },
+      "api": 26,
+      "abi": "x86_64"
+    },
+    {
+      "passed": true,
+      "phase": "redo",
+      "runID": "3dd5aa75-6dc1-43e3-8f4d-f787d558f455",
+      "pid": 5530,
+      "packageName": "studio.seventwo.blockeditor.test",
+      "document": {
+        "appearance": {
+          "fontFamily": "serif",
+          "fontSize": "default",
+          "pageWidth": "readable"
+        },
+        "blocks": [
+          {
+            "columns": [
+              {
+                "children": [
+                  {
+                    "consumer": {
+                      "opaque": "retain-A"
+                    },
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "type": "bold"
+                          }
+                        ],
+                        "text": "ABC",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "children": [
+                      {
+                        "content": [
+                          {
+                            "text": "Nested paragraph",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "child",
+                        "type": "paragraph"
+                      },
+                      {
+                        "id": "todo",
+                        "items": [
+                          {
+                            "checked": false,
+                            "children": [
+                              {
+                                "checked": true,
+                                "content": [
+                                  {
+                                    "text": "Nested task",
+                                    "type": "text"
+                                  }
+                                ],
+                                "id": "child"
+                              }
+                            ],
+                            "content": [
+                              {
+                                "text": "Check this",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "same"
+                          }
+                        ],
+                        "style": "todo",
+                        "type": "list"
+                      }
+                    ],
+                    "consumer": {
+                      "opaque": "keep-toggle"
+                    },
+                    "id": "B",
+                    "summary": [
+                      {
+                        "text": "Details",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "toggle"
+                  }
+                ],
+                "id": "first-column"
+              },
+              {
+                "children": [
+                  {
+                    "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                    "id": "C",
+                    "language": "swift",
+                    "type": "code"
+                  }
+                ],
+                "id": "second-column"
+              }
+            ],
+            "consumer": {
+              "opaque": "retain-layout"
+            },
+            "id": "layout",
+            "splitBasisPoints": 3000,
+            "type": "columns"
+          },
+          {
+            "content": [
+              {
+                "text": "Own Outside layout",
+                "type": "text"
+              }
+            ],
+            "id": "E",
+            "type": "paragraph"
+          }
+        ],
+        "documentID": "st140-columns",
+        "format": "seventwo.block-editor.document",
+        "formatVersion": 1,
+        "title": "Offline Field notes"
+      },
+      "pending": 0,
+      "receipt": {
+        "documentID": "st140-columns",
+        "epoch": "modern-android-process-epoch",
+        "received": [
+          {
+            "actor": "android-process-author",
+            "counter": 1
+          },
+          {
+            "actor": "native-peer",
+            "counter": 1
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 2
+          },
+          {
+            "actor": "native-peer",
+            "counter": 2
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 3
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 4
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 5
+          },
+          {
+            "actor": "android-process-author",
+            "counter": 6
+          }
+        ],
+        "version": 7
+      },
+      "api": 26,
+      "abi": "x86_64"
+    }
+  ],
+  "serverSHA256": "cad7a15ae29d42ebb83024bc28a760002895c39bc709873018b37f78e04f717b"
+}
