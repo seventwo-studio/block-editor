@@ -7,6 +7,30 @@ public struct ModernNodeBinding: Codable, Sendable {
     public let fields: [String: WritingField]
 }
 
+/// Trusted output only. Retain the public Codable shape without encoding an
+/// entire binding array into bytes and decoding it again before bridge output.
+/// Incoming requests still use the original admission/round-trip checks.
+func modernNodeBindingValue(_ binding: ModernNodeBinding) throws -> JSONValue {
+    func identity(_ node: NodeID) throws -> JSONValue {
+        switch node {
+        case .document(let documentID): return .object(["document": .object(["documentID": .string(documentID)])])
+        case .baseline(let blockID, let path): return .object(["baseline": .object(["blockID": .string(blockID), "path": .array(path.map(JSONValue.string))])])
+        case .inserted(let creation, let path):
+            // Every admitted modern origin uses exactly representable integer
+            // identities. Fail rather than round an incompatible trusted value.
+            guard creation.change.counter > 0, creation.change.counter <= 9_007_199_254_740_991,
+                  creation.index >= 0, creation.index <= 2_147_483_647 else { throw EditorError.invalidChange }
+            let value = JSONValue.object(["change": .object(["counter": .number(Double(creation.change.counter)), "actor": .string(creation.change.actor)]),
+                "index": .number(Double(creation.index))])
+            return .object(["inserted": .object(["creation": value, "path": .array(path.map(JSONValue.string))])])
+        }
+    }
+    var fields: [String: JSONValue] = [:]
+    for (name, field) in binding.fields { fields[name] = .object(["node": try identity(field.node), "name": .string(field.name)]) }
+    return .object(["address": .object(["blockID": .string(binding.address.blockID), "path": .array(binding.address.path.map(JSONValue.string))]),
+        "node": try identity(binding.node), "kind": .string(binding.kind), "fields": .object(fields)])
+}
+
 extension ModernSession {
     /// Renderers receive checked origins in one read, without deriving an
     /// identity from a display label or changing document/history state.

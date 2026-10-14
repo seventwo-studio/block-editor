@@ -3,6 +3,25 @@ import Foundation
 import Testing
 
 @Suite struct ModernNodeBindingTests {
+    @Test func directBindingOutputRetainsCompleteCodableShapeAndExactAliasOrigins() throws {
+        let original = NodeID.baseline(blockID: "é/\"😀", path: ["rows", "e\u{301}", "cells", "C"])
+        let inserted = NodeID.inserted(creation: ElementID(change: ChangeID(counter: 9_007_199_254_740_991, actor: "peer/東京"), index: 2_147_483_647), path: ["children", "😀"])
+        let document = NodeID.document(documentID: "doc/世界")
+        let bindings = [ModernNodeBinding(address: NodeAddress("é/\"😀", path: ["rows", "e\u{301}", "cells", "C"]), node: original, kind: "cell",
+            fields: ["content": WritingField(node: inserted, name: "summary"), "caption": WritingField(node: document, name: "title")]),
+            ModernNodeBinding(address: NodeAddress("new"), node: inserted, kind: "block", fields: [:]),
+            ModernNodeBinding(address: NodeAddress("doc"), node: document, kind: "document", fields: [:])]
+        let direct = JSONValue.array(try bindings.map(modernNodeBindingValue))
+        let coded = try JSONDecoder().decode(JSONValue.self, from: canonicalEncoder().encode(bindings))
+        // Compare exact encoded bytes, including raw spelling and empty fields;
+        // JSONValue/String equality alone would normalize canonical Unicode.
+        #expect(try canonicalEncoder().encode(direct) == canonicalEncoder().encode(coded))
+        #expect(direct.array?[0]["fields"]?["content"]?["name"] == .string("summary"))
+        #expect(direct.array?[1]["fields"] == .object([:]))
+        let incompatible = ModernNodeBinding(address: NodeAddress("bad"),
+            node: .inserted(creation: ElementID(change: ChangeID(counter: UInt64.max, actor: "peer"), index: 0), path: []), kind: "block", fields: [:])
+        #expect(throws: EditorError.self) { try modernNodeBindingValue(incompatible) }
+    }
     @Test func bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() throws {
         let child = try Block.paragraph(id: "same", text: "A😀")
         let layout = try Block(fields: ["id": .string("layout"), "type": .string("columns"), "splitBasisPoints": .number(5000),
