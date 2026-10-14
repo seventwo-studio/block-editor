@@ -38,10 +38,10 @@ func projectedWritingValues(structure: inout StructuralState, projection: Writin
         for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
     }
     for field in fields {
-        let original = structure.nodes[field.node]!.fields[field.name]!
-        if projection.hasUntouchedIndependentField(field), structure.nodes[field.node]!.birthActive,
+        let source = structure.nodes[field.node]!, original = source.fields[field.name]!
+        if let hasContent = projection.untouchedIndependentFieldHasContent(field), source.birthActive,
            !retainedOrigins || original == births[field]?.value {
-            if !projection.visibleKeys(in: field).isEmpty { structure.retainWritingActivity(of: field.node) }
+            if hasContent { structure.retainWritingActivity(of: field.node, activeBirth: source.birthActive) }
             continue
         }
         let nodes = projection.nodes(in: field)
@@ -49,11 +49,11 @@ func projectedWritingValues(structure: inout StructuralState, projection: Writin
             $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
             Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
         }) { throw EditorError.invalidDocument("Code conversion cannot flatten rich atoms") }
-        if !nodes.isEmpty { structure.retainWritingActivity(of: field.node) }
+        if !nodes.isEmpty { structure.retainWritingActivity(of: field.node, activeBirth: source.birthActive) }
         // Preserve exact baseline JSON for untouched fields, including empty
         // text runs and host extensions that have no visible scalar atoms.
         let baselineNodes = projection.independentSeedValues(in: field) ?? baselineNodesByField[field] ?? []
-        if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
+        if nodes == baselineNodes, source.birthActive,
            !retainedOrigins || original == births[field]?.value { continue }
         var runs: [JSONValue] = []
         let compactEmptyMarks = omitEmptyMarks && !baselineNodes.contains(where: { $0["marks"] == .array([]) })

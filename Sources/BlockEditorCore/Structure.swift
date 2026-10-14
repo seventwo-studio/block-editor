@@ -129,8 +129,13 @@ struct StructuralState {
     /// cannot change placement arbitration, visibility, order or addresses.
     /// Inactive births still invalidate the view so peer retention becomes live.
     mutating func retainWritingActivity(of identity: NodeID) {
+        retainWritingActivity(of: identity, activeBirth: nodes[identity]?.birthActive == true)
+    }
+    /// The field walk already read this node's immutable birth activity.
+    /// Retain the same touch semantics without another dictionary lookup.
+    mutating func retainWritingActivity(of identity: NodeID, activeBirth: Bool) {
         guard !touchedStorage.contains(identity) else { return }
-        if nodes[identity]?.birthActive == true { touchedStorage.insert(identity) }
+        if activeBirth { touchedStorage.insert(identity) }
         else { touched.insert(identity) }
     }
 

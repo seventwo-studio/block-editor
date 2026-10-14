@@ -212,6 +212,12 @@ struct WritingProjection {
     func hasUntouchedIndependentField(_ field: WritingField) -> Bool {
         independent.map { $0.projections[field] != nil && !$0.changed.contains(field) } ?? false
     }
+    /// One checked field lookup supplies both untouched status and visibility.
+    func untouchedIndependentFieldHasContent(_ field: WritingField) -> Bool? {
+        guard let independent, !independent.changed.contains(field),
+              let fieldProjection = independent.projections[field] else { return nil }
+        return !fieldProjection.visibleKeys(in: field).isEmpty
+    }
     func independentSeedValues(in field: WritingField) -> [JSONValue]? { independent.map { ($0.seeds[field] ?? []).map(\.node) } }
     func hasField(_ field: WritingField) -> Bool { independent?.projections[field] != nil || fields[Self.head(field)] != nil }
     var joinedSources: Set<WritingField> { independent == nil ? Set(joins.keys).subtracting(redirectSources) : [] }

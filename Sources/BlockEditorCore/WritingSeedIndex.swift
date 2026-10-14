@@ -7,6 +7,7 @@ struct WritingSeedIndex {
     let hidden: [WritingField: Set<WritingAtomKey>]
     let projections: [WritingField: WritingProjection]
     let rawFields: [WritingField: RawWritingField]
+    let fields: Set<WritingField>
 
     init?(atoms: [WritingAtomSeed], hiddenKeys: Set<WritingAtomKey>, fields: Set<WritingField>, extending prior: WritingSeedIndex? = nil) {
         var seeds = prior?.seeds ?? [:], hidden = prior?.hidden ?? [:]
@@ -31,6 +32,7 @@ struct WritingSeedIndex {
         }
         guard additions.keys.allSatisfy({ projections[$0] != nil }) else { return nil }
         self.seeds = seeds; self.hidden = hidden; self.projections = projections; self.rawFields = rawFields
+        self.fields = Set(projections.keys)
     }
 }
 
@@ -50,7 +52,7 @@ struct IndependentWritingFields {
     let changed: Set<WritingField>
 
     static func make(index: WritingSeedIndex, edits: [WritingEdit], active: [ChangeID: Bool], emptyFields: Set<WritingField>) throws -> Self? {
-        guard emptyFields.isSubset(of: Set(index.projections.keys)) else { return nil }
+        guard emptyFields.isSubset(of: index.fields) else { return nil }
         // Ordinary String equality admits canonically equivalent spellings.
         // Keep such wire references on full replay so cached virtual heads
         // cannot choose a different spelling for a captured identity.
