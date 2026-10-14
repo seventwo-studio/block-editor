@@ -56,6 +56,7 @@ extension ModernPlatformInput: NSViewRepresentable {
         scroll.documentView = view; context.coordinator.connect(view); return scroll
     }
     func updateNSView(_ scroll: NSScrollView, context: Context) {
+        context.coordinator.view?.setAccessibilityLabel(label)
         context.coordinator.view?.isEditable = editable && context.environment.isEnabled && context.coordinator.input != nil
         context.coordinator.render()
     }
@@ -75,7 +76,7 @@ extension ModernPlatformInput: UIViewRepresentable {
         view.adjustsFontForContentSizeCategory = true; view.allowsEditingTextAttributes = false
         view.accessibilityLabel = label; context.coordinator.connect(view); return view
     }
-    func updateUIView(_ view: ModernUIKitTextView, context: Context) { view.isEditable = editable && context.environment.isEnabled && context.coordinator.input != nil; context.coordinator.render() }
+    func updateUIView(_ view: ModernUIKitTextView, context: Context) { view.accessibilityLabel = label; view.isEditable = editable && context.environment.isEnabled && context.coordinator.input != nil; context.coordinator.render() }
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: ModernUIKitTextView, context: Context) -> CGSize? {
         guard let width = proposal.width, width > 0, width.isFinite else { return nil }
         return CGSize(width: width, height: ceil(uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height))
