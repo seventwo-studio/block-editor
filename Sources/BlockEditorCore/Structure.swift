@@ -245,7 +245,7 @@ struct StructuralState {
                 placement.collection.owner.map { !attached.contains($0) } ?? false
             }
         }
-        for key in candidates.keys { candidates[key]?.sort { $1.id < $0.id } }
+        for key in candidates.keys { candidates[key] = structuralPlacementsSorted(candidates[key]!, by: \.id, descending: true) }
         var indices: [NodeID: Int] = [:]
         func selected() -> [NodeID: Placement] {
             candidates.reduce(into: [:]) { result, entry in
@@ -263,7 +263,7 @@ struct StructuralState {
         while true {
             let current = selected()
             var cycle: [NodeID]?
-            for start in current.keys.sorted(by: { $0.key < $1.key }) {
+            for start in structuralNodesSorted(current.keys) {
                 var path: [NodeID] = [], seen: [NodeID: Int] = [:], cursor: NodeID? = start
                 while let id = cursor, let p = current[id] {
                     if let first = seen[id] { cycle = Array(path[first...]); break }
@@ -440,7 +440,7 @@ struct StructuralState {
             result.append(id)
             stack.append(contentsOf: selected.filter { $0.value.collection.owner == id && visible.contains($0.key) }.map(\.key))
         }
-        return result.sorted { $0.key < $1.key }
+        return structuralNodesSorted(result)
     }
 
     func document(text: [NodeID: [String: JSONValue]]) throws -> Document {

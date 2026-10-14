@@ -1890,7 +1890,7 @@ public final class WritingSession {
                 return current
             }
             var owners: [WritingField: NodeID] = [:]
-            for root in groups.keys.sorted(by: { $0.key < $1.key }) {
+            for root in structuralNodesSorted(groups.keys) {
                 for field in groups[root]! {
                     if let previous = owners[field] {
                         let a = representative(root), b = representative(previous)
@@ -1989,7 +1989,7 @@ public final class WritingSession {
             }
             let selected = try structure.effectivePlacements()
             var afterByRoot: [NodeID: NodePlacementID] = [:]
-            let entries = structure.placements.values.filter { $0.active }.sorted { $0.id < $1.id }
+            let entries = structuralPlacementsSorted(structure.placements.values.filter { $0.active }, by: \.id)
             for placement in entries {
                 guard let owner = placement.collection.owner,
                       selected[placement.node]?.id == placement.id || (selected[placement.node] == nil && listRoots[owner] != nil) else { continue }

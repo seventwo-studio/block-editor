@@ -27,13 +27,25 @@ const report = { complete: false, sourceCommit: execFileSync("git", ["rev-parse"
   qualification: "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets." };
 mkdirSync(dirname(output), { recursive: true });
 let session;
+let cpu;
+const cpuOutput = process.env.MODERN_CPU_PROFILE_OUTPUT;
+if (cpuOutput) {
+  const { Session } = await import("node:inspector"); cpu = new Session(); cpu.connect();
+  await new Promise((resolve, reject) => cpu.post("Profiler.enable", error => error ? reject(error) : resolve()));
+}
 try {
   session = runtime.createModern({ documentID: document.documentID, actorID: "probe", epoch: "authoring-probe", document });
   const field = session.field(session.node({ blockID: "note-1", path: [] }));
   let text = document.blocks.find(block => block.id === "note-1").content[0].text;
   for (let i = 0; i < 2; i++) {
     const range = session.captureTextRange(field, text.length, text.length);
-    assert.equal(session.execute({ command: "replaceText", target: range, arguments: { text: "!", typingGroup: "probe" } }).status, "applied");
+    if (cpu && i === 0) await new Promise((resolve, reject) => cpu.post("Profiler.start", error => error ? reject(error) : resolve()));
+    try { assert.equal(session.execute({ command: "replaceText", target: range, arguments: { text: "!", typingGroup: "probe" } }).status, "applied"); }
+    finally { if (cpu && i === 0) {
+      const { profile } = await new Promise((resolve, reject) => cpu.post("Profiler.stop", (error, result) => error ? reject(error) : resolve(result)));
+      const path = resolve(cpuOutput); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(profile) + "\n");
+      report.cpuProfile = { path, qualification: "V8 sampling of the first accepted append only, including shared WASM and adapter publication; instrumentation is diagnostic." };
+    } }
     text += "!"; assert.equal(session.text(field), text);
     const caret = session.captureTextRange(field, text.length, text.length);
     assert.equal(session.execute({ command: "typingShortcut", target: caret, arguments: {} }).status, "noop");
@@ -41,5 +53,5 @@ try {
   }
   report.complete = true;
 } catch (error) { report.error = String(error); throw error; }
-finally { session?.close(); writeFileSync(output, JSON.stringify(report, null, 2) + "\n"); }
+finally { cpu?.disconnect(); session?.close(); writeFileSync(output, JSON.stringify(report, null, 2) + "\n"); }
 console.log(JSON.stringify(calls.filter(call => call.authorCommand || call.command === "createModern")));
