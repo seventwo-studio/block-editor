@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import time
 import zipfile
+from android_fixture_readback import read_fixture
 
 
 def main():
@@ -193,10 +194,8 @@ def main():
         # 316 legal/over-depth commands under translated ARM64. Its watchdog is
         # separate from individual typed/UI acceptance and performance limits.
         instrument("studio.seventwo.blockeditor.RuntimeCompatibilityTest", "runtime-instrumentation.txt", 1, timeout=900)
-        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/android.json",
-               stdout=(output / f"{label}.json").open("w"))
-        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/environment.json",
-               stdout=(output / "android-environment.json").open("w"))
+        read_fixture(device, "files/compatibility/android.json", output / f"{label}.json")
+        read_fixture(device, "files/compatibility/environment.json", output / "android-environment.json")
         metadata = json.loads((output / "android-environment.json").read_text())
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
@@ -224,8 +223,7 @@ def main():
                     # Preserve an incomplete case report beside the original
                     # instrumentation failure; diagnostics cannot replace it.
                     try:
-                        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", f"files/resource/{resource_name}",
-                               stdout=(resource_output / resource_name).open("w"), timeout=20)
+                        read_fixture(device, f"files/resource/{resource_name}", resource_output / resource_name)
                     except Exception as diagnostic:
                         print(f"Resource report capture failed: {diagnostic}", flush=True)
                 resource_report = json.loads((resource_output / resource_name).read_text())
@@ -239,15 +237,13 @@ def main():
             revision = run("git", "rev-parse", "HEAD", capture_output=True, text=True).stdout.strip()
             instrument("studio.seventwo.blockeditor.PerformanceTest", "performance-instrumentation.txt", 1,
                        extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision), timeout=1800)
-            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android.json",
-                   stdout=(performance_output / f"performance-{label}.json").open("w"))
+            read_fixture(device, "files/performance/android.json", performance_output / f"performance-{label}.json")
             instrument("studio.seventwo.blockeditor.PerformanceTest", "performance-writing-instrumentation.txt", 1,
                        extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision,
                                    "-e", "performanceWriting", "true",
                                    "-e", "sourceTree", run("git", "rev-parse", "HEAD^{tree}", capture_output=True, text=True).stdout.strip(),
                                    "-e", "sourceDirty", str(bool(run("git", "status", "--porcelain", capture_output=True, text=True).stdout.strip())).lower()), timeout=1800)
-            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android-writing.json",
-                   stdout=(performance_output / f"performance-writing-{label}.json").open("w"))
+            read_fixture(device, "files/performance/android-writing.json", performance_output / f"performance-writing-{label}.json")
     finally:
         try:
             diagnostics = [("logcat.txt", ["logcat", "-d"])]

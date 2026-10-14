@@ -34,6 +34,7 @@ jobs:
       - run: bun test tests/modern-build-provenance.test.ts
       - run: bun test tests/android-process-stop.test.ts
       - run: python3 -m unittest discover -s tests -p android_writing_ime_runner_test.py -v
+      - run: python3 -m unittest discover -s tests -p android_fixture_readback_test.py -v
       - run: bunx playwright install --with-deps chromium webkit
       - run: bun run test:browser
       - run: bun run demo:build
