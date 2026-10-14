@@ -1,0 +1,49 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 3] BlockEditorCore
+[2 / 7] BlockEditorAppleTests-product
+[3 / 14]
+[7 / 14]
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:101:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+ 99 |         view.unmarkText()
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+102 |         view.doCommand(by: Selector(("moveUp:")))
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:102:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+102 |         view.doCommand(by: Selector(("moveUp:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+104 |         #expect(calls == ["new submit", "new boundary"])
+[9 / 14] BlockEditorAppleTests-product
+[15 / 19] BlockEditorAppleTests-product
+Build complete! (2.14 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeModelScopeTests started.
+◇ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() started.
+◇ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test updatedHostInteractionsKeepCompositionAndUseCurrentCallbacksAndClipboard() started.
+◇ Test case passing 1 argument change → "epoch" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "actor" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "model" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "document" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+✔ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() passed after 0.148 seconds.
+✘ Test updatedHostInteractionsKeepCompositionAndUseCurrentCallbacksAndClipboard() recorded an issue at ModernNativeModelScopeTests.swift:104:9: Expectation failed: calls == ["new submit", "new boundary"]
+↳ calls == ["new submit", "new boundary"] → false
+↳   calls → ["old submit", "old boundary"]
+✘ Test updatedHostInteractionsKeepCompositionAndUseCurrentCallbacksAndClipboard() recorded an issue at ModernNativeModelScopeTests.swift:105:9: Expectation failed: newClipboard.copies == 1 && oldClipboard.copies == 0
+↳ newClipboard.copies == 1 && oldClipboard.copies == 0 → false
+↳   newClipboard.copies == 1 → false
+↳   oldClipboard.copies == 0 → <not evaluated>
+✘ Test updatedHostInteractionsKeepCompositionAndUseCurrentCallbacksAndClipboard() failed after 0.166 seconds with 2 issues.
+✔ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) with 4 test cases passed after 0.214 seconds.
+✘ Suite ModernNativeModelScopeTests failed after 0.214 seconds with 2 issues.
+✘ Test run with 3 tests in 1 suite failed after 0.215 seconds with 2 issues.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

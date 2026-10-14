@@ -1,0 +1,52 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 1]
+[2 / 13] BlockEditorAppleTests-product
+[3 / 20]
+[7 / 20]
+[9 / 20] BlockEditorAppleTests-product
+[15 / 19] BlockEditorAppleTests-product
+Build complete! (2.01 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeModelScopeTests started.
+◇ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() started.
+◇ Test case passing 1 argument change → "epoch" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "document" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "actor" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+✘ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() recorded an issue at ModernNativeModelScopeTests.swift:58:9: Expectation failed: view !== oldView && view.string.isEmpty
+↳ view !== oldView && view.string.isEmpty → false
+↳   view !== oldView → false
+↳   view.string.isEmpty → <not evaluated>
+✘ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() recorded an issue at ModernNativeModelScopeTests.swift:61:9: Expectation failed: b.document.blocks.count == 1 && b.document.blocks.first?.text == "New 😀"
+↳ b.document.blocks.count == 1 && b.document.blocks.first?.text == "New 😀" → false
+↳   b.document.blocks.count == 1 → false
+↳   b.document.blocks.first?.text == "New 😀" → <not evaluated>
+✘ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() recorded an issue at ModernNativeModelScopeTests.swift:62:9: Expectation failed: try a.save() == original && oldModel.clipboard.retained == retained
+↳ try a.save() == original && oldModel.clipboard.retained == retained → <not evaluated>
+✘ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() failed after 0.379 seconds with 3 issues.
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) recorded an issue with 1 argument change → "document" at ModernNativeModelScopeTests.swift:34:9: Expectation failed: view !== oldView && view.string == "SECOND"
+↳ view !== oldView && view.string == "SECOND" → false
+↳   view !== oldView → false
+↳   view.string == "SECOND" → <not evaluated>
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) recorded an issue with 1 argument change → "document" at ModernNativeModelScopeTests.swift:38:9: Expectation failed: try second.text(in: newField) == "SECOND!"
+↳ try second.text(in: newField) == "SECOND!" → <not evaluated>
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) recorded an issue with 1 argument change → "actor" at ModernNativeModelScopeTests.swift:34:9: Expectation failed: view !== oldView && view.string == "SECOND"
+↳ view !== oldView && view.string == "SECOND" → false
+↳   view !== oldView → false
+↳   view.string == "SECOND" → <not evaluated>
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) recorded an issue with 1 argument change → "actor" at ModernNativeModelScopeTests.swift:38:9: Expectation failed: try second.text(in: newField) == "SECOND!"
+↳ try second.text(in: newField) == "SECOND!" → <not evaluated>
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) recorded an issue with 1 argument change → "epoch" at ModernNativeModelScopeTests.swift:34:9: Expectation failed: view !== oldView && view.string == "SECOND"
+↳ view !== oldView && view.string == "SECOND" → false
+↳   view !== oldView → false
+↳   view.string == "SECOND" → <not evaluated>
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) recorded an issue with 1 argument change → "epoch" at ModernNativeModelScopeTests.swift:38:9: Expectation failed: try second.text(in: newField) == "SECOND!"
+↳ try second.text(in: newField) == "SECOND!" → <not evaluated>
+✘ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) with 3 test cases failed after 0.405 seconds with 6 issues.
+✘ Suite ModernNativeModelScopeTests failed after 0.405 seconds with 9 issues.
+✘ Test run with 2 tests in 1 suite failed after 0.405 seconds with 9 issues.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)
