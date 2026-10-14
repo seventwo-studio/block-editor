@@ -175,6 +175,16 @@ recovery and the original Android harness failure remain in
 `docs/evidence/modern-structural-ordering-2026-10-14`. Inclusive CPU stacks overlap;
 API and resident-memory diagnostics do not accept surface/resource campaigns.
 
+The trusted binding-output candidate avoids an internal full-array encode/decode
+round trip while retaining the complete Codable response and checked alias origins.
+An isolated read drops from 469.4 to 137.8 ms with all 5,242 nodes and the same
+2,077,866 encoded bytes. This is diagnostic. Its complete clean production run
+records input p95 556.1 ms Chromium, 628 ms WebKit and 678 ms Firefox; menu p95 is
+42.6, 56 and 67 ms. Every input target still fails. Exact wire and current-host
+callback expectations plus all 63 affected browser cases pass. Matching evidence
+is in `docs/evidence/modern-binding-output-2026-10-14`; earlier full native results
+stay source-qualified. Remaining authoring/snapshot costs and full campaigns remain.
+
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked
 workloads, larger-document preservation and physical native campaigns. Physical

@@ -1,0 +1,8 @@
+{
+  "diagnostic": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+  "nodeCount": 5242,
+  "ms": 469.41504199999963,
+  "encodedBytes": 2077866
+}

@@ -1,0 +1,62 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 1]
+[2 / 49] BlockEditorCore
+[4 / 51] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:336:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+334 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+335 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+336 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+337 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+338 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:358:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+356 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+357 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+358 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+359 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+360 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[24 / 33] editor-bridge-product
+[28 / 38] modern-relay-client-product
+[32 / 40]
+[35 / 40] BlockEditorCoreTests-product
+[40 / 44] BlockEditorCoreTests-product
+[44 / 44] local-editor-product
+[53 / 53] relay-client-product
+Build complete! (11.48 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite IndependentWritingProjectionTests started.
+◇ Suite StructuralOrderingTests started.
+◇ Suite ModernNodeBindingTests started.
+◇ Suite ModernCapturedReadTests started.
+◇ Test independentFieldsPreserveLiteralPeerTextMarksTombstonesAndAuthorDeactivation() started.
+◇ Test nodeKeySortKeepsCanonicalStringTiesStableWithoutMergingRawSpellings() started.
+◇ Test cachedPlacementKeysRetainLiteralTiersRawUnicodeAndCanonicalOwnerEquality() started.
+◇ Test canonicallyEquivalentWireOriginsKeepFullReplayAndExactCapturedSpelling() started.
+◇ Test crossFieldEdgesTransfersAndJoinsKeepTheFullGraphPath() started.
+◇ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() started.
+◇ Test directBindingOutputRetainsCompleteCodableShapeAndExactAliasOrigins() started.
+◇ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() started.
+◇ Test bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() started.
+◇ Test checkedFieldRebuildRejectsMissingDuplicateAndCyclicAtomsWithoutChangingTheBaseline() started.
+✔ Test nodeKeySortKeepsCanonicalStringTiesStableWithoutMergingRawSpellings() passed after 0.001 seconds.
+✔ Test directBindingOutputRetainsCompleteCodableShapeAndExactAliasOrigins() passed after 0.001 seconds.
+✔ Test canonicallyEquivalentWireOriginsKeepFullReplayAndExactCapturedSpelling() passed after 0.001 seconds.
+✔ Test cachedPlacementKeysRetainLiteralTiersRawUnicodeAndCanonicalOwnerEquality() passed after 0.001 seconds.
+✔ Suite StructuralOrderingTests passed after 0.001 seconds.
+✔ Test checkedFieldRebuildRejectsMissingDuplicateAndCyclicAtomsWithoutChangingTheBaseline() passed after 0.002 seconds.
+✔ Test crossFieldEdgesTransfersAndJoinsKeepTheFullGraphPath() passed after 0.003 seconds.
+✔ Test independentFieldsPreserveLiteralPeerTextMarksTombstonesAndAuthorDeactivation() passed after 0.005 seconds.
+✔ Suite IndependentWritingProjectionTests passed after 0.005 seconds.
+✔ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() passed after 0.008 seconds.
+✔ Test bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() passed after 0.018 seconds.
+✔ Suite ModernNodeBindingTests passed after 0.019 seconds.
+✔ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() passed after 0.032 seconds.
+✔ Suite ModernCapturedReadTests passed after 0.032 seconds.
+✔ Test run with 10 tests in 4 suites passed after 0.032 seconds.

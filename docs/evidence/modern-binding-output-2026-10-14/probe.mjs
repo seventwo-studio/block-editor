@@ -1,0 +1,18 @@
+import { SwiftEditorRuntime } from '/Users/luca/Developer/block-editor/dist/swift.js';
+import { readFileSync,writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { Session } from 'node:inspector';
+import { execFileSync } from 'node:child_process';
+const wasm=readFileSync('dist/block-editor.wasm'),fixture=readFileSync('benchmarks/modern-surface-1000.json');
+const document=JSON.parse(fixture.toString());
+const runtime=await SwiftEditorRuntime.initialize(wasm);
+const session=runtime.createModern({documentID:document.documentID,actorID:'binding-probe',epoch:'binding-probe',document});
+const field=session.field(session.node({blockID:'note-1',path:[]}));
+session.execute({command:'replaceText',target:session.captureTextRange(field,session.text(field).length,session.text(field).length),arguments:{text:'!'}});
+const cpu=new Session();cpu.connect();
+const post=(name)=>new Promise((resolve,reject)=>cpu.post(name,(e,r)=>e?reject(e):resolve(r)));
+await post('Profiler.enable');await post('Profiler.start');
+const start=performance.now();const bindings=session.nodeBindings();const ms=performance.now()-start;
+const {profile}=await post('Profiler.stop');cpu.disconnect();session.close();
+writeFileSync('.build/finishing/20261014/render-binding-profile/after.cpuprofile',JSON.stringify(profile)+'\n');
+writeFileSync('.build/finishing/20261014/render-binding-profile/after.json',JSON.stringify({diagnostic:true,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),sourceClean:!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),fixtureSHA256:createHash('sha256').update(fixture).digest('hex'),wasmSHA256:createHash('sha256').update(wasm).digest('hex'),nodeCount:bindings.length,ms,encodedBytes:Buffer.byteLength(JSON.stringify(bindings))},null,2)+'\n');
