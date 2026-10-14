@@ -1,0 +1,34 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:98433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 24 tests using 3 workers
+
+[1/24] [webkit] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[2/24] [chromium] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[3/24] [firefox] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[4/24] [chromium] › tests/modern-context.swift.ts:110:0 › body presentation retains composition through local menus and updates provider status
+[5/24] [webkit] › tests/modern-context.swift.ts:110:0 › body presentation retains composition through local menus and updates provider status
+[6/24] [firefox] › tests/modern-context.swift.ts:110:0 › body presentation retains composition through local menus and updates provider status
+[7/24] [chromium] › tests/modern-context.swift.ts:137:0 › inline references follow committed host callbacks while retaining the composing native buffer
+[8/24] [firefox] › tests/modern-context.swift.ts:137:0 › inline references follow committed host callbacks while retaining the composing native buffer
+[9/24] [webkit] › tests/modern-context.swift.ts:137:0 › inline references follow committed host callbacks while retaining the composing native buffer
+[10/24] [chromium] › tests/modern-context.swift.ts:167:0 › column stacking follows page content width and updated text metrics without authoring split
+[11/24] [firefox] › tests/modern-context.swift.ts:167:0 › column stacking follows page content width and updated text metrics without authoring split
+[12/24] [webkit] › tests/modern-context.swift.ts:167:0 › column stacking follows page content width and updated text metrics without authoring split
+[13/24] [chromium] › tests/modern-context.swift.ts:186:0 › keyboard column resize releases its preview before a peer resize
+[14/24] [firefox] › tests/modern-context.swift.ts:186:0 › keyboard column resize releases its preview before a peer resize
+[15/24] [webkit] › tests/modern-context.swift.ts:186:0 › keyboard column resize releases its preview before a peer resize
+[16/24] [chromium] › tests/modern-context.swift.ts:205:0 › Escape cancels a column drag without authoring or changing history
+[17/24] [firefox] › tests/modern-context.swift.ts:205:0 › Escape cancels a column drag without authoring or changing history
+[18/24] [webkit] › tests/modern-context.swift.ts:205:0 › Escape cancels a column drag without authoring or changing history
+[19/24] [chromium] › tests/modern-context.swift.ts:221:0 › accessible insertion cancellation returns to the original text caret
+[20/24] [firefox] › tests/modern-context.swift.ts:221:0 › accessible insertion cancellation returns to the original text caret
+[21/24] [webkit] › tests/modern-context.swift.ts:221:0 › accessible insertion cancellation returns to the original text caret
+[22/24] [chromium] › tests/modern-context.swift.ts:304:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[23/24] [firefox] › tests/modern-context.swift.ts:304:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[24/24] [webkit] › tests/modern-context.swift.ts:304:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+  24 passed (1.6m)

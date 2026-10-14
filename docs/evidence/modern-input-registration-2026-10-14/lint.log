@@ -1,0 +1,390 @@
+src/swift-modern-react.tsx:375:32 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    373 │     requestAnimationFrame(() => { try {
+    374 │       const backward = session.resolvePosition(ranges[0].start).offset > session.resolvePosition(ranges[0].end).offset;
+  > 375 │       const start = backward ? ranges.at(-1)!.start : ranges[0].start, end = backward ? ranges[0].end : ranges.at(-1)!.end;
+        │                                ^^^^^^^^^^^^^^
+    376 │       const aRoot = fields.current.get(key(start.field)), bRoot = fields.current.get(key(end.field)); if (!aRoot || !bRoot) return;
+    377 │       const a = domPoint(aRoot, session.resolvePosition(start).offset), b = domPoint(bRoot, session.resolvePosition(end).offset);
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+    373 373 │       requestAnimationFrame(() => { try {
+    374 374 │         const backward = session.resolvePosition(ranges[0].start).offset > session.resolvePosition(ranges[0].end).offset;
+    375     │ - ······const·start·=·backward·?·ranges.at(-1)!.start·:·ranges[0].start,·end·=·backward·?·ranges[0].end·:·ranges.at(-1)!.end;
+        375 │ + ······const·start·=·backward·?·ranges.at(-1)?.start·:·ranges[0].start,·end·=·backward·?·ranges[0].end·:·ranges.at(-1)!.end;
+    376 376 │         const aRoot = fields.current.get(key(start.field)), bRoot = fields.current.get(key(end.field)); if (!aRoot || !bRoot) return;
+    377 377 │         const a = domPoint(aRoot, session.resolvePosition(start).offset), b = domPoint(bRoot, session.resolvePosition(end).offset);
+  
+
+src/swift-modern-react.tsx:375:105 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    373 │     requestAnimationFrame(() => { try {
+    374 │       const backward = session.resolvePosition(ranges[0].start).offset > session.resolvePosition(ranges[0].end).offset;
+  > 375 │       const start = backward ? ranges.at(-1)!.start : ranges[0].start, end = backward ? ranges[0].end : ranges.at(-1)!.end;
+        │                                                                                                         ^^^^^^^^^^^^^^
+    376 │       const aRoot = fields.current.get(key(start.field)), bRoot = fields.current.get(key(end.field)); if (!aRoot || !bRoot) return;
+    377 │       const a = domPoint(aRoot, session.resolvePosition(start).offset), b = domPoint(bRoot, session.resolvePosition(end).offset);
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+    373 373 │       requestAnimationFrame(() => { try {
+    374 374 │         const backward = session.resolvePosition(ranges[0].start).offset > session.resolvePosition(ranges[0].end).offset;
+    375     │ - ······const·start·=·backward·?·ranges.at(-1)!.start·:·ranges[0].start,·end·=·backward·?·ranges[0].end·:·ranges.at(-1)!.end;
+        375 │ + ······const·start·=·backward·?·ranges.at(-1)!.start·:·ranges[0].start,·end·=·backward·?·ranges[0].end·:·ranges.at(-1)?.end;
+    376 376 │         const aRoot = fields.current.get(key(start.field)), bRoot = fields.current.get(key(end.field)); if (!aRoot || !bRoot) return;
+    377 377 │         const a = domPoint(aRoot, session.resolvePosition(start).offset), b = domPoint(bRoot, session.resolvePosition(end).offset);
+  
+
+src/swift-modern-react.tsx:427:41 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    425 │   function spanPasteTarget() {
+    426 │     const backward = session.resolvePosition(textSpan[0].start).offset > session.resolvePosition(textSpan[0].end).offset;
+  > 427 │     return { range: { start: backward ? textSpan.at(-1)!.start : textSpan[0].start, end: backward ? textSpan[0].end : textSpan.at(-1)!.end, observed: textSpan[0].observed } };
+        │                                         ^^^^^^^^^^^^^^^^
+    428 │   }
+    429 │   const catalog = session.insertionCatalog(menu?.query ?? "");
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+    425 425 │     function spanPasteTarget() {
+    426 426 │       const backward = session.resolvePosition(textSpan[0].start).offset > session.resolvePosition(textSpan[0].end).offset;
+    427     │ - ····return·{·range:·{·start:·backward·?·textSpan.at(-1)!.start·:·textSpan[0].start,·end:·backward·?·textSpan[0].end·:·textSpan.at(-1)!.end,·observed:·textSpan[0].observed·}·};
+        427 │ + ····return·{·range:·{·start:·backward·?·textSpan.at(-1)?.start·:·textSpan[0].start,·end:·backward·?·textSpan[0].end·:·textSpan.at(-1)!.end,·observed:·textSpan[0].observed·}·};
+    428 428 │     }
+    429 429 │     const catalog = session.insertionCatalog(menu?.query ?? "");
+  
+
+src/swift-modern-react.tsx:427:119 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    425 │   function spanPasteTarget() {
+    426 │     const backward = session.resolvePosition(textSpan[0].start).offset > session.resolvePosition(textSpan[0].end).offset;
+  > 427 │     return { range: { start: backward ? textSpan.at(-1)!.start : textSpan[0].start, end: backward ? textSpan[0].end : textSpan.at(-1)!.end, observed: textSpan[0].observed } };
+        │                                                                                                                       ^^^^^^^^^^^^^^^^
+    428 │   }
+    429 │   const catalog = session.insertionCatalog(menu?.query ?? "");
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+    425 425 │     function spanPasteTarget() {
+    426 426 │       const backward = session.resolvePosition(textSpan[0].start).offset > session.resolvePosition(textSpan[0].end).offset;
+    427     │ - ····return·{·range:·{·start:·backward·?·textSpan.at(-1)!.start·:·textSpan[0].start,·end:·backward·?·textSpan[0].end·:·textSpan.at(-1)!.end,·observed:·textSpan[0].observed·}·};
+        427 │ + ····return·{·range:·{·start:·backward·?·textSpan.at(-1)!.start·:·textSpan[0].start,·end:·backward·?·textSpan[0].end·:·textSpan.at(-1)?.end,·observed:·textSpan[0].observed·}·};
+    428 428 │     }
+    429 429 │     const catalog = session.insertionCatalog(menu?.query ?? "");
+  
+
+src/swift-modern-react.tsx:488:59 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    486 │         setTextSpan(ranges); selected.current = ranges.at(-1); restoreSpan(ranges);
+    487 │         session.setLocalSelection({ documentID: range.start.documentID, epoch: range.start.epoch, observed: ranges[0].observed,
+  > 488 │           focus: { text: { _0: backward ? ranges[0].end : ranges.at(-1)!.end } }, selection: { mixed: { _0: { ranges } } } });
+        │                                                           ^^^^^^^^^^^^^^
+    489 │       }); return true;
+    490 │     }
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+    486 486 │           setTextSpan(ranges); selected.current = ranges.at(-1); restoreSpan(ranges);
+    487 487 │           session.setLocalSelection({ documentID: range.start.documentID, epoch: range.start.epoch, observed: ranges[0].observed,
+    488     │ - ··········focus:·{·text:·{·_0:·backward·?·ranges[0].end·:·ranges.at(-1)!.end·}·},·selection:·{·mixed:·{·_0:·{·ranges·}·}·}·});
+        488 │ + ··········focus:·{·text:·{·_0:·backward·?·ranges[0].end·:·ranges.at(-1)?.end·}·},·selection:·{·mixed:·{·_0:·{·ranges·}·}·}·});
+    489 489 │         }); return true;
+    490 490 │       }
+  
+
+src/swift-modern-react.tsx:632:146 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    630 │   return <section onCopyCapture={event => { if (textSpan.length > 1 && props.host) { event.preventDefault(); event.stopPropagation(); void props.host.copy(selectedTarget()).catch(report); } }}
+    631 │     onCutCapture={event => { if (textSpan.length > 1 && props.host && !readOnly) { event.preventDefault(); event.stopPropagation(); void props.host.copy(selectedTarget(), true).catch(report); } }}
+  > 632 │     onPasteCapture={event => { if (textSpan.length > 1 && props.host && !readOnly) { event.preventDefault(); event.stopPropagation(); safe(() => props.host!.paste(spanPasteTarget(), event.clipboardData)); } }}
+        │                                                                                                                                                  ^^^^^^^^^^^
+    633 │     onKeyDownCapture={event => { if (textSpan.length < 2 || readOnly || event.nativeEvent.isComposing) return;
+    634 │       if (event.key === "Backspace" || event.key === "Delete") { event.preventDefault(); event.stopPropagation(); safe(() => execute({ command: "delete", target: selectedTarget(), arguments: {} })); setTextSpan([]); }
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+    630 630 │     return <section onCopyCapture={event => { if (textSpan.length > 1 && props.host) { event.preventDefault(); event.stopPropagation(); void props.host.copy(selectedTarget()).catch(report); } }}
+    631 631 │       onCutCapture={event => { if (textSpan.length > 1 && props.host && !readOnly) { event.preventDefault(); event.stopPropagation(); void props.host.copy(selectedTarget(), true).catch(report); } }}
+    632     │ - ····onPasteCapture={event·=>·{·if·(textSpan.length·>·1·&&·props.host·&&·!readOnly)·{·event.preventDefault();·event.stopPropagation();·safe(()·=>·props.host!.paste(spanPasteTarget(),·event.clipboardData));·}·}}
+        632 │ + ····onPasteCapture={event·=>·{·if·(textSpan.length·>·1·&&·props.host·&&·!readOnly)·{·event.preventDefault();·event.stopPropagation();·safe(()·=>·props.host?.paste(spanPasteTarget(),·event.clipboardData));·}·}}
+    633 633 │       onKeyDownCapture={event => { if (textSpan.length < 2 || readOnly || event.nativeEvent.isComposing) return;
+    634 634 │         if (event.key === "Backspace" || event.key === "Delete") { event.preventDefault(); event.stopPropagation(); safe(() => execute({ command: "delete", target: selectedTarget(), arguments: {} })); setTextSpan([]); }
+  
+
+src/swift-modern-react.tsx:652:309 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    650 │       {nodes ? <><span>{nodes.nodes.length} selected</span><details><summary>Convert</summary>{["paragraph", "heading", "quote", "callout", "list", "code"].map(type => <button key={type} disabled={readOnly} onClick={() => execute({ command: "convertBlock", target: nodes, arguments: { type: type as "paragraph" } })}>{type}</button>)}</details>
+    651 │         <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
+  > 652 │         <button disabled={readOnly} onClick={() => move(false)}>Move up</button><button disabled={readOnly} onClick={() => move(true)}>Move down</button><button disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><details><summary>Color</summary>{palette()}</details><button onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
+        │                                                                                                                                                                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^
+    653 │         <button disabled={readOnly} onClick={() => safe(() => { setMenu({ boundary: selected.current ? session.captureInsertionBoundary(selected.current.start.field) : session.captureBoundary({ field: "blocks" }, session.nodes().at(-1)), returnFocus: selected.current?.end, query: "", index: 0 }); })}>Insert</button>
+    654 │         <details className="modern-format-menu" onToggle={event => captureFormatting(event.currentTarget.open)}><summary>Format</summary><div style={formatAnchor ? { position: "fixed", left: formatAnchor.left, top: formatAnchor.top, bottom: "auto" } : undefined}>{["bold", "italic", "strikethrough", "code"].map(mark => <button key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { const target = formatCapture.current ?? selectedTarget(); if (target.ranges.length) execute({ command: "format", target, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
+  
+
+src/swift-modern-react.tsx:3:8 lint/style/useImportType  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! All these imports are only used as types.
+  
+    1 │ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
+    2 │ import { SwiftEditorRuntime } from "./swift.js";
+  > 3 │ import { SwiftModernSession, type ModernAuthorCommand, type ModernDocument, type ModernField, type ModernNodeID, type ModernObject, type ModernPosition, type ModernTextRange, type ModernResult, type ModernNodes, type ModernBoundary, type ModernCollection, type ModernInsertionDescriptor, type ModernPolicy, type ModernSemanticTarget } from "./swift-modern.js";
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { ModernBrowserHost } from "./swift-modern-host.js";
+    5 │ import { inlineSelection, selectInline } from "./inline-react.js";
+  
+  i Importing the types with import type ensures that they are removed by the compilers and avoids loading unnecessary modules.
+  
+  i Safe fix: Use import type.
+  
+      1   1 │   import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
+      2   2 │   import { SwiftEditorRuntime } from "./swift.js";
+      3     │ - import·{·SwiftModernSession,·type·ModernAuthorCommand,·type·ModernDocument,·type·ModernField,·type·ModernNodeID,·type·ModernObject,·type·ModernPosition,·type·ModernTextRange,·type·ModernResult,·type·ModernNodes,·type·ModernBoundary,·type·ModernCollection,·type·ModernInsertionDescriptor,·type·ModernPolicy,·type·ModernSemanticTarget·}·from·"./swift-modern.js";
+          3 │ + import·type·{·SwiftModernSession,·ModernAuthorCommand,·ModernDocument,·ModernField,·ModernNodeID,·ModernObject,·ModernPosition,·ModernTextRange,·ModernResult,·ModernNodes,·ModernBoundary,·ModernCollection,·ModernInsertionDescriptor,·ModernPolicy,·ModernSemanticTarget·}·from·"./swift-modern.js";
+      4   4 │   import { ModernBrowserHost } from "./swift-modern-host.js";
+      5   5 │   import { inlineSelection, selectInline } from "./inline-react.js";
+  
+
+src/swift-modern-react.tsx:4:8 lint/style/useImportType  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! All these imports are only used as types.
+  
+    2 │ import { SwiftEditorRuntime } from "./swift.js";
+    3 │ import { SwiftModernSession, type ModernAuthorCommand, type ModernDocument, type ModernField, type ModernNodeID, type ModernObject, type ModernPosition, type ModernTextRange, type ModernResult, type ModernNodes, type ModernBoundary, type ModernCollection, type ModernInsertionDescriptor, type ModernPolicy, type ModernSemanticTarget } from "./swift-modern.js";
+  > 4 │ import { ModernBrowserHost } from "./swift-modern-host.js";
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │ import { inlineSelection, selectInline } from "./inline-react.js";
+    6 │ 
+  
+  i Importing the types with import type ensures that they are removed by the compilers and avoids loading unnecessary modules.
+  
+  i Safe fix: Use import type.
+  
+    4 │ import·type·{·ModernBrowserHost·}·from·"./swift-modern-host.js";
+      │        +++++                                                    
+
+src/swift-modern-react.tsx:8:7 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This variable object is unused.
+  
+     7 │ const key = (value: unknown) => JSON.stringify(value);
+   > 8 │ const object = (value: unknown): ModernObject => value && typeof value === "object" && !Array.isArray(value) ? value as ModernObject : {};
+       │       ^^^^^^
+     9 │ const array = (value: unknown): readonly ModernObject[] => Array.isArray(value) ? value as readonly ModernObject[] : [];
+    10 │ const text = (value: unknown): string => typeof value === "string" ? value : "";
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend object with an underscore.
+  
+      6   6 │   
+      7   7 │   const key = (value: unknown) => JSON.stringify(value);
+      8     │ - const·object·=·(value:·unknown):·ModernObject·=>·value·&&·typeof·value·===·"object"·&&·!Array.isArray(value)·?·value·as·ModernObject·:·{};
+          8 │ + const·_object·=·(value:·unknown):·ModernObject·=>·value·&&·typeof·value·===·"object"·&&·!Array.isArray(value)·?·value·as·ModernObject·:·{};
+      9   9 │   const array = (value: unknown): readonly ModernObject[] => Array.isArray(value) ? value as readonly ModernObject[] : [];
+     10  10 │   const text = (value: unknown): string => typeof value === "string" ? value : "";
+  
+
+src/swift-modern-react.tsx:130:10 lint/a11y/useFocusableInteractive ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The HTML element with the interactive role "textbox" is not focusable.
+  
+    128 │   }, [value, key(props.value), fieldKey]);
+    129 │   useEffect(() => () => { props.register(field, null); if (composing.current) session.setComposing(false); release.current?.(); }, [session, fieldKey]);
+  > 130 │   return <div ref={registerElement} className={`modern-input ${field.name === "code" ? "modern-code-input" : ""}`}
+        │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 131 │     role="textbox" aria-label={props.label} aria-multiline={field.name !== "title"} contentEditable={!props.readOnly} suppressContentEditableWarning
+         ...
+  > 145 │       if (event.key === "Enter" && props.enter) { event.preventDefault(); if (event.shiftKey && field.name !== "title") props.execute({ command: "softBreak", target: range, arguments: {} }); else props.enter(range); }
+  > 146 │     }} />;
+        │     ^^^^^
+    147 │ }
+    148 │ 
+  
+  i A non-interactive HTML element that is not focusable may not be reachable for users that rely on keyboard navigation, even with an added role like "textbox".
+  
+  i Add a tabIndex attribute to make this element focusable.
+  
+
+src/swift-modern-react.tsx:131:5 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <input type="text">
+    <textarea>
+  
+    129 │   useEffect(() => () => { props.register(field, null); if (composing.current) session.setComposing(false); release.current?.(); }, [session, fieldKey]);
+    130 │   return <div ref={registerElement} className={`modern-input ${field.name === "code" ? "modern-code-input" : ""}`}
+  > 131 │     role="textbox" aria-label={props.label} aria-multiline={field.name !== "title"} contentEditable={!props.readOnly} suppressContentEditableWarning
+        │     ^^^^^^^^^^^^^^
+    132 │     onFocus={capture} onSelect={capture} onKeyUp={capture} onMouseUp={capture}
+    133 │     onBlur={() => { session.endTypingGroup(); }} onInput={() => { if (!composing.current) commit(); }}
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+src/swift-modern-react.tsx:168:10 lint/a11y/useFocusableInteractive ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The HTML element with the interactive role "textbox" is not focusable.
+  
+    166 │   }
+    167 │   useEffect(() => () => { if (composing.current) session.setComposing(false); release.current?.(); }, [session]);
+  > 168 │   return <div ref={root} contentEditable={!readOnly} role="textbox" aria-label="Start writing" suppressContentEditableWarning data-placeholder="Start writing…"
+        │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 169 │     onInput={commit} onCompositionStart={() => { release.current = session.holdRemoteChanges(); composing.current = true; session.setComposing(true); }}
+  > 170 │     onCompositionEnd={() => { composing.current = false; session.setComposing(false); commit(); const finish = release.current; release.current = undefined; finish?.(); }} />;
+        │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    171 │ }
+    172 │ 
+  
+  i A non-interactive HTML element that is not focusable may not be reachable for users that rely on keyboard navigation, even with an added role like "textbox".
+  
+  i Add a tabIndex attribute to make this element focusable.
+  
+
+src/swift-modern-react.tsx:168:54 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <input type="text">
+    <textarea>
+  
+    166 │   }
+    167 │   useEffect(() => () => { if (composing.current) session.setComposing(false); release.current?.(); }, [session]);
+  > 168 │   return <div ref={root} contentEditable={!readOnly} role="textbox" aria-label="Start writing" suppressContentEditableWarning data-placeholder="Start writing…"
+        │                                                      ^^^^^^^^^^^^^^
+    169 │     onInput={commit} onCompositionStart={() => { release.current = session.holdRemoteChanges(); composing.current = true; session.setComposing(true); }}
+    170 │     onCompositionEnd={() => { composing.current = false; session.setComposing(false); commit(); const finish = release.current; release.current = undefined; finish?.(); }} />;
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+src/swift-modern-react.tsx:226:5 lint/a11y/noStaticElementInteractions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Static Elements should not be interactive.
+  
+    224 │   }
+    225 │   return <details ref={details} onToggle={event => { if (!event.currentTarget.open) target.current = undefined; else if (!target.current) capture(); }}>
+  > 226 │     <summary aria-label="Cell actions" onClick={event => { if (!(event.currentTarget.parentElement as HTMLDetailsElement).open) capture(); }}>⋯</summary>
+        │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    227 │     {(["insertRow", "removeRow", "insertColumn", "removeColumn", "setHeader"] as const).map(action => <button key={action} disabled={readOnly} onClick={() => {
+    228 │       if (!target.current) capture();
+  
+  i To add interactivity such as a mouse or key event listener to a static element, give the element an appropriate role value.
+  
+
+src/swift-modern-react.tsx:269:85 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × This callback passed to forEach() iterable method should not return a value.
+  
+    267 │       const node = binding?.node ?? session.node(address);
+    268 │       addresses.set(key(address), node); values.set(key(node), { blockID, path, value, node, kind });
+  > 269 │       const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
+        │                                                                                     ^^^^^^^
+    270 │       if (kind === "block") {
+    271 │         if (value.type === "columns") children("columns", "column");
+  
+  i Either remove this return or remove the returned value.
+  
+    267 │       const node = binding?.node ?? session.node(address);
+    268 │       addresses.set(key(address), node); values.set(key(node), { blockID, path, value, node, kind });
+  > 269 │       const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
+        │                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    270 │       if (kind === "block") {
+    271 │         if (value.type === "columns") children("columns", "column");
+  
+
+src/swift-modern-react.tsx:606:14 lint/a11y/noStaticElementInteractions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Static Elements should not be interactive.
+  
+    604 │       else if (["paragraph", "heading", "quote", "callout"].includes(type)) content = input(node, "content", array(value.content), type === "heading" ? "Heading" : "Block text");
+    605 │       else content = <p role="status">Unsupported content preserved</p>;
+  > 606 │       return <div key={nodeKey} id={`modern-${encodeURIComponent(nodeKey)}`} data-block-type={type} data-level={value.level} data-ink={value.semanticColor} data-fill={value.semanticBackground}
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 607 │         className={`modern-block ${nodes?.nodes.some(id => key(id) === nodeKey) ? "modern-selected" : ""}`}
+         ...
+  > 612 │         onDragLeave={event => { delete event.currentTarget.dataset.drop; }} onDragEnd={() => { drag.current = undefined; drop.current = undefined; viewport.current?.querySelectorAll("[data-drop]").forEach(element => element.removeAttribute("data-drop")); }}
+  > 613 │         onDrop={event => { if (!drag.current || !drop.current) return; event.preventDefault(); event.stopPropagation(); const selection = drag.current, boundary = drop.current; drag.current = undefined; drop.current = undefined; delete event.currentTarget.dataset.drop; safe(() => execute({ command: "move", target: { selection, boundary }, arguments: {} })); }}>
+        │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    614 │         <button className="modern-handle" draggable={!readOnly} aria-label="Select block" onClick={event => selectedBlocks(node, event.shiftKey)}>⋮⋮</button>{content}
+    615 │       </div>;
+  
+  i To add interactivity such as a mouse or key event listener to a static element, give the element an appropriate role value.
+  
+
+src/swift-modern-react.tsx:612:198 lint/suspicious/useIterableCallbackReturn ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × This callback passed to forEach() iterable method should not return a value.
+  
+    610 │           safe(() => { const siblings = session.nodes(collection), index = siblings.findIndex(value => key(value) === nodeKey); drop.current = session.captureBoundary(collection, before ? siblings[index - 1] : node); });
+    611 │           event.currentTarget.dataset.drop = before ? "before" : "after"; const top = viewport.current?.getBoundingClientRect().top ?? 0; if (event.clientY < top + 48) viewport.current?.scrollBy(0, -16); else if (event.clientY > (viewport.current?.getBoundingClientRect().bottom ?? 0) - 48) viewport.current?.scrollBy(0, 16); }}
+  > 612 │         onDragLeave={event => { delete event.currentTarget.dataset.drop; }} onDragEnd={() => { drag.current = undefined; drop.current = undefined; viewport.current?.querySelectorAll("[data-drop]").forEach(element => element.removeAttribute("data-drop")); }}
+        │                                                                                                                                                                                                      ^^^^^^^
+    613 │         onDrop={event => { if (!drag.current || !drop.current) return; event.preventDefault(); event.stopPropagation(); const selection = drag.current, boundary = drop.current; drag.current = undefined; drop.current = undefined; delete event.currentTarget.dataset.drop; safe(() => execute({ command: "move", target: { selection, boundary }, arguments: {} })); }}>
+    614 │         <button className="modern-handle" draggable={!readOnly} aria-label="Select block" onClick={event => selectedBlocks(node, event.shiftKey)}>⋮⋮</button>{content}
+  
+  i Either remove this return or remove the returned value.
+  
+    610 │           safe(() => { const siblings = session.nodes(collection), index = siblings.findIndex(value => key(value) === nodeKey); drop.current = session.captureBoundary(collection, before ? siblings[index - 1] : node); });
+    611 │           event.currentTarget.dataset.drop = before ? "before" : "after"; const top = viewport.current?.getBoundingClientRect().top ?? 0; if (event.clientY < top + 48) viewport.current?.scrollBy(0, -16); else if (event.clientY > (viewport.current?.getBoundingClientRect().bottom ?? 0) - 48) viewport.current?.scrollBy(0, 16); }}
+  > 612 │         onDragLeave={event => { delete event.currentTarget.dataset.drop; }} onDragEnd={() => { drag.current = undefined; drop.current = undefined; viewport.current?.querySelectorAll("[data-drop]").forEach(element => element.removeAttribute("data-drop")); }}
+        │                                                                                                                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    613 │         onDrop={event => { if (!drag.current || !drop.current) return; event.preventDefault(); event.stopPropagation(); const selection = drag.current, boundary = drop.current; drag.current = undefined; drop.current = undefined; delete event.currentTarget.dataset.drop; safe(() => execute({ command: "move", target: { selection, boundary }, arguments: {} })); }}>
+    614 │         <button className="modern-handle" draggable={!readOnly} aria-label="Select block" onClick={event => selectedBlocks(node, event.shiftKey)}>⋮⋮</button>{content}
+  
+
+src/swift-modern-react.tsx:661:41 lint/a11y/noAutofocus  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Avoid the autoFocus attribute.
+  
+    659 │     </div>
+    660 │     {menu && <div className="modern-picker" role="dialog" aria-label="Insert block" style={{ left: menu.anchor ? Math.max(8, Math.min(window.innerWidth - 300, menu.anchor.left)) : 16, top: menu.anchor ? Math.max(8, Math.min(window.innerHeight - 440, menu.anchor.bottom)) : 64 }}>
+  > 661 │       <input aria-label="Search blocks" autoFocus value={menu.query} onChange={event => setMenu({ ...menu, query: event.target.value, index: 0 })} onKeyDown={event => { if (event.nativeEvent.isComposing) return; if (event.key === "Escape") { event.preventDefault(); dismissMenu(); } if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); setMenu({ ...menu, index: Math.max(0, Math.min(catalog.length - 1, menu.index + (event.key === "ArrowDown" ? 1 : -1))) }); } if (event.key === "Enter" && catalog[menu.index]) insert(catalog[menu.index]); }} />
+        │                                         ^^^^^^^^^
+    662 │       <div role="listbox">{catalog.map((descriptor, index) => <button role="option" aria-selected={menu.index === index} key={descriptor.id} onClick={() => insert(descriptor)}><strong>{descriptor.title}</strong><small>{descriptor.description}</small></button>)}</div><button onClick={dismissMenu}>Cancel</button>
+    663 │     </div>}
+  
+  i Unsafe fix: Remove the autoFocus attribute.
+  
+    661 │ ······<input·aria-label="Search·blocks"·autoFocus·value={menu.query}·onChange={event·=>·setMenu({·...menu,·query:·event.target.value,·index:·0·})}·onKeyDown={event·=>·{·if·(event.nativeEvent.isComposing)·return;·if·(event.key·===·"Escape")·{·event.preventDefault();·dismissMenu();·}·if·(event.key·===·"ArrowDown"·||·event.key·===·"ArrowUp")·{·event.preventDefault();·setMenu({·...menu,·index:·Math.max(0,·Math.min(catalog.length·-·1,·menu.index·+·(event.key·===·"ArrowDown"·?·1·:·-1)))·});·}·if·(event.key·===·"Enter"·&&·catalog[menu.index])·insert(catalog[menu.index]);·}}·/>
+        │                                         ----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
+src/swift-modern-react.tsx:664:239 lint/a11y/noAutofocus  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Avoid the autoFocus attribute.
+  
+    662 │       <div role="listbox">{catalog.map((descriptor, index) => <button role="option" aria-selected={menu.index === index} key={descriptor.id} onClick={() => insert(descriptor)}><strong>{descriptor.title}</strong><small>{descriptor.description}</small></button>)}</div><button onClick={dismissMenu}>Cancel</button>
+    663 │     </div>}
+  > 664 │     {link && <div className="modern-picker" role="dialog" aria-label="Link" onKeyDown={event => { if (event.key === "Escape" && !event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation(); dismissLink(); } }}><input autoFocus aria-label={link.internal ? "Search internal links" : "Link URL"} value={link.query} onChange={event => setLink({ ...link, query: event.target.value })} />
+        │                                                                                                                                                                                                                                               ^^^^^^^^^
+    665 │       {link.internal ? suggestions.map(suggestion => <button key={suggestion.id} disabled={suggestion.availability !== "available"} onClick={() => { execute({ command: "paste", target: { range: link.range }, arguments: { clipboard: session.clipboardParts([{ inline: { _0: [{ type: "entity-ref", entityId: suggestion.id, entityType: suggestion.type, label: suggestion.label }] } }]) } }); setLink(undefined); }}>{suggestion.label} {suggestion.availability === "available" ? "" : suggestion.availability}</button>) : <><button onClick={() => { execute({ command: "setLink", target: link.range, arguments: { href: link.query } }); setLink(undefined); }}>Apply link</button><button onClick={() => { execute({ command: "setLink", target: link.range, arguments: { href: null } }); setLink(undefined); }}>Remove link</button><button disabled={!props.suggestLinks} onClick={() => setLink({ ...link, internal: true })}>Find internal link</button></>}
+    666 │       <button onClick={dismissLink}>Cancel</button>
+  
+  i Unsafe fix: Remove the autoFocus attribute.
+  
+    664 │ ····{link·&&·<div·className="modern-picker"·role="dialog"·aria-label="Link"·onKeyDown={event·=>·{·if·(event.key·===·"Escape"·&&·!event.nativeEvent.isComposing)·{·event.preventDefault();·event.stopPropagation();·dismissLink();·}·}}><input·autoFocus·aria-label={link.internal·?·"Search·internal·links"·:·"Link·URL"}·value={link.query}·onChange={event·=>·setLink({·...link,·query:·event.target.value·})}·/>
+        │                                                                                                                                                                                                                                               ----------                                                                                                                                                           
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 74.
+Checked 1 file in 46ms. No fixes applied.
+Found 81 errors.
+Found 13 warnings.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

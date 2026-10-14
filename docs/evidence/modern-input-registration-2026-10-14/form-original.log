@@ -1,0 +1,135 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:95849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 3 tests using 3 workers
+
+[1/3] [firefox] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[2/3] [chromium] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[3/3] [webkit] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+  1) [chromium] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "target": "host form",
+    +     "type": "host-submit",
+    +   },
+    +   Object {
+    +     "target": "host form",
+    +     "type": "host-submit",
+    +   },
+    + ]
+
+      46 |   await page.keyboard.press("Escape");
+      47 |   const state = await page.evaluate(() => ({ submits: window.modernAcceptance.events.filter(event => event.type === "host-submit"), document: window.modernAcceptance.session.getSnapshot().document }));
+    > 48 |   expect(state.submits).toEqual([]);
+         |                        ^
+      49 |   expect(state.document).toEqual(document);
+      50 | });
+      51 |
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:48:24
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-ed-c9196-ting-an-enclosing-host-form-chromium/error-context.md
+
+
+  2) [webkit] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "target": "host form",
+    +     "type": "host-submit",
+    +   },
+    +   Object {
+    +     "target": "host form",
+    +     "type": "host-submit",
+    +   },
+    + ]
+
+      46 |   await page.keyboard.press("Escape");
+      47 |   const state = await page.evaluate(() => ({ submits: window.modernAcceptance.events.filter(event => event.type === "host-submit"), document: window.modernAcceptance.session.getSnapshot().document }));
+    > 48 |   expect(state.submits).toEqual([]);
+         |                        ^
+      49 |   expect(state.document).toEqual(document);
+      50 | });
+      51 |
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:48:24
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-ed-c9196-ting-an-enclosing-host-form-webkit/error-context.md
+
+
+  3) [firefox] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "target": "host form",
+    +     "type": "host-submit",
+    +   },
+    +   Object {
+    +     "target": "host form",
+    +     "type": "host-submit",
+    +   },
+    + ]
+
+      46 |   await page.keyboard.press("Escape");
+      47 |   const state = await page.evaluate(() => ({ submits: window.modernAcceptance.events.filter(event => event.type === "host-submit"), document: window.modernAcceptance.session.getSnapshot().document }));
+    > 48 |   expect(state.submits).toEqual([]);
+         |                        ^
+      49 |   expect(state.document).toEqual(document);
+      50 | });
+      51 |
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:48:24
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-ed-c9196-ting-an-enclosing-host-form-firefox/error-context.md
+
+
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form 
+    [webkit] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form 
+    [firefox] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form 
