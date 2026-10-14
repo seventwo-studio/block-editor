@@ -33,6 +33,21 @@ const cellActionsDocument: ModernDocument = { format: "seventwo.block-editor.doc
 
 declare global { interface Window { contextualReadCounts: { marks: number; semantics: number } } }
 
+test("large-document Unicode composition and adjacent typing retain author history", async ({ page }) => {
+  const document = await mount(page, "migrated-5001");
+  const body = page.getByRole("textbox", { name: "Block text", exact: true }).last();
+  // insertText commits the complete Unicode buffer once. Firefox keyboard.type
+  // starts a separate composition per non-ASCII scalar, a deliberate boundary.
+  await body.scrollIntoViewIfNeeded(); await body.click(); await body.press("End");
+  await page.keyboard.insertText(" 世界😀"); await page.keyboard.type("abc");
+  await expect(body).toHaveText("Preserved legacy paragraph 5000 世界😀abc");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(document);
+  await body.press(process.platform === "darwin" ? "Meta+Shift+z" : "Control+Shift+z");
+  await expect(body).toHaveText("Preserved legacy paragraph 5000 世界😀abc");
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("closed contextual controls defer reads and opening shows current peer formatting and colors", async ({ page }) => {
   await mount(page, { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "contextual-reads",
     title: "Context", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [

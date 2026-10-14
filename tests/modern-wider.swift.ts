@@ -115,7 +115,7 @@ test("mixed columns reflow, selection, scrolling, media lifetime and 5001-block 
     report.largeFixtureSHA256 = createHash('sha256').update(largeBytes).digest('hex'); report.largeRoots = large.blocks.length;
     await page.evaluate(async encoded => { await window.mountModernPerformance(JSON.parse(encoded)); }, largeBytes.toString());
     const last = page.getByRole('textbox', { name: 'Block text', exact: true }).last(); await expect(last).toBeVisible({ timeout: 120_000 });
-    await last.scrollIntoViewIfNeeded(); await last.click(); await last.press('End'); await page.keyboard.type(' 世界😀');
+    await last.scrollIntoViewIfNeeded(); await last.click(); await last.press('End'); await page.keyboard.insertText(' 世界😀');
     const expectedLarge: ModernDocument = { ...large, blocks: large.blocks.map((block, index) => index === large.blocks.length - 1
       ? { ...block, content: [{ type: 'text', text: 'Preserved legacy paragraph 5000 世界😀' }] } : block) };
     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(expectedLarge);
