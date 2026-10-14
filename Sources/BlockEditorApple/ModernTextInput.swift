@@ -26,8 +26,14 @@ private typealias ModernPlatformView = ModernUIKitTextView
         // its observable model reference and opaque field remain stable.
         ModernPlatformInput(model: model, field: field, label: label, submit: submit, boundary: boundary, clipboard: clipboardAccess,
             projectedText: (try? model.session.text(in: field)) ?? "", document: model.document,
-            editable: model.isEditable && model.isActive, intent: model.focusIntent).id(field)
+            editable: model.isEditable && model.isActive, intent: model.focusIntent)
+            .id(ModernInputViewIdentity(model: ObjectIdentifier(model), field: field))
     }
+}
+
+private struct ModernInputViewIdentity: Hashable {
+    let model: ObjectIdentifier
+    let field: WritingField
 }
 
 @MainActor private struct ModernPlatformInput {
@@ -56,6 +62,7 @@ extension ModernPlatformInput: NSViewRepresentable {
         scroll.documentView = view; context.coordinator.connect(view); return scroll
     }
     func updateNSView(_ scroll: NSScrollView, context: Context) {
+        context.coordinator.updateInteractions(submit: submit, boundary: boundary, clipboard: clipboard)
         context.coordinator.view?.setAccessibilityLabel(label)
         context.coordinator.view?.isEditable = editable && context.environment.isEnabled && context.coordinator.input != nil
         context.coordinator.render()
@@ -76,7 +83,7 @@ extension ModernPlatformInput: UIViewRepresentable {
         view.adjustsFontForContentSizeCategory = true; view.allowsEditingTextAttributes = false
         view.accessibilityLabel = label; context.coordinator.connect(view); return view
     }
-    func updateUIView(_ view: ModernUIKitTextView, context: Context) { view.accessibilityLabel = label; view.isEditable = editable && context.environment.isEnabled && context.coordinator.input != nil; context.coordinator.render() }
+    func updateUIView(_ view: ModernUIKitTextView, context: Context) { context.coordinator.updateInteractions(submit: submit, boundary: boundary, clipboard: clipboard); view.accessibilityLabel = label; view.isEditable = editable && context.environment.isEnabled && context.coordinator.input != nil; context.coordinator.render() }
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: ModernUIKitTextView, context: Context) -> CGSize? {
         guard let width = proposal.width, width > 0, width.isFinite else { return nil }
         return CGSize(width: width, height: ceil(uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height))
@@ -90,13 +97,17 @@ extension ModernPlatformInput: UIViewRepresentable {
     let input: ModernInputController?
     weak var view: ModernPlatformView?
     private var rendering = false
-    private let submit: (() -> Bool)?
-    private let boundary: ((String) -> Bool)?
-    private let clipboard: any ModernClipboardAccess
+    private var submit: (() -> Bool)?
+    private var boundary: ((String) -> Bool)?
+    private var clipboard: any ModernClipboardAccess
     init(model: ModernEditorModel, field: WritingField, submit: (() -> Bool)?, boundary: ((String) -> Bool)?, clipboard: any ModernClipboardAccess) {
         self.model = model; input = try? ModernInputController(model: model, field: field); self.submit = submit
         self.clipboard = clipboard
         self.boundary = boundary
+    }
+    func updateInteractions(submit: (() -> Bool)?, boundary: ((String) -> Bool)?, clipboard: any ModernClipboardAccess) {
+        self.submit = submit; self.boundary = boundary; self.clipboard = clipboard
+        view?.submit = submit; view?.boundary = boundary
     }
     func connect(_ view: ModernPlatformView) {
         self.view = view; view.delegate = self; view.isEditable = input != nil && model.isEditable
