@@ -1,6 +1,36 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "types": ["bun"], "allowImportingTsExtensions": true },
-  "include": ["src", "tests/modern-adapter.contract.ts", "tests/modern-preservation.contract.ts", "tests/modern-preservation.swift.ts", "tests/modern-context.swift.ts", "tests/modern-relay.swift.ts", "tests/modern-relay-client.swift.ts", "tests/modern-relay-client.contract.ts", "tests/modern-relay-wire.contract.ts", "tests/modern-relay-wire.swift.ts", "tests/helpers/modern-surface.tsx", "tests/helpers/browser-launch.ts", "scripts/test-modern-android-relay.ts", "playwright.swift.config.ts", "playwright.modern-relay.config.ts"],
-  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
+  "compilerOptions": {
+    "types": [
+      "bun"
+    ],
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src",
+    "tests/modern-adapter.contract.ts",
+    "tests/modern-preservation.contract.ts",
+    "tests/modern-preservation.swift.ts",
+    "tests/modern-context.swift.ts",
+    "tests/modern-relay.swift.ts",
+    "tests/modern-relay-client.swift.ts",
+    "tests/modern-relay-client.contract.ts",
+    "tests/modern-relay-wire.contract.ts",
+    "tests/modern-relay-wire.swift.ts",
+    "tests/helpers/modern-surface.tsx",
+    "tests/helpers/browser-launch.ts",
+    "scripts/test-modern-android-relay.ts",
+    "playwright.swift.config.ts",
+    "playwright.modern-relay.config.ts",
+    "tests/helpers/modern-performance.tsx",
+    "tests/modern-performance.swift.ts",
+    "playwright.modern-performance.config.ts",
+    "vite.modern-performance.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
+  ]
 }
