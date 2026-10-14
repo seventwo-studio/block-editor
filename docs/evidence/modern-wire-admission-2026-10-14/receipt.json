@@ -1,0 +1,57 @@
+{
+  "runtimeImplementationCommit": "2ef118146febe93ca90cb3f6c577f6783818888d",
+  "regressionCommit": "0e6908f",
+  "ciRepairCommit": "ddcd991e86d59f31622d5c4a131352d6ecb91aab",
+  "browserRelay": {
+    "startTime": "2026-10-14T00:46:38.064Z",
+    "duration": 44688.038,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "affectedBrowserEditor": {
+    "startTime": "2026-10-14T00:55:00.495Z",
+    "duration": 112902.14300000001,
+    "expected": 36,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "nativeABI": {
+    "responses": 968,
+    "fixtures": 30,
+    "librarySHA256": "58005892301649d569f0d764a74ebd1e7c750234115d26ccb2618a1c11671367"
+  },
+  "nativeAdapter": {
+    "requests": 504,
+    "fixtures": 55,
+    "commands": 26
+  },
+  "androidJNI": {
+    "strictJSON": 8,
+    "host": 9,
+    "typedConsumer": 1,
+    "abi": "arm64-v8a",
+    "api": 35,
+    "apkSHA256": "b2cf23196b9f1a5a7e93c21cd528b790586afc54ea6c90bf699edc83b97242ac"
+  },
+  "localPackageSource": "0e6908f",
+  "wasmSHA256": "0210152d91cc95a754e11db4e0cd57f0dd71ba3773d703fa4767152c2d24ef3c",
+  "failedCI": {
+    "run": 38489692645,
+    "source": "0eb13d53bc0ff678874df0fe8ae78e927db37e2d",
+    "failedJobs": [
+      115611695817,
+      115611695825,
+      115611695856
+    ],
+    "rawLogHashes": {
+      "115611695817.log": "f458935233586d60b1e6787d34ca97c93a4f69ee6d904d66bf49b8373a340333",
+      "115611695856.log": "311c86f2bfafcfe0599c287e2d327f60b42187a3c3934a8d3755c2c26723386d",
+      "115611695825.log": "d05c7fc636cee93b850b29a5f344a8c2c2881b65730f81ce79ce10156d857e84"
+    },
+    "reason": "Bun missing from Android job; new process driver never ran"
+  },
+  "qualification": "Targeted current-source automated proof. Local package is not a registry release; original private 0.2.0 remains unchanged. Complete acceptance and fresh seven-job CI remain required."
+}

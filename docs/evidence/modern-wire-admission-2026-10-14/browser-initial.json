@@ -1,0 +1,249 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.modern-relay.config.ts",
+      "tests/modern-relay-wire.swift.ts",
+      "--reporter=line,json",
+      "--global-timeout=180000",
+      "--output=.build/finishing/20261014/browser-wire/browser-initial-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.modern-relay.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 180000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/browser-initial-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/browser-initial-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/browser-initial-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4290 --strictPort",
+      "url": "http://127.0.0.1:4290/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-relay-wire.swift.ts",
+      "file": "modern-relay-wire.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 883,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:41:36.797Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-wire-contract",
+                      "contentType": "application/json",
+                      "body": "eyJjaGVja3MiOlsiZHVwbGljYXRlIiwicm91bmRlZCIsInV0ZjgiLCJzdXJyb2dhdGUiLCJ2YWxpZCBzaWduZWQtemVybyBHRVQvZXhjaGFuZ2UvcGFpcmVkIHJlb3BlbiIsIm1hbGZvcm1lZCBmcmVzaCBHRVQgd2l0aG91dCBsb2NhbCByZXBsYWNlbWVudCJdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-8c0c0fc1131deefaf426",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:41:38.062Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-wire-contract",
+                      "contentType": "application/json",
+                      "body": "eyJjaGVja3MiOlsiZHVwbGljYXRlIiwicm91bmRlZCIsInV0ZjgiLCJzdXJyb2dhdGUiLCJ2YWxpZCBzaWduZWQtemVybyBHRVQvZXhjaGFuZ2UvcGFpcmVkIHJlb3BlbiIsIm1hbGZvcm1lZCBmcmVzaCBHRVQgd2l0aG91dCBsb2NhbCByZXBsYWNlbWVudCJdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-636d72a18e753c25d929",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1110,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:41:40.238Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-wire-contract",
+                      "contentType": "application/json",
+                      "body": "eyJjaGVja3MiOlsiZHVwbGljYXRlIiwicm91bmRlZCIsInV0ZjgiLCJzdXJyb2dhdGUiLCJ2YWxpZCBzaWduZWQtemVybyBHRVQvZXhjaGFuZ2UvcGFpcmVkIHJlb3BlbiIsIm1hbGZvcm1lZCBmcmVzaCBHRVQgd2l0aG91dCBsb2NhbCByZXBsYWNlbWVudCJdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-379c4bfc8d38f65469fc",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-14T00:41:36.198Z",
+    "duration": 5907.165,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

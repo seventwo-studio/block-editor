@@ -1,0 +1,26 @@
+{
+  "librarySHA256": "58005892301649d569f0d764a74ebd1e7c750234115d26ccb2618a1c11671367",
+  "checks": [
+    {
+      "expectedAccepted": true,
+      "inputSHA256": "cd84277643c94a757981dd50baefc97bcb843eac10bb447d03eb8e185e49b0dc"
+    },
+    {
+      "expectedAccepted": false,
+      "inputSHA256": "d38245cfdb5d2239d67fe2a719312768b668a6928d8d97d04fbce83215e50b44"
+    },
+    {
+      "expectedAccepted": false,
+      "inputSHA256": "9872908adb013df8079c328cb3989762b0011178a762aa2777727bee5351304c"
+    },
+    {
+      "expectedAccepted": false,
+      "inputSHA256": "7d38e2388498cec03881027e7753b07826c5af2d61dd589b4c1caaab14ec2cc4"
+    },
+    {
+      "expectedAccepted": false,
+      "inputSHA256": "5e49a14a5cde153e824285fc9c1c4ac0c99de6a644a673cdf9c2b850156f4dfa"
+    }
+  ],
+  "passed": true
+}

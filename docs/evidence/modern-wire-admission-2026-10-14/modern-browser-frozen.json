@@ -1,0 +1,745 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.modern-relay.config.ts",
+      "--reporter=line,json",
+      "--global-timeout=300000",
+      "--output",
+      "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/modern-browser-frozen-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.modern-relay.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 300000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/modern-browser-frozen-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/modern-browser-frozen-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/modern-browser-frozen-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4290 --strictPort",
+      "url": "http://127.0.0.1:4290/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-relay-client.swift.ts",
+      "file": "modern-relay-client.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 995,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:38.453Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-relay-client-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiZmFpbGVkIGR1cmFibGUgQUNLLCBvcmlnaW5hbCBwZW5kaW5nIGlucHV0LCBkdXBsaWNhdGUtc2FmZSBleHBsaWNpdCByZXRyeSBhbmQgcGFpcmVkIHJlY2VpcHQiLAogICAgImhvc3QgZ2VuZXJhdGlvbiBBQkEsIGRlbGF5ZWQgcmVzcG9uc2UgZGlzY2FyZCwgcGVuZGluZyByZWNlaXB0IGFuZCBlcGhlbWVyYWwgcHJlc2VuY2UiLAogICAgImZvcmVpZ24gcmVjZWlwdCByZWplY3RlZCBiZWZvcmUgYWNjZXB0ZWQgY29udGVudCBvciBwZW5kaW5nIHJlY2VpcHQgY2hhbmdlcyIsCiAgICAicGFpcmVkIGhlbGQgcGVlciwgcmV0YWluZWQgb3JpZ2luYWwgZHJhZnQsIGluZXJ0IHJlb3BlbiwgZXhwbGljaXQgcmVsZWFzZS9yZXRyeSBhbmQgcGVlci1wcmVzZXJ2aW5nIFVuZG8iCiAgXSwKICAicXVhbGlmaWNhdGlvbiI6ICJzaGFyZWQgU3dpZnQvV0FTTSBhbmQgcmVhbCBJbmRleGVkREIgbGlmZWN5Y2xlOyBIVFRQIGZhdWx0L2RlbGF5IGluamVjdGlvbiwgbm90IHBoeXNpY2FsIElNRSBvciBmdWxsIFVJL3JlbGF5IHByb29mIiwKICAic291cmNlIjogIjJlZjExODE0NmZlYmU5M2NhOTBjYjNmNmM1NzdmNjc4MzgxODg4OGQiLAogICJ3YXNtU0hBMjU2IjogIjAyMTAxNTJkOTFjYzk1YTc1NGUxMWRiNGUwY2Q1N2YwZGQ3MWJhMzc3M2Q3MDNmYTQ3NjcxNTJjMmQyNGVmM2MiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c781ef4d644a2d9aa5ef-341b1d5e16e598ed095a",
+          "file": "modern-relay-client.swift.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:51.373Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-relay-client-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiZmFpbGVkIGR1cmFibGUgQUNLLCBvcmlnaW5hbCBwZW5kaW5nIGlucHV0LCBkdXBsaWNhdGUtc2FmZSBleHBsaWNpdCByZXRyeSBhbmQgcGFpcmVkIHJlY2VpcHQiLAogICAgImhvc3QgZ2VuZXJhdGlvbiBBQkEsIGRlbGF5ZWQgcmVzcG9uc2UgZGlzY2FyZCwgcGVuZGluZyByZWNlaXB0IGFuZCBlcGhlbWVyYWwgcHJlc2VuY2UiLAogICAgImZvcmVpZ24gcmVjZWlwdCByZWplY3RlZCBiZWZvcmUgYWNjZXB0ZWQgY29udGVudCBvciBwZW5kaW5nIHJlY2VpcHQgY2hhbmdlcyIsCiAgICAicGFpcmVkIGhlbGQgcGVlciwgcmV0YWluZWQgb3JpZ2luYWwgZHJhZnQsIGluZXJ0IHJlb3BlbiwgZXhwbGljaXQgcmVsZWFzZS9yZXRyeSBhbmQgcGVlci1wcmVzZXJ2aW5nIFVuZG8iCiAgXSwKICAicXVhbGlmaWNhdGlvbiI6ICJzaGFyZWQgU3dpZnQvV0FTTSBhbmQgcmVhbCBJbmRleGVkREIgbGlmZWN5Y2xlOyBIVFRQIGZhdWx0L2RlbGF5IGluamVjdGlvbiwgbm90IHBoeXNpY2FsIElNRSBvciBmdWxsIFVJL3JlbGF5IHByb29mIiwKICAic291cmNlIjogIjJlZjExODE0NmZlYmU5M2NhOTBjYjNmNmM1NzdmNjc4MzgxODg4OGQiLAogICJ3YXNtU0hBMjU2IjogIjAyMTAxNTJkOTFjYzk1YTc1NGUxMWRiNGUwY2Q1N2YwZGQ3MWJhMzc3M2Q3MDNmYTQ3NjcxNTJjMmQyNGVmM2MiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c781ef4d644a2d9aa5ef-52bb5861ab695de7cc0a",
+          "file": "modern-relay-client.swift.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1211,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:47:05.532Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-relay-client-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiZmFpbGVkIGR1cmFibGUgQUNLLCBvcmlnaW5hbCBwZW5kaW5nIGlucHV0LCBkdXBsaWNhdGUtc2FmZSBleHBsaWNpdCByZXRyeSBhbmQgcGFpcmVkIHJlY2VpcHQiLAogICAgImhvc3QgZ2VuZXJhdGlvbiBBQkEsIGRlbGF5ZWQgcmVzcG9uc2UgZGlzY2FyZCwgcGVuZGluZyByZWNlaXB0IGFuZCBlcGhlbWVyYWwgcHJlc2VuY2UiLAogICAgImZvcmVpZ24gcmVjZWlwdCByZWplY3RlZCBiZWZvcmUgYWNjZXB0ZWQgY29udGVudCBvciBwZW5kaW5nIHJlY2VpcHQgY2hhbmdlcyIsCiAgICAicGFpcmVkIGhlbGQgcGVlciwgcmV0YWluZWQgb3JpZ2luYWwgZHJhZnQsIGluZXJ0IHJlb3BlbiwgZXhwbGljaXQgcmVsZWFzZS9yZXRyeSBhbmQgcGVlci1wcmVzZXJ2aW5nIFVuZG8iCiAgXSwKICAicXVhbGlmaWNhdGlvbiI6ICJzaGFyZWQgU3dpZnQvV0FTTSBhbmQgcmVhbCBJbmRleGVkREIgbGlmZWN5Y2xlOyBIVFRQIGZhdWx0L2RlbGF5IGluamVjdGlvbiwgbm90IHBoeXNpY2FsIElNRSBvciBmdWxsIFVJL3JlbGF5IHByb29mIiwKICAic291cmNlIjogIjJlZjExODE0NmZlYmU5M2NhOTBjYjNmNmM1NzdmNjc4MzgxODg4OGQiLAogICJ3YXNtU0hBMjU2IjogIjAyMTAxNTJkOTFjYzk1YTc1NGUxMWRiNGUwY2Q1N2YwZGQ3MWJhMzc3M2Q3MDNmYTQ3NjcxNTJjMmQyNGVmM2MiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c781ef4d644a2d9aa5ef-bc9ba852745d5f142e9c",
+          "file": "modern-relay-client.swift.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "modern-relay-wire.swift.ts",
+      "file": "modern-relay-wire.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 648,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:39.634Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-wire-contract",
+                      "contentType": "application/json",
+                      "body": "eyJjaGVja3MiOlsiZHVwbGljYXRlIiwicm91bmRlZCIsInV0ZjgiLCJzdXJyb2dhdGUiLCJ2YWxpZCBzaWduZWQtemVybyBHRVQvZXhjaGFuZ2UvcGFpcmVkIHJlb3BlbiIsIm1hbGZvcm1lZCBmcmVzaCBHRVQgd2l0aG91dCBsb2NhbCByZXBsYWNlbWVudCJdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-8c0c0fc1131deefaf426",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1072,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:53.184Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-wire-contract",
+                      "contentType": "application/json",
+                      "body": "eyJjaGVja3MiOlsiZHVwbGljYXRlIiwicm91bmRlZCIsInV0ZjgiLCJzdXJyb2dhdGUiLCJ2YWxpZCBzaWduZWQtemVybyBHRVQvZXhjaGFuZ2UvcGFpcmVkIHJlb3BlbiIsIm1hbGZvcm1lZCBmcmVzaCBHRVQgd2l0aG91dCBsb2NhbCByZXBsYWNlbWVudCJdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-636d72a18e753c25d929",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 531,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:47:07.151Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-wire-contract",
+                      "contentType": "application/json",
+                      "body": "eyJjaGVja3MiOlsiZHVwbGljYXRlIiwicm91bmRlZCIsInV0ZjgiLCJzdXJyb2dhdGUiLCJ2YWxpZCBzaWduZWQtemVybyBHRVQvZXhjaGFuZ2UvcGFpcmVkIHJlb3BlbiIsIm1hbGZvcm1lZCBmcmVzaCBHRVQgd2l0aG91dCBsb2NhbCByZXBsYWNlbWVudCJdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-379c4bfc8d38f65469fc",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "modern-relay.swift.ts",
+      "file": "modern-relay.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:40.298Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAiY2hyb21pdW0iLAogICJicmlkZ2VTSEEyNTYiOiAiMGFmMDdhMWY2ZjNmNDliNTI0MDMwZmM4NGU0YjA5OWFlMmU1YTY2ZDUwZmMzYTI3YTFlM2FiMmMyYTM5MDBhMCIsCiAgIndhc21TSEEyNTYiOiAiMDIxMDE1MmQ5MWNjOTVhNzU0ZTExZGI0ZTBjZDU3ZjBkZDcxYmEzNzczZDcwM2ZhNDc2NzE1MmMyZDI0ZWYzYyIsCiAgInBoYXNlcyI6IFsKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDgzNTczLAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM1NzUsCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM1NzUsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzNTczLAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM1OTIsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4MzU5NCwKICAgICAgInZlcnNpb24iOiAiMTUzLjAuODAxMC4xMiIKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1yZXNwb25zZSIsCiAgICAgICJzdGF0dXMiOiAyMDAKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJtb2Rlcm4tcmVzdGFydC1yZWpvaW4iLAogICAgICAicHJvdG9jb2wiOiA3LAogICAgICAicGFpcmVkT3JpZ2luYWxIaXN0b3J5IjogdHJ1ZSwKICAgICAgImFjdHVhbEJyb3dzZXJBbmRTZXJ2ZXJQcm9jZXNzZXMiOiB0cnVlLAogICAgICAicGVlclNwbGl0QW5kQXBwZWFyYW5jZVJldGFpbmVkIjogdHJ1ZSwKICAgICAgIm9yaWdpbmFsRG9jdW1lbnRQcmVzZXJ2ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM1OTQsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzNTkyLAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9CiAgXSwKICAicmVsYXlSZXF1ZXN0cyI6IDIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-3348688e033d04fa4375",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2204,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:44.410Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAiY2hyb21pdW0iLAogICJicmlkZ2VTSEEyNTYiOiAiMGFmMDdhMWY2ZjNmNDliNTI0MDMwZmM4NGU0YjA5OWFlMmU1YTY2ZDUwZmMzYTI3YTFlM2FiMmMyYTM5MDBhMCIsCiAgIndhc21TSEEyNTYiOiAiMDIxMDE1MmQ5MWNjOTVhNzU0ZTExZGI0ZTBjZDU3ZjBkZDcxYmEzNzczZDcwM2ZhNDc2NzE1MmMyZDI0ZWYzYyIsCiAgInBoYXNlcyI6IFsKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDgzNjE3LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM2MTksCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDA5CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM2MTksCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzNjE3LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM2MzQsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4MzYzNiwKICAgICAgInZlcnNpb24iOiAiMTUzLjAuODAxMC4xMiIKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1yZXNwb25zZSIsCiAgICAgICJzdGF0dXMiOiAyMDAKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJtb2Rlcm4tcmVjb3ZlcnktcmVzdGFydCIsCiAgICAgICJhY2NlcHRlZEFuZFJlY2VpcHRVbmNoYW5nZWRPblJlamVjdGlvbiI6IHRydWUsCiAgICAgICJyZXRhaW5lZFByb3Bvc2FsUmVvcGVuZWQiOiB0cnVlLAogICAgICAiZXhwbGljaXRPd25VbmRvUmV0YWluc1BlZXIiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM2MzYsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzNjM0LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9CiAgXSwKICAicmVsYXlSZXF1ZXN0cyI6IDIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-c2171d020aa204faf377",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4572,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:46.617Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAiY2hyb21pdW0iLAogICJicmlkZ2VTSEEyNTYiOiAiMGFmMDdhMWY2ZjNmNDliNTI0MDMwZmM4NGU0YjA5OWFlMmU1YTY2ZDUwZmMzYTI3YTFlM2FiMmMyYTM5MDBhMCIsCiAgIndhc21TSEEyNTYiOiAiMDIxMDE1MmQ5MWNjOTVhNzU0ZTExZGI0ZTBjZDU3ZjBkZDcxYmEzNzczZDcwM2ZhNDc2NzE1MmMyZDI0ZWYzYyIsCiAgInBoYXNlcyI6IFsKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDgzNjU5LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM2NjEsCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDEzCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM2NjEsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzNjU5LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM2NzYsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4MzY3OCwKICAgICAgInZlcnNpb24iOiAiMTUzLjAuODAxMC4xMiIKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1yZXNwb25zZSIsCiAgICAgICJzdGF0dXMiOiA0MTMKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJtb2Rlcm4tY2FwYWNpdHktcmVzdGFydCIsCiAgICAgICJtYXhCeXRlcyI6IDgwMDAwMDAsCiAgICAgICJvcmlnaW5hbENvbXBsZXRlQnl0ZXMiOiB0cnVlLAogICAgICAicmVjZWlwdFVuY2hhbmdlZCI6IHRydWUsCiAgICAgICJyZXRyeVJlbWFpbnNSZWNvdmVyYWJsZSI6IHRydWUsCiAgICAgICJleHBvcnRTSEEyNTYiOiAiYjhlMTg1YjM3YmZjOTE1NWM2N2MwZmRlOWMxYmIxMWEwYjI2NWEwNGMxYTIwZWIwNWQ5YTBjMmMzODc4ZTNjYiIKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLWV4aXQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4MzY3OCwKICAgICAgImRpc2Nvbm5lY3RlZCI6IHRydWUsCiAgICAgICJwcm9jZXNzRXhpdGVkIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LWV4aXQiLAogICAgICAicGlkIjogODM2NzYsCiAgICAgICJleGl0Q29kZSI6IDAKICAgIH0KICBdLAogICJyZWxheVJlcXVlc3RzIjogMgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-002f036451ca73a219a4",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        },
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3873,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:54.270Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAid2Via2l0IiwKICAiYnJpZGdlU0hBMjU2IjogIjBhZjA3YTFmNmYzZjQ5YjUyNDAzMGZjODRlNGIwOTlhZTJlNWE2NmQ1MGZjM2EyN2ExZTNhYjJjMmEzOTAwYTAiLAogICJ3YXNtU0hBMjU2IjogIjAyMTAxNTJkOTFjYzk1YTc1NGUxMWRiNGUwY2Q1N2YwZGQ3MWJhMzc3M2Q3MDNmYTQ3NjcxNTJjMmQyNGVmM2MiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA4MzcxNiwKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzNzE4LAogICAgICAidmVyc2lvbiI6ICIyNi42IgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDIwMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzNzE4LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4MzcxNiwKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDgzNzMyLAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM3MzQsCiAgICAgICJ2ZXJzaW9uIjogIjI2LjYiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLXJlc3RhcnQtcmVqb2luIiwKICAgICAgInByb3RvY29sIjogNywKICAgICAgInBhaXJlZE9yaWdpbmFsSGlzdG9yeSI6IHRydWUsCiAgICAgICJhY3R1YWxCcm93c2VyQW5kU2VydmVyUHJvY2Vzc2VzIjogdHJ1ZSwKICAgICAgInBlZXJTcGxpdEFuZEFwcGVhcmFuY2VSZXRhaW5lZCI6IHRydWUsCiAgICAgICJvcmlnaW5hbERvY3VtZW50UHJlc2VydmVkIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzNzM0LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4MzczMiwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAyCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-10afc016a4ac3e939269",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2669,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:46:58.147Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAid2Via2l0IiwKICAiYnJpZGdlU0hBMjU2IjogIjBhZjA3YTFmNmYzZjQ5YjUyNDAzMGZjODRlNGIwOTlhZTJlNWE2NmQ1MGZjM2EyN2ExZTNhYjJjMmEzOTAwYTAiLAogICJ3YXNtU0hBMjU2IjogIjAyMTAxNTJkOTFjYzk1YTc1NGUxMWRiNGUwY2Q1N2YwZGQ3MWJhMzc3M2Q3MDNmYTQ3NjcxNTJjMmQyNGVmM2MiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA4Mzc1NywKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzNzU5LAogICAgICAidmVyc2lvbiI6ICIyNi42IgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDQwOQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzNzU5LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4Mzc1NywKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDgzNzc0LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM3NzYsCiAgICAgICJ2ZXJzaW9uIjogIjI2LjYiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLXJlY292ZXJ5LXJlc3RhcnQiLAogICAgICAiYWNjZXB0ZWRBbmRSZWNlaXB0VW5jaGFuZ2VkT25SZWplY3Rpb24iOiB0cnVlLAogICAgICAicmV0YWluZWRQcm9wb3NhbFJlb3BlbmVkIjogdHJ1ZSwKICAgICAgImV4cGxpY2l0T3duVW5kb1JldGFpbnNQZWVyIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzNzc2LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4Mzc3NCwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAyCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-a2d7e375b761876cccff",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4507,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:47:00.818Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAid2Via2l0IiwKICAiYnJpZGdlU0hBMjU2IjogIjBhZjA3YTFmNmYzZjQ5YjUyNDAzMGZjODRlNGIwOTlhZTJlNWE2NmQ1MGZjM2EyN2ExZTNhYjJjMmEzOTAwYTAiLAogICJ3YXNtU0hBMjU2IjogIjAyMTAxNTJkOTFjYzk1YTc1NGUxMWRiNGUwY2Q1N2YwZGQ3MWJhMzc3M2Q3MDNmYTQ3NjcxNTJjMmQyNGVmM2MiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA4MzgwMCwKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzODAyLAogICAgICAidmVyc2lvbiI6ICIyNi42IgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDQxMwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzODAyLAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4MzgwMCwKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDgzODE3LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM4MTksCiAgICAgICJ2ZXJzaW9uIjogIjI2LjYiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDEzCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLWNhcGFjaXR5LXJlc3RhcnQiLAogICAgICAibWF4Qnl0ZXMiOiA4MDAwMDAwLAogICAgICAib3JpZ2luYWxDb21wbGV0ZUJ5dGVzIjogdHJ1ZSwKICAgICAgInJlY2VpcHRVbmNoYW5nZWQiOiB0cnVlLAogICAgICAicmV0cnlSZW1haW5zUmVjb3ZlcmFibGUiOiB0cnVlLAogICAgICAiZXhwb3J0U0hBMjU2IjogIjc2MGMzMjg1NTkzNDNhZTY2ODc0MjdlNDg4ZjUwMGVkOGNhZmY4NGUyYTgxZTdhNDI5ZGE5ZDJmODg5OWY5ZmIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM4MTksCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzODE3LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9CiAgXSwKICAicmVsYXlSZXF1ZXN0cyI6IDIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-dca3fb7bc787322b8889",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        },
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5603,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:47:07.696Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAiZmlyZWZveCIsCiAgImJyaWRnZVNIQTI1NiI6ICIwYWYwN2ExZjZmM2Y0OWI1MjQwMzBmYzg0ZTRiMDk5YWUyZTVhNjZkNTBmYzNhMjdhMWUzYWIyYzJhMzkwMGEwIiwKICAid2FzbVNIQTI1NiI6ICIwMjEwMTUyZDkxY2M5NWE3NTRlMTFkYjRlMGNkNTdmMGRkNzFiYTM3NzNkNzAzZmE0NzY3MTUyYzJkMjRlZjNjIiwKICAicGhhc2VzIjogWwogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM4NTMsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4Mzg1NSwKICAgICAgInZlcnNpb24iOiAiMTU1LjAiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM4NTUsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzODUzLAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM4NjUsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4Mzg2NywKICAgICAgInZlcnNpb24iOiAiMTU1LjAiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLXJlc3RhcnQtcmVqb2luIiwKICAgICAgInByb3RvY29sIjogNywKICAgICAgInBhaXJlZE9yaWdpbmFsSGlzdG9yeSI6IHRydWUsCiAgICAgICJhY3R1YWxCcm93c2VyQW5kU2VydmVyUHJvY2Vzc2VzIjogdHJ1ZSwKICAgICAgInBlZXJTcGxpdEFuZEFwcGVhcmFuY2VSZXRhaW5lZCI6IHRydWUsCiAgICAgICJvcmlnaW5hbERvY3VtZW50UHJlc2VydmVkIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzODY3LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4Mzg2NSwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAyCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-fe66c9973f2b80069622",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3571,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:47:13.302Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAiZmlyZWZveCIsCiAgImJyaWRnZVNIQTI1NiI6ICIwYWYwN2ExZjZmM2Y0OWI1MjQwMzBmYzg0ZTRiMDk5YWUyZTVhNjZkNTBmYzNhMjdhMWUzYWIyYzJhMzkwMGEwIiwKICAid2FzbVNIQTI1NiI6ICIwMjEwMTUyZDkxY2M5NWE3NTRlMTFkYjRlMGNkNTdmMGRkNzFiYTM3NzNkNzAzZmE0NzY3MTUyYzJkMjRlZjNjIiwKICAicGhhc2VzIjogWwogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM4ODUsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4Mzg4NywKICAgICAgInZlcnNpb24iOiAiMTU1LjAiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDA5CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM4ODcsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzODg1LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM4OTYsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4Mzg5OCwKICAgICAgInZlcnNpb24iOiAiMTU1LjAiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogMjAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLXJlY292ZXJ5LXJlc3RhcnQiLAogICAgICAiYWNjZXB0ZWRBbmRSZWNlaXB0VW5jaGFuZ2VkT25SZWplY3Rpb24iOiB0cnVlLAogICAgICAicmV0YWluZWRQcm9wb3NhbFJlb3BlbmVkIjogdHJ1ZSwKICAgICAgImV4cGxpY2l0T3duVW5kb1JldGFpbnNQZWVyIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDgzODk4LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA4Mzg5NiwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAyCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-c0087addd4741a85c41b",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:47:16.876Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICIyZWYxMTgxNDZmZWJlOTNjYTkwY2IzZjZjNTc3ZjY3ODM4MTg4ODhkIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjkwODg3ZTdlMTliZGVmYTNmMmU3OTY2NDljMzU3MWRjOGI1YzgyMTc5MWQyYmEzNWYxZWU4Mjc3MmZkMWJkMGUiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogImIzOTM1N2U4MTE5MWQ1OGJjZWI2YWFhMzQ4MzkwM2VkZGIyMmE5ZWNjZjgwMWVhNWVlODNmOTlmOTI5NDBlYzkiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJhODE3OWUyMzkwNDZiYzdlYTkyMzc2MDFiNTUxYzM1MTEzYWM5OTJjNGU4N2RjY2VmMjM0NDhiOTE1NzNkYWNlIiwKICAgICJzcmMvc3dpZnQudHMiOiAiZDUwZWUxNmRhZTY5ZmU4OWE4MmU3MmJiYzA3Njg2Y2MyOTFhZjJmYTA2ZWEzYWE3MmYzZjRhZDFmMjgzYjU3MiIsCiAgICAidGVzdHMvbW9kZXJuLXJlbGF5LnN3aWZ0LnRzIjogIjg3YzU3ZGRhZDFjZjAyZmJmYWE5N2M2MDNkODljNTI4MGY2ZTVmNmZlNzQyZDFiNWUyZDk5MWYwZjNlY2M5MGMiLAogICAgImRlbW8vbW9kZXJuLXJlbGF5LW1haW4udHN4IjogIjQyODVlZDcwMjE5MWY1N2Y4MzNmOTgwMTRhZjAyODg5NDdlZTBkMDlmM2U1MWRjYzNjNWQwYzBhY2YyYjA0NWQiLAogICAgImRlbW8vcmVsYXkvbW9kZXJuLXJvb20udHMiOiAiMzBkMTVkODk1YjA0NTkxNGZlMmQxNDc3YjE1MWUyZmQzZTFlYzAyYjY5OWY3NTRiZTEyYjQyZjUyMzU1MjQyZiIsCiAgICAiZGVtby9yZWxheS9icmlkZ2UudHMiOiAiNWM5ZGE4YmE3NTE4ZGY4NjRjNmY4ZmE5MTdmOTM1MmIxZDIyMzk3MDI1ZWNmYzM1NDA0YWZkOTA0Y2IwNDE3NiIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi50cyI6ICIwNjQ4ODNkN2Y2NzJmYjUwNmEyYWViOTBjNmY1ODdkNWViMDMwZTFlMDdjNjc2OWFkYmM1NzE3MDUwY2MyNzY1IiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLWhvc3QudHMiOiAiZWUzZDZkZTA3OGNhNGUwMTYzODJiZDZkZTQ4NzE4MzAyNzBjNjU5YTM4NzUzNWY3OGQ0YjBiNGZjMDllZmQ0ZCIsCiAgICAic3JjL3N3aWZ0LW1vZGVybi1yZWxheS50cyI6ICI2M2EyNTQ5MWZjNmMxMmQxYjY0OGI5OGMyZDNiZDc0NGI0ZWVlMTU2OWJlYmZkYTk5MzdlNzZjZTJlMWFkMGZhIiwKICAgICJzcmMvc3dpZnQtbW9kZXJuLXJlYWN0LnRzeCI6ICJhNTI5MzAwMmZkOWQ2MDU2NzEwMGZhZjdiY2M1NjQ4OGY5ZWQzMWRkN2QzMzg0ZDVlY2RjZTU2ZDk1OTc4NDI3IgogIH0sCiAgInJ1bnRpbWVNYW5pZmVzdCI6IG51bGwsCiAgInBsYXRmb3JtIjogImRhcndpbiIsCiAgImFyY2hpdGVjdHVyZSI6ICJhcm02NCIsCiAgImJyb3dzZXIiOiAiZmlyZWZveCIsCiAgImJyaWRnZVNIQTI1NiI6ICIwYWYwN2ExZjZmM2Y0OWI1MjQwMzBmYzg0ZTRiMDk5YWUyZTVhNjZkNTBmYzNhMjdhMWUzYWIyYzJhMzkwMGEwIiwKICAid2FzbVNIQTI1NiI6ICIwMjEwMTUyZDkxY2M5NWE3NTRlMTFkYjRlMGNkNTdmMGRkNzFiYTM3NzNkNzAzZmE0NzY3MTUyYzJkMjRlZjNjIiwKICAicGhhc2VzIjogWwogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM5MzEsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4MzkzMywKICAgICAgInZlcnNpb24iOiAiMTU1LjAiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDEzCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM5MzMsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzOTMxLAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktc3RhcnQiLAogICAgICAicGlkIjogODM5NDMsCiAgICAgICJ2ZXJzaW9uIjogNwogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItc3RhcnQiLAogICAgICAibGF1bmNoZXJQaWQiOiA4Mzk0NiwKICAgICAgInZlcnNpb24iOiAiMTU1LjAiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktcmVzcG9uc2UiLAogICAgICAic3RhdHVzIjogNDEzCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAibW9kZXJuLWNhcGFjaXR5LXJlc3RhcnQiLAogICAgICAibWF4Qnl0ZXMiOiA4MDAwMDAwLAogICAgICAib3JpZ2luYWxDb21wbGV0ZUJ5dGVzIjogdHJ1ZSwKICAgICAgInJlY2VpcHRVbmNoYW5nZWQiOiB0cnVlLAogICAgICAicmV0cnlSZW1haW5zUmVjb3ZlcmFibGUiOiB0cnVlLAogICAgICAiZXhwb3J0U0hBMjU2IjogIjNmZWI1MTI5NjU2MjY4Mjc5MGI1Yjg5ZjA1NDU0ZTBmY2MxMTQxMzNiYjkzNmY5NTI3MDA1YjAyNDYwMzY1ZTkiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogODM5NDYsCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDgzOTQzLAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9CiAgXSwKICAicmVsYXlSZXF1ZXN0cyI6IDIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-46e59614deb4f4390664",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-14T00:46:38.064Z",
+    "duration": 44688.038,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
