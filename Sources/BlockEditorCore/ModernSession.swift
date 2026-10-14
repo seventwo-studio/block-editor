@@ -106,6 +106,9 @@ public final class ModernSession {
     private let seed: ModernProjectionSeed
     var structure: StructuralState
     private var projection: WritingProjection
+    // One immutable historical read cohort. Ordinary input preserves its
+    // immediate predecessor for controls still displaying a captured selection.
+    private var capturedRead: (cohort: Set<ChangeID>, replay: (WritingProjection, ModernDocument, StructuralState))?
     private var log: [ChangeID: ModernChange] = [:]
     private var counter: UInt64 = 0
     private var undoStack: [[ChangeID]] = [], redoStack: [[ChangeID]] = []
@@ -466,6 +469,8 @@ public final class ModernSession {
     /// Replays already-admitted local history without repeating packet admission.
     func modernCapturedWritingReplay(_ observed: [ChangeID]) throws -> (WritingProjection, StructuralState) {
         let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
+        if cohort == Set(log.keys) { return (projection, structure) }
+        if let capturedRead, capturedRead.cohort == cohort { return (capturedRead.replay.0, capturedRead.replay.2) }
         return try causalWritingReplay(cohort, in: log)
     }
     func validatePasteCaptures(_ target: ModernPasteTarget) throws {
@@ -479,7 +484,11 @@ public final class ModernSession {
     }
     func modernCapturedReplay(_ observed: [ChangeID]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
-        return try replay(log.filter { cohort.contains($0.key) })
+        if cohort == Set(log.keys) { return modernCurrentReplay }
+        if let capturedRead, capturedRead.cohort == cohort { return capturedRead.replay }
+        let result = try replay(log.filter { cohort.contains($0.key) })
+        capturedRead = (cohort, result)
+        return result
     }
     func modernCapturedSelection(_ range: ModernTextRange) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
         try capturedSelection(range)
@@ -550,6 +559,7 @@ public final class ModernSession {
         return result
     }
     private func accept(_ candidate: [ChangeID: ModernChange], _ result: (WritingProjection, ModernDocument, StructuralState), change: ModernChange?) {
+        capturedRead = (Set(log.keys), modernCurrentReplay)
         let active = activeStates(candidate)
         var newUndo = undoStack.map { $0.filter { active[$0] ?? true } }.filter { !$0.isEmpty }
         var newRedo = redoStack.map { $0.filter { !(active[$0] ?? true) } }.filter { !$0.isEmpty }
