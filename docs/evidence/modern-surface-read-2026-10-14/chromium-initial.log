@@ -1,0 +1,41 @@
+[WebServer] (node:85575) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+(node:85576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › tests/modern-performance.swift.ts:40:1 › production modern surface measures original input and menu response on 1000 mixed blocks
+  1) [chromium] › tests/modern-performance.swift.ts:40:1 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Error: page.evaluate: Error: invalidDocument("Invalid callout variant")
+        at e.invoke (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:11645)
+        at e.call (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:10689)
+        at e.create (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:2549)
+        at e.createModern (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:11814)
+        at xe (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:14:20822)
+        at async window.mountModernPerformance (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:14:21273)
+        at async eval (eval at evaluate (:311:30), <anonymous>:2:7)
+        at async <anonymous>:337:30
+        at e.invoke (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:11645)
+        at e.call (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:10689)
+        at e.create (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:2549)
+        at e.createModern (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:11814)
+        at xe (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:14:20822)
+        at async window.mountModernPerformance (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:14:21273)
+        at async eval (eval at evaluate (:311:30), <anonymous>:2:7)
+        at async <anonymous>:337:30
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:54:16
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    .build/finishing/20261014/modern-performance/chromium-initial-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/attachments/modern-surface-performance-029d1f1df715d93920c79f87f973b643a81deb64.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/modern-performance/chromium-initial-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › tests/modern-performance.swift.ts:40:1 › production modern surface measures original input and menu response on 1000 mixed blocks 

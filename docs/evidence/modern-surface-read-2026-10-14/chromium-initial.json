@@ -1,0 +1,16 @@
+{
+  "complete": false,
+  "sourceCommit": "7b5fdcc57c58071de69f14ba97bd1f850138b95b",
+  "sourceClean": false,
+  "fixtureSHA256": "ab542ead25e8c169b6049aaa28a74f228a219edfff7350d68c5721c88c0a3d84",
+  "wasmSHA256": "0210152d91cc95a754e11db4e0cd57f0dd71ba3773d703fa4767152c2d24ef3c",
+  "browser": "chromium",
+  "browserVersion": "153.0.8010.12",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [],
+  "menuMS": [],
+  "productionReact": true,
+  "method": "Trusted native beforeinput/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "error": "Error: page.evaluate: Error: invalidDocument(\"Invalid callout variant\")\n    at e.invoke (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:11645)\n    at e.call (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:10689)\n    at e.create (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:2549)\n    at e.createModern (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:12:11814)\n    at xe (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:14:20822)\n    at async window.mountModernPerformance (http://127.0.0.1:4294/assets/modern-performance-DIDOhb0j.js:14:21273)\n    at async eval (eval at evaluate (:311:30), <anonymous>:2:7)\n    at async <anonymous>:337:30"
+}

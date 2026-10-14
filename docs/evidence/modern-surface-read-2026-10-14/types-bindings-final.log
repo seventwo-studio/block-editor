@@ -1,0 +1,4 @@
+tests/modern-context.swift.ts(120,34): error TS2345: Argument of type '{ command: "delete"; target: { nodes: ModernNodes; }; arguments: {}; }' is not assignable to parameter of type 'ModernAuthorCommand'.
+  Types of property 'target' are incompatible.
+    Property 'ranges' is missing in type '{ nodes: ModernNodes; }' but required in type 'ModernDeleteTarget'.
+tests/modern-context.swift.ts(126,56): error TS2540: Cannot assign to 'blocks' because it is a read-only property.

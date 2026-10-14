@@ -1,0 +1,16 @@
+{
+  "complete": false,
+  "sourceCommit": "0cf341adc1fa3ab3607ac232841fb36078b40925",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "a93c718a6349d334af05034d116dce24b12d6a872d1afd5b4ae6771bdd5aabea",
+  "browser": "chromium",
+  "browserVersion": "153.0.8010.12",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [],
+  "menuMS": [],
+  "productionReact": true,
+  "method": "Trusted native beforeinput/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeUndefined\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m\"Accepted content and rendered/focused surface did not settle\"\u001b[39m"
+}

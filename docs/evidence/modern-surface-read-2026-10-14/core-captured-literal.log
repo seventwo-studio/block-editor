@@ -1,0 +1,17 @@
+Building for debugging...
+[Computing dependencies]
+[2 / 7] BlockEditorCoreTests-product
+[3 / 11]
+[6 / 11] BlockEditorCoreTests-product
+[11 / 15] BlockEditorCoreTests-product
+Build complete! (8.92 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernCapturedReadTests started.
+◇ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() started.
+◇ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() started.
+✔ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() passed after 0.008 seconds.
+✔ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() passed after 0.031 seconds.
+✔ Suite ModernCapturedReadTests passed after 0.031 seconds.
+✔ Test run with 2 tests in 1 suite passed after 0.031 seconds.

@@ -1,0 +1,57 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 618]
+[Planning deferred tasks]
+[6 / 61] BlockEditorCore
+[8 / 63] BlockEditorCore
+[22 / 77] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:333:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+331 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+332 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+333 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+334 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+335 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:355:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+353 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+354 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+355 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+356 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+357 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[31 / 88] BlockEditorABI
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[44 / 99] local-editor-product
+[60 / 114] BlockEditorLocalDemo
+[63 / 115] relay-client-product
+[68 / 117] relay-client-product
+[69 / 117]
+[70 / 117] BlockEditorApple
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/WritingBlockEditorView.swift:142:111: warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+140 |                 HStack(alignment: .top) {
+141 |                     if style == "todo" {
+142 |                         Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: lease.checkedSetter())).labelsHidden()
+    |                                                                                                               `- warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+143 |                     } else { Text(style == "ordered" ? "\(index + 1)." : "•").accessibilityHidden(true) }
+144 |                     WritingInputField(model: model, address: TextAddress(rootID, path: path + [item.selfID, "content"]), label: "List item")
+[74 / 122] modern-relay-client-product
+[85 / 132] editor-bridge-product
+[94 / 130] BlockEditorLocalDemo
+[100 / 134] local-editor-product
+[107 / 136] BlockEditorLocalDemoTests-product
+error: /Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/StructuralReadTests.swift:35:11 expected 'func' keyword in instance method declaration: FixIt(sourceRange: XCBuild.SwiftBuildMessage.DiagnosticInfo.SourceRange(path: "/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/StructuralReadTests.swift", startLine: 35, startColumn: 11, endLine: 35, endColumn: 11), textToInsert: "func ")
+error: SwiftDriver BlockEditorCoreTests normal arm64 com.apple.xcode.tools.swift.compiler failed with a nonzero exit code. Command line:     cd /Users/luca/Developer
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -parse-as-library -module-name BlockEditorCoreTests -Onone @/Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/Objects-normal/arm64/BlockEditorCoreTests.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos26.0 -g -module-cache-path /Users/luca/Developer/block-editor/.build/out/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/luca/Developer/block-editor/.build/out -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/luca/Developer/block-editor/.build/out/Products/Debug -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib -F /Users/luca/Developer/block-editor/.build/out/Products/Debug/PackageFrameworks -F /Users/luca/Developer/block-editor/.build/out/Products/Debug -F /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks -c -j14 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/luca/Developer/block-editor/.build/out/SDKStatCaches.noindex/macosx27.0-26A425-80c5bbf1d171475443272936d42f90a37231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/Objects-normal/arm64/BlockEditorCoreTests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/luca/Developer/block-editor/.build/out/ModuleCache.noindex -sdk-module-cache-path /Users/luca/Developer/block-editor/.build/out/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/Objects-normal/arm64/BlockEditorCoreTests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/Objects-normal/arm64/BlockEditorCoreTests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/luca/Developer/block-editor/.build/out/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -package-name block_editor -emit-const-values -const-gather-protocols-list /Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/Objects-normal/arm64/BlockEditorCoreTests_const_extract_protocols.json -Xcc -I/Users/luca/Developer/block-editor/.build/out/Products/Debug/include -Xcc -I/Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/DerivedSources-normal/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/DerivedSources/arm64 -Xcc -I/Users/luca/Developer/block-editor/.build/out/Intermediates.noindex/BlockEditor.build/Debug/BlockEditorCoreTests-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -working-directory /Users/luca/Developer -experimental-emit-module-separately -disable-cmo
+error: Build failed
+error: fatalError

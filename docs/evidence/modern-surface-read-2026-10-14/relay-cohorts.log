@@ -1,0 +1,36 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4290" --strictPort
+
+[WebServer] (node:91910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 15 tests using 1 worker
+
+(node:91911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/15] [chromium] › tests/modern-relay-client.swift.ts:6:1 › modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB
+[2/15] [chromium] › tests/modern-relay-wire.swift.ts:3:1 › modern relay rejects original malformed wire before peer admission
+[3/15] [chromium] › tests/modern-relay.swift.ts:38:1 › modern browser input survives offline browser/server process restart, rejoin and author Undo
+[4/15] [chromium] › tests/modern-relay.swift.ts:83:1 › modern rejected recovery reopens with original accepted input before explicit author repair
+[5/15] [chromium] › tests/modern-relay.swift.ts:118:1 › modern 8 MB transport failure exports and reopens the complete unacknowledged author archive
+(node:92066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[6/15] [webkit] › tests/modern-relay-client.swift.ts:6:1 › modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB
+[7/15] [webkit] › tests/modern-relay-wire.swift.ts:3:1 › modern relay rejects original malformed wire before peer admission
+[8/15] [webkit] › tests/modern-relay.swift.ts:38:1 › modern browser input survives offline browser/server process restart, rejoin and author Undo
+[9/15] [webkit] › tests/modern-relay.swift.ts:83:1 › modern rejected recovery reopens with original accepted input before explicit author repair
+[10/15] [webkit] › tests/modern-relay.swift.ts:118:1 › modern 8 MB transport failure exports and reopens the complete unacknowledged author archive
+(node:92214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[11/15] [firefox] › tests/modern-relay-client.swift.ts:6:1 › modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB
+[12/15] [firefox] › tests/modern-relay-wire.swift.ts:3:1 › modern relay rejects original malformed wire before peer admission
+[13/15] [firefox] › tests/modern-relay.swift.ts:38:1 › modern browser input survives offline browser/server process restart, rejoin and author Undo
+[14/15] [firefox] › tests/modern-relay.swift.ts:83:1 › modern rejected recovery reopens with original accepted input before explicit author repair
+[15/15] [firefox] › tests/modern-relay.swift.ts:118:1 › modern 8 MB transport failure exports and reopens the complete unacknowledged author archive
+  15 passed (42.7s)
