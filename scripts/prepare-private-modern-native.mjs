@@ -45,7 +45,8 @@ assert(pom.includes('<packaging>aar</packaging>') && pom.includes('<version>' + 
 for (const dependency of ['compose-bom', 'foundation', 'material3']) assert(pom.includes(`<artifactId>${dependency}</artifactId>`), `Missing dependency ${dependency}`);
 const module = JSON.parse(readFileSync(join(directory, prefix + '.module'), 'utf8'));
 assert.equal(module.component.version, version);
-assert(module.variants.some(value => value.name === 'releaseApiElements') && module.variants.some(value => value.name === 'releaseRuntimeElements'));
+for (const usage of ['java-api', 'java-runtime']) assert(module.variants.some(value =>
+  value.attributes['org.gradle.usage'] === usage && value.attributes['org.gradle.category'] === 'library'), `Missing ${usage} library variant`);
 const native = builds.find(value => value.runtime === 'android').artifacts;
 for (const abi of ['arm64-v8a', 'x86_64']) for (const name of ['libBlockEditorBridge.so', 'libBlockEditorJNI.so', 'libc++_shared.so']) {
   const entry = `jni/${abi}/${name}`;
