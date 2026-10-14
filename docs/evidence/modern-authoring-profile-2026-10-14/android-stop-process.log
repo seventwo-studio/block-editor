@@ -1,0 +1,11 @@
+39 |   try { log = await command(["shell", "am", "instrument", "-w", "-r", "-e", "class", "studio.seventwo.blockeditor.ModernRelayProcessTest",
+40 |     "-e", "modernRelayPhase", name, "-e", "modernRelayRun", runID, "-e", "modernRelayEndpoint", endpoint,
+41 |     ...(authorized ? ["-e", "modernRelayToken", "modern-relay-test"] : []), "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner"]); }
+42 |   catch (error) { await writeFile(join(output, `${name}-instrumentation.log`), (error as { output?: string }).output ?? String(error)); throw error; }
+43 |   await writeFile(join(output, `${name}-instrumentation.log`), log);
+44 |   if (!/OK \(1 test\)/.test(log) || /FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed/.test(log)) throw new Error(`Failed native relay phase ${name}`);
+                                                                                                                   ^
+error: Failed native relay phase seed
+      at phase (/Users/luca/Developer/block-editor/scripts/test-modern-android-relay.ts:44:111)
+
+Bun v1.4.2 (macOS arm64)

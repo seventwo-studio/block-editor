@@ -1,5 +1,5 @@
-/** A completed instrumentation process can disappear while API26's am client
- * reports 255. Confirm the package's actual terminal state; ambiguous readback
+/** API26's am client can report 255 with an unknown stop outcome.
+ * Confirm the package's actual terminal state; ambiguous readback
  * or a remaining process must never become a successful recovery campaign. */
 export async function verifyAndroidProcessStop(
   command: (args: string[]) => Promise<string>, packageName: string,

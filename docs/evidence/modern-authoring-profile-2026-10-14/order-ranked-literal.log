@@ -1,0 +1,15 @@
+Building for debugging...
+[Computing dependencies]
+[2 / 8] BlockEditorCoreTests-product
+[3 / 12]
+[6 / 12] BlockEditorCoreTests-product
+[12 / 14] BlockEditorCoreTests-product
+Build complete! (8.98 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test cachedWritingOrderMatchesCanonicalIdentityOrder() started.
+◇ Test rankedWritingOrderKeepsLiteralRawUnicodeAndElementPriority() started.
+✔ Test rankedWritingOrderKeepsLiteralRawUnicodeAndElementPriority() passed after 0.001 seconds.
+✔ Test cachedWritingOrderMatchesCanonicalIdentityOrder() passed after 0.059 seconds.
+✔ Test run with 2 tests in 0 suites passed after 0.059 seconds.

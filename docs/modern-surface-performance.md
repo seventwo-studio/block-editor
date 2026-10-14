@@ -68,6 +68,19 @@ collections; opaque consumer properties named `rows` or `children` retain their
 data without becoming editor nodes. Reused labels after peer deletion resolve to
 their new shared identities.
 
+Writing atom ordering ranks exact encoded origin bytes once per sort. Raw
+components prevent Swift's Unicode-normalizing string equality from merging
+distinct spellings; equal encoded keys retain their original stable tie order.
+Element identity still takes priority over the origin rank. Caret offsets use
+the final retained order for their resolved field, including hidden atoms and
+joined virtual heads. Visible offsets exclude tombstones; retained offsets keep
+their UTF-16 widths so later cuts and historical anchors retain their meaning.
+
+`node scripts/profile-modern-authoring.mjs <new-report>` diagnoses direct actual
+WASM calls on the same fixed workload. It verifies two accepted appends, explicit
+no-op shortcuts and mark state, and records source/patch, fixture and WASM hashes.
+This excludes browser input/rendering and never accepts a surface budget.
+
 ## Current evidence boundary
 
 The initial production workload exceeded its four-minute limit before producing
@@ -78,6 +91,13 @@ at roughly 9.4 seconds each before its deadline. It did not complete the twenty
 samples or measure menus. This contradicts the 50 ms target; there is no accepted
 input p95 or menu result. Profile and repair the remaining authoring/snapshot path
 before repeating the same workload.
+
+The ranked-order and field-offset candidate's direct WASM diagnostic measured
+accepted appends at 2,934–2,980 ms, compared with the earlier 3,272–3,514 ms.
+No-op shortcut calls measured 142–145 ms. These modest improvements leave the
+author replay/projection and complete snapshot paths far above the agreed input
+target even before browser rendering. They do not replace the failed production
+baseline or establish a complete p95.
 
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked

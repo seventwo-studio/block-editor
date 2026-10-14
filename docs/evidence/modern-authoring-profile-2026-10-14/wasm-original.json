@@ -1,0 +1,81 @@
+{
+  "calls": [
+    {
+      "command": "createModern",
+      "ms": 1946.864583,
+      "bytes": 501163
+    },
+    {
+      "command": "modernNode",
+      "ms": 517.47225,
+      "bytes": 43
+    },
+    {
+      "command": "modernField",
+      "ms": 1.2584579999997914,
+      "bytes": 69
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 2.078708000000006,
+      "bytes": 651
+    },
+    {
+      "command": "modernCommand",
+      "ms": 3514.0448329999995,
+      "bytes": 503261
+    },
+    {
+      "command": "modernText",
+      "ms": 10.512166999999863,
+      "bytes": 56
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.7149590000008175,
+      "bytes": 688
+    },
+    {
+      "command": "modernCommand",
+      "ms": 213.0495839999994,
+      "bytes": 503233
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 124.74545800000033,
+      "bytes": 5
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.6300409999994372,
+      "bytes": 688
+    },
+    {
+      "command": "modernCommand",
+      "ms": 3271.5475830000005,
+      "bytes": 503292
+    },
+    {
+      "command": "modernText",
+      "ms": 10.924457999999504,
+      "bytes": 57
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.6443330000001879,
+      "bytes": 688
+    },
+    {
+      "command": "modernCommand",
+      "ms": 211.61529100000007,
+      "bytes": 503264
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 127.28654199999983,
+      "bytes": 5
+    }
+  ],
+  "passed": true,
+  "qualification": "Diagnostic shared API timing, excludes browser input/rendering"
+}
