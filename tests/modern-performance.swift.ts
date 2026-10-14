@@ -24,7 +24,8 @@ async function arm(page: Page, mode: "input" | "menu", expected: string) {
         const displayed = mode === "input" ? source.textContent === expected :
           !!window.document.querySelector('[role="dialog"][aria-label="Insert block"]') && window.document.activeElement?.getAttribute("aria-label") === "Search blocks";
         if (accepted && displayed && frames >= 2) state.result = { elapsedMS: performance.now() - start, frameCount: frames };
-        else if (performance.now() - start > 30_000) state.result = { elapsedMS: performance.now() - start, frameCount: frames, error: "Accepted content and rendered/focused surface did not settle" };
+        else if (!(accepted && displayed) && performance.now() - start > 30_000) state.result = { elapsedMS: performance.now() - start, frameCount: frames,
+          accepted, displayed, nativeBuffer: source.textContent ?? "", error: "Accepted content and rendered/focused surface did not settle" };
         else requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
@@ -47,11 +48,16 @@ test("production modern surface measures original input and menu response on 100
     wasmSHA256: createHash("sha256").update(wasm).digest("hex"), browser: info.project.name, browserVersion: browser.version(),
     warmups: 3, repetitions: 20, inputMS: [], menuMS: [], productionReact: true,
     method: "Trusted native beforeinput/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim." };
+  report.diagnostic = process.env.MODERN_SURFACE_DIAGNOSTIC === "1";
+  const consoleMessages: string[] = [], pageErrors: string[] = [];
   const publish = () => writeFileSync(resolve(output, `${info.project.name}.json`), JSON.stringify(report, null, 2) + "\n");
+  page.on("console", message => { if (consoleMessages.length < 200) consoleMessages.push(message.text()); report.consoleMessages = consoleMessages; publish(); });
+  page.on("pageerror", error => { pageErrors.push(String(error)); report.pageErrors = pageErrors; publish(); });
   try {
     await page.route("**/modern-engine.wasm", route => route.fulfill({ body: wasm, contentType: "application/wasm" }));
     await page.goto("modern-performance.html");
-    await page.evaluate(async encoded => { await window.mountModernPerformance(JSON.parse(encoded)); }, fixture.toString());
+    await page.evaluate(async ({ encoded, diagnostic }) => { window.modernPerformanceDiagnostic = diagnostic; await window.mountModernPerformance(JSON.parse(encoded)); },
+      { encoded: fixture.toString(), diagnostic: process.env.MODERN_SURFACE_DIAGNOSTIC === "1" });
     await expect(page.getByRole("textbox", { name: "Document title", exact: true })).toBeVisible({ timeout: 120_000 });
     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(document);
     const body = page.locator('[data-block-type="paragraph"]').filter({ hasText: "Note 0001." }).getByRole("textbox", { name: "Block text", exact: true });
@@ -77,5 +83,15 @@ test("production modern surface measures original input and menu response on 100
     report.complete = true;
     await page.screenshot({ path: info.outputPath("mixed-surface.png") });
   } catch (error) { report.error = String(error); throw error; }
-  finally { publish(); await info.attach("modern-surface-performance", { path: resolve(output, `${info.project.name}.json`), contentType: "application/json" }); await page.evaluate(() => window.modernPerformance?.dispose()); }
+  finally {
+    report.consoleMessages = consoleMessages; report.pageErrors = pageErrors;
+    if (!page.isClosed()) {
+      try { report.lastState = await page.evaluate(() => ({ accepted: window.modernPerformance?.session.getSnapshot().document.blocks.find(block => block.id === "note-1"),
+        nativeBuffer: window.document.querySelector('[data-measurement-input]')?.textContent, focused: window.document.activeElement?.getAttribute("aria-label"),
+        measurement: window.modernMeasurement?.result, errors: window.modernPerformance?.errors })); }
+      catch (error) { report.stateCaptureError = String(error); }
+    }
+    publish(); await info.attach("modern-surface-performance", { path: resolve(output, `${info.project.name}.json`), contentType: "application/json" });
+    if (!page.isClosed()) { try { await page.evaluate(() => window.modernPerformance?.dispose()); } catch (error) { report.cleanupError = String(error); publish(); } }
+  }
 });
