@@ -1,0 +1,154 @@
+{
+  "README.md": {
+    "bytes": 3283,
+    "sha256": "e6fd9212811f05206ff593280b71b6d462d503c2b2c5b739fec3bcd072057286"
+  },
+  "affected-browser.log": {
+    "bytes": 15312,
+    "sha256": "ea5f10ef0ea33397dc2e83e06bb64df4d873c33511ec88842c1d24871b8ab389"
+  },
+  "chromium-mixed-surface.png": {
+    "bytes": 86938,
+    "sha256": "cb9bc1a546d8ae1ee17e415cd1690f92c5a500d3be6420f414b0cc6cb90b5cd7"
+  },
+  "ci-prior-latest.json": {
+    "bytes": 20100,
+    "sha256": "3f2be4e45188a4d108751d1f5b05edfe394718f87d1a32161633a91fbd59707c"
+  },
+  "ci-prior-live.json": {
+    "bytes": 20091,
+    "sha256": "974d410434d880095b7ff84096998a019973a2922a6d14f5ecde0d0865c3a993"
+  },
+  "drag-repaired.log": {
+    "bytes": 1576,
+    "sha256": "c7ffb88f24889bd2ddc55032f75ce84ad7705f170dafea29ab0c34bcdd1d2db5"
+  },
+  "firefox-mixed-surface.png": {
+    "bytes": 102956,
+    "sha256": "4f713bf99386c0a7eaea60627e99d350a43e2f8ca482d9fed94a1926a5baac86"
+  },
+  "hardware.json": {
+    "bytes": 217,
+    "sha256": "fe817f24ccc8967e2499521d4113ddbc33a7f850b28c0a64ade2fa3faee50a4c"
+  },
+  "javascript-clean.log": {
+    "bytes": 79,
+    "sha256": "cbdb8b8ffcaebbaa28d826dd854e06f9fd930872502c7577f6281e2db98affbb"
+  },
+  "lifecycle-browser.log": {
+    "bytes": 7414,
+    "sha256": "b3c312e487e9c94d0fc3bf0e3f1e328284e9c5dffb055e83bd89495ccfc20657"
+  },
+  "lifecycle-repaired.log": {
+    "bytes": 1196,
+    "sha256": "556fe471e8ee700efbf381d1e42a86933cc489bd865ba187d46f267ec9ebb06d"
+  },
+  "modern-build-javascript.json": {
+    "bytes": 23188,
+    "sha256": "2f1fdaaa5533710047bd7ac61c4304a36fb08f3a11a4f9717dc9031a14141c6a"
+  },
+  "modern-build-wasm.json": {
+    "bytes": 20114,
+    "sha256": "0bbfd85983662d65d5baae78d3efe4be26612e6da66bc8a67d34f346c2edca3f"
+  },
+  "original-drag-failures/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-chromium/error-context.md": {
+    "bytes": 17900,
+    "sha256": "f2825195f86a3f00f70784c246dbe829a99a15ac2367558d92292121b85388c3"
+  },
+  "original-drag-failures/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-chromium/original-failed-surface.png": {
+    "bytes": 31518,
+    "sha256": "1ca811a6004636ba4736650e800a26eff16731c9db22046d1174e87d8d09a0bd"
+  },
+  "original-drag-failures/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-firefox/error-context.md": {
+    "bytes": 17900,
+    "sha256": "f2825195f86a3f00f70784c246dbe829a99a15ac2367558d92292121b85388c3"
+  },
+  "original-drag-failures/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-firefox/original-failed-surface.png": {
+    "bytes": 39165,
+    "sha256": "969c6de0903f186ef5e5536fb3180a483eedbf9b6894fcc6d698617a1d3f9e0b"
+  },
+  "original-drag-failures/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-webkit/error-context.md": {
+    "bytes": 17900,
+    "sha256": "f2825195f86a3f00f70784c246dbe829a99a15ac2367558d92292121b85388c3"
+  },
+  "original-drag-failures/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-webkit/original-failed-surface.png": {
+    "bytes": 51288,
+    "sha256": "e6dc652494ebd8cc93290ca14979604e0e63473c7024aac62444913150b6fc4e"
+  },
+  "original-label-failures/modern-context.swift.ts-co-09991-ics-without-authoring-split-chromium/error-context.md": {
+    "bytes": 17205,
+    "sha256": "42e18e6c68e590e036477796b8dd717a4bd0e564ea57973d657e8c02d78e974d"
+  },
+  "original-label-failures/modern-context.swift.ts-co-09991-ics-without-authoring-split-chromium/original-failed-surface.png": {
+    "bytes": 51904,
+    "sha256": "bb8c4a950dbb1864c2a3ab9e16dfb40d0e8c459657f95cd2a59d5295ba13e3fb"
+  },
+  "original-label-failures/modern-context.swift.ts-co-09991-ics-without-authoring-split-firefox/error-context.md": {
+    "bytes": 17205,
+    "sha256": "42e18e6c68e590e036477796b8dd717a4bd0e564ea57973d657e8c02d78e974d"
+  },
+  "original-label-failures/modern-context.swift.ts-co-09991-ics-without-authoring-split-firefox/original-failed-surface.png": {
+    "bytes": 66864,
+    "sha256": "f8ff5260ea32aeb2c78dc7277b38a1096d0013c0a67336005154d2e0e3e347a8"
+  },
+  "original-label-failures/modern-context.swift.ts-co-09991-ics-without-authoring-split-webkit/error-context.md": {
+    "bytes": 17205,
+    "sha256": "42e18e6c68e590e036477796b8dd717a4bd0e564ea57973d657e8c02d78e974d"
+  },
+  "original-label-failures/modern-context.swift.ts-co-09991-ics-without-authoring-split-webkit/original-failed-surface.png": {
+    "bytes": 79703,
+    "sha256": "6c095ddc6656bedda662f82410395b4acd9dc2e8da6f1bbda27923c03336de71"
+  },
+  "production-build.log": {
+    "bytes": 461,
+    "sha256": "95eef0c648ff7d573612b28d21c58e380065a116ad125d7e674f160bb2726ff7"
+  },
+  "production-chromium.json": {
+    "bytes": 2672,
+    "sha256": "5b44a188a79ff187e2293af3de9221b0dc58b1af279e8fece2cf3caa41ea45ef"
+  },
+  "production-firefox.json": {
+    "bytes": 2176,
+    "sha256": "77abe20436b9a52c55874561e1e2f0aa24d7aec01d448fdfd62c02b87e16a87e"
+  },
+  "production-webkit.json": {
+    "bytes": 2206,
+    "sha256": "0c14ffb540de4d37b9efab9b8df8a23f09269cc7275109b9f9382dd7513acc11"
+  },
+  "production.log": {
+    "bytes": 6364,
+    "sha256": "8b40a99fc30b9f26939b1672e9caae4c610d0d8c883c6d881296280ce8108b6c"
+  },
+  "receipt.json": {
+    "bytes": 4060,
+    "sha256": "dbe67b1a5d93fe1f4fed328afb15da281912acc30ae24e469b7852c76fb03ebe"
+  },
+  "typecheck.log": {
+    "bytes": 15,
+    "sha256": "8366207267355d3e3d5bf3bf6e8c94c5f93f6078c34f08973fa2b38cdda6cc92"
+  },
+  "types-label-repaired.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "types-lifecycle-repaired.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "types-lifecycle.log": {
+    "bytes": 119,
+    "sha256": "515e4758fa0be2bb51de36d9a5a9ba0fafa2bf2e2c42a5bd4723d6fe4eaff196"
+  },
+  "types.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "wasm-clean.log": {
+    "bytes": 54,
+    "sha256": "485b6b842c33ef47835f2373cf424817da7e6dfa47a44c570e2d8f3ba4b632a9"
+  },
+  "webkit-mixed-surface.png": {
+    "bytes": 114073,
+    "sha256": "09f394b07c6ae07534d3cc3c290825ab02bc2a3cfc80f7481e6cadc3dedbb4d4"
+  }
+}

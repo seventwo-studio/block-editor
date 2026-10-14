@@ -1,0 +1,184 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:18299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 60 tests using 3 workers
+
+[1/60] [chromium] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+[2/60] [chromium] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[3/60] [chromium] › tests/modern-context.swift.ts:42:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[4/60] [chromium] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[5/60] [chromium] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[6/60] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[7/60] [chromium] › tests/modern-context.swift.ts:61:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[8/60] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[9/60] [webkit] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+[10/60] [chromium] › tests/modern-context.swift.ts:77:0 › successful cell actions dismiss and reopening captures the updated structure
+[11/60] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[12/60] [chromium] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[13/60] [webkit] › tests/modern-context.swift.ts:42:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[14/60] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[15/60] [chromium] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+[16/60] [webkit] › tests/modern-context.swift.ts:61:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[17/60] [chromium] › tests/modern-context.swift.ts:138:0 › keyboard column resize releases its preview before a peer resize
+[18/60] [webkit] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[19/60] [webkit] › tests/modern-context.swift.ts:77:0 › successful cell actions dismiss and reopening captures the updated structure
+[20/60] [webkit] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[21/60] [webkit] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[22/60] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[23/60] [chromium] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history
+[24/60] [webkit] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[25/60] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[26/60] [webkit] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+  1) [chromium] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history 
+
+    Error: expect(locator).not.toHaveValue(expected) failed
+
+    Locator:  getByRole('slider', { name: 'Column split' })
+    Expected: not "7000"
+    Received: "7000"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toHaveValue" getByRole('slider', { name: 'Column split' }) with timeout 5000ms
+      - waiting for getByRole('slider', { name: 'Column split' })
+        14 × locator resolved to <input min="1000" max="9000" type="range" value="7000" aria-label="Column split"/>
+           - unexpected value "7000"
+
+
+      162 |   await page.mouse.move(box!.x + box!.width * 0.75, box!.y + box!.height / 2); await page.mouse.down();
+      163 |   await page.mouse.move(box!.x + box!.width * 0.3, box!.y + box!.height / 2);
+    > 164 |   await expect(slider).not.toHaveValue("7000");
+          |                           ^
+      165 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+      166 |   await page.keyboard.press("Escape"); await page.mouse.up();
+      167 |   await expect(slider).toHaveValue("7000");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:164:27
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-chromium/error-context.md
+
+
+[27/60] [chromium] › tests/modern-context.swift.ts:171:0 › accessible insertion cancellation returns to the original text caret
+[28/60] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[29/60] [webkit] › tests/modern-context.swift.ts:138:0 › keyboard column resize releases its preview before a peer resize
+[30/60] [chromium] › tests/modern-context.swift.ts:188:0 › Escape dismisses the Link action and retains its captured input
+[31/60] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[32/60] [chromium] › tests/modern-context.swift.ts:201:0 › contextual reads preserve opaque metadata named like schema collections
+[33/60] [webkit] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history
+[34/60] [chromium] › tests/modern-context.swift.ts:226:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[35/60] [firefox] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+  2) [webkit] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history 
+
+    Error: expect(locator).not.toHaveValue(expected) failed
+
+    Locator:  getByRole('slider', { name: 'Column split' })
+    Expected: not "7000"
+    Received: "7000"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toHaveValue" getByRole('slider', { name: 'Column split' }) with timeout 5000ms
+      - waiting for getByRole('slider', { name: 'Column split' })
+        14 × locator resolved to <input min="1000" max="9000" type="range" value="7000" aria-label="Column split"/>
+           - unexpected value "7000"
+
+
+      162 |   await page.mouse.move(box!.x + box!.width * 0.75, box!.y + box!.height / 2); await page.mouse.down();
+      163 |   await page.mouse.move(box!.x + box!.width * 0.3, box!.y + box!.height / 2);
+    > 164 |   await expect(slider).not.toHaveValue("7000");
+          |                           ^
+      165 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+      166 |   await page.keyboard.press("Escape"); await page.mouse.up();
+      167 |   await expect(slider).toHaveValue("7000");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:164:27
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-webkit/error-context.md
+
+
+[36/60] [webkit] › tests/modern-context.swift.ts:171:0 › accessible insertion cancellation returns to the original text caret
+[37/60] [chromium] › tests/modern-context.swift.ts:254:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[38/60] [webkit] › tests/modern-context.swift.ts:188:0 › Escape dismisses the Link action and retains its captured input
+[39/60] [firefox] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[40/60] [firefox] › tests/modern-context.swift.ts:42:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[41/60] [firefox] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[42/60] [firefox] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[43/60] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[44/60] [webkit] › tests/modern-context.swift.ts:201:0 › contextual reads preserve opaque metadata named like schema collections
+[45/60] [firefox] › tests/modern-context.swift.ts:61:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[46/60] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[47/60] [webkit] › tests/modern-context.swift.ts:226:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[48/60] [firefox] › tests/modern-context.swift.ts:77:0 › successful cell actions dismiss and reopening captures the updated structure
+[49/60] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[50/60] [webkit] › tests/modern-context.swift.ts:254:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[51/60] [firefox] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[52/60] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[53/60] [firefox] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+[54/60] [firefox] › tests/modern-context.swift.ts:138:0 › keyboard column resize releases its preview before a peer resize
+[55/60] [firefox] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history
+  3) [firefox] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history 
+
+    Error: expect(locator).not.toHaveValue(expected) failed
+
+    Locator:  getByRole('slider', { name: 'Column split' })
+    Expected: not "7000"
+    Received: "7000"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toHaveValue" getByRole('slider', { name: 'Column split' }) with timeout 5000ms
+      - waiting for getByRole('slider', { name: 'Column split' })
+        14 × locator resolved to <input min="1000" max="9000" type="range" value="7000" aria-label="Column split"/>
+           - unexpected value "7000"
+
+
+      162 |   await page.mouse.move(box!.x + box!.width * 0.75, box!.y + box!.height / 2); await page.mouse.down();
+      163 |   await page.mouse.move(box!.x + box!.width * 0.3, box!.y + box!.height / 2);
+    > 164 |   await expect(slider).not.toHaveValue("7000");
+          |                           ^
+      165 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+      166 |   await page.keyboard.press("Escape"); await page.mouse.up();
+      167 |   await expect(slider).toHaveValue("7000");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:164:27
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-firefox/error-context.md
+
+
+[56/60] [firefox] › tests/modern-context.swift.ts:171:0 › accessible insertion cancellation returns to the original text caret
+[57/60] [firefox] › tests/modern-context.swift.ts:188:0 › Escape dismisses the Link action and retains its captured input
+[58/60] [firefox] › tests/modern-context.swift.ts:201:0 › contextual reads preserve opaque metadata named like schema collections
+[59/60] [firefox] › tests/modern-context.swift.ts:226:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[60/60] [firefox] › tests/modern-context.swift.ts:254:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history 
+    [webkit] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history 
+    [firefox] › tests/modern-context.swift.ts:157:0 › Escape cancels a column drag without authoring or changing history 
+  57 passed (3.7m)

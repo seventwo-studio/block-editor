@@ -151,6 +151,18 @@ matching source/artifact receipts, hardware and the 54-case functional run are i
 `docs/evidence/modern-table-controls-2026-10-14`. Remaining authoring/snapshot
 and rendering costs need repair against the unchanged targets.
 
+The body-presentation candidate reuses native controls across local menus while
+invalidating document/receipt, lifecycle/capability/provider and geometry changes.
+Column geometry observes usable page content width and live font metrics rather
+than viewport width; stored split/history remain untouched by reflow. The clean
+same-fixture run completes every sample: input p95 is 1,598.5 ms Chromium,
+1,689 ms WebKit and 2,004 ms Firefox; menu p95 is 42, 57 and 70 ms. All three
+menu targets pass on this Mac workload, while all input targets still fail.
+Corrected column presentation prevents a pure cache-only comparison with earlier
+incorrect-layout timings. Raw reports, exact receipts and qualified functional
+checks are in `docs/evidence/modern-body-presentation-2026-10-14`. Shared authoring
+and complete snapshot publication remain unresolved; no full acceptance is claimed.
+
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked
 workloads, larger-document preservation and physical native campaigns. Physical
