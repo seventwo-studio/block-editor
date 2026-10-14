@@ -1,0 +1,27 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 618]
+[Planning deferred tasks]
+[4 / 58]
+[11 / 22] BlockEditorCoreTests-product
+[11 / 22] BlockEditorAppleTests-product
+[12 / 29]
+[16 / 29]
+[18 / 29] BlockEditorAppleTests-product
+[24 / 28] BlockEditorAppleTests-product
+Build complete! (3.46 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernAccessibilityLabelTests started.
+◇ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() started.
+✘ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() recorded an issue at ModernAccessibilityLabelTests.swift:34:9: Expectation failed: view.accessibilityLabel() == "Updated narrative"
+↳ view.accessibilityLabel() == "Updated narrative" → false
+↳   view.accessibilityLabel() → "Block text"
+↳     some → "Block text"
+↳     some → "Updated narrative"
+✘ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() failed after 0.363 seconds with 1 issue.
+✘ Suite ModernAccessibilityLabelTests failed after 0.364 seconds with 1 issue.
+✘ Test run with 1 test in 1 suite failed after 0.364 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

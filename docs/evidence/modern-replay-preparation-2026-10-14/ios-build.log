@@ -1,0 +1,157 @@
+Building for debugging...
+[Planning deferred tasks]
+[24 / 40]
+[25 / 41] BlockEditorCore
+[35 / 83]
+[41 / 83]
+[43 / 83]
+[46 / 83]
+[49 / 83]
+[52 / 83]
+[67 / 83] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:343:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+341 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+342 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+343 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+344 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+345 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:365:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+363 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+364 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+365 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+366 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+367 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[74 / 84] BlockEditorCore
+[74 / 84] BlockEditorApple
+[93 / 135]
+[102 / 135]
+[106 / 135]
+[111 / 135] BlockEditorCore
+[111 / 135]
+[127 / 135] BlockEditorApple
+[133 / 135] BlockEditorApple
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernTextInput.swift:182:25: warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+180 |             #else
+181 |             func responder(_ root: UIView) -> UIView? {
+182 |                 if root.isFirstResponder { return root }
+    |                         `- warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+183 |                 for child in root.subviews { if let value = responder(child) { return value } }; return nil
+184 |             }
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIResponder.h:92:37: note: property declared here
+ 90 | - (BOOL)resignFirstResponder;
+ 91 | 
+ 92 | @property(nonatomic, readonly) BOOL isFirstResponder;
+    |                                     `- note: property declared here
+ 93 | 
+ 94 | // Generally, all responders which do custom touch handling should override all four of these methods.
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernTextInput.swift:183:35: warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+181 |             func responder(_ root: UIView) -> UIView? {
+182 |                 if root.isFirstResponder { return root }
+183 |                 for child in root.subviews { if let value = responder(child) { return value } }; return nil
+    |                                   `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+184 |             }
+185 |             let current = responder(window); return current == nil || current === view
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIView.h:230:64: note: property declared here
+228 | 
+229 | @property(nullable, nonatomic,readonly) UIView       *superview;
+230 | @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
+    |                                                                `- note: property declared here
+231 | @property(nullable, nonatomic,readonly) UIWindow     *window;
+232 | 
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/WritingUIKitTextInput.swift:17:169: warning: result of call to 'resignFirstResponder()' is unused [#NoUsage]
+ 15 |         view.accessibilityLabel = label; context.coordinator.connect(view); return view
+ 16 |     }
+ 17 |     func updateUIView(_ view: WritingUIKitTextView, context: Context) { view.isEditable = context.environment.isEnabled && model.isEditable; if !view.isEditable { view.resignFirstResponder() }; context.coordinator.render() }
+    |                                                                                                                                                                         `- warning: result of call to 'resignFirstResponder()' is unused [#NoUsage]
+ 18 |     func sizeThatFits(_ proposal: ProposedViewSize, uiView: WritingUIKitTextView, context: Context) -> CGSize? {
+ 19 |         guard let width = proposal.width, width.isFinite, width > 0 else { return nil }
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/WritingBlockEditorView.swift:142:111: warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+140 |                 HStack(alignment: .top) {
+141 |                     if style == "todo" {
+142 |                         Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: lease.checkedSetter())).labelsHidden()
+    |                                                                                                               `- warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+143 |                     } else { Text(style == "ordered" ? "\(index + 1)." : "•").accessibilityHidden(true) }
+144 |                     WritingInputField(model: model, address: TextAddress(rootID, path: path + [item.selfID, "content"]), label: "List item")
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:133:163: warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+131 |             if let window = view.window {
+132 |                 coordinator.originalWindow = window
+133 |                 coordinator.permitted = { [weak view, weak window] in guard let window else { return false }; func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                                                                                                                   `- warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+134 |                     let current = responder(window); return current == nil || current === view }
+135 |             }
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIResponder.h:92:37: note: property declared here
+ 90 | - (BOOL)resignFirstResponder;
+ 91 | 
+ 92 | @property(nonatomic, readonly) BOOL isFirstResponder;
+    |                                     `- note: property declared here
+ 93 | 
+ 94 | // Generally, all responders which do custom touch handling should override all four of these methods.
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:133:215: warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+131 |             if let window = view.window {
+132 |                 coordinator.originalWindow = window
+133 |                 coordinator.permitted = { [weak view, weak window] in guard let window else { return false }; func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                                                                                                                                                                       `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+134 |                     let current = responder(window); return current == nil || current === view }
+135 |             }
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIView.h:230:64: note: property declared here
+228 | 
+229 | @property(nullable, nonatomic,readonly) UIView       *superview;
+230 | @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
+    |                                                                `- note: property declared here
+231 | @property(nullable, nonatomic,readonly) UIWindow     *window;
+232 | 
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:142:69: warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+140 |             coordinator.permitted = { [weak view, weak window] in
+141 |                 guard let window else { return false }
+142 |                 func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                     `- warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+143 |                 let current = responder(window); return current == nil || current === view
+144 |             }; coordinator.paste()
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIResponder.h:92:37: note: property declared here
+ 90 | - (BOOL)resignFirstResponder;
+ 91 | 
+ 92 | @property(nonatomic, readonly) BOOL isFirstResponder;
+    |                                     `- note: property declared here
+ 93 | 
+ 94 | // Generally, all responders which do custom touch handling should override all four of these methods.
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:142:121: warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+140 |             coordinator.permitted = { [weak view, weak window] in
+141 |                 guard let window else { return false }
+142 |                 func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                                                                         `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+143 |                 let current = responder(window); return current == nil || current === view
+144 |             }; coordinator.paste()
+
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIView.h:230:64: note: property declared here
+228 | 
+229 | @property(nullable, nonatomic,readonly) UIView       *superview;
+230 | @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
+    |                                                                `- note: property declared here
+231 | @property(nullable, nonatomic,readonly) UIWindow     *window;
+232 | 
+Build complete! (9.50 sec)
