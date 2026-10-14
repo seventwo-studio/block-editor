@@ -12,7 +12,7 @@ import urllib.request
 
 def download(entry, target, name, evidence, sleep=time.sleep):
     target = Path(target)
-    expected_size = entry["size"]
+    expected_size = entry.get("size")
     for attempt in range(1, 4):
         digest, count = hashlib.sha256(), 0
         status, length, range_header, content_type = None, None, None, None
@@ -27,6 +27,7 @@ def download(entry, target, name, evidence, sleep=time.sleep):
                 length = response.headers.get("Content-Length")
                 range_header = response.headers.get("Content-Range")
                 content_type = response.headers.get("Content-Type", "").split(";", 1)[0].lower()
+                transfer_size = expected_size if expected_size is not None else int(length) if length and length.isdigit() else None
                 while chunk := response.read(8 * 1024 * 1024):
                     output.write(chunk); digest.update(chunk); count += len(chunk)
                 if status == 206 or range_header:
@@ -35,9 +36,9 @@ def download(entry, target, name, evidence, sleep=time.sleep):
                     error = f"Unexpected HTTP status {status}"
                 elif content_type in {"text/html", "text/plain", "application/json", "application/xml"}:
                     error = f"Unexpected archive content type {content_type}"
-                elif count < expected_size:
-                    retryable, error = True, f"Truncated archive: {count} of {expected_size} bytes"
-                elif count != expected_size:
+                elif transfer_size is not None and count < transfer_size:
+                    retryable, error = True, f"Truncated archive: {count} of {transfer_size} bytes"
+                elif expected_size is not None and count != expected_size:
                     error = f"Archive size mismatch: {count} versus {expected_size} bytes"
                 elif digest.hexdigest() != entry["sha256"]:
                     error = "Complete archive SHA-256 mismatch"

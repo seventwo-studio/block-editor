@@ -13,7 +13,7 @@ module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 
 
 class LockedDownloadTest(unittest.TestCase):
-    def check_responses(self, responses, success, attempts):
+    def check_responses(self, responses, success, attempts, size_locked=True):
         body = b"independent locked archive fixture"
         requests, delays = [], []
         class Handler(BaseHTTPRequestHandler):
@@ -31,6 +31,7 @@ class LockedDownloadTest(unittest.TestCase):
             with tempfile.TemporaryDirectory() as directory:
                 target, evidence = Path(directory) / "archive.zip", Path(directory) / "evidence.jsonl"
                 entry = {"url": f"http://127.0.0.1:{server.server_port}/archive", "size": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+                if not size_locked: entry.pop("size")
                 if success:
                     module.download(entry, target, "fixture", evidence, sleep=delays.append)
                     self.assertEqual(target.read_bytes(), body)
@@ -39,7 +40,7 @@ class LockedDownloadTest(unittest.TestCase):
                     self.assertFalse(target.exists())
                 receipts = [json.loads(line) for line in evidence.read_text().splitlines()]
                 self.assertEqual(len(requests), attempts); self.assertEqual(len(receipts), attempts)
-                self.assertTrue(all(row["expectedSHA256"] == entry["sha256"] and row["expectedBytes"] == len(body) for row in receipts))
+                self.assertTrue(all(row["expectedSHA256"] == entry["sha256"] and row["expectedBytes"] == entry.get("size") for row in receipts))
                 for row in receipts:
                     if row["rejectedFile"]:
                         rejected = Path(directory) / row["rejectedFile"]
@@ -52,6 +53,10 @@ class LockedDownloadTest(unittest.TestCase):
 
     def test_exact_bytes_succeed_once(self):
         self.check_responses([(200, b"independent locked archive fixture", {})], True, 1)
+
+    def test_artifacts_without_locked_size_still_require_exact_hash(self):
+        self.check_responses([(200, b"independent locked archive fixture", {})], True, 1, size_locked=False)
+        self.check_responses([(200, b"x" * len(b"independent locked archive fixture"), {})], False, 1, size_locked=False)
 
     def test_short_body_retains_original_then_verifies_fresh_bytes(self):
         receipts, delays = self.check_responses([(200, b"short", {}), (200, b"independent locked archive fixture", {})], True, 2)
