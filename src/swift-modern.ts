@@ -120,6 +120,7 @@ export interface ModernCapabilities {
   readonly commands: readonly ModernCommandName[]; readonly cutoverToModern: true; readonly clipboardVersion: 2;
   readonly localHistorySelectionVersion: 1; readonly canCopy: boolean; readonly canCut: boolean;
   readonly wireInspectionVersion?: 1;
+  readonly renderingBindingVersion?: 1;
   readonly allowedBlockTypes: readonly string[] | null; readonly allowedMarkTypes: readonly string[] | null;
   readonly codeLanguages: readonly string[]; readonly tableActions: readonly ModernTableAction[]; readonly listActions: readonly ModernListAction[]; readonly asyncKinds: readonly ("image" | "file" | "embed")[];
   readonly canUndo?: boolean; readonly canRedo?: boolean; readonly isComposing?: boolean; readonly recoveryRequired?: boolean;
@@ -168,6 +169,8 @@ export class SwiftModernSession {
   private closed = false;
   private listeners = new Set<() => void>();
   private bindingReadSupported: boolean | undefined;
+  private renderingBindingSupported: boolean | undefined;
+  private renderingBindingCache: { token: string; bindings: readonly ModernNodeBinding[] } | undefined;
   private constructor(private readonly transport: ModernTransport, private readonly handle: string, private snapshot: ModernSnapshot) { this.snapshot = owned(snapshot); }
   static create(transport: ModernTransport, options: ModernScope & ModernPolicy & { readonly actorID: string; readonly document: ModernDocument }): SwiftModernSession {
     const handle = crypto.randomUUID();
@@ -228,6 +231,16 @@ export class SwiftModernSession {
    * individual lookup path; genuine recovery/lifecycle errors still propagate. */
   nodeBindings(): readonly ModernNodeBinding[] | undefined {
     this.assertOpen();
+    this.renderingBindingSupported ??= this.capabilities().renderingBindingVersion === 1;
+    if (this.renderingBindingSupported) {
+      const cached = this.renderingBindingCache;
+      const view = this.renderingBindings(cached?.token);
+      if (view.bindings === null) {
+        if (!cached || cached.token !== view.token) throw new Error("Shared binding token omitted unknown bindings");
+        return cached.bindings;
+      }
+      this.renderingBindingCache = { token: view.token, bindings: view.bindings }; return view.bindings;
+    }
     if (this.bindingReadSupported === false) return undefined;
     try {
       const bindings = this.call<readonly ModernNodeBinding[]>("modernNodeBindings");
@@ -238,6 +251,9 @@ export class SwiftModernSession {
       }
       throw error;
     }
+  }
+  renderingBindings(knownToken?: string): { readonly token: string; readonly bindings: readonly ModernNodeBinding[] | null } {
+    return this.call("modernRenderingBindings", knownToken === undefined ? {} : { knownToken });
   }
   save(): ModernObject { return this.call("modernSave"); }
   changes(since?: ModernReceipt): ModernBatch { return this.call("modernChanges", since === undefined ? {} : { since }); }
@@ -302,7 +318,7 @@ export class SwiftModernSession {
   localSelection(): ModernLocalSelection | null { return this.call("modernLocalSelection"); }
   exportHistorySelection(): ModernHistorySelectionArchive { return this.call("modernExportHistorySelection"); }
   restoreHistorySelection(archive: ModernHistorySelectionArchive): void { this.update("modernRestoreHistorySelection", { archive }); }
-  close(): void { if (this.closed) return; this.call("destroy"); this.closed = true; this.listeners.clear(); }
+  close(): void { if (this.closed) return; this.call("destroy"); this.closed = true; this.renderingBindingCache = undefined; this.listeners.clear(); }
 }
 
 export interface ModernCutoverArchive extends ModernScope {

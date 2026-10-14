@@ -40,6 +40,7 @@ final class ModernBridgeEndpoint {
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
             values["localHistorySelectionVersion"] = .number(1)
             values["wireInspectionVersion"] = .number(1)
+            values["renderingBindingVersion"] = .number(1)
             let cutSession = sessions[handle]
             values["canCut"] = .bool(cutSession.map { !$0.isComposing && $0.mergeRecovery == nil &&
                 ($0.allowedCommands == nil || $0.allowedCommands!.contains("delete") || $0.allowedCommands!.contains("replaceTitle")) } ?? true)
@@ -128,6 +129,12 @@ final class ModernBridgeEndpoint {
         case "modernNode":
             try allowed(input, ["command", "session", "address"])
             return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
+        case "modernRenderingBindings":
+            try allowed(input, ["command", "session", "knownToken"])
+            let known = input["knownToken"]?.string
+            if input["knownToken"] != nil { guard let known, known.utf8.count <= 128 else { throw EditorError.invalidChange } }
+            let view = try session.renderingBindings(knownToken: known)
+            return .object(["token": .string(view.token), "bindings": try view.bindings.map { .array(try $0.map(modernNodeBindingValue)) } ?? .null])
         case "modernNodeBindings":
             try allowed(input, ["command", "session"])
             return .array(try session.nodeBindings().map(modernNodeBindingValue))

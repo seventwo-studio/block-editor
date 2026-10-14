@@ -104,6 +104,7 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     fun nodeBindings(): List<ModernNodeBinding> = (call("modernNodeBindings") as JSONArray).let { values ->
         (0 until values.length()).map { ModernNodeBinding(values.getJSONObject(it)) }
     }
+    fun renderingBindings(knownToken: String? = null) = ModernRenderingBindings(objectCall("modernRenderingBindings", JSONObject().also { value -> knownToken?.let { value.put("knownToken", it) } }))
     fun nodes(collection: ModernCollection = ModernCollection.Blocks): List<ModernNodeID> = (call("modernNodes", modernObject("collection" to collection.wire())) as JSONArray).let { values -> (0 until values.length()).map { ModernNodeID.restore(values.getJSONObject(it)) } }
     fun field(node: ModernNodeID, name: String = "content"): ModernField { val value = objectCall("modernField", modernObject("node" to node, "name" to name)); return ModernField(ModernNodeID.restore(value.getJSONObject("node")), value.getString("name")) }
     fun text(field: ModernField) = call("modernText", modernObject("field" to field.wire())) as String

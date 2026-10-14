@@ -38,6 +38,15 @@ internal fun modernObject(vararg entries: Pair<String, Any?>): JSONObject = JSON
         else -> value
     }) }
 }
+class ModernRenderingBindings internal constructor(value: JSONObject) : ModernValue(value) {
+    init { require(value.keys().asSequence().toSet() == setOf("token", "bindings")); require(token.isNotEmpty()) }
+    val token get() = string("token")
+    val bindings: List<ModernNodeBinding>? get() = export().let { value ->
+        if (value.isNull("bindings")) null else value.getJSONArray("bindings").let { array ->
+            (0 until array.length()).map { ModernNodeBinding(array.getJSONObject(it)) }
+        }
+    }
+}
 internal fun modernArray(values: Collection<ModernValue>) = JSONArray(values.map { it.export() })
 
 data class ModernChangeID(val actor: String, val counter: Long) {
@@ -195,6 +204,7 @@ data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val
     }
 }
 class ModernCapabilities internal constructor(value: JSONObject) : ModernValue(value) {
+    val renderingBindingVersion get() = export().optInt("renderingBindingVersion", 0)
     val wireInspectionVersion get() = number("wireInspectionVersion").toInt()
     val commands: List<ModernCommandName> get() = arrayValue("commands").let { values -> (0 until values.length()).map { index -> ModernCommandName.entries.first { it.wireValue == values.getString(index) } } }
     val canCopy get() = boolean("canCopy")

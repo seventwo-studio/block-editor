@@ -63,3 +63,19 @@ test("optional binding read falls back once for old engines and propagates genui
   } }, { actorID: "a", documentID: "shared", epoch: "epoch", document: fixture().document });
   expect(() => failed.nodeBindings()).toThrow("scopeClosed");
 });
+
+test("shared binding tokens preserve exact array ownership and reject an unknown omitted view", () => {
+  let unknown = false, fail = false, reads = 0;
+  const bindings = [{ address: { blockID: "A", path: [] }, node: { baseline: { blockID: "A", path: [] } }, kind: "block", fields: {} }];
+  const session = SwiftModernSession.create({ call<T>(request: Record<string, unknown>): T {
+    if (request.command === "modernCapabilities") return { renderingBindingVersion: 1 } as T;
+    if (request.command === "modernRenderingBindings") {
+      reads++; if (fail) throw new Error("invalidChange");
+      return { token: unknown ? "foreign" : "owned", bindings: reads === 1 ? bindings : null } as T;
+    }
+    return fixture() as T;
+  } }, { actorID: "a", documentID: "shared", epoch: "epoch", document: fixture().document });
+  const first = session.nodeBindings(); expect(session.nodeBindings()).toBe(first); expect(Object.isFrozen(first)).toBe(true);
+  unknown = true; expect(() => session.nodeBindings()).toThrow("omitted unknown bindings");
+  unknown = false; fail = true; expect(() => session.nodeBindings()).toThrow("invalidChange");
+});

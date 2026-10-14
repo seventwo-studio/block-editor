@@ -42,6 +42,8 @@ export function runModernAdapterContract(sourceTransport: ModernTransport, fixtu
       same(bindings[0].node, a.node(bindings[0].address), "Binding identity comes from shared Swift");
       same(bindings[0].fields.content, a.field(bindings[0].node), "Binding field comes from shared Swift");
       same(a.save(), saved, "Binding read cannot author or alter history");
+      const view = a.renderingBindings(); check(view.bindings?.length === 1, "Shared rendering view contains complete origins");
+      check(a.renderingBindings(view.token).bindings === null, "Same shared token confirms omitted unchanged bindings");
       a.endTypingGroup(); check(a.getSnapshot().document === snapshot.document && a.getSnapshot().syncState === snapshot.syncState, "No-op publication shares exact immutable document/receipt");
       checks.push("shared node/field binding read and exact no-op storage reuse");
     }

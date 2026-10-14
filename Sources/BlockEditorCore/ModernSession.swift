@@ -109,6 +109,7 @@ public final class ModernSession {
     // One immutable historical read cohort. Ordinary input preserves its
     // immediate predecessor for controls still displaying a captured selection.
     private var capturedRead: (cohort: Set<ChangeID>, replay: (WritingProjection, ModernDocument, StructuralState))?
+    var renderingBindingCache: (lease: AnyObject, token: String, bindings: [ModernNodeBinding])?
     private var log: [ChangeID: ModernChange] = [:]
     private var counter: UInt64 = 0
     private var undoStack: [[ChangeID]] = [], redoStack: [[ChangeID]] = []

@@ -6,6 +6,11 @@ public struct ModernNodeBinding: Codable, Sendable {
     public let kind: String
     public let fields: [String: WritingField]
 }
+public struct ModernRenderingBindings: Sendable {
+    public let token: String
+    /// Nil only when this session confirms the caller's exact current token.
+    public let bindings: [ModernNodeBinding]?
+}
 
 /// Trusted output only. Retain the public Codable shape without encoding an
 /// entire binding array into bytes and decoding it again before bridge output.
@@ -32,6 +37,22 @@ func modernNodeBindingValue(_ binding: ModernNodeBinding) throws -> JSONValue {
 }
 
 extension ModernSession {
+    /// A bounded, session-local presentation cache. It never authorizes a
+    /// command or enters history. Aliases/cross-field graphs take a full read.
+    public func renderingBindings(knownToken: String? = nil) throws -> ModernRenderingBindings {
+        let current = modernCurrentReplay
+        let lease = current.2.renderingReadLease
+        if current.0.usesIndependentFields {
+            if let cached = renderingBindingCache, cached.lease === lease {
+                return ModernRenderingBindings(token: cached.token, bindings: knownToken == cached.token ? nil : cached.bindings)
+            }
+            let bindings = try nodeBindings(), token = UUID().uuidString
+            renderingBindingCache = (lease, token, bindings)
+            return ModernRenderingBindings(token: token, bindings: bindings)
+        }
+        renderingBindingCache = nil
+        return ModernRenderingBindings(token: UUID().uuidString, bindings: try nodeBindings())
+    }
     /// Renderers receive checked origins in one read, without deriving an
     /// identity from a display label or changing document/history state.
     public func nodeBindings() throws -> [ModernNodeBinding] {

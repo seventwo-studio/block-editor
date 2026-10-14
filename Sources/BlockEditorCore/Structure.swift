@@ -74,6 +74,9 @@ struct StructuralState {
         var placementCollections: [NodeCollection: [NodePlacementID: Placement]]?
     }
     private var readCache = ReadCache()
+    // A strong lease, not an address/hash. Retaining it prevents allocator reuse
+    // from reviving a view after another structural value replaced this cache.
+    var renderingReadLease: AnyObject { readCache }
     struct Node {
         let identity: NodeID
         var kind: NodeKind
