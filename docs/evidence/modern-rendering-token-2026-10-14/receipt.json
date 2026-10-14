@@ -1,0 +1,127 @@
+{
+  "runtimeCommit": "67c64abcf3ba30a5a64ce4c7cc4ddd9eec2cee58",
+  "native": {
+    "focusedCases": 14,
+    "fullCoreCases": 595,
+    "fullAppleCases": 99,
+    "fullOtherCases": 8,
+    "fullTotal": 702,
+    "normalExit": true,
+    "originalCompileFailure": "native-focused.log",
+    "repaired": "native-repaired.log"
+  },
+  "ABI": {
+    "responses": 968,
+    "fixtures": 30,
+    "normalExit": true
+  },
+  "typedConsumer": {
+    "requests": 515,
+    "fixtures": 55,
+    "commands": 26,
+    "requirementGroups": 12,
+    "normalExit": true
+  },
+  "browser": {
+    "cases": 63,
+    "normalExit": true
+  },
+  "JNI": {
+    "cases": 1,
+    "normalInstrumentation": true,
+    "qualification": "Typed consumer with token reads only; preceding eighteen-case and five-process runs remain qualified by their earlier source."
+  },
+  "performance": {
+    "completedAllThree": true,
+    "terminalExit": 1,
+    "inputTargetsPassed": false,
+    "menuTargetsPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "67c64abcf3ba30a5a64ce4c7cc4ddd9eec2cee58",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "035319a6f35237bb2ed50f8a54724cda94e214d39ffb6888377a1cffe6869091",
+        "summary": {
+          "inputP95MS": 377.90000009536743,
+          "menuP95MS": 45.90000009536743,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "67c64abcf3ba30a5a64ce4c7cc4ddd9eec2cee58",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "035319a6f35237bb2ed50f8a54724cda94e214d39ffb6888377a1cffe6869091",
+        "summary": {
+          "inputP95MS": 479,
+          "menuP95MS": 68,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "67c64abcf3ba30a5a64ce4c7cc4ddd9eec2cee58",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "035319a6f35237bb2ed50f8a54724cda94e214d39ffb6888377a1cffe6869091",
+        "summary": {
+          "inputP95MS": 459,
+          "menuP95MS": 84,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      }
+    ]
+  },
+  "bindingProbe": {
+    "diagnostic": true,
+    "sourceCommit": "67c64abcf3ba30a5a64ce4c7cc4ddd9eec2cee58",
+    "sourceClean": true,
+    "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+    "wasmSHA256": "035319a6f35237bb2ed50f8a54724cda94e214d39ffb6888377a1cffe6869091",
+    "nodeCount": 5242,
+    "reads": [
+      {
+        "ms": 397.4655419999999,
+        "bytes": 2077926,
+        "omitted": false
+      },
+      {
+        "ms": 0.20191699999986668,
+        "bytes": 64,
+        "omitted": true
+      },
+      {
+        "ms": 0.16495899999972607,
+        "bytes": 64,
+        "omitted": true
+      }
+    ]
+  },
+  "qualifications": [
+    "Initial full binding timing includes cold structural-view preparation; not comparable to preceding warmed full-read timing. Two repeated reads are diagnostic, not p95 acceptance.",
+    "Strong structural-view lease, exact token confirmation and independent-field eligibility bound reuse; alias views always return full data. Tokens are absent from authoring and history.",
+    "All full current native and browser checks passed; current hosted CI/review remains required.",
+    "No protected-main landing, registry change, physical/assistive/resource/private-install or final acceptance occurred."
+  ]
+}

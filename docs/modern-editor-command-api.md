@@ -24,6 +24,23 @@ It still publishes notifications, history/recovery flags and changed receipts.
 Renderer bindings depend on both document and receipt: a same-value peer
 replacement has a new opaque identity even when document storage is reusable.
 
+Engines advertising `renderingBindingVersion: 1` also provide
+`renderingBindings(knownToken:)` / `modernRenderingBindings`. The first read
+returns `{ token, bindings }`; a subsequent read may return null bindings only
+when the shared engine confirms that this exact session-local token still
+represents its checked structural view. Tokens never authorize commands or enter
+saved history. Unknown tokens return full bindings. Alias-bearing projections
+always return full bindings with a fresh token. Structural changes, including a
+same-value peer replacement, invalidate the token. Scalar writing may preserve
+it only in the shared engine's eligible independent-field projection.
+
+TypeScript `nodeBindings()` negotiates this capability and retains its owned
+immutable array only after exact token confirmation. An omitted array for an
+unknown token and failures from an advertised read propagate. Older engines
+retain the existing complete/individual lookup fallback. Kotlin exposes the
+token read explicitly. Host snapshot notifications and receipt invalidation
+continue; consumers must not infer equivalent origins from document equality.
+
 The current candidate advertises 26 author commands. Historical receipts below
 retain their original 22-command source/runtime identities and qualifications.
 The four new commands are `typingShortcut`, `tableStructure`, `mediaProperties`

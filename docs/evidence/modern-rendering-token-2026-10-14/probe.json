@@ -1,0 +1,25 @@
+{
+  "diagnostic": true,
+  "sourceCommit": "67c64abcf3ba30a5a64ce4c7cc4ddd9eec2cee58",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "035319a6f35237bb2ed50f8a54724cda94e214d39ffb6888377a1cffe6869091",
+  "nodeCount": 5242,
+  "reads": [
+    {
+      "ms": 397.4655419999999,
+      "bytes": 2077926,
+      "omitted": false
+    },
+    {
+      "ms": 0.20191699999986668,
+      "bytes": 64,
+      "omitted": true
+    },
+    {
+      "ms": 0.16495899999972607,
+      "bytes": 64,
+      "omitted": true
+    }
+  ]
+}
