@@ -31,6 +31,27 @@ const cellActionsDocument: ModernDocument = { format: "seventwo.block-editor.doc
     { id: "T", type: "table", rows: [{ id: "R", cells: [{ id: "C", header: false, content: [{ type: "text", text: "Original 世界😀" }] }] }] }
   ] };
 
+test("ordinary keyboard typing groups until deliberate caret movement and retains Undo selection", async ({ page }) => {
+  const document: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "keyboard-history",
+    title: "History", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" },
+    blocks: [{ id: "p", type: "paragraph", content: [{ type: "text", text: "Seed" }] }] };
+  await mount(page, document);
+  const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  await body.click(); await body.press("End"); await page.keyboard.insertText("😀é"); await page.keyboard.type("abc");
+  await expect(body).toHaveText("Seed😀éabc");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(body).toHaveText("Seed");
+  await expect(body).toBeFocused(); await body.press("ControlOrMeta+Shift+z");
+  await expect(body).toHaveText("Seed😀éabc"); await expect(body).toBeFocused();
+  await body.press("ArrowLeft"); await page.keyboard.type("XY");
+  await expect(body).toHaveText("Seed😀éabXYc");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(body).toHaveText("Seed😀éabc");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(body).toHaveText("Seed");
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(document);
+});
+
 test("editor actions preserve content without submitting an enclosing host form", async ({ page }) => {
   const document = await mount(page, "unicode");
   await page.evaluate(() => {

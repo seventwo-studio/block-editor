@@ -5,6 +5,16 @@ import { ModernBrowserHost } from "./swift-modern-host.js";
 import { inlineSelection, selectInline } from "./inline-react.js";
 
 const key = (value: unknown) => JSON.stringify(value);
+// Captured JSON is exact, but object property order is not selection identity.
+// Preserve Unicode spelling, array order and number bits without normalizing.
+function sameJSON(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true;
+  if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right) &&
+    left.length === right.length && left.every((value, index) => sameJSON(value, right[index]));
+  if (!left || !right || typeof left !== "object" || typeof right !== "object") return false;
+  const a = left as Record<string, unknown>, b = right as Record<string, unknown>, names = Object.keys(a);
+  return names.length === Object.keys(b).length && names.every(name => Object.hasOwn(b, name) && sameJSON(a[name], b[name]));
+}
 const object = (value: unknown): ModernObject => value && typeof value === "object" && !Array.isArray(value) ? value as ModernObject : {};
 const array = (value: unknown): readonly ModernObject[] => Array.isArray(value) ? value as readonly ModernObject[] : [];
 const text = (value: unknown): string => typeof value === "string" ? value : "";
@@ -46,7 +56,8 @@ interface InputProps {
 function ModernInput(props: InputProps) {
   const { session, field } = props, element = useRef<HTMLDivElement>(null), composing = useRef(false);
   const release = useRef<(() => void) | undefined>(undefined), before = useRef("");
-  const anchors = useRef<ModernTextRange | undefined>(undefined), typing = useRef(crypto.randomUUID());
+  const anchors = useRef<ModernTextRange | undefined>(undefined), typing = useRef<string | undefined>(undefined);
+  typing.current ??= crypto.randomUUID();
   const original = useRef<ModernTextRange | undefined>(undefined), rendered = useRef<string | undefined>(undefined);
   const pending = useRef(false), value = typeof props.value === "string" ? props.value : visible(props.value);
   const fieldKey = key(field);
@@ -78,9 +89,11 @@ function ModernInput(props: InputProps) {
       const range = selection(); if (!range || !element.current) return;
       anchors.current = range; props.selected(range, element.current);
       const previous = session.localSelection();
-      if (key(previous?.selection) !== key({ text: { _0: { start: range.start, end: range.end } } })) {
-        session.setLocalSelection({ documentID: range.start.documentID, epoch: range.start.epoch, observed: range.observed,
-          focus: { text: { _0: range.end } }, selection: { text: { _0: { start: range.start, end: range.end } } } });
+      const current = { documentID: range.start.documentID, epoch: range.start.epoch, observed: range.observed,
+        focus: { text: { _0: range.end } }, selection: { text: { _0: { start: range.start, end: range.end } } } };
+      if (previous?.documentID !== current.documentID || previous?.epoch !== current.epoch ||
+          !sameJSON(previous?.focus, current.focus) || !sameJSON(previous?.selection, current.selection)) {
+        session.setLocalSelection(current);
         typing.current = crypto.randomUUID();
       }
     } catch (error) { props.report(error); }
@@ -100,7 +113,11 @@ function ModernInput(props: InputProps) {
       const result = props.execute({ command: field.name === "title" ? "replaceTitle" : "replaceText", target, arguments: { text: replacement, typingGroup: typing.current } });
       if (result.status !== "applied" && result.status !== "noop") throw new Error(result.reason ?? result.status);
       before.current = next;
-      if (result.focus) anchors.current = session.captureTextRange(field, session.resolvePosition(result.focus).offset, session.resolvePosition(result.focus).offset);
+      if (result.focus) {
+        const offset = session.resolvePosition(result.focus).offset;
+        const captured = session.captureTextRange(result.focus.field, offset, offset);
+        anchors.current = { ...captured, start: result.focus, end: result.focus };
+      }
       capture();
       if (anchors.current && session.availability("typingShortcut").available) {
         const shortcut = props.execute({ command: "typingShortcut", target: anchors.current, arguments: {} });
@@ -392,15 +409,20 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
         const start = endpoint(selection.anchorNode, selection.anchorOffset), end = endpoint(selection.focusNode, selection.focusOffset); if (!start || !end) return;
         const ranges = session.captureTextSpan(start, end);
         if (ranges.length > 1) {
-          setTextSpan(ranges); selected.current = ranges.at(-1);
+          setTextSpan(previous => sameJSON(previous, ranges) ? previous : ranges); selected.current = ranges.at(-1);
           const local = { documentID: start.documentID, epoch: start.epoch, observed: ranges[0].observed, focus: { text: { _0: end } }, selection: { mixed: { _0: { ranges } } } };
-          if (key(session.localSelection()) !== key(local)) session.setLocalSelection(local);
-        } else { selected.current = ranges[0]; setTextSpan([]); }
-        redrawSelection(value => value + 1);
+          if (!sameJSON(session.localSelection(), local)) session.setLocalSelection(local);
+        } else { updateSelectedRange(ranges[0]); }
       } catch (failure) { report(failure); }
     };
     document.addEventListener("selectionchange", changed); return () => document.removeEventListener("selectionchange", changed);
   }, [session, fields]);
+  function updateSelectedRange(range: ModernTextRange): void {
+    const changed = !sameJSON(selected.current, range);
+    selected.current = range;
+    setTextSpan(previous => previous.length ? [] : previous);
+    if (changed) redrawSelection(value => value + 1);
+  }
   function selectedTarget(): { ranges: readonly ModernTextRange[] } { return { ranges: textSpan.length ? textSpan : selected.current ? [selected.current] : [] }; }
   function captureFormatting(open: boolean): void {
     if (!open) { formatCapture.current = undefined; setFormatAnchor(undefined); return; }
@@ -412,12 +434,22 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       top: Math.max(8, Math.min(window.innerHeight - 160, rect.bottom + 8)),
     });
   }
-  function formattingState(mark: string): "on" | "off" | "mixed" { try { const ranges = (formatCapture.current ?? selectedTarget()).ranges; return ranges.length ? session.markState(ranges, mark) : "off"; } catch { return "off"; } }
+  const formattingStates = new Map<string, "on" | "off" | "mixed">();
+  function formattingState(mark: string): "on" | "off" | "mixed" {
+    const prior = formattingStates.get(mark); if (prior) return prior;
+    let state: "on" | "off" | "mixed" = "off";
+    try { const ranges = (formatCapture.current ?? selectedTarget()).ranges; if (ranges.length) state = session.markState(ranges, mark); } catch { /* Stale captures remain unavailable. */ }
+    formattingStates.set(mark, state); return state;
+  }
+  const semanticStates = new Map<"ink" | "fill", ReturnType<SwiftModernSession["semanticState"]> | undefined>();
   function palette(): ReactNode {
     const target: ModernSemanticTarget | undefined = nodes ? { nodes } : selected.current ? { range: selected.current } : undefined;
     return (["ink", "fill"] as const).map(kind => {
-      let current: ReturnType<SwiftModernSession["semanticState"]> | undefined;
-      try { if (target) current = session.semanticState(target, kind); } catch { /* Stale captures remain unavailable. */ }
+      let current = semanticStates.get(kind);
+      if (!semanticStates.has(kind)) {
+        try { if (target) current = session.semanticState(target, kind); } catch { /* Stale captures remain unavailable. */ }
+        semanticStates.set(kind, current);
+      }
       const state = current && "role" in current ? current.role._0 : current && "mixed" in current ? "mixed" : "reset";
       return <details key={kind}><summary>{kind === "ink" ? "Text color" : "Background"}: {state === "reset" ? "Default" : state}</summary>{["neutral", "green", "blue", "purple", "amber", "red", "reset"].map(role => <button type="button" key={role} aria-pressed={state === role} disabled={readOnly || !target} onClick={() => { if (target) execute({ command: "setSemanticColor", target, arguments: { kind, role: role === "reset" ? null : role as "neutral" } }); }}>{role}</button>)}</details>;
     });
@@ -432,7 +464,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     const field = boundField(node, name);
     return <ModernInput key={key(field)} session={session} host={props.host} field={field} value={value} label={label} readOnly={readOnly}
       register={registerInput}
-      selected={range => { selected.current = range; setTextSpan([]); redrawSelection(value => value + 1); }} report={report} execute={execute} navigate={(event, range) => navigate?.(event, range) || boundary(event, range)} openReference={props.onOpenReference}
+      selected={updateSelectedRange} report={report} execute={execute} navigate={(event, range) => navigate?.(event, range) || boundary(event, range)} openReference={props.onOpenReference}
       query={(field, value, range, element) => {
         if (field.name !== "content") return;
         if (value.startsWith("/") && !value.includes("\n")) {
@@ -462,10 +494,10 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     setCollapsed(next); setFocused(session.position(session.field(node), 0));
   }
   function boundary(event: KeyboardEvent<HTMLDivElement>, range: ModernTextRange): boolean {
-    const field = range.start.field, start = session.resolvePosition(range.start).offset, end = session.resolvePosition(range.end).offset;
-    if (start !== end) return false;
     const backward = ["Backspace", "ArrowLeft", "ArrowUp"].includes(event.key), forward = ["Delete", "ArrowRight", "ArrowDown"].includes(event.key);
-    if ((!backward && !forward) || (backward ? start !== 0 : end !== session.text(field).length)) return false;
+    if (!backward && !forward) return false;
+    const field = range.start.field, start = session.resolvePosition(range.start).offset, end = session.resolvePosition(range.end).offset;
+    if (start !== end || (backward ? start !== 0 : end !== session.text(field).length)) return false;
     if (event.key === "Backspace" || event.key === "Delete") {
       if (field.name !== "content" || "document" in field.node) return false;
       safe(() => {
