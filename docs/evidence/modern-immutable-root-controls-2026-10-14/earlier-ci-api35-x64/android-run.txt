@@ -1,0 +1,124 @@
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :editor
+w: file:///home/runner/work/block-editor/block-editor/android/editor/build.gradle.kts:14:9: 'targetSdk: Int?' is deprecated. Will be removed from library DSL in v9.0. Use testOptions.targetSdk or/and lint.targetSdk instead
+
+> Task :editor:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor:preBuild UP-TO-DATE
+> Task :editor:preDebugBuild UP-TO-DATE
+> Task :editor:generateDebugResValues
+> Task :editor:generateDebugResources
+> Task :editor:packageDebugResources
+> Task :editor:preDebugAndroidTestBuild UP-TO-DATE
+> Task :editor:javaPreCompileDebug
+> Task :editor:writeDebugAarMetadata
+> Task :editor:parseDebugLocalResources
+> Task :editor:compileDebugLibraryResources
+> Task :editor:generateDebugRFile
+> Task :editor:checkDebugAndroidTestAarMetadata
+> Task :editor:generateDebugAndroidTestResValues
+> Task :editor:mapDebugAndroidTestSourceSetPaths
+> Task :editor:generateDebugAndroidTestResources
+> Task :editor:extractDeepLinksDebug
+> Task :editor:javaPreCompileDebugAndroidTest
+> Task :editor:mergeDebugAndroidTestShaders
+> Task :editor:compileDebugAndroidTestShaders NO-SOURCE
+> Task :editor:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :editor:mergeDebugShaders
+> Task :editor:compileDebugShaders NO-SOURCE
+> Task :editor:generateDebugAssets UP-TO-DATE
+> Task :editor:mergeDebugAssets
+> Task :editor:processDebugManifest
+> Task :editor:mergeDebugAndroidTestResources
+> Task :editor:mergeDebugAndroidTestAssets
+> Task :editor:processDebugAndroidTestManifest
+> Task :editor:desugarDebugAndroidTestFileDependencies
+> Task :editor:compressDebugAndroidTestAssets
+> Task :editor:processDebugAndroidTestResources
+> Task :editor:checkDebugAndroidTestDuplicateClasses
+> Task :editor:mergeDebugJniLibFolders
+> Task :editor:compileDebugKotlin
+> Task :editor:mergeExtDexDebugAndroidTest
+
+> Task :editor:compileDebugKotlin
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:50:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:53:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:53:60 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:53 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:67 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:55:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:55:54 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:55:71 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:57:31 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+
+> Task :editor:compileDebugJavaWithJavac NO-SOURCE
+> Task :editor:bundleLibRuntimeToJarDebug
+> Task :editor:bundleLibCompileToJarDebug
+> Task :editor:processDebugJavaRes
+> Task :editor:bundleLibRuntimeToDirDebug
+> Task :editor:mergeLibDexDebugAndroidTest
+> Task :editor:mergeDebugAndroidTestJniLibFolders
+> Task :editor:mergeDebugNativeLibs
+> Task :editor:validateSigningDebugAndroidTest
+> Task :editor:writeDebugAndroidTestSigningConfigVersions
+> Task :editor:copyDebugJniLibsProjectOnly
+> Task :editor:mergeDebugAndroidTestNativeLibs
+
+> Task :editor:stripDebugAndroidTestDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libBlockEditorBridge.so, libBlockEditorJNI.so, libandroidx.graphics.path.so, libc++_shared.so. Run with --info option to learn more.
+
+> Task :editor:compileDebugAndroidTestKotlin
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/BuiltinImeTest.kt:58:58 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/BuiltinImeTest.kt:74:36 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/BuiltinImeTest.kt:110:101 'val locale: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/SystemImeTest.kt:97:100 'val locale: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/TalkBackInputTest.kt:68:78 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/TalkBackInputTest.kt:87:41 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/TalkBackInputTest.kt:88:34 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/WritingBuiltinImeTest.kt:60:58 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/WritingBuiltinImeTest.kt:76:36 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/block-editor/block-editor/android/editor/src/androidTest/java/studio/seventwo/blockeditor/WritingBuiltinImeTest.kt:115:101 'val locale: String' is deprecated. Deprecated in Java.
+
+> Task :editor:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :editor:dexBuilderDebugAndroidTest
+> Task :editor:mergeDebugAndroidTestGlobalSynthetics
+> Task :editor:processDebugAndroidTestJavaRes
+> Task :editor:mergeProjectDexDebugAndroidTest
+> Task :editor:mergeDebugAndroidTestJavaResource
+> Task :editor:packageDebugAndroidTest
+> Task :editor:createDebugAndroidTestApkListingFileRedirect
+> Task :editor:assembleDebugAndroidTest
+
+BUILD SUCCESSFUL in 2m 6s
+48 actionable tasks: 48 executed
+Loading local repository...                                                     [=========                              ] 25% Loading local repository...       [=========                              ] 25% Fetch remote repository...        [=======================================] 100% Fetch remote repository...       
+Auto-selecting single ABI x86_64
+Do you wish to create a custom hardware profile? [no] * daemon not running; starting now at tcp:5037
+* daemon started successfully
+Traceback (most recent call last):
+  File "/home/runner/work/block-editor/block-editor/scripts/run-android-ci.py", line 302, in <module>
+    main()
+  File "/home/runner/work/block-editor/block-editor/scripts/run-android-ci.py", line 110, in main
+    device("shell", "input", "keyevent", "82")
+  File "/home/runner/work/block-editor/block-editor/scripts/run-android-ci.py", line 45, in device
+    return run(adb, "-s", serial, *command, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/block-editor/block-editor/scripts/run-android-ci.py", line 42, in run
+    return subprocess.run([str(part) for part in command], check=True, env=environment, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'shell', 'input', 'keyevent', '82']' returned non-zero exit status 255.

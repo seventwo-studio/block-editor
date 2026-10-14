@@ -1,0 +1,30 @@
+[WebServer] (node:99969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+  ✘  1 [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (8.7s)
+
+
+  1) [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Test was interrupted.
+
+    Error: evaluate: Test ended.
+
+      58 |     await page.route("**/modern-engine.wasm", route => route.fulfill({ body: wasm, contentType: "application/wasm" }));
+      59 |     await page.goto("modern-performance.html");
+    > 60 |     await page.evaluate(async ({ encoded, diagnostic }) => { window.modernPerformanceDiagnostic = diagnostic; await window.mountModernPerformance(JSON.parse(encoded)); },
+         |               ^
+      61 |       { encoded: fixture.toString(), diagnostic: process.env.MODERN_SURFACE_DIAGNOSTIC === "1" });
+      62 |     await expect(page.getByRole("textbox", { name: "Document title", exact: true })).toBeVisible({ timeout: 120_000 });
+      63 |     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(document);
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:60:15
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/attachments/modern-surface-performance-aa9402f58f82f70dafcff2732a1a9f1bdddf67c1.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+  2 did not run
