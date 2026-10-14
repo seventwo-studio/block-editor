@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
 import { SwiftEditorRuntime } from "./swift.js";
 import { SwiftModernSession, type ModernAuthorCommand, type ModernDocument, type ModernField, type ModernNodeID, type ModernObject, type ModernPosition, type ModernTextRange, type ModernResult, type ModernNodes, type ModernBoundary, type ModernCollection, type ModernInsertionDescriptor, type ModernPolicy, type ModernSemanticTarget } from "./swift-modern.js";
 import { ModernBrowserHost } from "./swift-modern-host.js";
@@ -50,6 +50,9 @@ function ModernInput(props: InputProps) {
   const original = useRef<ModernTextRange | undefined>(undefined), rendered = useRef<string | undefined>(undefined);
   const pending = useRef(false), value = typeof props.value === "string" ? props.value : visible(props.value);
   const fieldKey = key(field);
+  const registerElement = useCallback((node: HTMLDivElement | null) => {
+    element.current = node; props.register(field, node);
+  }, [session, fieldKey, props.register]);
   const openReference = useRef(props.openReference);
   useLayoutEffect(() => {
     // Inline DOM survives composition and unchanged-value renders. Its handlers
@@ -124,7 +127,7 @@ function ModernInput(props: InputProps) {
     }
   }, [value, key(props.value), fieldKey]);
   useEffect(() => () => { props.register(field, null); if (composing.current) session.setComposing(false); release.current?.(); }, [session, fieldKey]);
-  return <div ref={node => { element.current = node; props.register(field, node); }} className={`modern-input ${field.name === "code" ? "modern-code-input" : ""}`}
+  return <div ref={registerElement} className={`modern-input ${field.name === "code" ? "modern-code-input" : ""}`}
     role="textbox" aria-label={props.label} aria-multiline={field.name !== "title"} contentEditable={!props.readOnly} suppressContentEditableWarning
     onFocus={capture} onSelect={capture} onKeyUp={capture} onMouseUp={capture}
     onBlur={() => { session.endTypingGroup(); }} onInput={() => { if (!composing.current) commit(); }}
@@ -291,7 +294,13 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const [textSpan, setTextSpan] = useState<readonly ModernTextRange[]>([]), [, redrawSelection] = useState(0);
   const [formatAnchor, setFormatAnchor] = useState<{ left: number; top: number }>();
   const formatCapture = useRef<{ ranges: readonly ModernTextRange[] } | undefined>(undefined);
-  const fields = useRef(new Map<string, HTMLElement>()), selected = useRef<ModernTextRange | undefined>(undefined), drag = useRef<ModernNodes | undefined>(undefined), drop = useRef<ModernBoundary | undefined>(undefined);
+  // A departing input cleans up its own session's map, even when an incoming
+  // session reuses the same wire field. Ordinary renders retain registrations.
+  const fields = useMemo(() => ({ current: new Map<string, HTMLElement>() }), [session]);
+  const registerInput = useCallback((field: ModernField, element: HTMLElement | null) => {
+    if (element) fields.current.set(key(field), element); else fields.current.delete(key(field));
+  }, [fields]);
+  const selected = useRef<ModernTextRange | undefined>(undefined), drag = useRef<ModernNodes | undefined>(undefined), drop = useRef<ModernBoundary | undefined>(undefined);
   const viewport = useRef<HTMLDivElement>(null), [width, setWidth] = useState(680), [fontMetric, setFontMetric] = useState<number>();
   const readOnly = !!props.readOnly || !!snapshot.recovery;
   const report = (failure: unknown) => { setError(String(failure)); props.onError?.(failure); };
@@ -422,7 +431,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   function input(node: ModernNodeID, name: string, value: readonly ModernObject[] | string, label: string, enter = true, navigate?: InputProps["navigate"]): ReactNode {
     const field = boundField(node, name);
     return <ModernInput key={key(field)} session={session} host={props.host} field={field} value={value} label={label} readOnly={readOnly}
-      register={(field, element) => { if (element) fields.current.set(key(field), element); else fields.current.delete(key(field)); }}
+      register={registerInput}
       selected={range => { selected.current = range; setTextSpan([]); redrawSelection(value => value + 1); }} report={report} execute={execute} navigate={(event, range) => navigate?.(event, range) || boundary(event, range)} openReference={props.onOpenReference}
       query={(field, value, range, element) => {
         if (field.name !== "content") return;
