@@ -6,6 +6,7 @@ import { modernRelayProcess } from "../tests/helpers/modern-relay-process.ts";
 import { NativeBridge } from "../demo/relay/bridge.ts";
 import type { ModernDocument } from "../src/swift-modern.ts";
 import { verifyAndroidProcessStop } from "./verify-android-process-stop.ts";
+import { readAndroidRelayProof } from "./read-android-relay-proof.ts";
 
 const args = process.argv.slice(2);
 function argument(name: string, fallback?: string): string {
@@ -18,13 +19,17 @@ await mkdir(output, { recursive: false });
 const adb = join(sdk, "platform-tools/adb"), runID = randomUUID(), phonePort = 4387;
 const originalBytes = await readFile("docs/acceptance/modern-editor/documents/columns-7000.json");
 const document = JSON.parse(originalBytes.toString()) as ModernDocument, epoch = "modern-android-process-epoch";
-async function command(parts: string[]): Promise<string> {
+async function command(parts: string[], requireCleanOutput = false): Promise<string> {
   const child = spawn(adb, ["-P", adbPort, "-s", serial, ...parts], { stdio: ["ignore", "pipe", "pipe"] });
-  let data = ""; child.stdout.on("data", value => { data += value; }); child.stderr.on("data", value => { data += value; });
+  const stdout: Buffer[] = [], stderr: Buffer[] = [];
+  child.stdout.on("data", value => { stdout.push(value); }); child.stderr.on("data", value => { stderr.push(value); });
   return await new Promise((resolve, reject) => {
     const timeout = setTimeout(() => { child.kill(); reject(new Error("Android relay command timed out")); }, 180_000);
     child.once("error", error => { clearTimeout(timeout); reject(error); });
-    child.once("exit", code => { clearTimeout(timeout); if (code === 0) resolve(data); else reject(Object.assign(new Error(`Android relay command exited ${code}`), { output: data, exitCode: code, command: parts })); });
+    // close follows complete pipe drainage; decode complete UTF-8 bytes once.
+    child.once("close", code => { clearTimeout(timeout); const data = Buffer.concat([...stdout, ...stderr]).toString("utf8");
+      if (code === 0 && (!requireCleanOutput || stderr.length === 0)) resolve(data);
+      else reject(Object.assign(new Error(`Android relay command exited ${code}`), { output: data, exitCode: code, command: parts })); });
   });
 }
 const serverDirectory = join(output, "server"); await mkdir(serverDirectory);
@@ -42,8 +47,8 @@ async function phase(name: string, authorized: boolean) {
   catch (error) { await writeFile(join(output, `${name}-instrumentation.log`), (error as { output?: string }).output ?? String(error)); throw error; }
   await writeFile(join(output, `${name}-instrumentation.log`), log);
   if (!/OK \(1 test\)/.test(log) || /FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed/.test(log)) throw new Error(`Failed native relay phase ${name}`);
-  const raw = await command(["shell", "run-as", "studio.seventwo.blockeditor.test", "cat", `files/modern-process-${runID}-${name}.json`]);
-  await writeFile(join(output, `${name}-proof.json`), raw);
+  const raw = await readAndroidRelayProof(`files/modern-process-${runID}-${name}.json`, join(output, `${name}-proof.json`),
+    parts => command(parts, true));
   const report = JSON.parse(raw); if (report.passed !== true || report.phase !== name || report.runID !== runID) throw new Error("Incomplete native relay proof");
   reports.push(report);
   const stopped = await verifyAndroidProcessStop(command, "studio.seventwo.blockeditor.test");
