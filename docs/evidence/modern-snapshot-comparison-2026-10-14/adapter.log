@@ -1,0 +1,16 @@
+bun test v1.4.2 (744846f84)
+
+tests/modern-snapshot-sharing.test.ts:
+(pass) equal document/receipt reuse immutable values while state and notifications publish [10.41ms]
+(pass) signed zero, exact Unicode and same-cohort document changes are never hidden [0.38ms]
+(pass) optional binding read falls back once for old engines and propagates genuine failures [3.08ms]
+(pass) shared binding tokens preserve exact array ownership and reject an unknown omitted view [0.11ms]
+(pass) compact local selection retains accepted snapshot and notifies persistence after checked acknowledgement [0.14ms]
+(pass) old engines retain full local selection snapshots and notifications [1.61ms]
+(pass) negotiated snapshots preserve full documents, opaque ownership and same-value peer receipts [2.38ms]
+(pass) advertised malformed snapshots never publish or replace the accepted document [0.34ms]
+
+ 8 pass
+ 0 fail
+ 60 expect() calls
+Ran 8 tests across 1 file. [113.00ms]

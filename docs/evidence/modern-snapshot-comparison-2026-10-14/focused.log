@@ -1,0 +1,45 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 4] BlockEditorCore
+[3 / 6] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:400:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+398 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+399 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+400 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+401 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+402 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:422:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+420 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+421 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+422 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+423 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+424 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[9 / 9] BlockEditorCore-product
+[23 / 32] local-editor-product
+[25 / 33] BlockEditorLocalDemoTests-product
+[28 / 35] modern-relay-client-product
+[32 / 37] BlockEditorCoreTests-product
+[38 / 42] BlockEditorCoreTests-product
+[41 / 41] local-editor-product
+[47 / 47] editor-bridge-product
+[53 / 53] local-editor-app-product
+Build complete! (15.38 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernSnapshotDeltaTests started.
+◇ Test rawKeyReplacementAndNumericPathOrderingRemainExact() started.
+◇ Test malformedNegotiationRejectsBeforeAuthoringOrLocalSelectionChanges() started.
+◇ Test optInResponsesRetainLegacyShapeAndReconstructUnicodeAfterExternalWritingAndHandleReplacement() started.
+◇ Test exactOpaqueNumbersAndUnicodeDoNotUseNormalizedEqualityAndLargeChangesFallBack() started.
+✔ Test exactOpaqueNumbersAndUnicodeDoNotUseNormalizedEqualityAndLargeChangesFallBack() passed after 0.001 seconds.
+✔ Test rawKeyReplacementAndNumericPathOrderingRemainExact() passed after 0.001 seconds.
+✔ Test malformedNegotiationRejectsBeforeAuthoringOrLocalSelectionChanges() passed after 0.004 seconds.
+✔ Test optInResponsesRetainLegacyShapeAndReconstructUnicodeAfterExternalWritingAndHandleReplacement() passed after 0.010 seconds.
+✔ Suite ModernSnapshotDeltaTests passed after 0.011 seconds.
+✔ Test run with 4 tests in 1 suite passed after 0.011 seconds.
