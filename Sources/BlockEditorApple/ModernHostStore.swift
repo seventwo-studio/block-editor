@@ -42,10 +42,11 @@ public struct ModernHostCheckpoint: Codable, Sendable {
     public let recovery: Data?
     public let deferred: Data
     public let pendingInputs: [ModernPendingInput]
+    public let relay: ModernRelayReceipt?
     private let clipboardPayloads: [ModernRetainedClipboard]?
     public var retainedClipboard: [ModernRetainedClipboard] { clipboardPayloads ?? [] }
 
-    @MainActor public init(session: ModernSession, pendingInputs: [ModernPendingInput] = [], retainedClipboard: [ModernRetainedClipboard] = []) throws {
+    @MainActor public init(session: ModernSession, pendingInputs: [ModernPendingInput] = [], retainedClipboard: [ModernRetainedClipboard] = [], relay: ModernRelayReceipt? = nil) throws {
         guard !session.isComposing || !pendingInputs.isEmpty || retainedClipboard.contains(where: { record in
             if case .paste(let target) = record.purpose { return record.reason == "compositionActive" && target.boundary != nil }; return false
         }) else { throw ModernSessionError.compositionActive }
@@ -53,6 +54,8 @@ public struct ModernHostCheckpoint: Codable, Sendable {
         accepted = try session.save(); historySelection = try session.exportHistorySelection()
         providers = try session.exportAsyncRequests(); recovery = try session.exportRecovery()
         deferred = try session.exportDeferredChanges(); self.pendingInputs = pendingInputs
+        self.relay = relay
+        try relay?.validate(session: session)
         clipboardPayloads = retainedClipboard.isEmpty ? nil : retainedClipboard
         try validate()
     }
@@ -76,6 +79,11 @@ public struct ModernHostCheckpoint: Codable, Sendable {
             }
         }
         try validateRetainedClipboard(retainedClipboard, documentID: documentID, epoch: epoch)
+        if let relay {
+            guard !relay.key.isEmpty, relay.key.utf8.count <= 1024,
+                  relay.receipt.version == 7, relay.receipt.documentID == documentID, relay.receipt.epoch == epoch,
+                  try checkpointEncoder().encode(relay).count <= 16_000_000 else { throw ModernHostStoreError.invalidCheckpoint }
+        }
     }
 
     /// Build a detached candidate before the host replaces its active model.
@@ -97,6 +105,10 @@ public struct ModernHostCheckpoint: Codable, Sendable {
         guard try session.save() == accepted, try session.exportDeferredChanges() == deferred else {
             throw ModernHostStoreError.invalidCheckpoint
         }
+        // An empty restored queue has no input to reconcile. Leaving its hold
+        // alive would defer every future peer packet until an unrelated Resume.
+        if deferred == Data("[]".utf8) { try release() }
+        try relay?.validate(session: session)
         return ModernRestoredHost(checkpoint: self, session: session, release: release)
     }
 }

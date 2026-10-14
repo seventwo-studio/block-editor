@@ -11,12 +11,20 @@ import java.util.UUID
 internal object NativeEngine {
     init { System.loadLibrary("BlockEditorJNI") }
     private external fun callNative(request: ByteArray): ByteArray?
+    private external fun inspectNative(bytes: ByteArray): ByteArray?
     // Keep the encoded request out of the response parsing scope. JNI still uses byte arrays.
     private fun invoke(request: JSONObject): ByteArray =
         checkNotNull(callNative(NativeJsonTransport.encode(request))) { "Swift engine returned no response" }
 
     @Synchronized fun call(request: JSONObject): JSONObject {
         val response = NativeJsonTransport.decode(invoke(request))
+        return checked(response)
+    }
+    @Synchronized fun inspectJSON(bytes: ByteArray): Any {
+        val response = NativeJsonTransport.decode(checkNotNull(inspectNative(bytes.copyOf())) { "Shared JSON inspection capacity exceeded" })
+        return checked(response).get("value")
+    }
+    private fun checked(response: JSONObject): JSONObject {
         if (!response.getBoolean("ok")) {
             if (response.optString("error") == "modernRecoveryRequired" && response.has("recovery"))
                 throw ModernRecoveryException(ModernRecovery(response.getJSONObject("recovery")))

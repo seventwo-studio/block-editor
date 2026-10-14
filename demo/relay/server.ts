@@ -4,12 +4,15 @@ import { join } from "node:path";
 import { NativeBridge } from "./bridge.ts";
 import type { Block } from "../../src/schema.ts";
 import { SwiftMergeRecoveryError } from "../../src/swift.ts";
+import { SwiftModernRecoveryError } from "../../src/swift-modern.ts";
+import { modernRoom, type ModernRelayRoomTemplate } from "./modern-room.ts";
+import { encodeModernBridgeJSON } from "../../src/swift-modern-json.ts";
 
 const initialBlocks = [{ id: "p", type: "paragraph", content: [{ type: "text", text: "Shared local document", marks: [] }] }];
 const MAX_BODY = 8_000_000;
 class TransportCapacityError extends Error {}
 
-async function body(request: IncomingMessage) {
+async function body(request: IncomingMessage, bridge?: NativeBridge) {
   const chunks: Buffer[] = [];
   let count = 0;
   for await (const chunk of request) {
@@ -17,14 +20,17 @@ async function body(request: IncomingMessage) {
     if (count > MAX_BODY) throw new TransportCapacityError("Request exceeds 8 MB");
     chunks.push(Buffer.from(chunk));
   }
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  const bytes = Buffer.concat(chunks);
+  return bridge ? await bridge.inspectJSON(bytes) : JSON.parse(bytes.toString("utf8"));
 }
 
 /** Local testing service only. Loopback binding, explicit token, no CORS or cloud services. */
-export async function startRelay(options: { executable: string; directory: string; token: string; port?: number; presenceTTL?: number; now?: () => number; blocks?: Block[]; collaborationVersion?: 1 | 2 }) {
+export async function startRelay(options: { executable: string; directory: string; token: string; port?: number; presenceTTL?: number; now?: () => number; blocks?: Block[]; collaborationVersion?: 1 | 2; modern?: ModernRelayRoomTemplate }) {
   if (!options.token) throw new Error("A local demo token is required");
+  if (options.modern && (options.blocks || options.collaborationVersion !== undefined)) throw new Error("Choose a modern room or a legacy room explicitly");
   await mkdir(options.directory, { recursive: true });
   const bridge = new NativeBridge(options.executable);
+  const encode = (value: Record<string, unknown>) => options.modern ? encodeModernBridgeJSON(value) : JSON.stringify(value);
   const opened = new Set<string>();
   const presence = new Map<string, Map<string, { value: any; expires: number }>>();
   let tail: Promise<unknown> = Promise.resolve();
@@ -53,18 +59,22 @@ export async function startRelay(options: { executable: string; directory: strin
         response.writeHead(404).end(JSON.stringify({ error: "Unknown endpoint" })); return;
       }
       const id = match[1];
-      await room(id);
+      if (!options.modern) await room(id);
       if (request.method === "GET") {
-        response.end(JSON.stringify(await bridge.call({ command: "save", session: id }))); return;
+        const snapshot = options.modern ? (await modernRoom(bridge, options.directory, id, options.modern)).snapshot : await bridge.call({ command: "save", session: id });
+        response.end(encode(snapshot)); return;
       }
-      const input = await body(request);
+      const input = await body(request, options.modern ? bridge : undefined);
       if (!input || !input.batch || !input.state || typeof input.actorID !== "string") throw new Error("Invalid exchange");
       // Swift atomically validates the protocol, baseline and all changes before acknowledgement.
-      await bridge.call({ command: "receive", session: id, batch: input.batch });
-      const snapshot = await bridge.call({ command: "save", session: id });
-      const file = join(options.directory, `${id}.json`);
-      await writeFile(file + ".tmp", JSON.stringify(snapshot));
-      await rename(file + ".tmp", file);
+      const modern = options.modern ? await modernRoom(bridge, options.directory, id, options.modern, input) : undefined;
+      if (!modern) {
+        await bridge.call({ command: "receive", session: id, batch: input.batch });
+        const snapshot = await bridge.call({ command: "save", session: id });
+        const file = join(options.directory, `${id}.json`);
+        await writeFile(file + ".tmp", JSON.stringify(snapshot));
+        await rename(file + ".tmp", file);
+      }
       const now = (options.now ?? Date.now)(), peers = presence.get(id) ?? new Map();
       presence.set(id, peers);
       for (const [actor, entry] of peers) if (entry.expires <= now) peers.delete(actor);
@@ -75,9 +85,9 @@ export async function startRelay(options: { executable: string; directory: strin
           peers.set(input.actorID, { value: input.presence, expires: now + (options.presenceTTL ?? 5000) });
       }
       exchanges++;
-      response.end(JSON.stringify({
-        batch: await bridge.call({ command: "changes", session: id, since: input.state }),
-        state: await bridge.call({ command: "syncState", session: id }),
+      response.end(encode({
+        batch: modern?.batch ?? await bridge.call({ command: "changes", session: id, since: input.state }),
+        state: modern?.state ?? await bridge.call({ command: "syncState", session: id }),
         presence: [...peers.values()].map(entry => entry.value), exchanges,
       }));
     };
@@ -86,11 +96,11 @@ export async function startRelay(options: { executable: string; directory: strin
       if (error instanceof TransportCapacityError) {
         if (!response.headersSent) response.writeHead(413);
         response.end(JSON.stringify({ error: "transportCapacityExceeded", maxBytes: MAX_BODY }));
-      } else if (error instanceof SwiftMergeRecoveryError) {
+      } else if (error instanceof SwiftModernRecoveryError || error instanceof SwiftMergeRecoveryError) {
         if (!response.headersSent) response.writeHead(409);
         // The caller retains this proposal separately from accepted room history,
         // repairs it with its own author identity, then resubmits ordinary changes.
-        response.end(JSON.stringify({ error: "mergeRecoveryRequired", recovery: error.recovery }));
+        response.end(encode({ error: error instanceof SwiftModernRecoveryError ? "modernRecoveryRequired" : "mergeRecoveryRequired", recovery: error.recovery }));
       } else {
         if (!response.headersSent) response.writeHead(400);
         response.end(JSON.stringify({ error: String(error) }));
@@ -105,6 +115,6 @@ export async function startRelay(options: { executable: string; directory: strin
   const url = `http://127.0.0.1:${typeof address === "object" && address ? address.port : options.port}`;
   return { url, async close() {
     await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
-    await tail; bridge.close();
+    await tail; bridge.close(); await bridge.waitForExit();
   } };
 }

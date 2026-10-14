@@ -1,0 +1,183 @@
+Building for debugging...
+[Provisioning 1 / 21]
+[Planning 126 / 589]
+[Planning deferred tasks]
+[4 / 56]
+[7 / 67] editor-bridge-product
+[12 / 68] BlockEditorABI
+[18 / 70] BlockEditorLocalDemo
+[26 / 70] BlockEditorCoreTests-product
+[26 / 71] BlockEditorCoreTests-product
+[31 / 91] relay-client-product
+[33 / 91] BlockEditorApple
+[38 / 101] block-editor-wasm-product
+[42 / 101]
+[44 / 101] BlockEditorApple
+[46 / 101] BlockEditorCoreTests-product
+[47 / 101] BlockEditorCoreTests-product
+[48 / 101] BlockEditorCoreTests-product
+[49 / 101] BlockEditorCoreTests-product
+[50 / 101] BlockEditorCoreTests-product
+[51 / 101] BlockEditorCoreTests-product
+[52 / 101] BlockEditorCoreTests-product
+[53 / 101] BlockEditorCoreTests-product
+[55 / 101] BlockEditorCoreTests-product
+[56 / 101] BlockEditorCoreTests-product
+[57 / 101] BlockEditorCoreTests-product
+[58 / 101] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[58 / 101] BlockEditorApple
+[60 / 104] BlockEditorDemoApple
+[60 / 104] BlockEditorAppleTests-product
+[62 / 108] BlockEditorDemoApple
+[63 / 108] BlockEditorDemoApple
+[67 / 109] BlockEditorDemoApple
+[70 / 110] BlockEditorDemoApple
+[74 / 110] BlockEditorAppleTests-product
+[75 / 110] BlockEditorCoreTests-product
+[78 / 113] BlockEditorApple
+[81 / 113] BlockEditorApple
+[81 / 113]
+[84 / 112] BlockEditorLocalDemoTests-product
+[87 / 114] relay-client-product
+[91 / 114] BlockEditorLocalDemoTests-product
+[95 / 115] block-editor-wasm-product
+[96 / 116] BlockEditorBridge-product
+[99 / 118] BlockEditorApple
+[106 / 118] BlockEditorAppleTests-product
+[109 / 137] local-editor-app-product
+[114 / 137] BlockEditorAppleTests-product
+[116 / 136] BlockEditorAppleTests-product
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[121 / 136] BlockEditorAppleTests-product
+[122 / 136] block-editor-wasm-product
+[123 / 136] local-editor-product
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeRelayTests.swift:99:48: warning: 'activation' mutated after capture by sendable closure
+ 88 |         let model = ModernEditorModel(session: try session("author")), peer = try session("peer"), server = try session("server")
+ 89 |         try peer.replaceTitle(range: 0..<5, with: "Must not apply"); try server.receive(peer.changes())
+ 90 |         var activation = true
+    |             `- note: variable defined here
+ 91 |         var relay: ModernNativeRelayClient!
+ 92 |         relay = try ModernNativeRelayClient(persistence: ModernPersistenceController(model: model, store: store(root)),
+ 93 |             endpoint: endpoint, relayKey: "room/native", token: "test-only") { request in
+    |                                                                              `- note: variable captured by sendable closure
+ 94 |             if activation { model.isActive = false; model.isActive = true }
+    |                `- note: capturing use
+ 95 |             else { relay.setToken("second"); relay.setToken("test-only") }
+ 96 |             return try response(server, request: request)
+ 97 |         }
+ 98 |         let original = try model.session.save()
+ 99 |         try await relay.exchange(); activation = false; try await relay.exchange()
+    |                                                `- warning: 'activation' mutated after capture by sendable closure
+100 |         #expect(try model.session.save() == original && relay.receipt.received.isEmpty && relay.peers.isEmpty)
+101 |     }
+
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeRelayTests.swift:177:18: warning: 'mode' mutated after capture by sendable closure
+158 |         let model = ModernEditorModel(session: try session("author")), peer = try session("peer"), server = try session("server")
+159 |         try peer.replaceTitle(range: 0..<5, with: "Not accepted"); try server.receive(peer.changes())
+160 |         var mode = 0
+    |             `- note: variable defined here
+161 |         let relay = try ModernNativeRelayClient(persistence: ModernPersistenceController(model: model, store: store(root)),
+162 |             endpoint: endpoint, relayKey: "room/native", token: "test-only") { request in
+    |                                                                              `- note: variable captured by sendable closure
+163 |             let valid = try response(server, request: request)
+164 |             if mode == 0 {
+    |                `- note: capturing use
+165 |                 let text = String(decoding: valid.data, as: UTF8.self)
+166 |                 return ModernRelayHTTPResponse(status: 200, data: Data(text.replacingOccurrences(of: "\"batch\":", with: "\"batch\":{},\"batch\":").utf8))
+    :
+168 |             var json = try #require(JSONSerialization.jsonObject(with: valid.data) as? [String: Any])
+169 |             var receipt = try #require(json["state"] as? [String: Any])
+170 |             if mode == 1 { receipt["epoch"] = "other" }
+    |                `- note: capturing use
+171 |             else { receipt["received"] = [["actor": "unknown", "counter": 1]] }
+172 |             json["state"] = receipt
+    :
+175 |         let original = try model.session.save()
+176 |         for next in 0..<3 {
+177 |             mode = next
+    |                  `- warning: 'mode' mutated after capture by sendable closure
+178 |             await #expect(throws: (any Error).self) { try await relay.exchange() }
+179 |             #expect(try model.session.save() == original && relay.receipt.received.isEmpty)
+[125 / 136] editor-bridge-product
+[127 / 136] local-editor-app-product
+[130 / 136] BlockEditorAppleTests-product
+[132 / 136] BlockEditorAppleTests-product
+[140 / 140] local-editor-product
+Build complete! (23.65 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernProviderActivationTests started.
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernNativeRelayTests started.
+◇ Test migrationActivationRetainsOriginalsAndRollbackSurvivesConflict() started.
+◇ Test delayedResultIsDurableButDoesNotApplyAfterDocumentSwitch() started.
+◇ Test failedResultSaveLeavesResponseForExplicitRetry() started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test inputAuthoredDuringTransmissionRemainsUnacknowledged() started.
+◇ Test malformedScopeDuplicateKeysAndUnknownReceiptCannotPublishPeerWork() started.
+◇ Test failedAcknowledgmentSaveKeepsPendingAndRetryPreservesPeerUndo() started.
+◇ Test documentAndCredentialABARejectDelayedResponses() started.
+◇ Test capacityFailureRetainsCompleteLocalHistoryAndReceipt() started.
+◇ Test rejectedRecoveryIsDurableAndOnlyOwnBirthIsExplicitlyRepaired() started.
+◇ Test heldPeerReceiptAndOriginalDraftReopenWithoutResumingComposition() started.
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 1.369 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 2.500 seconds.
+✔ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() passed after 2.526 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 6.456 seconds.
+✔ Suite ModernHostStoreTests passed after 6.456 seconds.
+✔ Test heldPeerReceiptAndOriginalDraftReopenWithoutResumingComposition() passed after 6.510 seconds.
+✔ Test capacityFailureRetainsCompleteLocalHistoryAndReceipt() passed after 6.511 seconds.
+✔ Test documentAndCredentialABARejectDelayedResponses() passed after 6.516 seconds.
+✔ Test failedResultSaveLeavesResponseForExplicitRetry() passed after 6.631 seconds.
+✔ Test migrationActivationRetainsOriginalsAndRollbackSurvivesConflict() passed after 6.657 seconds.
+✔ Test inputAuthoredDuringTransmissionRemainsUnacknowledged() passed after 6.659 seconds.
+✔ Test delayedResultIsDurableButDoesNotApplyAfterDocumentSwitch() passed after 6.661 seconds.
+✔ Suite ModernProviderActivationTests passed after 6.662 seconds.
+✔ Test malformedScopeDuplicateKeysAndUnknownReceiptCannotPublishPeerWork() passed after 6.673 seconds.
+✔ Test rejectedRecoveryIsDurableAndOnlyOwnBirthIsExplicitlyRepaired() passed after 6.674 seconds.
+✔ Test failedAcknowledgmentSaveKeepsPendingAndRetryPreservesPeerUndo() passed after 6.702 seconds.
+✔ Suite ModernNativeRelayTests passed after 6.702 seconds.
+✔ Test run with 14 tests in 3 suites passed after 6.702 seconds.

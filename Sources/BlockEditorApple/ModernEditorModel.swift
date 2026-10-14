@@ -18,6 +18,8 @@ import Observation
     public private(set) var focusIntent: ModernFocusIntent?
     public private(set) var pendingInputs: [UUID: ModernPendingInput] = [:]
     @ObservationIgnored public let session: ModernSession
+    @ObservationIgnored public internal(set) var relayReceipt: ModernRelayReceipt?
+    @ObservationIgnored weak var relayClient: ModernNativeRelayClient?
     @ObservationIgnored public var onChange: ((ModernDocument, ModernChange?) -> Void)?
     @ObservationIgnored private var restoredInputs: [UUID: ModernPendingInput] = [:]
     @ObservationIgnored private var inputs: [UUID: ModernInputController] = [:]
@@ -38,10 +40,11 @@ import Observation
         }
     }
 
-    public init(session: ModernSession, pendingInputs: [ModernPendingInput] = [], retainedClipboard: [ModernRetainedClipboard] = []) {
+    public init(session: ModernSession, pendingInputs: [ModernPendingInput] = [], retainedClipboard: [ModernRetainedClipboard] = [], relayReceipt: ModernRelayReceipt? = nil) {
         restoredInputs = Dictionary(uniqueKeysWithValues: pendingInputs.map { (UUID(), $0) })
         self.pendingInputs = restoredInputs
         restoredClipboard = retainedClipboard
+        self.relayReceipt = relayReceipt
         self.session = session; document = session.document; canUndo = session.canUndo; canRedo = session.canRedo
         session.onWillReceive = { [weak self] in self?.inputs.values.forEach { $0.prepareReceive() } }
         onChange = session.onChange
@@ -138,9 +141,9 @@ import Observation
         do { try session.receive(batch); error = nil; publish() }
         catch { report(error); publish(); throw error }
     }
-    public func checkpoint() throws -> ModernHostCheckpoint {
+    public func checkpoint(relay: ModernRelayReceipt? = nil) throws -> ModernHostCheckpoint {
         guard !inputs.values.contains(where: { $0.nativeEditing }) else { throw ModernSessionError.compositionActive }
-        return try ModernHostCheckpoint(session: session, pendingInputs: Array(pendingInputs.values), retainedClipboard: clipboard.retained)
+        return try ModernHostCheckpoint(session: session, pendingInputs: Array(pendingInputs.values), retainedClipboard: clipboard.retained, relay: relay ?? relayReceipt)
     }
     func transfer(_ intent: ModernFocusIntent, source: ModernInputController, window: AnyObject, selection: WritingTextRange? = nil) {
         guard case .text(let position) = intent else { return }

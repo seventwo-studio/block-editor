@@ -1,0 +1,600 @@
+[
+  {
+    "type": "selection",
+    "selection": {
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "observed": [],
+      "focus": {
+        "text": {
+          "_0": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "",
+                  "counter": 0
+                },
+                "index": 30
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "legacy-5000",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "st140-legacy-5001",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "legacy-5000",
+                  "path": []
+                }
+              }
+            }
+          }
+        }
+      },
+      "selection": {
+        "text": {
+          "_0": {
+            "start": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "",
+                    "counter": 0
+                  },
+                  "index": 30
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "legacy-5000",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "st140-legacy-5001",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "legacy-5000",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "end": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "",
+                    "counter": 0
+                  },
+                  "index": 30
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "legacy-5000",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "st140-legacy-5001",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "legacy-5000",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": " ",
+      "typingGroup": "69e6f932-88d2-4af2-9ab7-430a07ad405a"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 1
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 1
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": "世",
+      "typingGroup": "69e6f932-88d2-4af2-9ab7-430a07ad405a"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 2
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 2
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": "界",
+      "typingGroup": "69e6f932-88d2-4af2-9ab7-430a07ad405a"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 3
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 3
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": "😀",
+      "typingGroup": "69e6f932-88d2-4af2-9ab7-430a07ad405a"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 4
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 4
+          }
+        ]
+      ]
+    }
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 4
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop",
+    "history": {
+      "actorID": "local",
+      "redo": [],
+      "undo": [
+        [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ],
+        [
+          {
+            "actor": "local",
+            "counter": 4
+          }
+        ]
+      ]
+    }
+  }
+]

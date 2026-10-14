@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "wasm",
+    "priorSource": "49ee623407d8d550414e0df00777434fba81073c",
+    "currentSource": "d704ce22302fe8b007dd9acd335051145474dbf0",
+    "artifactHashesIdentical": true,
+    "changedInputs": [
+      "Sources/BlockEditorApple/ModernEmptyTextInput.swift",
+      "Sources/BlockEditorApple/ModernTextInput.swift"
+    ]
+  },
+  {
+    "kind": "javascript",
+    "priorSource": "49ee623407d8d550414e0df00777434fba81073c",
+    "currentSource": "d704ce22302fe8b007dd9acd335051145474dbf0",
+    "artifactHashesIdentical": true,
+    "changedInputs": [
+      "Sources/BlockEditorApple/ModernEmptyTextInput.swift",
+      "Sources/BlockEditorApple/ModernTextInput.swift"
+    ]
+  },
+  {
+    "kind": "android",
+    "priorSource": "49ee623407d8d550414e0df00777434fba81073c",
+    "currentSource": "d704ce22302fe8b007dd9acd335051145474dbf0",
+    "artifactHashesIdentical": true,
+    "changedInputs": [
+      "Sources/BlockEditorApple/ModernEmptyTextInput.swift",
+      "Sources/BlockEditorApple/ModernTextInput.swift"
+    ]
+  }
+]

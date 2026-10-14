@@ -1,0 +1,33 @@
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :preBuild UP-TO-DATE
+> Task :preDebugBuild UP-TO-DATE
+> Task :generateDebugResValues
+> Task :generateDebugResources
+> Task :packageDebugResources
+> Task :parseDebugLocalResources
+> Task :generateDebugRFile
+> Task :compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileDebugKotlin'.
+> Error while evaluating property 'friendPathsSet$kotlin_gradle_plugin_common' of task ':compileDebugKotlin'.
+   > Could not resolve all files for configuration ':debugCompileClasspath'.
+      > Could not resolve studio.seventwo:block-editor:0.2.1.
+        Required by:
+            root project :
+         > Could not resolve studio.seventwo:block-editor:0.2.1.
+            > Could not parse POM /private/tmp/modern-native-maven-0.2.1-d932073/studio/seventwo/block-editor/0.2.1/block-editor-0.2.1.pom
+               > Could not download compose-bom-2025.05.01.pom (androidx.compose:compose-bom:2025.05.01): No cached version available for offline mode
+         > No cached version of studio.seventwo:block-editor:0.2.1 available for offline mode.
+         > No cached version of studio.seventwo:block-editor:0.2.1 available for offline mode.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+6 actionable tasks: 6 executed

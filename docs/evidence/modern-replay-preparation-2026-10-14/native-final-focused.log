@@ -1,0 +1,133 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 5] modern-relay-client-product
+[2 / 47] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:343:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+341 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+342 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+343 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+344 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+345 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:365:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+363 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+364 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+365 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+366 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+367 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[4 / 49] BlockEditorCore
+[7 / 42] BlockEditorCore
+[24 / 29] BlockEditorApple-product
+[24 / 29] collaborative-editor-product
+[27 / 30] BlockEditorCoreTests-product
+[29 / 31] modern-relay-client-product
+[36 / 36] collaborative-editor-product
+[43 / 43] BlockEditorBridge-product
+Build complete! (4.19 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernColumnTests started.
+◇ Suite ModernCapacitySizingTests started.
+◇ Suite ModernListRoleTests started.
+◇ Suite StructuralOrderingTests started.
+◇ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() started.
+◇ Test placeholderSizingMatchesPublicWireForIndependentBaselinesAndAllChangeBodies() started.
+◇ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() started.
+◇ Test forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test emptyExitAfterColumnFlattenRetainsLogicalPlacementPeerTextAndUndo() started.
+◇ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() started.
+◇ Test emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test capacityReadDoesNotChangeSavedHistoryOrRetainOldSessionBaseline() started.
+◇ Test nestedEmptyOutdentRetainsMetadataDescendantsCapturedCaretAndUndo() started.
+◇ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() started.
+◇ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() started.
+◇ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() started.
+◇ Test activeExitWhosePeerRestoresColumnsRetainsRecoveryAndAuthorCanRepair() started.
+◇ Test capturedEmptyItemWithObservedPeerTypingSplitsWithoutReinterpretingAsExit() started.
+◇ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() started.
+◇ Test retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test codeBornCaretCanSplitAfterParagraphConversion() started.
+◇ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() started.
+◇ Test cachedPlacementKeysRetainLiteralTiersRawUnicodeAndCanonicalOwnerEquality() started.
+◇ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() started.
+◇ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() started.
+◇ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() started.
+◇ Test retainedRoleSurvivesOriginalCreationRedoAndUndoAndKeepsFollowingAnchor() started.
+◇ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() started.
+◇ Test nodeKeySortKeepsCanonicalStringTiesStableWithoutMergingRawSpellings() started.
+◇ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() started.
+◇ Test case passing 1 argument fault → "extraDelete" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "nonempty" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongPlacement" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test exhaustedConcurrentPartitionsRemainRecoverableUntilAuthorRepair() started.
+◇ Test case passing 1 argument fault → "wrongRange" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongScope" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongTail" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test case passing 2 arguments index → 0, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 2 arguments index → 0, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 2 arguments index → 1, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 2 arguments index → 1, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 2 arguments index → 2, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 2 arguments index → 2, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 1 argument command → "heading" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "code" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "list" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "split" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "move" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "delete" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "insert" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "columns" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument actor → "a" to concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test case passing 1 argument fault → "duplicate" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "late" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument actor → "z" to concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test case passing 1 argument fault → "wrongNode" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "wrongOwner" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "wrongRetirement" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "emptyExposure" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "oldExposure" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "selfAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "futureRetirement" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "forgedAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "currentAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+✔ Test forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) with 6 test cases passed after 0.287 seconds.
+✔ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() passed after 0.287 seconds.
+✔ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() passed after 0.287 seconds.
+✔ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() passed after 0.287 seconds.
+✔ Test capturedEmptyItemWithObservedPeerTypingSplitsWithoutReinterpretingAsExit() passed after 0.287 seconds.
+✔ Test capacityReadDoesNotChangeSavedHistoryOrRetainOldSessionBaseline() passed after 0.287 seconds.
+✔ Test nestedEmptyOutdentRetainsMetadataDescendantsCapturedCaretAndUndo() passed after 0.287 seconds.
+✔ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() passed after 0.287 seconds.
+✔ Test cachedPlacementKeysRetainLiteralTiersRawUnicodeAndCanonicalOwnerEquality() passed after 0.287 seconds.
+✔ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() passed after 0.287 seconds.
+✔ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() passed after 0.287 seconds.
+✔ Test codeBornCaretCanSplitAfterParagraphConversion() passed after 0.287 seconds.
+✔ Test activeExitWhosePeerRestoresColumnsRetainsRecoveryAndAuthorCanRepair() passed after 0.287 seconds.
+✔ Test emptyExitAfterColumnFlattenRetainsLogicalPlacementPeerTextAndUndo() passed after 0.288 seconds.
+✔ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() passed after 0.287 seconds.
+✔ Test emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) with 6 test cases passed after 0.288 seconds.
+✔ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() passed after 0.287 seconds.
+✔ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() passed after 0.287 seconds.
+✔ Test nodeKeySortKeepsCanonicalStringTiesStableWithoutMergingRawSpellings() passed after 0.288 seconds.
+✔ Test retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) with 8 test cases passed after 0.288 seconds.
+✔ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() passed after 0.288 seconds.
+✔ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() passed after 0.288 seconds.
+✔ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() passed after 0.288 seconds.
+✔ Test concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) with 2 test cases passed after 0.287 seconds.
+✔ Test retainedRoleSurvivesOriginalCreationRedoAndUndoAndKeepsFollowingAnchor() passed after 0.288 seconds.
+✔ Suite StructuralOrderingTests passed after 0.288 seconds.
+✔ Test exhaustedConcurrentPartitionsRemainRecoverableUntilAuthorRepair() passed after 0.308 seconds.
+✔ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() passed after 0.308 seconds.
+✔ Suite ModernColumnTests passed after 0.308 seconds.
+✔ Test forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) with 11 test cases passed after 0.326 seconds.
+✔ Suite ModernListRoleTests passed after 0.327 seconds.
+✔ Test placeholderSizingMatchesPublicWireForIndependentBaselinesAndAllChangeBodies() passed after 0.944 seconds.
+✔ Suite ModernCapacitySizingTests passed after 0.944 seconds.
+✔ Test run with 29 tests in 4 suites passed after 0.944 seconds.

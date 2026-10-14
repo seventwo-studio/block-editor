@@ -1,9 +1,12 @@
-# Modern editor integration candidate
+# Modern editor integration
 
-This is the P-ST-85 implementation candidate being prepared in cumulative PR #70.
-The proposed private package version is **0.2.0**. A version number in source is
-not proof of publication or consumer access. ST-34 and ST-144 remain open until
-private artifacts, approved Foliostrate access and the actual handoff are verified.
+Private JavaScript/WASM **0.2.0** pins delivered source
+`1bb9a89c3f73c043588f8acabcde62c4e1b16be3`. Its installation evidence and the
+separate Swift/Kotlin delivery requirements are described in
+[private installed-runtime acceptance](modern-private-installation.md).
+Finishing changes in cumulative PR #71 are not contained in that immutable
+release. A source version, local build or packed proposal does not establish a
+new published release, approved consumer access or finishing acceptance.
 
 ## Contract
 
@@ -18,6 +21,47 @@ service, implicit provider calls, credential management or application routing.
 Deactivate outgoing host adapters before mounting another document. Captured
 targets name retained identities; do not regenerate them from display indices.
 
+Matching finishing engines advertise `localSelectionAckVersion: 1`. A
+`modernSetLocalSelection` request may then specify `includeSnapshot: false`;
+Swift still validates and records the selection and typing boundary, returning
+`{ version: 1, documentID, epoch }` instead of retransmitting unchanged document
+content. This acknowledgement version is independent of document format 1 and
+protocol 7. Omitted or true `includeSnapshot` retains the historical full
+snapshot response. The TypeScript adapter checks scope/version, preserves its
+accepted snapshot and notifies persistence subscribers so the local history
+sidecar can be saved. Older engines use the full response. Neither path authors
+a document change or bypasses shared validation.
+
+Matching finishing engines also advertise `documentSnapshotVersion: 1`.
+Snapshot-producing commands can opt in with that version and, after a full
+response, its `knownDocumentToken`. The response includes a `documentSnapshot`
+envelope with version/token. A matching token permits bounded replacement paths
+against that exact previously returned document; the complete receipt, history
+flags, recovery and command outcomes remain present. Unknown tokens, new session
+generations and large diffs return the full document. Default callers retain
+their original full response shape. Tokens are ephemeral presentation state,
+not causal identities or persisted checkpoints.
+
+Swift produces replacements only after complete shared admission, preserving
+Unicode bytes, signed zero and opaque data. The TypeScript adapter validates
+scope/version/base token and disjoint existing paths, reconstructs immutable
+document values and retains the existing public snapshot API. Invalid advertised
+responses fail explicitly; older engines retain full responses. Accepted peer
+receipts still publish when document content is identical. Owned-object reuse
+recognizes only successfully completed ownership walks, not foreign shallow
+freezes. Kotlin reports the optional capability and retains its full-response
+default.
+
+The shared engine may reuse a fully admitted baseline under its strong
+structural read lease. It revalidates changed roots with the original schema
+and depth rules, checks title/appearance, and uses exact canonical byte deltas
+to enforce the unchanged 32 MB document limit. Structural changes detach the
+view and retain full construction. The baseline, root index, size and field
+birth caches are ephemeral and never replace causal admission or author
+history. Activity on already active births retains the view; activity that
+can change visibility invalidates it. These optimizations do not establish
+performance, physical-device or consumer-installation acceptance.
+
 ## React and WASM
 
 The package exposes `swift/modern`, `swift/modern/react`, `swift/modern/host`,
@@ -26,6 +70,41 @@ supply the matching WASM bytes, then call `runtime.createModern` or
 `runtime.restoreModern`. Render `SwiftModernBlockEditor` with that session and an
 application-owned `ModernBrowserHost`. `SwiftModernEditorSurface` provides
 loading, retry and incompatibility presentation for initial documents.
+
+Browser input compares captured document/epoch/focus/selection by exact values,
+independent of object property order. Adjacent input retains one local typing
+token and Swift's returned caret anchor with its captured cohort. Deliberate
+selection/focus movement and shared command/composition boundaries still end
+grouping. Per-render formatting state reuse never becomes author history or
+replaces shared validation; persistence observes actual shared changes.
+
+Admitted projections retain a private baseline identity and affected-root mask
+for snapshot comparison. Matching baselines compare the union of both masks
+plus title and appearance, with the existing exact-value, path-depth and
+128-change limits. Structural, unrelated and reopened values use full
+comparison. These fields are excluded from serialization and public semantic
+equality, and never authorize input or become causal identities/checkpoints.
+
+Untouched-field value/activity projection may reuse a completed proof only
+under the same strong structural read lease, immutable birth/index owner and
+complete current field set. Edited fields, inactive births and property
+mismatches retain individual checks; foreign owners, subsets and routed graphs
+keep the established fallback. Structural mutations detach the proof. These
+internal proofs never enter a saved session or authorize incoming operations.
+
+The browser renderer reuses identity maps only within one session and the exact
+immutable binding batch returned after shared confirmation. Accepted content
+and node/address/kind validation still refresh. A changed batch replaces the
+maps; older engines retain fresh individual lookups. Exact immutable roots may
+reuse their already checked binding records within that same confirmed batch
+and session; changed roots traverse actual schema. Local callbacks, provider
+presentation, composition and geometry retain their existing invalidation. Rendered top-level controls may also retain an exact immutable root within that same confirmed identity and presentation context. Selection, column geometry, appearance, policy/provider state, composition registration and host callbacks replace the cache. Handlers read the live session; title navigation reads the current document outside the cache. Nested controls retain only with their unchanged root.
+
+Hidden formatting and color controls defer readonly state queries until they
+open; actions still read current shared state against captured targets. Browser
+Undo/Redo restores the shared local history selection through current field
+registrations, including backward text direction, focus and caret scrolling.
+These interactions do not author or reconstruct document data in JavaScript.
 
 Run `bun run build:wasm` and `bun run demo:dev`, then open the reference
 integration at `/block-editor/modern.html` with the existing

@@ -1,0 +1,49 @@
+[WebServer] (node:51947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation (2.7m)
+  ✓  2 [webkit] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation (2.8m)
+  ✘  3 [firefox] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation (3.4m)
+
+
+  1) [firefox] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -50006,11 +50006,11 @@
+            "type": "paragraph",
+          },
+          Object {
+            "content": Array [
+              Object {
+    -           "text": "Preserved legacy paragraph 5000",
+    +           "text": "Preserved legacy paragraph 5000 世界",
+                "type": "text",
+              },
+            ],
+            "id": "legacy-5000",
+            "type": "paragraph",
+
+      122 |     const checkpoint = await page.evaluate(() => window.modernPerformance.session.save());
+      123 |     await page.evaluate(() => { window.modernPerformance.session.execute({ command: 'undo', arguments: {} }); });
+    > 124 |     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(large);
+          |                                                                                               ^
+      125 |     await page.evaluate(() => { window.modernPerformance.session.execute({ command: 'redo', arguments: {} }); });
+      126 |     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(expectedLarge);
+      127 |     // Reopen through the actual engine, independent of the rendered current state.
+        at /Users/luca/Developer/block-editor/tests/modern-wider.swift.ts:124:95
+
+    attachment #1: wider-browser-baseline (application/json) ───────────────────────────────────────
+    .build/finishing/20261014/wider-browser/frozen-results/modern-wider.swift.ts-mixe-81005-and-5001-block-preservation-firefox/attachments/wider-browser-baseline-af98bde5eeafb6defcece2c444c0ae8dc7d64bf5.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/wider-browser/frozen-results/modern-wider.swift.ts-mixe-81005-and-5001-block-preservation-firefox/error-context.md
+
+  1 failed
+    [firefox] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation 
+  2 passed (9.0m)

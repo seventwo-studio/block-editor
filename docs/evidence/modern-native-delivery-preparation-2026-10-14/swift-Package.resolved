@@ -1,0 +1,15 @@
+{
+  "originHash" : "570b6014b3a8cde177236f0acbbc102c6c3fb90d32af9eeda13a6922f9872967",
+  "pins" : [
+    {
+      "identity" : "block-editor-internal-packages",
+      "kind" : "localSourceControl",
+      "location" : "/private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages",
+      "state" : {
+        "revision" : "010dd67fc55b3828fa8f94f96955d90b979775c5",
+        "version" : "0.2.1"
+      }
+    }
+  ],
+  "version" : 3
+}

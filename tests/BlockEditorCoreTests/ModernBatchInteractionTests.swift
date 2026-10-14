@@ -3,6 +3,49 @@ import Testing
 @testable import BlockEditorCore
 
 struct ModernBatchInteractionTests {
+    @Test func repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() throws {
+        let toggle = try Block(fields: ["id": .string("toggle"), "type": .string("toggle"),
+            "summary": .array([textNode("Summary")]), "children": .array([.object(Block.paragraph(id: "p", text: "A😀B").fields)])])
+        let document = try ModernDocument(documentID: "logical-view", blocks: [toggle, .paragraph(id: "q", text: "Other")])
+        let a = try ModernSession(documentID: document.documentID, actorID: "a", epoch: "e", document: document)
+        let container = try a.node(at: NodeAddress("toggle")), child = try a.node(at: NodeAddress("toggle", path: ["children", "p"]))
+        let p = try a.field(node: child), q = try a.field(node: a.node(at: NodeAddress("q")))
+        let summary = try a.field(node: container, name: "summary")
+        for _ in 0..<2 {
+            #expect(try a.logicalFields() == [a.titleField, summary, p, q])
+            #expect(try a.logicalFields(collapsed: [container], includingTitle: false) == [summary, q])
+        }
+        let before = try a.save()
+        #expect(throws: EditorError.invalidRange) { try a.captureTextSpan(from: a.position(in: p, offset: 1), to: a.position(in: q, offset: 1), collapsed: [container]) }
+        #expect(try a.save() == before)
+        try a.replaceText(in: p, range: 4..<4, with: "!")
+        let span = try a.captureTextSpan(from: a.position(in: q, offset: 2), to: a.position(in: p, offset: 1))
+        #expect(span.count == 2 && span[0].start.field == p && span[1].start.field == q)
+        #expect(try a.resolve(span[0].start).offset == 5 && a.resolve(span[0].end).offset == 1)
+        try a.move(child, into: .root, after: container)
+        #expect(try a.logicalFields(collapsed: [container], includingTitle: false) == [summary, p, q])
+        try a.undo(); #expect(try a.logicalFields(collapsed: [container], includingTitle: false) == [summary, q])
+        try a.redo(); #expect(try a.logicalFields(collapsed: [container], includingTitle: false) == [summary, p, q])
+        let reopened = try ModernSession.restore(a.save(), actorID: "a")
+        #expect(try reopened.logicalFields(collapsed: [container], includingTitle: false) == [summary, p, q])
+        #expect(try reopened.text(in: p) == "A😀B!")
+    }
+    @Test func logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() throws {
+        let document = try ModernDocument(documentID: "logical-origins", blocks: [.paragraph(id: "p", text: "Same")])
+        let a = try ModernSession(documentID: document.documentID, actorID: "a", epoch: "e", document: document)
+        let b = try ModernSession(documentID: document.documentID, actorID: "b", epoch: "e", document: document)
+        let old = try a.logicalFields(includingTitle: false)[0], position = try a.position(in: old, offset: 2)
+        try b.delete(b.nodes()[0]); let born = try b.insertBlock(.paragraph(id: "p", text: "Same"))
+        try a.receive(b.changes()); #expect(a.document == document)
+        let current = try a.logicalFields(includingTitle: false)[0]
+        #expect(current.node == born && current != old)
+        let saved = try a.save()
+        #expect(throws: (any Error).self) { try a.captureTextSpan(from: position, to: a.position(in: current, offset: 2)) }
+        #expect(try a.save() == saved)
+        let span = try a.captureTextSpan(from: a.position(in: current, offset: 3), to: a.position(in: current, offset: 1))
+        #expect(span.count == 1 && span[0].start.field == current)
+        #expect(try a.resolve(span[0].start).offset == 3 && a.resolve(span[0].end).offset == 1)
+    }
     @Test func markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() throws {
         let s = try ModernSession(documentID: "shortcuts", actorID: "a", epoch: "e", document: ModernDocument(documentID: "shortcuts", blocks: [.paragraph(id: "p", text: "- ")]))
         let field = try s.field(node: s.node(at: NodeAddress("p"))), range = try s.captureTextRange(in: field, start: 2, end: 2)

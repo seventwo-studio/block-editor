@@ -1,0 +1,432 @@
+[
+  {
+    "type": "selection",
+    "selection": {
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "observed": [],
+      "focus": {
+        "text": {
+          "_0": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "",
+                  "counter": 0
+                },
+                "index": 30
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "legacy-5000",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "st140-legacy-5001",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "legacy-5000",
+                  "path": []
+                }
+              }
+            }
+          }
+        }
+      },
+      "selection": {
+        "text": {
+          "_0": {
+            "start": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "",
+                    "counter": 0
+                  },
+                  "index": 30
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "legacy-5000",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "st140-legacy-5001",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "legacy-5000",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "end": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "",
+                    "counter": 0
+                  },
+                  "index": 30
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "legacy-5000",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "st140-legacy-5001",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "legacy-5000",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": " ",
+      "typingGroup": "bf0ebce6-6546-4d01-adb1-d7a789b4142b"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 1
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied"
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 1
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop"
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": "世",
+      "typingGroup": "bf0ebce6-6546-4d01-adb1-d7a789b4142b"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 2
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied"
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 2
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop"
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": "界",
+      "typingGroup": "bf0ebce6-6546-4d01-adb1-d7a789b4142b"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 3
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied"
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 3
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop"
+  },
+  {
+    "type": "command",
+    "command": "replaceText",
+    "arguments": {
+      "text": "😀",
+      "typingGroup": "bf0ebce6-6546-4d01-adb1-d7a789b4142b"
+    },
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 4
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "applied"
+  },
+  {
+    "type": "command",
+    "command": "typingShortcut",
+    "arguments": {},
+    "focus": {
+      "affinity": "after",
+      "anchor": {
+        "element": {
+          "change": {
+            "actor": "local",
+            "counter": 4
+          },
+          "index": 0
+        },
+        "origin": {
+          "name": "content",
+          "node": {
+            "baseline": {
+              "blockID": "legacy-5000",
+              "path": []
+            }
+          }
+        }
+      },
+      "documentID": "st140-legacy-5001",
+      "epoch": "surface-acceptance",
+      "field": {
+        "name": "content",
+        "node": {
+          "baseline": {
+            "blockID": "legacy-5000",
+            "path": []
+          }
+        }
+      }
+    },
+    "status": "noop"
+  }
+]

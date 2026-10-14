@@ -1,0 +1,151 @@
+{
+  "registrationSource": "4f590e8943d0219155e510752f60d204d547cbed",
+  "formSource": "af0debaf7a38e9e8e2437c0c16d0d619c4650a50",
+  "browser": {
+    "integratedBeforeFinalMapDependencies": 66,
+    "finalAffected": 24,
+    "qualification": "66 passed before final map-dependency refinements; all 24 affected lifecycle/focus/form/identity checks passed afterward. Not one final-source full suite."
+  },
+  "hostForm": {
+    "originalFailures": 3,
+    "repairedPasses": 3,
+    "original": "form-original.log",
+    "repair": "form-repaired.log"
+  },
+  "registrationDiagnostic": {
+    "diagnostic": true,
+    "sourceCommit": "4c7213aa5e4318eca0bd6b4524913bd61186e94c",
+    "sets": 1,
+    "deletes": 1,
+    "inputs": 3,
+    "document": {
+      "appearance": {
+        "fontFamily": "sans",
+        "fontSize": "default",
+        "pageWidth": "readable"
+      },
+      "blocks": [
+        {
+          "content": [
+            {
+              "text": "First!",
+              "type": "text"
+            }
+          ],
+          "id": "p",
+          "type": "paragraph"
+        },
+        {
+          "content": [
+            {
+              "text": "Second",
+              "type": "text"
+            }
+          ],
+          "id": "q",
+          "type": "paragraph"
+        }
+      ],
+      "documentID": "registration-probe",
+      "format": "seventwo.block-editor.document",
+      "formatVersion": 1,
+      "title": "Title"
+    },
+    "qualification": "Counts actual input-element registration map updates for one trusted native edit. Not a performance target or full preservation campaign."
+  },
+  "lint": {
+    "baseline": {
+      "lint/correctness/noUnusedFunctionParameters": 2,
+      "lint/style/noNonNullAssertion": 7,
+      "lint/style/useImportType": 2,
+      "lint/correctness/noUnusedVariables": 2,
+      "lint/a11y/useButtonType": 43,
+      "lint/a11y/noAutofocus": 2,
+      "lint/suspicious/useIterableCallbackReturn": 2,
+      "lint/a11y/useFocusableInteractive": 2,
+      "lint/a11y/noStaticElementInteractions": 2,
+      "lint/correctness/useExhaustiveDependencies": 22,
+      "lint/a11y/useSemanticElements": 2,
+      "lint/suspicious/noArrayIndexKey": 1
+    },
+    "current": {
+      "lint/correctness/noUnusedFunctionParameters": 2,
+      "lint/style/noNonNullAssertion": 7,
+      "lint/style/useImportType": 2,
+      "lint/correctness/noUnusedVariables": 2,
+      "lint/correctness/useExhaustiveDependencies": 22,
+      "lint/a11y/useSemanticElements": 2,
+      "lint/a11y/noAutofocus": 2,
+      "lint/suspicious/useIterableCallbackReturn": 2,
+      "lint/a11y/useFocusableInteractive": 2,
+      "lint/a11y/noStaticElementInteractions": 2,
+      "lint/suspicious/noArrayIndexKey": 1
+    },
+    "qualification": "Overall lint still fails. Forty-three missing-button-type findings removed; final exhaustive-dependency count equals baseline. Remaining findings need separate ownership, not a lint pass."
+  },
+  "performance": {
+    "terminalExit": 1,
+    "inputPassed": false,
+    "menuPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "sourceCommit": "af0debaf7a38e9e8e2437c0c16d0d619c4650a50",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+        "summary": {
+          "inputP95MS": 342.2999999523163,
+          "menuP95MS": 58.40000009536743,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "sourceCommit": "af0debaf7a38e9e8e2437c0c16d0d619c4650a50",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+        "summary": {
+          "inputP95MS": 397,
+          "menuP95MS": 79,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "sourceCommit": "af0debaf7a38e9e8e2437c0c16d0d619c4650a50",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+        "summary": {
+          "inputP95MS": 391,
+          "menuP95MS": 89,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      }
+    ]
+  },
+  "qualifications": [
+    "Only React rendering/ref ownership and action button types changed. Shared admission, mutation, captured targets and history remain unchanged.",
+    "Native WASM/JNI binaries retain prior exact hashes; fresh builder receipts record coherent source. Previous native/core checks retain their source qualifications.",
+    "Registration diagnostic counts map updates for one trusted edit; it does not accept performance or resource campaigns.",
+    "Original form submissions and overall failed lint remain retained.",
+    "Full finishing, current hosted CI/review, private native delivery and deferred physical/final acceptance remain open. No protected-main/private-release/Foliostrate changes."
+  ]
+}

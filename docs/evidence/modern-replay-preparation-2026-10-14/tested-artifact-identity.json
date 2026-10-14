@@ -1,0 +1,27 @@
+{
+  "JNI": [
+    {
+      "artifact": "libBlockEditorBridge.so",
+      "testedAPK": "84415bbe86c6bcadac0e670b06558f687424a24cfd2abc1bc2c9b60ed6d62f09",
+      "rebuilt": "84415bbe86c6bcadac0e670b06558f687424a24cfd2abc1bc2c9b60ed6d62f09",
+      "identical": true
+    },
+    {
+      "artifact": "libBlockEditorJNI.so",
+      "testedAPK": "89ebcd01390a38986b4d3d65c06d80809c095b259af66fdb3540d6aa47ab9f28",
+      "rebuilt": "89ebcd01390a38986b4d3d65c06d80809c095b259af66fdb3540d6aa47ab9f28",
+      "identical": true
+    },
+    {
+      "artifact": "libc++_shared.so",
+      "testedAPK": "7466ed097631a564ed6bff0b47768caa76bf03270d2047b5a65c03f497b824df",
+      "rebuilt": "7466ed097631a564ed6bff0b47768caa76bf03270d2047b5a65c03f497b824df",
+      "identical": true
+    }
+  ],
+  "WASM": {
+    "measured": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+    "rebuilt": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0"
+  },
+  "qualification": "Final Native-only label change preserves tested WASM and APK-packaged JNI bytes; final fresh builder receipts record the new complete source. Original initial receipts were refreshed before archival; they are not recreated or represented as saved receipts."
+}

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "samplesMS": [
+    7909.075542000001,
+    7228.155707999999,
+    7221.143957999999
+  ],
+  "qualification": "Debug native CLI authoring diagnostic including IPC/JSON; not surface acceptance"
+}

@@ -1,0 +1,90 @@
+{
+  "runtimeCommit": "2d54388aaec2c4ca28c209dbf1541c1f9751f891",
+  "pointerSetupCommit": "b4c6981ca4afec20d7772f58a2ad7dc524072a19",
+  "functional": {
+    "initialLifecyclePassed": 3,
+    "initialLabelLookupFailed": 3,
+    "repairedLifecyclePassed": 6,
+    "combinedPassed": 57,
+    "combinedPointerSetupFailed": 3,
+    "combinedTerminalExit": 1,
+    "affectedRerunPassed": 9,
+    "affectedRerunTerminalExit": 0,
+    "qualifiedTotalCases": 60
+  },
+  "performance": {
+    "terminalExit": 1,
+    "completedAllThree": true,
+    "inputTargetsPassed": false,
+    "menuTargetsPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "b4c6981ca4afec20d7772f58a2ad7dc524072a19",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 1598.5,
+          "menuP95MS": 42,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "b4c6981ca4afec20d7772f58a2ad7dc524072a19",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 2004,
+          "menuP95MS": 70,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "b4c6981ca4afec20d7772f58a2ad7dc524072a19",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 1689,
+          "menuP95MS": 57,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "complete": true,
+        "targetsPassed": false
+      }
+    ],
+    "productionAssets": {
+      ".build/modern-performance-web/assets/modern-performance-B9F4U2VV.js": "bdc07c58f3e5e49714ffa20f7ed5d6fc0207fdf985ebeff4faf5a56649a875b1",
+      ".build/modern-performance-web/assets/modern-performance-CoD1n0CS.css": "575c004b0449eb809e17408369152229bae2b6cd3842c1ec99fd0b5ab0195035",
+      ".build/modern-performance-web/modern-performance.html": "21222c4ae11ca368a57db0798a936ff5da1f94d0e9d80de5ea561a6e3deffc10"
+    }
+  },
+  "qualifications": [
+    "The actual 60-case run failed three pointer setups after corrected stacking moved the slider offscreen. The original 57 passes and the affected nine-case rerun are qualified separately; this is not one normally exited 60-case suite.",
+    "Synthetic composition/provider-lifecycle tests are actual React/WASM checks, not physical IME or assistive acceptance.",
+    "The earlier label lookup and readonly-property typecheck failures remain beside the repaired results. Existing expected acceptance JSON stays unchanged.",
+    "Corrected page content width and live font metrics change column presentation, so earlier incorrect-layout timings are not a controlled cache-only experiment. Shared column split and saved content/history remain preserved.",
+    "Each final performance report pins clean b4c6981 and matching source/artifact receipts, with twenty samples after three warmups for each operation per engine. All menu targets pass on the recorded Mac; all input targets fail.",
+    "Prior hosted CI belongs to ea33791c; fresh current-head CI/review remain required. No protected-main landing, private release or final acceptance occurred."
+  ]
+}

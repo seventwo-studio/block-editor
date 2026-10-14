@@ -7,15 +7,17 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Block } from "../../src/schema.ts";
+import { browserLaunchOptions } from "./browser-launch.js";
+import type { ModernRelayRoomTemplate } from "../../demo/relay/modern-room.ts";
 
 export const executable = resolve(process.env.BLOCK_EDITOR_BRIDGE ?? ".build/debug/editor-bridge");
 export const token = "relay-process-test";
 export const headers = { "x-local-token": token, "content-type": "application/json" };
 
-async function relayProcess(directory: string, blocks?: Block[], collaborationVersion: 1 | 2 = 1) {
+async function relayProcess(directory: string, blocks?: Block[], collaborationVersion: 1 | 2 = 1, modern?: ModernRelayRoomTemplate) {
   const child = spawn(process.env.BUN_BIN ?? "bun", ["scripts/relay-process-fixture.ts"], {
     stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, RELAY_PROCESS_OPTIONS: JSON.stringify({ executable, directory, token, port: 0, blocks, collaborationVersion }) },
+    env: { ...process.env, RELAY_PROCESS_OPTIONS: JSON.stringify({ executable, directory, token, port: 0, ...(modern ? { modern } : { blocks, collaborationVersion }) }) },
   });
   let stderr = "";
   child.stderr.on("data", chunk => { stderr += chunk; });
@@ -66,9 +68,9 @@ export async function processLab(browserType: BrowserType, testInfo: TestInfo) {
     phases,
     get requests() { return relayRequests; },
     get url() { if (!relay) throw new Error("Relay is stopped"); return relay.url; },
-    async startServer(blocks?: Block[], version: 1 | 2 = 1) {
-      relay = await relayProcess(join(directory, "relay"), blocks, version);
-      phases.push({ phase: "relay-start", pid: relay.pid, version });
+    async startServer(blocks?: Block[], version: 1 | 2 = 1, modern?: ModernRelayRoomTemplate) {
+      relay = await relayProcess(join(directory, "relay"), blocks, version, modern);
+      phases.push({ phase: "relay-start", pid: relay.pid, version: modern ? 7 : version });
     },
     async stopServer() {
       if (!relay) return;
@@ -77,7 +79,7 @@ export async function processLab(browserType: BrowserType, testInfo: TestInfo) {
     },
     async savedRoom(room: string) { return readFile(join(directory, "relay", `${room}.json`), "utf8"); },
     async launch() {
-      context = await browserType.launchPersistentContext(profile, { executablePath: wrapper, headless: true, baseURL, acceptDownloads: true });
+      context = await browserType.launchPersistentContext(profile, { ...browserLaunchOptions(browserType.name()), executablePath: wrapper, headless: true, baseURL, acceptDownloads: true });
       const pid = Number((await readFile(pidFile, "utf8")).trim());
       expect(pid).toBeGreaterThan(0);
       launcherPid = pid;
@@ -109,6 +111,8 @@ export async function processLab(browserType: BrowserType, testInfo: TestInfo) {
       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);
       const sourcePaths = ["tests/helpers/relay-process.ts", "tests/relay-process-restart.spec.ts", "scripts/relay-process-fixture.ts",
         "demo/local-main.tsx", "demo/local-storage.ts", "demo/local-sync.ts", "demo/relay/server.ts", "src/swift.ts"];
+      if (phases.some(phase => phase.version === 7)) sourcePaths.push("tests/modern-relay.swift.ts", "demo/modern-relay-main.tsx", "demo/relay/modern-room.ts",
+        "demo/relay/bridge.ts", "src/swift-modern.ts", "src/swift-modern-host.ts", "src/swift-modern-relay.ts", "src/swift-modern-react.tsx");
       const sourceFiles = Object.fromEntries(await Promise.all(sourcePaths.map(async path => [path, await hash(path)])));
       const runtimeManifest = process.env.EVIDENCE_RUNTIME_MANIFEST
         ? JSON.parse(await readFile(process.env.EVIDENCE_RUNTIME_MANIFEST, "utf8")) : null;

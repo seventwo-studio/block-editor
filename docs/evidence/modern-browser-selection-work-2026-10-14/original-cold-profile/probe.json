@@ -1,0 +1,120 @@
+{
+  "diagnostic": true,
+  "sourceCommit": "97d9f744f11629221d9170eb07da3c8a295ee328",
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "f890139753522a0e0c2ccba9dc9dc5c472d58f0d0a886627a2fb66813f7ba9bc",
+  "calls": [
+    {
+      "name": "resolvePosition",
+      "ms": 0.5999999046325684
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.3000001907348633
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "captureTextRange",
+      "ms": 0.5
+    },
+    {
+      "name": "execute",
+      "command": "replaceText",
+      "ms": 100
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.5
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.09999990463256836
+    },
+    {
+      "name": "captureTextRange",
+      "ms": 0.40000009536743164
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.20000004768371582
+    },
+    {
+      "name": "localSelection",
+      "ms": 0.5
+    },
+    {
+      "name": "setLocalSelection",
+      "ms": 1.2999999523162842
+    },
+    {
+      "name": "availability",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "execute",
+      "command": "typingShortcut",
+      "ms": 3.700000047683716
+    },
+    {
+      "name": "nodeBindings",
+      "ms": 0
+    },
+    {
+      "name": "captureTextRange",
+      "ms": 0.40000009536743164
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.39999985694885254
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.3000001907348633
+    },
+    {
+      "name": "localSelection",
+      "ms": 0.39999985694885254
+    },
+    {
+      "name": "setLocalSelection",
+      "ms": 1
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.20000004768371582
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "localSelection",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "setLocalSelection",
+      "ms": 0.7999999523162842
+    }
+  ],
+  "errors": [],
+  "complete": true
+}

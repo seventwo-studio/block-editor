@@ -1,0 +1,28 @@
+Building for debugging...
+[Planning deferred tasks]
+[2 / 7] BlockEditorCore
+[4 / 9] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:333:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+331 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+332 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+333 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+334 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+335 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:355:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+353 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+354 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+355 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+356 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+357 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[10 / 11] editor-bridge-product
+Build complete! (2.37 sec)
+Building for debugging...
+[Planning deferred tasks]
+[1 / 9]
+[2 / 4] BlockEditorBridge-product
+Build complete! (0.61 sec)

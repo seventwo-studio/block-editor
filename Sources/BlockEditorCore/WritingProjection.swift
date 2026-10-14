@@ -105,8 +105,14 @@ struct WritingProjection {
     private var fields: [WritingAtomKey: WritingField] = [:]
     private var order: [WritingAtomKey] = []
     private var visibleByField: [WritingField: [WritingAtomKey]] = [:]
+    private var retainedByField: [WritingField: [WritingAtomKey]] = [:]
+    private var independent: IndependentWritingFields?
 
-    init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:]) throws {
+    init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:], seedIndex: WritingSeedIndex? = nil) throws {
+        if redirects.isEmpty, let seedIndex,
+           let fields = try IndependentWritingFields.make(index: seedIndex, edits: edits, active: active, emptyFields: emptyFields) {
+            independent = fields; return
+        }
         hidden = hiddenSeeds
         let sorted = edits.sorted { $0.id < $1.id }
         var births: [WritingAtomKey: WritingAtomSeed] = [:]
@@ -189,27 +195,59 @@ struct WritingProjection {
         // Projection state is immutable after construction. Preserve global
         // traversal order while indexing each field once, rather than scanning
         // all document atoms for every field lookup.
-        for key in order where !hidden.contains(key) && key.element.index >= 0 {
-            if let field = fields[key] { visibleByField[field, default: []].append(key) }
+        for key in order {
+            if let field = fields[key] {
+                retainedByField[field, default: []].append(key)
+                if !hidden.contains(key) && key.element.index >= 0 {
+                    visibleByField[field, default: []].append(key)
+                }
+            }
         }
     }
 
     private static func head(_ field: WritingField) -> WritingAtomKey {
         WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: -1))
     }
-    func hasField(_ field: WritingField) -> Bool { fields[Self.head(field)] != nil }
-    var joinedSources: Set<WritingField> { Set(joins.keys).subtracting(redirectSources) }
-    var retainedKeys: Set<WritingAtomKey> { Set(nodes.keys.filter { $0.element.index >= 0 }) }
+    var usesIndependentFields: Bool { independent != nil }
+    var changedIndependentFields: Set<WritingField>? { independent?.changed }
+    var independentSeedOwner: AnyObject? { independent?.seedOwner }
+    func hasUntouchedIndependentField(_ field: WritingField) -> Bool {
+        independent.map { $0.projections[field] != nil && !$0.changed.contains(field) } ?? false
+    }
+    /// One checked field lookup supplies both untouched status and visibility.
+    func untouchedIndependentFieldHasContent(_ field: WritingField) -> Bool? {
+        guard let independent, !independent.changed.contains(field),
+              let fieldProjection = independent.projections[field] else { return nil }
+        return !fieldProjection.visibleKeys(in: field).isEmpty
+    }
+    func independentSeedValues(in field: WritingField) -> [JSONValue]? { independent.map { ($0.seeds[field] ?? []).map(\.node) } }
+    func hasField(_ field: WritingField) -> Bool { independent?.projections[field] != nil || fields[Self.head(field)] != nil }
+    var joinedSources: Set<WritingField> { independent == nil ? Set(joins.keys).subtracting(redirectSources) : [] }
+    var retainedKeys: Set<WritingAtomKey> {
+        if let independent { return independent.projections.values.reduce(into: []) { $0.formUnion($1.retainedKeys) } }
+        return Set(nodes.keys.filter { $0.element.index >= 0 })
+    }
+    func containsRetainedKey(_ key: WritingAtomKey) -> Bool {
+        guard key.element.index >= 0 else { return false }
+        if let independent { return independent.projections[key.origin]?.containsRetainedKey(key) ?? false }
+        return nodes[key] != nil
+    }
     func visibleKeys(in field: WritingField) -> [WritingAtomKey] {
-        visibleByField[field] ?? []
+        if let independent { return independent.projections[field]?.visibleKeys(in: field) ?? [] }
+        return visibleByField[field] ?? []
     }
     func nodes(in field: WritingField) -> [JSONValue] {
-        visibleKeys(in: field).compactMap { nodes[$0] }
+        if let independent { return independent.projections[field]?.nodes(in: field) ?? [] }
+        return visibleKeys(in: field).compactMap { nodes[$0] }
     }
     func text(in field: WritingField) -> String { plainText(nodes(in: field)) }
     /// Birth-route ancestry for concurrent cut ownership. Projection callers can
     /// distinguish unobserved descendants from atoms explicitly pinned later.
     func follows(_ key: WritingAtomKey, anyOf anchors: Set<WritingAtomKey>) throws -> Bool {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.follows(key, anyOf: anchors)
+        }
         var current = key, seen = Set<WritingAtomKey>()
         while true {
             if anchors.contains(current) { return true }
@@ -222,19 +260,31 @@ struct WritingProjection {
         }
     }
     func field(of key: WritingAtomKey) throws -> WritingField {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.field(of: key)
+        }
         guard let field = fields[key] else { throw WritingProjectionError.missingAtom }
         return field
     }
     func destination(of field: WritingField) throws -> WritingField { try self.field(of: Self.head(field)) }
     func startOffset(of field: WritingField) throws -> Int { try offset(of: Self.head(field), affinity: .after) }
     func value(of key: WritingAtomKey) throws -> JSONValue {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.value(of: key)
+        }
         guard key.element.index >= 0, let value = nodes[key] else { throw WritingProjectionError.missingAtom }
         return value
     }
     func offset(of key: WritingAtomKey, affinity: TextAffinity) throws -> Int {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.offset(of: key, affinity: affinity)
+        }
         let field = try field(of: key)
         var offset = 0
-        for member in order where fields[member] == field {
+        for member in retainedByField[field] ?? [] {
             if member == key, affinity == .before { return offset }
             if member.element.index >= 0, !hidden.contains(member) {
                 offset += plainText([try value(of: member)]).utf16.count
@@ -246,9 +296,13 @@ struct WritingProjection {
     /// Split ordering uses retained ancestry, so deleting text between two cuts
     /// cannot collapse their ranks and retarget a surviving remote suffix.
     func retainedOffset(of key: WritingAtomKey, affinity: TextAffinity) throws -> Int {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.retainedOffset(of: key, affinity: affinity)
+        }
         let field = try field(of: key)
         var offset = 0
-        for member in order where fields[member] == field {
+        for member in retainedByField[field] ?? [] {
             if member == key, affinity == .before { return offset }
             if member.element.index >= 0 { offset += plainText([try value(of: member)]).utf16.count }
             if member == key { return offset }
@@ -323,7 +377,7 @@ struct WritingProjection {
 
 /// String equality normalizes Unicode; canonical wire ordering compares bytes.
 /// Use raw components for memoization so equivalent spellings retain their order.
-private struct RawWritingField: Hashable {
+struct RawWritingField: Hashable {
     let components: [Data]
     init(_ field: WritingField) {
         var values: [String]
@@ -337,20 +391,26 @@ private struct RawWritingField: Hashable {
     }
 }
 
-/// Encode each exact origin once per sort pass; retain the existing public
-/// Comparable contract, including canonically equivalent Unicode spellings.
+/// Rank each exact encoded origin once per pass. Baseline atoms in different
+/// fields share element indices; walking their common JSON/UTF-8 prefix in every
+/// atom comparison makes a mixed document expensive even for one local edit.
+/// Keep byte ordering and stable equal-key ordering from public Comparable.
 func writingAtomsSorted(_ keys: [WritingAtomKey]) -> [WritingAtomKey] {
     guard keys.count > 1 else { return keys }
-    var encoded: [RawWritingField: String] = [:]
-    let decorated = keys.map { key -> (key: WritingAtomKey, origin: String) in
+    var encoded: [RawWritingField: Data] = [:]
+    let origins = keys.map { key -> RawWritingField in
         let raw = RawWritingField(key.origin)
-        let value: String
-        if let existing = encoded[raw] { value = existing }
-        else { value = key.origin.key; encoded[raw] = value }
-        return (key, value)
+        if encoded[raw] == nil { encoded[raw] = Data(key.origin.key.utf8) }
+        return raw
     }
+    var ranks: [RawWritingField: Int] = [:], rank = -1, previous: Data?
+    for (raw, bytes) in encoded.sorted(by: { $0.value.lexicographicallyPrecedes($1.value) }) {
+        if previous != bytes { rank += 1; previous = bytes }
+        ranks[raw] = rank
+    }
+    let decorated = zip(keys, origins).map { (key: $0.0, rank: ranks[$0.1]!) }
     return decorated.sorted { lhs, rhs in
         if lhs.key.element != rhs.key.element { return lhs.key.element < rhs.key.element }
-        return lhs.origin.utf8.lexicographicallyPrecedes(rhs.origin.utf8)
+        return lhs.rank < rhs.rank
     }.map(\.key)
 }

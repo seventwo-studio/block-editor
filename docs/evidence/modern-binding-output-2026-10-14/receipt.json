@@ -1,0 +1,124 @@
+{
+  "bindingCommit": "0a273acabfceb8141e1a7855832ee5f8f6c8e296",
+  "callbackCommit": "f1ede8ccc5ff6f53557ad76263e2478881928bf8",
+  "focusedNative": {
+    "cases": 10,
+    "normalExit": true
+  },
+  "ABI": {
+    "responses": 968,
+    "fixtures": 30,
+    "normalExit": true
+  },
+  "typedNative": {
+    "requests": 512,
+    "fixtures": 55,
+    "commands": 26,
+    "requirementGroups": 12,
+    "normalExit": true
+  },
+  "browser": {
+    "focusedCallbackCases": 3,
+    "integratedCases": 63,
+    "normalExit": true
+  },
+  "JNI": {
+    "completeConsumerCases": 1,
+    "normalInstrumentation": true
+  },
+  "bindingDiagnostic": {
+    "before": {
+      "diagnostic": true,
+      "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+      "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+      "nodeCount": 5242,
+      "ms": 469.41504199999963,
+      "encodedBytes": 2077866
+    },
+    "after": {
+      "diagnostic": true,
+      "sourceCommit": "f1ede8ccc5ff6f53557ad76263e2478881928bf8",
+      "sourceClean": true,
+      "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+      "wasmSHA256": "5c6375ca9fb1d978300c178a69a43639c5263e737d6af64c128b97cbc6222661",
+      "nodeCount": 5242,
+      "ms": 137.83920799999987,
+      "encodedBytes": 2077866
+    },
+    "qualification": "One instrumented read after one accepted append; not p95/resource/surface evidence. Initial report omitted commit/clean fields; its WASM hash matches the retained previous reviewed build. Current clean source and matching receipts are explicit."
+  },
+  "performance": {
+    "terminalExit": 1,
+    "completedAllThree": true,
+    "inputTargetsPassed": false,
+    "menuTargetsPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "f1ede8ccc5ff6f53557ad76263e2478881928bf8",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 556.1000001430511,
+          "menuP95MS": 42.60000014305115,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "5c6375ca9fb1d978300c178a69a43639c5263e737d6af64c128b97cbc6222661",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "f1ede8ccc5ff6f53557ad76263e2478881928bf8",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 678,
+          "menuP95MS": 67,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "5c6375ca9fb1d978300c178a69a43639c5263e737d6af64c128b97cbc6222661",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "f1ede8ccc5ff6f53557ad76263e2478881928bf8",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 628,
+          "menuP95MS": 56,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "5c6375ca9fb1d978300c178a69a43639c5263e737d6af64c128b97cbc6222661",
+        "complete": true,
+        "targetsPassed": false
+      }
+    ],
+    "productionAssets": {
+      ".build/modern-performance-web/assets/modern-performance-BXpaFoKd.js": "f4170d4288eba37b741470bb5602052c63a29d1dce71b981b216d9251f4dad88",
+      ".build/modern-performance-web/assets/modern-performance-CoD1n0CS.css": "575c004b0449eb809e17408369152229bae2b6cd3842c1ec99fd0b5ab0195035",
+      ".build/modern-performance-web/modern-performance.html": "175d0c0f326b294beab724d808575ca4f28bac7484be33809364c8eb125cb35c"
+    }
+  },
+  "qualifications": [
+    "Trusted output retains every node/origin/field and the complete public Codable wire shape. Exact encoded-byte checks include Unicode spellings, aliases, all identity variants, empty fields and exact integer bounds. Incompatible numeric identities fail rather than round. Incoming admission remains unchanged.",
+    "Retained inline DOM invokes current committed host callbacks through a ref; callback changes and cleanup do not replace a composing native buffer. Actual three-engine tests retain atomic reference and later committed text.",
+    "Prior full699 native and eighteen JNI/five-process checks belong to the earlier sort-key source; they are not claimed as a current full suite. Fresh required CI must run the complete current candidate.",
+    "Every final production engine pins clean f1ede8c, matching JS/WASM/JNI inputs, all samples and unchanged strict budgets. All input targets still fail.",
+    "No protected-main merge, registry update, physical/assistive/resource/full private-install or final acceptance occurred."
+  ]
+}

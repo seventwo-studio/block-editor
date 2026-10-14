@@ -1,0 +1,117 @@
+{
+  "runtimeCommit": "8d6e4e2a5bbaae45eaffae0df7a8495e73557d8e",
+  "native": {
+    "focusedCases": 13,
+    "fullCoreCases": 594,
+    "fullAppleCases": 99,
+    "fullOtherCases": 8,
+    "fullTotal": 701,
+    "normalExit": true
+  },
+  "ABI": {
+    "responses": 968,
+    "fixtures": 30,
+    "normalExit": true
+  },
+  "typedConsumer": {
+    "requests": 512,
+    "fixtures": 55,
+    "commands": 26,
+    "requirementGroups": 12,
+    "normalExit": true
+  },
+  "browser": {
+    "cases": 63,
+    "normalExit": true
+  },
+  "JNI": {
+    "cases": 18,
+    "normalInstrumentation": true,
+    "separateRecoveryProcesses": 5,
+    "receipt": "android-process/receipt.json"
+  },
+  "directProbe": {
+    "acceptedAppendMS": [
+      268.713125,
+      219.549292
+    ],
+    "noopMS": [
+      31.724625,
+      34.542958
+    ],
+    "qualification": "Two direct calls exclude browser input/rendering; memory observations are diagnostic, not a resource campaign."
+  },
+  "performance": {
+    "completedAllThree": true,
+    "terminalExit": 1,
+    "inputTargetsPassed": false,
+    "menuTargetsPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "8d6e4e2a5bbaae45eaffae0df7a8495e73557d8e",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 492,
+          "menuP95MS": 45.700000047683716,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "91c708d32d5a25c4ea1b388f7a29dfdb6bac3c0feee0bba7bd2b805f48486028",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "8d6e4e2a5bbaae45eaffae0df7a8495e73557d8e",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 619,
+          "menuP95MS": 67,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "91c708d32d5a25c4ea1b388f7a29dfdb6bac3c0feee0bba7bd2b805f48486028",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "8d6e4e2a5bbaae45eaffae0df7a8495e73557d8e",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 574,
+          "menuP95MS": 63,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "91c708d32d5a25c4ea1b388f7a29dfdb6bac3c0feee0bba7bd2b805f48486028",
+        "complete": true,
+        "targetsPassed": false
+      }
+    ],
+    "productionAssets": {
+      ".build/modern-performance-web/assets/modern-performance-BXpaFoKd.js": "f4170d4288eba37b741470bb5602052c63a29d1dce71b981b216d9251f4dad88",
+      ".build/modern-performance-web/assets/modern-performance-CoD1n0CS.css": "575c004b0449eb809e17408369152229bae2b6cd3842c1ec99fd0b5ab0195035",
+      ".build/modern-performance-web/modern-performance.html": "175d0c0f326b294beab724d808575ca4f28bac7484be33809364c8eb125cb35c"
+    }
+  },
+  "qualifications": [
+    "Writing activity still enters the touched set for future replay. Only active births preserve the structurally equivalent view; inactive births invalidate it and reveal peer-retained work. All other mutations retain original invalidation. Cache data is absent from history.",
+    "Current full native and matching browser/JNI/recovery checks pass, but current required hosted CI/review remains necessary.",
+    "All final production reports pin clean 8d6e4e2 and matching JS/WASM/JNI source receipts, the unchanged fixture and every sample. Input budgets still fail.",
+    "No protected-main landing, registry change, physical/assistive/resource/private-install or final acceptance occurred."
+  ]
+}

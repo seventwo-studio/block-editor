@@ -1,0 +1,63 @@
+Building for debugging...
+[Provisioning 1 / 22]
+[2 / 47] BlockEditorCore
+[4 / 49] BlockEditorCore
+[5 / 50] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:336:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+334 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+335 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+336 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+337 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+338 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:358:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+356 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+357 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+358 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+359 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+360 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[19 / 65] editor-bridge-product
+[35 / 72] BlockEditorApple
+[45 / 78] BlockEditorLocalDemo
+[53 / 80] BlockEditorLocalDemoTests-product
+[63 / 85] BlockEditorLocalDemoTests-product
+[64 / 86] BlockEditorLocalDemoTests-product
+[68 / 87] BlockEditorApple
+[74 / 91] modern-relay-client-product
+[81 / 92] modern-relay-client-product
+[89 / 104]
+[94 / 106] local-editor-app-product
+[94 / 106] BlockEditorAppleTests-product
+[98 / 103] BlockEditorCoreTests-product
+[103 / 107] BlockEditorCoreTests-product
+[107 / 107] local-editor-product
+[116 / 116] relay-client-product
+Build complete! (11.99 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite StructuralReadTests started.
+◇ Suite ModernNodeBindingTests started.
+◇ Suite ModernCapturedReadTests started.
+◇ Test collectionPlacementIndexRetainsInactiveAnchorsAndDetachesNestedMoves() started.
+◇ Test independentCopiesKeepOriginalOriginsAndOrderAfterNestedMutation() started.
+◇ Test untouchedBirthBecomesVisibleWithoutChangingTheEarlierCopy() started.
+◇ Test movedColumnDescendantsResolveTheirOriginalIdentitiesThroughUndoAndReopen() started.
+◇ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() started.
+◇ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() started.
+◇ Test bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() started.
+✔ Test collectionPlacementIndexRetainsInactiveAnchorsAndDetachesNestedMoves() passed after 0.001 seconds.
+✔ Test untouchedBirthBecomesVisibleWithoutChangingTheEarlierCopy() passed after 0.001 seconds.
+✔ Test independentCopiesKeepOriginalOriginsAndOrderAfterNestedMutation() passed after 0.001 seconds.
+✔ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() passed after 0.009 seconds.
+✔ Test bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() passed after 0.019 seconds.
+✔ Suite ModernNodeBindingTests passed after 0.020 seconds.
+✔ Test movedColumnDescendantsResolveTheirOriginalIdentitiesThroughUndoAndReopen() passed after 0.022 seconds.
+✔ Suite StructuralReadTests passed after 0.022 seconds.
+✔ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() passed after 0.033 seconds.
+✔ Suite ModernCapturedReadTests passed after 0.033 seconds.
+✔ Test run with 7 tests in 3 suites passed after 0.033 seconds.

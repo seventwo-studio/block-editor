@@ -19,7 +19,7 @@ public enum NodeID: Codable, Hashable, Sendable {
 }
 
 /// A live path is for lookup only. Store a NodeID when an operation must follow a move.
-public struct NodeAddress: Codable, Equatable, Sendable {
+public struct NodeAddress: Codable, Hashable, Sendable {
     public let blockID: String
     public let path: [String]
     public init(_ blockID: String, path: [String] = []) { self.blockID = blockID; self.path = path }
@@ -61,6 +61,62 @@ public enum NodePlacementID: Codable, Hashable, Comparable, Sendable {
 enum NodeKind: String { case document, block, column, item, row, cell }
 
 struct StructuralState {
+    /// Copies may share completed read results while their value state is equal.
+    /// Every nested collection/property mutation detaches the cache. The lock
+    /// also makes independent immutable readers safe when copies share it.
+    private final class ReadCache {
+        let lock = NSLock()
+        var selected: [NodeID: Placement]?
+        var visible: Set<NodeID>?
+        var addresses: [NodeID: NodeAddress]?
+        var identities: [NodeAddress: NodeID]?
+        var orders: [NodeCollection: [NodeID]] = [:]
+        var placementCollections: [NodeCollection: [NodePlacementID: Placement]]?
+        var modernDocumentBase: ModernDocumentProjectionBase?
+        var writingBirths: [WritingField: WritingFieldBirth]?
+        var writingFields: Set<WritingField>?
+        var writingValueBasis: (owner: WritingValueOrigins, value: WritingValueBasis)?
+    }
+    private var readCache = ReadCache()
+    // A strong lease, not an address/hash. Retaining it prevents allocator reuse
+    // from reviving a view after another structural value replaced this cache.
+    var renderingReadLease: AnyObject { readCache }
+    func retainedWritingBirths() -> [WritingField: WritingFieldBirth] {
+        readCache.lock.lock()
+        let prior = readCache.writingBirths
+        readCache.lock.unlock()
+        if let prior { return prior }
+        let value = uncachedRetainedWritingFields(self)
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        readCache.writingBirths = value
+        readCache.writingFields = Set(value.keys)
+        return value
+    }
+    func retainedWritingFieldSet() -> Set<WritingField> {
+        _ = retainedWritingBirths()
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        return readCache.writingFields!
+    }
+    /// The same read lease guarantees exact node properties and birth activity.
+    /// A different immutable origin owner rebuilds the complete proof.
+    func checkedWritingValueBasis(_ origins: WritingValueOrigins) -> WritingValueBasis {
+        readCache.lock.lock()
+        let prior = readCache.writingValueBasis
+        readCache.lock.unlock()
+        if let prior, prior.owner === origins { return prior.value }
+        let births = retainedWritingBirths(), fields = retainedWritingFieldSet()
+        var remaining = Set<WritingField>(), activeFields: [NodeID: Set<WritingField>] = [:]
+        for (field, birth) in births {
+            guard birth.active, birth.value == origins.births[field]?.value,
+                  let projection = origins.index.projections[field] else { remaining.insert(field); continue }
+            if !projection.visibleKeys(in: field).isEmpty { activeFields[field.node, default: []].insert(field) }
+        }
+        let value = WritingValueBasis(fields: fields, remaining: remaining,
+            activeNodes: Set(activeFields.keys), activeFields: activeFields)
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        readCache.writingValueBasis = (origins, value)
+        return value
+    }
     struct Node {
         let identity: NodeID
         var kind: NodeKind
@@ -86,11 +142,54 @@ struct StructuralState {
             self.rolePriority = rolePriority; self.roleOrigin = roleOrigin; self.columnBucket = columnBucket; self.columnRank = columnRank
         }
     }
-    var nodes: [NodeID: Node] = [:]
-    var placements: [NodePlacementID: Placement] = [:]
-    var deleted = Set<NodeID>()
-    var touched = Set<NodeID>()
-    private(set) var modern = false
+    var nodes: [NodeID: Node] = [:] { didSet { readCache = ReadCache() } }
+    var placements: [NodePlacementID: Placement] = [:] { didSet { readCache = ReadCache() } }
+    var deleted = Set<NodeID>() { didSet { readCache = ReadCache() } }
+    private var touchedStorage = Set<NodeID>()
+    var touched: Set<NodeID> {
+        get { touchedStorage }
+        set { touchedStorage = newValue; readCache = ReadCache() }
+    }
+    /// This single metadata property leaves labels, collections and writing
+    /// births unchanged. Detach presentation/document state, while retaining
+    /// completed structural reads only when the touch cannot activate a birth.
+    mutating func setModernColumnSplit(_ identity: NodeID, to split: Int) throws {
+        guard modern, (1000...9000).contains(split), var node = nodes[identity],
+              node.kind == .block, node.fields["type"] == .string("columns") else { throw EditorError.invalidChange }
+        let prior = readCache, preservesActivity = node.birthActive || touchedStorage.contains(identity)
+        node.fields["splitBasisPoints"] = .number(Double(split))
+        nodes[identity] = node
+        touchedStorage.insert(identity)
+        guard preservesActivity else { return }
+        prior.lock.lock(); defer { prior.lock.unlock() }
+        readCache.selected = prior.selected; readCache.visible = prior.visible
+        readCache.addresses = prior.addresses; readCache.identities = prior.identities
+        readCache.orders = prior.orders; readCache.placementCollections = prior.placementCollections
+        readCache.writingBirths = prior.writingBirths; readCache.writingFields = prior.writingFields
+        readCache.writingValueBasis = prior.writingValueBasis
+        // modernDocumentBase and its rendering lease deliberately remain fresh:
+        // the new split must appear in the accepted document and host controls.
+    }
+    private(set) var modern = false { didSet { readCache = ReadCache() } }
+
+    /// Scalar projection retains activity for future replay. A currently active
+    /// birth is already visible wherever it has a valid placement, so this touch
+    /// cannot change placement arbitration, visibility, order or addresses.
+    /// Inactive births still invalidate the view so peer retention becomes live.
+    mutating func retainWritingActivity(of identity: NodeID) {
+        retainWritingActivity(of: identity, activeBirth: nodes[identity]?.birthActive == true)
+    }
+    /// The field walk already read this node's immutable birth activity.
+    /// Retain the same touch semantics without another dictionary lookup.
+    mutating func retainWritingActivity(of identity: NodeID, activeBirth: Bool) {
+        guard !touchedStorage.contains(identity) else { return }
+        if activeBirth { touchedStorage.insert(identity) }
+        else { touched.insert(identity) }
+    }
+    /// All supplied nodes were proved active under this unchanged read lease.
+    mutating func retainActiveWritingActivity(of identities: Set<NodeID>) {
+        touchedStorage.formUnion(identities)
+    }
 
     static func seed(_ document: Document) -> Self {
         var result = Self(), after: NodePlacementID?
@@ -116,6 +215,7 @@ struct StructuralState {
             result.placements[id] = Placement(id: id, after: after, node: identity, collection: .root, active: true)
             after = id
         }
+        result.readCache.modernDocumentBase = ModernDocumentProjectionBase(document)
         return result
     }
 
@@ -173,6 +273,21 @@ struct StructuralState {
     /// Highest active placement wins. Cyclic or duplicate-label moves fall back to
     /// an earlier placement deterministically, without changing document IDs.
     func effectivePlacements() throws -> [NodeID: Placement] {
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        if let selected = readCache.selected { return selected }
+        let selected = try computeEffectivePlacements()
+        readCache.visible = visibleNodes(selected)
+        readCache.selected = selected
+        return selected
+    }
+
+    private func readView() throws -> (selected: [NodeID: Placement], visible: Set<NodeID>) {
+        let selected = try effectivePlacements()
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        return (selected, readCache.visible!)
+    }
+
+    private func computeEffectivePlacements() throws -> [NodeID: Placement] {
         // A known immediate anchor can itself depend on an absent earlier anchor.
         // Only complete ordering chains may replace a node's previous placement.
         // Inactive placements remain traversable anchors, just like tombstones.
@@ -217,7 +332,7 @@ struct StructuralState {
                 placement.collection.owner.map { !attached.contains($0) } ?? false
             }
         }
-        for key in candidates.keys { candidates[key]?.sort { $1.id < $0.id } }
+        for key in candidates.keys { candidates[key] = structuralPlacementsSorted(candidates[key]!, by: \.id, descending: true) }
         var indices: [NodeID: Int] = [:]
         func selected() -> [NodeID: Placement] {
             candidates.reduce(into: [:]) { result, entry in
@@ -235,7 +350,7 @@ struct StructuralState {
         while true {
             let current = selected()
             var cycle: [NodeID]?
-            for start in current.keys.sorted(by: { $0.key < $1.key }) {
+            for start in structuralNodesSorted(current.keys) {
                 var path: [NodeID] = [], seen: [NodeID: Int] = [:], cursor: NodeID? = start
                 while let id = cursor, let p = current[id] {
                     if let first = seen[id] { cycle = Array(path[first...]); break }
@@ -278,8 +393,18 @@ struct StructuralState {
         return visible
     }
 
+    private func placementsGroupedByCollection() -> [NodeCollection: [NodePlacementID: Placement]] {
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        if let groups = readCache.placementCollections { return groups }
+        var groups: [NodeCollection: [NodePlacementID: Placement]] = [:]
+        for (id, placement) in placements { groups[placement.collection, default: [:]][id] = placement }
+        readCache.placementCollections = groups
+        return groups
+    }
+
     func order(in collection: NodeCollection, selected: [NodeID: Placement]) -> [NodeID] {
-        let entries = placements.filter { $0.value.collection == collection }
+        let groups = placementsGroupedByCollection()
+        let entries = groups[collection] ?? [:]
         var children: [NodePlacementID: [NodePlacementID]] = [:], roots: [NodePlacementID] = []
         for (id, p) in entries {
             if let after = p.after { children[after, default: []].append(id) } else { roots.append(id) }
@@ -287,7 +412,7 @@ struct StructuralState {
         var itemRanks: [NodePlacementID: Int] = [:]
         let originCollections = Set(entries.values.compactMap { $0.roleOrigin.flatMap { placements[$0]?.collection } })
         for originCollection in originCollections {
-            let old = placements.filter { $0.value.collection == originCollection }
+            let old = groups[originCollection] ?? [:]
             var successors: [NodePlacementID: [NodePlacementID]] = [:], pending: [NodePlacementID] = []
             for (id, placement) in old {
                 if let after = placement.after { successors[after, default: []].append(id) } else { pending.append(id) }
@@ -341,39 +466,35 @@ struct StructuralState {
     }
 
     func visibleOrder(in collection: NodeCollection) throws -> [NodeID] {
-        let selected = try effectivePlacements(), visible = visibleNodes(selected)
-        return order(in: collection, selected: selected).filter { visible.contains($0) }
+        let (selected, visible) = try readView()
+        readCache.lock.lock()
+        let cached = readCache.orders[collection]
+        readCache.lock.unlock()
+        if let cached { return cached }
+        let result = order(in: collection, selected: selected).filter { visible.contains($0) }
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        readCache.orders[collection] = result
+        return result
     }
 
     func node(at address: NodeAddress) throws -> NodeID {
-        let selected = try effectivePlacements(), visible = visibleNodes(selected)
-        guard var id = order(in: .root, selected: selected).first(where: { visible.contains($0) && nodes[$0]?.label == address.blockID }) else { throw EditorError.invalidPath }
-        guard address.path.count % 2 == 0 else { throw EditorError.invalidPath }
-        for index in stride(from: 0, to: address.path.count, by: 2) {
-            let collection = NodeCollection(owner: id, field: address.path[index])
-            guard let child = order(in: collection, selected: selected).first(where: { visible.contains($0) && nodes[$0]?.label == address.path[index + 1] }) else { throw EditorError.invalidPath }
-            id = child
-        }
-        return id
+        _ = try cutoverAddresses()
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        guard let identity = readCache.identities?[address] else { throw EditorError.invalidPath }
+        return identity
     }
 
     func address(of identity: NodeID) throws -> NodeAddress {
-        let selected = try effectivePlacements()
-        guard visibleNodes(selected).contains(identity) else { throw EditorError.invalidPath }
-        var cursor = identity, path: [String] = [], visited = Set<NodeID>()
-        while let placement = selected[cursor], let node = nodes[cursor] {
-            guard visited.insert(cursor).inserted else { throw EditorError.invalidPath }
-            if let owner = placement.collection.owner {
-                path = [placement.collection.field, node.label] + path; cursor = owner
-            } else { return NodeAddress(node.label, path: path) }
-        }
-        throw EditorError.invalidPath
+        guard let address = try cutoverAddresses()[identity] else { throw EditorError.invalidPath }
+        return address
     }
 
     /// Resolve a whole snapshot with one placement calculation. Cutover needs
     /// every live origin; individual address lookups repeat the entire replay.
     func cutoverAddresses() throws -> [NodeID: NodeAddress] {
-        let selected = try effectivePlacements(), visible = visibleNodes(selected)
+        let (selected, visible) = try readView()
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        if let addresses = readCache.addresses { return addresses }
         var result: [NodeID: NodeAddress] = [:]
         for identity in visible where nodes[identity]?.kind != .document {
             var cursor = identity, pending: [NodeID] = [], visited = Set<NodeID>()
@@ -389,18 +510,24 @@ struct StructuralState {
                 result[child] = NodeAddress(parent.blockID, path: parent.path + [placement.collection.field, node.label])
             }
         }
+        var identities: [NodeAddress: NodeID] = [:]
+        for (identity, address) in result {
+            guard identities.updateValue(identity, forKey: address) == nil else { throw EditorError.structuralConflict }
+        }
+        readCache.identities = identities
+        readCache.addresses = result
         return result
     }
 
     func descendants(of identity: NodeID) throws -> [NodeID] {
-        let selected = try effectivePlacements(), visible = visibleNodes(selected)
+        let (selected, visible) = try readView()
         var result: [NodeID] = [], stack = [identity], seen = Set<NodeID>()
         while let id = stack.popLast() {
             guard seen.insert(id).inserted else { continue }
             result.append(id)
             stack.append(contentsOf: selected.filter { $0.value.collection.owner == id && visible.contains($0.key) }.map(\.key))
         }
-        return result.sorted { $0.key < $1.key }
+        return structuralNodesSorted(result)
     }
 
     func document(text: [NodeID: [String: JSONValue]]) throws -> Document {
@@ -408,22 +535,37 @@ struct StructuralState {
         return try Document(blocks: renderedBlocks(text: text))
     }
 
-    func document(documentID: String, text: [NodeID: [String: JSONValue]]) throws -> ModernDocument {
+    func document(documentID: String, text: [NodeID: [String: JSONValue]], appearance: [String: JSONValue]? = nil) throws -> ModernDocument {
         guard modern, let metadata = nodes[.document(documentID: documentID)], metadata.kind == .document,
               !deleted.contains(metadata.identity) else { throw EditorError.invalidPath }
+        readCache.lock.lock()
+        let base = readCache.modernDocumentBase
+        readCache.lock.unlock()
+        if let base, base.document.documentID == documentID {
+            let addresses = try cutoverAddresses()
+            var replacements: [NodeAddress: [String: JSONValue]] = [:]
+            for (node, values) in text where node != metadata.identity {
+                // Hidden origins remain in author history but cannot change the
+                // admitted visible baseline. A structural mutation detaches it.
+                if let address = addresses[node] { replacements[address] = values }
+            }
+            return try base.document.projecting(text: replacements, title: text[metadata.identity]?["title"],
+                                               appearance: appearance, baselineBytes: base.byteCount(), rootIndices: base.rootIndices)
+        }
         var fields = metadata.fields
         for (key, value) in text[metadata.identity] ?? [:] { fields[key] = value }
+        if let appearance { fields["appearance"] = .object(appearance) }
         fields["blocks"] = .array(try renderedBlocks(text: text).map { .object($0.fields) })
         return try ModernDocument(fields: fields)
     }
 
     private func renderedBlocks(text: [NodeID: [String: JSONValue]]) throws -> [Block] {
-        let selected = try effectivePlacements(), visible = visibleNodes(selected)
+        let (selected, visible) = try readView()
         var childCollections: [NodeID: Set<String>] = [:]
         for p in selected.values where visible.contains(p.node) {
             if let owner = p.collection.owner { childCollections[owner, default: []].insert(p.collection.field) }
         }
-        let roots = order(in: .root, selected: selected).filter { visible.contains($0) }
+        let roots = try visibleOrder(in: .root)
         var rendered: [NodeID: JSONValue] = [:]
         var pending = roots.reversed().map { ($0, 0, false) }
         while let (identity, depth, ready) = pending.popLast() {
@@ -433,7 +575,7 @@ struct StructuralState {
             if !ready {
                 pending.append((identity, depth, true))
                 for field in collections.sorted().reversed() {
-                    let children = order(in: NodeCollection(owner: identity, field: field), selected: selected).filter { visible.contains($0) }
+                    let children = try visibleOrder(in: NodeCollection(owner: identity, field: field))
                     pending.append(contentsOf: children.reversed().map { ($0, depth + 2, false) })
                 }
                 continue
@@ -446,8 +588,7 @@ struct StructuralState {
             }
             for (key, value) in text[identity] ?? [:] { fields[key] = value }
             for field in collections {
-                fields[field] = .array(try order(in: NodeCollection(owner: identity, field: field), selected: selected)
-                    .filter { visible.contains($0) }.map {
+                fields[field] = .array(try visibleOrder(in: NodeCollection(owner: identity, field: field)).map {
                         guard let value = rendered[$0] else { throw EditorError.invalidPath }; return value
                     })
             }

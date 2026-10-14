@@ -1,0 +1,181 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 618]
+[Planning deferred tasks]
+[1 / 1]
+[9 / 67] BlockEditorCore
+[12 / 70] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:328:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+326 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+327 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+328 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+329 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+330 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:350:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+348 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+349 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+350 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+351 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+352 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[21 / 78] BlockEditorLocalDemo
+[25 / 88] collaborative-editor-product
+[27 / 90] editor-bridge-product
+[31 / 92] local-editor-product
+[39 / 111] BlockEditorApple
+[47 / 111] BlockEditorLocalDemo
+[49 / 112] relay-client-product
+[52 / 114] relay-client-product
+[54 / 114] BlockEditorApple
+[57 / 114] BlockEditorApple
+[60 / 114] BlockEditorApple
+[61 / 114] BlockEditorApple
+[62 / 114] BlockEditorApple
+[64 / 119] modern-relay-client-product
+[65 / 119] BlockEditorDemoApple
+[66 / 121] modern-relay-client-product
+[67 / 127] BlockEditorDemoApple
+[70 / 127] modern-relay-client-product
+[74 / 127] BlockEditorDemoApple
+[76 / 128] local-editor-app-product
+[77 / 128] BlockEditorDemoApple
+[77 / 130] BlockEditorDemoApple
+[80 / 130] BlockEditorDemoApple
+[83 / 130] BlockEditorApple
+[86 / 130] BlockEditorApple
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/WritingBlockEditorView.swift:142:111: warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+140 |                 HStack(alignment: .top) {
+141 |                     if style == "todo" {
+142 |                         Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: lease.checkedSetter())).labelsHidden()
+    |                                                                                                               `- warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+143 |                     } else { Text(style == "ordered" ? "\(index + 1)." : "•").accessibilityHidden(true) }
+144 |                     WritingInputField(model: model, address: TextAddress(rootID, path: path + [item.selfID, "content"]), label: "List item")
+[88 / 130] BlockEditorApple
+[89 / 130] BlockEditorABI
+[90 / 131] BlockEditorABI
+[92 / 133] BlockEditorApple
+[94 / 134] editor-bridge-product
+[104 / 135] collaborative-editor-product
+[109 / 135] BlockEditorLocalDemoTests-product
+[114 / 158] block-editor-wasm-product
+[117 / 159] BlockEditorBridge-product
+[119 / 159] BlockEditorCoreTests-product
+[120 / 159] BlockEditorAppleTests-product
+[122 / 177] BlockEditorLocalDemoTests-product
+[126 / 177] BlockEditorLocalDemoTests-product
+[128 / 177] BlockEditorLocalDemoTests-product
+[129 / 177] BlockEditorLocalDemoTests-product
+[129 / 177] BlockEditorDemoApple
+[130 / 177] BlockEditorCoreTests-product
+[132 / 179] BlockEditorCoreTests-product
+[134 / 179] BlockEditorLocalDemoTests-product
+[137 / 179] BlockEditorCoreTests-product
+[139 / 178] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:64:41: warning: '#require(_:_:)' is redundant because 'captured[name]' never equals 'nil' (from macro 'require')
+ 62 |         for (key, source) in step["bindings"]?.object ?? [:] {
+ 63 |             let name = try #require(source.string)
+ 64 |             request[key] = try #require(captured[name])
+    |                                         `- warning: '#require(_:_:)' is redundant because 'captured[name]' never equals 'nil' (from macro 'require')
+ 65 |         }
+ 66 |         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(JSONValue.object(request))))
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:96:41: warning: '#require(_:_:)' is redundant because 'root.value(at: Array(path.dropFirst()))' never equals 'nil' (from macro 'require')
+ 94 |             let name = try #require(path.first)
+ 95 |             let root = try #require(captured[name])
+ 96 |             request[key] = try #require(root.value(at: Array(path.dropFirst())))
+    |                                         `- warning: '#require(_:_:)' is redundant because 'root.value(at: Array(path.dropFirst()))' never equals 'nil' (from macro 'require')
+ 97 |         }
+ 98 |         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(JSONValue.object(request))))
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:101:83: warning: '#require(_:_:)' is redundant because 'response["recovery"]' never equals 'nil' (from macro 'require')
+ 99 |         if let error = step["error"] {
+100 |             #expect(response["ok"] == .bool(false)); #expect(response["error"] == error)
+101 |             if let name = step["capture"]?.string { captured[name] = try #require(response["recovery"]) }
+    |                                                                                   `- warning: '#require(_:_:)' is redundant because 'response["recovery"]' never equals 'nil' (from macro 'require')
+102 |         } else {
+103 |             #expect(response["ok"] == .bool(true), "\(response)")
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:104:83: warning: '#require(_:_:)' is redundant because 'response["value"]' never equals 'nil' (from macro 'require')
+102 |         } else {
+103 |             #expect(response["ok"] == .bool(true), "\(response)")
+104 |             if let name = step["capture"]?.string { captured[name] = try #require(response["value"]) }
+    |                                                                                   `- warning: '#require(_:_:)' is redundant because 'response["value"]' never equals 'nil' (from macro 'require')
+105 |         }
+106 |     }
+[143 / 178] BlockEditorCoreTests-product
+[144 / 178] BlockEditorCoreTests-product
+[145 / 180] BlockEditorCoreTests-product
+[150 / 180] BlockEditorCoreTests-product
+[151 / 180] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[153 / 180] BlockEditorCoreTests-product
+[155 / 180] BlockEditorAppleTests-product
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[156 / 180] BlockEditorAppleTests-product
+[156 / 180] BlockEditorCoreTests-product
+[158 / 180] BlockEditorAppleTests-product
+[160 / 180] BlockEditorAppleTests-product
+[162 / 180] BlockEditorAppleTests-product
+[164 / 180] BlockEditorAppleTests-product
+[165 / 180] BlockEditorAppleTests-product
+[166 / 180] BlockEditorAppleTests-product
+[167 / 180] BlockEditorAppleTests-product
+[169 / 180] BlockEditorAppleTests-product
+[170 / 180] BlockEditorAppleTests-product
+[175 / 184] BlockEditorAppleTests-product
+[179 / 184] BlockEditorCoreTests-product
+[181 / 182]
+[189 / 190] editor-bridge-product
+Build complete! (36.68 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernWireJSONTests started.
+◇ Test fullRawByteBudgetIsAvailableWithoutAnEncodedRequestEnvelope() started.
+◇ Test originalDuplicatesRoundingAndMalformedUnicodeCannotBeNormalizedIntoAdmission() started.
+✔ Test originalDuplicatesRoundingAndMalformedUnicodeCannotBeNormalizedIntoAdmission() passed after 0.004 seconds.
+✔ Test fullRawByteBudgetIsAvailableWithoutAnEncodedRequestEnvelope() passed after 0.860 seconds.
+✔ Suite ModernWireJSONTests passed after 0.860 seconds.
+✔ Test run with 2 tests in 1 suite passed after 0.860 seconds.

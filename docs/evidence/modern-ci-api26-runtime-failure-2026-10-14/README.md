@@ -1,0 +1,5 @@
+# API26 runtime failure — 14 October 2026
+
+CI run 38586408177, head bf6f21a2119aa634e84483572c99eeee38695fc8, job 115929465422. Toolchain installation and packaged JNI build succeeded. The legacy installed-LatinIME writing test started but its adb invocation exited 255 before a terminal test result. Subsequent settings collection explicitly reports device offline; final logcat shows a fresh boot sequence. This is a failed required job, not an editor test pass. The underlying restart/transport cause is unproven; the old final-only ring-buffer collection did not retain the preceding events.
+
+The earlier NDK download mismatch on run 38583783872 remains separate evidence. No assertion, timeout, performance budget or required job was waived. The diagnostic repair retains live logcat, process status before cleanup and nonzero instrumentation output on the job-owned emulator. It does not retry or reconnect a failed test. At this observation API35 x86 and general tests passed; Swift, WASM and ARM were still running, and parity had not started. Partial results are not current-head or complete seven-job success.

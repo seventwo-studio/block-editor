@@ -1,0 +1,8 @@
+{
+  "hardwareModel": "Mac16,9",
+  "logicalCores": 14,
+  "memoryBytes": 38654705664,
+  "os": "macOS 27.0.1",
+  "osBuild": "26A434",
+  "scope": "Available physical Mac host, headless automated browser, not a physical mobile or assistive run"
+}

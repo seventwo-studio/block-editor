@@ -1,0 +1,100 @@
+Building for debugging...
+[Planning deferred tasks]
+[2 / 4] BlockEditorApple
+[5 / 7] BlockEditorApple
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:139:163: warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+137 |             if let window = view.window {
+138 |                 coordinator.originalWindow = window
+139 |                 coordinator.permitted = { [weak view, weak window] in guard let window else { return false }; func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                                                                                                                   `- warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+140 |                     let current = responder(window); return current == nil || current === view }
+141 |             }
+
+/Applications/Xcode.app/Contents/Developer/Platforms/XRSimulator.platform/Developer/SDKs/XRSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIResponder.h:92:37: note: property declared here
+ 90 | - (BOOL)resignFirstResponder;
+ 91 | 
+ 92 | @property(nonatomic, readonly) BOOL isFirstResponder;
+    |                                     `- note: property declared here
+ 93 | 
+ 94 | // Generally, all responders which do custom touch handling should override all four of these methods.
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:139:215: warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+137 |             if let window = view.window {
+138 |                 coordinator.originalWindow = window
+139 |                 coordinator.permitted = { [weak view, weak window] in guard let window else { return false }; func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                                                                                                                                                                       `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+140 |                     let current = responder(window); return current == nil || current === view }
+141 |             }
+
+/Applications/Xcode.app/Contents/Developer/Platforms/XRSimulator.platform/Developer/SDKs/XRSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIView.h:230:64: note: property declared here
+228 | 
+229 | @property(nullable, nonatomic,readonly) UIView       *superview;
+230 | @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
+    |                                                                `- note: property declared here
+231 | @property(nullable, nonatomic,readonly) UIWindow     *window;
+232 | 
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:148:69: warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+146 |             coordinator.permitted = { [weak view, weak window] in
+147 |                 guard let window else { return false }
+148 |                 func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                     `- warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+149 |                 let current = responder(window); return current == nil || current === view
+150 |             }; coordinator.paste()
+
+/Applications/Xcode.app/Contents/Developer/Platforms/XRSimulator.platform/Developer/SDKs/XRSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIResponder.h:92:37: note: property declared here
+ 90 | - (BOOL)resignFirstResponder;
+ 91 | 
+ 92 | @property(nonatomic, readonly) BOOL isFirstResponder;
+    |                                     `- note: property declared here
+ 93 | 
+ 94 | // Generally, all responders which do custom touch handling should override all four of these methods.
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernEmptyTextInput.swift:148:121: warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+146 |             coordinator.permitted = { [weak view, weak window] in
+147 |                 guard let window else { return false }
+148 |                 func responder(_ root: UIView) -> UIView? { if root.isFirstResponder { return root }; for child in root.subviews { if let found = responder(child) { return found } }; return nil }
+    |                                                                                                                         `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+149 |                 let current = responder(window); return current == nil || current === view
+150 |             }; coordinator.paste()
+
+/Applications/Xcode.app/Contents/Developer/Platforms/XRSimulator.platform/Developer/SDKs/XRSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIView.h:230:64: note: property declared here
+228 | 
+229 | @property(nullable, nonatomic,readonly) UIView       *superview;
+230 | @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
+    |                                                                `- note: property declared here
+231 | @property(nullable, nonatomic,readonly) UIWindow     *window;
+232 | 
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernTextInput.swift:193:25: warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+191 |             #else
+192 |             func responder(_ root: UIView) -> UIView? {
+193 |                 if root.isFirstResponder { return root }
+    |                         `- warning: main actor-isolated property 'isFirstResponder' can not be referenced from a nonisolated context
+194 |                 for child in root.subviews { if let value = responder(child) { return value } }; return nil
+195 |             }
+
+/Applications/Xcode.app/Contents/Developer/Platforms/XRSimulator.platform/Developer/SDKs/XRSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIResponder.h:92:37: note: property declared here
+ 90 | - (BOOL)resignFirstResponder;
+ 91 | 
+ 92 | @property(nonatomic, readonly) BOOL isFirstResponder;
+    |                                     `- note: property declared here
+ 93 | 
+ 94 | // Generally, all responders which do custom touch handling should override all four of these methods.
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/ModernTextInput.swift:194:35: warning: main actor-isolated propert[6 / 8] BlockEditorApple
+y 'subviews' can not be referenced from a nonisolated context
+192 |             func responder(_ root: UIView) -> UIView? {
+193 |                 if root.isFirstResponder { return root }
+194 |                 for child in root.subviews { if let value = responder(child) { return value } }; return nil
+    |                                   `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated context
+195 |             }
+196 |             let current = responder(window); return current == nil || current === view
+
+/Applications/Xcode.app/Contents/Developer/Platforms/XRSimulator.platform/Developer/SDKs/XRSimulator27.0.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIView.h:230:64: note: property declared here
+228 | 
+229 | @property(nullable, nonatomic,readonly) UIView       *superview;
+230 | @property(nonatomic,readonly,copy) NSArray<__kindof UIView *> *subviews;
+    |                                                                `- note: property declared here
+231 | @property(nullable, nonatomic,readonly) UIWindow     *window;
+232 | 
+Build complete! (3.66 sec)

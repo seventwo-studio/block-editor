@@ -1,0 +1,12 @@
+bun test v1.4.2 (744846f84)
+
+tests/modern-relay.test.ts:
+(pass) modern relay preserves columns, concurrent title work and author Undo through real client/server process restart [978.95ms]
+(pass) modern identity conflict retains server bytes and the author's rejected proposal through restart and explicit repair [110.08ms]
+(pass) modern 8 MB boundary and oversized authored data retain pending history and receipts after process restart [968.37ms]
+(pass) modern relay persistence failure and incompatible saved rooms reject without replacing originals or acknowledging edits [128.29ms]
+
+ 4 pass
+ 0 fail
+ 56 expect() calls
+Ran 4 tests across 1 file. [2.27s]

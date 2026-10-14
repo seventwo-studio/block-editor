@@ -1,0 +1,14 @@
+{
+  "apkSHA256": "42751fd5731b5c41b51e66498c482f5ed04626d4e90b05a8de4799e1f8dd9c52",
+  "builderSource": "62c10d8b574b9d02b99a5fbd254f9ef16ce675fd",
+  "nativeArtifacts": {
+    "android/editor/src/main/jniLibs/arm64-v8a/libBlockEditorBridge.so": "30b06e3158090ea94e838ee69a3ee4c219b0324e557beac0adaa09b6fdfcd8f5",
+    "android/editor/src/main/jniLibs/arm64-v8a/libBlockEditorJNI.so": "89ebcd01390a38986b4d3d65c06d80809c095b259af66fdb3540d6aa47ab9f28",
+    "android/editor/src/main/jniLibs/arm64-v8a/libc++_shared.so": "7466ed097631a564ed6bff0b47768caa76bf03270d2047b5a65c03f497b824df",
+    "android/editor/src/main/jniLibs/x86_64/libBlockEditorBridge.so": "912e13e421e787d37118850d55bbb86841937f2bbd341d521039224bff449518",
+    "android/editor/src/main/jniLibs/x86_64/libBlockEditorJNI.so": "6c6d46803f8a5553a44e5aa6d28b31f73e239946e9e954a6df62a041a141d6cc",
+    "android/editor/src/main/jniLibs/x86_64/libc++_shared.so": "7918ebd0b8074c312d0c610205d49760b98c008026e6b817cd92103a3e12241b"
+  },
+  "packagedNativeHashesVerified": true,
+  "testSource": "38bda9c"
+}

@@ -90,7 +90,7 @@ public struct ModernEditorDemoView: View {
             let model: ModernEditorModel, revision: UUID?
             if let checkpoint = try await store.load() {
                 let restored = try checkpoint.restore()
-                model = ModernEditorModel(session: restored.session, pendingInputs: restored.pendingInputs, retainedClipboard: restored.retainedClipboard)
+                model = ModernEditorModel(session: restored.session, pendingInputs: restored.pendingInputs, retainedClipboard: restored.retainedClipboard, relayReceipt: checkpoint.relay)
                 release = { try restored.resumeDeferredChanges() }; revision = checkpoint.revision
                 // Failed native buffers stay available in the checkpoint. An
                 // application presents explicit recovery before forgetting them.

@@ -1,0 +1,10 @@
+bun test v1.4.2 (744846f84)
+
+tests/swift-modern-json.test.ts:
+(pass) modern encoding retains signed zero, Unicode, aliases and deep metadata [2.08ms]
+(pass) unsupported modern values and cycles reject without calling callbacks [1.02ms]
+
+ 2 pass
+ 0 fail
+ 15 expect() calls
+Ran 2 tests across 1 file. [59.00ms]

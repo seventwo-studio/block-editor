@@ -11,9 +11,15 @@ import UIKit
 /// placeholder is inserted until native marked text has committed.
 @MainActor public struct ModernEmptyTextInput: View {
     private let model: ModernEditorModel
-    @State private var hasText = false
     public init(model: ModernEditorModel) { self.model = model }
     public var body: some View {
+        ModernEmptyInputBody(model: model).id(ObjectIdentifier(model))
+    }
+}
+@MainActor private struct ModernEmptyInputBody: View {
+    let model: ModernEditorModel
+    @State private var hasText = false
+    var body: some View {
         ModernEmptyPlatformInput(model: model, hasText: $hasText, editable: model.isEditable && model.isActive)
             .frame(minHeight: 44).overlay(alignment: .topLeading) {
                 if !hasText { Text("Start writing…").foregroundStyle(.secondary).padding(4).allowsHitTesting(false) }

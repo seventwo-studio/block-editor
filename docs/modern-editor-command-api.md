@@ -4,6 +4,43 @@ ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Cr
 
 ## Cumulative candidate additions (ST-122–ST-138, ST-47)
 
+### Batched checked rendering reads
+
+`ModernSession.nodeBindings()` / `modernNodeBindings` returns logical live
+schema nodes with each opaque origin, checked address, kind and currently
+available field references. Swift owns every identity/reference; renderers do
+not infer them from labels. This read does not change the document or history,
+and consumer arrays named `rows` or `children` remain opaque. Swift, the C/WASM
+bridge, TypeScript and Kotlin expose the matching read.
+
+The TypeScript renderer keeps individual lookup as a fallback when an older
+protocol-7 engine rejects this new read as unsupported. Recovery and lifecycle
+errors still propagate. No author command, document format or saved protocol
+changes. Matching-source delivery and existing legacy entrypoints remain required.
+
+Typed snapshot publication may share exactly equal immutable JSON values,
+using strict string equality, `Object.is` numbers and unchanged key/array order.
+It still publishes notifications, history/recovery flags and changed receipts.
+Renderer bindings depend on both document and receipt: a same-value peer
+replacement has a new opaque identity even when document storage is reusable.
+
+Engines advertising `renderingBindingVersion: 1` also provide
+`renderingBindings(knownToken:)` / `modernRenderingBindings`. The first read
+returns `{ token, bindings }`; a subsequent read may return null bindings only
+when the shared engine confirms that this exact session-local token still
+represents its checked structural view. Tokens never authorize commands or enter
+saved history. Unknown tokens return full bindings. Alias-bearing projections
+always return full bindings with a fresh token. Structural changes, including a
+same-value peer replacement, invalidate the token. Scalar writing may preserve
+it only in the shared engine's eligible independent-field projection.
+
+TypeScript `nodeBindings()` negotiates this capability and retains its owned
+immutable array only after exact token confirmation. An omitted array for an
+unknown token and failures from an advertised read propagate. Older engines
+retain the existing complete/individual lookup fallback. Kotlin exposes the
+token read explicitly. Host snapshot notifications and receipt invalidation
+continue; consumers must not infer equivalent origins from document equality.
+
 The current candidate advertises 26 author commands. Historical receipts below
 retain their original 22-command source/runtime identities and qualifications.
 The four new commands are `typingShortcut`, `tableStructure`, `mediaProperties`
@@ -102,6 +139,15 @@ try restored?.resumeDeferredChanges()
 The separate storage actor keeps disk I/O off the UI actor. A POSIX lock and expected revision prevent cooperating stale writers from replacing another save. Publication writes a private same-directory temporary file, synchronizes it, renames it over the active file, synchronizes the directory and checks actual stored bytes. Failures before rename leave the prior active file intact. `durabilityUnconfirmed(revision:)` means rename occurred but durable confirmation/readback failed; read back the actual active revision before retrying. No rollback is inferred from that error.
 
 Reopen validates owner, format, size and every engine sidecar before returning a detached live session. Deferred packets remain held, provider records do not launch tasks, and native drafts remain bound to their captured atoms even when their target was deleted. Reopen does not author a draft, transfer focus, acknowledge cut publication or activate a migration pointer. The private checkpoint admits its exact canonical encoding, refusing ignored/duplicate outer fields. Serialized checkpoint and component budgets are bounds on encoded data, not total process memory.
+
+An empty restored packet queue releases its temporary hold, allowing future
+authorized peer work without an unrelated Resume action. An additive optional
+`relay` checkpoint record pairs a stable service/room key with its protocol-7
+receipt. Supply that record as `relayReceipt` when manually rebuilding the
+model. `ModernNativeRelayClient` uses the existing persistence queue to confirm
+receipts only after durable save; `open` restores locally before attempting any
+network request. See the [native relay contract](modern-relay-reference.md#native-swift-reference)
+for original-scope guards, actual HTTP verification and integration.
 
 Three [focused native disk scenarios](evidence/modern-native-storage-2026-10-05/receipt.json) pass: paired Unicode draft/history/provider/held-peer reopen with backward-selection Undo; retained conflicting recovery and explicit repair/save; stale-writer/invalid-draft/owner/outer-field rejection preserving the prior pair. Power-loss, every device/filesystem, UI integration and migration activation/rollback campaigns remain separately tracked finishing work.
 

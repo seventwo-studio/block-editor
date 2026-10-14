@@ -1,0 +1,845 @@
+{
+  "diagnostic": true,
+  "sourceCommit": "248a40ff139d723c6cddf2b107f39f58edb21ce9",
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "659db624731d48361bb3210d7439dc028ee7e37cfb3373a053d3d9476977bd7a",
+  "edits": [
+    {
+      "calls": [
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 13
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 1
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        }
+      ],
+      "elapsedMS": 48
+    },
+    {
+      "calls": [
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 11
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        }
+      ],
+      "elapsedMS": 47
+    },
+    {
+      "calls": [
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 11
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        }
+      ],
+      "elapsedMS": 48
+    },
+    {
+      "calls": [
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 11
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        }
+      ],
+      "elapsedMS": 48
+    },
+    {
+      "calls": [
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 11
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "markState",
+          "ms": 1
+        },
+        {
+          "name": "markState",
+          "ms": 0
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "semanticState",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        }
+      ],
+      "elapsedMS": 46
+    }
+  ],
+  "errors": [],
+  "complete": true
+}

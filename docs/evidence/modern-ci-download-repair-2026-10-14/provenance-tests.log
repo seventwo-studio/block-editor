@@ -1,0 +1,16 @@
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.304s
+
+OK
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+wasm: exact checkout/tree, locked inputs and binary hashes recorded
+android-api26-x86_64: exact checkout/tree, locked inputs and binary hashes recorded
+android-api35-x86_64: exact checkout/tree, locked inputs and binary hashes recorded
+android-api35-arm64-v8a: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded

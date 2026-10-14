@@ -1,0 +1,16 @@
+{
+  "complete": false,
+  "sourceCommit": "386d05435c12fd5b8da072def7e62e3b07144667",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "0210152d91cc95a754e11db4e0cd57f0dd71ba3773d703fa4767152c2d24ef3c",
+  "browser": "chromium",
+  "browserVersion": "153.0.8010.12",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [],
+  "menuMS": [],
+  "productionReact": true,
+  "method": "Trusted native beforeinput/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Document title', exact: true })\nExpected: visible\nReceived: undefined\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('textbox', { name: 'Document title', exact: true }) with timeout 120000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Document title', exact: true })\u001b[22m\n"
+}

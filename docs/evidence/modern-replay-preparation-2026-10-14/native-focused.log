@@ -1,0 +1,181 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 618]
+[Planning deferred tasks]
+[5 / 60]
+[6 / 61] BlockEditorCore
+[9 / 64] BlockEditorCore
+[22 / 78] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:343:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+341 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+342 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+343 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+344 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+345 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:365:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+363 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+364 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+365 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+366 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+367 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[28 / 87] collaborative-editor-product
+[31 / 91] collaborative-editor-product
+[34 / 91] BlockEditorCore
+[42 / 92] BlockEditorCore
+[43 / 92] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[56 / 103] BlockEditorCore
+[62 / 104] collaborative-editor-product
+[63 / 104] BlockEditorCore-product
+[75 / 105] BlockEditorLocalDemo-product
+[78 / 110] relay-client-product
+[81 / 113] BlockEditorCoreTests-product
+[82 / 127]
+[95 / 127] BlockEditorCoreTests-product
+[96 / 127] BlockEditorLocalDemoTests-product
+[101 / 127] BlockEditorCoreTests-product
+[102 / 127] BlockEditorApple
+[105 / 133] BlockEditorLocalDemoTests-product
+[108 / 138] BlockEditorLocalDemoTests-product
+[109 / 138] BlockEditorCoreTests-product
+[112 / 138] BlockEditorApple
+[117 / 139] BlockEditorDemoApple
+[119 / 139] BlockEditorDemoApple
+[122 / 142] BlockEditorAppleTests-product
+[126 / 150] BlockEditorDemoApple-product
+[136 / 150] BlockEditorCoreTests-product
+[137 / 150] modern-relay-client-product
+[139 / 153] BlockEditorCoreTests-product
+[139 / 153] BlockEditorAppleTests-product
+[139 / 153] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[139 / 153] BlockEditorAppleTests-product
+[141 / 153] BlockEditorAppleTests-product
+[145 / 156] BlockEditorCoreTests-product
+[151 / 155] BlockEditorCoreTests-product
+[154 / 154] local-editor-product
+[162 / 162] BlockEditorBridge-product
+Build complete! (17.71 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernListRoleTests started.
+◇ Test exitRolesWithRankedAndFallbackOriginsKeepOneStableOrder() started.
+◇ Suite ModernCapacitySizingTests started.
+◇ Suite ModernColumnTests started.
+◇ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() started.
+◇ Test placeholderSizingMatchesPublicWireForIndependentBaselinesAndAllChangeBodies() started.
+◇ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() started.
+◇ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() started.
+◇ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() started.
+◇ Test capacityReadDoesNotChangeSavedHistoryOrRetainOldSessionBaseline() started.
+◇ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() started.
+◇ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() started.
+◇ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() started.
+◇ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() started.
+◇ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() started.
+◇ Test forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() started.
+◇ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() started.
+◇ Test nestedEmptyOutdentRetainsMetadataDescendantsCapturedCaretAndUndo() started.
+◇ Test codeBornCaretCanSplitAfterParagraphConversion() started.
+◇ Test activeExitWhosePeerRestoresColumnsRetainsRecoveryAndAuthorCanRepair() started.
+◇ Test forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() started.
+◇ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() started.
+◇ Test retainedRoleSurvivesOriginalCreationRedoAndUndoAndKeepsFollowingAnchor() started.
+◇ Test exhaustedConcurrentPartitionsRemainRecoverableUntilAuthorRepair() started.
+◇ Test capturedEmptyItemWithObservedPeerTypingSplitsWithoutReinterpretingAsExit() started.
+◇ Test emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test emptyExitAfterColumnFlattenRetainsLogicalPlacementPeerTextAndUndo() started.
+◇ Test retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument fault → "extraDelete" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongTail" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongRange" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "nonempty" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongPlacement" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "wrongScope" to forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) started.
+◇ Test case passing 1 argument fault → "duplicate" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "late" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument actor → "a" to concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test case passing 1 argument fault → "wrongNode" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument actor → "z" to concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) started.
+◇ Test case passing 1 argument fault → "wrongOwner" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "wrongRetirement" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "emptyExposure" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "oldExposure" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "selfAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "futureRetirement" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "forgedAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument fault → "currentAnchor" to forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) started.
+◇ Test case passing 1 argument command → "heading" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 2 arguments index → 0, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 1 argument command → "code" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "list" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 2 arguments index → 0, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 1 argument command → "split" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "move" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 2 arguments index → 1, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 1 argument command → "delete" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 1 argument command → "insert" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 2 arguments index → 1, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 1 argument command → "columns" to retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) started.
+◇ Test case passing 2 arguments index → 2, actor → "a" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+◇ Test case passing 2 arguments index → 2, actor → "z" to emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) started.
+✔ Test exitRolesWithRankedAndFallbackOriginsKeepOneStableOrder() passed after 0.265 seconds.
+✔ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() passed after 0.265 seconds.
+✔ Test forgedEmptyEnterPlansRejectWithoutAcknowledgment(fault:) with 6 test cases passed after 0.265 seconds.
+✔ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() passed after 0.265 seconds.
+✔ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() passed after 0.265 seconds.
+✔ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() passed after 0.265 seconds.
+✔ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() passed after 0.265 seconds.
+✔ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() passed after 0.265 seconds.
+✔ Test capacityReadDoesNotChangeSavedHistoryOrRetainOldSessionBaseline() passed after 0.265 seconds.
+✔ Test codeBornCaretCanSplitAfterParagraphConversion() passed after 0.265 seconds.
+✔ Test nestedEmptyOutdentRetainsMetadataDescendantsCapturedCaretAndUndo() passed after 0.265 seconds.
+✔ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() passed after 0.265 seconds.
+✔ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() passed after 0.266 seconds.
+✔ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() passed after 0.265 seconds.
+✔ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() passed after 0.265 seconds.
+✔ Test concurrentFirstAndLastExitsConvergeWithRetainedOrdinals(actor:) with 2 test cases passed after 0.265 seconds.
+✔ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() passed after 0.266 seconds.
+✔ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() passed after 0.266 seconds.
+✔ Test activeExitWhosePeerRestoresColumnsRetainsRecoveryAndAuthorCanRepair() passed after 0.265 seconds.
+✔ Test forgedParagraphRolesRejectAtomicallyIncludingDisabledEdits(fault:) with 11 test cases passed after 0.266 seconds.
+✔ Test capturedEmptyItemWithObservedPeerTypingSplitsWithoutReinterpretingAsExit() passed after 0.266 seconds.
+✔ Test retainedRoleSurvivesOriginalCreationRedoAndUndoAndKeepsFollowingAnchor() passed after 0.265 seconds.
+✔ Test exhaustedConcurrentPartitionsRemainRecoverableUntilAuthorRepair() passed after 0.265 seconds.
+✔ Test emptyExitAfterColumnFlattenRetainsLogicalPlacementPeerTextAndUndo() passed after 0.265 seconds.
+✔ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() passed after 0.307 seconds.
+✔ Suite ModernColumnTests passed after 0.307 seconds.
+✔ Test retainedPeerParagraphSupportsModernCommandsAndReopenedHistory(command:) with 8 test cases passed after 0.323 seconds.
+✔ Test emptyRootExitKeepsOwnerItemChildrenPeerTextAndReopenedUndo(index:actor:) with 6 test cases passed after 0.337 seconds.
+✔ Suite ModernListRoleTests passed after 0.338 seconds.
+✘ Test placeholderSizingMatchesPublicWireForIndependentBaselinesAndAllChangeBodies() recorded an issue at ModernCapacitySizingTests.swift:6:6: Caught error: .invalidDocument("Unsupported modern document format")
+✘ Test placeholderSizingMatchesPublicWireForIndependentBaselinesAndAllChangeBodies() failed after 0.481 seconds with 1 issue.
+✘ Suite ModernCapacitySizingTests failed after 0.481 seconds with 1 issue.
+✘ Test run with 28 tests in 3 suites failed after 0.481 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorCoreTests (Swift Testing)

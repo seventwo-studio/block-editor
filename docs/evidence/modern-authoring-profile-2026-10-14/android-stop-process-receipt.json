@@ -1,0 +1,11 @@
+{
+  "runID": "820f1287-97f1-4216-9b64-72fa6c5722fc",
+  "passed": false,
+  "serial": "emulator-5568",
+  "adbPort": "5044",
+  "epoch": "modern-android-process-epoch",
+  "fixtureSHA256": "aeef0022543c093e27eba7f94db19974e311df0b011744a9328a3e760e0fa643",
+  "source": "b87662b",
+  "phases": [],
+  "failure": "Error: Failed native relay phase seed"
+}

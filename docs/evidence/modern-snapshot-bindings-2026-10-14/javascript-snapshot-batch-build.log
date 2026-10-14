@@ -1,0 +1,1 @@
+$ tsc -p tsconfig.build.json && bun scripts/record-modern-build.mjs javascript

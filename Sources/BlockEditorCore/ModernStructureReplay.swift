@@ -2,8 +2,8 @@ import Foundation
 
 /// Retained births are independent of current placement and author Undo. This
 /// registry is for admission only; visible state still comes from shared replay.
-func modernBirthRegistry(_ changes: [ModernChange], baseline: StructuralState) throws -> (structure: StructuralState, births: [WritingField: WritingFieldBirth]) {
-    var registry = baseline, births = retainedWritingFields(baseline)
+func modernBirthRegistry(_ changes: [ModernChange], seed: ModernProjectionSeed) throws -> (structure: StructuralState, births: [WritingField: WritingFieldBirth]) {
+    var registry = seed.structure, births = seed.births
     for change in changes {
         guard case .edit(let operations) = change.body else { continue }
         var introduced = Set<ElementID>()

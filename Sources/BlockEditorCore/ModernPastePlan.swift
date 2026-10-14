@@ -64,7 +64,7 @@ private func modernPasteSelected(_ range: ModernTextRange, captured: (WritingPro
         guard first.field == last.field, first.field.name == "title" else { throw EditorError.invalidPath }; ordered = [first.field]
     } else if case .document = last.field.node { throw EditorError.invalidPath }
     func resolved(_ position: WritingPosition, in replay: (WritingProjection, StructuralState)) throws -> (WritingField, Int) {
-        guard replay.0.hasField(position.field), position.anchor.map({ replay.0.retainedKeys.contains($0) }) ?? true else { throw EditorError.invalidChange }
+        guard replay.0.hasField(position.field), position.anchor.map({ replay.0.containsRetainedKey($0) }) ?? true else { throw EditorError.invalidChange }
         let value = try resolveWritingPosition(position, projection: replay.0, structure: replay.1) { _ in nil }
         let field = try position.anchor.map { try replay.0.field(of: $0) } ?? replay.0.destination(of: position.field)
         return (field, value.offset)

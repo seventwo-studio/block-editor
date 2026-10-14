@@ -20,6 +20,31 @@ import Testing
     }
     private func wire(_ value: JSONValue) throws -> Data { try JSONEncoder().encode(value) }
 
+    @Test(arguments: ["title", "baseline", "birth"], [false, true])
+    func unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind: String, inactive: Bool) throws {
+        let a = try session("a"), born = try a.insertBlock(Block.paragraph(id: "born", text: "seed"))
+        let field = kind == "title" ? a.titleField : try a.field(node: kind == "birth" ? born : a.node(at: NodeAddress("p")))
+        let saved = try a.save(), receipt = a.syncState, document = a.document
+        let id = ChangeID(counter: (a.modernObserved.map(\.counter).max() ?? 0) + 1, actor: "remote")
+        let missing = WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: 999))
+        var changes = [ModernChange(id: id, observed: a.modernObserved, body: .edit([.text(.delete(keys: [missing]))]))]
+        if inactive {
+            changes.append(ModernChange(id: ChangeID(counter: id.counter + 1, actor: id.actor), observed: [id], body: .setActive(targets: [id], active: false)))
+        }
+        #expect(throws: EditorError.invalidChange) {
+            try a.receive(ModernBatch(documentID: a.documentID, epoch: a.epoch, baseline: a.baseline, changes: changes))
+        }
+        #expect(try a.save() == saved && a.syncState == receipt && a.document == document && a.mergeRecovery == nil)
+        try a.replaceText(in: field, range: 0..<0, with: "😀")
+        let expected = try ModernDocument(documentID: "modern", title: kind == "title" ? "😀A" : "A", blocks: [
+            Block.paragraph(id: "born", text: kind == "birth" ? "😀seed" : "seed"),
+            Block.paragraph(id: "p", text: kind == "baseline" ? "😀ab" : "ab")])
+        #expect(a.document == expected)
+        let reopened = try ModernSession.restore(a.save(), actorID: "a")
+        try reopened.undo(); #expect(reopened.document == document)
+        try reopened.redo(); #expect(reopened.document == expected)
+    }
+
     @Test func independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() throws {
         let baseline = try fixture("unicode"), a = try session("a", document: baseline), b = try session("b", document: baseline)
         let both = try fixture("unicode-title-both"), sizeBoth = try fixture("unicode-title-size-both"), peer = try fixture("unicode-title-peer")

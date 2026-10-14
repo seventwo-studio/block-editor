@@ -35,6 +35,18 @@ export function runModernAdapterContract(sourceTransport: ModernTransport, fixtu
   const restore = (s: SwiftModernSession, actorID = "a") => { const r = SwiftModernSession.restore(transport, s.save(), actorID); sessions.push(r); return r; };
   const applied = (r: ModernResult) => { check(r.status === "applied" && r.transaction !== null, `Expected applied, got ${r.status}/${r.reason}`); return r; };
   try {
+    {
+      const a = create("binding-reader"), saved = a.save(), snapshot = a.getSnapshot();
+      const bindings = a.nodeBindings(); check(bindings?.length === 1, "Shared binding read covers current schema only");
+      same(bindings[0].address, { blockID: "p", path: [] }, "Checked binding address");
+      same(bindings[0].node, a.node(bindings[0].address), "Binding identity comes from shared Swift");
+      same(bindings[0].fields.content, a.field(bindings[0].node), "Binding field comes from shared Swift");
+      same(a.save(), saved, "Binding read cannot author or alter history");
+      const view = a.renderingBindings(); check(view.bindings?.length === 1, "Shared rendering view contains complete origins");
+      check(a.renderingBindings(view.token).bindings === null, "Same shared token confirms omitted unchanged bindings");
+      a.endTypingGroup(); check(a.getSnapshot().document === snapshot.document && a.getSnapshot().syncState === snapshot.syncState, "No-op publication shares exact immutable document/receipt");
+      checks.push("shared node/field binding read and exact no-op storage reuse");
+    }
     const shared = document("adapter-shared"), a = create("a", shared), b = create("b", shared);
     check(a.capabilities().commands.length === 26, "All core commands available");
     const initial = a.getSnapshot(); check(Object.isFrozen(initial) && Object.isFrozen(initial.document.blocks) && Object.isFrozen(initial.document.consumer), "Published state is deeply immutable");

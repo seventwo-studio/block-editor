@@ -1,0 +1,134 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "studio.seventwo",
+    "module": "block-editor",
+    "version": "0.2.1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.11.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose",
+          "module": "compose-bom",
+          "version": {
+            "requires": "2025.05.01"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          },
+          "endorseStrictVersions": true
+        },
+        {
+          "group": "androidx.compose.foundation",
+          "module": "foundation"
+        },
+        {
+          "group": "androidx.compose.material3",
+          "module": "material3"
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "block-editor-0.2.1.aar",
+          "url": "block-editor-0.2.1.aar",
+          "size": 63195913,
+          "sha512": "19b7849795f8cfe174a1b77501e1865fb758029388e60e1747aa5207a0afb5fa41cd079e42b64332c45541540a5ee06dea8e9dd3f70b3bd0c85b02a7765b44e7",
+          "sha256": "a91ebd297ba196658395e52d8b8db398a75b7f974e0f6e73ef56c0fea8446ec8",
+          "sha1": "fe5abef2032ab555f122cbab4ea6cc58c0ac0e8c",
+          "md5": "74f41201a0b982ec1146e1b7594281fe"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose",
+          "module": "compose-bom",
+          "version": {
+            "requires": "2025.05.01"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          },
+          "endorseStrictVersions": true
+        },
+        {
+          "group": "androidx.compose.foundation",
+          "module": "foundation"
+        },
+        {
+          "group": "androidx.compose.material3",
+          "module": "material3"
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "block-editor-0.2.1.aar",
+          "url": "block-editor-0.2.1.aar",
+          "size": 63195913,
+          "sha512": "19b7849795f8cfe174a1b77501e1865fb758029388e60e1747aa5207a0afb5fa41cd079e42b64332c45541540a5ee06dea8e9dd3f70b3bd0c85b02a7765b44e7",
+          "sha256": "a91ebd297ba196658395e52d8b8db398a75b7f974e0f6e73ef56c0fea8446ec8",
+          "sha1": "fe5abef2032ab555f122cbab4ea6cc58c0ac0e8c",
+          "md5": "74f41201a0b982ec1146e1b7594281fe"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseSourcePublication",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "block-editor-0.2.1-sources.jar",
+          "url": "block-editor-0.2.1-sources.jar",
+          "size": 89754,
+          "sha512": "7ca227c6cb6f22489294ebb3f459f884ea3ed3313016c23ce507716621091d7186960abd21d5a7a194d71627ed578cb99d23e1a5a58844386d8b4a158bc1a190",
+          "sha256": "c0f310ee913d991903cbdd05f2a0777cf0e26c0ce23f4a4811ef0f9f8faa0112",
+          "sha1": "887bbd9f2a12a80b2e8c78af9c60540ebc5ffc26",
+          "md5": "77b2b177b74aac50c43490da474c5dd8"
+        }
+      ]
+    }
+  ]
+}

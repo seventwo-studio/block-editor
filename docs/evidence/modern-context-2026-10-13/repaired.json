@@ -1,0 +1,757 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.swift.config.ts",
+      "tests/modern-context.swift.ts",
+      "--reporter=line,json",
+      "--global-timeout=120000",
+      "--workers=1",
+      "--trace=retain-on-failure",
+      "--output=.build/finishing/20261013/context/repaired-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.swift.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 120000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts",
+          "**/modern-context.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts",
+          "**/modern-context.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts",
+          "**/modern-context.swift.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4287 --strictPort",
+      "url": "http://127.0.0.1:4287/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-context.swift.ts",
+      "file": "modern-context.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "keyboard column resize releases its preview before a peer resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1247,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:41:53.336Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-810f7ef8b667d96147ce",
+          "file": "modern-context.swift.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "Escape cancels a column drag without authoring or changing history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 951,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:41:54.765Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-bc286d6f1d925eed8e16",
+          "file": "modern-context.swift.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "accessible insertion cancellation returns to the original text caret",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7872,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:68:79",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                      "column": 79,
+                      "line": 68
+                    },
+                    "snippet": "  66 |   await expect(search).toBeFocused(); await search.press(\"Escape\");\n  67 |   await expect(page.getByRole(\"dialog\", { name: \"Insert block\" })).toHaveCount(0);\n> 68 |   await expect(body).toBeFocused(); await body.press(\"!\"); await expect(body).toHaveText(\"ABC!\");\n     |                                                                               ^\n  69 | });\n  70 |\n  71 | test(\"Escape dismisses the Link action and retains its captured input\", async ({ page }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                        "column": 79,
+                        "line": 68
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n\n\n  66 |   await expect(search).toBeFocused(); await search.press(\"Escape\");\n  67 |   await expect(page.getByRole(\"dialog\", { name: \"Insert block\" })).toHaveCount(0);\n> 68 |   await expect(body).toBeFocused(); await body.press(\"!\"); await expect(body).toHaveText(\"ABC!\");\n     |                                                                               ^\n  69 | });\n  70 |\n  71 | test(\"Escape dismisses the Link action and retains its captured input\", async ({ page }) => {\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:68:79"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:41:55.720Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgICA8IS0tIC9AZnMgSFRNTCBpcyBzZXJ2ZWQgd2l0aG91dCBWaXRlJ3MgaW5kZXggdHJhbnNmb3JtLiBVc2UgdGhlIHBpbm5lZAogICAgICAgICBSZWFjdCBwbHVnaW4ncyBvcmRpbmFyeSBkZXZlbG9wbWVudCBwcmVhbWJsZSBiZWZvcmUgaW1wb3J0aW5nIHRoZSBob3N0LiAtLT4KICAgIDxzY3JpcHQgdHlwZT0ibW9kdWxlIj4KICAgICAgaW1wb3J0IHsgaW5qZWN0SW50b0dsb2JhbEhvb2sgfSBmcm9tICIvYmxvY2stZWRpdG9yL0ByZWFjdC1yZWZyZXNoIjsKICAgICAgaW5qZWN0SW50b0dsb2JhbEhvb2sod2luZG93KTsKICAgICAgd2luZG93LiRSZWZyZXNoUmVnJCA9ICgpID0+IHt9OwogICAgICB3aW5kb3cuJFJlZnJlc2hTaWckID0gKCkgPT4gKHR5cGUpID0+IHR5cGU7CiAgICA8L3NjcmlwdD4KICA8L2hlYWQ+CiAgPGJvZHkgc3R5bGU9Im1hcmdpbjogMCI+PGRpdiBpZD0icm9vdCIgc3R5bGU9ImhlaWdodDogMTAwdmgiPjxzZWN0aW9uIGNsYXNzPSJtb2Rlcm4tZWRpdG9yIiBkYXRhLWZvbnQ9InNhbnMiIHN0eWxlPSItLW1vZGVybi1ib2R5LXNpemU6IDE3cHg7IC0tbW9kZXJuLXBhZ2Utd2lkdGg6IDY4MHB4OyI+PGRpdiBjbGFzcz0ibW9kZXJuLXRvcGJhciI+PGJ1dHRvbiBhcmlhLWV4cGFuZGVkPSJmYWxzZSI+T3V0bGluZTwvYnV0dG9uPjxidXR0b24+Rm9jdXM8L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5BcHBlYXJhbmNlPC9zdW1tYXJ5PjxsYWJlbD5mb250RmFtaWx5PHNlbGVjdD48b3B0aW9uPnNhbnM8L29wdGlvbj48b3B0aW9uPnNlcmlmPC9vcHRpb24+PG9wdGlvbj5tb25vc3BhY2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5mb250U2l6ZTxzZWxlY3Q+PG9wdGlvbj5zbWFsbDwvb3B0aW9uPjxvcHRpb24+ZGVmYXVsdDwvb3B0aW9uPjxvcHRpb24+bGFyZ2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5wYWdlV2lkdGg8c2VsZWN0PjxvcHRpb24+cmVhZGFibGU8L29wdGlvbj48b3B0aW9uPndpZGU8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjwvZGV0YWlscz48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tdmlld3BvcnQiPjxkaXYgY2xhc3M9Im1vZGVybi1wYWdlIj48ZGl2IGNsYXNzPSJtb2Rlcm4tdGl0bGUiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkRvY3VtZW50IHRpdGxlIiBhcmlhLW11bHRpbGluZT0iZmFsc2UiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RmllbGQgbm90ZXM8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2x1bW5zIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2x1bW5zIiBzdHlsZT0iZGlzcGxheTogZ3JpZDsgZ2FwOiAyNHB4OyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDAuN2ZyIDAuM2ZyOyI+PGRpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkElMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPjxzdHJvbmc+IUFCQzwvc3Ryb25nPjwvZGl2PjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJ0b2dnbGUiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdj48YnV0dG9uIGFyaWEtZXhwYW5kZWQ9InRydWUiPuKWvjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IlRvZ2dsZSB0aXRsZSIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RGV0YWlsczwvZGl2PjxkaXYgY2xhc3M9Im1vZGVybi1uZXN0ZWQiPjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyY2hpbGQlMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPk5lc3RlZCBwYXJhZ3JhcGg8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkIlMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMnRvZG8lMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0ibGlzdCIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48dWwgY2xhc3M9Im1vZGVybi1jaGVja2xpc3QiPjxsaT48aW5wdXQgYXJpYS1sYWJlbD0iQ29tcGxldGVkIiB0eXBlPSJjaGVja2JveCI+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iTGlzdCBpdGVtIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5DaGVjayB0aGlzPC9kaXY+PHVsPjxsaT48aW5wdXQgYXJpYS1sYWJlbD0iQ29tcGxldGVkIiB0eXBlPSJjaGVja2JveCIgY2hlY2tlZD0iIj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJMaXN0IGl0ZW0iIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPk5lc3RlZCB0YXNrPC9kaXY+PC9saT48L3VsPjwvbGk+PC91bD48L2Rpdj48YnV0dG9uPkFkZCBpbnNpZGUgdG9nZ2xlPC9idXR0b24+PC9kaXY+PC9kaXY+PC9kaXY+PGJ1dHRvbj5BZGQgdG8gY29sdW1uIDE8L2J1dHRvbj48L2Rpdj48ZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMnNlY29uZC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkMlMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0iY29kZSIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2IGNsYXNzPSJtb2Rlcm4tY29kZSI+PGRpdj48bGFiZWw+TGFuZ3VhZ2U8c2VsZWN0IGFyaWEtbGFiZWw9IkNvZGUgbGFuZ3VhZ2UiPjxvcHRpb24gdmFsdWU9IiI+UGxhaW4gdGV4dDwvb3B0aW9uPjxvcHRpb24+c3dpZnQ8L29wdGlvbj48b3B0aW9uPmtvdGxpbjwvb3B0aW9uPjxvcHRpb24+amF2YXNjcmlwdDwvb3B0aW9uPjxvcHRpb24+dHlwZXNjcmlwdDwvb3B0aW9uPjxvcHRpb24+cHl0aG9uPC9vcHRpb24+PG9wdGlvbj5qc29uPC9vcHRpb24+PG9wdGlvbj5odG1sPC9vcHRpb24+PG9wdGlvbj5jc3M8L29wdGlvbj48b3B0aW9uPnNxbDwvb3B0aW9uPjxvcHRpb24+c2hlbGw8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxidXR0b24+Q29weSBjb2RlPC9idXR0b24+PC9kaXY+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0IG1vZGVybi1jb2RlLWlucHV0IiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJDb2RlIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj4JbGV0IHRleHQgPSAi5LiW55WM8J+YgCIKCiAgICBwcmludCh0ZXh0KSAgCjwvZGl2PjwvZGl2PjwvZGl2PjxidXR0b24+QWRkIHRvIGNvbHVtbiAyPC9idXR0b24+PC9kaXY+PC9kaXY+PGlucHV0IGFyaWEtbGFiZWw9IkNvbHVtbiBzcGxpdCIgbWluPSIxMDAwIiBtYXg9IjkwMDAiIHR5cGU9InJhbmdlIiB2YWx1ZT0iNzAwMCI+PGJ1dHRvbj5SZW1vdmUgY29sdW1uczwvYnV0dG9uPjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJFJTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJwYXJhZ3JhcGgiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iQmxvY2sgdGV4dCIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+T3V0c2lkZSBsYXlvdXQ8L2Rpdj48L2Rpdj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tYWNjZXNzb3J5IiByb2xlPSJ0b29sYmFyIiBhcmlhLWxhYmVsPSJFZGl0aW5nIGFjdGlvbnMiPjxidXR0b24+SW5zZXJ0PC9idXR0b24+PGRldGFpbHMgY2xhc3M9Im1vZGVybi1mb3JtYXQtbWVudSI+PHN1bW1hcnk+Rm9ybWF0PC9zdW1tYXJ5PjxkaXY+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9InRydWUiPmJvbGQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPml0YWxpYzwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSI+c3RyaWtldGhyb3VnaDwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSI+Y29kZTwvYnV0dG9uPjwvZGl2PjwvZGV0YWlscz48YnV0dG9uPkxpbms8L2J1dHRvbj48YnV0dG9uPlVuZG88L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5Nb3JlPC9zdW1tYXJ5PjxidXR0b24gZGlzYWJsZWQ9IiI+UmVkbzwvYnV0dG9uPjxidXR0b24+U2VsZWN0IGJsb2NrPC9idXR0b24+PGRldGFpbHM+PHN1bW1hcnk+VGV4dCBjb2xvcjogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PGRldGFpbHM+PHN1bW1hcnk+QmFja2dyb3VuZDogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PC9kZXRhaWxzPjwvZGl2Pjwvc2VjdGlvbj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                    "column": 79,
+                    "line": 68
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-2fdb2cf9b62c5dd9fe14",
+          "file": "modern-context.swift.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "Escape dismisses the Link action and retains its captured input",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:05.134Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-28457757a2fc286cf64f",
+          "file": "modern-context.swift.ts",
+          "line": 71,
+          "column": 1
+        },
+        {
+          "title": "keyboard column resize releases its preview before a peer resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1868,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:06.923Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-e3f578a2f07311974fb0",
+          "file": "modern-context.swift.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "Escape cancels a column drag without authoring or changing history",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7609,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('slider', { name: 'Column split' })\nExpected: \u001b[32m\"7000\"\u001b[39m\nReceived: \u001b[31m\"2981\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('slider', { name: 'Column split' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('slider', { name: 'Column split' })\u001b[22m\n\u001b[2m    14 × locator resolved to <input min=\"1000\" max=\"9000\" type=\"range\" value=\"2981\" aria-label=\"Column split\"/>\u001b[22m\n\u001b[2m       - unexpected value \"2981\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('slider', { name: 'Column split' })\nExpected: \u001b[32m\"7000\"\u001b[39m\nReceived: \u001b[31m\"2981\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('slider', { name: 'Column split' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('slider', { name: 'Column split' })\u001b[22m\n\u001b[2m    14 × locator resolved to <input min=\"1000\" max=\"9000\" type=\"range\" value=\"2981\" aria-label=\"Column split\"/>\u001b[22m\n\u001b[2m       - unexpected value \"2981\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:56:24",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                      "column": 24,
+                      "line": 56
+                    },
+                    "snippet": "  54 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);\n  55 |   await page.keyboard.press(\"Escape\"); await page.mouse.up();\n> 56 |   await expect(slider).toHaveValue(\"7000\");\n     |                        ^\n  57 |   expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(before);\n  58 | });\n  59 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                        "column": 24,
+                        "line": 56
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('slider', { name: 'Column split' })\nExpected: \u001b[32m\"7000\"\u001b[39m\nReceived: \u001b[31m\"2981\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('slider', { name: 'Column split' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('slider', { name: 'Column split' })\u001b[22m\n\u001b[2m    14 × locator resolved to <input min=\"1000\" max=\"9000\" type=\"range\" value=\"2981\" aria-label=\"Column split\"/>\u001b[22m\n\u001b[2m       - unexpected value \"2981\"\u001b[22m\n\n\n  54 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);\n  55 |   await page.keyboard.press(\"Escape\"); await page.mouse.up();\n> 56 |   await expect(slider).toHaveValue(\"7000\");\n     |                        ^\n  57 |   expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(before);\n  58 | });\n  59 |\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:56:24"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:09.046Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgICA8IS0tIC9AZnMgSFRNTCBpcyBzZXJ2ZWQgd2l0aG91dCBWaXRlJ3MgaW5kZXggdHJhbnNmb3JtLiBVc2UgdGhlIHBpbm5lZAogICAgICAgICBSZWFjdCBwbHVnaW4ncyBvcmRpbmFyeSBkZXZlbG9wbWVudCBwcmVhbWJsZSBiZWZvcmUgaW1wb3J0aW5nIHRoZSBob3N0LiAtLT4KICAgIDxzY3JpcHQgdHlwZT0ibW9kdWxlIj4KICAgICAgaW1wb3J0IHsgaW5qZWN0SW50b0dsb2JhbEhvb2sgfSBmcm9tICIvYmxvY2stZWRpdG9yL0ByZWFjdC1yZWZyZXNoIjsKICAgICAgaW5qZWN0SW50b0dsb2JhbEhvb2sod2luZG93KTsKICAgICAgd2luZG93LiRSZWZyZXNoUmVnJCA9ICgpID0+IHt9OwogICAgICB3aW5kb3cuJFJlZnJlc2hTaWckID0gKCkgPT4gKHR5cGUpID0+IHR5cGU7CiAgICA8L3NjcmlwdD4KICA8L2hlYWQ+CiAgPGJvZHkgc3R5bGU9Im1hcmdpbjogMCI+PGRpdiBpZD0icm9vdCIgc3R5bGU9ImhlaWdodDogMTAwdmgiPjxzZWN0aW9uIGNsYXNzPSJtb2Rlcm4tZWRpdG9yIiBkYXRhLWZvbnQ9InNhbnMiIHN0eWxlPSItLW1vZGVybi1ib2R5LXNpemU6IDE3cHg7IC0tbW9kZXJuLXBhZ2Utd2lkdGg6IDY4MHB4OyI+PGRpdiBjbGFzcz0ibW9kZXJuLXRvcGJhciI+PGJ1dHRvbiBhcmlhLWV4cGFuZGVkPSJmYWxzZSI+T3V0bGluZTwvYnV0dG9uPjxidXR0b24+Rm9jdXM8L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5BcHBlYXJhbmNlPC9zdW1tYXJ5PjxsYWJlbD5mb250RmFtaWx5PHNlbGVjdD48b3B0aW9uPnNhbnM8L29wdGlvbj48b3B0aW9uPnNlcmlmPC9vcHRpb24+PG9wdGlvbj5tb25vc3BhY2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5mb250U2l6ZTxzZWxlY3Q+PG9wdGlvbj5zbWFsbDwvb3B0aW9uPjxvcHRpb24+ZGVmYXVsdDwvb3B0aW9uPjxvcHRpb24+bGFyZ2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5wYWdlV2lkdGg8c2VsZWN0PjxvcHRpb24+cmVhZGFibGU8L29wdGlvbj48b3B0aW9uPndpZGU8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjwvZGV0YWlscz48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tdmlld3BvcnQiPjxkaXYgY2xhc3M9Im1vZGVybi1wYWdlIj48ZGl2IGNsYXNzPSJtb2Rlcm4tdGl0bGUiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkRvY3VtZW50IHRpdGxlIiBhcmlhLW11bHRpbGluZT0iZmFsc2UiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RmllbGQgbm90ZXM8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2x1bW5zIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2x1bW5zIiBzdHlsZT0iZGlzcGxheTogZ3JpZDsgZ2FwOiAyNHB4OyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDAuMjk4MWZyIDAuNzAxOWZyOyI+PGRpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkElMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPjxzdHJvbmc+QUJDPC9zdHJvbmc+PC9kaXY+PC9kaXY+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMmxheW91dCUyMiUyQyUyMnBhdGglMjIlM0ElNUIlMjJjb2x1bW5zJTIyJTJDJTIyZmlyc3QtY29sdW1uJTIyJTJDJTIyY2hpbGRyZW4lMjIlMkMlMjJCJTIyJTVEJTdEJTdEIiBkYXRhLWJsb2NrLXR5cGU9InRvZ2dsZSIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2PjxidXR0b24gYXJpYS1leHBhbmRlZD0idHJ1ZSI+4pa+PC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iVG9nZ2xlIHRpdGxlIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5EZXRhaWxzPC9kaXY+PGRpdiBjbGFzcz0ibW9kZXJuLW5lc3RlZCI+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMmxheW91dCUyMiUyQyUyMnBhdGglMjIlM0ElNUIlMjJjb2x1bW5zJTIyJTJDJTIyZmlyc3QtY29sdW1uJTIyJTJDJTIyY2hpbGRyZW4lMjIlMkMlMjJCJTIyJTJDJTIyY2hpbGRyZW4lMjIlMkMlMjJjaGlsZCUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJwYXJhZ3JhcGgiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iQmxvY2sgdGV4dCIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+TmVzdGVkIHBhcmFncmFwaDwvZGl2PjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIydG9kbyUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJsaXN0IiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjx1bCBjbGFzcz0ibW9kZXJuLWNoZWNrbGlzdCI+PGxpPjxpbnB1dCBhcmlhLWxhYmVsPSJDb21wbGV0ZWQiIHR5cGU9ImNoZWNrYm94Ij48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJMaXN0IGl0ZW0iIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPkNoZWNrIHRoaXM8L2Rpdj48dWw+PGxpPjxpbnB1dCBhcmlhLWxhYmVsPSJDb21wbGV0ZWQiIHR5cGU9ImNoZWNrYm94IiBjaGVja2VkPSIiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9Ikxpc3QgaXRlbSIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+TmVzdGVkIHRhc2s8L2Rpdj48L2xpPjwvdWw+PC9saT48L3VsPjwvZGl2PjxidXR0b24+QWRkIGluc2lkZSB0b2dnbGU8L2J1dHRvbj48L2Rpdj48L2Rpdj48L2Rpdj48YnV0dG9uPkFkZCB0byBjb2x1bW4gMTwvYnV0dG9uPjwvZGl2PjxkaXY+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMmxheW91dCUyMiUyQyUyMnBhdGglMjIlM0ElNUIlMjJjb2x1bW5zJTIyJTJDJTIyc2Vjb25kLWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQyUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2RlIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2RlIj48ZGl2PjxsYWJlbD5MYW5ndWFnZTxzZWxlY3QgYXJpYS1sYWJlbD0iQ29kZSBsYW5ndWFnZSI+PG9wdGlvbiB2YWx1ZT0iIj5QbGFpbiB0ZXh0PC9vcHRpb24+PG9wdGlvbj5zd2lmdDwvb3B0aW9uPjxvcHRpb24+a290bGluPC9vcHRpb24+PG9wdGlvbj5qYXZhc2NyaXB0PC9vcHRpb24+PG9wdGlvbj50eXBlc2NyaXB0PC9vcHRpb24+PG9wdGlvbj5weXRob248L29wdGlvbj48b3B0aW9uPmpzb248L29wdGlvbj48b3B0aW9uPmh0bWw8L29wdGlvbj48b3B0aW9uPmNzczwvb3B0aW9uPjxvcHRpb24+c3FsPC9vcHRpb24+PG9wdGlvbj5zaGVsbDwvb3B0aW9uPjwvc2VsZWN0PjwvbGFiZWw+PGJ1dHRvbj5Db3B5IGNvZGU8L2J1dHRvbj48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgbW9kZXJuLWNvZGUtaW5wdXQiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkNvZGUiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPglsZXQgdGV4dCA9ICLkuJbnlYzwn5iAIgoKICAgIHByaW50KHRleHQpICAKPC9kaXY+PC9kaXY+PC9kaXY+PGJ1dHRvbj5BZGQgdG8gY29sdW1uIDI8L2J1dHRvbj48L2Rpdj48L2Rpdj48aW5wdXQgYXJpYS1sYWJlbD0iQ29sdW1uIHNwbGl0IiBtaW49IjEwMDAiIG1heD0iOTAwMCIgdHlwZT0icmFuZ2UiIHZhbHVlPSIyOTgxIj48YnV0dG9uPlJlbW92ZSBjb2x1bW5zPC9idXR0b24+PC9kaXY+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMkUlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTVEJTdEJTdEIiBkYXRhLWJsb2NrLXR5cGU9InBhcmFncmFwaCIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJCbG9jayB0ZXh0IiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5PdXRzaWRlIGxheW91dDwvZGl2PjwvZGl2PjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9Im1vZGVybi1hY2Nlc3NvcnkiIHJvbGU9InRvb2xiYXIiIGFyaWEtbGFiZWw9IkVkaXRpbmcgYWN0aW9ucyI+PGJ1dHRvbj5JbnNlcnQ8L2J1dHRvbj48ZGV0YWlscyBjbGFzcz0ibW9kZXJuLWZvcm1hdC1tZW51Ij48c3VtbWFyeT5Gb3JtYXQ8L3N1bW1hcnk+PGRpdj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmJvbGQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPml0YWxpYzwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSIgZGlzYWJsZWQ9IiI+c3RyaWtldGhyb3VnaDwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSIgZGlzYWJsZWQ9IiI+Y29kZTwvYnV0dG9uPjwvZGl2PjwvZGV0YWlscz48YnV0dG9uIGRpc2FibGVkPSIiPkxpbms8L2J1dHRvbj48YnV0dG9uPlVuZG88L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5Nb3JlPC9zdW1tYXJ5PjxidXR0b24gZGlzYWJsZWQ9IiI+UmVkbzwvYnV0dG9uPjxidXR0b24+U2VsZWN0IGJsb2NrPC9idXR0b24+PGRldGFpbHM+PHN1bW1hcnk+VGV4dCBjb2xvcjogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSIgZGlzYWJsZWQ9IiI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PGRldGFpbHM+PHN1bW1hcnk+QmFja2dyb3VuZDogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSIgZGlzYWJsZWQ9IiI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PC9kZXRhaWxzPjwvZGl2Pjwvc2VjdGlvbj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                    "column": 24,
+                    "line": 56
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-b3ea7734071a5492395e",
+          "file": "modern-context.swift.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "accessible insertion cancellation returns to the original text caret",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8407,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:68:79",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                      "column": 79,
+                      "line": 68
+                    },
+                    "snippet": "  66 |   await expect(search).toBeFocused(); await search.press(\"Escape\");\n  67 |   await expect(page.getByRole(\"dialog\", { name: \"Insert block\" })).toHaveCount(0);\n> 68 |   await expect(body).toBeFocused(); await body.press(\"!\"); await expect(body).toHaveText(\"ABC!\");\n     |                                                                               ^\n  69 | });\n  70 |\n  71 | test(\"Escape dismisses the Link action and retains its captured input\", async ({ page }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                        "column": 79,
+                        "line": 68
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n\n\n  66 |   await expect(search).toBeFocused(); await search.press(\"Escape\");\n  67 |   await expect(page.getByRole(\"dialog\", { name: \"Insert block\" })).toHaveCount(0);\n> 68 |   await expect(body).toBeFocused(); await body.press(\"!\"); await expect(body).toHaveText(\"ABC!\");\n     |                                                                               ^\n  69 | });\n  70 |\n  71 | test(\"Escape dismisses the Link action and retains its captured input\", async ({ page }) => {\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:68:79"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:18.215Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgICA8IS0tIC9AZnMgSFRNTCBpcyBzZXJ2ZWQgd2l0aG91dCBWaXRlJ3MgaW5kZXggdHJhbnNmb3JtLiBVc2UgdGhlIHBpbm5lZAogICAgICAgICBSZWFjdCBwbHVnaW4ncyBvcmRpbmFyeSBkZXZlbG9wbWVudCBwcmVhbWJsZSBiZWZvcmUgaW1wb3J0aW5nIHRoZSBob3N0LiAtLT4KICAgIDxzY3JpcHQgdHlwZT0ibW9kdWxlIj4KICAgICAgaW1wb3J0IHsgaW5qZWN0SW50b0dsb2JhbEhvb2sgfSBmcm9tICIvYmxvY2stZWRpdG9yL0ByZWFjdC1yZWZyZXNoIjsKICAgICAgaW5qZWN0SW50b0dsb2JhbEhvb2sod2luZG93KTsKICAgICAgd2luZG93LiRSZWZyZXNoUmVnJCA9ICgpID0+IHt9OwogICAgICB3aW5kb3cuJFJlZnJlc2hTaWckID0gKCkgPT4gKHR5cGUpID0+IHR5cGU7CiAgICA8L3NjcmlwdD4KICA8L2hlYWQ+CiAgPGJvZHkgc3R5bGU9Im1hcmdpbjogMCI+PGRpdiBpZD0icm9vdCIgc3R5bGU9ImhlaWdodDogMTAwdmgiPjxzZWN0aW9uIGNsYXNzPSJtb2Rlcm4tZWRpdG9yIiBkYXRhLWZvbnQ9InNhbnMiIHN0eWxlPSItLW1vZGVybi1ib2R5LXNpemU6IDE3cHg7IC0tbW9kZXJuLXBhZ2Utd2lkdGg6IDY4MHB4OyI+PGRpdiBjbGFzcz0ibW9kZXJuLXRvcGJhciI+PGJ1dHRvbiBhcmlhLWV4cGFuZGVkPSJmYWxzZSI+T3V0bGluZTwvYnV0dG9uPjxidXR0b24+Rm9jdXM8L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5BcHBlYXJhbmNlPC9zdW1tYXJ5PjxsYWJlbD5mb250RmFtaWx5PHNlbGVjdD48b3B0aW9uPnNhbnM8L29wdGlvbj48b3B0aW9uPnNlcmlmPC9vcHRpb24+PG9wdGlvbj5tb25vc3BhY2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5mb250U2l6ZTxzZWxlY3Q+PG9wdGlvbj5zbWFsbDwvb3B0aW9uPjxvcHRpb24+ZGVmYXVsdDwvb3B0aW9uPjxvcHRpb24+bGFyZ2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5wYWdlV2lkdGg8c2VsZWN0PjxvcHRpb24+cmVhZGFibGU8L29wdGlvbj48b3B0aW9uPndpZGU8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjwvZGV0YWlscz48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tdmlld3BvcnQiPjxkaXYgY2xhc3M9Im1vZGVybi1wYWdlIj48ZGl2IGNsYXNzPSJtb2Rlcm4tdGl0bGUiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkRvY3VtZW50IHRpdGxlIiBhcmlhLW11bHRpbGluZT0iZmFsc2UiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RmllbGQgbm90ZXM8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2x1bW5zIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2x1bW5zIiBzdHlsZT0iZGlzcGxheTogZ3JpZDsgZ2FwOiAyNHB4OyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDAuN2ZyIDAuM2ZyOyI+PGRpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkElMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPjxzdHJvbmc+IUFCQzwvc3Ryb25nPjwvZGl2PjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJ0b2dnbGUiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdj48YnV0dG9uIGFyaWEtZXhwYW5kZWQ9InRydWUiPuKWvjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IlRvZ2dsZSB0aXRsZSIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RGV0YWlsczwvZGl2PjxkaXYgY2xhc3M9Im1vZGVybi1uZXN0ZWQiPjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyY2hpbGQlMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPk5lc3RlZCBwYXJhZ3JhcGg8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkIlMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMnRvZG8lMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0ibGlzdCIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48dWwgY2xhc3M9Im1vZGVybi1jaGVja2xpc3QiPjxsaT48aW5wdXQgYXJpYS1sYWJlbD0iQ29tcGxldGVkIiB0eXBlPSJjaGVja2JveCI+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iTGlzdCBpdGVtIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5DaGVjayB0aGlzPC9kaXY+PHVsPjxsaT48aW5wdXQgYXJpYS1sYWJlbD0iQ29tcGxldGVkIiB0eXBlPSJjaGVja2JveCIgY2hlY2tlZD0iIj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJMaXN0IGl0ZW0iIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPk5lc3RlZCB0YXNrPC9kaXY+PC9saT48L3VsPjwvbGk+PC91bD48L2Rpdj48YnV0dG9uPkFkZCBpbnNpZGUgdG9nZ2xlPC9idXR0b24+PC9kaXY+PC9kaXY+PC9kaXY+PGJ1dHRvbj5BZGQgdG8gY29sdW1uIDE8L2J1dHRvbj48L2Rpdj48ZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMnNlY29uZC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkMlMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0iY29kZSIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2IGNsYXNzPSJtb2Rlcm4tY29kZSI+PGRpdj48bGFiZWw+TGFuZ3VhZ2U8c2VsZWN0IGFyaWEtbGFiZWw9IkNvZGUgbGFuZ3VhZ2UiPjxvcHRpb24gdmFsdWU9IiI+UGxhaW4gdGV4dDwvb3B0aW9uPjxvcHRpb24+c3dpZnQ8L29wdGlvbj48b3B0aW9uPmtvdGxpbjwvb3B0aW9uPjxvcHRpb24+amF2YXNjcmlwdDwvb3B0aW9uPjxvcHRpb24+dHlwZXNjcmlwdDwvb3B0aW9uPjxvcHRpb24+cHl0aG9uPC9vcHRpb24+PG9wdGlvbj5qc29uPC9vcHRpb24+PG9wdGlvbj5odG1sPC9vcHRpb24+PG9wdGlvbj5jc3M8L29wdGlvbj48b3B0aW9uPnNxbDwvb3B0aW9uPjxvcHRpb24+c2hlbGw8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxidXR0b24+Q29weSBjb2RlPC9idXR0b24+PC9kaXY+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0IG1vZGVybi1jb2RlLWlucHV0IiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJDb2RlIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj4JbGV0IHRleHQgPSAi5LiW55WM8J+YgCIKCiAgICBwcmludCh0ZXh0KSAgCjwvZGl2PjwvZGl2PjwvZGl2PjxidXR0b24+QWRkIHRvIGNvbHVtbiAyPC9idXR0b24+PC9kaXY+PC9kaXY+PGlucHV0IGFyaWEtbGFiZWw9IkNvbHVtbiBzcGxpdCIgbWluPSIxMDAwIiBtYXg9IjkwMDAiIHR5cGU9InJhbmdlIiB2YWx1ZT0iNzAwMCI+PGJ1dHRvbj5SZW1vdmUgY29sdW1uczwvYnV0dG9uPjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJFJTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJwYXJhZ3JhcGgiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iQmxvY2sgdGV4dCIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+T3V0c2lkZSBsYXlvdXQ8L2Rpdj48L2Rpdj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tYWNjZXNzb3J5IiByb2xlPSJ0b29sYmFyIiBhcmlhLWxhYmVsPSJFZGl0aW5nIGFjdGlvbnMiPjxidXR0b24+SW5zZXJ0PC9idXR0b24+PGRldGFpbHMgY2xhc3M9Im1vZGVybi1mb3JtYXQtbWVudSI+PHN1bW1hcnk+Rm9ybWF0PC9zdW1tYXJ5PjxkaXY+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9InRydWUiPmJvbGQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPml0YWxpYzwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSI+c3RyaWtldGhyb3VnaDwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSI+Y29kZTwvYnV0dG9uPjwvZGl2PjwvZGV0YWlscz48YnV0dG9uPkxpbms8L2J1dHRvbj48YnV0dG9uPlVuZG88L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5Nb3JlPC9zdW1tYXJ5PjxidXR0b24gZGlzYWJsZWQ9IiI+UmVkbzwvYnV0dG9uPjxidXR0b24+U2VsZWN0IGJsb2NrPC9idXR0b24+PGRldGFpbHM+PHN1bW1hcnk+VGV4dCBjb2xvcjogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PGRldGFpbHM+PHN1bW1hcnk+QmFja2dyb3VuZDogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PC9kZXRhaWxzPjwvZGl2Pjwvc2VjdGlvbj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                    "column": 79,
+                    "line": 68
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-b61f887f290398664390",
+          "file": "modern-context.swift.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "Escape dismisses the Link action and retains its captured input",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2037,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:28.352Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-12a132353c4b73274cb5",
+          "file": "modern-context.swift.ts",
+          "line": 71,
+          "column": 1
+        },
+        {
+          "title": "keyboard column resize releases its preview before a peer resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1392,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:30.754Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-daa8ade930f8638545d5",
+          "file": "modern-context.swift.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "Escape cancels a column drag without authoring or changing history",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7118,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('slider', { name: 'Column split' })\nExpected: \u001b[32m\"7000\"\u001b[39m\nReceived: \u001b[31m\"3217\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('slider', { name: 'Column split' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('slider', { name: 'Column split' })\u001b[22m\n\u001b[2m    14 × locator resolved to <input min=\"1000\" max=\"9000\" type=\"range\" value=\"3217\" aria-label=\"Column split\"/>\u001b[22m\n\u001b[2m       - unexpected value \"3217\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('slider', { name: 'Column split' })\nExpected: \u001b[32m\"7000\"\u001b[39m\nReceived: \u001b[31m\"3217\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('slider', { name: 'Column split' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('slider', { name: 'Column split' })\u001b[22m\n\u001b[2m    14 × locator resolved to <input min=\"1000\" max=\"9000\" type=\"range\" value=\"3217\" aria-label=\"Column split\"/>\u001b[22m\n\u001b[2m       - unexpected value \"3217\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:56:24",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                      "column": 24,
+                      "line": 56
+                    },
+                    "snippet": "  54 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);\n  55 |   await page.keyboard.press(\"Escape\"); await page.mouse.up();\n> 56 |   await expect(slider).toHaveValue(\"7000\");\n     |                        ^\n  57 |   expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(before);\n  58 | });\n  59 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                        "column": 24,
+                        "line": 56
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('slider', { name: 'Column split' })\nExpected: \u001b[32m\"7000\"\u001b[39m\nReceived: \u001b[31m\"3217\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('slider', { name: 'Column split' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('slider', { name: 'Column split' })\u001b[22m\n\u001b[2m    14 × locator resolved to <input min=\"1000\" max=\"9000\" type=\"range\" value=\"3217\" aria-label=\"Column split\"/>\u001b[22m\n\u001b[2m       - unexpected value \"3217\"\u001b[22m\n\n\n  54 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);\n  55 |   await page.keyboard.press(\"Escape\"); await page.mouse.up();\n> 56 |   await expect(slider).toHaveValue(\"7000\");\n     |                        ^\n  57 |   expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(before);\n  58 | });\n  59 |\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:56:24"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:32.622Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgICA8IS0tIC9AZnMgSFRNTCBpcyBzZXJ2ZWQgd2l0aG91dCBWaXRlJ3MgaW5kZXggdHJhbnNmb3JtLiBVc2UgdGhlIHBpbm5lZAogICAgICAgICBSZWFjdCBwbHVnaW4ncyBvcmRpbmFyeSBkZXZlbG9wbWVudCBwcmVhbWJsZSBiZWZvcmUgaW1wb3J0aW5nIHRoZSBob3N0LiAtLT4KICAgIDxzY3JpcHQgdHlwZT0ibW9kdWxlIj4KICAgICAgaW1wb3J0IHsgaW5qZWN0SW50b0dsb2JhbEhvb2sgfSBmcm9tICIvYmxvY2stZWRpdG9yL0ByZWFjdC1yZWZyZXNoIjsKICAgICAgaW5qZWN0SW50b0dsb2JhbEhvb2sod2luZG93KTsKICAgICAgd2luZG93LiRSZWZyZXNoUmVnJCA9ICgpID0+IHt9OwogICAgICB3aW5kb3cuJFJlZnJlc2hTaWckID0gKCkgPT4gKHR5cGUpID0+IHR5cGU7CiAgICA8L3NjcmlwdD4KICA8L2hlYWQ+CiAgPGJvZHkgc3R5bGU9Im1hcmdpbjogMCI+PGRpdiBpZD0icm9vdCIgc3R5bGU9ImhlaWdodDogMTAwdmgiPjxzZWN0aW9uIGNsYXNzPSJtb2Rlcm4tZWRpdG9yIiBkYXRhLWZvbnQ9InNhbnMiIHN0eWxlPSItLW1vZGVybi1ib2R5LXNpemU6IDE3cHg7IC0tbW9kZXJuLXBhZ2Utd2lkdGg6IDY4MHB4OyI+PGRpdiBjbGFzcz0ibW9kZXJuLXRvcGJhciI+PGJ1dHRvbiBhcmlhLWV4cGFuZGVkPSJmYWxzZSI+T3V0bGluZTwvYnV0dG9uPjxidXR0b24+Rm9jdXM8L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5BcHBlYXJhbmNlPC9zdW1tYXJ5PjxsYWJlbD5mb250RmFtaWx5PHNlbGVjdD48b3B0aW9uPnNhbnM8L29wdGlvbj48b3B0aW9uPnNlcmlmPC9vcHRpb24+PG9wdGlvbj5tb25vc3BhY2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5mb250U2l6ZTxzZWxlY3Q+PG9wdGlvbj5zbWFsbDwvb3B0aW9uPjxvcHRpb24+ZGVmYXVsdDwvb3B0aW9uPjxvcHRpb24+bGFyZ2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5wYWdlV2lkdGg8c2VsZWN0PjxvcHRpb24+cmVhZGFibGU8L29wdGlvbj48b3B0aW9uPndpZGU8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjwvZGV0YWlscz48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tdmlld3BvcnQiPjxkaXYgY2xhc3M9Im1vZGVybi1wYWdlIj48ZGl2IGNsYXNzPSJtb2Rlcm4tdGl0bGUiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkRvY3VtZW50IHRpdGxlIiBhcmlhLW11bHRpbGluZT0iZmFsc2UiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RmllbGQgbm90ZXM8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2x1bW5zIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2x1bW5zIiBzdHlsZT0iZGlzcGxheTogZ3JpZDsgZ2FwOiAyNHB4OyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDAuMzIxN2ZyIDAuNjc4M2ZyOyI+PGRpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkElMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPjxzdHJvbmc+QUJDPC9zdHJvbmc+PC9kaXY+PC9kaXY+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMmxheW91dCUyMiUyQyUyMnBhdGglMjIlM0ElNUIlMjJjb2x1bW5zJTIyJTJDJTIyZmlyc3QtY29sdW1uJTIyJTJDJTIyY2hpbGRyZW4lMjIlMkMlMjJCJTIyJTVEJTdEJTdEIiBkYXRhLWJsb2NrLXR5cGU9InRvZ2dsZSIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2PjxidXR0b24gYXJpYS1leHBhbmRlZD0idHJ1ZSI+4pa+PC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iVG9nZ2xlIHRpdGxlIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5EZXRhaWxzPC9kaXY+PGRpdiBjbGFzcz0ibW9kZXJuLW5lc3RlZCI+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMmxheW91dCUyMiUyQyUyMnBhdGglMjIlM0ElNUIlMjJjb2x1bW5zJTIyJTJDJTIyZmlyc3QtY29sdW1uJTIyJTJDJTIyY2hpbGRyZW4lMjIlMkMlMjJCJTIyJTJDJTIyY2hpbGRyZW4lMjIlMkMlMjJjaGlsZCUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJwYXJhZ3JhcGgiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iQmxvY2sgdGV4dCIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+TmVzdGVkIHBhcmFncmFwaDwvZGl2PjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIydG9kbyUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJsaXN0IiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjx1bCBjbGFzcz0ibW9kZXJuLWNoZWNrbGlzdCI+PGxpPjxpbnB1dCBhcmlhLWxhYmVsPSJDb21wbGV0ZWQiIHR5cGU9ImNoZWNrYm94Ij48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJMaXN0IGl0ZW0iIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPkNoZWNrIHRoaXM8L2Rpdj48dWw+PGxpPjxpbnB1dCBhcmlhLWxhYmVsPSJDb21wbGV0ZWQiIHR5cGU9ImNoZWNrYm94IiBjaGVja2VkPSIiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9Ikxpc3QgaXRlbSIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+TmVzdGVkIHRhc2s8L2Rpdj48L2xpPjwvdWw+PC9saT48L3VsPjwvZGl2PjxidXR0b24+QWRkIGluc2lkZSB0b2dnbGU8L2J1dHRvbj48L2Rpdj48L2Rpdj48L2Rpdj48YnV0dG9uPkFkZCB0byBjb2x1bW4gMTwvYnV0dG9uPjwvZGl2PjxkaXY+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMmxheW91dCUyMiUyQyUyMnBhdGglMjIlM0ElNUIlMjJjb2x1bW5zJTIyJTJDJTIyc2Vjb25kLWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQyUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2RlIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2RlIj48ZGl2PjxsYWJlbD5MYW5ndWFnZTxzZWxlY3QgYXJpYS1sYWJlbD0iQ29kZSBsYW5ndWFnZSI+PG9wdGlvbiB2YWx1ZT0iIj5QbGFpbiB0ZXh0PC9vcHRpb24+PG9wdGlvbj5zd2lmdDwvb3B0aW9uPjxvcHRpb24+a290bGluPC9vcHRpb24+PG9wdGlvbj5qYXZhc2NyaXB0PC9vcHRpb24+PG9wdGlvbj50eXBlc2NyaXB0PC9vcHRpb24+PG9wdGlvbj5weXRob248L29wdGlvbj48b3B0aW9uPmpzb248L29wdGlvbj48b3B0aW9uPmh0bWw8L29wdGlvbj48b3B0aW9uPmNzczwvb3B0aW9uPjxvcHRpb24+c3FsPC9vcHRpb24+PG9wdGlvbj5zaGVsbDwvb3B0aW9uPjwvc2VsZWN0PjwvbGFiZWw+PGJ1dHRvbj5Db3B5IGNvZGU8L2J1dHRvbj48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgbW9kZXJuLWNvZGUtaW5wdXQiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkNvZGUiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPglsZXQgdGV4dCA9ICLkuJbnlYzwn5iAIgoKICAgIHByaW50KHRleHQpICAKPC9kaXY+PC9kaXY+PC9kaXY+PGJ1dHRvbj5BZGQgdG8gY29sdW1uIDI8L2J1dHRvbj48L2Rpdj48L2Rpdj48aW5wdXQgYXJpYS1sYWJlbD0iQ29sdW1uIHNwbGl0IiBtaW49IjEwMDAiIG1heD0iOTAwMCIgdHlwZT0icmFuZ2UiIHZhbHVlPSIzMjE3Ij48YnV0dG9uPlJlbW92ZSBjb2x1bW5zPC9idXR0b24+PC9kaXY+PGRpdiBpZD0ibW9kZXJuLSU3QiUyMmJhc2VsaW5lJTIyJTNBJTdCJTIyYmxvY2tJRCUyMiUzQSUyMkUlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTVEJTdEJTdEIiBkYXRhLWJsb2NrLXR5cGU9InBhcmFncmFwaCIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJCbG9jayB0ZXh0IiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5PdXRzaWRlIGxheW91dDwvZGl2PjwvZGl2PjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9Im1vZGVybi1hY2Nlc3NvcnkiIHJvbGU9InRvb2xiYXIiIGFyaWEtbGFiZWw9IkVkaXRpbmcgYWN0aW9ucyI+PGJ1dHRvbj5JbnNlcnQ8L2J1dHRvbj48ZGV0YWlscyBjbGFzcz0ibW9kZXJuLWZvcm1hdC1tZW51Ij48c3VtbWFyeT5Gb3JtYXQ8L3N1bW1hcnk+PGRpdj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmJvbGQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPml0YWxpYzwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSIgZGlzYWJsZWQ9IiI+c3RyaWtldGhyb3VnaDwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSIgZGlzYWJsZWQ9IiI+Y29kZTwvYnV0dG9uPjwvZGl2PjwvZGV0YWlscz48YnV0dG9uIGRpc2FibGVkPSIiPkxpbms8L2J1dHRvbj48YnV0dG9uIGRpc2FibGVkPSIiPlVuZG88L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5Nb3JlPC9zdW1tYXJ5PjxidXR0b24gZGlzYWJsZWQ9IiI+UmVkbzwvYnV0dG9uPjxidXR0b24+U2VsZWN0IGJsb2NrPC9idXR0b24+PGRldGFpbHM+PHN1bW1hcnk+VGV4dCBjb2xvcjogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSIgZGlzYWJsZWQ9IiI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PGRldGFpbHM+PHN1bW1hcnk+QmFja2dyb3VuZDogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiIGRpc2FibGVkPSIiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIiBkaXNhYmxlZD0iIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSIgZGlzYWJsZWQ9IiI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PC9kZXRhaWxzPjwvZGl2Pjwvc2VjdGlvbj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                    "column": 24,
+                    "line": 56
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-3cc008b67838f374f502",
+          "file": "modern-context.swift.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "accessible insertion cancellation returns to the original text caret",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8509,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:68:79",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                      "column": 79,
+                      "line": 68
+                    },
+                    "snippet": "  66 |   await expect(search).toBeFocused(); await search.press(\"Escape\");\n  67 |   await expect(page.getByRole(\"dialog\", { name: \"Insert block\" })).toHaveCount(0);\n> 68 |   await expect(body).toBeFocused(); await body.press(\"!\"); await expect(body).toHaveText(\"ABC!\");\n     |                                                                               ^\n  69 | });\n  70 |\n  71 | test(\"Escape dismisses the Link action and retains its captured input\", async ({ page }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                        "column": 79,
+                        "line": 68
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Block text', exact: true }).first()\nExpected: \u001b[32m\"ABC\u001b[7m!\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m!\u001b[27mABC\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()\u001b[22m\n\u001b[2m    14 × locator resolved to <div role=\"textbox\" class=\"modern-input \" aria-multiline=\"true\" contenteditable=\"true\" aria-label=\"Block text\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"!ABC\"\u001b[22m\n\n\n  66 |   await expect(search).toBeFocused(); await search.press(\"Escape\");\n  67 |   await expect(page.getByRole(\"dialog\", { name: \"Insert block\" })).toHaveCount(0);\n> 68 |   await expect(body).toBeFocused(); await body.press(\"!\"); await expect(body).toHaveText(\"ABC!\");\n     |                                                                               ^\n  69 | });\n  70 |\n  71 | test(\"Escape dismisses the Link action and retains its captured input\", async ({ page }) => {\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:68:79"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:41.438Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgICA8IS0tIC9AZnMgSFRNTCBpcyBzZXJ2ZWQgd2l0aG91dCBWaXRlJ3MgaW5kZXggdHJhbnNmb3JtLiBVc2UgdGhlIHBpbm5lZAogICAgICAgICBSZWFjdCBwbHVnaW4ncyBvcmRpbmFyeSBkZXZlbG9wbWVudCBwcmVhbWJsZSBiZWZvcmUgaW1wb3J0aW5nIHRoZSBob3N0LiAtLT4KICAgIDxzY3JpcHQgdHlwZT0ibW9kdWxlIj4KICAgICAgaW1wb3J0IHsgaW5qZWN0SW50b0dsb2JhbEhvb2sgfSBmcm9tICIvYmxvY2stZWRpdG9yL0ByZWFjdC1yZWZyZXNoIjsKICAgICAgaW5qZWN0SW50b0dsb2JhbEhvb2sod2luZG93KTsKICAgICAgd2luZG93LiRSZWZyZXNoUmVnJCA9ICgpID0+IHt9OwogICAgICB3aW5kb3cuJFJlZnJlc2hTaWckID0gKCkgPT4gKHR5cGUpID0+IHR5cGU7CiAgICA8L3NjcmlwdD4KICA8L2hlYWQ+CiAgPGJvZHkgc3R5bGU9Im1hcmdpbjogMCI+PGRpdiBpZD0icm9vdCIgc3R5bGU9ImhlaWdodDogMTAwdmgiPjxzZWN0aW9uIGNsYXNzPSJtb2Rlcm4tZWRpdG9yIiBkYXRhLWZvbnQ9InNhbnMiIHN0eWxlPSItLW1vZGVybi1ib2R5LXNpemU6IDE3cHg7IC0tbW9kZXJuLXBhZ2Utd2lkdGg6IDY4MHB4OyI+PGRpdiBjbGFzcz0ibW9kZXJuLXRvcGJhciI+PGJ1dHRvbiBhcmlhLWV4cGFuZGVkPSJmYWxzZSI+T3V0bGluZTwvYnV0dG9uPjxidXR0b24+Rm9jdXM8L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5BcHBlYXJhbmNlPC9zdW1tYXJ5PjxsYWJlbD5mb250RmFtaWx5PHNlbGVjdD48b3B0aW9uPnNhbnM8L29wdGlvbj48b3B0aW9uPnNlcmlmPC9vcHRpb24+PG9wdGlvbj5tb25vc3BhY2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5mb250U2l6ZTxzZWxlY3Q+PG9wdGlvbj5zbWFsbDwvb3B0aW9uPjxvcHRpb24+ZGVmYXVsdDwvb3B0aW9uPjxvcHRpb24+bGFyZ2U8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxsYWJlbD5wYWdlV2lkdGg8c2VsZWN0PjxvcHRpb24+cmVhZGFibGU8L29wdGlvbj48b3B0aW9uPndpZGU8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjwvZGV0YWlscz48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tdmlld3BvcnQiPjxkaXYgY2xhc3M9Im1vZGVybi1wYWdlIj48ZGl2IGNsYXNzPSJtb2Rlcm4tdGl0bGUiPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkRvY3VtZW50IHRpdGxlIiBhcmlhLW11bHRpbGluZT0iZmFsc2UiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RmllbGQgbm90ZXM8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJjb2x1bW5zIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1jb2x1bW5zIiBzdHlsZT0iZGlzcGxheTogZ3JpZDsgZ2FwOiAyNHB4OyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDAuN2ZyIDAuM2ZyOyI+PGRpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkElMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPjxzdHJvbmc+IUFCQzwvc3Ryb25nPjwvZGl2PjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJ0b2dnbGUiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdj48YnV0dG9uIGFyaWEtZXhwYW5kZWQ9InRydWUiPuKWvjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IlRvZ2dsZSB0aXRsZSIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+RGV0YWlsczwvZGl2PjxkaXYgY2xhc3M9Im1vZGVybi1uZXN0ZWQiPjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMmZpcnN0LWNvbHVtbiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyQiUyMiUyQyUyMmNoaWxkcmVuJTIyJTJDJTIyY2hpbGQlMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0icGFyYWdyYXBoIiBjbGFzcz0ibW9kZXJuLWJsb2NrICI+PGJ1dHRvbiBjbGFzcz0ibW9kZXJuLWhhbmRsZSIgZHJhZ2dhYmxlPSJ0cnVlIiBhcmlhLWxhYmVsPSJTZWxlY3QgYmxvY2siPuKLruKLrjwvYnV0dG9uPjxkaXYgY2xhc3M9Im1vZGVybi1pbnB1dCAiIHJvbGU9InRleHRib3giIGFyaWEtbGFiZWw9IkJsb2NrIHRleHQiIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPk5lc3RlZCBwYXJhZ3JhcGg8L2Rpdj48L2Rpdj48ZGl2IGlkPSJtb2Rlcm4tJTdCJTIyYmFzZWxpbmUlMjIlM0ElN0IlMjJibG9ja0lEJTIyJTNBJTIybGF5b3V0JTIyJTJDJTIycGF0aCUyMiUzQSU1QiUyMmNvbHVtbnMlMjIlMkMlMjJmaXJzdC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkIlMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMnRvZG8lMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0ibGlzdCIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48dWwgY2xhc3M9Im1vZGVybi1jaGVja2xpc3QiPjxsaT48aW5wdXQgYXJpYS1sYWJlbD0iQ29tcGxldGVkIiB0eXBlPSJjaGVja2JveCI+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iTGlzdCBpdGVtIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5DaGVjayB0aGlzPC9kaXY+PHVsPjxsaT48aW5wdXQgYXJpYS1sYWJlbD0iQ29tcGxldGVkIiB0eXBlPSJjaGVja2JveCIgY2hlY2tlZD0iIj48ZGl2IGNsYXNzPSJtb2Rlcm4taW5wdXQgIiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJMaXN0IGl0ZW0iIGFyaWEtbXVsdGlsaW5lPSJ0cnVlIiBjb250ZW50ZWRpdGFibGU9InRydWUiPk5lc3RlZCB0YXNrPC9kaXY+PC9saT48L3VsPjwvbGk+PC91bD48L2Rpdj48YnV0dG9uPkFkZCBpbnNpZGUgdG9nZ2xlPC9idXR0b24+PC9kaXY+PC9kaXY+PC9kaXY+PGJ1dHRvbj5BZGQgdG8gY29sdW1uIDE8L2J1dHRvbj48L2Rpdj48ZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJsYXlvdXQlMjIlMkMlMjJwYXRoJTIyJTNBJTVCJTIyY29sdW1ucyUyMiUyQyUyMnNlY29uZC1jb2x1bW4lMjIlMkMlMjJjaGlsZHJlbiUyMiUyQyUyMkMlMjIlNUQlN0QlN0QiIGRhdGEtYmxvY2stdHlwZT0iY29kZSIgY2xhc3M9Im1vZGVybi1ibG9jayAiPjxidXR0b24gY2xhc3M9Im1vZGVybi1oYW5kbGUiIGRyYWdnYWJsZT0idHJ1ZSIgYXJpYS1sYWJlbD0iU2VsZWN0IGJsb2NrIj7ii67ii648L2J1dHRvbj48ZGl2IGNsYXNzPSJtb2Rlcm4tY29kZSI+PGRpdj48bGFiZWw+TGFuZ3VhZ2U8c2VsZWN0IGFyaWEtbGFiZWw9IkNvZGUgbGFuZ3VhZ2UiPjxvcHRpb24gdmFsdWU9IiI+UGxhaW4gdGV4dDwvb3B0aW9uPjxvcHRpb24+c3dpZnQ8L29wdGlvbj48b3B0aW9uPmtvdGxpbjwvb3B0aW9uPjxvcHRpb24+amF2YXNjcmlwdDwvb3B0aW9uPjxvcHRpb24+dHlwZXNjcmlwdDwvb3B0aW9uPjxvcHRpb24+cHl0aG9uPC9vcHRpb24+PG9wdGlvbj5qc29uPC9vcHRpb24+PG9wdGlvbj5odG1sPC9vcHRpb24+PG9wdGlvbj5jc3M8L29wdGlvbj48b3B0aW9uPnNxbDwvb3B0aW9uPjxvcHRpb24+c2hlbGw8L29wdGlvbj48L3NlbGVjdD48L2xhYmVsPjxidXR0b24+Q29weSBjb2RlPC9idXR0b24+PC9kaXY+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0IG1vZGVybi1jb2RlLWlucHV0IiByb2xlPSJ0ZXh0Ym94IiBhcmlhLWxhYmVsPSJDb2RlIiBhcmlhLW11bHRpbGluZT0idHJ1ZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj4JbGV0IHRleHQgPSAi5LiW55WM8J+YgCIKCiAgICBwcmludCh0ZXh0KSAgCjwvZGl2PjwvZGl2PjwvZGl2PjxidXR0b24+QWRkIHRvIGNvbHVtbiAyPC9idXR0b24+PC9kaXY+PC9kaXY+PGlucHV0IGFyaWEtbGFiZWw9IkNvbHVtbiBzcGxpdCIgbWluPSIxMDAwIiBtYXg9IjkwMDAiIHR5cGU9InJhbmdlIiB2YWx1ZT0iNzAwMCI+PGJ1dHRvbj5SZW1vdmUgY29sdW1uczwvYnV0dG9uPjwvZGl2PjxkaXYgaWQ9Im1vZGVybi0lN0IlMjJiYXNlbGluZSUyMiUzQSU3QiUyMmJsb2NrSUQlMjIlM0ElMjJFJTIyJTJDJTIycGF0aCUyMiUzQSU1QiU1RCU3RCU3RCIgZGF0YS1ibG9jay10eXBlPSJwYXJhZ3JhcGgiIGNsYXNzPSJtb2Rlcm4tYmxvY2sgIj48YnV0dG9uIGNsYXNzPSJtb2Rlcm4taGFuZGxlIiBkcmFnZ2FibGU9InRydWUiIGFyaWEtbGFiZWw9IlNlbGVjdCBibG9jayI+4ouu4ouuPC9idXR0b24+PGRpdiBjbGFzcz0ibW9kZXJuLWlucHV0ICIgcm9sZT0idGV4dGJveCIgYXJpYS1sYWJlbD0iQmxvY2sgdGV4dCIgYXJpYS1tdWx0aWxpbmU9InRydWUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+T3V0c2lkZSBsYXlvdXQ8L2Rpdj48L2Rpdj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJtb2Rlcm4tYWNjZXNzb3J5IiByb2xlPSJ0b29sYmFyIiBhcmlhLWxhYmVsPSJFZGl0aW5nIGFjdGlvbnMiPjxidXR0b24+SW5zZXJ0PC9idXR0b24+PGRldGFpbHMgY2xhc3M9Im1vZGVybi1mb3JtYXQtbWVudSI+PHN1bW1hcnk+Rm9ybWF0PC9zdW1tYXJ5PjxkaXY+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9InRydWUiPmJvbGQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPml0YWxpYzwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSI+c3RyaWtldGhyb3VnaDwvYnV0dG9uPjxidXR0b24gYXJpYS1wcmVzc2VkPSJmYWxzZSI+Y29kZTwvYnV0dG9uPjwvZGl2PjwvZGV0YWlscz48YnV0dG9uPkxpbms8L2J1dHRvbj48YnV0dG9uPlVuZG88L2J1dHRvbj48ZGV0YWlscz48c3VtbWFyeT5Nb3JlPC9zdW1tYXJ5PjxidXR0b24gZGlzYWJsZWQ9IiI+UmVkbzwvYnV0dG9uPjxidXR0b24+U2VsZWN0IGJsb2NrPC9idXR0b24+PGRldGFpbHM+PHN1bW1hcnk+VGV4dCBjb2xvcjogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PGRldGFpbHM+PHN1bW1hcnk+QmFja2dyb3VuZDogRGVmYXVsdDwvc3VtbWFyeT48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPm5ldXRyYWw8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmdyZWVuPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5ibHVlPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5wdXJwbGU8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0iZmFsc2UiPmFtYmVyPC9idXR0b24+PGJ1dHRvbiBhcmlhLXByZXNzZWQ9ImZhbHNlIj5yZWQ8L2J1dHRvbj48YnV0dG9uIGFyaWEtcHJlc3NlZD0idHJ1ZSI+cmVzZXQ8L2J1dHRvbj48L2RldGFpbHM+PC9kZXRhaWxzPjwvZGl2Pjwvc2VjdGlvbj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/repaired-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-context.swift.ts",
+                    "column": 79,
+                    "line": 68
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-9107b08f56ebe6a50e89",
+          "file": "modern-context.swift.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "Escape dismisses the Link action and retains its captured input",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2063,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:42:51.976Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-a0f1d8a773163e32f8c3",
+          "file": "modern-context.swift.ts",
+          "line": 71,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T21:41:52.763Z",
+    "duration": 61809.632999999994,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

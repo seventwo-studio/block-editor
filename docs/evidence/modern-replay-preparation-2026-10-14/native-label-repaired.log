@@ -1,0 +1,21 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 6] relay-client-product
+[2 / 20] BlockEditorApple
+[4 / 22] BlockEditorApple
+[14 / 20] BlockEditorAppleTests-product
+[15 / 27] local-editor-app-product
+[22 / 30]
+[25 / 30] BlockEditorAppleTests-product
+[31 / 35] BlockEditorAppleTests-product
+Build complete! (3.44 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernAccessibilityLabelTests started.
+◇ Test fullEditorConversionAndUndoRefreshNativeAccessibleName() started.
+◇ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() started.
+✔ Test fullEditorConversionAndUndoRefreshNativeAccessibleName() passed after 0.138 seconds.
+✔ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() passed after 0.159 seconds.
+✔ Suite ModernAccessibilityLabelTests passed after 0.159 seconds.
+✔ Test run with 2 tests in 1 suite passed after 0.159 seconds.

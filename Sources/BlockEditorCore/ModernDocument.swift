@@ -37,6 +37,13 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
     public let blocks: [Block]
     /// Includes admitted unknown envelope, appearance, block and inline fields.
     public let fields: [String: JSONValue]
+    private let admittedIdentity = ModernDocumentIdentity()
+    private let comparison: ModernDocumentComparison?
+
+    public static func == (lhs: ModernDocument, rhs: ModernDocument) -> Bool {
+        lhs.documentID == rhs.documentID && lhs.title == rhs.title && lhs.appearance == rhs.appearance &&
+            lhs.blocks == rhs.blocks && lhs.fields == rhs.fields
+    }
 
     public init(documentID: String, title: String = "", appearance: ModernAppearance = .default, blocks: [Block] = []) throws {
         try self.init(fields: ["format": .string(Self.format), "formatVersion": .number(Double(Self.formatVersion)),
@@ -65,11 +72,12 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
             try Validation.block(block, modern: true)
             return block
         }
-        guard try canonicalEncoder().encode(fields).count <= 32_000_000 else {
+        guard try canonicalJSONSizeFits(.object(fields), limit: 32_000_000) else {
             throw EditorError.invalidDocument("Document exceeds 32 MB")
         }
         self.documentID = identity; self.title = title; self.appearance = appearance
         self.blocks = blocks; self.fields = fields
+        comparison = nil
     }
     public init(json: Data) throws {
         guard json.count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
@@ -82,6 +90,80 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
     public func encode(to encoder: any Encoder) throws { try JSONValue.object(fields).encode(to: encoder) }
     public func json() throws -> Data { try canonicalEncoder().encode(fields) }
 
+    /// Reuse only an admitted structural baseline. Every changed root is checked
+    /// with the original schema/depth rules; exact encoded size deltas retain the
+    /// original whole-document capacity boundary and opaque metadata.
+    func projecting(text: [NodeAddress: [String: JSONValue]], title: JSONValue?,
+                    appearance value: [String: JSONValue]?, baselineBytes: Int, rootIndices: [String: Int]) throws -> ModernDocument {
+        var roots = blocks, output = fields, size = baselineBytes
+        let encoder = canonicalEncoder()
+        var changed: [Int: JSONValue] = [:]
+        func replacing(_ source: JSONValue, path: ArraySlice<String>, values: [String: JSONValue]) throws -> JSONValue {
+            guard var object = source.object else { throw EditorError.invalidPath }
+            if path.isEmpty {
+                for (name, value) in values {
+                    guard ["content", "summary", "caption", "code", "expression"].contains(name), object[name] != nil else { throw EditorError.invalidPath }
+                    object[name] = value
+                }
+            } else {
+                guard path.count >= 2, let name = path.first, var children = object[name]?.array,
+                      let index = children.firstIndex(where: { $0["id"]?.string == path.dropFirst().first }) else { throw EditorError.invalidPath }
+                children[index] = try replacing(children[index], path: path.dropFirst(2), values: values)
+                object[name] = .array(children)
+            }
+            return .object(object)
+        }
+        for (address, values) in text {
+            guard let index = rootIndices[address.blockID] else { throw EditorError.invalidPath }
+            changed[index] = try replacing(changed[index] ?? .object(blocks[index].fields), path: address.path[...], values: values)
+        }
+        for (index, value) in changed {
+            try Self.inspect(value, maximumDepth: 100)
+            let block = try Block(fields: value.object!)
+            guard block.id.utf8.elementsEqual(blocks[index].id.utf8) else { throw EditorError.invalidPath }
+            try Validation.block(block, modern: true)
+            size += try encoder.encode(value).count - encoder.encode(JSONValue.object(blocks[index].fields)).count
+            roots[index] = block
+        }
+        if let title {
+            guard let string = title.string, !string.unicodeScalars.contains(where: { [10, 13, 0x2028, 0x2029].contains($0.value) }) else {
+                throw EditorError.invalidDocument("Invalid modern document identity, title or blocks")
+            }
+            size += try encoder.encode(title).count - encoder.encode(output["title"]!).count
+            output["title"] = title
+        }
+        if let value {
+            let appearance = JSONValue.object(value)
+            try Self.inspect(appearance, maximumDepth: 100)
+            size += try encoder.encode(appearance).count - encoder.encode(output["appearance"]!).count
+            output["appearance"] = appearance
+        }
+        guard size <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
+        let appearance = try ModernAppearance(output["appearance"])
+        output["blocks"] = .array(roots.map { .object($0.fields) })
+        return ModernDocument(admittedFields: output, documentID: documentID, title: output["title"]!.string!, appearance: appearance,
+                              blocks: roots, comparison: ModernDocumentComparison(baseline: admittedIdentity, roots: Set(changed.keys)))
+    }
+
+    private init(admittedFields: [String: JSONValue], documentID: String, title: String, appearance: ModernAppearance,
+                 blocks: [Block], comparison: ModernDocumentComparison) {
+        self.fields = admittedFields; self.documentID = documentID; self.title = title
+        self.appearance = appearance; self.blocks = blocks
+        self.comparison = comparison
+    }
+
+    /// Only internal admitted projections can carry this proof. Serialized or
+    /// unrelated documents never borrow it, even when their visible values match.
+    func comparisonRoots(with other: ModernDocument) -> Set<Int>? {
+        if admittedIdentity === other.admittedIdentity { return [] }
+        if let next = other.comparison {
+            if admittedIdentity === next.baseline { return next.roots }
+            if let prior = comparison, prior.baseline === next.baseline { return prior.roots.union(next.roots) }
+        }
+        if let prior = comparison, other.admittedIdentity === prior.baseline { return prior.roots }
+        return nil
+    }
+
     private static func inspect(_ value: JSONValue, maximumDepth: Int) throws {
         var pending = [(value, 0)]
         while let (value, depth) = pending.popLast() {
@@ -91,6 +173,71 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
             else if let array = value.array { pending.append(contentsOf: array.map { ($0, depth + 1) }) }
         }
     }
+}
+
+private final class ModernDocumentIdentity: Sendable {}
+private struct ModernDocumentComparison: Sendable {
+    let baseline: ModernDocumentIdentity
+    let roots: Set<Int>
+}
+
+/// A structural read lease owns one immutable admitted baseline, never a chain
+/// of preceding text snapshots. Size preparation is synchronized for value-copy
+/// readers and does not change persisted documents or protocol identities.
+final class ModernDocumentProjectionBase {
+    let document: ModernDocument
+    let rootIndices: [String: Int]
+    private let lock = NSLock()
+    private var bytes: Int?
+    init(_ document: ModernDocument) {
+        self.document = document
+        rootIndices = Dictionary(uniqueKeysWithValues: document.blocks.enumerated().map { ($0.element.id, $0.offset) })
+    }
+    func byteCount() throws -> Int {
+        lock.lock(); defer { lock.unlock() }
+        if let bytes { return bytes }
+        let count = try document.json().count; bytes = count; return count
+    }
+}
+
+/// Prove ordinary checked values fit without allocating their full encoded
+/// document. Every string byte contributes at most six JSON bytes (including
+/// escaped controls and surrogate pairs). Numbers use the actual codec. If the
+/// conservative bound cannot prove capacity, retain the exact original check;
+/// a loose bound must never reject an otherwise admitted document.
+func canonicalJSONSizeFits(_ value: JSONValue, limit: Int) throws -> Bool {
+    var remaining = limit, pending = [value]
+    let encoder = canonicalEncoder()
+    func consume(_ count: Int) -> Bool {
+        guard count <= remaining else { return false }
+        remaining -= count; return true
+    }
+    func stringFits(_ string: String) -> Bool {
+        guard consume(2) else { return false }
+        let bytes = string.utf8.count
+        guard bytes <= remaining / 6 else { return false }
+        return consume(bytes * 6)
+    }
+    var proven = limit >= 0
+    while proven, let next = pending.popLast() {
+        switch next {
+        case .null: proven = consume(4)
+        case .bool(let flag): proven = consume(flag ? 4 : 5)
+        case .number(let number): proven = try consume(encoder.encode(number).count)
+        case .string(let string): proven = stringFits(string)
+        case .array(let array):
+            proven = consume(2) && consume(max(0, array.count - 1))
+            if proven { pending.append(contentsOf: array) }
+        case .object(let object):
+            proven = consume(2) && consume(max(0, object.count - 1))
+            for (key, child) in object where proven {
+                proven = stringFits(key) && consume(1)
+                if proven { pending.append(child) }
+            }
+        }
+    }
+    if proven { return true }
+    return try encoder.encode(value).count <= limit
 }
 
 /// Foundation decoders collapse duplicate object keys. Check raw keys, including

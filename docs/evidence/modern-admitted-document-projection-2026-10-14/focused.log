@@ -1,0 +1,303 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 4] BlockEditorCore
+[4 / 7] BlockEditorCore
+[17 / 21] BlockEditorCore
+[19 / 35] BlockEditorCore
+[23 / 35] BlockEditorCore
+[27 / 35] BlockEditorCore
+[31 / 35] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[32 / 35] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:400:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+398 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+399 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+400 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+401 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+402 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:422:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+420 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+421 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+422 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+423 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+424 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[35 / 36] BlockEditorCore
+[47 / 89] local-editor-product
+[62 / 103] collaborative-editor-product
+[81 / 118] BlockEditorLocalDemo
+[91 / 137] local-editor-product
+[94 / 140] BlockEditorApple
+[97 / 141] relay-client-product
+[101 / 141] BlockEditorCoreTests-product
+[101 / 141] BlockEditorBridge-product
+[102 / 141] BlockEditorApple
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:64:41: warning: '#require(_:_:)' is redundant because 'captured[name]' never equals 'nil' (from macro 'require')
+ 62 |         for (key, source) in step["bindings"]?.object ?? [:] {
+ 63 |             let name = try #require(source.string)
+ 64 |             request[key] = try #require(captured[name])
+    |                                         `- warning: '#require(_:_:)' is redundant because 'captured[name]' never equals 'nil' (from macro 'require')
+ 65 |         }
+ 66 |         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(JSONValue.object(request))))
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:96:41: warning: '#require(_:_:)' is redundant because 'root.value(at: Array(path.dropFirst()))' never equals 'nil' (from macro 'require')
+ 94 |             let name = try #require(path.first)
+ 95 |             let root = try #require(captured[name])
+ 96 |             request[key] = try #require(root.value(at: Array(path.dropFirst())))
+    |                                         `- warning: '#require(_:_:)' is redundant because 'root.value(at: Array(path.dropFirst()))' never equals 'nil' (from macro 'require')
+ 97 |         }
+ 98 |         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(JSONValue.object(request))))
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:101:83: warning: '#require(_:_:)' is redundant because 'response["recovery"]' never equals 'nil' (from macro 'require')
+ 99 |         if let error = step["error"] {
+100 |             #expect(response["ok"] == .bool(false)); #expect(response["error"] == error)
+101 |             if let name = step["capture"]?.string { captured[name] = try #require(response["recovery"]) }
+    |                                                                                   `- warning: '#require(_:_:)' is redundant because 'response["recovery"]' never equals 'nil' (from macro 'require')
+102 |         } else {
+103 |             #expect(response["ok"] == .bool(true), "\(response)")
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:104:83: warning: '#require(_:_:)' is redundant because 'response["value"]' never equals 'nil' (from macro 'require')
+102 |         } else {
+103 |             #expect(response["ok"] == .bool(true), "\(response)")
+104 |             if let name = step["capture"]?.string { captured[name] = try #require(response["value"]) }
+    |                                                                                   `- warning: '#require(_:_:)' is redundant because 'response["value"]' never equals 'nil' (from macro 'require')
+105 |         }
+106 |     }
+[104 / 141] BlockEditorApple
+[106 / 141] BlockEditorApple
+[107 / 141] BlockEditorApple
+[107 / 141] BlockEditorCoreTests-product
+[109 / 142] modern-relay-client-product
+[110 / 145] modern-relay-client-product
+[112 / 145] BlockEditorApple
+[114 / 145] BlockEditorApple
+[116 / 148] BlockEditorDemoApple
+[117 / 148] modern-relay-client-product
+/Users/luca/Developer/block-editor/Sources/BlockEditorApple/WritingBlockEditorView.swift:142:111: warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+140 |                 HStack(alignment: .top) {
+141 |                     if style == "todo" {
+142 |                         Toggle("Completed", isOn: Binding(get: { item["checked"] == .bool(true) }, set: lease.checkedSetter())).labelsHidden()
+    |                                                                                                               `- warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+143 |                     } else { Text(style == "ordered" ? "\(index + 1)." : "•").accessibilityHidden(true) }
+144 |                     WritingInputField(model: model, address: TextAddress(rootID, path: path + [item.selfID, "content"]), label: "List item")
+[120 / 148] BlockEditorApple
+[123 / 147]
+[126 / 146] BlockEditorDemoApple
+[132 / 159] BlockEditorLocalDemoTests-product
+[134 / 160] relay-client-product
+[138 / 163] local-editor-app-product
+[143 / 165] BlockEditorApple
+[144 / 165] BlockEditorLocalDemoTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[144 / 165] BlockEditorCoreTests-product
+[144 / 165] BlockEditorLocalDemoTests-product
+[146 / 165] BlockEditorDemoApple
+[157 / 166] BlockEditorAppleTests-product
+[169 / 181] modern-relay-client-product
+[171 / 181] BlockEditorAppleTests-product
+[172 / 181] BlockEditorCoreTests-product
+[174 / 183] BlockEditorAppleTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:101:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+ 99 |         view.unmarkText()
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+102 |         view.doCommand(by: Selector(("moveUp:")))
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:102:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+102 |         view.doCommand(by: Selector(("moveUp:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+104 |         #expect(calls == ["new submit", "new boundary"])
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[176 / 183] BlockEditorAppleTests-product
+[180 / 186] BlockEditorCoreTests-product
+[184 / 186] BlockEditorCoreTests-product
+[186 / 188] BlockEditorCoreTests-product
+[194 / 194] editor-bridge-product
+Build complete! (18.32 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernDocumentTests started.
+◇ Suite ModernRangeConversionTests started.
+◇ Suite ModernBatchInteractionTests started.
+◇ Suite ModernSnapshotDeltaTests started.
+◇ Test splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test directedSpanFormattingIsAtomicAndKeepsLaterPeerText() started.
+◇ Suite ModernSessionTests started.
+◇ Test appearanceAndPaletteRejectUnrecognizedPresetsAndRoles() started.
+◇ Test oneLossyMemberRejectsCompleteRangeWithoutWriting() started.
+◇ Test authorRestrictionsPreserveAdmittedMarksAndPeerBlocks() started.
+◇ Test existingLimitsAndOpaqueMetadataArePreserved() started.
+◇ Test rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() started.
+◇ Test repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() started.
+◇ Test independentSnapshotsRetainEveryAdmittedFieldAndCanonicalRoundTrip() started.
+◇ Test exactTwoContainersAndScopedIdentitiesAreRequired() started.
+◇ Test mediaPropertyUndoKeepsPeerCaptionAndRejectsOldSource() started.
+◇ Test markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() started.
+◇ Test logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() started.
+◇ Test nestedColumnsRejectEvenThroughToggleDescendantsButIndependentLayoutsRemainValid() started.
+◇ Test opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test inlineDelimiterFormattingPreservesUnicodeAndRestoresOriginalSelection() started.
+◇ Test navigationAndDirectedSpanFollowLogicalColumnsWithoutWriting() started.
+◇ Test duplicateRawKeysIncludingEscapedKeysRejectBeforeSemanticAdmission() started.
+◇ Test case passing 1 argument split → 5000.5 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test explicitNewDocumentDefaultsDoNotSilentlyUpgradeMissingWireFields() started.
+◇ Test case passing 1 argument split → 9001.0 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument split → 999.0 to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test modernSnapshotDoesNotBroadenLegacyMarkOrSessionAdmission() started.
+◇ Test case passing 1 argument split → inf to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument split → nan to splitRejectsInvalidBoundsAndNonintegerValues(_:) started.
+◇ Test malformedNegotiationRejectsBeforeAuthoringOrLocalSelectionChanges() started.
+◇ Test exactOpaqueNumbersAndUnicodeDoNotUseNormalizedEqualityAndLargeChangesFallBack() started.
+◇ Test rawKeyReplacementAndNumericPathOrderingRemainExact() started.
+◇ Test optInResponsesRetainLegacyShapeAndReconstructUnicodeAfterExternalWritingAndHandleReplacement() started.
+◇ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() started.
+◇ Test unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+◇ Test case passing 1 argument literal → "9007199254740993" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() started.
+◇ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() started.
+◇ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() started.
+◇ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() started.
+◇ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() started.
+◇ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() started.
+◇ Test case passing 1 argument literal → "1.000000000000000000001" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() started.
+◇ Test callbacksObserveFinalHistoryAndCannotReenterPublication() started.
+◇ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() started.
+◇ Test case passing 1 argument literal → "1e-400" to opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) started.
+◇ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() started.
+◇ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() started.
+◇ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() started.
+◇ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() started.
+◇ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() started.
+◇ Test case passing 1 argument literal → "9007199254740992" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "0.1" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "100e-2" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "1.00" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument literal → "-0.0" to exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) started.
+◇ Test case passing 1 argument title → "a
+b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "ab" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a
+b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+◇ Test case passing 1 argument title → "a b" to titleRejectsLineBreaksWithoutConsumingBody(_:) started.
+✔ Test appearanceAndPaletteRejectUnrecognizedPresetsAndRoles() passed after 0.045 seconds.
+✔ Test oneLossyMemberRejectsCompleteRangeWithoutWriting() passed after 0.045 seconds.
+✔ Test authorRestrictionsPreserveAdmittedMarksAndPeerBlocks() passed after 0.045 seconds.
+✔ Test logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() passed after 0.045 seconds.
+✔ Test repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() passed after 0.045 seconds.
+✔ Test inlineDelimiterFormattingPreservesUnicodeAndRestoresOriginalSelection() passed after 0.045 seconds.
+✔ Test navigationAndDirectedSpanFollowLogicalColumnsWithoutWriting() passed after 0.045 seconds.
+✔ Test duplicateRawKeysIncludingEscapedKeysRejectBeforeSemanticAdmission() passed after 0.045 seconds.
+◇ Test case passing 2 arguments kind → "title", inactive → false to unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+◇ Test case passing 2 arguments kind → "title", inactive → true to unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+◇ Test case passing 2 arguments kind → "baseline", inactive → false to unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+◇ Test case passing 2 arguments kind → "baseline", inactive → true to unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+◇ Test case passing 2 arguments kind → "birth", inactive → false to unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+◇ Test case passing 2 arguments kind → "birth", inactive → true to unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) started.
+✔ Test opaqueNumbersCannotSilentlyRoundDuringAdmission(_:) with 3 test cases passed after 0.071 seconds.
+✔ Test explicitNewDocumentDefaultsDoNotSilentlyUpgradeMissingWireFields() passed after 0.079 seconds.
+◇ Test case passing 1 argument inactive → false to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test case passing 1 argument inactive → true to malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) started.
+◇ Test case passing 1 argument reverse → false to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+◇ Test case passing 1 argument reverse → true to independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) started.
+✔ Test exactNumericRoundTripsAllowCanonicalDecimalSpelling(_:) with 5 test cases passed after 0.103 seconds.
+✔ Test splitRejectsInvalidBoundsAndNonintegerValues(_:) with 5 test cases passed after 0.103 seconds.
+✔ Test titleRejectsLineBreaksWithoutConsumingBody(_:) with 5 test cases passed after 0.103 seconds.
+✔ Test modernSnapshotDoesNotBroadenLegacyMarkOrSessionAdmission() passed after 0.103 seconds.
+✔ Test rawKeyReplacementAndNumericPathOrderingRemainExact() passed after 0.065 seconds.
+✔ Test exactOpaqueNumbersAndUnicodeDoNotUseNormalizedEqualityAndLargeChangesFallBack() passed after 0.065 seconds.
+✔ Test exactTwoContainersAndScopedIdentitiesAreRequired() passed after 0.103 seconds.
+✔ Test malformedNegotiationRejectsBeforeAuthoringOrLocalSelectionChanges() passed after 0.065 seconds.
+✔ Test unknownBaselineAtomsRejectEvenWhenDisabledAfterNewFieldBirth(kind:inactive:) with 6 test cases passed after 0.065 seconds.
+✔ Test optInResponsesRetainLegacyShapeAndReconstructUnicodeAfterExternalWritingAndHandleReplacement() passed after 0.065 seconds.
+✔ Test nestedColumnsRejectEvenThroughToggleDescendantsButIndependentLayoutsRemainValid() passed after 0.103 seconds.
+✔ Test malformedOperationWithMissingDependencyRejectsInsteadOfCreatingRecovery() passed after 0.065 seconds.
+✔ Test mediaPropertyUndoKeepsPeerCaptionAndRejectsOldSource() passed after 0.103 seconds.
+✔ Test unobservedReferencesDuplicateBirthsCrossFieldRoutesAndForeignUndoReject() passed after 0.065 seconds.
+✔ Test rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() passed after 0.103 seconds.
+✔ Test callbacksObserveFinalHistoryAndCannotReenterPublication() passed after 0.064 seconds.
+✔ Test mismatchedScopeUnsupportedFormatDuplicateKeysAndLossyNumbersRejectUnchanged() passed after 0.064 seconds.
+✔ Test anchoredBackwardRangeRetainsUnobservedPeerTextAndUnicodeCaret() passed after 0.064 seconds.
+✔ Test malformedPlainTitleAndInactiveTransactionsNeverAcknowledge(_:) with 2 test cases passed after 0.062 seconds.
+✔ Test independentAppearanceRegistersAndSameFieldWinsConvergeAcrossOrder(_:) with 2 test cases passed after 0.062 seconds.
+✔ Test unknownWireFieldsAndMalformedSavedHistoryRejectRatherThanDisappear() passed after 0.065 seconds.
+✔ Suite ModernSnapshotDeltaTests passed after 0.103 seconds.
+✔ Suite ModernRangeConversionTests passed after 0.103 seconds.
+✔ Test missingCausalPacketIsSeparatelyRecoverableWithoutReceiptThenAcceptsUnion() passed after 0.065 seconds.
+✔ Test directedSpanFormattingIsAtomicAndKeepsLaterPeerText() passed after 0.105 seconds.
+✔ Test schemaUnionRecoveryRetainsBothAuthorsAndRepairDisablesOnlyOwnEdit() passed after 0.070 seconds.
+✔ Test noopsAndFailedCommandsPreserveAcceptedHistoryAndCompositionEndsTypingGroup() passed after 0.072 seconds.
+✔ Test invalidDeferredPacketRemainsExportableAndQueueLimitDoesNotAcknowledge() passed after 0.082 seconds.
+✔ Test compositionHoldPreservesLocalDraftBoundaryQueuesNoReceiptAndReleasesOnce() passed after 0.087 seconds.
+✔ Test markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() passed after 0.143 seconds.
+✔ Suite ModernBatchInteractionTests passed after 0.143 seconds.
+✔ Test typingGroupUndoRetainsPeerAtomsAndHistoryOrderAcrossReopen() passed after 0.103 seconds.
+✔ Test independentTitleAppearanceFixturesPassSharedSessionPeerUndoRedoAndReopen() passed after 0.145 seconds.
+✔ Test existingLimitsAndOpaqueMetadataArePreserved() passed after 0.288 seconds.
+✔ Test bodyFieldsInsideColumnsRemainDistinctAndLiteralAtomsRejectRichMarks() passed after 0.349 seconds.
+✔ Test packetCountRawBytesAndHeldBytesUseIndependentLimitsWithoutReceipt() passed after 0.673 seconds.
+✔ Suite ModernSessionTests passed after 0.712 seconds.
+✔ Test independentSnapshotsRetainEveryAdmittedFieldAndCanonicalRoundTrip() passed after 0.872 seconds.
+✔ Suite ModernDocumentTests passed after 0.872 seconds.
+✔ Test run with 44 tests in 5 suites passed after 0.872 seconds.

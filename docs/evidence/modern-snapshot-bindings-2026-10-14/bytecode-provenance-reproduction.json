@@ -1,0 +1,7 @@
+{
+  "generatedBytecodeStatus": "?? scripts/__pycache__/android_fixture_readback.cpython-39.pyc",
+  "repairedStatus": "",
+  "untrackedSourceStillRejected": "?? scripts/unreviewed.py",
+  "passed": true,
+  "qualification": "Isolated Linux-style Python cache behavior with sys.pycache_prefix=None; no source or cache exclusions are weakened."
+}

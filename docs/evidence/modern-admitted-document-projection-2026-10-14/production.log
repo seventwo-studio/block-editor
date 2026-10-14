@@ -1,0 +1,86 @@
+[WebServer] (node:70610) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+  ✘  1 [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (23.9s)
+  ✘  2 [webkit] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (26.9s)
+  ✘  3 [firefox] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (34.5s)
+
+
+  1) [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Error: 1,000-block edit-to-display p95 must meet 50 ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 50
+    Received:    120.39999985694885
+
+      90 |     // Completing measurement is distinct from meeting the accepted budgets.
+      91 |     // Retain all samples and finish with failure when either target is missed.
+    > 92 |     expect.soft(inputP95MS, "1,000-block edit-to-display p95 must meet 50 ms").toBeLessThanOrEqual(50);
+         |                                                                               ^
+      93 |     expect.soft(menuP95MS, "1,000-block menu p95 must meet 100 ms").toBeLessThanOrEqual(100);
+      94 |   } catch (error) { report.error = String(error); throw error; }
+      95 |   finally {
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:92:79
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/attachments/modern-surface-performance-44004b5c847437efc51db3e3d97a4c331346e5a7.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/error-context.md
+
+  2) [webkit] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Error: 1,000-block edit-to-display p95 must meet 50 ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 50
+    Received:    162
+
+      90 |     // Completing measurement is distinct from meeting the accepted budgets.
+      91 |     // Retain all samples and finish with failure when either target is missed.
+    > 92 |     expect.soft(inputP95MS, "1,000-block edit-to-display p95 must meet 50 ms").toBeLessThanOrEqual(50);
+         |                                                                               ^
+      93 |     expect.soft(menuP95MS, "1,000-block menu p95 must meet 100 ms").toBeLessThanOrEqual(100);
+      94 |   } catch (error) { report.error = String(error); throw error; }
+      95 |   finally {
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:92:79
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-webkit/attachments/modern-surface-performance-0d410f1298c5cfd28ed9ba9ef9661bcac0238d4e.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-webkit/error-context.md
+
+  3) [firefox] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Error: 1,000-block edit-to-display p95 must meet 50 ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 50
+    Received:    193
+
+      90 |     // Completing measurement is distinct from meeting the accepted budgets.
+      91 |     // Retain all samples and finish with failure when either target is missed.
+    > 92 |     expect.soft(inputP95MS, "1,000-block edit-to-display p95 must meet 50 ms").toBeLessThanOrEqual(50);
+         |                                                                               ^
+      93 |     expect.soft(menuP95MS, "1,000-block menu p95 must meet 100 ms").toBeLessThanOrEqual(100);
+      94 |   } catch (error) { report.error = String(error); throw error; }
+      95 |   finally {
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:92:79
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-firefox/attachments/modern-surface-performance-4177462d08eb7d98a631bf9c0620b51232aeef4f.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-firefox/error-context.md
+
+  3 failed
+    [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+    [webkit] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+    [firefox] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 

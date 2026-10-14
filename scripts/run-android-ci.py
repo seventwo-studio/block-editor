@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import time
 import zipfile
+from android_fixture_readback import read_fixture
 
 
 def main():
@@ -48,7 +49,7 @@ def main():
             result = device("shell", "am", "instrument", "-w", "-r", "-e", "class", class_name,
                             "-e", "expectedAbi", args.abi, *extra_args, "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner",
                             capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired as error:
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
             def captured(value):
                 return value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
             (output / filename).write_text(captured(error.stdout) + captured(error.stderr))
@@ -81,6 +82,8 @@ def main():
                                  "-no-snapshot", "-no-boot-anim", "-wipe-data", "-accel", "on", "-gpu", "swiftshader_indirect",
                                  "-memory", "2048", "-cores", "2", "-camera-back", "none", "-camera-front", "none", "-no-metrics"],
                                 stdout=emulator_log, stderr=subprocess.STDOUT, env=environment)
+    live_log = None
+    log_reader = None
     try:
         deadline = time.monotonic() + 240
         while True:
@@ -94,12 +97,27 @@ def main():
             time.sleep(2)
         properties = device("shell", "getprop", capture_output=True, text=True).stdout
         (output / "device-properties.txt").write_text(properties)
+        # A guest restart can erase the ring buffer before final collection.
+        # Keep the original stream and its terminal status; do not reconnect or
+        # retry instrumentation, which would hide the failed execution.
+        live_log = (output / "logcat-live.txt").open("w")
+        log_reader = subprocess.Popen([str(adb), "-s", serial, "logcat", "-v", "threadtime"],
+                                      stdout=live_log, stderr=subprocess.STDOUT, env=environment)
         actual_api = device("shell", "getprop", "ro.build.version.sdk", capture_output=True, text=True).stdout.strip()
         actual_abis = device("shell", "getprop", "ro.product.cpu.abilist", capture_output=True, text=True).stdout.strip().split(",")
         if actual_api != args.api or args.abi not in actual_abis:
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
-        device("install", "-r", "--abi", args.abi, apk)
+        # Transfer the complete APK before package-manager invocation. Keep
+        # installation/ABI checks and retain the original terminal output.
+        try:
+            installed = device("install", "--no-streaming", "-r", "--abi", args.abi, apk,
+                               capture_output=True, text=True)
+        except subprocess.CalledProcessError as failure:
+            (output / "install.txt").write_text((failure.stdout or "") + (failure.stderr or ""))
+            raise
+        (output / "install.txt").write_text(installed.stdout + installed.stderr)
+        print(installed.stdout + installed.stderr, flush=True)
         if args.reference_capture:
             capture = Path("test-results/reference-capture")
             capture.mkdir(parents=True, exist_ok=True)
@@ -144,10 +162,19 @@ def main():
                     receipt.write_text(json.dumps(report, indent=2) + "\n")
         instrument("studio.seventwo.blockeditor.WritingInputTest", "writing-input-instrumentation.txt", 11)
         instrument("studio.seventwo.blockeditor.WritingComposeInputTest", "writing-compose-input-instrumentation.txt", 6)
-        instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 5)
+        instrument("studio.seventwo.blockeditor.NativeJsonTransportTest", "json-transport-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
         instrument("studio.seventwo.blockeditor.ModernSessionTest", "modern-session-instrumentation.txt", 1)
+        # The translated ARM row exhausted the whole-suite 300-second limit
+        # during large retained history after six completed tests. Keep all nine
+        # assertions in the same process, with a bounded execution deadline;
+        # this is separate from physical surface performance acceptance.
+        instrument("studio.seventwo.blockeditor.ModernRelayHostTest", "modern-relay-host-instrumentation.txt", 9,
+                   timeout=600 if args.abi == "arm64-v8a" else 300)
+        environment["EVIDENCE_SOURCE_SHA"] = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        run("bun", "scripts/test-modern-android-relay.ts", "--sdk", sdk, "--serial", serial,
+            "--apk", apk, "--output", output / "modern-relay-process")
         instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
@@ -184,10 +211,8 @@ def main():
         # 316 legal/over-depth commands under translated ARM64. Its watchdog is
         # separate from individual typed/UI acceptance and performance limits.
         instrument("studio.seventwo.blockeditor.RuntimeCompatibilityTest", "runtime-instrumentation.txt", 1, timeout=900)
-        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/android.json",
-               stdout=(output / f"{label}.json").open("w"))
-        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/compatibility/environment.json",
-               stdout=(output / "android-environment.json").open("w"))
+        read_fixture(device, "files/compatibility/android.json", output / f"{label}.json", validate_json=False)
+        read_fixture(device, "files/compatibility/environment.json", output / "android-environment.json")
         metadata = json.loads((output / "android-environment.json").read_text())
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
             raise RuntimeError("Instrumented JNI environment does not match the requested runtime")
@@ -215,8 +240,7 @@ def main():
                     # Preserve an incomplete case report beside the original
                     # instrumentation failure; diagnostics cannot replace it.
                     try:
-                        device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", f"files/resource/{resource_name}",
-                               stdout=(resource_output / resource_name).open("w"), timeout=20)
+                        read_fixture(device, f"files/resource/{resource_name}", resource_output / resource_name)
                     except Exception as diagnostic:
                         print(f"Resource report capture failed: {diagnostic}", flush=True)
                 resource_report = json.loads((resource_output / resource_name).read_text())
@@ -230,16 +254,19 @@ def main():
             revision = run("git", "rev-parse", "HEAD", capture_output=True, text=True).stdout.strip()
             instrument("studio.seventwo.blockeditor.PerformanceTest", "performance-instrumentation.txt", 1,
                        extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision), timeout=1800)
-            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android.json",
-                   stdout=(performance_output / f"performance-{label}.json").open("w"))
+            read_fixture(device, "files/performance/android.json", performance_output / f"performance-{label}.json")
             instrument("studio.seventwo.blockeditor.PerformanceTest", "performance-writing-instrumentation.txt", 1,
                        extra_args=("-e", "performanceProfile", args.performance_profile, "-e", "sourceCommit", revision,
                                    "-e", "performanceWriting", "true",
                                    "-e", "sourceTree", run("git", "rev-parse", "HEAD^{tree}", capture_output=True, text=True).stdout.strip(),
                                    "-e", "sourceDirty", str(bool(run("git", "status", "--porcelain", capture_output=True, text=True).stdout.strip())).lower()), timeout=1800)
-            device("exec-out", "run-as", "studio.seventwo.blockeditor.test", "cat", "files/performance/android-writing.json",
-                   stdout=(performance_output / f"performance-writing-{label}.json").open("w"))
+            read_fixture(device, "files/performance/android-writing.json", performance_output / f"performance-writing-{label}.json")
     finally:
+        (output / "runtime-process-status.json").write_text(json.dumps({
+            "emulatorExitBeforeCleanup": emulator.poll(),
+            "logcatExitBeforeCleanup": log_reader.poll() if log_reader is not None else None,
+            "logcatStarted": log_reader is not None,
+        }, indent=2) + "\n")
         try:
             diagnostics = [("logcat.txt", ["logcat", "-d"])]
             # Partial fixture output remains useful when an assertion fails.
@@ -262,6 +289,15 @@ def main():
                     except (subprocess.TimeoutExpired, OSError) as error:
                         log.write(f"\nDiagnostic collection failed: {error}\n")
         finally:
+            if log_reader is not None and log_reader.poll() is None:
+                log_reader.terminate()
+                try:
+                    log_reader.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    log_reader.kill()
+                    log_reader.wait()
+            if live_log is not None:
+                live_log.close()
             emulator.terminate()
             try:
                 emulator.wait(timeout=15)

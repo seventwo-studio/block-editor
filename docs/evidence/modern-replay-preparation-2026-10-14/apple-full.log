@@ -1,0 +1,311 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 1]
+Build complete! (0.47 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernHostStoreTests started.
+◇ Suite ModernNativeInputTests started.
+◇ Suite ModernAccessibilityLabelTests started.
+◇ Test nativeRootOrderingAndUndoUseSharedCommands() started.
+◇ Test writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test nativeCompositionFollowsMovedNodeWhenItsOldPathIsReused() started.
+◇ Test writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) started.
+◇ Test nativeInsertionsRespectPolicyAndPreserveExistingContent() started.
+◇ Suite ModernProviderActivationTests started.
+◇ Test checklistCommandFollowsOriginAfterCompositionReleasesMoveAndLabelReuse() started.
+◇ Suite ModernNativeRelayProcessTests started.
+◇ Test writingOrdinaryTypingBeforePendingTailLayoutUsesTheSharedDestination() started.
+◇ Test writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test writingTextOnlyReplayExpiresFocusCaptureBeforeIntentionalBlurAndLaterMove() started.
+◇ Test failedCompositionCommitStopsLocalCommandWithoutDroppingRemoteHold() started.
+◇ Test writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test writingAppKitMinimalDraftPreservesMarksReferenceAndRejectsPartialReference() started.
+◇ Test writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test writingDetachedNativeSourceCannotUseRetainedKeyCallbackBeforeDisposal() started.
+◇ Test writingEditorRejectsImplicitLegacyEpochAndClosedInputMutation() started.
+◇ Test platformEntryDisposalCommitsDraftAndReleasesRemoteHold() started.
+◇ Suite ModernNativeRelayTests started.
+◇ Suite ModernNativeClipboardTests started.
+◇ Test writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test legacyNestedActionsCannotDeleteTheirContainingRoot() started.
+◇ Test writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test focusHandoffDoesNotOverrideAnotherNativeResponder() started.
+◇ Test compositionCommitsBeforeRemoteChangesAndPreservesAuthorUndo() started.
+◇ Test appKitSelectionAndUnicodeInsertionFollowRemoteText() started.
+◇ Test appleCompositionPreservesMarksAndAtomicReferences() started.
+◇ Test fullEditorFocusHandoffWaitsForCompositionCommit() started.
+◇ Test writingCleanDisabledInputAllowsAnotherNativeCommandButMarkedDraftBlocksIt() started.
+◇ Test platformEntryCommitsBeforeApplyingQueuedRemoteText() started.
+◇ Test writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test nativeFormattingShortcutTogglesMarksAndIgnoresCompositionAndDisposal() started.
+◇ Test case passing 1 argument version → 6 to writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test case passing 1 argument version → 4 to writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) started.
+◇ Test writingFailedCompositionClosePreservesRecoverableDraftAndQueuedRemoteInput() started.
+◇ Test case passing 1 argument version → 6 to writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) started.
+◇ Test writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) started.
+◇ Test platformCommandCommitsEntryBeforeUndoAndRemoteReplay() started.
+◇ Test nativeFormattingMapsQueuedRemoteInsertionBeforeCommand() started.
+◇ Test committedPlatformInputPreservesMarksAndReferences() started.
+◇ Test writingFocusedFormattingRetainsNativeRangeAndUpstreamAffinityAfterScheduledFocusWork() started.
+◇ Test writingImmediateRepeatedEnterUsesThePendingDestinationIdentityAndCaret() started.
+◇ Test writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) started.
+◇ Test appKitUnmarkAndDisposalReleaseRemoteChanges() started.
+◇ Test case passing 2 arguments version → 4, emptyTail → false to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test nativeActionFollowsMovedIdentityWhenOldLabelIsReused() started.
+◇ Test writingPendingTargetSelectionFormatsItsRenderedRichFieldBeforeLayout() started.
+◇ Test case passing 1 argument version → 5 to writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) started.
+◇ Test writingFailedLocalCommandExpiresCaptureBeforeIntentionalBlurAndRemoteReparent() started.
+◇ Test writingRemoteSplitOfUnfocusedFieldDoesNotStealAnotherFieldsFocus() started.
+◇ Test case passing 2 arguments selectionLength → 0, remoteEdit → false to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test writingPendingCaretDoesNotRouteAnotherFocusedInputOrRevokedSourceCallback() started.
+◇ Test case passing 1 argument version → 4 to writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) started.
+◇ Test case passing 2 arguments version → 5, emptyTail → false to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test nativeFormattingCombinesCodeBoldAndItalic() started.
+◇ Test case passing 1 argument version → 5 to writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test unchangedReplayDoesNotLeaveFocusCaptureForALaterReparent() started.
+◇ Test writingCompositionMenuUsesCapturedOriginAfterQueuedReparentAndLabelReuse() started.
+◇ Test fullEditorViewRebindsAReusedLabelToItsNewOrigin() started.
+◇ Test fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) started.
+◇ Test case passing 2 arguments version → 4, emptyTail → true to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 1 argument version → 4 to writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test case passing 1 argument version → 4 to writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test writingPendingCaretExpiresAfterSynchronousFocusAwayAndBackBeforeLayout() started.
+◇ Test writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test writingNativeTypingAppliesSharedMarkdownAndRespectsDisabledTypes() started.
+◇ Test case passing 2 arguments version → 5, emptyTail → true to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test appleSelectionMapsRemoteEditsAndDisposalReleasesComposition() started.
+◇ Test writingPlatformCommittedDictationAndDuplicateFinish() started.
+◇ Test writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test writingRetainedChecklistSetterKeepsOriginAfterMoveAndRejectsDeletedReuse() started.
+◇ Test case passing 2 arguments selectionLength → 3, remoteEdit → false to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test writingAppKitSoftBreakAndBoundaryBackspaceUseSharedTransactions() started.
+◇ Test appKitCompositionCommitsUnicodeBeforeRemoteReplay() started.
+◇ Test case passing 1 argument version → 5 to writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test appKitDisabledHostKeepsAcceptedTextSelectable() started.
+◇ Test writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test writingNativeFormattingTogglesAndPreservesUpstreamSelectionAffinity() started.
+◇ Test writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test case passing 2 arguments selectionLength → 3, remoteEdit → true to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test case passing 2 arguments version → 6, emptyTail → false to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test writingEmptyTailUndoAndRedoRetainsNativeHeadPositionProvenance() started.
+◇ Test case passing 2 arguments selectionLength → 0, remoteEdit → true to writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) started.
+◇ Test case passing 1 argument version → 5 to writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) started.
+◇ Test case passing 1 argument version → 6 to writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) started.
+◇ Test writingRetainedNativeCallbacksRespectCurrentPermissionAndCloseLease() started.
+◇ Test writingAppKitCompositionCommitsBeforeEnterAndKeepsPeerUndo() started.
+◇ Test case passing 2 arguments version → 6, emptyTail → true to writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) started.
+◇ Test case passing 1 argument version → 6 to writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() started.
+◇ Test writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test case passing 1 argument version → 4 to writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test case passing 1 argument version → 5 to writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) started.
+◇ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() started.
+◇ Test case passing 1 argument version → 6 to writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) started.
+◇ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() started.
+◇ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() started.
+◇ Test case passing 2 arguments list → false, emptyTail → true to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 2 arguments list → false, emptyTail → false to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test fullEditorConversionAndUndoRefreshNativeAccessibleName() started.
+◇ Test case passing 2 arguments list → true, emptyTail → false to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 2 arguments list → true, emptyTail → true to writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() started.
+◇ Test case passing 1 argument version → 4 to writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test delayedResultIsDurableButDoesNotApplyAfterDocumentSwitch() started.
+◇ Test case passing 1 argument version → 4 to writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test migrationActivationRetainsOriginalsAndRollbackSurvivesConflict() started.
+◇ Test appKitToolbarUndoCommitsCompositionBeforeUndoAndRemoteReplay() started.
+◇ Test case passing 1 argument version → 5 to writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test case passing 1 argument version → 5 to writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test failedResultSaveLeavesResponseForExplicitRetry() started.
+◇ Test case passing 1 argument version → 4 to writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test case passing 2 arguments version → 4, replacingSelection → false to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() started.
+◇ Test independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() started.
+◇ Test case passing 2 arguments version → 4, replacingSelection → true to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() started.
+◇ Test case passing 2 arguments version → 5, replacingSelection → false to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 2 arguments version → 6, replacingSelection → false to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) started.
+◇ Test case passing 1 argument rapidReceive → false to writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) started.
+◇ Test case passing 1 argument version → 6 to writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) started.
+◇ Test case passing 2 arguments version → 5, replacingSelection → true to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 1 argument empty → true to writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) started.
+◇ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() started.
+◇ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() started.
+◇ Test case passing 1 argument version → 5 to writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() started.
+◇ Test case passing 1 argument version → 5 to writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument version → 6 to writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) started.
+◇ Test case passing 1 argument scenario → .selectionRebase to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument scenario → .consecutiveReceives to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test case passing 1 argument empty → false to writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) started.
+◇ Test case passing 1 argument version → 4 to writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test case passing 1 argument rapidReceive → true to writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) started.
+◇ Test case passing 1 argument version → 6 to writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) started.
+◇ Test case passing 2 arguments version → 6, replacingSelection → true to writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) started.
+◇ Test case passing 1 argument version → 4 to writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test case passing 1 argument version → 4 to writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test case passing 1 argument version → 4 to writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test case passing 1 argument version → 5 to writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test inputAuthoredDuringTransmissionRemainsUnacknowledged() started.
+◇ Test failedAcknowledgmentSaveKeepsPendingAndRetryPreservesPeerUndo() started.
+◇ Test case passing 1 argument version → 5 to writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test case passing 1 argument version → 6 to writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) started.
+◇ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() started.
+◇ Test case passing 1 argument version → 6 to writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) started.
+◇ Test malformedScopeDuplicateKeysAndUnknownReceiptCannotPublishPeerWork() started.
+◇ Test rejectedRecoveryIsDurableAndOnlyOwnBirthIsExplicitlyRepaired() started.
+◇ Test case passing 1 argument version → 6 to writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test capacityFailureRetainsCompleteLocalHistoryAndReceipt() started.
+◇ Test case passing 1 argument scenario → .reparent to fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) started.
+◇ Test case passing 1 argument version → 4 to writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() started.
+◇ Test case passing 1 argument version → 5 to writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test case passing 1 argument version → 6 to writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) started.
+◇ Test case passing 1 argument version → 4 to writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) started.
+◇ Test case passing 1 argument version → 6 to writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test case passing 1 argument version → 5 to writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) started.
+◇ Test documentAndCredentialABARejectDelayedResponses() started.
+◇ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() started.
+◇ Test heldPeerReceiptAndOriginalDraftReopenWithoutResumingComposition() started.
+✔ Test nativeRootOrderingAndUndoUseSharedCommands() passed after 0.003 seconds.
+✔ Test nativeInsertionsRespectPolicyAndPreserveExistingContent() passed after 0.010 seconds.
+✔ Test writingListInsertionRejectsReparentingAfterCompositionWithoutMutatingCollections(version:) with 3 test cases passed after 0.131 seconds.
+✔ Test writingRenderedListConvertRetainsBothOwnerAndTargetLease(version:) with 3 test cases passed after 0.161 seconds.
+✔ Test nativeCompositionFollowsMovedNodeWhenItsOldPathIsReused() passed after 0.167 seconds.
+✔ Test checklistCommandFollowsOriginAfterCompositionReleasesMoveAndLabelReuse() passed after 0.168 seconds.
+✔ Test failedCompositionCommitStopsLocalCommandWithoutDroppingRemoteHold() passed after 0.198 seconds.
+✔ Test writingOrdinaryTypingBeforePendingTailLayoutUsesTheSharedDestination() passed after 0.246 seconds.
+✔ Test writingNativeStructuralMarkdownUsesSharedNodesAndHostFallbackWithoutAssets(version:) with 2 test cases passed after 0.277 seconds.
+✔ Test writingAppKitMinimalDraftPreservesMarksReferenceAndRejectsPartialReference() passed after 0.352 seconds.
+✔ Test platformEntryDisposalCommitsDraftAndReleasesRemoteHold() passed after 0.363 seconds.
+✔ Test writingEditorRejectsImplicitLegacyEpochAndClosedInputMutation() passed after 0.364 seconds.
+✔ Test writingNativeMarkdownFailureAndRetiredCallbacksPreserveAcceptedHistory(version:) with 3 test cases passed after 0.374 seconds.
+✔ Test writingDetachedNativeSourceCannotUseRetainedKeyCallbackBeforeDisposal() passed after 0.464 seconds.
+✔ Test writingNativeMarkdownIsExplicitAndKeepsOrdinaryPasteLiteral(version:) with 3 test cases passed after 0.508 seconds.
+✔ Test appKitSelectionAndUnicodeInsertionFollowRemoteText() passed after 0.540 seconds.
+✔ Test writingNativePasteUsesPendingTailAfterMarkedCommitBeforeLayout(version:emptyTail:) with 6 test cases passed after 0.564 seconds.
+✔ Test compositionCommitsBeforeRemoteChangesAndPreservesAuthorUndo() passed after 0.577 seconds.
+✔ Test legacyNestedActionsCannotDeleteTheirContainingRoot() passed after 0.577 seconds.
+✔ Test writingImpossibleMovementDoesNotFinalizeMarkedDraftOrDrainPeer(version:) with 3 test cases passed after 0.589 seconds.
+✔ Test appleCompositionPreservesMarksAndAtomicReferences() passed after 0.589 seconds.
+✔ Test writingNativeCopyRoundTripRetainsRichReferenceWithoutAuthorMutation(version:) with 3 test cases passed after 0.590 seconds.
+✔ Test platformEntryCommitsBeforeApplyingQueuedRemoteText() passed after 0.647 seconds.
+✔ Test writingPendingTargetMarkedInputCommitsBeforeAnotherEnterAndRetainsPeerUndo(list:emptyTail:) with 4 test cases passed after 0.704 seconds.
+✔ Test nativeFormattingShortcutTogglesMarksAndIgnoresCompositionAndDisposal() passed after 0.831 seconds.
+✔ Test writingRenderedListConvertRejectsTargetReparentingDuringDrain(version:) with 3 test cases passed after 0.855 seconds.
+✔ Test platformCommandCommitsEntryBeforeUndoAndRemoteReplay() passed after 0.856 seconds.
+✔ Test writingFailedCompositionClosePreservesRecoverableDraftAndQueuedRemoteInput() passed after 0.864 seconds.
+✔ Test committedPlatformInputPreservesMarksAndReferences() passed after 0.879 seconds.
+✔ Test writingImmediateRepeatedEnterUsesThePendingDestinationIdentityAndCaret() passed after 0.889 seconds.
+✔ Test writingNativeClipboardKeepsExplicitProtocolAndEpoch(version:) with 3 test cases passed after 0.889 seconds.
+✔ Test nativeActionFollowsMovedIdentityWhenOldLabelIsReused() passed after 0.907 seconds.
+✔ Test writingCleanDisabledInputAllowsAnotherNativeCommandButMarkedDraftBlocksIt() passed after 0.911 seconds.
+✔ Test writingPendingTargetSelectionFormatsItsRenderedRichFieldBeforeLayout() passed after 0.915 seconds.
+✔ Test writingNativeMarkdownFinalizesMarkedInputBeforePasteAndPreservesPeerRichUndo(version:) with 3 test cases passed after 0.963 seconds.
+✔ Test writingRenderedDisposedAndReadOnlyControlsPreserveFullHistory(version:) with 3 test cases passed after 0.974 seconds.
+✔ Test writingRenderedCallbacksCannotReauthorizeAfterMoveAndReturn(version:) with 3 test cases passed after 1.069 seconds.
+✔ Test fullEditorViewRebindsAReusedLabelToItsNewOrigin() passed after 1.094 seconds.
+✔ Test writingCompositionMenuUsesCapturedOriginAfterQueuedReparentAndLabelReuse() passed after 1.102 seconds.
+✔ Test nativeFormattingCombinesCodeBoldAndItalic() passed after 1.105 seconds.
+✔ Test writingPlatformCommittedDictationAndDuplicateFinish() passed after 1.124 seconds.
+✔ Test writingListInsertionRetainsFailedCompositionAndUsesCurrentDrainedStyle(version:) with 3 test cases passed after 1.184 seconds.
+✔ Test writingRetainedChecklistSetterKeepsOriginAfterMoveAndRejectsDeletedReuse() passed after 1.207 seconds.
+✔ Test writingPendingCaretExpiresAfterSynchronousFocusAwayAndBackBeforeLayout() passed after 1.217 seconds.
+✔ Test appKitDisabledHostKeepsAcceptedTextSelectable() passed after 1.222 seconds.
+✔ Test appKitUnmarkAndDisposalReleaseRemoteChanges() passed after 1.234 seconds.
+✔ Test nativeFormattingMapsQueuedRemoteInsertionBeforeCommand() passed after 1.248 seconds.
+✔ Test appleSelectionMapsRemoteEditsAndDisposalReleasesComposition() passed after 1.248 seconds.
+✔ Test writingNativeTypingAppliesSharedMarkdownAndRespectsDisabledTypes() passed after 1.253 seconds.
+✔ Test writingListInsertionPreflightKeepsMarkedDraftAndHeldPeersOnDisabledOrRetiredActions(version:) with 3 test cases passed after 1.286 seconds.
+✔ Test writingRenderedMovementRechecksBoundsAfterHeldPeerDrain(version:) with 3 test cases passed after 1.295 seconds.
+✔ Test writingNativeFormattingTogglesAndPreservesUpstreamSelectionAffinity() passed after 1.321 seconds.
+✔ Test writingAppKitCompositionCommitsBeforeEnterAndKeepsPeerUndo() passed after 1.333 seconds.
+✔ Test appKitCompositionCommitsUnicodeBeforeRemoteReplay() passed after 1.361 seconds.
+✔ Test writingNativePasteRespectsRetiredLeaseAndHostRestrictions(version:) with 3 test cases passed after 1.398 seconds.
+✔ Test writingPlatformSubmitEchoPreservesDeferredPeerAndAuthorUndo(version:) with 3 test cases passed after 1.426 seconds.
+✔ Test writingRetainedNativeCallbacksRespectCurrentPermissionAndCloseLease() passed after 1.429 seconds.
+✔ Test appKitToolbarUndoCommitsCompositionBeforeUndoAndRemoteReplay() passed after 1.449 seconds.
+✔ Test fullEditorConversionAndUndoRefreshNativeAccessibleName() passed after 1.489 seconds.
+✔ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() passed after 1.523 seconds.
+✔ Suite ModernAccessibilityLabelTests passed after 1.524 seconds.
+✔ Test writingAppKitSoftBreakAndBoundaryBackspaceUseSharedTransactions() passed after 2.979 seconds.
+✔ Test writingListAddNestedItemExplicitlyCreatesAbsentCollectionAndUndoesExactly(version:) with 3 test cases passed after 2.985 seconds.
+✔ Test writingNativeStructuredPasteFinalizesMarkedDraftAndKeepsPeerAuthorHistory(version:) with 3 test cases passed after 3.301 seconds.
+✔ Test writingTextOnlyReplayExpiresFocusCaptureBeforeIntentionalBlurAndLaterMove() passed after 3.301 seconds.
+✔ Test writingListAddItemFinalizesAndDrainsBeforeFreshCaretAndUndo(version:) with 3 test cases passed after 3.343 seconds.
+✔ Test fullEditorFocusHandoffWaitsForCompositionCommit() passed after 3.350 seconds.
+✔ Test writingPendingCaretDoesNotRouteAnotherFocusedInputOrRevokedSourceCallback() passed after 3.396 seconds.
+✔ Test writingFailedLocalCommandExpiresCaptureBeforeIntentionalBlurAndRemoteReparent() passed after 3.397 seconds.
+✔ Test writingFocusTransfersOpaqueOriginAndUpstreamSelectionAfterReplay(rapidReceive:) with 2 test cases passed after 3.434 seconds.
+✔ Test writingNativePlainPasteUsesExistingSharedInlineCommand(version:replacingSelection:) with 6 test cases passed after 3.441 seconds.
+✔ Test writingRemoteSplitOfUnfocusedFieldDoesNotStealAnotherFieldsFocus() passed after 3.441 seconds.
+✔ Test fullEditorViewPreservesFocusedOriginAfterRemoteReparentAndLabelReuse(scenario:) with 3 test cases passed after 3.451 seconds.
+✔ Test diskReopenPairsHistoryCaretProvidersHeldPeerAndOriginalDraft() passed after 3.484 seconds.
+✔ Test actualNativeCopyCutPasteKeepsRichAtomsPeerTextAndSharedUndo() passed after 4.807 seconds.
+✔ Test focusHandoffDoesNotOverrideAnotherNativeResponder() passed after 4.871 seconds.
+✔ Test writingFocusedFormattingRetainsNativeRangeAndUpstreamAffinityAfterScheduledFocusWork() passed after 4.873 seconds.
+✔ Test unchangedReplayDoesNotLeaveFocusCaptureForALaterReparent() passed after 4.876 seconds.
+✔ Test writingSplitTailUndoKeepsEmptyOrAtomicReferenceBoundary(empty:) with 2 test cases passed after 4.879 seconds.
+✔ Test conflictingRecoveryReopensAcceptedStateAndCanBeExplicitlyRepaired() passed after 4.879 seconds.
+✔ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() passed after 4.880 seconds.
+✔ Test dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() passed after 4.881 seconds.
+✔ Test malformedRichDoesNotFallBackAndExplicitRetryKeepsOriginalDestination() passed after 4.885 seconds.
+✔ Test failedPublicationKeepsTypingGroupAndDocumentSwitchCannotConsumeOldTicket() passed after 4.897 seconds.
+✔ Suite ModernNativeClipboardTests passed after 4.899 seconds.
+✔ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() passed after 4.929 seconds.
+✔ Test ordinaryReopenReceivesPeersWithoutAnUnrelatedResume() passed after 4.929 seconds.
+✔ Test writingLocalUndoRebasesFocusedTailToOriginalFieldDuringNativeLayout(selectionLength:remoteEdit:) with 4 test cases passed after 7.894 seconds.
+✔ Test writingEmptyTailUndoAndRedoRetainsNativeHeadPositionProvenance() passed after 7.894 seconds.
+✔ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() passed after 7.942 seconds.
+✔ Suite ModernNativeInputTests passed after 7.943 seconds.
+✔ Test capacityFailureRetainsCompleteLocalHistoryAndReceipt() passed after 9.262 seconds.
+✔ Test staleWriterAndInvalidDraftCannotReplaceTheDurablePair() passed after 9.269 seconds.
+✔ Suite ModernHostStoreTests passed after 9.271 seconds.
+✔ Test heldPeerReceiptAndOriginalDraftReopenWithoutResumingComposition() passed after 9.358 seconds.
+✔ Test documentAndCredentialABARejectDelayedResponses() passed after 9.374 seconds.
+✔ Test migrationActivationRetainsOriginalsAndRollbackSurvivesConflict() passed after 9.488 seconds.
+✔ Test failedResultSaveLeavesResponseForExplicitRetry() passed after 9.542 seconds.
+✔ Test inputAuthoredDuringTransmissionRemainsUnacknowledged() passed after 9.558 seconds.
+✔ Test delayedResultIsDurableButDoesNotApplyAfterDocumentSwitch() passed after 9.560 seconds.
+✔ Suite ModernProviderActivationTests passed after 9.561 seconds.
+✔ Test malformedScopeDuplicateKeysAndUnknownReceiptCannotPublishPeerWork() passed after 9.560 seconds.
+✔ Test rejectedRecoveryIsDurableAndOnlyOwnBirthIsExplicitlyRepaired() passed after 9.561 seconds.
+✔ Test failedAcknowledgmentSaveKeepsPendingAndRetryPreservesPeerUndo() passed after 9.590 seconds.
+✔ Suite ModernNativeRelayTests passed after 9.591 seconds.
+✔ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() passed after 10.057 seconds.
+Native relay process-restart evidence: 13 exited client processes, PIDs [69885, 69888, 69890, 69896, 69897, 69898, 69899, 69902, 69906, 69907, 69908, 69909, 69910]
+✔ Test independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() passed after 10.329 seconds.
+✔ Suite ModernNativeRelayProcessTests passed after 10.330 seconds.
+✔ Test run with 101 tests in 7 suites passed after 10.331 seconds.

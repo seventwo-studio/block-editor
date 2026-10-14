@@ -1,0 +1,100 @@
+{
+  "complete": true,
+  "sourceCommit": "264d1877d8c2a7db61a590051d9b71d66ff75466",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+  "browser": "firefox",
+  "browserVersion": "155.0",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [
+    1020,
+    1010,
+    1036,
+    1004,
+    1006,
+    1006,
+    1020,
+    1019,
+    1015,
+    1021,
+    1018,
+    1046,
+    1014,
+    1010,
+    1013,
+    1013,
+    1014,
+    1018,
+    1015,
+    1019
+  ],
+  "menuMS": [
+    66,
+    59,
+    67,
+    69,
+    66,
+    61,
+    63,
+    70,
+    68,
+    53,
+    62,
+    57,
+    61,
+    72,
+    62,
+    68,
+    67,
+    62,
+    62,
+    64
+  ],
+  "productionReact": true,
+  "method": "Trusted native initiating keydown/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity and keydown validation. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "diagnostic": false,
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+    "hardwareConcurrency": 14,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "devicePixelRatio": 1
+  },
+  "summary": {
+    "inputP95MS": 1036,
+    "menuP95MS": 70,
+    "targets": {
+      "inputP95MS": 50,
+      "menuP95MS": 100
+    }
+  },
+  "targetsPassed": false,
+  "consoleMessages": [],
+  "pageErrors": [],
+  "lastState": {
+    "accepted": {
+      "consumer": {
+        "keep": 1
+      },
+      "content": [
+        {
+          "text": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+          "type": "text"
+        }
+      ],
+      "id": "note-1",
+      "type": "paragraph"
+    },
+    "nativeBuffer": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+    "focused": "Block text",
+    "measurement": {
+      "elapsedMS": 64,
+      "frameCount": 2
+    },
+    "errors": []
+  }
+}

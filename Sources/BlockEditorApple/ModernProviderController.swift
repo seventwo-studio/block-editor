@@ -13,15 +13,24 @@ import Observation
         self.model = model; self.store = store; revision = loadedRevision
     }
     @discardableResult public func save() async throws -> ModernHostCheckpoint {
+        try await enqueueSave(relay: nil)
+    }
+    /// Relay confirmation uses the same queue as autosave and providers. Publish
+    /// its receipt to the model only after the paired write is confirmed.
+    @discardableResult func save(confirmingRelay relay: ModernRelayReceipt) async throws -> ModernHostCheckpoint {
+        try await enqueueSave(relay: relay)
+    }
+    private func enqueueSave(relay: ModernRelayReceipt?) async throws -> ModernHostCheckpoint {
         let previous = tail
         let task = Task { @MainActor in
             _ = try? await previous?.value
             // Capture only after the previous write finishes. All local sidecars
             // and accepted history belong to this single immutable checkpoint.
-            let checkpoint = try model.checkpoint()
+            let checkpoint = try model.checkpoint(relay: relay)
             do {
                 let saved = try await store.save(checkpoint, replacing: revision)
                 revision = saved.revision
+                if let relay { model.relayReceipt = relay }
                 return saved
             } catch ModernHostStoreError.durabilityUnconfirmed(let proposed) {
                 // A rename may already have published the proposed pair. Read

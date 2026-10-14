@@ -15,6 +15,7 @@ let package = Package(
         .executable(name: "collaborative-editor", targets: ["CollaborativeEditor"]),
         .executable(name: "editor-bridge", targets: ["EditorBridgeCLI"]),
         .executable(name: "relay-client", targets: ["RelayClient"]),
+        .executable(name: "modern-relay-client", targets: ["ModernRelayClient"]),
         .executable(name: "local-editor-app", targets: ["LocalEditorApp"]),
     ],
     targets: [
@@ -28,6 +29,7 @@ let package = Package(
         .executableTarget(name: "CollaborativeEditor", dependencies: ["BlockEditorCore"], path: "Examples/CollaborativeEditor"),
         .executableTarget(name: "EditorBridgeCLI", dependencies: ["BlockEditorCore"], path: "Examples/EditorBridgeCLI"),
         .executableTarget(name: "RelayClient", dependencies: ["BlockEditorLocalDemo"], path: "Examples/RelayClient"),
+        .executableTarget(name: "ModernRelayClient", dependencies: ["BlockEditorApple"], path: "Examples/ModernRelayClient"),
         .executableTarget(name: "LocalEditorApp", dependencies: ["BlockEditorDemoApple"], path: "Examples/LocalEditorApp"),
         .testTarget(name: "BlockEditorAppleTests", dependencies: ["BlockEditorApple", "BlockEditorCore"], path: "tests/BlockEditorAppleTests"),
         .testTarget(name: "BlockEditorCoreTests", dependencies: ["BlockEditorCore"], path: "tests/BlockEditorCoreTests", resources: [.copy("Fixtures")]),

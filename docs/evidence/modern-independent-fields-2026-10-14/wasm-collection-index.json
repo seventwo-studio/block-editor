@@ -1,0 +1,79 @@
+{
+  "complete": true,
+  "sourceCommit": "f66036022a1c604a8cdd15347b5f100ee6ae0ab1",
+  "trackedPatchSHA256": "42e2c9cffa716567e81e88b3fd715ef83e802fe0fd1f07754b57eeae9e1d3a64",
+  "trackedSourceDirty": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "95c0e8bd6d859ca6447318716d8ac28d68662842141f32aa34b36fc64a2e813a",
+  "calls": [
+    {
+      "command": "createModern",
+      "ms": 1788.657
+    },
+    {
+      "command": "modernNode",
+      "ms": 504.880042
+    },
+    {
+      "command": "modernField",
+      "ms": 0.7114579999997659
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 1.7445830000001479
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 2726.194458
+    },
+    {
+      "command": "modernText",
+      "ms": 10.87841600000047
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.4921249999997599
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 149.71195799999987
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 81.81641599999966
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.4900840000000244
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 2712.8665419999998
+    },
+    {
+      "command": "modernText",
+      "ms": 10.845416999999543
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.43579200000021956
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 144.76287499999944
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 80.12270800000078
+    },
+    {
+      "command": "destroy",
+      "ms": 37.67608399999881
+    }
+  ],
+  "qualification": "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets."
+}

@@ -1,0 +1,442 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.swift.config.ts",
+      "tests/modern-context.swift.ts",
+      "--project=chromium",
+      "--reporter=line,json",
+      "--global-timeout=90000",
+      "--workers=1",
+      "--trace=retain-on-failure",
+      "--output=.build/finishing/20261013/context/reproduction-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.swift.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 90000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts",
+          "**/modern-context.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts",
+          "**/modern-context.swift.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/swift-wasm.spec.ts",
+          "**/swift-selection.spec.ts",
+          "**/swift-loading.spec.ts",
+          "**/runtime-compatibility.spec.ts",
+          "**/writing-runtime.swift.ts",
+          "**/modern-adapter.swift.ts",
+          "**/modern-editor.swift.ts",
+          "**/modern-preservation.swift.ts",
+          "**/modern-context.swift.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4287 --strictPort",
+      "url": "http://127.0.0.1:4287/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-context.swift.ts",
+      "file": "modern-context.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "keyboard column resize releases its preview before a peer resize",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 213,
+                  "error": {
+                    "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16",
+                    "stack": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:28:20",
+                    "location": {
+                      "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                      "column": 13,
+                      "line": 264
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                        "column": 13,
+                        "line": 264
+                      },
+                      "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:28:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:38:55.013Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgPC9oZWFkPgogIDxib2R5IHN0eWxlPSJtYXJnaW46IDAiPjxkaXYgaWQ9InJvb3QiIHN0eWxlPSJoZWlnaHQ6IDEwMHZoIj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-ke-6b023-review-before-a-peer-resize-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-ke-6b023-review-before-a-peer-resize-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                    "column": 13,
+                    "line": 264
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-810f7ef8b667d96147ce",
+          "file": "modern-context.swift.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "Escape cancels a column drag without authoring or changing history",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 197,
+                  "error": {
+                    "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16",
+                    "stack": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:47:20",
+                    "location": {
+                      "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                      "column": 13,
+                      "line": 264
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                        "column": 13,
+                        "line": 264
+                      },
+                      "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:47:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:38:55.479Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgPC9oZWFkPgogIDxib2R5IHN0eWxlPSJtYXJnaW46IDAiPjxkaXYgaWQ9InJvb3QiIHN0eWxlPSJoZWlnaHQ6IDEwMHZoIj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-Es-eaeab-thoring-or-changing-history-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                    "column": 13,
+                    "line": 264
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-bc286d6f1d925eed8e16",
+          "file": "modern-context.swift.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "accessible insertion cancellation returns to the original text caret",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 196,
+                  "error": {
+                    "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16",
+                    "stack": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:61:3",
+                    "location": {
+                      "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                      "column": 13,
+                      "line": 264
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                        "column": 13,
+                        "line": 264
+                      },
+                      "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:61:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:38:55.926Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgPC9oZWFkPgogIDxib2R5IHN0eWxlPSJtYXJnaW46IDAiPjxkaXYgaWQ9InJvb3QiIHN0eWxlPSJoZWlnaHQ6IDEwMHZoIj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-ac-200a2--to-the-original-text-caret-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                    "column": 13,
+                    "line": 264
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-2fdb2cf9b62c5dd9fe14",
+          "file": "modern-context.swift.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "Escape dismisses the Link action and retains its captured input",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 178,
+                  "error": {
+                    "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16",
+                    "stack": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:72:20",
+                    "location": {
+                      "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                      "column": 13,
+                      "line": 264
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                        "column": 13,
+                        "line": 264
+                      },
+                      "message": "Error: page.evaluate: ReferenceError: $RefreshSig$ is not defined\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:264:13\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14429:4\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14434:19\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/rolldown-runtime-EAsCxrDo.js?v=2e4fa1df:3:49\n    at http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df:14437:16\n    at mount (/Users/luca/Developer/block-editor/tests/modern-context.swift.ts:11:14)\n    at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:72:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T21:38:56.373Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "original-failed-dom",
+                      "contentType": "text/html",
+                      "body": "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPgogICAgPG1ldGEgY2hhcnNldD0idXRmLTgiPgogICAgPHRpdGxlPk1vZGVybiBzdXJmYWNlIGFjY2VwdGFuY2U8L3RpdGxlPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSIuLi8uLi9zcmMvc3dpZnQtbW9kZXJuLmNzcyI+CiAgPC9oZWFkPgogIDxib2R5IHN0eWxlPSJtYXJnaW46IDAiPjxkaXYgaWQ9InJvb3QiIHN0eWxlPSJoZWlnaHQ6IDEwMHZoIj48L2Rpdj4KCjwvYm9keT48L2h0bWw+"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-Es-2a436--retains-its-captured-input-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261013/context/reproduction-results/modern-context.swift.ts-Es-2a436--retains-its-captured-input-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df",
+                    "column": 13,
+                    "line": 264
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba610370a6f7a0ec1597-28457757a2fc286cf64f",
+          "file": "modern-context.swift.ts",
+          "line": 71,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T21:38:54.682Z",
+    "duration": 1976.831,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

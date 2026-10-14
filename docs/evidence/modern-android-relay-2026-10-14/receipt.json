@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "implementationSource": "d453cbf1597072cf8523b97c5166bb239d24acec",
+  "processFixtureSource": "f96dc84f0ce8d5584bf7aaa97032f813d6676072",
+  "sourceSHA256": {
+    "android/editor/src/main/java/studio/seventwo/blockeditor/ModernRelay.kt": "c6b3815fba39e8f7833d264157595804d7b16244c6d9ff3d850654d15f678198",
+    "android/editor/src/main/java/studio/seventwo/blockeditor/ModernHost.kt": "5e946822c254ad387c4b299665c268a10edb36c7b0a34dece58ec7acf0fa06c6",
+    "android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt": "398c6161254816d1c79c3093530a5ee14f7f53e40886dc965487684a2a557971",
+    "android/editor/src/androidTest/java/studio/seventwo/blockeditor/ModernRelayHostTest.kt": "193ae659a52a1c91be7490603f93f904809cb391adfa9bcfea4c8877819ebc39",
+    "android/editor/src/androidTest/java/studio/seventwo/blockeditor/NativeJsonTransportTest.kt": "9e9894785955debe570029c8d07c04bfc3b6734f04db8cf8d684d8df026cb895",
+    "android/editor/src/androidTest/java/studio/seventwo/blockeditor/ModernRelayProcessTest.kt": "675d0377d7cd221c92f75dc58a4d5fd628373c1864b8842e1cb96984b8e67d71",
+    "android/demo/src/main/java/studio/seventwo/blockeditor/demo/ModernDemo.kt": "e8064408deb72bbe6a1ee091a2732e4553906ef0b930e59bc689f4d503dbabec"
+  },
+  "sharedSwiftAndCSourceUnchangedFrom": "b2d6502c46fcb8de8802a47d683fedaafbd8196a",
+  "artifactsSHA256": {
+    "android/editor/src/main/jniLibs/arm64-v8a/libBlockEditorBridge.so": "60aaade59a3073cc0bd445eecf11f68adf8c0a4533ca77cb7372254dee92b5b6",
+    "android/editor/src/main/jniLibs/arm64-v8a/libBlockEditorJNI.so": "3ca9553ab4e1f3ecc28beff4057c0d7406c2fb2490911c28b562d5308980a040",
+    "android/editor/src/main/jniLibs/arm64-v8a/libc++_shared.so": "7466ed097631a564ed6bff0b47768caa76bf03270d2047b5a65c03f497b824df",
+    "android/editor/build/outputs/apk/androidTest/debug/editor-debug-androidTest.apk": "46aa305d39dde72f264e56358ee2c693b9229adc90b5165fe9f90957c846cfcb",
+    "android/demo/build/outputs/apk/debug/demo-debug.apk": "6641df7d46a33c9d4657c9bbb8516b8468baef076fabaf2d7938e95a09652bc1"
+  },
+  "localRuntime": {
+    "platforms/android-35/source.properties": {
+      "Pkg.Desc": "Android SDK Platform 15",
+      "Pkg.UserSrc": "false",
+      "Platform.Version": "15",
+      "Platform.CodeName": "",
+      "Pkg.Revision": "2",
+      "AndroidVersion.ApiLevel": "35",
+      "AndroidVersion.ExtensionLevel": "13",
+      "AndroidVersion.IsBaseSdk": "true",
+      "Layoutlib.Api": "15",
+      "Layoutlib.Revision": "1",
+      "Platform.MinToolsRev": "22"
+    },
+    "build-tools/35.0.0/source.properties": {
+      "Pkg.UserSrc": "false",
+      "Pkg.Revision": "35.0.0",
+      "#Pkg.Revision": "35.0.0 rc4"
+    },
+    "ndk/30.0.16248370/source.properties": {
+      "Pkg.Desc ": " Android NDK",
+      "Pkg.Revision ": " 30.0.16248370",
+      "Pkg.BaseRevision ": " 30.0.16248370",
+      "Pkg.ReleaseName ": " r30"
+    },
+    "emulator/source.properties": {
+      "Pkg.UserSrc": "false",
+      "Pkg.Revision": "37.2.12",
+      "Pkg.Path": "emulator",
+      "Pkg.Desc": "Android Emulator",
+      "Pkg.BuildId": "16428233"
+    },
+    "system-images/android-35/google_apis/arm64-v8a/source.properties": {
+      "Pkg.Desc": "System Image arm64-v8a with Google APIs.",
+      "Pkg.Revision": "9",
+      "Pkg.Dependencies": "emulator#33.1.24",
+      "AndroidVersion.ApiLevel": "35",
+      "AndroidVersion.ExtensionLevel": "13",
+      "AndroidVersion.IsBaseSdk": "true",
+      "SystemImage.Abi": "arm64-v8a",
+      "SystemImage.TagId": "google_apis",
+      "SystemImage.TagDisplay": "Google APIs",
+      "SystemImage.GpuSupport": "true",
+      "Addon.VendorId": "google",
+      "Addon.VendorDisplay": "Google Inc."
+    }
+  },
+  "JNIHostAndDiskTests": {
+    "modernHost": 9,
+    "JSONTransport": 7,
+    "typedConsumer": 1,
+    "allPassed": true
+  },
+  "realHTTP": {
+    "fiveIndependentNativeProcessesPassed": true,
+    "serverRestartPassed": true,
+    "source": "f96dc84f0ce8d5584bf7aaa97032f813d6676072",
+    "wholeDocumentCompared": true
+  },
+  "typeAndReferenceBuildsPassed": true,
+  "failedEvidence": [
+    "compile-initial.log: delegated connection setter clashed with public setConnected",
+    "host-initial.log: JSONObject.numberToString rounded an exact fractional identity before Swift admission",
+    "json-exact-numbers.log: signed zero lost during default decoding/defensive copying",
+    "real-http-initial.log: Android seed passed; peer setup lacked captured document target for appearance"
+  ],
+  "originalPrivateRegistryVersionUnchanged": true,
+  "qualification": "Actual JNI, app-private disk, default HTTP and independent native/server process evidence in a local API35 arm64 emulator. Full physical/assistive/interaction/performance/private-install/final acceptance and current-head required CI remain open. Prior API26 CI failure is retained; no failed or older result is a current-head pass.",
+  "rawFailedCILogSHA256": "8fd55927d59e6a4ad013b93eb06968cda936d425dab11e9db4ab1785b4c9a9cb"
+}

@@ -1,0 +1,10 @@
+{
+  "runtimeSource": "4356443a69c9fa733d5d3c7c1432e4408ef5cd18",
+  "nativeFullSource": "62c10d8b574b9d02b99a5fbd254f9ef16ce675fd",
+  "nativeSourceAndTestsUnchanged": true,
+  "integratedBrowserSource": "62c10d8b574b9d02b99a5fbd254f9ef16ce675fd",
+  "laterBrowserChange": "Release only the inactive caret cache on blur; all 12 affected three-engine focus/history/context cases pass at 4356443. Full 84 remains qualified to 62c10d8.",
+  "nativeLibrarySHA256": "a3277399158407bcef7bb5a6ab885b66c826300ecad55a62a2e455de943b7f0a",
+  "genuineBuildersAgree": true,
+  "wasmSHA256": "85dfac6c756fb6a25846f490e88e77ff8af81c09e364970905c019d180b61908"
+}

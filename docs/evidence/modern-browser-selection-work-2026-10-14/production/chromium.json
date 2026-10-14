@@ -1,0 +1,100 @@
+{
+  "complete": true,
+  "sourceCommit": "dd552987d02ca5af3f9dc0da5412dfd73ecea260",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "f890139753522a0e0c2ccba9dc9dc5c472d58f0d0a886627a2fb66813f7ba9bc",
+  "browser": "chromium",
+  "browserVersion": "153.0.8010.12",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [
+    103.39999985694885,
+    103.09999990463257,
+    102.39999985694885,
+    113.5,
+    99.80000019073486,
+    101.29999995231628,
+    101.29999995231628,
+    104.90000009536743,
+    101,
+    100.40000009536743,
+    99.29999995231628,
+    100,
+    101.69999980926514,
+    101.29999995231628,
+    103.39999985694885,
+    100.90000009536743,
+    100.79999995231628,
+    102.5,
+    118.40000009536743,
+    106.40000009536743
+  ],
+  "menuMS": [
+    25.90000009536743,
+    24.40000009536743,
+    24,
+    26.5,
+    24.299999952316284,
+    24.09999990463257,
+    25.899999856948853,
+    25.90000009536743,
+    17.700000047683716,
+    25.200000047683716,
+    24.100000143051147,
+    22.200000047683716,
+    25.40000009536743,
+    22.90000009536743,
+    21,
+    24.200000047683716,
+    25.5,
+    23.299999952316284,
+    26.09999990463257,
+    22.5
+  ],
+  "productionReact": true,
+  "method": "Trusted native initiating keydown/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity and keydown validation. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "diagnostic": false,
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+    "hardwareConcurrency": 14,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "devicePixelRatio": 1
+  },
+  "summary": {
+    "inputP95MS": 113.5,
+    "menuP95MS": 26.09999990463257,
+    "targets": {
+      "inputP95MS": 50,
+      "menuP95MS": 100
+    }
+  },
+  "targetsPassed": false,
+  "consoleMessages": [],
+  "pageErrors": [],
+  "lastState": {
+    "accepted": {
+      "consumer": {
+        "keep": 1
+      },
+      "content": [
+        {
+          "text": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+          "type": "text"
+        }
+      ],
+      "id": "note-1",
+      "type": "paragraph"
+    },
+    "nativeBuffer": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+    "focused": "Block text",
+    "measurement": {
+      "elapsedMS": 22.5,
+      "frameCount": 2
+    },
+    "errors": []
+  }
+}

@@ -1,0 +1,133 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:97374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 3 workers
+
+  ✘   3 [chromium] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits (15.6s)
+  ✘   2 [webkit] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits (16.7s)
+  ✘   1 [firefox] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits (16.2s)
+  ✓   4 [chromium] › tests/modern-context.swift.ts:153:0 › body presentation retains composition through local menus and updates provider status (10.5s)
+  ✓   5 [webkit] › tests/modern-context.swift.ts:153:0 › body presentation retains composition through local menus and updates provider status (11.3s)
+  ✓   6 [firefox] › tests/modern-context.swift.ts:153:0 › body presentation retains composition through local menus and updates provider status (11.4s)
+  ✓   7 [chromium] › tests/modern-context.swift.ts:180:0 › inline references follow committed host callbacks while retaining the composing native buffer (10.4s)
+  ✓   9 [firefox] › tests/modern-context.swift.ts:180:0 › inline references follow committed host callbacks while retaining the composing native buffer (10.9s)
+  ✓   8 [webkit] › tests/modern-context.swift.ts:180:0 › inline references follow committed host callbacks while retaining the composing native buffer (11.4s)
+  ✓  10 [chromium] › tests/modern-context.swift.ts:210:0 › column stacking follows page content width and updated text metrics without authoring split (11.1s)
+  ✓  11 [firefox] › tests/modern-context.swift.ts:210:0 › column stacking follows page content width and updated text metrics without authoring split (10.7s)
+  ✓  12 [webkit] › tests/modern-context.swift.ts:210:0 › column stacking follows page content width and updated text metrics without authoring split (11.2s)
+
+
+  1) [chromium] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Block text', exact: true }).first()
+    Expected: "Firstabc"
+    Received: "abcFirst"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()
+        14 × locator resolved to <div role="textbox" class="modern-input " aria-multiline="true" contenteditable="true" aria-label="Block text">abcFirst</div>
+           - unexpected value "abcFirst"
+
+
+      42 |   const second = page.getByRole("textbox", { name: "Block text", exact: true }).nth(1);
+      43 |   await first.focus(); await first.press("End"); await page.keyboard.type("abc");
+    > 44 |   await expect(first).toHaveText("Firstabc");
+         |                      ^
+      45 |   await second.focus(); await second.press("End"); await second.press("Enter");
+      46 |   await expect(page.getByRole("textbox", { name: "Block text", exact: true })).toHaveCount(3);
+      47 |   await expect(first).toHaveText("Firstabc"); await expect(second).toHaveText("Second");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:44:22
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/immutable-root-controls/focused-results/modern-context.swift.ts-un-16d61-e-after-another-block-edits-chromium/error-context.md
+
+  2) [webkit] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Block text', exact: true }).first()
+    Expected: "Firstabc"
+    Received: "abcFirst"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()
+        14 × locator resolved to <div role="textbox" class="modern-input " aria-multiline="true" contenteditable="true" aria-label="Block text">abcFirst</div>
+           - unexpected value "abcFirst"
+
+
+      42 |   const second = page.getByRole("textbox", { name: "Block text", exact: true }).nth(1);
+      43 |   await first.focus(); await first.press("End"); await page.keyboard.type("abc");
+    > 44 |   await expect(first).toHaveText("Firstabc");
+         |                      ^
+      45 |   await second.focus(); await second.press("End"); await second.press("Enter");
+      46 |   await expect(page.getByRole("textbox", { name: "Block text", exact: true })).toHaveCount(3);
+      47 |   await expect(first).toHaveText("Firstabc"); await expect(second).toHaveText("Second");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:44:22
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/immutable-root-controls/focused-results/modern-context.swift.ts-un-16d61-e-after-another-block-edits-webkit/error-context.md
+
+  3) [firefox] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Block text', exact: true }).first()
+    Expected: "Firstabc"
+    Received: "abcFirst"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Block text', exact: true }).first() with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Block text', exact: true }).first()
+        14 × locator resolved to <div role="textbox" class="modern-input " aria-multiline="true" contenteditable="true" aria-label="Block text">abcFirst</div>
+           - unexpected value "abcFirst"
+
+
+      42 |   const second = page.getByRole("textbox", { name: "Block text", exact: true }).nth(1);
+      43 |   await first.focus(); await first.press("End"); await page.keyboard.type("abc");
+    > 44 |   await expect(first).toHaveText("Firstabc");
+         |                      ^
+      45 |   await second.focus(); await second.press("End"); await second.press("Enter");
+      46 |   await expect(page.getByRole("textbox", { name: "Block text", exact: true })).toHaveCount(3);
+      47 |   await expect(first).toHaveText("Firstabc"); await expect(second).toHaveText("Second");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:44:22
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/immutable-root-controls/focused-results/modern-context.swift.ts-un-16d61-e-after-another-block-edits-firefox/error-context.md
+
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits 
+    [webkit] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits 
+    [firefox] › tests/modern-context.swift.ts:34:0 › unchanged sibling commands use current shared state after another block edits 
+  9 passed (51.9s)

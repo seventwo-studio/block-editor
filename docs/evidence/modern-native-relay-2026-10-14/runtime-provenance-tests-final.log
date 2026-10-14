@@ -1,0 +1,24 @@
+test_complete_five_bundles_and_earlier_attempts_are_valid (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_current_fixture_bytes_must_match_recorded_inputs (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_empty_executables_fail_recording (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_missing_duplicate_and_partial_evidence_fail (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_native_restart_requires_the_modern_client_binary (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_new_fixture_requires_fresh_manifests (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_stale_source_tree_run_and_locked_inputs_fail (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+test_tracked_and_untracked_source_edits_fail_capture (runtime_provenance_test.RuntimeProvenanceTest) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.252s
+
+OK
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+wasm: exact checkout/tree, locked inputs and binary hashes recorded
+android-api26-x86_64: exact checkout/tree, locked inputs and binary hashes recorded
+android-api35-x86_64: exact checkout/tree, locked inputs and binary hashes recorded
+android-api35-arm64-v8a: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded
+swift: exact checkout/tree, locked inputs and binary hashes recorded

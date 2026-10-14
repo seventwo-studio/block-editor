@@ -1,0 +1,19 @@
+Building for debugging...
+[Computing dependencies]
+[3 / 12] modern-relay-client-product
+[6 / 19]
+[9 / 19] modern-relay-client-product
+[14 / 19] BlockEditorAppleTests-product
+[20 / 24] BlockEditorAppleTests-product
+Build complete! (1.82 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeRelayProcessTests started.
+◇ Test independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() started.
+◇ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() started.
+✔ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() passed after 0.859 seconds.
+Native relay process-restart evidence: 13 exited client processes, PIDs [74938, 74939, 74942, 74943, 74944, 74945, 74948, 74951, 74953, 74954, 74955, 74956, 74957]
+✔ Test independentNativeClientProcessesRetainOfflineHistoryAcrossBothRestarts() passed after 2.027 seconds.
+✔ Suite ModernNativeRelayProcessTests passed after 2.027 seconds.
+✔ Test run with 2 tests in 1 suite passed after 2.027 seconds.

@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { browserLaunchOptions } from "./tests/helpers/browser-launch.js";
 export default defineConfig({
   testDir: "./tests", testMatch: "relay-browser.spec.ts", timeout: 60_000, workers: 1,
   use: { baseURL: "http://127.0.0.1:4288/block-editor/", headless: true },
@@ -9,6 +10,6 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     { name: "webkit", use: { browserName: "webkit" } },
-    { name: "firefox", use: { browserName: "firefox" } },
+    { name: "firefox", use: { browserName: "firefox", launchOptions: browserLaunchOptions("firefox") } },
   ],
 });

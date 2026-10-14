@@ -1,0 +1,79 @@
+{
+  "complete": true,
+  "sourceCommit": "f66036022a1c604a8cdd15347b5f100ee6ae0ab1",
+  "trackedPatchSHA256": "0de1ed690e11450bf0a159305431304cc72c7d2be9e923b97584e35dd3a0a706",
+  "trackedSourceDirty": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "1cca7f77f845272b9c76ac17c9fdbd8218985d3c75dc8617a83ac82a2a69f4d0",
+  "calls": [
+    {
+      "command": "createModern",
+      "ms": 1767.967209
+    },
+    {
+      "command": "modernNode",
+      "ms": 505.8910000000001
+    },
+    {
+      "command": "modernField",
+      "ms": 0.570875000000342
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 1.6302919999998267
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 2659.2273750000004
+    },
+    {
+      "command": "modernText",
+      "ms": 10.660958000000392
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.49320799999986775
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 147.8916250000002
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 80.3506669999997
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.5692920000001322
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 2608.7857079999994
+    },
+    {
+      "command": "modernText",
+      "ms": 10.39587500000016
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.43562500000007276
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 142.8040000000001
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 79.16158300000006
+    },
+    {
+      "command": "destroy",
+      "ms": 40.91383299999961
+    }
+  ],
+  "qualification": "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets."
+}

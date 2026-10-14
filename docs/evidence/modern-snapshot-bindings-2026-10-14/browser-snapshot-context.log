@@ -1,0 +1,30 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:8169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 21 tests using 1 worker
+
+[1/21] [chromium] › tests/modern-context.swift.ts:29:0 › keyboard column resize releases its preview before a peer resize
+[2/21] [chromium] › tests/modern-context.swift.ts:48:0 › Escape cancels a column drag without authoring or changing history
+[3/21] [chromium] › tests/modern-context.swift.ts:62:0 › accessible insertion cancellation returns to the original text caret
+[4/21] [chromium] › tests/modern-context.swift.ts:79:0 › Escape dismisses the Link action and retains its captured input
+[5/21] [chromium] › tests/modern-context.swift.ts:92:0 › contextual reads preserve opaque metadata named like schema collections
+[6/21] [chromium] › tests/modern-context.swift.ts:117:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[7/21] [chromium] › tests/modern-context.swift.ts:145:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[8/21] [webkit] › tests/modern-context.swift.ts:29:0 › keyboard column resize releases its preview before a peer resize
+[9/21] [webkit] › tests/modern-context.swift.ts:48:0 › Escape cancels a column drag without authoring or changing history
+[10/21] [webkit] › tests/modern-context.swift.ts:62:0 › accessible insertion cancellation returns to the original text caret
+[11/21] [webkit] › tests/modern-context.swift.ts:79:0 › Escape dismisses the Link action and retains its captured input
+[12/21] [webkit] › tests/modern-context.swift.ts:92:0 › contextual reads preserve opaque metadata named like schema collections
+[13/21] [webkit] › tests/modern-context.swift.ts:117:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[14/21] [webkit] › tests/modern-context.swift.ts:145:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[15/21] [firefox] › tests/modern-context.swift.ts:29:0 › keyboard column resize releases its preview before a peer resize
+[16/21] [firefox] › tests/modern-context.swift.ts:48:0 › Escape cancels a column drag without authoring or changing history
+[17/21] [firefox] › tests/modern-context.swift.ts:62:0 › accessible insertion cancellation returns to the original text caret
+[18/21] [firefox] › tests/modern-context.swift.ts:79:0 › Escape dismisses the Link action and retains its captured input
+[19/21] [firefox] › tests/modern-context.swift.ts:92:0 › contextual reads preserve opaque metadata named like schema collections
+[20/21] [firefox] › tests/modern-context.swift.ts:117:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[21/21] [firefox] › tests/modern-context.swift.ts:145:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+  21 passed (2.7m)

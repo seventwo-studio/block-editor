@@ -1,0 +1,27 @@
+
+   ╭──────────────────────────────────────────────────────────────────────╮
+   │                                                                      │
+   │                 Update available! 11.25.0 → 12.11.2.                 │
+   │                 Changelog: https://pnpm.io/v/12.11.2                 │
+   │   To update, run: curl -fsSL https://get.pnpm.io/install.sh | sh -   │
+   │                                                                      │
+   ╰──────────────────────────────────────────────────────────────────────╯
+
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 4, reused 0, downloaded 2, added 0
+Packages: +6
+++++++
+Packages are cloned from the content-addressable store to the virtual store.
+  Content-addressable store is at: /private/tmp/modern-registry-install-Jkbes7/store/v11
+  Virtual store is at:             node_modules/.pnpm
+Progress: resolved 6, reused 0, downloaded 6, added 5
+Progress: resolved 6, reused 0, downloaded 6, added 6, done
+
+dependencies:
++ @seventwo-studio/block-editor-internal 0.2.0
++ react 19.2.0 (19.3.0 is available)
++ react-dom 19.2.0 (19.3.0 is available)
+
+Added 1 entry to minimumReleaseAgeExclude in pnpm-workspace.yaml (set minimumReleaseAgeStrict to true to gate these updates with a prompt):
+  @seventwo-studio/block-editor-internal@0.2.0
+Done in 2.6s using pnpm v11.25.0

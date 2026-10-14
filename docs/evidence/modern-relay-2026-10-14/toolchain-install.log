@@ -1,0 +1,6 @@
+Download swift-macos: 6.4.0-RELEASE macOS
+Apple Swift version 6.4 (swift-6.4-RELEASE)
+Target: arm64-apple-macosx27.0.0
+{
+  "SWIFT_BIN": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/official-swift/swift/swift-6.4.0-RELEASE-osx-package.pkg/Payload/usr/bin/swift"
+}

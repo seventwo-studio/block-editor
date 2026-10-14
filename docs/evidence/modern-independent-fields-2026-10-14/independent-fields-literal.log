@@ -1,0 +1,22 @@
+Building for debugging...
+[Provisioning 1 / 22]
+[Planning 39 / 618]
+[Planning deferred tasks]
+[10 / 22] BlockEditorAppleTests-product
+[10 / 21] BlockEditorCoreTests-product
+[11 / 25]
+[14 / 25] BlockEditorCoreTests-product
+[20 / 24] BlockEditorCoreTests-product
+Build complete! (9.41 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite IndependentWritingProjectionTests started.
+◇ Test independentFieldsPreserveLiteralPeerTextMarksTombstonesAndAuthorDeactivation() started.
+◇ Test crossFieldEdgesTransfersAndJoinsKeepTheFullGraphPath() started.
+◇ Test checkedFieldRebuildRejectsMissingDuplicateAndCyclicAtomsWithoutChangingTheBaseline() started.
+✔ Test checkedFieldRebuildRejectsMissingDuplicateAndCyclicAtomsWithoutChangingTheBaseline() passed after 0.001 seconds.
+✔ Test crossFieldEdgesTransfersAndJoinsKeepTheFullGraphPath() passed after 0.002 seconds.
+✔ Test independentFieldsPreserveLiteralPeerTextMarksTombstonesAndAuthorDeactivation() passed after 0.003 seconds.
+✔ Suite IndependentWritingProjectionTests passed after 0.003 seconds.
+✔ Test run with 3 tests in 1 suite passed after 0.003 seconds.

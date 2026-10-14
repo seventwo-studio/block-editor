@@ -1,0 +1,9 @@
+{
+  "package": "studio.seventwo.blockeditor.test",
+  "device": "emulator-5568",
+  "adbPort": 5044,
+  "files": {
+    "data.tar": "211800eb26299d9b3e7fc9c086d129817129660ab69489d8fd1b3d39adea6c91",
+    "base.apk": "b7b8a0e90192e29299c14cb066b631fb9b37840109f5530ef91b81503a355d2b"
+  }
+}

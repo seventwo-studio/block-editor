@@ -1,0 +1,15 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:18249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 6 tests using 1 worker
+
+[1/6] [chromium] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[2/6] [chromium] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+[3/6] [webkit] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[4/6] [webkit] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+[5/6] [firefox] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[6/6] [firefox] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+  6 passed (47.4s)

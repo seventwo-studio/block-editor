@@ -1,0 +1,96 @@
+{
+  "diagnostic": true,
+  "sourceCommit": "82db558d24cd4e235093f12b5c571c9f2e0a2f39",
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "408fff8604afc1cf21de91a9390a49e8c38910bed58c942a2c8e026f662478e2",
+  "calls": [
+    {
+      "name": "resolvePosition",
+      "ms": 0.6000001430511475
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "captureTextRange",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "execute",
+      "command": "replaceText",
+      "ms": 22
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.39999985694885254
+    },
+    {
+      "name": "captureTextRange",
+      "ms": 0.3000001907348633
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.19999980926513672
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.3000001907348633
+    },
+    {
+      "name": "localSelection",
+      "ms": 0.39999985694885254
+    },
+    {
+      "name": "availability",
+      "ms": 0
+    },
+    {
+      "name": "execute",
+      "command": "typingShortcut",
+      "ms": 1.2999999523162842
+    },
+    {
+      "name": "nodeBindings",
+      "ms": 0
+    },
+    {
+      "name": "captureTextRange",
+      "ms": 0.5999999046325684
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.20000004768371582
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.3000001907348633
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "localSelection",
+      "ms": 0.39999985694885254
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.20000004768371582
+    },
+    {
+      "name": "resolvePosition",
+      "ms": 0.2999999523162842
+    },
+    {
+      "name": "localSelection",
+      "ms": 0.40000009536743164
+    }
+  ],
+  "errors": [],
+  "complete": true
+}

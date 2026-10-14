@@ -1,0 +1,82 @@
+Building for debugging...
+[Computing dependencies]
+[2 / 17] BlockEditorApple
+[5 / 20] BlockEditorApple
+[6 / 21] BlockEditorApple
+[12 / 29] modern-relay-client-product
+[21 / 37] modern-relay-client-product
+[22 / 37] BlockEditorDemoApple
+[25 / 39] BlockEditorDemoApple
+[28 / 41] BlockEditorApple
+[35 / 41] BlockEditorAppleTests-product
+[36 / 61] local-editor-app-product
+[43 / 64]
+[58 / 64] BlockEditorAppleTests-product
+[59 / 64] BlockEditorAppleTests-product
+[61 / 64] BlockEditorAppleTests-product
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[63 / 67] BlockEditorAppleTests-product
+Build complete! (5.78 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeInputTests started.
+◇ Suite ModernAccessibilityLabelTests started.
+◇ Suite ModernNativeModelScopeTests started.
+◇ Test dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() started.
+◇ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() started.
+◇ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() started.
+◇ Test fullEditorConversionAndUndoRefreshNativeAccessibleName() started.
+◇ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() started.
+◇ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() started.
+◇ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() started.
+◇ Test case passing 1 argument change → "document" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "actor" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+◇ Test case passing 1 argument change → "epoch" to replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) started.
+✔ Test fullEditorConversionAndUndoRefreshNativeAccessibleName() passed after 0.178 seconds.
+✔ Test updatedHostLabelPreservesMarkedBufferIdentityAndFirstResponder() passed after 0.199 seconds.
+✔ Suite ModernAccessibilityLabelTests passed after 0.199 seconds.
+✘ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() recorded an issue at ModernNativeModelScopeTests.swift:62:9: Expectation failed: try a.save() == original && oldModel.clipboard.retained == retained
+↳ try a.save() == original && oldModel.clipboard.retained == retained → <not evaluated>
+✘ Test emptyDocumentBoundaryRebindsAndRetainsOriginalMarkedInput() failed after 0.256 seconds with 1 issue.
+✔ Test replacingModelRebindsEqualFieldIdentitiesToTheirActualSession(change:) with 3 test cases passed after 0.267 seconds.
+✘ Suite ModernNativeModelScopeTests failed after 0.267 seconds with 1 issue.
+✔ Test nativeCompositionPairsOriginalBufferAndPreservesPeerAndRichAtomsThroughUndo() passed after 0.338 seconds.
+✔ Test dismissedInteractionRestoresOriginalWindowWithoutStealingOtherInput() passed after 0.343 seconds.
+✔ Test rejectedNativeEditRetainsTheExactBufferAndAcceptedCheckpoint() passed after 0.346 seconds.
+✔ Test commandFocusUsesOriginalWindowAndIntentionalBlurCancelsDelayedTransfer() passed after 0.462 seconds.
+✔ Suite ModernNativeInputTests passed after 0.462 seconds.
+✘ Test run with 8 tests in 3 suites failed after 0.462 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - BlockEditorAppleTests (Swift Testing)

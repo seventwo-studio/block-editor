@@ -1,0 +1,7 @@
+{
+  "version": "19.0",
+  "url": "https://dl.google.com/android/repository/commandlinetools-mac-13114758_latest.zip",
+  "officialChecksumSHA1": "c3e06a1959762e89167d1cbaa988605f6f7c1d24",
+  "downloadSHA256": "5673201e6f3869f418eeed3b5cb6c4be7401502bd0aae1b12a29d164d647a54e",
+  "sdkRoot": "/Users/luca/Developer/block-editor/.build/finishing/20261014/android-relay/sdk"
+}

@@ -1,0 +1,32 @@
+[WebServer] (node:40611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation (12.5s)
+
+
+  1) [chromium] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 421
+    Received:    2897
+
+      80 |       const elapsed = await measurement(page); if (i >= 3) reflow.push(elapsed);
+      81 |       const dimensions = await page.locator('.modern-viewport').evaluate(root => ({ client: root.clientWidth, scroll: root.scrollWidth }));
+    > 82 |       expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client + 1);
+         |                                ^
+      83 |       expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(wide); publish();
+      84 |     }
+      85 |     expect(await page.evaluate(() => window.modernPerformance.session.save())).toEqual(saved);
+        at /Users/luca/Developer/block-editor/tests/modern-wider.swift.ts:82:32
+
+    attachment #1: wider-browser-baseline (application/json) ───────────────────────────────────────
+    .build/finishing/20261014/wider-browser/initial-results/modern-wider.swift.ts-mixe-81005-and-5001-block-preservation-chromium/attachments/wider-browser-baseline-2e451224818505acaa42c2dc6c99bd1f4fec4674.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/wider-browser/initial-results/modern-wider.swift.ts-mixe-81005-and-5001-block-preservation-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/modern-wider.swift.ts:53:0 › mixed columns reflow, selection, scrolling, media lifetime and 5001-block preservation 

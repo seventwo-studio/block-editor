@@ -131,6 +131,41 @@ import Testing
         for split in [999, 9001] { #expect(throws: EditorError.invalidChange) { try a.resizeColumns(ModernColumnTarget(layout: layout), splitBasisPoints: split) } }
         #expect(try a.save() == saved)
     }
+    @Test func repeatedMetadataOnlyResizesPreserveWholeDocumentPeerAppearanceAndAuthorHistory() throws {
+        let original = try fixture("columns-5000"), a = try session("a", "columns-5000"), b = try session("b", "columns-5000")
+        try b.setAppearance(field: "fontFamily", value: "serif"); try a.receive(b.changes())
+        var expectedFields = original.fields, appearance = expectedFields["appearance"]!.object!
+        appearance["fontFamily"] = .string("serif"); expectedFields["appearance"] = .object(appearance)
+        let peerOnly = try ModernDocument(fields: expectedFields)
+        for index in 0..<24 {
+            let split = index.isMultiple(of: 2) ? 1000 : 9000
+            _ = try a.resizeColumns(ModernColumnTarget(layout: id("layout")), splitBasisPoints: split)
+            var blocks = peerOnly.blocks.map { JSONValue.object($0.fields) }, layout = blocks[0].object!
+            layout["splitBasisPoints"] = .number(Double(split)); blocks[0] = .object(layout)
+            expectedFields["blocks"] = .array(blocks)
+            #expect(a.document == (try ModernDocument(fields: expectedFields)))
+        }
+        let reopened = try ModernSession.restore(a.save(), actorID: "a")
+        for _ in 0..<24 { try reopened.undo() }
+        #expect(reopened.document == peerOnly && !reopened.canUndo)
+        for _ in 0..<24 { try reopened.redo() }
+        #expect(reopened.document == a.document)
+        try b.receive(reopened.changes()); #expect(b.document == reopened.document)
+        try b.undo(); try reopened.receive(b.changes())
+        expectedFields["appearance"] = original.fields["appearance"]
+        #expect(reopened.document == (try ModernDocument(fields: expectedFields)))
+    }
+    @Test func lateResizeKeepsCausalLayoutAddressThroughConcurrentRemovalAndUndo() throws {
+        let a = try session("a", "columns-5000"), b = try session("b", "columns-5000")
+        _ = try a.resizeColumns(ModernColumnTarget(layout: id("layout")), splitBasisPoints: 6000)
+        _ = try b.removeColumns(ModernColumnTarget(layout: id("layout")))
+        let flattened = b.document
+        try exchange(a, b); #expect(a.document == flattened && b.document == flattened)
+        try b.undo(); try a.receive(b.changes())
+        #expect(a.document == (try fixture("columns-split-a")) && b.document == a.document)
+        try a.undo(); try b.receive(a.changes())
+        #expect(a.document == (try fixture("columns-5000")) && b.document == a.document)
+    }
     @Test func conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() throws {
         let a = try session("a", "columns-3000"), b = try session("b", "columns-3000")
         _ = try a.removeColumns(ModernColumnTarget(layout: id("layout")))

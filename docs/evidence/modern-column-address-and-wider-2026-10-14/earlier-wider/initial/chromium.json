@@ -1,0 +1,23 @@
+{
+  "complete": false,
+  "sourceCommit": "2607554d8c85d558c254b78741237622708e6d01",
+  "sourceClean": true,
+  "originalFixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "derivedWideFixtureSHA256": "92b6e84711b212c33d78deba3cb86404294074783dbc925510850c6cea9155d2",
+  "wasmSHA256": "659db624731d48361bb3210d7439dc028ee7e37cfb3373a053d3d9476977bd7a",
+  "browser": "chromium",
+  "browserVersion": "153.0.8010.12",
+  "warmups": 3,
+  "repetitions": 20,
+  "newTimingTargets": null,
+  "qualification": "Observed viewport-change/native keydown/wheel to verified content/layout and second frame; conservative presented-frame proxy. Controlled tiny images and owned URL lifetime, not production asset throughput or full heap/device acceptance. Wider timing budgets remain unapproved; resize has no invented threshold.",
+  "controlledMediaMountToDecodedMS": 11582,
+  "samples": {
+    "reflowMS": [],
+    "splitMS": [],
+    "selectionMS": [],
+    "scrollMS": []
+  },
+  "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m421\u001b[39m\nReceived:    \u001b[31m2897\u001b[39m",
+  "pageErrors": []
+}

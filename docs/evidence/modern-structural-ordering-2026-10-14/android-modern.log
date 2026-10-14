@@ -1,0 +1,222 @@
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernSessionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+studio.seventwo.blockeditor.ModernSessionTest:
+INSTRUMENTATION_STATUS: test=modernTypedConsumerRetainsPeerInputArchivesAndExplicitHostBoundaries
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernSessionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=modernTypedConsumerRetainsPeerInputArchivesAndExplicitHostBoundaries
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+studio.seventwo.blockeditor.ModernRelayHostTest:
+INSTRUMENTATION_STATUS: test=duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=inputDuringTransmissionRemainsPendingAndReceiptsReopenWithValidExponentNumbers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=inputDuringTransmissionRemainsPendingAndReceiptsReopenWithValidExponentNumbers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=failedAcknowledgmentSaveKeepsReceiptPendingAndReopenRetainsPeerUndo
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=failedAcknowledgmentSaveKeepsReceiptPendingAndReopenRetainsPeerUndo
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=originalUnpairedNativeBufferReopensExactlyAndMalformedPrivateFieldsFail
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=originalUnpairedNativeBufferReopensExactlyAndMalformedPrivateFieldsFail
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=rejectedRecoveryReopensAcceptedContentAndExplicitOwnRepairRetainsPeer
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=rejectedRecoveryReopensAcceptedContentAndExplicitOwnRepairRetainsPeer
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=originalHostAndCredentialABAIgnoreOlderResponse
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=originalHostAndCredentialABAIgnoreOlderResponse
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=capacityFailureRetainsCompleteAcceptedHistoryForExportAndReopen
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=capacityFailureRetainsCompleteAcceptedHistoryForExportAndReopen
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ordinaryReopenReceivesPeersWithoutResumeAndReadOnlyDoesNotSuppressSynchronization
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ordinaryReopenReceivesPeersWithoutResumeAndReadOnlyDoesNotSuppressSynchronization
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=heldPeerAndOriginalNativeDraftRemainInertUntilExplicitResume
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=heldPeerAndOriginalNativeDraftRemainInertUntilExplicitResume
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernJSONTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+studio.seventwo.blockeditor.ModernJSONTest:
+INSTRUMENTATION_STATUS: test=initializationError
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernJSONTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stack=java.lang.RuntimeException: Failed loading specified test class 'studio.seventwo.blockeditor.ModernJSONTest'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:663)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:437)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+Caused by: java.lang.ClassNotFoundException: studio.seventwo.blockeditor.ModernJSONTest
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:607)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "studio.seventwo.blockeditor.ModernJSONTest" on path: DexPathList[[zip file "/data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/base.apk"],nativeLibraryDirectories=[/data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/lib/arm64, /data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in initializationError(studio.seventwo.blockeditor.ModernJSONTest):
+java.lang.RuntimeException: Failed loading specified test class 'studio.seventwo.blockeditor.ModernJSONTest'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:663)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:437)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+Caused by: java.lang.ClassNotFoundException: studio.seventwo.blockeditor.ModernJSONTest
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:607)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "studio.seventwo.blockeditor.ModernJSONTest" on path: DexPathList[[zip file "/data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/base.apk"],nativeLibraryDirectories=[/data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/lib/arm64, /data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+INSTRUMENTATION_STATUS: test=initializationError
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 26.634
+There was 1 failure:
+1) initializationError(studio.seventwo.blockeditor.ModernJSONTest)
+java.lang.RuntimeException: Failed loading specified test class 'studio.seventwo.blockeditor.ModernJSONTest'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:663)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:437)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+Caused by: java.lang.ClassNotFoundException: studio.seventwo.blockeditor.ModernJSONTest
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:607)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "studio.seventwo.blockeditor.ModernJSONTest" on path: DexPathList[[zip file "/data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/base.apk"],nativeLibraryDirectories=[/data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/lib/arm64, /data/app/~~bR5kVOPm_WRmYKCdGhWqCw==/studio.seventwo.blockeditor.test-DV9_wQIUXvZtoSz80u3xiA==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+FAILURES!!!
+Tests run: 11,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

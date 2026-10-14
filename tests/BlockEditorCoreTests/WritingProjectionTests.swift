@@ -102,3 +102,24 @@ private func insertion(_ actor: String, field: WritingField, text: String, edge:
     let both = try WritingProjection(seeds: [], edits: [peer, emptyMerge, leftPeer])
     #expect(both.text(in: emptyLeft) == "LX")
 }
+
+@Test func writingFieldOffsetsRetainUnicodeTombstonesAndJoinedHeads() throws {
+    let left = field("left"), right = field("right"), unrelated = field("unrelated")
+    let first = seed(left, "A😀B"), second = seed(right, "éC")
+    let join = WritingEdit(id: ChangeID(counter: 1, actor: "a"), mutations: [
+        .join(source: right, destination: left, edge: .after(first.last!.key)),
+        .delete(keys: [first[1].key, second[0].key])])
+    let joined = try WritingProjection(seeds: first + second + seed(unrelated, "different text"), edits: [join])
+    #expect(joined.text(in: left) == "ABC")
+    #expect(try joined.startOffset(of: right) == 2)
+    #expect(try joined.offset(of: first[1].key, affinity: .before) == 1)
+    #expect(try joined.offset(of: first[1].key, affinity: .after) == 1)
+    #expect(try joined.offset(of: second[1].key, affinity: .before) == 2)
+    #expect(try joined.offset(of: second[1].key, affinity: .after) == 3)
+    #expect(try joined.retainedOffset(of: first[1].key, affinity: .after) == 3)
+    #expect(try joined.retainedOffset(of: second[1].key, affinity: .before) == 5)
+    let undone = try WritingProjection(seeds: first + second, edits: [join], active: [join.id: false])
+    #expect(try undone.startOffset(of: right) == 0)
+    #expect(try undone.offset(of: second[1].key, affinity: .before) == 1)
+    #expect(try undone.offset(of: first[2].key, affinity: .before) == 3)
+}

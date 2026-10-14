@@ -22,7 +22,12 @@ import java.util.UUID
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { if (intent.getBooleanExtra("modern", false)) ModernDemo() else LocalDemo() } }
+        val relay = intent.getStringExtra("modernRelayEndpoint")?.let { endpoint -> ModernRelayDemoConfiguration(endpoint,
+            intent.getStringExtra("modernRelayKey") ?: "local-modern-service",
+            intent.getStringExtra("modernRelayDocument") ?: "shared-modern",
+            intent.getStringExtra("modernRelayActor") ?: "android-reference-author",
+            intent.getStringExtra("modernRelayToken") ?: "") }
+        setContent { MaterialTheme { if (intent.getBooleanExtra("modern", false) || relay != null) ModernDemo(relay) else LocalDemo() } }
     }
 }
 

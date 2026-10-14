@@ -1,0 +1,18 @@
+$ vite build
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 125 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-demo/index.html                          0.53 kB │ gzip:  0.31 kB
+dist-demo/modern.html                         0.61 kB │ gzip:  0.34 kB
+dist-demo/modern-relay.html                   0.62 kB │ gzip:  0.34 kB
+dist-demo/assets/swift-modern-CoD1n0CS.css    5.89 kB │ gzip:  1.75 kB
+dist-demo/assets/legacy-DYijV3Jx.css         15.94 kB │ gzip:  3.72 kB
+dist-demo/assets/modern-CQcUN9Z_.js           5.21 kB │ gzip:  2.30 kB
+dist-demo/assets/modernRelay-CFcthSq3.js     10.58 kB │ gzip:  3.88 kB
+dist-demo/assets/swift-modern-HTHB_Bqp.js    86.68 kB │ gzip: 23.53 kB
+dist-demo/assets/legacy-C2nI_b_D.js         111.01 kB │ gzip: 30.84 kB
+dist-demo/assets/inline-react-B4nloquU.js   214.64 kB │ gzip: 67.56 kB
+
+✓ built in 161ms

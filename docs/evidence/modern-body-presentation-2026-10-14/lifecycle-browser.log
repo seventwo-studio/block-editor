@@ -1,0 +1,110 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:17981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 6 tests using 1 worker
+
+[1/6] [chromium] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[2/6] [chromium] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+  1) [chromium] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('fontSize', { exact: true })
+
+
+      125 |   await expect.poll(countColumns).toBe(2);
+      126 |   await page.getByText("Appearance", { exact: true }).click();
+    > 127 |   await page.getByLabel("fontSize", { exact: true }).selectOption("large");
+          |                                                     ^
+      128 |   await expect.poll(countColumns).toBe(1); await expect(slider).toHaveValue("7000");
+      129 |   await page.getByLabel("pageWidth", { exact: true }).selectOption("wide");
+      130 |   await expect.poll(countColumns).toBe(2); await expect(slider).toHaveValue("7000");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:127:53
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-co-09991-ics-without-authoring-split-chromium/error-context.md
+
+
+[3/6] [webkit] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[4/6] [webkit] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+  2) [webkit] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('fontSize', { exact: true })
+
+
+      125 |   await expect.poll(countColumns).toBe(2);
+      126 |   await page.getByText("Appearance", { exact: true }).click();
+    > 127 |   await page.getByLabel("fontSize", { exact: true }).selectOption("large");
+          |                                                     ^
+      128 |   await expect.poll(countColumns).toBe(1); await expect(slider).toHaveValue("7000");
+      129 |   await page.getByLabel("pageWidth", { exact: true }).selectOption("wide");
+      130 |   await expect.poll(countColumns).toBe(2); await expect(slider).toHaveValue("7000");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:127:53
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-co-09991-ics-without-authoring-split-webkit/error-context.md
+
+
+[5/6] [firefox] › tests/modern-context.swift.ts:92:0 › body presentation retains composition through local menus and updates provider status
+[6/6] [firefox] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split
+  3) [firefox] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('fontSize', { exact: true })
+
+
+      125 |   await expect.poll(countColumns).toBe(2);
+      126 |   await page.getByText("Appearance", { exact: true }).click();
+    > 127 |   await page.getByLabel("fontSize", { exact: true }).selectOption("large");
+          |                                                     ^
+      128 |   await expect.poll(countColumns).toBe(1); await expect(slider).toHaveValue("7000");
+      129 |   await page.getByLabel("pageWidth", { exact: true }).selectOption("wide");
+      130 |   await expect.poll(countColumns).toBe(2); await expect(slider).toHaveValue("7000");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:127:53
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-co-09991-ics-without-authoring-split-firefox/error-context.md
+
+
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split 
+    [webkit] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split 
+    [firefox] › tests/modern-context.swift.ts:119:0 › column stacking follows page content width and updated text metrics without authoring split 
+  3 passed (1.9m)

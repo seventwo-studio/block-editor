@@ -1,0 +1,25 @@
+ 8 | const manifest = JSON.parse(readFileSync('package.json', 'utf8'));
+ 9 | assert.equal(manifest.publishConfig.registry, 'https://npm.pkg.github.com');
+10 | assert.equal(manifest.publishConfig.access, undefined);
+11 | const fixture = mkdtempSync(join(tmpdir(), 'block-editor-package-'));
+12 | try {
+13 |   const [packed] = JSON.parse(execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', fixture], { encoding: 'utf8' }));
+                                   ^
+error: Executable not found in $PATH: "npm"
+      path: "npm",
+     errno: -2,
+   syscall: "spawnSync npm",
+ spawnargs: [ "pack", "--json", "--ignore-scripts", "--pack-destination", "/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/block-editor-package-yjZs9v" ],
+    signal: null,
+    status: undefined,
+    output: [ null, null, null ],
+       pid: undefined,
+    stdout: null,
+    stderr: null,
+      code: "ENOENT"
+
+      at spawnSync (node:child_process:252:22)
+      at execFileSync (node:child_process:295:54)
+      at /Users/luca/Developer/block-editor/scripts/check-package.mjs:13:31
+
+Bun v1.4.2 (macOS arm64)

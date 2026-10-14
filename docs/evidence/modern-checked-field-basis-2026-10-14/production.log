@@ -1,0 +1,37 @@
+[WebServer] (node:15486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (23.2s)
+  ✘  2 [webkit] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (25.3s)
+  ✓  3 [firefox] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks (31.9s)
+
+
+  1) [webkit] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Error: 1,000-block edit-to-display p95 must meet 50 ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 50
+    Received:    65
+
+      90 |     // Completing measurement is distinct from meeting the accepted budgets.
+      91 |     // Retain all samples and finish with failure when either target is missed.
+    > 92 |     expect.soft(inputP95MS, "1,000-block edit-to-display p95 must meet 50 ms").toBeLessThanOrEqual(50);
+         |                                                                               ^
+      93 |     expect.soft(menuP95MS, "1,000-block menu p95 must meet 100 ms").toBeLessThanOrEqual(100);
+      94 |   } catch (error) { report.error = String(error); throw error; }
+      95 |   finally {
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:92:79
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    .build/finishing/20261014/checked-field-basis/performance-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-webkit/attachments/modern-surface-performance-ebfea47958c871805da8ce0800a211503ba7a726.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/checked-field-basis/performance-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-webkit/error-context.md
+
+  1 failed
+    [webkit] › tests/modern-performance.swift.ts:42:0 › production modern surface measures original input and menu response on 1000 mixed blocks 
+  2 passed (1.4m)

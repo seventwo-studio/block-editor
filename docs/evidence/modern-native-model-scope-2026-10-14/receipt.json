@@ -1,0 +1,69 @@
+{
+  "sourceCommit": "d704ce22302fe8b007dd9acd335051145474dbf0",
+  "scopeChecks": {
+    "tests": 3,
+    "parameterizedModelCases": [
+      "document",
+      "epoch",
+      "actor",
+      "model"
+    ],
+    "additionalFlows": [
+      "empty document switch with original marked-input recovery",
+      "current callbacks/clipboard while retaining composition"
+    ],
+    "originalFailures": [
+      "original.log: fixture API typo before compilation",
+      "reproduction.log: stale field model and empty boundary",
+      "repaired.log: exact retry reason assertion invalid after legitimate native detach",
+      "retention-diagnostic.log: all original request fields preserved; reason changes to awaitingCommit",
+      "callback-original.log: stale submit, boundary and clipboard service"
+    ],
+    "finalAppleCases": 104,
+    "normalExit": true
+  },
+  "UIKitCompilation": {
+    "iOSSimulator": true,
+    "visionOSSimulator": true,
+    "qualification": "Compilation only, not interaction, physical-device or assistive acceptance."
+  },
+  "artifacts": [
+    {
+      "kind": "wasm",
+      "priorSource": "49ee623407d8d550414e0df00777434fba81073c",
+      "currentSource": "d704ce22302fe8b007dd9acd335051145474dbf0",
+      "artifactHashesIdentical": true,
+      "changedInputs": [
+        "Sources/BlockEditorApple/ModernEmptyTextInput.swift",
+        "Sources/BlockEditorApple/ModernTextInput.swift"
+      ]
+    },
+    {
+      "kind": "javascript",
+      "priorSource": "49ee623407d8d550414e0df00777434fba81073c",
+      "currentSource": "d704ce22302fe8b007dd9acd335051145474dbf0",
+      "artifactHashesIdentical": true,
+      "changedInputs": [
+        "Sources/BlockEditorApple/ModernEmptyTextInput.swift",
+        "Sources/BlockEditorApple/ModernTextInput.swift"
+      ]
+    },
+    {
+      "kind": "android",
+      "priorSource": "49ee623407d8d550414e0df00777434fba81073c",
+      "currentSource": "d704ce22302fe8b007dd9acd335051145474dbf0",
+      "artifactHashesIdentical": true,
+      "changedInputs": [
+        "Sources/BlockEditorApple/ModernEmptyTextInput.swift",
+        "Sources/BlockEditorApple/ModernTextInput.swift"
+      ]
+    }
+  ],
+  "qualifications": [
+    "Scoped IDs include the owning model lifetime; field-only IDs are session scoped and may repeat across documents/epochs/authors. Empty-buffer state belongs to its scoped model.",
+    "Same-model callback, boundary and clipboard updates keep native view identity, first responder and marked buffer.",
+    "Original request ID, payload, document/epoch and paste boundary survive inactive-host detachment and checkpoint restore. Reason changes from compositionActive to awaitingCommit after native marked text ends.",
+    "Previous shared/browser/performance results retain earlier source qualification; exact unchanged artifact hashes establish runtime byte identity. No new 1,000-block performance pass or complete assistive campaign is claimed.",
+    "Current hosted CI/review, full finishing campaigns and deferred physical/final acceptance remain open. No protected-main, registry or concurrent Foliostrate edits."
+  ]
+}

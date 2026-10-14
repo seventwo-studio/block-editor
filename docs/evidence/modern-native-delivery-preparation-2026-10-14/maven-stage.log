@@ -1,0 +1,54 @@
+> Task :editor:preBuild UP-TO-DATE
+> Task :editor:preReleaseBuild UP-TO-DATE
+> Task :editor:mergeReleaseJniLibFolders
+> Task :editor:generateReleaseResValues
+> Task :editor:extractDeepLinksForAarRelease
+> Task :editor:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor:generateReleaseResources
+> Task :editor:packageReleaseResources
+> Task :editor:mergeReleaseShaders
+> Task :editor:compileReleaseShaders NO-SOURCE
+> Task :editor:generateReleaseAssets UP-TO-DATE
+> Task :editor:mergeReleaseAssets
+> Task :editor:prepareLintJarForPublish UP-TO-DATE
+> Task :editor:prepareReleaseArtProfile
+> Task :editor:javaPreCompileRelease
+> Task :editor:writeReleaseAarMetadata
+> Task :editor:parseReleaseLocalResources
+> Task :editor:sourceReleaseJar
+> Task :editor:processReleaseManifest
+> Task :editor:generatePomFileForModernReleasePublication
+> Task :editor:generateReleaseRFile
+> Task :editor:mergeReleaseNativeLibs
+
+> Task :editor:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libBlockEditorBridge.so, libBlockEditorJNI.so, libc++_shared.so. Run with --info option to learn more.
+
+> Task :editor:copyReleaseJniLibsProjectAndLocalJars
+
+> Task :editor:compileReleaseKotlin
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:50:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:53:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:53:60 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:53 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:67 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:55:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:55:54 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:55:71 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:57:31 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+
+> Task :editor:extractReleaseAnnotations
+> Task :editor:compileReleaseJavaWithJavac NO-SOURCE
+> Task :editor:mergeReleaseGeneratedProguardFiles
+> Task :editor:mergeReleaseConsumerProguardFiles
+> Task :editor:processReleaseJavaRes
+> Task :editor:mergeReleaseJavaResource
+> Task :editor:syncReleaseLibJars
+> Task :editor:bundleReleaseAar
+> Task :editor:generateMetadataFileForModernReleasePublication
+> Task :editor:publishModernReleasePublicationToModernStagingRepository
+
+BUILD SUCCESSFUL in 11s
+29 actionable tasks: 28 executed, 1 up-to-date

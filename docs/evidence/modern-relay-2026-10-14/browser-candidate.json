@@ -1,0 +1,875 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.modern-relay.config.ts",
+      "--reporter=line,json",
+      "--global-timeout=300000",
+      "--trace=retain-on-failure",
+      "--output=.build/finishing/20261014/modern-relay/browser-candidate-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.modern-relay.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 300000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4290 --strictPort",
+      "url": "http://127.0.0.1:4290/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-relay-client.swift.ts",
+      "file": "modern-relay-client.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 962,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:10.138Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-relay-client-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiZmFpbGVkIGR1cmFibGUgQUNLLCBvcmlnaW5hbCBwZW5kaW5nIGlucHV0LCBkdXBsaWNhdGUtc2FmZSBleHBsaWNpdCByZXRyeSBhbmQgcGFpcmVkIHJlY2VpcHQiLAogICAgImhvc3QgZ2VuZXJhdGlvbiBBQkEsIGRlbGF5ZWQgcmVzcG9uc2UgZGlzY2FyZCwgcGVuZGluZyByZWNlaXB0IGFuZCBlcGhlbWVyYWwgcHJlc2VuY2UiLAogICAgImZvcmVpZ24gcmVjZWlwdCByZWplY3RlZCBiZWZvcmUgYWNjZXB0ZWQgY29udGVudCBvciBwZW5kaW5nIHJlY2VpcHQgY2hhbmdlcyIsCiAgICAicGFpcmVkIGhlbGQgcGVlciwgcmV0YWluZWQgb3JpZ2luYWwgZHJhZnQsIGluZXJ0IHJlb3BlbiwgZXhwbGljaXQgcmVsZWFzZS9yZXRyeSBhbmQgcGVlci1wcmVzZXJ2aW5nIFVuZG8iCiAgXSwKICAicXVhbGlmaWNhdGlvbiI6ICJzaGFyZWQgU3dpZnQvV0FTTSBhbmQgcmVhbCBJbmRleGVkREIgbGlmZWN5Y2xlOyBIVFRQIGZhdWx0L2RlbGF5IGluamVjdGlvbiwgbm90IHBoeXNpY2FsIElNRSBvciBmdWxsIFVJL3JlbGF5IHByb29mIiwKICAic291cmNlIjogImE5MzlkZmM3IiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c781ef4d644a2d9aa5ef-341b1d5e16e598ed095a",
+          "file": "modern-relay-client.swift.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1799,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:23.403Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-relay-client-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiZmFpbGVkIGR1cmFibGUgQUNLLCBvcmlnaW5hbCBwZW5kaW5nIGlucHV0LCBkdXBsaWNhdGUtc2FmZSBleHBsaWNpdCByZXRyeSBhbmQgcGFpcmVkIHJlY2VpcHQiLAogICAgImhvc3QgZ2VuZXJhdGlvbiBBQkEsIGRlbGF5ZWQgcmVzcG9uc2UgZGlzY2FyZCwgcGVuZGluZyByZWNlaXB0IGFuZCBlcGhlbWVyYWwgcHJlc2VuY2UiLAogICAgImZvcmVpZ24gcmVjZWlwdCByZWplY3RlZCBiZWZvcmUgYWNjZXB0ZWQgY29udGVudCBvciBwZW5kaW5nIHJlY2VpcHQgY2hhbmdlcyIsCiAgICAicGFpcmVkIGhlbGQgcGVlciwgcmV0YWluZWQgb3JpZ2luYWwgZHJhZnQsIGluZXJ0IHJlb3BlbiwgZXhwbGljaXQgcmVsZWFzZS9yZXRyeSBhbmQgcGVlci1wcmVzZXJ2aW5nIFVuZG8iCiAgXSwKICAicXVhbGlmaWNhdGlvbiI6ICJzaGFyZWQgU3dpZnQvV0FTTSBhbmQgcmVhbCBJbmRleGVkREIgbGlmZWN5Y2xlOyBIVFRQIGZhdWx0L2RlbGF5IGluamVjdGlvbiwgbm90IHBoeXNpY2FsIElNRSBvciBmdWxsIFVJL3JlbGF5IHByb29mIiwKICAic291cmNlIjogImE5MzlkZmM3IiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c781ef4d644a2d9aa5ef-52bb5861ab695de7cc0a",
+          "file": "modern-relay-client.swift.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "modern relay durable ACK, delayed scope and held-input lifecycle through actual WASM and IndexedDB",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1257,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:38.207Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "modern-relay-client-contract",
+                      "contentType": "application/json",
+                      "body": "ewogICJjaGVja3MiOiBbCiAgICAiZmFpbGVkIGR1cmFibGUgQUNLLCBvcmlnaW5hbCBwZW5kaW5nIGlucHV0LCBkdXBsaWNhdGUtc2FmZSBleHBsaWNpdCByZXRyeSBhbmQgcGFpcmVkIHJlY2VpcHQiLAogICAgImhvc3QgZ2VuZXJhdGlvbiBBQkEsIGRlbGF5ZWQgcmVzcG9uc2UgZGlzY2FyZCwgcGVuZGluZyByZWNlaXB0IGFuZCBlcGhlbWVyYWwgcHJlc2VuY2UiLAogICAgImZvcmVpZ24gcmVjZWlwdCByZWplY3RlZCBiZWZvcmUgYWNjZXB0ZWQgY29udGVudCBvciBwZW5kaW5nIHJlY2VpcHQgY2hhbmdlcyIsCiAgICAicGFpcmVkIGhlbGQgcGVlciwgcmV0YWluZWQgb3JpZ2luYWwgZHJhZnQsIGluZXJ0IHJlb3BlbiwgZXhwbGljaXQgcmVsZWFzZS9yZXRyeSBhbmQgcGVlci1wcmVzZXJ2aW5nIFVuZG8iCiAgXSwKICAicXVhbGlmaWNhdGlvbiI6ICJzaGFyZWQgU3dpZnQvV0FTTSBhbmQgcmVhbCBJbmRleGVkREIgbGlmZWN5Y2xlOyBIVFRQIGZhdWx0L2RlbGF5IGluamVjdGlvbiwgbm90IHBoeXNpY2FsIElNRSBvciBmdWxsIFVJL3JlbGF5IHByb29mIiwKICAic291cmNlIjogImE5MzlkZmM3IiwKICAid2FzbVNIQTI1NiI6ICI2ZjVmZWJjZmI5NjJmNzM1YWJkZTRiYjg5ODBhYTE3NWU1NjhjNjRmZDYzYzAwNDA0YjgzZDUxMmM3MzAxNGZiIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c781ef4d644a2d9aa5ef-bc9ba852745d5f142e9c",
+          "file": "modern-relay-client.swift.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "modern-relay.swift.ts",
+      "file": "modern-relay.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4050,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:80:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:80:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:11.187Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-3348688e033d04fa4375",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2364,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:115:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:115:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:15.456Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-c2171d020aa204faf377",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5004,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:145:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:145:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:18.018Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-002f036451ca73a219a4",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        },
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4147,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:80:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:80:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:25.411Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-10afc016a4ac3e939269",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2880,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:115:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:115:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:29.786Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-a2d7e375b761876cccff",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4974,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:145:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:145:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:32.861Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-dca3fb7bc787322b8889",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        },
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5718,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:80:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:80:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:39.928Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-fe66c9973f2b80069622",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3646,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:115:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:115:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:46.024Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-c0087addd4741a85c41b",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5959,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:145:111",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                      "column": 84,
+                      "line": 111
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                        "column": 84,
+                        "line": 111
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"a939dfc\u001b[7m6600d08436a06ce0fb917fa4a157984a2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"a939dfc\u001b[7m7\u001b[27m\"\u001b[39m\n\n   at helpers/relay-process.ts:111\n\n  109 |       const hash = async (path: string) => createHash(\"sha256\").update(await readFile(path)).digest(\"hex\");\n  110 |       const sourceRevision = (await promisify(execFile)(\"git\", [\"rev-parse\", \"HEAD\"])).stdout.trim();\n> 111 |       if (process.env.EVIDENCE_SOURCE_SHA) expect(process.env.EVIDENCE_SOURCE_SHA).toBe(sourceRevision);\n      |                                                                                    ^\n  112 |       const sourcePaths = [\"tests/helpers/relay-process.ts\", \"tests/relay-process-restart.spec.ts\", \"scripts/relay-process-fixture.ts\",\n  113 |         \"demo/local-main.tsx\", \"demo/local-storage.ts\", \"demo/local-sync.ts\", \"demo/relay/server.ts\", \"src/swift.ts\"];\n  114 |       if (phases.some(phase => phase.version === 7)) sourcePaths.push(\"tests/modern-relay.swift.ts\", \"demo/modern-relay-main.tsx\", \"demo/relay/modern-room.ts\",\n    at Object.report (/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts:111:84)\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:145:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:39:49.860Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-candidate-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/helpers/relay-process.ts",
+                    "column": 84,
+                    "line": 111
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-46e59614deb4f4390664",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T22:39:09.798Z",
+    "duration": 46268.83500000001,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 9,
+    "flaky": 0
+  }
+}

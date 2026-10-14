@@ -1,0 +1,30 @@
+{
+  "baseline": {
+    "lint/correctness/noUnusedFunctionParameters": 2,
+    "lint/style/noNonNullAssertion": 7,
+    "lint/style/useImportType": 2,
+    "lint/correctness/noUnusedVariables": 2,
+    "lint/a11y/useButtonType": 43,
+    "lint/a11y/noAutofocus": 2,
+    "lint/suspicious/useIterableCallbackReturn": 2,
+    "lint/a11y/useFocusableInteractive": 2,
+    "lint/a11y/noStaticElementInteractions": 2,
+    "lint/correctness/useExhaustiveDependencies": 22,
+    "lint/a11y/useSemanticElements": 2,
+    "lint/suspicious/noArrayIndexKey": 1
+  },
+  "current": {
+    "lint/correctness/noUnusedFunctionParameters": 2,
+    "lint/style/noNonNullAssertion": 7,
+    "lint/style/useImportType": 2,
+    "lint/correctness/noUnusedVariables": 2,
+    "lint/correctness/useExhaustiveDependencies": 22,
+    "lint/a11y/useSemanticElements": 2,
+    "lint/a11y/noAutofocus": 2,
+    "lint/suspicious/useIterableCallbackReturn": 2,
+    "lint/a11y/useFocusableInteractive": 2,
+    "lint/a11y/noStaticElementInteractions": 2,
+    "lint/suspicious/noArrayIndexKey": 1
+  },
+  "qualification": "Overall lint still fails. Forty-three missing-button-type findings removed; final exhaustive-dependency count equals baseline. Remaining findings need separate ownership, not a lint pass."
+}

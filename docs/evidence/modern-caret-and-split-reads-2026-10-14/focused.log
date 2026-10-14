@@ -1,0 +1,93 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:82739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+  ✓  1 [chromium] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (14.5s)
+  ✘  2 [chromium] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads (8.4s)
+  ✓  3 [chromium] › tests/modern-context.swift.ts:179:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (8.9s)
+  ✓  4 [webkit] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (14.7s)
+  ✘  5 [webkit] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads (9.5s)
+  ✓  6 [webkit] › tests/modern-context.swift.ts:179:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (9.7s)
+  ✓  7 [firefox] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (16.9s)
+  ✘  8 [firefox] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads (8.1s)
+  ✓  9 [firefox] › tests/modern-context.swift.ts:179:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (9.2s)
+
+
+  1) [chromium] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads 
+
+    Error: evaluate: TypeError: peer.undo is not a function
+        at eval (eval at evaluate (:311:30), <anonymous>:3:10)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:311:30), <anonymous>:3:10)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:69:13
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/caret-read-cache/focused-results/modern-context.swift.ts-in-de99d-n-after-cached-native-reads-chromium/error-context.md
+
+  2) [webkit] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads 
+
+    Error: evaluate: TypeError: peer.undo is not a function. (In 'peer.undo()', 'peer.undo' is undefined)
+
+      67 |   await page.getByRole("button", { name: "Undo", exact: true }).click(); await expect(body).toHaveText("世界Seed!");
+      68 |   await page.getByRole("button", { name: "Undo", exact: true }).click(); await expect(body).toHaveText("世界Seed");
+    > 69 |   await page.evaluate(() => { const { session, peer } = window.modernAcceptance; peer.undo(); session.receive(peer.changes()); });
+         |             ^
+      70 |   await expect(body).toHaveText("Seed"); await page.keyboard.type("Y"); await expect(body).toHaveText("SeedY");
+      71 |   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document.blocks[0].opaque)).toEqual({ retained: "世界😀" });
+      72 |   expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:69:13
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/caret-read-cache/focused-results/modern-context.swift.ts-in-de99d-n-after-cached-native-reads-webkit/error-context.md
+
+  3) [firefox] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads 
+
+    Error: evaluate: peer.undo is not a function
+    @debugger eval code line 311 > eval:3:10
+    evaluate@debugger eval code:313:16
+    @debugger eval code:1:44
+    @debugger eval code:1:62
+
+        at @debugger eval code line 311 > eval:3:10
+        at evaluate@debugger eval code:313:16
+        at @debugger eval code:1:44
+        at @debugger eval code:1:62
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:69:13
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/caret-read-cache/focused-results/modern-context.swift.ts-in-de99d-n-after-cached-native-reads-firefox/error-context.md
+
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads 
+    [webkit] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads 
+    [firefox] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads 
+  6 passed (1.7m)

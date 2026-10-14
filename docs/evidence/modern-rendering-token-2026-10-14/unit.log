@@ -1,0 +1,12 @@
+bun test v1.4.2 (744846f84)
+
+tests/modern-snapshot-sharing.test.ts:
+(pass) equal document/receipt reuse immutable values while state and notifications publish [10.93ms]
+(pass) signed zero, exact Unicode and same-cohort document changes are never hidden [5.32ms]
+(pass) optional binding read falls back once for old engines and propagates genuine failures [2.62ms]
+(pass) shared binding tokens preserve exact array ownership and reject an unknown omitted view [0.06ms]
+
+ 4 pass
+ 0 fail
+ 24 expect() calls
+Ran 4 tests across 1 file. [99.00ms]

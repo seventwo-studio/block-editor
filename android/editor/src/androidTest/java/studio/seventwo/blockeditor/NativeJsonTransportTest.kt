@@ -10,6 +10,32 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 class NativeJsonTransportTest {
+    @Test fun sharedRawJNIInspectionRejectsOriginalMalformedBytesWithoutRounding() {
+        val valid = ModernWireJSON.inspect("""{"zero":-0,"unicode":"東京😀","number":1e3}""".toByteArray()) as JSONObject
+        assertEquals(java.lang.Double.doubleToRawLongBits(-0.0), java.lang.Double.doubleToRawLongBits(valid.getDouble("zero")))
+        assertEquals("東京😀", valid.getString("unicode")); assertEquals(1000, valid.getInt("number"))
+        for (raw in listOf("""{"x":1,"x":2}""", """{"counter":1.0000000000000001}""", "{\"x\":\"\\ud800\"}")) {
+            try { ModernWireJSON.inspect(raw.toByteArray()); fail("Shared inspector must reject original input") } catch (_: IllegalStateException) { }
+        }
+    }
+    @Test fun strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates() {
+        val bytes = """{"counter":1.0000000000000001,"large":18446744073709551616,"zero":-0.0,"valid":1e3}""".toByteArray()
+        val decoded = NativeJsonTransport.decode(bytes, strict = true)
+        val encoded = NativeJsonTransport.encode(NativeJsonTransport.copy(decoded)).toString(Charsets.UTF_8)
+        assertTrue(encoded, encoded.contains("1.0000000000000001")); assertTrue(encoded, encoded.contains("18446744073709551616")); assertTrue(encoded, encoded.contains("-0"))
+        for (duplicate in listOf("""{"x":1,"x":2}""", """{"x":[{"y":1,"y":2}]}""")) {
+            try { NativeJsonTransport.decode(duplicate.toByteArray(), strict = true); fail("Duplicate key must remain rejected") } catch (_: IllegalStateException) { }
+        }
+    }
+
+    @Test fun strictNetworkReaderBoundsNestingBeforeAdmission() {
+        val bytes = ("{\"a\":".repeat(129) + "0" + "}".repeat(129)).toByteArray()
+        try { NativeJsonTransport.decode(bytes, strict = true); fail("Excessive transport nesting must fail") } catch (_: IllegalStateException) { }
+        for (invalid in listOf(byteArrayOf(123, 34, 120, 34, 58, 34, -1, 34, 125), "{\"x\":\"\\ud800\"}".toByteArray())) {
+            try { NativeJsonTransport.decode(invalid, strict = true); fail("Malformed Unicode must not be replaced") } catch (_: Exception) { }
+        }
+        try { NativeJsonTransport.encode(JSONObject().put("x", "\uD800")); fail("JNI must not replace an unpaired surrogate") } catch (_: Exception) { }
+    }
     private fun normalized(value: Any?): Any? = when (value) {
         is JSONObject -> value.keys().asSequence().associateWith { normalized(value.get(it)) }
         is JSONArray -> (0 until value.length()).map { normalized(value.get(it)) }
@@ -22,6 +48,9 @@ class NativeJsonTransportTest {
         source.put("escapes", "\"\\/\b\u000C\n\r\t\u0000\u001F\u2028\u2029")
         val oldEncoded = checkNotNull(source.toString()).toByteArray(Charsets.UTF_8)
         val expected = JSONObject(oldEncoded.toString(Charsets.UTF_8))
+        // Android JSONTokener interprets the serialized -0 as positive integer
+        // zero. Preserve the independently specified original signed value.
+        expected.put("zero", -0.0)
         val decoded = NativeJsonTransport.decode(NativeJsonTransport.encode(source))
         assertEquals(normalized(expected), normalized(decoded))
         assertEquals(expected.keys().asSequence().toList(), decoded.keys().asSequence().toList())

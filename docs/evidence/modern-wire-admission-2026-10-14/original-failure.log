@@ -1,0 +1,29 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4290" --strictPort
+
+[WebServer] (node:81430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+(node:81431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › tests/modern-relay-wire.swift.ts:3:1 › modern relay rejects original malformed wire before peer admission
+  1) [chromium] › tests/modern-relay-wire.swift.ts:3:1 › modern relay rejects original malformed wire before peer admission 
+
+    Error: page.evaluate: Error: duplicate: original malformed wire must be rejected
+        at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)
+        at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)
+        at async <anonymous>:337:30
+        at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)
+        at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)
+        at async <anonymous>:337:30
+        at /Users/luca/Developer/block-editor/tests/modern-relay-wire.swift.ts:6:29
+
+    Error Context: .build/finishing/20261014/browser-wire/original-results/modern-relay-wire.swift.ts-5796b--wire-before-peer-admission-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › tests/modern-relay-wire.swift.ts:3:1 › modern relay rejects original malformed wire before peer admission 

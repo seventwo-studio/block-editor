@@ -1,0 +1,194 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.modern-relay.config.ts",
+      "tests/modern-relay-wire.swift.ts",
+      "--project",
+      "chromium",
+      "--reporter=line,json",
+      "--global-timeout=120000",
+      "--output=.build/finishing/20261014/browser-wire/original-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.modern-relay.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 120000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/original-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/original-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/original-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts",
+          "modern-relay-client.swift.ts",
+          "modern-relay-wire.swift.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4290 --strictPort",
+      "url": "http://127.0.0.1:4290/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-relay-wire.swift.ts",
+      "file": "modern-relay-wire.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern relay rejects original malformed wire before peer admission",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 812,
+                  "error": {
+                    "message": "Error: page.evaluate: Error: duplicate: original malformed wire must be rejected\n    at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)\n    at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)\n    at async <anonymous>:337:30",
+                    "stack": "Error: page.evaluate: Error: duplicate: original malformed wire must be rejected\n    at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)\n    at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)\n    at async <anonymous>:337:30\n    at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)\n    at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)\n    at async <anonymous>:337:30\n    at /Users/luca/Developer/block-editor/tests/modern-relay-wire.swift.ts:6:29",
+                    "location": {
+                      "file": "http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts",
+                      "column": 24,
+                      "line": 5
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts",
+                        "column": 24,
+                        "line": 5
+                      },
+                      "message": "Error: page.evaluate: Error: duplicate: original malformed wire must be rejected\n    at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)\n    at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)\n    at async <anonymous>:337:30\n    at check (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:5:24)\n    at runModernRelayWireContract (http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts:84:4)\n    at async <anonymous>:337:30\n    at /Users/luca/Developer/block-editor/tests/modern-relay-wire.swift.ts:6:29"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T00:28:28.596Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/browser-wire/original-results/modern-relay-wire.swift.ts-5796b--wire-before-peer-admission-chromium/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "http://127.0.0.1:4290/block-editor/@fs/Users/luca/Developer/block-editor/tests/modern-relay-wire.contract.ts",
+                    "column": 24,
+                    "line": 5
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2e34c0ba9b918cdd9fa5-8c0c0fc1131deefaf426",
+          "file": "modern-relay-wire.swift.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-14T00:28:28.025Z",
+    "duration": 1598.457,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

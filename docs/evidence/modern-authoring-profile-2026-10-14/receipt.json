@@ -1,0 +1,186 @@
+{
+  "sourceCommit": "d940e10a7bee810301a7be37e4e08650e00ca896",
+  "rankCommit": "5f992757f98a883077265c82145c96d4625780a0",
+  "cleanupCommit": "b87662b58ffecb50e0c43b131d101799f6032916",
+  "nativeTests": {
+    "core": 582,
+    "apple": 99,
+    "other": 8,
+    "normalExit": true
+  },
+  "processPhases": [
+    {
+      "phase": "seed",
+      "pid": 6320,
+      "passed": true
+    },
+    {
+      "phase": "offline",
+      "pid": 6404,
+      "passed": true
+    },
+    {
+      "phase": "rejoin",
+      "pid": 6443,
+      "passed": true
+    },
+    {
+      "phase": "undo",
+      "pid": 6484,
+      "passed": true
+    },
+    {
+      "phase": "redo",
+      "pid": 6523,
+      "passed": true
+    }
+  ],
+  "wasmDiagnostic": {
+    "complete": true,
+    "sourceCommit": "d940e10a7bee810301a7be37e4e08650e00ca896",
+    "trackedPatchSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "trackedSourceDirty": false,
+    "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+    "wasmSHA256": "65ca523aabd41d86a6758691321b31bea30d5a9d59b306e51325742c991135d3",
+    "calls": [
+      {
+        "command": "createModern",
+        "ms": 1749.160167
+      },
+      {
+        "command": "modernNode",
+        "ms": 501.47412499999996
+      },
+      {
+        "command": "modernField",
+        "ms": 0.5786660000003394
+      },
+      {
+        "command": "modernCaptureTextRange",
+        "ms": 1.678625000000011
+      },
+      {
+        "command": "modernCommand",
+        "authorCommand": "replaceText",
+        "ms": 2980.4566669999995
+      },
+      {
+        "command": "modernText",
+        "ms": 10.509167000000161
+      },
+      {
+        "command": "modernCaptureTextRange",
+        "ms": 0.5526250000002619
+      },
+      {
+        "command": "modernCommand",
+        "authorCommand": "typingShortcut",
+        "ms": 144.80574999999953
+      },
+      {
+        "command": "modernMarkState",
+        "ms": 79.31779200000074
+      },
+      {
+        "command": "modernCaptureTextRange",
+        "ms": 0.5279590000000098
+      },
+      {
+        "command": "modernCommand",
+        "authorCommand": "replaceText",
+        "ms": 2933.7501249999996
+      },
+      {
+        "command": "modernText",
+        "ms": 10.297042000000147
+      },
+      {
+        "command": "modernCaptureTextRange",
+        "ms": 0.5065830000003189
+      },
+      {
+        "command": "modernCommand",
+        "authorCommand": "typingShortcut",
+        "ms": 142.48624999999993
+      },
+      {
+        "command": "modernMarkState",
+        "ms": 78.23650000000089
+      },
+      {
+        "command": "destroy",
+        "ms": 47.80579100000068
+      }
+    ],
+    "qualification": "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets."
+  },
+  "qualifications": [
+    "Not a surface budget or p95 pass. Original 9.4-second production baseline remains failed/incomplete.",
+    "WASM was built before the offset commit from a dirty worktree; every recorded source input equals the final d940e10 files. This is diagnostic/build proof, not a clean release receipt. Android was built clean at d940e10.",
+    "The earlier API35 repeat combines ranked JNI with the later native offset checker; it is not final matching-source acceptance.",
+    "API26 current-head cleanup must still pass fresh required CI; injected exit-255 tests are not an actual API26 campaign.",
+    "Original local seed HTTP400 remains failed; independent opening and two later campaigns passed, cause unproven."
+  ],
+  "nativeABI": {
+    "responses": 968,
+    "fixtures": 30
+  },
+  "nativeAdapter": {
+    "requests": 504,
+    "fixtures": 55,
+    "commands": 26
+  },
+  "browserAffected": {
+    "cases": 42,
+    "engines": [
+      "chromium",
+      "webkit",
+      "firefox"
+    ],
+    "normalExit": true,
+    "runtimeSources": "d940e10a7bee810301a7be37e4e08650e00ca896"
+  },
+  "previousCI": {
+    "conclusion": "",
+    "headSha": "4510a21f4480a8d0e22e435ace95e961d9c04ede",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "databaseId": 115652019916,
+        "name": "swift-runtime",
+        "status": "completed"
+      },
+      {
+        "conclusion": "",
+        "databaseId": 115652019978,
+        "name": "wasm-runtime",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 115652020070,
+        "name": "android-runtime (26, x86_64)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "",
+        "databaseId": 115652020095,
+        "name": "android-runtime (35, arm64-v8a)",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 115652020106,
+        "name": "android-runtime (35, x86_64)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 115652020132,
+        "name": "test",
+        "status": "completed"
+      }
+    ],
+    "status": "in_progress"
+  }
+}

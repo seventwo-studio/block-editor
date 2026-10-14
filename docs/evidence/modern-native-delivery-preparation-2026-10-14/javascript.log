@@ -1,0 +1,19 @@
+$ tsc -p tsconfig.build.json && bun scripts/record-modern-build.mjs javascript
+16 |       if (entry.isDirectory()) walk(path);
+17 |       else if (/\.(swift|ts|tsx|kt|css|c)$/.test(path)) files[path] = digest(readFileSync(path));
+18 |     }
+19 |   }
+20 |   for (const path of ["Sources", "src", "android/editor/src/main/java", "android/editor/src/main/cpp"]) walk(path);
+21 |   for (const path of ["Package.swift", "package.json", "tsconfig.build.json", "android/build.gradle.kts", "android/settings.gradle.kts", "android/editor/build.gradle.kts", "android/gradle/wrapper/gradle-wrapper.properties", "scripts/build-wasm.sh", "scripts/build-android.sh", "scripts/record-modern-build.mjs", "scripts/modern-package-provenance.mjs", "scripts/check-package.mjs", "scripts/prepare-private-modern-package.mjs", "scripts/prepare-private-modern-native.mjs"]) files[path] = digest(readFileSync(path));
+
+ENOENT: no such file or directory, open 'android/gradle/wrapper/gradle-wrapper.properties'
+    path: "android/gradle/wrapper/gradle-wrapper.properties",
+ syscall: "open",
+   errno: -2,
+    code: "ENOENT"
+
+      at sourceInputs (/Users/luca/Developer/block-editor/scripts/record-modern-build.mjs:21:496)
+      at /Users/luca/Developer/block-editor/scripts/record-modern-build.mjs:40:19
+
+Bun v1.4.2 (macOS arm64)
+error: script "build" exited with code 1

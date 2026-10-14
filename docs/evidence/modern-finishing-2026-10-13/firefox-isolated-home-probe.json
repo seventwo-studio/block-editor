@@ -1,0 +1,8 @@
+{
+  "started": "2026-10-13T21:19:34.387Z",
+  "ended": "2026-10-13T21:19:35.178Z",
+  "passed": true,
+  "version": "155.0",
+  "text": "ready",
+  "isolation": "CFFIXED_USER_HOME: task-owned empty home; normal browser binary and security settings"
+}

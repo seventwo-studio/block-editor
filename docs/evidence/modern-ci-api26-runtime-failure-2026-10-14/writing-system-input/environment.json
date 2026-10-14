@@ -1,0 +1,273 @@
+{
+  "passed": false,
+  "timestamp": "2026-10-14T15:18:32.911489+00:00",
+  "runID": "93742e79-f63e-4eae-93aa-179f6e27472c",
+  "serial": "emulator-5554",
+  "settingsBefore": {
+    "default_input_method": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+    "selected_input_method_subtype": "-921088104",
+    "enabled_accessibility_services": "null"
+  },
+  "api": "26",
+  "abi": "x86_64",
+  "fingerprint": "Android/sdk_gphone_x86_64/generic_x86_64:8.0.0/OSR1.180418.026/6741039:userdebug/dev-keys",
+  "sourceCommit": "6e43a497a1250bce3240b130a19d7de8455407ad",
+  "sourceTree": "925dd646cea2bb1f336ce9e157d13673178cf975",
+  "runnerSHA256": "3fd2176137ee3881dd7730185861adbc9a0d09be66e9089c33948ebb83812901",
+  "sourceDirty": false,
+  "apkSHA256": "d4ae4deed7f3f93ec8ce6f00cdca2283b1a173311d0788346fb6a12ad647f87d",
+  "scope": "Installed API26 LatinIME; explicit WritingSession v4 owner, physical Enter/Softbreak commits held draft and remote packet, mapped focus/caret, one-command author Undo/Redo and offline typed restore. Original Unicode/rich reference preservation; no process restart, structured paste, assets, TalkBack, general authoring or failed-repair acceptance.",
+  "productionSourceSHA256": "ad74c791b18519068aa2d4da810927362b64d951724c37bf4088c63abecf34fb",
+  "testSourcesSHA256": {
+    "SystemImeTest.kt": "ae1ef9d5ce7c5332278cc20ee32ed0464781f57a7828cf90ae2f64eb2237c4d6",
+    "WritingBuiltinImeTest.kt": "9d754309c7acdcaaa0026da89eee14d3cfa03deb93801a55ac8b9a7c95903fea",
+    "BuiltinImeTest.kt": "6618365fa241ac56a4cb09067726f049e1139abb2be667003707f5d281bf4b42"
+  },
+  "packagedJNI_SHA256": {
+    "lib/x86_64/libBlockEditorBridge.so": "d19e1e88a58bb20c547887ad611e7df9ab29380edea16f3061dd3702985398da",
+    "lib/x86_64/libBlockEditorJNI.so": "89e088c4723d14445335eb642259e70f7cd4418c62edc20e4addcd6b5c0c713f",
+    "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+    "lib/x86_64/libc++_shared.so": "7918ebd0b8074c312d0c610205d49760b98c008026e6b817cd92103a3e12241b"
+  },
+  "keyboardPackage": "com.google.android.inputmethod.latin",
+  "installedTarget": "Receiver Resolver Table:\n  Non-Data Actions:\n      androidx.profileinstaller.action.SAVE_PROFILE:\n        d6ae7e9 studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter fa24d24\n          Action: \"androidx.profileinstaller.action.SAVE_PROFILE\"\n      androidx.profileinstaller.action.INSTALL_PROFILE:\n        d6ae7e9 studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter edaf0b6\n          Action: \"androidx.profileinstaller.action.INSTALL_PROFILE\"\n      androidx.profileinstaller.action.SKIP_FILE:\n        d6ae7e9 studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter b5421b7\n          Action: \"androidx.profileinstaller.action.SKIP_FILE\"\n      androidx.profileinstaller.action.BENCHMARK_OPERATION:\n        d6ae7e9 studio.seventwo.blockeditor.test/androidx.profileinstaller.ProfileInstallReceiver filter 974008d\n          Action: \"androidx.profileinstaller.action.BENCHMARK_OPERATION\"\n\nPermissions:\n  Permission [studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (63ec6e):\n    sourcePackage=studio.seventwo.blockeditor.test\n    uid=10077 gids=null type=0 prot=signature\n    perm=Permission{7a95f0f studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}\n    packageSetting=PackageSetting{2ae3b9c studio.seventwo.blockeditor.test/10077}\n\nRegistered ContentProviders:\n  studio.seventwo.blockeditor.test/androidx.startup.InitializationProvider:\n    Provider{10119a5 studio.seventwo.blockeditor.test/androidx.startup.InitializationProvider}\n\nContentProvider Authorities:\n  [studio.seventwo.blockeditor.test.androidx-startup]:\n    Provider{10119a5 studio.seventwo.blockeditor.test/androidx.startup.InitializationProvider}\n      applicationInfo=ApplicationInfo{de6617a studio.seventwo.blockeditor.test}\n\nKey Set Manager:\n  [studio.seventwo.blockeditor.test]\n      Signing KeySets: 21\n\nPackages:\n  Package [studio.seventwo.blockeditor.test] (2ae3b9c):\n    userId=10077\n    pkg=Package{b26dd2b studio.seventwo.blockeditor.test}\n    codePath=/data/app/studio.seventwo.blockeditor.test-PJqcU_0B1NtQNarbfliCOQ==\n    resourcePath=/data/app/studio.seventwo.blockeditor.test-PJqcU_0B1NtQNarbfliCOQ==\n    legacyNativeLibraryDir=/data/app/studio.seventwo.blockeditor.test-PJqcU_0B1NtQNarbfliCOQ==/lib\n    primaryCpuAbi=x86_64\n    secondaryCpuAbi=null\n    versionCode=0 minSdk=26 targetSdk=35\n    versionName=null\n    splits=[base]\n    apkSigningVersion=2\n    applicationInfo=ApplicationInfo{de6617a studio.seventwo.blockeditor.test}\n    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]\n    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ]\n    dataDir=/data/user/0/studio.seventwo.blockeditor.test\n    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]\n    usesLibraries:\n      android.test.runner\n    usesLibraryFiles:\n      /system/framework/android.test.runner.jar\n    timeStamp=2026-10-14 15:17:15\n    firstInstallTime=2026-10-14 15:15:16\n    lastUpdateTime=2026-10-14 15:17:19\n    signatures=PackageSignatures{1317588 [2b943a1e]}\n    installPermissionsFixed=true installStatus=1\n    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]\n    declared permissions:\n      studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature, INSTALLED\n    requested permissions:\n      android.permission.INTERNET\n      android.permission.REORDER_TASKS\n      studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\n    install permissions:\n      studio.seventwo.blockeditor.test.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true\n      android.permission.INTERNET: granted=true\n      android.permission.REORDER_TASKS: granted=true\n    User 0: ceDataInode=123023 installed=true hidden=false suspended=false stopped=false notLaunched=false enabled=0 instant=false\n      gids=[3003]\n      runtime permissions:\n\nPackage Changes:\n  Sequence number=322\n  User 0:\n    seq=0, package=com.google.android.apps.inputmethod.hindi\n    seq=1, package=com.google.android.inputmethod.pinyin\n    seq=2, package=com.google.android.webview\n    seq=4, package=com.google.android.setupwizard\n    seq=5, package=com.google.android.sdksetup\n    seq=6, package=com.google.android.inputmethod.latin\n    seq=14, package=com.google.android.partnersetup\n    seq=18, package=com.google.android.apps.messaging\n    seq=19, package=com.android.settings\n    seq=33, package=com.google.android.calendar\n    seq=35, package=com.android.camera2\n    seq=43, package=com.google.android.googlequicksearchbox\n    seq=55, package=com.google.android.gm\n    seq=192, package=com.google.android.gsf\n    seq=313, package=com.google.android.videos\n    seq=314, package=com.google.android.apps.maps\n    seq=315, package=com.android.vending\n    seq=316, package=com.google.android.youtube\n    seq=319, package=com.google.android.gms\n    seq=321, package=studio.seventwo.blockeditor.test\n\n\nDexopt state:\n  [studio.seventwo.blockeditor.test]\n    Instruction Set: x86_64\n      path: /data/app/studio.seventwo.blockeditor.test-PJqcU_0B1NtQNarbfliCOQ==/base.apk\n      status: /data/app/studio.seventwo.blockeditor.test-PJqcU_0B1NtQNarbfliCOQ==/oat/x86_64/base.odex[status=kOatUpToDa\n      te, compilation_filter=quicken]\n\n\nCompiler stats:\n  [studio.seventwo.blockeditor.test]\n     base.apk - 3730",
+  "installedAPK_SHA256": "d4ae4deed7f3f93ec8ce6f00cdca2283b1a173311d0788346fb6a12ad647f87d",
+  "executedTests": 0,
+  "failure": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'studio.seventwo.blockeditor.WritingBuiltinImeTest#installedLatinImeCommitsBeforeSharedEnterAndKeepsAuthorUndo', '-e', 'nativeInputRun', '93742e79-f63e-4eae-93aa-179f6e27472c', '-e', 'ciWritingSystemIme', 'true', 'studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner']' returned non-zero exit status 255.",
+  "settingsAfter": null,
+  "settingsVerificationFailure": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'shell', 'settings', 'get', 'secure', 'default_input_method']' returned non-zero exit status 1.",
+  "diagnosticCollectionFailures": [
+    {
+      "file": "writing-system-ime-enter-plain-keyboard.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-plain-keyboard.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-plain-keyboard-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-plain-keyboard-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-plain-composing.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-plain-composing.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-plain-composing-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-plain-composing-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-held-composing.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-held-composing.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-held-composing-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-held-composing-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-command-caret.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-command-caret.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-command-caret-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-command-caret-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-final-history.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-final-history.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-final-history-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-final-history-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-final-state.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-final-state.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-final-state-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-final-state-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-shared-command.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-shared-command.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-shared-command-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-shared-command-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-one-command-author-undo.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-one-command-author-undo.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-one-command-author-undo-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-one-command-author-undo-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-one-command-author-redo.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-one-command-author-redo.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-one-command-author-redo-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-one-command-author-redo-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-undo-structural-again.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-undo-structural-again.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-undo-structural-again-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-undo-structural-again-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-undo-native-draft.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-undo-native-draft.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-undo-native-draft-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-undo-native-draft-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-redo-native-draft.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-redo-native-draft.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-redo-native-draft-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-redo-native-draft-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-redo-structural-command.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-redo-structural-command.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-before-redo-structural-command-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-before-redo-structural-command-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-proof.json",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-proof.json']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-enter-control-states.json",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-enter-control-states.json']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-plain-keyboard.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-plain-keyboard.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-plain-keyboard-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-plain-keyboard-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-plain-composing.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-plain-composing.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-plain-composing-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-plain-composing-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-held-composing.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-held-composing.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-held-composing-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-held-composing-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-command-caret.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-command-caret.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-command-caret-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-command-caret-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-final-history.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-final-history.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-final-history-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-final-history-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-final-state.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-final-state.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-final-state-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-final-state-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-shared-command.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-shared-command.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-shared-command-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-shared-command-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-one-command-author-undo.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-one-command-author-undo.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-one-command-author-undo-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-one-command-author-undo-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-one-command-author-redo.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-one-command-author-redo.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-one-command-author-redo-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-one-command-author-redo-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-undo-structural-again.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-undo-structural-again.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-undo-structural-again-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-undo-structural-again-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-undo-native-draft.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-undo-native-draft.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-undo-native-draft-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-undo-native-draft-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-redo-native-draft.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-redo-native-draft.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-redo-native-draft-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-redo-native-draft-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-redo-structural-command.png",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-redo-structural-command.png']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-before-redo-structural-command-input-method.txt",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-before-redo-structural-command-input-method.txt']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-proof.json",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-proof.json']' returned non-zero exit status 255."
+    },
+    {
+      "file": "writing-system-ime-soft-break-control-states.json",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-soft-break-control-states.json']' returned non-zero exit status 255."
+    },
+    {
+      "file": "keyboard-nodes.json",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-keyboard-nodes.json']' returned non-zero exit status 255."
+    },
+    {
+      "file": "key-touches.json",
+      "error": "CalledProcessError: Command '['/home/runner/work/_temp/editor-toolchains/android-sdk/platform-tools/adb', '-s', 'emulator-5554', 'exec-out', 'run-as', 'studio.seventwo.blockeditor.test', 'cat', 'files/writing-system-ime-key-touches.json']' returned non-zero exit status 255."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "implementationSource": "fce23516081a36eaec3570a1eeb28640b41003f4",
+  "runtimeSourceSHA256": {
+    "Sources/BlockEditorApple/ModernNativeRelayClient.swift": "3f6613027a33f83e436925f0e25ff1e76fced31946c4e52c84a792640b1d6dad",
+    "Sources/BlockEditorApple/ModernEditorModel.swift": "e515c5123b98cda3c3e9795a1e4bef80722cf3f2fe9c6a43a2012a3c6a51e5cc",
+    "Sources/BlockEditorApple/ModernHostStore.swift": "d52c48c356b53e1c07493cbab8f9bcaadf85854ad8fffbdd3652f9947f916665",
+    "Sources/BlockEditorApple/ModernProviderController.swift": "0d0c457289dd480a57c3c3fdd88888c925b9891822951f250bb89b8b56a75d8d",
+    "Sources/BlockEditorCore/ModernSession.swift": "5c170da0f8f8ebf609cb916e42ec61c498b520f3c4ee5708a21b84c873c1d23f",
+    "Sources/BlockEditorDemoApple/ModernEditorDemoView.swift": "775d7bb966743d62475e497b472a27d658a1f1dd2d0e728be4d80200b6bccdf4",
+    "scripts/relay-process-fixture.ts": "b39357e81191d58bceb6aaa3483903eddb22a9eccf801ea5ee83f99f92940ec9",
+    "tests/BlockEditorAppleTests/ModernNativeRelayTests.swift": "c45e94d832960d82fc76aeec891cd340a89fe998652f991c69ee6170c63ca7e7",
+    "tests/BlockEditorAppleTests/ModernNativeRelayProcessTests.swift": "59866605a50ea9995765d53241ab8437926404f81f6b8e71e656af86e71cccd6",
+    "tests/BlockEditorAppleTests/ModernHostStoreTests.swift": "781ad45e21b225a50fd113d94ef90073cd015ac7b6b468db7cc2e728dea21e19"
+  },
+  "nativeCandidate": {
+    "tests": 26,
+    "suites": 6,
+    "durationSeconds": 8.164,
+    "exitCode": 0,
+    "result": "passed",
+    "includesRealHTTPAndServerProcessRestart": true
+  },
+  "iOSSimulatorCompile": {
+    "scheme": "EditorLab-iOS",
+    "destination": "generic/platform=iOS Simulator",
+    "exitCode": 0,
+    "result": "BUILD SUCCEEDED",
+    "deviceInteractionPerformed": false
+  },
+  "swiftCompiler": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "nativeBridgeSHA256": "5d4272acd94342a0a98470900579995f1f1f9880a1b03386d9231cc48711d9b5",
+  "failedEvidence": [
+    "real-http-initial.log: new test expectations lacked throwing syntax; compiler failure before assertions",
+    "real-http-compiled.log: new test supplied NodeID instead of existing checked ModernColumnTarget; compiler failure before assertions",
+    "client-process-initial.log: process harness lacked main-actor ownership after asynchronous capture; compiler failure before assertions"
+  ],
+  "earlierContextualCI": {
+    "source": "c5a41138ceae7947f4964cdd2ddd6341c907034f",
+    "run": 38473886151,
+    "allSevenJobsPassed": true,
+    "qualifiesCurrentHead": false
+  },
+  "qualification": "Native reference transport, actual independent native client/server process restart and paired-host component evidence on this Mac. Simulator compilation is not device interaction. Kotlin transport and full physical/assistive/performance/private-install/final acceptance remain open. Existing registry 0.2.0 remains unchanged.",
+  "independentNativeClientProcesses": {
+    "source": "e1ed08be43099fdfc1ab1b0303d7c5a8d50a30c5",
+    "clientProcessesExited": 13,
+    "serverProcessRestarted": true,
+    "completeAffectedRunTests": 27,
+    "suites": 6,
+    "durationSeconds": 8.689,
+    "exitCode": 0,
+    "CLIExecutableSHA256": "9b165bd2d6a4b32c2c0f52c8cfce3c79445488d0990543266545a8a0413e3b8f",
+    "referenceSourceSHA256": "23dcdc4ea2477db322d91b301144be514450dde6a7df6ceb7c8f88b71a65a456",
+    "processTestSourceSHA256": "8ff35e21f8e6209981d8269e7f490e103a69cf6eb42ec761f776fa51a32cd9d9"
+  },
+  "runtimeProvenance": {
+    "nativeModernClientBinaryRequired": true,
+    "regressionTests": 8,
+    "exitCode": 0
+  }
+}

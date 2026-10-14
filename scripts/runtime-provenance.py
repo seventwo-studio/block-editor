@@ -21,8 +21,9 @@ def git(*args):
 
 
 def source():
-    if git("status", "--porcelain", "--untracked-files=all"):
-        raise ValueError("Runtime evidence requires a clean checkout, including untracked source")
+    status = git("status", "--porcelain", "--untracked-files=all")
+    if status:
+        raise ValueError("Runtime evidence requires a clean checkout, including untracked source: " + status)
     return {"commit": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}")}
 
 
@@ -36,7 +37,7 @@ def digest(path):
 
 def roles(label):
     if label == "swift":
-        return {"debug-bridge", "release-bridge", "relay-client"}
+        return {"debug-bridge", "release-bridge", "relay-client", "modern-relay-client"}
     if label == "wasm":
         return {"wasm", "debug-bridge", "relay-client"}
     return {"jni", "swift-bridge", "cxx-runtime", "test-apk"}

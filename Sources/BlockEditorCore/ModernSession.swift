@@ -61,7 +61,32 @@ public struct ModernBatch: Encodable, Equatable, Sendable {
         self.version = version; self.documentID = documentID; self.epoch = epoch; self.baseline = baseline; self.changes = changes
     }
     public init(json: Data) throws { self = try decodeModernBatch(modernWireValue(json)) }
+    /// Read a batch inside a transport envelope without round-tripping through
+    /// a JSON decoder that discards duplicate keys or rounds causal identities.
+    public init(json: Data, atKeyPath path: [String]) throws {
+        guard path.count <= 8 else { throw EditorError.invalidChange }
+        var value = try modernWireValue(json)
+        for key in path {
+            guard let next = value.object?[key] else { throw EditorError.invalidChange }
+            value = next
+        }
+        self = try decodeModernBatch(value)
+    }
     public func json() throws -> Data { try canonicalEncoder().encode(self) }
+    /// Exact wire size while reusing the immutable baseline's encoded count.
+    /// The placeholder contributes two bytes; its real value is encoded only
+    /// once per session. Public batch serialization remains unchanged.
+    func capacityByteCount(baselineByteCount: Int) throws -> Int {
+        struct Envelope: Encodable {
+            let version: Int
+            let documentID: String
+            let epoch: String
+            let baseline: [String: JSONValue] = [:]
+            let changes: [ModernChange]
+        }
+        let envelope = Envelope(version: version, documentID: documentID, epoch: epoch, changes: changes)
+        return try canonicalEncoder().encode(envelope).count - 2 + baselineByteCount
+    }
 }
 public struct ModernRecovery: Encodable, Equatable, Sendable {
     public let reason: MergeRecoveryReason
@@ -93,8 +118,14 @@ public final class ModernSession {
     var modernAsyncRequests: [String: ModernAsyncRecord] = [:]
     var modernAsyncGeneration: UInt64 = 0
     private let seed: ModernProjectionSeed
+    private var baselineCapacityByteCount: Int?
     var structure: StructuralState
     private var projection: WritingProjection
+    // One immutable historical read cohort. Ordinary input preserves its
+    // immediate predecessor for controls still displaying a captured selection.
+    private var capturedRead: (cohort: Set<ChangeID>, replay: (WritingProjection, ModernDocument, StructuralState))?
+    var renderingBindingCache: (lease: AnyObject, token: String, bindings: [ModernNodeBinding])?
+    var logicalFieldCache: (lease: AnyObject, collapsed: [Data], fields: [WritingField], indices: [WritingField: Int])?
     private var log: [ChangeID: ModernChange] = [:]
     private var counter: UInt64 = 0
     private var undoStack: [[ChangeID]] = [], redoStack: [[ChangeID]] = []
@@ -117,7 +148,7 @@ public final class ModernSession {
         self.documentID = documentID; self.actorID = actorID; self.epoch = epoch; baseline = document
         seed = ModernProjectionSeed(document)
         structure = seed.structure
-        projection = try WritingProjection(seeds: seed.atoms, edits: [], emptyFields: seed.fields)
+        projection = try WritingProjection(seeds: seed.atoms, edits: [], emptyFields: seed.fields, seedIndex: seed.atomIndex)
         self.document = document
     }
     public var titleField: WritingField { seed.title }
@@ -229,7 +260,7 @@ public final class ModernSession {
             history = available.filter { cohort.contains($0.key) }
         } else { history = available }
         if let anchor = position.anchor {
-            guard anchor.element.index >= 0, projection.retainedKeys.contains(anchor),
+            guard anchor.element.index >= 0, projection.containsRetainedKey(anchor),
                   modernRelatedFields(anchor.origin, position.field, changes: Array(history.values)) else { throw EditorError.invalidChange }
         }
         let active = activeStates(history)
@@ -440,7 +471,13 @@ public final class ModernSession {
         guard candidate.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
         try validateResources(Array(candidate.values))
         let edits = candidate.values.filter { if case .edit = $0.body { return true }; return false }.map(\.id).sorted()
-        guard try batch(Array(candidate.values)).json().count <= 64_000_000 - 1024 - canonicalEncoder().encode(edits).count - edits.count * 2 else { throw EditorError.recoveryCapacityExceeded }
+        let baselineBytes: Int
+        if let cached = baselineCapacityByteCount { baselineBytes = cached }
+        else {
+            baselineBytes = try baseline.json().count
+            baselineCapacityByteCount = baselineBytes
+        }
+        guard try batch(Array(candidate.values)).capacityByteCount(baselineByteCount: baselineBytes) <= 64_000_000 - 1024 - canonicalEncoder().encode(edits).count - edits.count * 2 else { throw EditorError.recoveryCapacityExceeded }
     }
     private func candidateIncludingRecovery() throws -> [ChangeID: ModernChange] {
         var result = log
@@ -455,6 +492,8 @@ public final class ModernSession {
     /// Replays already-admitted local history without repeating packet admission.
     func modernCapturedWritingReplay(_ observed: [ChangeID]) throws -> (WritingProjection, StructuralState) {
         let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
+        if cohort == Set(log.keys) { return (projection, structure) }
+        if let capturedRead, capturedRead.cohort == cohort { return (capturedRead.replay.0, capturedRead.replay.2) }
         return try causalWritingReplay(cohort, in: log)
     }
     func validatePasteCaptures(_ target: ModernPasteTarget) throws {
@@ -468,7 +507,11 @@ public final class ModernSession {
     }
     func modernCapturedReplay(_ observed: [ChangeID]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         let cohort = try closure(observed, before: ChangeID(counter: UInt64.max, actor: actorID), in: log)
-        return try replay(log.filter { cohort.contains($0.key) })
+        if cohort == Set(log.keys) { return modernCurrentReplay }
+        if let capturedRead, capturedRead.cohort == cohort { return capturedRead.replay }
+        let result = try replay(log.filter { cohort.contains($0.key) })
+        capturedRead = (cohort, result)
+        return result
     }
     func modernCapturedSelection(_ range: ModernTextRange) throws -> (keys: [WritingAtomKey], edge: WritingEdge, marks: [JSONValue], position: WritingPosition) {
         try capturedSelection(range)
@@ -539,6 +582,7 @@ public final class ModernSession {
         return result
     }
     private func accept(_ candidate: [ChangeID: ModernChange], _ result: (WritingProjection, ModernDocument, StructuralState), change: ModernChange?) {
+        capturedRead = (Set(log.keys), modernCurrentReplay)
         let active = activeStates(candidate)
         var newUndo = undoStack.map { $0.filter { active[$0] ?? true } }.filter { !$0.isEmpty }
         var newRedo = redoStack.map { $0.filter { !(active[$0] ?? true) } }.filter { !$0.isEmpty }
@@ -594,7 +638,7 @@ public final class ModernSession {
 
     private func replay(_ candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, ModernDocument, StructuralState) {
         let ordered = candidate.values.sorted { $0.id < $1.id }
-        let registered = try modernBirthRegistry(ordered, baseline: seed.structure)
+        let registered = try modernBirthRegistry(ordered, seed: seed)
         let registry = registered.structure, registeredBirths = registered.births
         let schemaFields = Set(ordered.flatMap { change -> [WritingField] in
             guard case .edit(let operations) = change.body else { return [] }
@@ -604,13 +648,19 @@ public final class ModernSession {
                 return []
             }
         })
-        let registeredSeeds = seedWritingAtoms(registeredBirths)
-        try preflight(ordered, fields: Set(registeredBirths.keys), seeds: registeredSeeds.atoms)
+        let registeredSeeds = seed.retainedAtoms(registeredBirths)
+        try preflight(ordered, fields: Set(registeredBirths.keys), baselineKeys: registeredSeeds.keys)
         let active = activeStates(candidate)
         var raw = Materialized(); raw.structure = seed.structure
         var births = seed.births
-        var collectionBirths = modernCollectionBirths(seed.structure)
-        var available = Dictionary(uniqueKeysWithValues: registeredSeeds.atoms.map { ($0.key, $0.node) })
+        var collectionBirths = seed.collectionBirths
+        // Baseline atoms are immutable membership proofs, not mutable values.
+        // Keep authored membership separate to avoid copying the whole baseline
+        // when a single scalar is admitted. Causal/value checks below are intact.
+        var authoredAtoms = Set<WritingAtomKey>()
+        func atomAvailable(_ key: WritingAtomKey) -> Bool {
+            registeredSeeds.keys.contains(key) || authoredAtoms.contains(key)
+        }
         var routes: [ModernColumnRoute] = []
         var appearance = baseline.fields["appearance"]!.object!
         var previousAuthor: [String: ChangeID] = [:]
@@ -640,7 +690,7 @@ public final class ModernSession {
                     let id = key.element
                     guard id.index >= 0, id.index <= 2_147_483_647,
                           id.change.counter == 0 ? id.change.actor.isEmpty : validModernChangeID(id.change) && (id.change == change.id || cohort.contains(id.change)),
-                          available[key] != nil else { throw EditorError.invalidChange }
+                          atomAvailable(key) else { throw EditorError.invalidChange }
                 }
                 func keys(_ keys: [WritingAtomKey]) throws {
                     guard !keys.isEmpty, keys.count <= 100_000, Set(keys).count == keys.count else { throw EditorError.invalidChange }
@@ -714,8 +764,8 @@ public final class ModernSession {
                             case .structure(.insertNode(_, _, _, let placement, _)), .structure(.moveNode(_, _, let placement, _)):
                                 guard introduced.insert(placement).inserted else { throw EditorError.invalidChange }
                             case .text(.insert(let atom)):
-                                guard introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
-                                available[atom.key] = atom.node
+                                guard introduced.insert(atom.key.element).inserted, !atomAvailable(atom.key) else { throw EditorError.invalidChange }
+                                authoredAtoms.insert(atom.key)
                             default: break
                             }
                         }
@@ -788,10 +838,9 @@ public final class ModernSession {
                     case .resizeColumns(let layout, let split):
                         try modernReference(layout, before: change.id, cohort: cohort, registry: registry)
                         _ = try modernColumnIDs(layout, in: raw.structure!)
-                        let captured = try causalColumnStructure(cohort, in: candidate)
-                        _ = try captured.address(of: layout)
+                        try validateCausalColumnAddress(layout, cohort: cohort, in: candidate)
                         guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
-                        try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: active[change.id] ?? true, to: &raw)
+                        if active[change.id] ?? true { try raw.structure!.setModernColumnSplit(layout, to: split) }
                     case .convertBlock(let node, let type, let attributes):
                         try modernReference(node, before: change.id, cohort: cohort, registry: registry)
                         let captured = try causalColumnStructure(cohort, in: candidate)
@@ -906,7 +955,7 @@ public final class ModernSession {
                             try modernReference(atom.key.origin.node, before: change.id, cohort: cohort, registry: registry)
                             guard registeredBirths[atom.key.origin] != nil, raw.structure!.nodes[atom.key.origin.node] != nil else { throw EditorError.invalidChange }
                             guard atom.key.element.change == change.id, atom.key.element.index >= 0, atom.key.element.index <= 2_147_483_647,
-                                  introduced.insert(atom.key.element).inserted, available[atom.key] == nil else { throw EditorError.invalidChange }
+                                  introduced.insert(atom.key.element).inserted, !atomAvailable(atom.key) else { throw EditorError.invalidChange }
                             let ownBirth: Bool
                             if case .inserted(let creation, _) = atom.key.origin.node { ownBirth = creation.change == change.id }
                             else { ownBirth = false }
@@ -928,7 +977,7 @@ public final class ModernSession {
                             case .follow(let anchor): guard atom.edge.anchor == anchor else { throw EditorError.invalidChange }; try reference(anchor)
                             }
                             try validateAtom(atom.node, field: atom.key.origin)
-                            available[atom.key] = atom.node
+                            authoredAtoms.insert(atom.key)
                         case .delete(let span): try keys(span)
                         case .format(let span, let type, let mark):
                             try keys(span); try validateModernMark(type: type, mark: mark)
@@ -942,16 +991,36 @@ public final class ModernSession {
             }
         }
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(ordered), births: births,
-            protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
+            protocolVersion: 6, activeOverride: active, omitEmptyMarks: true, retainedSeeds: seed.retainedAtoms(births))
         var output = shared.0
         let projection = shared.1, values = shared.2
         output = try projectModernColumnRoutes(output, routes: routes)
-        var fields = try output.document(documentID: documentID, text: values).fields
-        fields["appearance"] = .object(appearance)
-        return (projection, try ModernDocument(fields: fields), output)
+        // Validate the final envelope once, including projected appearance.
+        // Constructing an intermediate validated document repeats every schema,
+        // nesting and capacity check without changing the admitted result.
+        let finalDocument = try output.document(documentID: documentID, text: values, appearance: appearance)
+        return (projection, finalDocument, output)
     }
     private func causalColumnStructure(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> StructuralState {
         try causalWritingReplay(cohort, in: candidate).1
+    }
+    private func validateCausalColumnAddress(_ layout: NodeID, cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws {
+        // Split and appearance properties cannot change node births, placement,
+        // paragraph activity or column routes, including when deactivated.
+        // Prove this over the entire captured cohort before using its baseline
+        // address. Any other operation retains the full causal writing replay.
+        let metadataOnly = cohort.allSatisfy { id in
+            guard let change = candidate[id] else { return false }
+            guard case .edit(let operations) = change.body else { return true }
+            return operations.allSatisfy { operation in
+                switch operation {
+                case .resizeColumns, .setAppearance: return true
+                default: return false
+                }
+            }
+        }
+        if metadataOnly { _ = try seed.structure.address(of: layout) }
+        else { _ = try causalColumnStructure(cohort, in: candidate).address(of: layout) }
     }
     private func causalWritingReplay(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, StructuralState) {
         let value = try causalWritingMaterialized(cohort, in: candidate)
@@ -961,7 +1030,7 @@ public final class ModernSession {
         let subset = candidate.filter { cohort.contains($0.key) }, active = activeStates(subset)
         var raw = Materialized(); raw.structure = seed.structure
         var births = seed.births
-        var collectionBirths = modernCollectionBirths(seed.structure)
+        var collectionBirths = seed.collectionBirths
         var routes: [ModernColumnRoute] = []
         for change in subset.values.sorted(by: { $0.id < $1.id }) {
             guard case .edit(let operations) = change.body else { continue }
@@ -996,7 +1065,7 @@ public final class ModernSession {
                 case .removeColumns(let layout, let source):
                     routes.append(try modernRemovalRoute(layout, source: source, change: change.id, enabled: enabled, structure: raw.structure!))
                 case .resizeColumns(let layout, let split):
-                    try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: enabled, to: &raw)
+                    if enabled { try raw.structure!.setModernColumnSplit(layout, to: split) }
                 case .convertBlock(let node, let type, let attributes):
                     try applyModernMetadataConversion(node: node, type: type, attributes: attributes,
                         enabled: enabled, raw: &raw, collectionBirths: collectionBirths)
@@ -1030,7 +1099,7 @@ public final class ModernSession {
             if !enabled { for node in retainedRoles { raw.structure!.nodes[node] = beforeRoleNodes[node] } }
         }
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(subset.values.sorted { $0.id < $1.id }),
-            births: births, protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
+            births: births, protocolVersion: 6, activeOverride: active, omitEmptyMarks: true, retainedSeeds: seed.retainedAtoms(births))
         let output = shared.0
         return (shared.1, try projectModernColumnRoutes(output, routes: routes), shared.2)
     }
@@ -1109,8 +1178,7 @@ public final class ModernSession {
     }
     /// Check intrinsic operation shape even when a missing predecessor means
     /// causal replay must be retained for later. Undo never hides malformed input.
-    private func preflight(_ changes: [ModernChange], fields: Set<WritingField>, seeds: [WritingAtomSeed]) throws {
-        let baselineKeys = Set(seeds.map(\.key))
+    private func preflight(_ changes: [ModernChange], fields: Set<WritingField>, baselineKeys: Set<WritingAtomKey>) throws {
         for change in changes {
             guard validModernChangeID(change.id) else { throw EditorError.invalidChange }
             try validateObservedFrontier(change.observed, before: change.id)

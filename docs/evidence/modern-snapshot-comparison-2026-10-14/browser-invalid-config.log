@@ -1,0 +1,14 @@
+1475 |       if (configFile)
+1476 |         return configFile;
+1477 |     }
+1478 |   };
+1479 |   if (!import_fs7.default.existsSync(configFileOrDirectory))
+1480 |     throw new Error(`${configFileOrDirectory} does not exist`);
+                     ^
+error: /Users/luca/Developer/block-editor/playwright.modern.config.ts does not exist
+      at resolveConfigFile2 (/Users/luca/Developer/block-editor/node_modules/playwright/lib/common/index.js:1480:15)
+      at resolveConfigLocation (/Users/luca/Developer/block-editor/node_modules/playwright/lib/common/index.js:1461:30)
+      at loadConfigFromFile (/Users/luca/Developer/block-editor/node_modules/playwright/lib/common/index.js:1490:27)
+      at runTests (/Users/luca/Developer/block-editor/node_modules/playwright/lib/cli/testActions.js:46:51)
+      at async <anonymous> (/Users/luca/Developer/block-editor/node_modules/playwright/lib/program.js:55:36)
+

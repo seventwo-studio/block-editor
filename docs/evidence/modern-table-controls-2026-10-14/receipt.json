@@ -1,0 +1,82 @@
+{
+  "rendererCommit": "fd83d1055d50997b038df557d01cf9adc4e9628c",
+  "strictMeasurementCommit": "90f4e1200b998f0f96d99782ae7844731d9cb587",
+  "functional": {
+    "targetedCellCases": 9,
+    "integratedBrowserCases": 54,
+    "normalExit": true
+  },
+  "performance": {
+    "terminalExit": 1,
+    "measurementCompletedAllThree": true,
+    "targetsPassed": false,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "90f4e1200b998f0f96d99782ae7844731d9cb587",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 1644.0999999046326,
+          "menuP95MS": 139.60000014305115,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "90f4e1200b998f0f96d99782ae7844731d9cb587",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 2240,
+          "menuP95MS": 285,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "90f4e1200b998f0f96d99782ae7844731d9cb587",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 1852,
+          "menuP95MS": 241,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "complete": true,
+        "targetsPassed": false
+      }
+    ],
+    "productionAssets": {
+      ".build/modern-performance-web/assets/modern-performance-CoD1n0CS.css": "575c004b0449eb809e17408369152229bae2b6cd3842c1ec99fd0b5ab0195035",
+      ".build/modern-performance-web/assets/modern-performance-DLA3doiN.js": "1dfd270f3eb1c680d24b6b08acb55dbe5c5f0ead01a8a037d40b9839ea16f747",
+      ".build/modern-performance-web/modern-performance.html": "ac1f91357becaf00a92f86916f887f853c873b7e677c11ea28b6f0b8eef15445"
+    }
+  },
+  "qualifications": [
+    "The first instrumented profiles are diagnostic: identical fixture/WASM hashes are captured, but JS bundle hashes were omitted. The after profile belongs to the intermediate table-control worktree before final success-dismissal wiring. Neither accepts a surface budget.",
+    "The uninstrumented production run pins clean 90f4e12, all 20 samples per operation per engine, matching JS/WASM build receipts and strict 50/100 ms assertions. All targets fail.",
+    "An initial sandbox-denied SwiftShims cache build is retained; the same pinned build succeeds with permitted existing-cache access.",
+    "The 54 browser run belongs to fd83d10; 90f4e12 changes only measurement assertions. Swift/JNI engine behavior is unchanged by this renderer fix. Required fresh CI remains necessary.",
+    "No protected-main merge, registry update, physical-device campaign or final acceptance occurred."
+  ]
+}

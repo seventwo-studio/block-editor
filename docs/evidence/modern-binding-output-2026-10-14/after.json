@@ -1,0 +1,10 @@
+{
+  "diagnostic": true,
+  "sourceCommit": "f1ede8ccc5ff6f53557ad76263e2478881928bf8",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "5c6375ca9fb1d978300c178a69a43639c5263e737d6af64c128b97cbc6222661",
+  "nodeCount": 5242,
+  "ms": 137.83920799999987,
+  "encodedBytes": 2077866
+}

@@ -1,0 +1,25 @@
+Building for debugging...
+[Provisioning 1 / 21]
+[2 / 13] BlockEditorAppleTests-product
+[3 / 20]
+[7 / 20]
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeRelayProcessTests.swift:59:45: warning: result of call to 'resizeColumns(_:splitBasisPoints:)' is unused [#NoUsage]
+57 |             try a.persistence.model.session.replaceTitle(range: 0..<0, with: "Own ")
+58 |             try b.persistence.model.session.setAppearance(field: "fontFamily", value: "serif")
+59 |             try b.persistence.model.session.resizeColumns(ModernColumnTarget(layout: b.persistence.model.session.node(at: NodeAddress("layout"))), splitBasisPoints: 3000)
+   |                                             `- warning: result of call to 'resizeColumns(_:splitBasisPoints:)' is unused [#NoUsage]
+60 |             try await b.exchange(); try await a.exchange()
+61 |             var expectedFields = original.fields
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[9 / 20] BlockEditorAppleTests-product
+[16 / 20] BlockEditorAppleTests-product
+Build complete! (1.64 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernNativeRelayProcessTests started.
+◇ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() started.
+✔ Test realHTTPReopensOfflineAndRejoinsAfterServerRestartWithWholeColumnsAndAuthorHistory() passed after 1.033 seconds.
+✔ Suite ModernNativeRelayProcessTests passed after 1.034 seconds.
+✔ Test run with 1 test in 1 suite passed after 1.034 seconds.

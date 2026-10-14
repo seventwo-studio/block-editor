@@ -1,0 +1,17 @@
+{
+  "diagnostic": true,
+  "complete": true,
+  "sourceCommit": "a1b77037f41e3575e6f3ada4cc5b437e40272cb8",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "26849973c7e5b6b4b4449d79c2d1eeead881325bbbb8b582d4b72a4807beb9e0",
+  "initialAndRepeatedSpanMS": [
+    51.417625000000044,
+    0.921458000000257,
+    0.8520420000004378,
+    0.7583330000002206,
+    1.003957999999784
+  ],
+  "afterEditMS": 2.5175420000005033,
+  "qualification": "Direct shared navigation timing and unchanged complete save/documents for reads, directed UTF-16 offsets and post-edit capture. Not presented-frame/resource/performance acceptance."
+}

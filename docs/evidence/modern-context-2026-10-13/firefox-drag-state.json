@@ -1,0 +1,168 @@
+{
+  "document": {
+    "appearance": {
+      "fontFamily": "sans",
+      "fontSize": "default",
+      "pageWidth": "readable"
+    },
+    "blocks": [
+      {
+        "columns": [
+          {
+            "children": [
+              {
+                "consumer": {
+                  "opaque": "retain-A"
+                },
+                "content": [
+                  {
+                    "marks": [
+                      {
+                        "type": "bold"
+                      }
+                    ],
+                    "text": "ABC",
+                    "type": "text"
+                  }
+                ],
+                "id": "A",
+                "type": "paragraph"
+              },
+              {
+                "children": [
+                  {
+                    "content": [
+                      {
+                        "text": "Nested paragraph",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "child",
+                    "type": "paragraph"
+                  },
+                  {
+                    "id": "todo",
+                    "items": [
+                      {
+                        "checked": false,
+                        "children": [
+                          {
+                            "checked": true,
+                            "content": [
+                              {
+                                "text": "Nested task",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "child"
+                          }
+                        ],
+                        "content": [
+                          {
+                            "text": "Check this",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "same"
+                      }
+                    ],
+                    "style": "todo",
+                    "type": "list"
+                  }
+                ],
+                "consumer": {
+                  "opaque": "keep-toggle"
+                },
+                "id": "B",
+                "summary": [
+                  {
+                    "text": "Details",
+                    "type": "text"
+                  }
+                ],
+                "type": "toggle"
+              }
+            ],
+            "id": "first-column"
+          },
+          {
+            "children": [
+              {
+                "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                "id": "C",
+                "language": "swift",
+                "type": "code"
+              }
+            ],
+            "id": "second-column"
+          }
+        ],
+        "consumer": {
+          "opaque": "retain-layout"
+        },
+        "id": "layout",
+        "splitBasisPoints": 7000,
+        "type": "columns"
+      },
+      {
+        "content": [
+          {
+            "text": "Outside layout",
+            "type": "text"
+          }
+        ],
+        "id": "E",
+        "type": "paragraph"
+      }
+    ],
+    "documentID": "st140-columns",
+    "format": "seventwo.block-editor.document",
+    "formatVersion": 1,
+    "title": "Field notes"
+  },
+  "events": [
+    {
+      "type": "pointerdown",
+      "target": "Column split",
+      "value": "7000"
+    },
+    {
+      "type": "input",
+      "target": "Column split",
+      "value": "7217"
+    },
+    {
+      "type": "input",
+      "target": "Column split",
+      "value": "3217"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "target": "Column split",
+      "value": "3217"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "target": "Column split",
+      "value": "7000"
+    },
+    {
+      "type": "pointerup",
+      "target": "Column split",
+      "value": "7000"
+    },
+    {
+      "type": "input",
+      "target": "Column split",
+      "value": "3217"
+    },
+    {
+      "type": "change",
+      "target": "Column split",
+      "value": "3217"
+    }
+  ],
+  "errors": []
+}

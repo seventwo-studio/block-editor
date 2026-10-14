@@ -18,12 +18,34 @@ open class ModernValue internal constructor(value: JSONObject) {
 class ModernPayload private constructor(value: JSONObject) : ModernValue(value) {
     companion object { fun restore(value: JSONObject) = ModernPayload(value) }
 }
+class ModernNodeBinding internal constructor(value: JSONObject) : ModernValue(value) {
+    init {
+        require(value.keys().asSequence().toSet() == setOf("address", "node", "kind", "fields"))
+        require(kind in setOf("block", "column", "item", "row", "cell"))
+    }
+    val node get() = ModernNodeID.restore(objectValue("node"))
+    val kind get() = string("kind")
+    val address get() = objectValue("address")
+    val fields get() = objectValue("fields").let { fields -> fields.keys().asSequence().associateWith { name ->
+        val field = fields.getJSONObject(name)
+        ModernField(ModernNodeID.restore(field.getJSONObject("node")), field.getString("name"))
+    } }
+}
 internal fun modernObject(vararg entries: Pair<String, Any?>): JSONObject = JSONObject().also { result ->
     entries.forEach { (key, value) -> result.put(key, when (value) {
         is ModernValue -> value.export()
         null -> JSONObject.NULL
         else -> value
     }) }
+}
+class ModernRenderingBindings internal constructor(value: JSONObject) : ModernValue(value) {
+    init { require(value.keys().asSequence().toSet() == setOf("token", "bindings")); require(token.isNotEmpty()) }
+    val token get() = string("token")
+    val bindings: List<ModernNodeBinding>? get() = export().let { value ->
+        if (value.isNull("bindings")) null else value.getJSONArray("bindings").let { array ->
+            (0 until array.length()).map { ModernNodeBinding(array.getJSONObject(it)) }
+        }
+    }
 }
 internal fun modernArray(values: Collection<ModernValue>) = JSONArray(values.map { it.export() })
 
@@ -182,6 +204,10 @@ data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val
     }
 }
 class ModernCapabilities internal constructor(value: JSONObject) : ModernValue(value) {
+    val documentSnapshotVersion get() = export().optInt("documentSnapshotVersion", 0)
+    val localSelectionAckVersion get() = export().optInt("localSelectionAckVersion", 0)
+    val renderingBindingVersion get() = export().optInt("renderingBindingVersion", 0)
+    val wireInspectionVersion get() = number("wireInspectionVersion").toInt()
     val commands: List<ModernCommandName> get() = arrayValue("commands").let { values -> (0 until values.length()).map { index -> ModernCommandName.entries.first { it.wireValue == values.getString(index) } } }
     val canCopy get() = boolean("canCopy")
     val canCut get() = boolean("canCut")

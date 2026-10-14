@@ -21,7 +21,7 @@ test("typed protocol 7 consumer contract through actual browser WASM", async ({ 
     const runtime = await SwiftEditorRuntime.initialize(await (await fetch("modern-engine.wasm")).arrayBuffer());
     return runModernAdapterContract(runtime, fixtures);
   }, { root: `/block-editor/@fs${process.cwd()}`, fixtures });
-  expect(result.fixtures).toBe(55); expect(result.checks).toHaveLength(11);
+  expect(result.fixtures).toBe(55); expect(result.checks).toHaveLength(12);
   expect(result.appliedCommands).toHaveLength(26);
   await testInfo.attach("modern-adapter-contract", { body: JSON.stringify({ ...result, wasmSHA256: createHash("sha256").update(readFileSync(wasm)).digest("hex") }, null, 2), contentType: "application/json" });
 });

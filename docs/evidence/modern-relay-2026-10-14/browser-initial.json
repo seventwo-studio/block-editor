@@ -1,0 +1,346 @@
+{
+  "config": {
+    "argv": [
+      "/Users/luca/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/luca/Developer/block-editor/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.modern-relay.config.ts",
+      "--project=chromium",
+      "--reporter=line,json",
+      "--global-timeout=180000",
+      "--trace=retain-on-failure",
+      "--output=.build/finishing/20261014/modern-relay/browser-initial-results"
+    ],
+    "configFile": "/Users/luca/Developer/block-editor/playwright.modern-relay.config.ts",
+    "rootDir": "/Users/luca/Developer/block-editor/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 180000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/luca/Developer/block-editor/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "modern-relay.swift.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "bun run demo:dev --port 4290 --strictPort",
+      "url": "http://127.0.0.1:4290/block-editor/",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "modern-relay.swift.ts",
+      "file": "modern-relay.swift.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modern browser input survives offline browser/server process restart, rejoin and author Undo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9820,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('status', { name: 'Synchronization status' })\nExpected: \u001b[32m\"Connected; \u001b[7m0\u001b[27m unacknowledged changes; 0 peers\"\u001b[39m\nReceived: \u001b[31m\"Connected; \u001b[7m1\u001b[27m unacknowledged changes; 0 peers\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('status', { name: 'Synchronization status' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: 'Synchronization status' })\u001b[22m\n\u001b[2m    14 × locator resolved to <p role=\"status\" aria-label=\"Synchronization status\">…</p>\u001b[22m\n\u001b[2m       - unexpected value \"Connected; 1 unacknowledged changes; 0 peers\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('status', { name: 'Synchronization status' })\nExpected: \u001b[32m\"Connected; \u001b[7m0\u001b[27m unacknowledged changes; 0 peers\"\u001b[39m\nReceived: \u001b[31m\"Connected; \u001b[7m1\u001b[27m unacknowledged changes; 0 peers\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('status', { name: 'Synchronization status' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: 'Synchronization status' })\u001b[22m\n\u001b[2m    14 × locator resolved to <p role=\"status\" aria-label=\"Synchronization status\">…</p>\u001b[22m\n\u001b[2m       - unexpected value \"Connected; 1 unacknowledged changes; 0 peers\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:64:80",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                      "column": 80,
+                      "line": 64
+                    },
+                    "snippet": "  62 |     await page.getByLabel(\"Local demo token\").fill(token); await page.getByLabel(\"Connected to local relay\").check();\n  63 |     await page.getByRole(\"button\", { name: \"Synchronize\", exact: true }).click();\n> 64 |     await expect(page.getByRole(\"status\", { name: \"Synchronization status\" })).toHaveText(\"Connected; 0 unacknowledged changes; 0 peers\");\n     |                                                                                ^\n  65 |     await expect(page.getByRole(\"slider\", { name: \"Column split\" })).toHaveValue(\"3000\");\n  66 |     await page.getByRole(\"button\", { name: \"Undo\", exact: true }).click();\n  67 |     await expect(page.getByRole(\"textbox\", { name: \"Document title\", exact: true })).toHaveText(fixture.title);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                        "column": 80,
+                        "line": 64
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('status', { name: 'Synchronization status' })\nExpected: \u001b[32m\"Connected; \u001b[7m0\u001b[27m unacknowledged changes; 0 peers\"\u001b[39m\nReceived: \u001b[31m\"Connected; \u001b[7m1\u001b[27m unacknowledged changes; 0 peers\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('status', { name: 'Synchronization status' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: 'Synchronization status' })\u001b[22m\n\u001b[2m    14 × locator resolved to <p role=\"status\" aria-label=\"Synchronization status\">…</p>\u001b[22m\n\u001b[2m       - unexpected value \"Connected; 1 unacknowledged changes; 0 peers\"\u001b[22m\n\n\n  62 |     await page.getByLabel(\"Local demo token\").fill(token); await page.getByLabel(\"Connected to local relay\").check();\n  63 |     await page.getByRole(\"button\", { name: \"Synchronize\", exact: true }).click();\n> 64 |     await expect(page.getByRole(\"status\", { name: \"Synchronization status\" })).toHaveText(\"Connected; 0 unacknowledged changes; 0 peers\");\n     |                                                                                ^\n  65 |     await expect(page.getByRole(\"slider\", { name: \"Column split\" })).toHaveValue(\"3000\");\n  66 |     await page.getByRole(\"button\", { name: \"Undo\", exact: true }).click();\n  67 |     await expect(page.getByRole(\"textbox\", { name: \"Document title\", exact: true })).toHaveText(fixture.title);\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:64:80"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:23:49.662Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICJjNWE0MTEzOGNlYWU3OTQ3ZjQ5NjRjZGQyZGRkNjM0MWM5MDcwMzRmIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjViMGY5ZjdkNTE5OTZkZWRlNTNlYjJiODg2MTkyNzMzMjQyNmFhMDQwYzIzNTZkYThlMDNhZTI0MzZkZGY0MDYiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogIjRmNzI3MjkwNjhjYzYxNGY2YTM3ZjkzZWFhZmFhZjM3ZTJhZDk2ZmE2OTVmYWU5M2YyNjg1Y2ExNzNhMDU4M2UiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJmMjNhZGRlMWQ2YzJkYzBmNDk5ZTRiNDkwNzcwZWI0ZTUzNTI2MmJhZjU3YmEyNmU3ZjEwOGZhNzIzYmJjOTFkIiwKICAgICJzcmMvc3dpZnQudHMiOiAiM2Q2N2VjOGM2ZjgxOTRmODFjNWExMDg5Y2Y5ZTNjNGZkNjM5NWM4MGRjNmI4YmNkM2ZlMWY3OWQwMjdjMTM4MCIKICB9LAogICJydW50aW1lTWFuaWZlc3QiOiBudWxsLAogICJwbGF0Zm9ybSI6ICJkYXJ3aW4iLAogICJhcmNoaXRlY3R1cmUiOiAiYXJtNjQiLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAiYnJpZGdlU0hBMjU2IjogImUxNjJlY2U3ZTM0Y2Q1NmI1ZGI0ZDNjZmM0MGFkMGY2NGQ3MDUxYWI5NjMzNmY0YTY3NTJjMjBjZGI2NTZkN2MiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA2NzQ1NywKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3NDU5LAogICAgICAidmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXJlc3BvbnNlIiwKICAgICAgInN0YXR1cyI6IDIwMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3NDU5LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2NzQ1NywKICAgICAgImV4aXRDb2RlIjogMAogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogInJlbGF5LXN0YXJ0IiwKICAgICAgInBpZCI6IDY3NDc3LAogICAgICAidmVyc2lvbiI6IDcKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJicm93c2VyLXN0YXJ0IiwKICAgICAgImxhdW5jaGVyUGlkIjogNjc0NzksCiAgICAgICJ2ZXJzaW9uIjogIjE1My4wLjgwMTAuMTIiCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1leGl0IiwKICAgICAgImxhdW5jaGVyUGlkIjogNjc0NzksCiAgICAgICJkaXNjb25uZWN0ZWQiOiB0cnVlLAogICAgICAicHJvY2Vzc0V4aXRlZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1leGl0IiwKICAgICAgInBpZCI6IDY3NDc3LAogICAgICAiZXhpdENvZGUiOiAwCiAgICB9CiAgXSwKICAicmVsYXlSZXF1ZXN0cyI6IDEKfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results/modern-relay.swift.ts-mode-9bddf-tart-rejoin-and-author-Undo-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                    "column": 80,
+                    "line": 64
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-3348688e033d04fa4375",
+          "file": "modern-relay.swift.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "modern rejected recovery reopens with original accepted input before explicit author repair",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6378,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Undo my rejected changes', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Undo my rejected changes', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Undo my rejected changes', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Undo my rejected changes', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Undo my rejected changes', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Undo my rejected changes', exact: true })\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:98:95",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                      "column": 95,
+                      "line": 98
+                    },
+                    "snippet": "   96 |     let context = await lab.launch(), page = await context.newPage(); await page.goto(\"modern-relay.html\"); await seed(page, pair); await open(page, room, actor);\n   97 |     await page.getByRole(\"button\", { name: \"Synchronize\", exact: true }).click();\n>  98 |     await expect(page.getByRole(\"button\", { name: \"Undo my rejected changes\", exact: true })).toBeVisible();\n      |                                                                                               ^\n   99 |     const retained = await checkpoint(page, `${room}:${actor}`); expect(retained.accepted).toEqual(pair.accepted); expect(retained.relay?.receipt).toEqual(pair.relay?.receipt);\n  100 |     expect(retained.recovery).not.toBeNull(); expect(await lab.savedRoom(room)).toBe(serverBefore);\n  101 |     await lab.closeBrowser(); await lab.stopServer(); await lab.startServer(undefined, 1, template);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                        "column": 95,
+                        "line": 98
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Undo my rejected changes', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Undo my rejected changes', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Undo my rejected changes', exact: true })\u001b[22m\n\n\n   96 |     let context = await lab.launch(), page = await context.newPage(); await page.goto(\"modern-relay.html\"); await seed(page, pair); await open(page, room, actor);\n   97 |     await page.getByRole(\"button\", { name: \"Synchronize\", exact: true }).click();\n>  98 |     await expect(page.getByRole(\"button\", { name: \"Undo my rejected changes\", exact: true })).toBeVisible();\n      |                                                                                               ^\n   99 |     const retained = await checkpoint(page, `${room}:${actor}`); expect(retained.accepted).toEqual(pair.accepted); expect(retained.relay?.receipt).toEqual(pair.relay?.receipt);\n  100 |     expect(retained.recovery).not.toBeNull(); expect(await lab.savedRoom(room)).toBe(serverBefore);\n  101 |     await lab.closeBrowser(); await lab.stopServer(); await lab.startServer(undefined, 1, template);\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:98:95"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:23:59.678Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICJjNWE0MTEzOGNlYWU3OTQ3ZjQ5NjRjZGQyZGRkNjM0MWM5MDcwMzRmIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjViMGY5ZjdkNTE5OTZkZWRlNTNlYjJiODg2MTkyNzMzMjQyNmFhMDQwYzIzNTZkYThlMDNhZTI0MzZkZGY0MDYiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogIjRmNzI3MjkwNjhjYzYxNGY2YTM3ZjkzZWFhZmFhZjM3ZTJhZDk2ZmE2OTVmYWU5M2YyNjg1Y2ExNzNhMDU4M2UiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJmMjNhZGRlMWQ2YzJkYzBmNDk5ZTRiNDkwNzcwZWI0ZTUzNTI2MmJhZjU3YmEyNmU3ZjEwOGZhNzIzYmJjOTFkIiwKICAgICJzcmMvc3dpZnQudHMiOiAiM2Q2N2VjOGM2ZjgxOTRmODFjNWExMDg5Y2Y5ZTNjNGZkNjM5NWM4MGRjNmI4YmNkM2ZlMWY3OWQwMjdjMTM4MCIKICB9LAogICJydW50aW1lTWFuaWZlc3QiOiBudWxsLAogICJwbGF0Zm9ybSI6ICJkYXJ3aW4iLAogICJhcmNoaXRlY3R1cmUiOiAiYXJtNjQiLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAiYnJpZGdlU0hBMjU2IjogImUxNjJlY2U3ZTM0Y2Q1NmI1ZGI0ZDNjZmM0MGFkMGY2NGQ3MDUxYWI5NjMzNmY0YTY3NTJjMjBjZGI2NTZkN2MiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA2NzUwNCwKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3NTA2LAogICAgICAidmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3NTA2LAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2NzUwNCwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAwCn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results/modern-relay.swift.ts-mode-65c87-fore-explicit-author-repair-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                    "column": 95,
+                    "line": 98
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-c2171d020aa204faf377",
+          "file": "modern-relay.swift.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "modern 8 MB transport failure exports and reopens the complete unacknowledged author archive",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7203,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"8000000\"\u001b[39m\nReceived string:    \u001b[31m\"TypeError: Failed to execute 'fetch' on 'Window': Illegal invocationDismiss\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    12 × locator resolved to <div role=\"alert\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"TypeError: Failed to execute 'fetch' on 'Window': Illegal invocationDismiss\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"8000000\"\u001b[39m\nReceived string:    \u001b[31m\"TypeError: Failed to execute 'fetch' on 'Window': Illegal invocationDismiss\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    12 × locator resolved to <div role=\"alert\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"TypeError: Failed to execute 'fetch' on 'Window': Illegal invocationDismiss\"\u001b[22m\n\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:130:43",
+                    "location": {
+                      "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                      "column": 43,
+                      "line": 130
+                    },
+                    "snippet": "  128 |     let context = await lab.launch(), page = await context.newPage(); await page.goto(\"modern-relay.html\"); await seed(page, pair); await open(page, room, actor);\n  129 |     await page.getByRole(\"button\", { name: \"Synchronize\", exact: true }).click();\n> 130 |     await expect(page.getByRole(\"alert\")).toContainText(\"8000000\");\n      |                                           ^\n  131 |     expect((await checkpoint(page, `${room}:${actor}`)).accepted).toEqual(pair.accepted); expect((await checkpoint(page, `${room}:${actor}`)).relay?.receipt).toEqual(pair.relay?.receipt);\n  132 |     expect(await lab.savedRoom(room)).toBe(serverBefore);\n  133 |     const download = page.waitForEvent(\"download\"); await page.getByRole(\"button\", { name: \"Export recovery\", exact: true }).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                        "column": 43,
+                        "line": 130
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"8000000\"\u001b[39m\nReceived string:    \u001b[31m\"TypeError: Failed to execute 'fetch' on 'Window': Illegal invocationDismiss\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('alert') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\u001b[2m    12 × locator resolved to <div role=\"alert\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"TypeError: Failed to execute 'fetch' on 'Window': Illegal invocationDismiss\"\u001b[22m\n\n\n  128 |     let context = await lab.launch(), page = await context.newPage(); await page.goto(\"modern-relay.html\"); await seed(page, pair); await open(page, room, actor);\n  129 |     await page.getByRole(\"button\", { name: \"Synchronize\", exact: true }).click();\n> 130 |     await expect(page.getByRole(\"alert\")).toContainText(\"8000000\");\n      |                                           ^\n  131 |     expect((await checkpoint(page, `${room}:${actor}`)).accepted).toEqual(pair.accepted); expect((await checkpoint(page, `${room}:${actor}`)).relay?.receipt).toEqual(pair.relay?.receipt);\n  132 |     expect(await lab.savedRoom(room)).toBe(serverBefore);\n  133 |     const download = page.waitForEvent(\"download\"); await page.getByRole(\"button\", { name: \"Export recovery\", exact: true }).click();\n    at /Users/luca/Developer/block-editor/tests/modern-relay.swift.ts:130:43"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-13T22:24:06.242Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "process-restart-evidence",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VSZXZpc2lvbiI6ICJjNWE0MTEzOGNlYWU3OTQ3ZjQ5NjRjZGQyZGRkNjM0MWM5MDcwMzRmIiwKICAic291cmNlRmlsZXMiOiB7CiAgICAidGVzdHMvaGVscGVycy9yZWxheS1wcm9jZXNzLnRzIjogIjViMGY5ZjdkNTE5OTZkZWRlNTNlYjJiODg2MTkyNzMzMjQyNmFhMDQwYzIzNTZkYThlMDNhZTI0MzZkZGY0MDYiLAogICAgInRlc3RzL3JlbGF5LXByb2Nlc3MtcmVzdGFydC5zcGVjLnRzIjogIjAxZDU4NDQ5MTIxY2NhM2FjZjIyYWFjZDA2MmFjZmI2NGRiMzM3OTFhMDg5MDdlN2Y2NDljODY1NDg5NTFhNzEiLAogICAgInNjcmlwdHMvcmVsYXktcHJvY2Vzcy1maXh0dXJlLnRzIjogIjRmNzI3MjkwNjhjYzYxNGY2YTM3ZjkzZWFhZmFhZjM3ZTJhZDk2ZmE2OTVmYWU5M2YyNjg1Y2ExNzNhMDU4M2UiLAogICAgImRlbW8vbG9jYWwtbWFpbi50c3giOiAiYzY3ODBiMWJiYmUwZGJmYzRiNmQxNDkzY2UwMmU4YzUzZjc3YjU3MjQ0MjY2MjM0NGYzNDU5NGZhNTc2MzNjYyIsCiAgICAiZGVtby9sb2NhbC1zdG9yYWdlLnRzIjogIjM4NjEyODc4MDE0MWZmMDFmMDQ0NmFiZTEzNDcxOTkyNDE2ZGQ5ZDIyOWQxYzMxMWYzNWM3YjA2ZjJlYzE3NzYiLAogICAgImRlbW8vbG9jYWwtc3luYy50cyI6ICI5ODNjMjkyYjQxYmFjZmJkOWU2MGEzOGI1ZDY0ZWJmNTRkY2E3YzdjNTc4ODk0ODNkZDgwNjNjYmM4ZWQ2ZjM5IiwKICAgICJkZW1vL3JlbGF5L3NlcnZlci50cyI6ICJmMjNhZGRlMWQ2YzJkYzBmNDk5ZTRiNDkwNzcwZWI0ZTUzNTI2MmJhZjU3YmEyNmU3ZjEwOGZhNzIzYmJjOTFkIiwKICAgICJzcmMvc3dpZnQudHMiOiAiM2Q2N2VjOGM2ZjgxOTRmODFjNWExMDg5Y2Y5ZTNjNGZkNjM5NWM4MGRjNmI4YmNkM2ZlMWY3OWQwMjdjMTM4MCIKICB9LAogICJydW50aW1lTWFuaWZlc3QiOiBudWxsLAogICJwbGF0Zm9ybSI6ICJkYXJ3aW4iLAogICJhcmNoaXRlY3R1cmUiOiAiYXJtNjQiLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAiYnJpZGdlU0hBMjU2IjogImUxNjJlY2U3ZTM0Y2Q1NmI1ZGI0ZDNjZmM0MGFkMGY2NGQ3MDUxYWI5NjMzNmY0YTY3NTJjMjBjZGI2NTZkN2MiLAogICJ3YXNtU0hBMjU2IjogIjZmNWZlYmNmYjk2MmY3MzVhYmRlNGJiODk4MGFhMTc1ZTU2OGM2NGZkNjNjMDA0MDRiODNkNTEyYzczMDE0ZmIiLAogICJwaGFzZXMiOiBbCiAgICB7CiAgICAgICJwaGFzZSI6ICJyZWxheS1zdGFydCIsCiAgICAgICJwaWQiOiA2NzUzMCwKICAgICAgInZlcnNpb24iOiA3CiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAiYnJvd3Nlci1zdGFydCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3NTMyLAogICAgICAidmVyc2lvbiI6ICIxNTMuMC44MDEwLjEyIgogICAgfSwKICAgIHsKICAgICAgInBoYXNlIjogImJyb3dzZXItZXhpdCIsCiAgICAgICJsYXVuY2hlclBpZCI6IDY3NTMyLAogICAgICAiZGlzY29ubmVjdGVkIjogdHJ1ZSwKICAgICAgInByb2Nlc3NFeGl0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAicGhhc2UiOiAicmVsYXktZXhpdCIsCiAgICAgICJwaWQiOiA2NzUzMCwKICAgICAgImV4aXRDb2RlIjogMAogICAgfQogIF0sCiAgInJlbGF5UmVxdWVzdHMiOiAwCn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/luca/Developer/block-editor/.build/finishing/20261014/modern-relay/browser-initial-results/modern-relay.swift.ts-mode-20e24-acknowledged-author-archive-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/luca/Developer/block-editor/tests/modern-relay.swift.ts",
+                    "column": 43,
+                    "line": 130
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ac3604366a24557c9ed-002f036451ca73a219a4",
+          "file": "modern-relay.swift.ts",
+          "line": 118,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-13T22:23:49.045Z",
+    "duration": 24465.896,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

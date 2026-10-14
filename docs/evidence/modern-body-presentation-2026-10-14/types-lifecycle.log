@@ -1,0 +1,1 @@
+tests/modern-context.swift.ts(121,12): error TS2540: Cannot assign to 'appearance' because it is a read-only property.

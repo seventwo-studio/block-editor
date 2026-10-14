@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Modern surface acceptance</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="../../src/swift-modern.css" />
+    <!-- /@fs HTML is served without Vite's index transform. Use the pinned
+         React plugin's ordinary development preamble before importing the host. -->
+    <script type="module">
+      import { injectIntoGlobalHook } from "/block-editor/@react-refresh";
+      injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+    </script>
+  </head>
+  <body style="margin: 0"><div id="root" style="height: 100vh"></div></body>
+</html>

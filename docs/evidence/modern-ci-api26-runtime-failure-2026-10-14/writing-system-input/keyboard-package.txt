@@ -1,0 +1,170 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        a26d77d com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.framework.core.LauncherActivity filter b527cf5
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        fe00672 com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.latin.spelling.LatinSpellCheckerSettingsActivity filter eb00a8a
+          Action: "android.intent.action.MAIN"
+      com.google.android.primes.action.DEBUG_PRIMES_EVENTS:
+        285aac3 com.google.android.inputmethod.latin/com.google.android.libraries.performance.primes.debug.PrimesEventActivity filter 4e6b8fb
+          Action: "com.google.android.primes.action.DEBUG_PRIMES_EVENTS"
+          Category: "android.intent.category.DEFAULT"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      com.google.android.c2dm.intent.RECEIVE:
+        2c34f40 com.google.android.inputmethod.latin/com.google.firebase.iid.FirebaseInstanceIdReceiver filter fc4da2c
+          Action: "com.google.android.c2dm.intent.RECEIVE"
+          Action: "com.google.android.c2dm.intent.REGISTRATION"
+      android.text.style.SUGGESTION_PICKED:
+        ace6e79 com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.translate.SuggestionSpanBroadcastForwarder filter b341ddf
+          Action: "android.text.style.SUGGESTION_PICKED"
+      android.intent.action.BOOT_COMPLETED:
+        a2417be com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.framework.core.LauncherIconVisibilityInitializer filter e743c83
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+      android.intent.action.DOWNLOAD_COMPLETE:
+        b8e301f com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.dataservice.download.DownloadBroadcastReceiver filter 79a247e
+          Action: "android.intent.action.DOWNLOAD_COMPLETE"
+      com.google.android.c2dm.intent.REGISTRATION:
+        2c34f40 com.google.android.inputmethod.latin/com.google.firebase.iid.FirebaseInstanceIdReceiver filter fc4da2c
+          Action: "com.google.android.c2dm.intent.RECEIVE"
+          Action: "com.google.android.c2dm.intent.REGISTRATION"
+      android.intent.action.MY_PACKAGE_REPLACED:
+        a2417be com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.framework.core.LauncherIconVisibilityInitializer filter e743c83
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+        52e1f6c com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.latin.core.ApkUpdatedReceiver filter 23fde00
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+      com.google.android.gms.phenotype.UPDATE:
+        bbe7935 com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.experiments.PhenotypeExperimentUpdateAvailableBroadcastReceiver filter ed5b639
+          Action: "com.google.android.gms.phenotype.UPDATE"
+
+Service Resolver Table:
+  Non-Data Actions:
+      com.google.firebase.INSTANCE_ID_EVENT:
+        d05f1ca com.google.android.inputmethod.latin/com.google.firebase.iid.FirebaseInstanceIdService filter f35233d
+          Action: "com.google.firebase.INSTANCE_ID_EVENT"
+          mPriority=-500, mHasPartialTypes=false
+      com.google.android.gms.gcm.ACTION_TASK_READY:
+        76faf3b com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.latin5.LanguageModelDownloadService filter 366e6a6
+          Action: "com.google.android.gms.gcm.ACTION_TASK_READY"
+        493c658 com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.latin.preference.SyncService filter 77af8e7
+          Action: "com.google.android.gms.gcm.ACTION_TASK_READY"
+        96a73b1 com.google.android.inputmethod.latin/com.firebase.jobdispatcher.GooglePlayReceiver filter 88ac732
+          Action: "com.google.android.gms.gcm.ACTION_TASK_READY"
+      android.view.InputMethod:
+        d796096 com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME filter bc10801
+          Action: "android.view.InputMethod"
+      android.service.textservice.SpellCheckerService:
+        2200417 com.google.android.inputmethod.latin/com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService filter dc8c94
+          Action: "android.service.textservice.SpellCheckerService"
+
+Registered ContentProviders:
+  com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.search.gif.InputContentProvider:
+    Provider{9aaf004 com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.search.gif.InputContentProvider}
+
+ContentProvider Authorities:
+  [com.google.android.inputmethod.latin.inputcontent]:
+    Provider{9aaf004 com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.search.gif.InputContentProvider}
+      applicationInfo=ApplicationInfo{a0199ed com.google.android.inputmethod.latin}
+
+Key Set Manager:
+  [com.google.android.inputmethod.latin]
+      Signing KeySets: 4
+
+Packages:
+  Package [com.google.android.inputmethod.latin] (9e2f022):
+    userId=10055
+    pkg=Package{716cab3 com.google.android.inputmethod.latin}
+    codePath=/system/app/LatinIMEGooglePrebuilt
+    resourcePath=/system/app/LatinIMEGooglePrebuilt
+    legacyNativeLibraryDir=/system/app/LatinIMEGooglePrebuilt/lib
+    primaryCpuAbi=x86_64
+    secondaryCpuAbi=null
+    versionCode=25623411 minSdk=17 targetSdk=25
+    versionName=6.2.34.154174348-preload-x86_64
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=ApplicationInfo{a0199ed com.google.android.inputmethod.latin}
+    flags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP RESTORE_ANY_VERSION ]
+    privateFlags=[ PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ]
+    dataDir=/data/user/0/com.google.android.inputmethod.latin
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2020-08-06 12:46:08
+    firstInstallTime=2020-08-06 12:46:08
+    lastUpdateTime=2020-08-06 12:46:08
+    signatures=PackageSignatures{fe90870 [ef3d224c]}
+    installPermissionsFixed=false installStatus=1
+    pkgFlags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP RESTORE_ANY_VERSION ]
+    requested permissions:
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.DOWNLOAD_WITHOUT_NOTIFICATION
+      android.permission.GET_ACCOUNTS
+      android.permission.INTERNET
+      android.permission.READ_CONTACTS
+      android.permission.READ_PROFILE
+      android.permission.READ_USER_DICTIONARY
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.USE_CREDENTIALS
+      android.permission.VIBRATE
+      android.permission.WRITE_USER_DICTIONARY
+      android.permission.GET_PACKAGE_SIZE
+      com.google.android.providers.gsf.permission.READ_GSERVICES
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.READ_SMS
+    install permissions:
+      android.permission.DOWNLOAD_WITHOUT_NOTIFICATION: granted=true
+      android.permission.USE_CREDENTIALS: granted=true
+      com.google.android.providers.gsf.permission.READ_GSERVICES: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.READ_PROFILE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.GET_PACKAGE_SIZE: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.WRITE_USER_DICTIONARY: granted=true
+      android.permission.VIBRATE: granted=true
+      android.permission.READ_USER_DICTIONARY: granted=true
+    User 0: ceDataInode=114786 installed=true hidden=false suspended=false stopped=false notLaunched=false enabled=0 instant=false
+      gids=[3003]
+      runtime permissions:
+      disabledComponents:
+        com.google.android.apps.inputmethod.libs.framework.core.LauncherActivity
+
+Package Changes:
+  Sequence number=322
+  User 0:
+    seq=0, package=com.google.android.apps.inputmethod.hindi
+    seq=1, package=com.google.android.inputmethod.pinyin
+    seq=2, package=com.google.android.webview
+    seq=4, package=com.google.android.setupwizard
+    seq=5, package=com.google.android.sdksetup
+    seq=6, package=com.google.android.inputmethod.latin
+    seq=14, package=com.google.android.partnersetup
+    seq=18, package=com.google.android.apps.messaging
+    seq=19, package=com.android.settings
+    seq=33, package=com.google.android.calendar
+    seq=35, package=com.android.camera2
+    seq=43, package=com.google.android.googlequicksearchbox
+    seq=55, package=com.google.android.gm
+    seq=192, package=com.google.android.gsf
+    seq=313, package=com.google.android.videos
+    seq=314, package=com.google.android.apps.maps
+    seq=315, package=com.android.vending
+    seq=316, package=com.google.android.youtube
+    seq=319, package=com.google.android.gms
+    seq=321, package=studio.seventwo.blockeditor.test
+
+
+Dexopt state:
+  [com.google.android.inputmethod.latin]
+    Instruction Set: x86_64
+      path: /system/app/LatinIMEGooglePrebuilt/LatinIMEGooglePrebuilt.apk
+      status: /system/app/LatinIMEGooglePrebuilt/oat/x86_64/LatinIMEGooglePrebuilt.odex[status=kOatUpToDate, compilation
+      _filter=quicken]
+
+
+Compiler stats:
+  [com.google.android.inputmethod.latin]
+    (No recorded stats)

@@ -1830,8 +1830,9 @@ public final class WritingSession {
         return (state.0, state.1, document)
     }
     static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3,
-                             activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
-        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride)
+                             activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false,
+                             retainedSeeds: WritingSeedData? = nil) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride, retainedSeeds: retainedSeeds)
         let (structure, edits) = try orderedCuts(structure: inputs.structure, edits: inputs.edits,
             seeds: inputs.seeds, active: inputs.active, fields: inputs.fields, births: inputs.births,
             hidden: inputs.hidden, aliases: inputs.aliases, changes: changes,
@@ -1847,14 +1848,17 @@ public final class WritingSession {
         let active: [ChangeID: Bool]
         let edits: [WritingEdit]
         let aliases: [WritingField: WritingField]
+        let seedIndex: WritingSeedIndex?
+        let valueOrigins: WritingValueOrigins?
     }
     @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
-        births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil) throws -> ProjectionInputs {
+        births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil,
+        retainedSeeds: WritingSeedData? = nil) throws -> ProjectionInputs {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
-        fields = Set(retainedWritingFields(structure).keys)
-        let seeded = seedWritingAtoms(births)
+        fields = structure.retainedWritingFieldSet()
+        let seeded = retainedSeeds.map { (atoms: $0.atoms, hidden: $0.hidden) } ?? seedWritingAtoms(births)
         seeds = seeded.atoms; hidden = seeded.hidden
         var active: [ChangeID: Bool] = [:], edits: [WritingEdit] = []
         for change in changes {
@@ -1887,7 +1891,7 @@ public final class WritingSession {
                 return current
             }
             var owners: [WritingField: NodeID] = [:]
-            for root in groups.keys.sorted(by: { $0.key < $1.key }) {
+            for root in structuralNodesSorted(groups.keys) {
                 for field in groups[root]! {
                     if let previous = owners[field] {
                         let a = representative(root), b = representative(previous)
@@ -1986,7 +1990,18 @@ public final class WritingSession {
             }
             let selected = try structure.effectivePlacements()
             var afterByRoot: [NodeID: NodePlacementID] = [:]
-            let entries = structure.placements.values.filter { $0.active }.sorted { $0.id < $1.id }
+            let activePlacements = structure.placements.values.filter { $0.active }
+            // Initial placements have a strict raw-byte order, so discarding
+            // entries that cannot reach this fallback preserves relative order.
+            // Keep the original full sort for authored/role/route identities:
+            // their historical owner-String/UTF8 rules must remain unchanged.
+            let initialOnly = activePlacements.allSatisfy { if case .initial = $0.id { return true }; return false }
+            let candidates = initialOnly ? activePlacements.filter {
+                guard $0.active, let owner = $0.collection.owner else { return false }
+                return $0.collection.field == "items" ||
+                    ($0.collection.field == "children" && listRoots[owner] != nil)
+            } : activePlacements
+            let entries = structuralPlacementsSorted(candidates, by: \.id)
             for placement in entries {
                 guard let owner = placement.collection.owner,
                       selected[placement.node]?.id == placement.id || (selected[placement.node] == nil && listRoots[owner] != nil) else { continue }
@@ -2055,7 +2070,7 @@ public final class WritingSession {
             }
         }
         return ProjectionInputs(structure: structure, seeds: seeds, fields: fields, hidden: hidden,
-            births: births, active: active, edits: edits, aliases: aliases)
+            births: births, active: active, edits: edits, aliases: aliases, seedIndex: retainedSeeds?.index, valueOrigins: retainedSeeds?.valueOrigins)
     }
     @inline(never) private static func assembleProjection(structure input: StructuralState,
         edits: [WritingEdit], inputs: ProjectionInputs,
@@ -2063,8 +2078,8 @@ public final class WritingSession {
         var structure = input
         let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
         let hidden = inputs.hidden, aliases = inputs.aliases
-        let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
-        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks)
+        let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases, seedIndex: inputs.seedIndex)
+        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks, valueOrigins: inputs.valueOrigins)
         for field in projection.joinedSources {
             if let node = structure.nodes[field.node], node.kind == .block,
                Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {
@@ -2530,6 +2545,9 @@ struct WritingFieldBirth {
     let active: Bool
 }
 func retainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
+    structure.retainedWritingBirths()
+}
+func uncachedRetainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
     var result: [WritingField: WritingFieldBirth] = [:]
     for (identity, node) in structure.nodes {
         for name in writingFields(node) {

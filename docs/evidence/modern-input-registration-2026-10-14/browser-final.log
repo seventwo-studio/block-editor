@@ -1,0 +1,75 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:96510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 66 tests using 3 workers
+
+[1/66] [chromium] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[2/66] [chromium] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+[3/66] [chromium] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[4/66] [chromium] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[5/66] [chromium] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[6/66] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[7/66] [chromium] › tests/modern-context.swift.ts:60:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[8/66] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[9/66] [webkit] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+[10/66] [chromium] › tests/modern-context.swift.ts:79:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[11/66] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[12/66] [chromium] › tests/modern-context.swift.ts:95:0 › successful cell actions dismiss and reopening captures the updated structure
+[13/66] [webkit] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[14/66] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[15/66] [chromium] › tests/modern-context.swift.ts:110:0 › body presentation retains composition through local menus and updates provider status
+[16/66] [webkit] › tests/modern-context.swift.ts:60:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[17/66] [chromium] › tests/modern-context.swift.ts:137:0 › inline references follow committed host callbacks while retaining the composing native buffer
+[18/66] [webkit] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[19/66] [webkit] › tests/modern-context.swift.ts:79:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[20/66] [webkit] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[21/66] [webkit] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[22/66] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[23/66] [chromium] › tests/modern-context.swift.ts:167:0 › column stacking follows page content width and updated text metrics without authoring split
+[24/66] [webkit] › tests/modern-context.swift.ts:95:0 › successful cell actions dismiss and reopening captures the updated structure
+[25/66] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[26/66] [chromium] › tests/modern-context.swift.ts:186:0 › keyboard column resize releases its preview before a peer resize
+[27/66] [webkit] › tests/modern-context.swift.ts:110:0 › body presentation retains composition through local menus and updates provider status
+[28/66] [chromium] › tests/modern-context.swift.ts:205:0 › Escape cancels a column drag without authoring or changing history
+[29/66] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[30/66] [webkit] › tests/modern-context.swift.ts:137:0 › inline references follow committed host callbacks while retaining the composing native buffer
+[31/66] [chromium] › tests/modern-context.swift.ts:221:0 › accessible insertion cancellation returns to the original text caret
+[32/66] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[33/66] [webkit] › tests/modern-context.swift.ts:167:0 › column stacking follows page content width and updated text metrics without authoring split
+[34/66] [chromium] › tests/modern-context.swift.ts:238:0 › Escape dismisses the Link action and retains its captured input
+[35/66] [webkit] › tests/modern-context.swift.ts:186:0 › keyboard column resize releases its preview before a peer resize
+[36/66] [firefox] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+[37/66] [chromium] › tests/modern-context.swift.ts:251:0 › contextual reads preserve opaque metadata named like schema collections
+[38/66] [webkit] › tests/modern-context.swift.ts:205:0 › Escape cancels a column drag without authoring or changing history
+[39/66] [chromium] › tests/modern-context.swift.ts:276:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[40/66] [firefox] › tests/modern-context.swift.ts:34:0 › editor actions preserve content without submitting an enclosing host form
+[41/66] [webkit] › tests/modern-context.swift.ts:221:0 › accessible insertion cancellation returns to the original text caret
+[42/66] [chromium] › tests/modern-context.swift.ts:304:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[43/66] [firefox] › tests/modern-context.swift.ts:60:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[44/66] [webkit] › tests/modern-context.swift.ts:238:0 › Escape dismisses the Link action and retains its captured input
+[45/66] [firefox] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[46/66] [firefox] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[47/66] [firefox] › tests/modern-context.swift.ts:79:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[48/66] [firefox] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[49/66] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[50/66] [webkit] › tests/modern-context.swift.ts:251:0 › contextual reads preserve opaque metadata named like schema collections
+[51/66] [firefox] › tests/modern-context.swift.ts:95:0 › successful cell actions dismiss and reopening captures the updated structure
+[52/66] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[53/66] [webkit] › tests/modern-context.swift.ts:276:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[54/66] [firefox] › tests/modern-context.swift.ts:110:0 › body presentation retains composition through local menus and updates provider status
+[55/66] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[56/66] [webkit] › tests/modern-context.swift.ts:304:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[57/66] [firefox] › tests/modern-context.swift.ts:137:0 › inline references follow committed host callbacks while retaining the composing native buffer
+[58/66] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[59/66] [firefox] › tests/modern-context.swift.ts:167:0 › column stacking follows page content width and updated text metrics without authoring split
+[60/66] [firefox] › tests/modern-context.swift.ts:186:0 › keyboard column resize releases its preview before a peer resize
+[61/66] [firefox] › tests/modern-context.swift.ts:205:0 › Escape cancels a column drag without authoring or changing history
+[62/66] [firefox] › tests/modern-context.swift.ts:221:0 › accessible insertion cancellation returns to the original text caret
+[63/66] [firefox] › tests/modern-context.swift.ts:238:0 › Escape dismisses the Link action and retains its captured input
+[64/66] [firefox] › tests/modern-context.swift.ts:251:0 › contextual reads preserve opaque metadata named like schema collections
+[65/66] [firefox] › tests/modern-context.swift.ts:276:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[66/66] [firefox] › tests/modern-context.swift.ts:304:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+  66 passed (4.3m)

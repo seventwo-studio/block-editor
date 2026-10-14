@@ -1,0 +1,34 @@
+[WebServer] (node:85631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+(node:85632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › tests/modern-performance.swift.ts:40:1 › production modern surface measures original input and menu response on 1000 mixed blocks
+  1) [chromium] › tests/modern-performance.swift.ts:40:1 › production modern surface measures original input and menu response on 1000 mixed blocks 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: page.evaluate: Target page, context or browser has been closed
+
+      78 |     await page.screenshot({ path: info.outputPath("mixed-surface.png") });
+      79 |   } catch (error) { report.error = String(error); throw error; }
+    > 80 |   finally { publish(); await info.attach("modern-surface-performance", { path: resolve(output, `${info.project.name}.json`), contentType: "application/json" }); await page.evaluate(() => window.modernPerformance?.dispose()); }
+         |                                                                                                                                                                             ^
+      81 | });
+      82 |
+        at /Users/luca/Developer/block-editor/tests/modern-performance.swift.ts:80:173
+
+    attachment #1: modern-surface-performance (application/json) ───────────────────────────────────
+    .build/finishing/20261014/modern-performance/chromium-fixture-corrected-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/attachments/modern-surface-performance-edb20e3ac4ff5a1fc85d6dfea9d2760f83709137.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/modern-performance/chromium-fixture-corrected-results/modern-performance.swift.t-71dd2-sponse-on-1000-mixed-blocks-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › tests/modern-performance.swift.ts:40:1 › production modern surface measures original input and menu response on 1000 mixed blocks 

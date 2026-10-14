@@ -34,7 +34,8 @@
     "dist/block-editor.wasm",
     "dist/modern-provenance.json",
     "src/swift-modern.css",
-    "docs/modern-editor-handoff.md"
+    "docs/modern-editor-handoff.md",
+    "docs/modern-relay-reference.md"
   ],
   "keywords": [
     "block-editor",
@@ -61,8 +62,10 @@
     "build:android": "sh scripts/build-android.sh",
     "test:swift": "swift test",
     "demo:relay": "swift build --product editor-bridge && bun demo/relay/main.ts",
+    "demo:relay:modern": "swift build --product editor-bridge && bun demo/relay/modern-main.ts",
     "demo:stress": "bun demo/relay/stress.ts",
-    "test:relay": "swift build --product editor-bridge && swift build --product relay-client && bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts",
+    "test:relay": "swift build --product editor-bridge && swift build --product relay-client && bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts tests/modern-relay.test.ts",
+    "test:relay:modern:browser": "swift build --product editor-bridge && playwright test --config playwright.modern-relay.config.ts",
     "test:relay:browser": "swift build --product editor-bridge && swift build --product relay-client && playwright test --config playwright.relay.config.ts",
     "test:relay:restart": "playwright test --config playwright.relay-restart.config.ts",
     "typecheck:relay": "tsc -p tsconfig.relay.json",
@@ -132,6 +135,10 @@
     "./swift/modern/host": {
       "types": "./dist/swift-modern-host.d.ts",
       "import": "./dist/swift-modern-host.js"
+    },
+    "./swift/modern/relay": {
+      "types": "./dist/swift-modern-relay.d.ts",
+      "import": "./dist/swift-modern-relay.js"
     },
     "./swift/modern.css": "./src/swift-modern.css",
     "./swift/modern.wasm": "./dist/block-editor.wasm"

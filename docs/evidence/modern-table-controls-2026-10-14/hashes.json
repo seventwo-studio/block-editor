@@ -1,0 +1,134 @@
+{
+  "README.md": {
+    "bytes": 2865,
+    "sha256": "8a03292bd21a2390ef6d8364040a43936012de292c003f850f829490f11d929c"
+  },
+  "affected-browser.log": {
+    "bytes": 7308,
+    "sha256": "e82fa595a6a5c8eec5b0b530d92960f7e9ae1e7adeacae1f56e7074d9ef8dc68"
+  },
+  "after.json": {
+    "bytes": 10463,
+    "sha256": "cd654b319e475bc3347b0d85e3fbe82253da1063ba53be15789d498979da8162"
+  },
+  "after.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "before.json": {
+    "bytes": 118769,
+    "sha256": "71dbf2fb84d5f7ec3b11dbbca21b4fba4cd1918e442b6031f5034ec07e1eb304"
+  },
+  "before.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "cell-actions-browser.log": {
+    "bytes": 1187,
+    "sha256": "42baf18bbee650e820a344436344744ffead4924a2b922266c36dbaf657cc0f3"
+  },
+  "cell-actions-dismiss.log": {
+    "bytes": 1594,
+    "sha256": "14c176e4b832c87bbd60aa71e332ad57a04f6b4e70942ae8751dbd2dc6567b4b"
+  },
+  "chromium-mixed-surface.png": {
+    "bytes": 86549,
+    "sha256": "b586c7e60966284702be1f3f09a7c9564e2ba631e4274d45c2252e35afd559e2"
+  },
+  "ci-prior-current.json": {
+    "bytes": 477,
+    "sha256": "90edad2ad0bef859eeb3373ed9923d164eb7e3e0b95f9ea38bcc4eac206bf2d6"
+  },
+  "ci-prior-live.json": {
+    "bytes": 20100,
+    "sha256": "987565e88208af07082b8f48befefca708bda1547d203314ff5b38a163f7b3e0"
+  },
+  "firefox-mixed-surface.png": {
+    "bytes": 102424,
+    "sha256": "feafbb1bc2227a5d39a418d876874329829a5a391345b43f77913c927c18baa7"
+  },
+  "hardware.json": {
+    "bytes": 217,
+    "sha256": "fe817f24ccc8967e2499521d4113ddbc33a7f850b28c0a64ade2fa3faee50a4c"
+  },
+  "javascript-clean.log": {
+    "bytes": 79,
+    "sha256": "cbdb8b8ffcaebbaa28d826dd854e06f9fd930872502c7577f6281e2db98affbb"
+  },
+  "measurement-types.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "modern-build-javascript.json": {
+    "bytes": 23188,
+    "sha256": "8839ff26b9fa2629c8697c3a33faff62c599bbc95e0f2368385a648592b822cd"
+  },
+  "modern-build-wasm.json": {
+    "bytes": 20114,
+    "sha256": "ba4664422b40026b62a27191d1cc505ec8dfba39d5b3ffbd808d0367433dd4ff"
+  },
+  "production-build.log": {
+    "bytes": 461,
+    "sha256": "3b9d4163a5977494408a88ebb0b600e3e3c2b61d6ba6b05a48fed7c8788317f2"
+  },
+  "production-chromium.json": {
+    "bytes": 2794,
+    "sha256": "fc204f6351fc1b8bb57a267cf498d14d58042342278f77d79195637a06ad80c0"
+  },
+  "production-clean.log": {
+    "bytes": 461,
+    "sha256": "fdeef7be60e19ebbdd3eb3f2809df8e3ae8d587a510b892fe0559031a6aa23db"
+  },
+  "production-final-build.log": {
+    "bytes": 461,
+    "sha256": "5d5fe6a8a65d65e074361b63812f1ca7c778f1deb66c90c0b6476081513852ea"
+  },
+  "production-firefox.json": {
+    "bytes": 2198,
+    "sha256": "5a4d1b72a6476134752347eac34060dd575c64720f0be41cb73d2223f9c26898"
+  },
+  "production-webkit.json": {
+    "bytes": 2228,
+    "sha256": "cacc0d97d82895d86c4e5790787d508b7483a86bd39b85d6179bdbca42da9af5"
+  },
+  "production.log": {
+    "bytes": 8824,
+    "sha256": "86d706f8f14348017f34159f19d28759da9e8c3228b69b7443a52baaef6d07d1"
+  },
+  "profile.mjs": {
+    "bytes": 2306,
+    "sha256": "368ae8573ee58768d43cdaf9d5a13a188e28f7f989450d820397600670595aac"
+  },
+  "receipt.json": {
+    "bytes": 3604,
+    "sha256": "3b1702bd92a45a956fe7d17c5b6c2d659e27a087dd10f3b8fc7e1fbf0309d103"
+  },
+  "typecheck.log": {
+    "bytes": 15,
+    "sha256": "8366207267355d3e3d5bf3bf6e8c94c5f93f6078c34f08973fa2b38cdda6cc92"
+  },
+  "types-dismiss.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "types-final.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "types.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "wasm-clean-repaired.log": {
+    "bytes": 54,
+    "sha256": "485b6b842c33ef47835f2373cf424817da7e6dfa47a44c570e2d8f3ba4b632a9"
+  },
+  "wasm-clean.log": {
+    "bytes": 2836,
+    "sha256": "6261d4e301d239187896c58f49557253a15bb43a4a4a5ed24b7d6989b28be41f"
+  },
+  "webkit-mixed-surface.png": {
+    "bytes": 113655,
+    "sha256": "e4e65436b687ea32bf2ec4474e74052e9bd94672b297e74ff99961b7d960bee6"
+  }
+}

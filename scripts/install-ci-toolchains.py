@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Install only locked official artifacts into a fresh, disposable CI directory."""
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -9,7 +8,7 @@ import platform
 import shutil
 import subprocess
 import tempfile
-import urllib.request
+from locked_download import download
 import xml.etree.ElementTree as ET
 
 
@@ -57,15 +56,8 @@ def main():
     def archive(name):
         entry = artifacts[name]
         target = root / (name + (".pkg" if entry["url"].endswith(".pkg") else ".zip" if entry["url"].endswith(".zip") else ".tar.gz"))
-        digest = hashlib.sha256()
         print(f"Download {name}: {entry['version']}", flush=True)
-        with urllib.request.urlopen(entry["url"], timeout=120) as response, target.open("wb") as output:
-            while chunk := response.read(8 * 1024 * 1024):
-                output.write(chunk)
-                digest.update(chunk)
-        if digest.hexdigest() != entry["sha256"]:
-            target.unlink()
-            raise RuntimeError(f"SHA-256 mismatch for {name}")
+        download(entry, target, name, root / "download-evidence.jsonl")
         installed[name] = entry
         return target
 

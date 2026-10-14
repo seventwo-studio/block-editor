@@ -1,0 +1,86 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:61170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:61172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser <launching> /Users/luca/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_chromiumdev_profile-IRZW7V --remote-debugging-pipe --no-startup-window +0ms
+[firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser <launching> /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_firefoxdev_profile-JT7my7 -juggler-pipe -silent +0ms
+  pw:browser <launched> pid=61173 +2ms
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser <launched> pid=61174 +2ms
+[firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61173][err] *** You are running in headless mode. +77ms
+  pw:browser [pid=61173][err] JavaScript warning: resource://services-settings/Utils.sys.mjs, line 125: unreachable code after return statement +182ms
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61174][err] [1013/232453.683536:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +282ms
+  pw:browser [pid=61174][err] [1013/232453.748097:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +64ms
+  pw:browser [pid=61174][err] [1013/232453.774715:INFO:CONSOLE:883] "[vite] connecting...", source: http://127.0.0.1:4287/block-editor/@vite/client (883) +26ms
+  pw:browser [pid=61174][err] [1013/232453.782598:INFO:CONSOLE:996] "[vite] connected.", source: http://127.0.0.1:4287/block-editor/@vite/client (996) +8ms
+[firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61173][out]  +139ms
+  pw:browser [pid=61173][out] Juggler listening to the pipe +0ms
+  pw:browser [pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) +9ms
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61174][err] [1013/232453.814461:INFO:CONSOLE:14392] "Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)
+[firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61173][err] [WARN  rkv::backend::impl_safe::environment] `load_ratio()` is irrelevant for this storage backend. +135ms
+  pw:browser [pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) +64ms
+  pw:browser [pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) +24ms
+  pw:browser [pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) +118ms
+  pw:browser [pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) +79ms
+  pw:browser [pid=61173][out] console.warn: services.settings: #fetchAttachment: Forcing fallbackToDump to false due to Utils.LOAD_DUMPS being false +151ms
+  pw:browser [pid=61173][out] console.error: (new NotFoundError("Could not find fa0fc42c-d91d-fca7-34eb-806ff46062dc in cache or dump", "resource://services-settings/Attachments.sys.mjs", 48)) +14ms
+  pw:browser [pid=61173][out] console.warn: "Unable to find the attachment for" "fa0fc42c-d91d-fca7-34eb-806ff46062dc" +0ms
+  pw:browser [pid=61173][err] JavaScript error: , line 0: SyntaxError: JSON.parse: unexpected end of data at line 1 column 1 of the JSON data +12ms
+  pw:browser [pid=61173][out] console.error: services.settings:  +2ms
+  pw:browser [pid=61173][out]   Message: EmptyDatabaseError: "main/nimbus-desktop-experiments" has not been synced yet +1ms
+  pw:browser [pid=61173][out]   Stack: +0ms
+  pw:browser [pid=61173][out]     EmptyDatabaseError@resource://services-settings/Database.sys.mjs:19:5 +0ms
+  pw:browser [pid=61173][out] list@resource://services-settings/Database.sys.mjs:96:13 +0ms
+  pw:browser [pid=61173][out]  +0ms
+  pw:browser [pid=61173][err] sandbox_extension_issue_file_to_process failed for /Users/luca/Library/Caches/ms-playwright/firefox-1543/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted) +136ms
+  pw:browser [pid=61173][out] console.error: [Exception... "Favicon at "http://127.0.0.1:4287/favicon.ico" failed to load."  nsresult: "0x80004004 (NS_ERROR_ABORT)"  location: "JS frame :: resource:///modules/FaviconLoader.sys.mjs :: onStopRequest :: line 279"  data: no] +116ms
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61174] <gracefully close start> +998ms
+  pw:browser [pid=61174] <process did exit: exitCode=0, signal=null> +10ms
+  pw:browser [pid=61174] starting temporary directories cleanup +0ms
+  pw:browser [pid=61174] finished temporary directories cleanup +2ms
+  pw:browser [pid=61174] <gracefully close end> +0ms
+(node:61185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-activation
+  pw:browser <launching> /Users/luca/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/k0/23nzccrn47xfgrn2wz8jl8d00000gn/T/playwright_chromiumdev_profile-rhhycm --remote-debugging-pipe --no-startup-window +0ms
+  pw:browser <launched> pid=61186 +2ms
+  pw:browser [pid=61186][err] [1013/232455.117273:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +107ms
+  pw:browser [pid=61186][err] [1013/232455.127551:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +9ms
+  pw:browser [pid=61186][err] [1013/232455.143072:INFO:CONSOLE:883] "[vite] connecting...", source: http://127.0.0.1:4287/block-editor/@vite/client (883) +16ms
+  pw:browser [pid=61186][err] [1013/232455.145012:INFO:CONSOLE:996] "[vite] connected.", source: http://127.0.0.1:4287/block-editor/@vite/client (996) +2ms
+  pw:browser [pid=61186][err] [1013/232455.178380:INFO:CONSOLE:14392] "Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)
+[firefox] › tests/modern-preservation.swift.ts:8:3 › modern preservation: paired-reopen
+  pw:browser [pid=61173] <gracefully close start> +741ms
+  pw:browser [pid=61173][err] JavaScript error: chrome://juggler/content/Helper.js, line 82: NS_ERROR_FAILURE: Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIWebProgress.removeProgressListener] +7ms
+  pw:browser [pid=61173] <process did exit: exitCode=0, signal=null> +167ms
+  pw:browser [pid=61173] starting temporary directories cleanup +0ms
+  pw:browser [pid=61173] finished temporary directories cleanup +4ms
+  pw:browser [pid=61173] <gracefully close end> +0ms
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: migration-refusal
+  pw:browser [pid=61186][err] [1013/232456.217079:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +1s
+  pw:browser [pid=61186][err] [1013/232456.254356:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +37ms
+  pw:browser [pid=61186][err] [1013/232456.268238:INFO:CONSOLE:883] "[vite] connecting...", source: http://127.0.0.1:4287/block-editor/@vite/client (883) +14ms
+  pw:browser [pid=61186][err] [1013/232456.269828:INFO:CONSOLE:996] "[vite] connected.", source: http://127.0.0.1:4287/block-editor/@vite/client (996) +1ms
+  pw:browser [pid=61186][err] [1013/232456.300103:INFO:CONSOLE:14392] "Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)
+[chromium] › tests/modern-preservation.swift.ts:8:3 › modern preservation: large-migration
+  pw:browser [pid=61186][err] [1013/232457.145232:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +845ms
+  pw:browser [pid=61186][err] [1013/232457.179681:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670 +34ms
+  pw:browser [pid=61186][err] [1013/232457.191565:INFO:CONSOLE:883] "[vite] connecting...", source: http://127.0.0.1:4287/block-editor/@vite/client (883) +12ms
+  pw:browser [pid=61186][err] [1013/232457.195043:INFO:CONSOLE:996] "[vite] connected.", source: http://127.0.0.1:4287/block-editor/@vite/client (996) +4ms
+  pw:browser [pid=61186][err] [1013/232457.224349:INFO:CONSOLE:14392] "Download the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://127.0.0.1:4287/block-editor/@fs/Users/luca/Developer/block-editor/.build/vite-cache/deps/react-dom_client.js?v=2e4fa1df (14392)
+  pw:browser [pid=61186] <gracefully close start> +8s
+  pw:browser [pid=61186] <process did exit: exitCode=0, signal=null> +20ms
+  pw:browser [pid=61186] starting temporary directories cleanup +0ms
+  pw:browser [pid=61186] finished temporary directories cleanup +2ms
+  pw:browser [pid=61186] <gracefully close end> +0ms

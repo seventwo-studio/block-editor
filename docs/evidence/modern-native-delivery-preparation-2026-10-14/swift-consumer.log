@@ -1,0 +1,28 @@
+Fetching /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages
+Fetched /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages (0.04s)
+Computing version for /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages
+Computed /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages at 0.2.1 (0.39s)
+Computed /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages at 0.2.1 (0.00s)
+Creating working copy for /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages
+Working copy of /private/tmp/modern-swift-preparation-smoke-fe5a515/block-editor-internal-packages resolved at 0.2.1
+Building for debugging...
+[Planning deferred tasks]
+[23 / 38] BlockEditorCore
+[33 / 99]
+[42 / 99]
+[45 / 99]
+[52 / 99]
+[56 / 99]
+[61 / 99]
+[63 / 99]
+[64 / 99]
+[67 / 99]
+[68 / 99]
+[69 / 99]
+[84 / 99] BlockEditorCore
+[93 / 100] BlockEditorCore
+[95 / 102] Smoke-product
+[97 / 102] BlockEditorCore
+[100 / 102] Smoke-product
+Build complete! (8.49 sec)
+Native installed API smoke passed: exact Unicode/title/appearance, two columns, opaque metadata, atomic reference, stable identity, edit/save/reopen/Undo/Redo and incompatible format rejection

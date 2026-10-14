@@ -1,0 +1,100 @@
+{
+  "complete": true,
+  "sourceCommit": "be4762b495655cec0ad89096ff2516f7d9285f36",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "084c825092d68cdc5dcf0f0f5da75f94d9370e87666d10a42df344c235f4ef6e",
+  "browser": "firefox",
+  "browserVersion": "155.0",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [
+    25,
+    24,
+    25,
+    24,
+    24,
+    24,
+    23,
+    23,
+    35,
+    24,
+    24,
+    33,
+    24,
+    26,
+    25,
+    25,
+    26,
+    26,
+    37,
+    27
+  ],
+  "menuMS": [
+    15,
+    16,
+    15,
+    16,
+    16,
+    17,
+    16,
+    15,
+    16,
+    16,
+    16,
+    16,
+    17,
+    16,
+    16,
+    16,
+    17,
+    16,
+    16,
+    15
+  ],
+  "productionReact": true,
+  "method": "Trusted native initiating keydown/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity and keydown validation. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "diagnostic": false,
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+    "hardwareConcurrency": 14,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "devicePixelRatio": 1
+  },
+  "summary": {
+    "inputP95MS": 35,
+    "menuP95MS": 17,
+    "targets": {
+      "inputP95MS": 50,
+      "menuP95MS": 100
+    }
+  },
+  "targetsPassed": true,
+  "consoleMessages": [],
+  "pageErrors": [],
+  "lastState": {
+    "accepted": {
+      "consumer": {
+        "keep": 1
+      },
+      "content": [
+        {
+          "text": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+          "type": "text"
+        }
+      ],
+      "id": "note-1",
+      "type": "paragraph"
+    },
+    "nativeBuffer": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+    "focused": "Block text",
+    "measurement": {
+      "elapsedMS": 15,
+      "frameCount": 2
+    },
+    "errors": []
+  }
+}

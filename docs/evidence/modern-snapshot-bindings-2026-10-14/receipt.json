@@ -1,0 +1,99 @@
+{
+  "snapshotBindingCommit": "db04bade60a5246a0f9d56e1865005cba385de59",
+  "provenanceRepairCommit": "4639bd1d0ef6949f7fc04c5bf7ff1694e9ba5c06",
+  "nativeFocused": {
+    "cases": 7,
+    "normalExit": true
+  },
+  "nativeABI": {
+    "responses": 968,
+    "fixtures": 30
+  },
+  "typedConsumer": {
+    "requests": 512,
+    "fixtures": 55,
+    "commands": 26,
+    "requirementGroups": 12
+  },
+  "snapshotUnit": {
+    "cases": 3,
+    "expectations": 20,
+    "normalExit": true
+  },
+  "browser": {
+    "combinedTerminalExit": 1,
+    "combinedPassed": 42,
+    "wrapperFailed": 3,
+    "affectedWrapperRerunPassed": 3,
+    "qualifiedFinalChecks": 45,
+    "qualification": "The original three contracts completed all checks but the wrapper expected11 groups instead of12. Only those wrappers reran after explicit count correction; accepted fixture JSON stayed unchanged."
+  },
+  "relayBrowser": {
+    "cases": 15,
+    "normalExit": true
+  },
+  "jniConsumer": {
+    "cases": 1,
+    "normalInstrumentation": true
+  },
+  "provenanceReproduction": {
+    "generatedBytecodeStatus": "?? scripts/__pycache__/android_fixture_readback.cpython-39.pyc",
+    "repairedStatus": "",
+    "untrackedSourceStillRejected": "?? scripts/unreviewed.py",
+    "passed": true,
+    "qualification": "Isolated Linux-style Python cache behavior with sys.pycache_prefix=None; no source or cache exclusions are weakened."
+  },
+  "qualifications": [
+    "Batch binding reads are additive; legacy fallback uses individual shared reads only when the new read is unsupported. Other errors propagate.",
+    "Exact equal document JSON shares storage, but a changed receipt still invalidates renderer origins, including identical-value peer replacements. Signed zero, raw Unicode and opaque keys remain distinct.",
+    "Original private-helper access and test argument-label compiler failures remain retained beside repaired results.",
+    "API26 passed JNI/input/runtime assertions but failed clean source provenance after a generated module import. Hosted repair requires fresh exact-head CI.",
+    "No protected-main merge, registry publication or physical/final-review acceptance occurred.",
+    "All three Android jobs in earlier b7e4ac1 CI passed instrumentation and failed at clean source provenance; general, Swift and WASM passed; parity failed. The bytecode repair still needs fresh current-head CI."
+  ],
+  "performance": {
+    "terminalSummary": "1 completed harness, 2 deadline failures; all performance targets remain failed",
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "complete": true,
+        "sourceCommit": "4639bd1d0ef6949f7fc04c5bf7ff1694e9ba5c06",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "inputSamples": 20,
+        "inputObservedP95MS": 3122.5,
+        "menuSamples": 20,
+        "menuObservedP95MS": 1616.3999998569489
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "complete": false,
+        "sourceCommit": "4639bd1d0ef6949f7fc04c5bf7ff1694e9ba5c06",
+        "sourceClean": false,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "inputSamples": 20,
+        "inputObservedP95MS": 5279,
+        "menuSamples": 6,
+        "menuObservedP95MS": 2280
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "complete": false,
+        "sourceCommit": "4639bd1d0ef6949f7fc04c5bf7ff1694e9ba5c06",
+        "sourceClean": false,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+        "inputSamples": 20,
+        "inputObservedP95MS": 5047,
+        "menuSamples": 15,
+        "menuObservedP95MS": 1917
+      }
+    ],
+    "qualification": "Static production JS and WASM remained frozen. Chromium started clean; later engines report an untracked evidence directory created while the serial run was active. No source edits or bundle rebuild occurred during the run. This source-clean discrepancy is retained, not normalized."
+  }
+}

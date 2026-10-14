@@ -1,0 +1,123 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 4] BlockEditorCore
+[3 / 6] BlockEditorCore
+[17 / 20] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:401:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+399 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+400 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+401 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+402 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+403 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:423:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+421 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+422 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+423 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+424 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+425 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[20 / 21] BlockEditorCore
+[31 / 74] collaborative-editor-product
+[45 / 73] BlockEditorLocalDemoTests-product
+[46 / 73] BlockEditorCoreTests-product
+[59 / 90] editor-bridge-product
+[66 / 102] relay-client-product
+[69 / 102] BlockEditorLocalDemoTests-product
+[71 / 104] relay-client-product
+[74 / 107] BlockEditorCoreTests-product
+[76 / 106] BlockEditorCoreTests-product
+[78 / 106] BlockEditorApple
+[80 / 106] BlockEditorApple
+[83 / 106] BlockEditorApple
+[84 / 106]
+[86 / 106] BlockEditorLocalDemoTests-product
+[87 / 106] BlockEditorApple
+[91 / 111] BlockEditorCoreTests-product
+[96 / 115] modern-relay-client-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[97 / 115] BlockEditorDemoApple
+[100 / 118] BlockEditorDemoApple
+[101 / 118] local-editor-app-product
+[103 / 120] BlockEditorApple
+[109 / 118] BlockEditorAppleTests-product
+[118 / 127] local-editor-app-product
+[120 / 129] BlockEditorAppleTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:101:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+ 99 |         view.unmarkText()
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+102 |         view.doCommand(by: Selector(("moveUp:")))
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:102:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+102 |         view.doCommand(by: Selector(("moveUp:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+104 |         #expect(calls == ["new submit", "new boundary"])
+[122 / 129] BlockEditorAppleTests-product
+[126 / 132] BlockEditorCoreTests-product
+[132 / 134] BlockEditorCoreTests-product
+[134 / 136] BlockEditorCoreTests-product
+[141 / 141] editor-bridge-product
+[147 / 147] local-editor-app-product
+Build complete! (19.59 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernColumnTests started.
+◇ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() started.
+◇ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() started.
+◇ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() started.
+◇ Test lateResizeKeepsCausalLayoutAddressThroughConcurrentRemovalAndUndo() started.
+◇ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() started.
+◇ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() started.
+◇ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() started.
+◇ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() started.
+◇ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() started.
+◇ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() started.
+◇ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() started.
+◇ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() started.
+◇ Test repeatedMetadataOnlyResizesPreserveWholeDocumentPeerAppearanceAndAuthorHistory() started.
+◇ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() started.
+◇ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() started.
+✔ Test modernColumnRoutesRejectAtEveryLegacyProtocolWithoutReceiptOrSaveChanges() passed after 0.026 seconds.
+✔ Test emptyCreationHasNoPlaceholderAndAllowsOutsideLayoutNestedBoundaries() passed after 0.026 seconds.
+✔ Test emptyRemovalReturnsUsableInsertionBoundaryAtFormerLayoutPosition() passed after 0.037 seconds.
+✔ Test invalidNestedAndNoncontiguousCreationAndSplitDoNotChangeSavedHistory() passed after 0.045 seconds.
+✔ Test malformedInactiveColumnOperationAndCausallyRemovedTargetsReject() passed after 0.047 seconds.
+✔ Test removalUndoKeepsInsertionsAnchoredAfterPreviouslyFlattenedChildOutsideLayout() passed after 0.054 seconds.
+✔ Test lateResizeKeepsCausalLayoutAddressThroughConcurrentRemovalAndUndo() passed after 0.055 seconds.
+✔ Test creationMatchesIndependentFixtureAndKeepsCaretOriginsOneUndoAndReopen() passed after 0.061 seconds.
+✔ Test synchronizedResizeLWWAuthorUndoReopenAndNoopMatchIndependentSnapshots() passed after 0.069 seconds.
+✔ Test resizePacketBeforeLayoutBirthRetainsRecoveryThenConvergesWithoutPromotingReceipt() passed after 0.070 seconds.
+✔ Test conflictingFlattenedLabelsRetainUnionUntilAuthorRepairInsteadOfLosingPeerChild() passed after 0.075 seconds.
+✔ Test creationUndoFlattensPeerChildrenAfterRestoredSelectionAndRetainsHistoricalAnchors() passed after 0.089 seconds.
+✔ Test removalDoesNotOverrideIndependentPeerMoveAndConcurrentRemovalsNeverDuplicate() passed after 0.092 seconds.
+✔ Test removalMatchesFlattenedFixtureRestoresSplitAndCaretAndRoutesLatePeerPackets() passed after 0.169 seconds.
+✔ Test repeatedMetadataOnlyResizesPreserveWholeDocumentPeerAppearanceAndAuthorHistory() passed after 0.400 seconds.
+✔ Suite ModernColumnTests passed after 0.400 seconds.
+✔ Test run with 15 tests in 1 suite passed after 0.401 seconds.

@@ -1,0 +1,136 @@
+{
+  "engineSource": "0468ef61fe3987b8f71a2f46f5ed806193d2db94",
+  "nativeLabelSource": "49ee623407d8d550414e0df00777434fba81073c",
+  "native": {
+    "engineCandidateFull": {
+      "core": 600,
+      "Apple": 99,
+      "other": 8,
+      "total": 707,
+      "normalExit": true
+    },
+    "focusedFinal": 29,
+    "postLabelAppleFull": 101,
+    "labelFocused": 2,
+    "qualification": "707 is the full pre-label run. The native-only label change then passed 101 Apple cases; these are distinct source-pinned runs, not a single 709-case run."
+  },
+  "ABI": {
+    "responses": 968,
+    "fixtures": 30
+  },
+  "typedConsumer": {
+    "requests": 515,
+    "fixtures": 55,
+    "commands": 26,
+    "groups": 12
+  },
+  "browser": {
+    "cases": 63,
+    "normalExit": true
+  },
+  "JNI": {
+    "typedConsumerCases": 1,
+    "normalInstrumentation": true,
+    "recoveryProcesses": 5,
+    "receipt": "android-process/receipt.json"
+  },
+  "AppleCrossCompilation": {
+    "iOSSimulator": "arm64-apple-ios26.0-simulator",
+    "visionSimulator": "arm64-apple-xros26.0-simulator",
+    "normalExit": true,
+    "qualification": "Compilation only; no iOS/visionOS interaction, physical or assistive acceptance."
+  },
+  "performance": {
+    "terminalExit": 1,
+    "inputPassed": false,
+    "menuPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "0468ef61fe3987b8f71a2f46f5ed806193d2db94",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+        "summary": {
+          "inputP95MS": 378.7999999523163,
+          "menuP95MS": 61,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "0468ef61fe3987b8f71a2f46f5ed806193d2db94",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+        "summary": {
+          "inputP95MS": 818,
+          "menuP95MS": 85,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "0468ef61fe3987b8f71a2f46f5ed806193d2db94",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "1665da45e5ccfd1ab5ef0492ff6e7bc764cb8cc88e2ac9c2e4a8fefe2d2848e0",
+        "summary": {
+          "inputP95MS": 407,
+          "menuP95MS": 68,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      }
+    ],
+    "affectedWebKitRepeat": {
+      "browser": "webkit",
+      "sourceCommit": "0468ef61fe3987b8f71a2f46f5ed806193d2db94",
+      "sourceClean": true,
+      "summary": {
+        "inputP95MS": 392,
+        "menuP95MS": 64,
+        "targets": {
+          "inputP95MS": 50,
+          "menuP95MS": 100
+        }
+      },
+      "complete": true,
+      "targetsPassed": false
+    },
+    "qualification": "Original WebKit has two input spikes at 818/851 ms. Separate same-source repeat p95 392 ms remains failed and does not replace the original 818 ms p95."
+  },
+  "hostedAPI26Repair": {
+    "run": 38546578169,
+    "PRHead": "20ad97039b00976ff7b1bde74aecc10839c97532",
+    "checkoutSource": "a83930efe91a56a5ffc7a0e3ab61cb5504b8cd1c",
+    "passed": true,
+    "processes": 5,
+    "qualification": "All five terminal readbacks passed on API26. No ps fallback was exercised in this successful run. Earlier failed original evidence remains in modern-capacity-admission-2026-10-14. These hosted passes qualify the earlier head, not this new candidate."
+  },
+  "qualifications": [
+    "Immutable baseline count is exact, bounded to one integer per session and absent from saved history; public serialization and capacity reserve remain unchanged.",
+    "Role sorting pre-filters only initial placements; all authored, role and route placements retain original full ordering and dynamic checks.",
+    "Native accessible-name updates preserve view identity, first responder, marked Unicode buffer and original session; full VoiceOver/device/assistive campaigns remain open.",
+    "Original initial build receipts were refreshed before archival and are not recreated as historical receipts. Final genuine builders pin clean 49ee623; recorded measured WASM and APK-packaged JNI hashes match rebuilt bytes.",
+    "Direct sampled timings and resident bytes remain diagnostics; no resource or surface target acceptance.",
+    "Fresh current hosted CI/review, broader campaigns, deferred physical checks and explicit final acceptance remain required. No protected-main/private-release/Foliostrate changes occurred."
+  ]
+}

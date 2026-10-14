@@ -15,6 +15,11 @@ export type ModernPlacementID = { readonly initial: { readonly _0: ModernNodeID 
   | { readonly role: { readonly owner: ModernNodeID; readonly node: ModernNodeID } }
   | { readonly columnRoute: { readonly layout: ModernNodeID; readonly slot: ModernElementID; readonly node: ModernNodeID } };
 export interface ModernField { readonly node: ModernNodeID; readonly name: string }
+export interface ModernNodeBinding {
+  readonly address: { readonly blockID: string; readonly path: readonly string[] };
+  readonly node: ModernNodeID; readonly kind: "block" | "column" | "item" | "row" | "cell";
+  readonly fields: Readonly<Record<string, ModernField>>;
+}
 export interface ModernPosition {
   readonly documentID: string; readonly epoch: string; readonly field: ModernField;
   readonly affinity: "before" | "after";
@@ -114,6 +119,10 @@ export interface ModernCapabilities {
   readonly protocolVersion: 7; readonly format: ModernDocument["format"]; readonly formatVersion: 1;
   readonly commands: readonly ModernCommandName[]; readonly cutoverToModern: true; readonly clipboardVersion: 2;
   readonly localHistorySelectionVersion: 1; readonly canCopy: boolean; readonly canCut: boolean;
+  readonly localSelectionAckVersion?: 1;
+  readonly documentSnapshotVersion?: 1;
+  readonly wireInspectionVersion?: 1;
+  readonly renderingBindingVersion?: 1;
   readonly allowedBlockTypes: readonly string[] | null; readonly allowedMarkTypes: readonly string[] | null;
   readonly codeLanguages: readonly string[]; readonly tableActions: readonly ModernTableAction[]; readonly listActions: readonly ModernListAction[]; readonly asyncKinds: readonly ("image" | "file" | "embed")[];
   readonly canUndo?: boolean; readonly canRedo?: boolean; readonly isComposing?: boolean; readonly recoveryRequired?: boolean;
@@ -122,18 +131,75 @@ export interface ModernCutPreparation extends ModernScope { readonly preparation
 export interface ModernPolicy { readonly allowedCommands?: readonly ModernCommandName[]; readonly allowedListActions?: readonly ModernListAction[]; readonly allowedBlockTypes?: readonly string[]; readonly allowedMarkTypes?: readonly string[] }
 /** A synchronous, serialized bridge with newly owned decoded values on each call.
  * SwiftEditorRuntime implements this contract for WASM. No network/provider work is implicit. */
-export interface ModernTransport { call<T>(request: Record<string, unknown>): T }
+export interface ModernTransport { call<T>(request: Record<string, unknown>): T; inspectJSON?<T>(bytes: Uint8Array): T }
 
 // Iterative ownership protects opaque metadata too, without serializing whole archives again.
+const ownedValues = new WeakSet<object>();
 function owned<T>(value: T): T {
   const pending: object[] = value !== null && typeof value === "object" ? [value] : [];
   const seen = new Set<object>();
   while (pending.length) {
-    const item = pending.pop()!; if (seen.has(item)) continue; seen.add(item);
+    const item = pending.pop()!; if (ownedValues.has(item) || seen.has(item)) continue; seen.add(item);
     for (const child of Object.values(item)) if (child !== null && typeof child === "object") pending.push(child);
     Object.freeze(item);
   }
+  // Trust only graphs whose complete ownership walk finished successfully.
+  for (const item of seen) ownedValues.add(item);
   return value;
+}
+
+function snapshotChanges(document: ModernDocument, changes: unknown): ModernDocument {
+  if (!Array.isArray(changes) || changes.length > 128) throw new Error("Invalid shared snapshot changes");
+  let result: unknown = document;
+  const paths: (string | number)[][] = [];
+  for (const change of changes) {
+    if (!change || typeof change !== "object" || !Array.isArray(change.path) || change.path.length > 100 ||
+        !Object.hasOwn(change, "value") || Object.keys(change).length !== 2) throw new Error("Invalid shared snapshot replacement");
+    const path: (string | number)[] = change.path;
+    if (!path.every(part => typeof part === "string" || typeof part === "number" && Number.isInteger(part) && part >= 0 && !Object.is(part, -0))) {
+      throw new Error("Invalid shared snapshot path");
+    }
+    if (paths.some(prior => prior.slice(0, Math.min(prior.length, path.length)).every((part, index) => Object.is(part, path[index])))) {
+      throw new Error("Overlapping shared snapshot replacements");
+    }
+    paths.push(path);
+    function replace(value: unknown, index: number): unknown {
+      if (index === path.length) return change.value;
+      const part = path[index];
+      if (Array.isArray(value)) {
+        if (typeof part !== "number" || part >= value.length) throw new Error("Shared snapshot array path is unavailable");
+        const next = value.slice(); next[part] = replace(value[part], index + 1); return next;
+      }
+      if (!value || typeof value !== "object" || typeof part !== "string" || !Object.hasOwn(value, part)) throw new Error("Shared snapshot object path is unavailable");
+      return { ...value, [part]: replace((value as Record<string, unknown>)[part], index + 1) };
+    }
+    result = replace(result, 0);
+  }
+  if (!result || typeof result !== "object" || Array.isArray(result)) throw new Error("Shared snapshot document is unavailable");
+  const next = result as ModernDocument;
+  if (next.format !== document.format || next.formatVersion !== 1 || next.documentID !== document.documentID ||
+      typeof next.title !== "string" || !Array.isArray(next.blocks)) throw new Error("Shared snapshot document has incompatible scope or format");
+  return next;
+}
+
+// Reconcile decoded JSON without normalizing strings, signed zero or opaque
+// fields. Only exact values share storage; scope/history still publish normally.
+function sharedJSON<T>(prior: T, next: T): T {
+  if (Object.is(prior, next)) return prior;
+  if (!prior || !next || typeof prior !== "object" || typeof next !== "object") return next;
+  if (Array.isArray(prior) !== Array.isArray(next)) return next;
+  const before = Object.keys(prior), after = Object.keys(next);
+  if (before.length !== after.length || before.some((name, index) => name !== after[index])) return next;
+  let unchanged = true, reused = false;
+  const values = after.map(name => {
+    const oldValue = (prior as Record<string, unknown>)[name], newValue = (next as Record<string, unknown>)[name];
+    const value = sharedJSON(oldValue, newValue);
+    unchanged &&= Object.is(value, oldValue); reused ||= !Object.is(value, newValue);
+    return [name, value] as const;
+  });
+  if (unchanged) return prior;
+  if (!reused) return next;
+  return (Array.isArray(next) ? values.map(([, value]) => value) : Object.fromEntries(values)) as T;
 }
 
 /** Explicit modern session. Command outcomes carry local focus intent; the host decides
@@ -141,6 +207,12 @@ function owned<T>(value: T): T {
 export class SwiftModernSession {
   private closed = false;
   private listeners = new Set<() => void>();
+  private bindingReadSupported: boolean | undefined;
+  private renderingBindingSupported: boolean | undefined;
+  private localSelectionAckSupported: boolean | undefined;
+  private documentSnapshotSupported: boolean | undefined;
+  private documentView: { readonly token: string; readonly document: ModernDocument } | undefined;
+  private renderingBindingCache: { token: string; bindings: readonly ModernNodeBinding[] } | undefined;
   private constructor(private readonly transport: ModernTransport, private readonly handle: string, private snapshot: ModernSnapshot) { this.snapshot = owned(snapshot); }
   static create(transport: ModernTransport, options: ModernScope & ModernPolicy & { readonly actorID: string; readonly document: ModernDocument }): SwiftModernSession {
     const handle = crypto.randomUUID();
@@ -156,13 +228,24 @@ export class SwiftModernSession {
     return { session: new SwiftModernSession(transport, handle, value), originMapping: owned(value.originMapping) };
   }
   getSnapshot = (): ModernSnapshot => this.snapshot;
+  inspectJSON<T>(bytes: Uint8Array): T {
+    this.assertOpen();
+    if (!this.transport.inspectJSON) throw new Error("Transport lacks shared raw JSON inspection");
+    return this.transport.inspectJSON<T>(bytes);
+  }
   subscribe = (listener: () => void): (() => void) => { this.assertOpen(); this.listeners.add(listener); return () => this.listeners.delete(listener); };
   /** Listener failures occur after accepted publication and never turn an applied edit
    * into an apparent command failure. Hosts may set this handler to report UI errors. */
   onListenerError: (error: unknown) => void = error => { queueMicrotask(() => { throw error; }); };
   private assertOpen(): void { if (this.closed) throw new Error("Modern session is closed"); }
-  private publish(value: ModernSnapshot): void {
-    this.snapshot = owned(value);
+  private publish<T extends ModernSnapshot>(value: T): T {
+    const published = owned({ ...value, document: sharedJSON(this.snapshot.document, value.document),
+      syncState: sharedJSON(this.snapshot.syncState, value.syncState) });
+    this.snapshot = published;
+    this.notifyListeners();
+    return published;
+  }
+  private notifyListeners(): void {
     for (const listener of [...this.listeners]) {
       try { listener(); } catch (error) { try { this.onListenerError(error); } catch (reportError) { queueMicrotask(() => { throw reportError; }); } }
     }
@@ -171,11 +254,42 @@ export class SwiftModernSession {
     this.assertOpen();
     try { return owned(this.transport.call<T>({ command, session: this.handle, ...args })); }
     catch (error) {
-      if (error instanceof SwiftModernRecoveryError) this.publish(this.transport.call<ModernSnapshot>({ command: "modernSnapshot", session: this.handle }));
+      if (error instanceof SwiftModernRecoveryError) {
+        this.documentView = undefined;
+        this.publish(this.transport.call<ModernSnapshot>({ command: "modernSnapshot", session: this.handle }));
+      }
       throw error;
     }
   }
-  private update(command: string, args: Record<string, unknown> = {}): void { this.publish(this.call<ModernSnapshot>(command, args)); }
+  private callSnapshot<T extends ModernSnapshot>(command: string, args: Record<string, unknown> = {}): T {
+    this.documentSnapshotSupported ??= this.capabilities().documentSnapshotVersion === 1;
+    if (!this.documentSnapshotSupported) return this.call<T>(command, args);
+    const previous = this.documentView;
+    const response = this.call<Record<string, unknown>>(command, { ...args, documentSnapshotVersion: 1,
+      ...(previous ? { knownDocumentToken: previous.token } : {}) });
+    const view = response.documentSnapshot as { version?: number; token?: string; baseToken?: string; changes?: unknown } | undefined;
+    const scope = response.syncState as ModernReceipt | undefined;
+    if (!view || view.version !== 1 || typeof view.token !== "string" || !view.token || new TextEncoder().encode(view.token).length > 128 ||
+        response.version !== 7 || scope?.version !== 7 || scope.documentID !== this.snapshot.syncState.documentID || scope.epoch !== this.snapshot.syncState.epoch) {
+      throw new Error("Shared document snapshot has incompatible scope or version");
+    }
+    let document: ModernDocument;
+    if (Object.hasOwn(response, "document")) {
+      if (Object.hasOwn(view, "changes") || Object.hasOwn(view, "baseToken")) throw new Error("Ambiguous shared document snapshot");
+      document = response.document as ModernDocument;
+      if (!document || document.documentID !== scope.documentID || document.format !== this.snapshot.document.format || document.formatVersion !== 1) {
+        throw new Error("Shared full document snapshot has incompatible scope or format");
+      }
+    } else {
+      if (!previous || view.baseToken !== previous.token) throw new Error("Shared document snapshot has an unknown base token");
+      document = snapshotChanges(previous.document, view.changes);
+    }
+    const { documentSnapshot: _view, ...snapshot } = response;
+    document = owned(sharedJSON(this.snapshot.document, document));
+    this.documentView = { token: view.token, document };
+    return owned({ ...snapshot, document }) as unknown as T;
+  }
+  private update(command: string, args: Record<string, unknown> = {}): void { this.publish(this.callSnapshot<ModernSnapshot>(command, args)); }
   insertionValue(descriptorID: string, id: string, childIDs: readonly string[] = []): ModernObject { return this.call("modernInsertionValue", { descriptorID, id, childIDs }); }
   insertionCatalog(query = ""): readonly ModernInsertionDescriptor[] { return this.call("modernInsertionCatalog", { query }); }
   availability(name: ModernCommandName): ModernAvailability { return this.call("modernAvailability", { name }); }
@@ -186,8 +300,36 @@ export class SwiftModernSession {
   capabilities(): ModernCapabilities { return this.call("modernCapabilities"); }
   execute(command: ModernAuthorCommand): ModernResult {
     const scope = this.snapshot.syncState;
-    const result = this.call<ModernResult>("modernCommand", { request: { documentID: scope.documentID, epoch: scope.epoch, ...command } });
-    this.publish(result); return result;
+    const result = this.callSnapshot<ModernResult>("modernCommand", { request: { documentID: scope.documentID, epoch: scope.epoch, ...command } });
+    return this.publish(result);
+  }
+  /** Actual Swift origins in one read. Older protocol-7 engines retain the
+   * individual lookup path; genuine recovery/lifecycle errors still propagate. */
+  nodeBindings(): readonly ModernNodeBinding[] | undefined {
+    this.assertOpen();
+    this.renderingBindingSupported ??= this.capabilities().renderingBindingVersion === 1;
+    if (this.renderingBindingSupported) {
+      const cached = this.renderingBindingCache;
+      const view = this.renderingBindings(cached?.token);
+      if (view.bindings === null) {
+        if (!cached || cached.token !== view.token) throw new Error("Shared binding token omitted unknown bindings");
+        return cached.bindings;
+      }
+      this.renderingBindingCache = { token: view.token, bindings: view.bindings }; return view.bindings;
+    }
+    if (this.bindingReadSupported === false) return undefined;
+    try {
+      const bindings = this.call<readonly ModernNodeBinding[]>("modernNodeBindings");
+      this.bindingReadSupported = true; return bindings;
+    } catch (error) {
+      if (this.bindingReadSupported === undefined && error instanceof Error && error.message === "invalidChange") {
+        this.bindingReadSupported = false; return undefined;
+      }
+      throw error;
+    }
+  }
+  renderingBindings(knownToken?: string): { readonly token: string; readonly bindings: readonly ModernNodeBinding[] | null } {
+    return this.call("modernRenderingBindings", knownToken === undefined ? {} : { knownToken });
   }
   save(): ModernObject { return this.call("modernSave"); }
   changes(since?: ModernReceipt): ModernBatch { return this.call("modernChanges", since === undefined ? {} : { since }); }
@@ -222,7 +364,7 @@ export class SwiftModernSession {
    * occurs at preparation. The core binds preparationID to this live session. */
   finishCut(preparation: ModernCutPreparation, published: boolean): ModernResult {
     const { preparationID, documentID, epoch } = preparation;
-    const result = this.call<ModernResult>("modernFinishCut", { preparationID, documentID, epoch, published });
+    const result = this.callSnapshot<ModernResult>("modernFinishCut", { preparationID, documentID, epoch, published });
     this.publish(result); return result;
   }
   cancelCut(preparationID: string): void { this.update("modernCancelCut", { preparationID }); }
@@ -248,11 +390,24 @@ export class SwiftModernSession {
   deferredChanges(): readonly ModernBatch[] { return this.call("modernDeferredChanges"); }
   restoreDeferredChanges(packets: readonly ModernBatch[]): void { this.update("modernRestoreDeferredChanges", { packets }); }
   retryDeferredChanges(): void { this.update("modernRetryDeferredChanges"); }
-  setLocalSelection(selection: ModernLocalSelection | null): void { this.update("modernSetLocalSelection", { selection }); }
+  setLocalSelection(selection: ModernLocalSelection | null): void {
+    this.assertOpen();
+    this.localSelectionAckSupported ??= this.capabilities().localSelectionAckVersion === 1;
+    if (!this.localSelectionAckSupported) { this.update("modernSetLocalSelection", { selection }); return; }
+    const acknowledgement = this.call<{ readonly version: number; readonly documentID: string; readonly epoch: string }>(
+      "modernSetLocalSelection", { selection, includeSnapshot: false });
+    const scope = this.snapshot.syncState;
+    if (acknowledgement?.version !== 1 || acknowledgement.documentID !== scope.documentID || acknowledgement.epoch !== scope.epoch) {
+      throw new Error("Shared local selection acknowledgement has incompatible scope or version");
+    }
+    // Persistence subscribers still observe the updated local history sidecar.
+    // The accepted document snapshot remains exactly the same immutable value.
+    this.notifyListeners();
+  }
   localSelection(): ModernLocalSelection | null { return this.call("modernLocalSelection"); }
   exportHistorySelection(): ModernHistorySelectionArchive { return this.call("modernExportHistorySelection"); }
   restoreHistorySelection(archive: ModernHistorySelectionArchive): void { this.update("modernRestoreHistorySelection", { archive }); }
-  close(): void { if (this.closed) return; this.call("destroy"); this.closed = true; this.listeners.clear(); }
+  close(): void { if (this.closed) return; this.call("destroy"); this.closed = true; this.renderingBindingCache = undefined; this.documentView = undefined; this.listeners.clear(); }
 }
 
 export interface ModernCutoverArchive extends ModernScope {

@@ -1,0 +1,4 @@
+Building for production...
+Build complete! (0.21 sec)
+$ tsc -p tsconfig.build.json && bun scripts/record-modern-build.mjs javascript
+{"name":"@seventwo-studio/block-editor","version":"0.2.0","packedBytes":22886353,"unpackedBytes":67111424,"integrity":"sha512-fASpQyBZoo1kNNRS83XQdsak9+PkJtNL0R/hKLtL3wws0wkbUIGeXCfkR39UZEutb7d1Y+CnG+birUMDrZBENg=="}
