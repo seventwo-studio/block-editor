@@ -72,11 +72,23 @@ struct StructuralState {
         var identities: [NodeAddress: NodeID]?
         var orders: [NodeCollection: [NodeID]] = [:]
         var placementCollections: [NodeCollection: [NodePlacementID: Placement]]?
+        var modernDocumentBase: ModernDocumentProjectionBase?
+        var writingBirths: [WritingField: WritingFieldBirth]?
     }
     private var readCache = ReadCache()
     // A strong lease, not an address/hash. Retaining it prevents allocator reuse
     // from reviving a view after another structural value replaced this cache.
     var renderingReadLease: AnyObject { readCache }
+    func retainedWritingBirths() -> [WritingField: WritingFieldBirth] {
+        readCache.lock.lock()
+        let prior = readCache.writingBirths
+        readCache.lock.unlock()
+        if let prior { return prior }
+        let value = uncachedRetainedWritingFields(self)
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        readCache.writingBirths = value
+        return value
+    }
     struct Node {
         let identity: NodeID
         var kind: NodeKind
@@ -105,7 +117,11 @@ struct StructuralState {
     var nodes: [NodeID: Node] = [:] { didSet { readCache = ReadCache() } }
     var placements: [NodePlacementID: Placement] = [:] { didSet { readCache = ReadCache() } }
     var deleted = Set<NodeID>() { didSet { readCache = ReadCache() } }
-    var touched = Set<NodeID>() { didSet { readCache = ReadCache() } }
+    private var touchedStorage = Set<NodeID>()
+    var touched: Set<NodeID> {
+        get { touchedStorage }
+        set { touchedStorage = newValue; readCache = ReadCache() }
+    }
     private(set) var modern = false { didSet { readCache = ReadCache() } }
 
     /// Scalar projection retains activity for future replay. A currently active
@@ -113,10 +129,9 @@ struct StructuralState {
     /// cannot change placement arbitration, visibility, order or addresses.
     /// Inactive births still invalidate the view so peer retention becomes live.
     mutating func retainWritingActivity(of identity: NodeID) {
-        guard !touched.contains(identity) else { return }
-        let prior = readCache
-        touched.insert(identity)
-        if nodes[identity]?.birthActive == true { readCache = prior }
+        guard !touchedStorage.contains(identity) else { return }
+        if nodes[identity]?.birthActive == true { touchedStorage.insert(identity) }
+        else { touched.insert(identity) }
     }
 
     static func seed(_ document: Document) -> Self {
@@ -143,6 +158,7 @@ struct StructuralState {
             result.placements[id] = Placement(id: id, after: after, node: identity, collection: .root, active: true)
             after = id
         }
+        result.readCache.modernDocumentBase = ModernDocumentProjectionBase(document)
         return result
     }
 
@@ -465,6 +481,20 @@ struct StructuralState {
     func document(documentID: String, text: [NodeID: [String: JSONValue]], appearance: [String: JSONValue]? = nil) throws -> ModernDocument {
         guard modern, let metadata = nodes[.document(documentID: documentID)], metadata.kind == .document,
               !deleted.contains(metadata.identity) else { throw EditorError.invalidPath }
+        readCache.lock.lock()
+        let base = readCache.modernDocumentBase
+        readCache.lock.unlock()
+        if let base, base.document.documentID == documentID {
+            let addresses = try cutoverAddresses()
+            var replacements: [NodeAddress: [String: JSONValue]] = [:]
+            for (node, values) in text where node != metadata.identity {
+                // Hidden origins remain in author history but cannot change the
+                // admitted visible baseline. A structural mutation detaches it.
+                if let address = addresses[node] { replacements[address] = values }
+            }
+            return try base.document.projecting(text: replacements, title: text[metadata.identity]?["title"],
+                                               appearance: appearance, baselineBytes: base.byteCount(), rootIndices: base.rootIndices)
+        }
         var fields = metadata.fields
         for (key, value) in text[metadata.identity] ?? [:] { fields[key] = value }
         if let appearance { fields["appearance"] = .object(appearance) }

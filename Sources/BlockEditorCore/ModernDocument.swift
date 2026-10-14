@@ -82,6 +82,65 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
     public func encode(to encoder: any Encoder) throws { try JSONValue.object(fields).encode(to: encoder) }
     public func json() throws -> Data { try canonicalEncoder().encode(fields) }
 
+    /// Reuse only an admitted structural baseline. Every changed root is checked
+    /// with the original schema/depth rules; exact encoded size deltas retain the
+    /// original whole-document capacity boundary and opaque metadata.
+    func projecting(text: [NodeAddress: [String: JSONValue]], title: JSONValue?,
+                    appearance value: [String: JSONValue]?, baselineBytes: Int, rootIndices: [String: Int]) throws -> ModernDocument {
+        var roots = blocks, output = fields, size = baselineBytes
+        let encoder = canonicalEncoder()
+        var changed: [Int: JSONValue] = [:]
+        func replacing(_ source: JSONValue, path: ArraySlice<String>, values: [String: JSONValue]) throws -> JSONValue {
+            guard var object = source.object else { throw EditorError.invalidPath }
+            if path.isEmpty {
+                for (name, value) in values {
+                    guard ["content", "summary", "caption", "code", "expression"].contains(name), object[name] != nil else { throw EditorError.invalidPath }
+                    object[name] = value
+                }
+            } else {
+                guard path.count >= 2, let name = path.first, var children = object[name]?.array,
+                      let index = children.firstIndex(where: { $0["id"]?.string == path.dropFirst().first }) else { throw EditorError.invalidPath }
+                children[index] = try replacing(children[index], path: path.dropFirst(2), values: values)
+                object[name] = .array(children)
+            }
+            return .object(object)
+        }
+        for (address, values) in text {
+            guard let index = rootIndices[address.blockID] else { throw EditorError.invalidPath }
+            changed[index] = try replacing(changed[index] ?? .object(blocks[index].fields), path: address.path[...], values: values)
+        }
+        for (index, value) in changed {
+            try Self.inspect(value, maximumDepth: 100)
+            let block = try Block(fields: value.object!)
+            guard block.id.utf8.elementsEqual(blocks[index].id.utf8) else { throw EditorError.invalidPath }
+            try Validation.block(block, modern: true)
+            size += try encoder.encode(value).count - encoder.encode(JSONValue.object(blocks[index].fields)).count
+            roots[index] = block
+        }
+        if let title {
+            guard let string = title.string, !string.unicodeScalars.contains(where: { [10, 13, 0x2028, 0x2029].contains($0.value) }) else {
+                throw EditorError.invalidDocument("Invalid modern document identity, title or blocks")
+            }
+            size += try encoder.encode(title).count - encoder.encode(output["title"]!).count
+            output["title"] = title
+        }
+        if let value {
+            let appearance = JSONValue.object(value)
+            try Self.inspect(appearance, maximumDepth: 100)
+            size += try encoder.encode(appearance).count - encoder.encode(output["appearance"]!).count
+            output["appearance"] = appearance
+        }
+        guard size <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
+        let appearance = try ModernAppearance(output["appearance"])
+        output["blocks"] = .array(roots.map { .object($0.fields) })
+        return ModernDocument(admittedFields: output, documentID: documentID, title: output["title"]!.string!, appearance: appearance, blocks: roots)
+    }
+
+    private init(admittedFields: [String: JSONValue], documentID: String, title: String, appearance: ModernAppearance, blocks: [Block]) {
+        self.fields = admittedFields; self.documentID = documentID; self.title = title
+        self.appearance = appearance; self.blocks = blocks
+    }
+
     private static func inspect(_ value: JSONValue, maximumDepth: Int) throws {
         var pending = [(value, 0)]
         while let (value, depth) = pending.popLast() {
@@ -90,6 +149,25 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
             if let object = value.object { pending.append(contentsOf: object.values.map { ($0, depth + 1) }) }
             else if let array = value.array { pending.append(contentsOf: array.map { ($0, depth + 1) }) }
         }
+    }
+}
+
+/// A structural read lease owns one immutable admitted baseline, never a chain
+/// of preceding text snapshots. Size preparation is synchronized for value-copy
+/// readers and does not change persisted documents or protocol identities.
+final class ModernDocumentProjectionBase {
+    let document: ModernDocument
+    let rootIndices: [String: Int]
+    private let lock = NSLock()
+    private var bytes: Int?
+    init(_ document: ModernDocument) {
+        self.document = document
+        rootIndices = Dictionary(uniqueKeysWithValues: document.blocks.enumerated().map { ($0.element.id, $0.offset) })
+    }
+    func byteCount() throws -> Int {
+        lock.lock(); defer { lock.unlock() }
+        if let bytes { return bytes }
+        let count = try document.json().count; bytes = count; return count
     }
 }
 

@@ -2544,6 +2544,9 @@ struct WritingFieldBirth {
     let active: Bool
 }
 func retainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
+    structure.retainedWritingBirths()
+}
+func uncachedRetainedWritingFields(_ structure: StructuralState) -> [WritingField: WritingFieldBirth] {
     var result: [WritingField: WritingFieldBirth] = [:]
     for (identity, node) in structure.nodes {
         for name in writingFields(node) {
