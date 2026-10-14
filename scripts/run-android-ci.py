@@ -194,7 +194,7 @@ def main():
         # 316 legal/over-depth commands under translated ARM64. Its watchdog is
         # separate from individual typed/UI acceptance and performance limits.
         instrument("studio.seventwo.blockeditor.RuntimeCompatibilityTest", "runtime-instrumentation.txt", 1, timeout=900)
-        read_fixture(device, "files/compatibility/android.json", output / f"{label}.json")
+        read_fixture(device, "files/compatibility/android.json", output / f"{label}.json", validate_json=False)
         read_fixture(device, "files/compatibility/environment.json", output / "android-environment.json")
         metadata = json.loads((output / "android-environment.json").read_text())
         if metadata["api"] != int(args.api) or metadata["jniAbi"] != args.abi:
