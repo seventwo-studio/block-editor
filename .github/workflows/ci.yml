@@ -208,6 +208,7 @@ jobs:
           "$SWIFT_BIN" --version > test-results/compatibility/swift-version.txt
           java -version 2> test-results/compatibility/java-version.txt
           sh scripts/build-android.sh 2>&1 | tee test-results/compatibility/jni-build.txt
+          "$SWIFT_BIN" build --product editor-bridge
       - name: Execute JNI fixtures on Android
         run: |
           test -e /dev/kvm

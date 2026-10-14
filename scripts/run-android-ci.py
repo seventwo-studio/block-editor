@@ -149,6 +149,9 @@ def main():
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
         instrument("studio.seventwo.blockeditor.ModernSessionTest", "modern-session-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.ModernRelayHostTest", "modern-relay-host-instrumentation.txt", 9)
+        environment["EVIDENCE_SOURCE_SHA"] = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        run("bun", "scripts/test-modern-android-relay.ts", "--sdk", sdk, "--serial", serial,
+            "--apk", apk, "--output", output / "modern-relay-process")
         instrument("studio.seventwo.blockeditor.WritingPasteSixTest", "writing-paste-six-instrumentation.txt", 1)
         instrument("studio.seventwo.blockeditor.WritingAuthoringInputTest", "writing-authoring-input-instrumentation.txt", 5)
         instrument("studio.seventwo.blockeditor.WritingAuthoringComposeTest", "writing-authoring-compose-instrumentation.txt", 2)
