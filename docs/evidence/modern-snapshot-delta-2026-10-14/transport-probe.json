@@ -1,0 +1,40 @@
+{
+  "diagnostic": true,
+  "complete": true,
+  "sourceCommit": "879574f22e216160324426150165728a180559b3",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "06c74495c313956b2244229827d1ad3a5b879649ec5405edda21a59e20b1f8de",
+  "fullResponseBytes": 522150,
+  "responses": [
+    {
+      "command": "replaceText",
+      "negotiated": true,
+      "hasDocument": false,
+      "changes": 1,
+      "bytes": 2675
+    },
+    {
+      "command": "replaceText",
+      "negotiated": true,
+      "hasDocument": false,
+      "changes": 1,
+      "bytes": 2721
+    },
+    {
+      "command": "undo",
+      "negotiated": true,
+      "hasDocument": false,
+      "changes": 1,
+      "bytes": 2650
+    },
+    {
+      "command": "redo",
+      "negotiated": true,
+      "hasDocument": false,
+      "changes": 1,
+      "bytes": 2811
+    }
+  ],
+  "qualification": "Actual admitted response bytes and exact complete-document oracle/direct shared reads, plus grouped author Undo/Redo. Not percentile/resource or full interaction acceptance."
+}
