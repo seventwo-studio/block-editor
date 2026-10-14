@@ -66,3 +66,43 @@ This is a preparation plan, not a deployed native release or an approved new
 consumer grant. Keep the $0 Packages cap, Stop usage, existing credential
 boundaries and concurrent Foliostrate work intact. Physical/final acceptance
 remains separately deferred in the finishing project.
+
+## Local native candidate preparation
+
+The proposed next delivery version is **0.2.1**; verify that it is unused before
+publication. Its preparation does not overwrite immutable private 0.2.0. Commit
+the candidate, then genuinely rebuild JavaScript, WASM and both Android ABIs.
+The builder receipts now include Android manifests and native preparation code,
+so dependency/publication changes cannot borrow old source receipts.
+
+From `android`, stage the release component with
+`gradle :editor:publishModernReleasePublicationToModernStagingRepository
+-PmodernDeliveryVersion=0.2.1 -PmodernDeliveryDirectory=/absolute/fresh/maven`.
+Do not supply `blockEditorTestAbi`. This repository is a local file directory;
+there are no publishing credentials or remote repositories in the configuration.
+The AAR, POM, Gradle Module Metadata and sources JAR include the release variant
+and its public Compose dependency contract. Follow
+[Android's publication variant guidance](https://developer.android.com/build/publish-library/configure-pub-variants).
+
+Run `node scripts/prepare-private-modern-native.mjs /absolute/fresh/bundle
+SOURCE_COMMIT 0.2.1 /absolute/fresh/maven`. It requires the exact clean source
+and coherent build receipts, checks both ABI families against the AAR, validates
+generated metadata, and stages only tracked regular source files needed by the
+complete Swift manifest and its fixtures. The candidate receipt records source,
+tree, files and artifact hashes. It deliberately records no deployment or
+publication authorization.
+
+Copy `Examples/InstalledModernSmoke/main.swift` into an isolated Swift executable
+that depends on the private publisher's exact versioned Git reference and the
+`BlockEditorCore` product. Use fresh SwiftPM dependency/scratch caches and record
+the resolved revision plus the candidate's pinned hashes. During preparation,
+a temporary local Git dependency can check package completeness and API behavior;
+that remains a local smoke, not published private installation evidence.
+
+The source package version and proposed delivery version remain separate in the
+staging receipt until the final common version is reviewed. A matching newer
+JavaScript/WASM candidate, reviewed GitHub Verified source, private Git/Maven
+reader path and concrete remote approval are still required. Then run actual
+fresh-cache registry/Git consumers before closing ST-106. GitHub documents the
+[Gradle registry and its authentication](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry);
+existing npm Actions access does not prove private Git or Maven access.
