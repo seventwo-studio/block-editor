@@ -56,7 +56,7 @@ async function phase(name: string, authorized: boolean) {
   console.log(`Native Android relay phase ${name}: passed in process ${report.pid}`);
 }
 try {
-  await command(["install", "-r", apk]);
+  await command(["install", "--no-streaming", "-r", apk]);
   await command(["reverse", `tcp:${phonePort}`, `tcp:${new URL(server.url).port}`]);
   await phase("seed", true);
   const baseline = await (await fetch(`${server.url}/rooms/${document.documentID}`, { headers: { "x-local-token": "modern-relay-test" } })).json();

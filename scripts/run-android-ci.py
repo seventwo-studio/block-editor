@@ -108,7 +108,16 @@ def main():
         if actual_api != args.api or args.abi not in actual_abis:
             raise RuntimeError(f"Unexpected Android runtime: API {actual_api}, ABIs {actual_abis}")
         device("shell", "input", "keyevent", "82")
-        device("install", "-r", "--abi", args.abi, apk)
+        # Transfer the complete APK before package-manager invocation. Keep
+        # installation/ABI checks and retain the original terminal output.
+        try:
+            installed = device("install", "--no-streaming", "-r", "--abi", args.abi, apk,
+                               capture_output=True, text=True)
+        except subprocess.CalledProcessError as failure:
+            (output / "install.txt").write_text((failure.stdout or "") + (failure.stderr or ""))
+            raise
+        (output / "install.txt").write_text(installed.stdout + installed.stderr)
+        print(installed.stdout + installed.stderr, flush=True)
         if args.reference_capture:
             capture = Path("test-results/reference-capture")
             capture.mkdir(parents=True, exist_ok=True)
