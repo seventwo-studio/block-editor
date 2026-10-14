@@ -29,6 +29,26 @@ accepted snapshot and notifies persistence subscribers so the local history
 sidecar can be saved. Older engines use the full response. Neither path authors
 a document change or bypasses shared validation.
 
+Matching finishing engines also advertise `documentSnapshotVersion: 1`.
+Snapshot-producing commands can opt in with that version and, after a full
+response, its `knownDocumentToken`. The response includes a `documentSnapshot`
+envelope with version/token. A matching token permits bounded replacement paths
+against that exact previously returned document; the complete receipt, history
+flags, recovery and command outcomes remain present. Unknown tokens, new session
+generations and large diffs return the full document. Default callers retain
+their original full response shape. Tokens are ephemeral presentation state,
+not causal identities or persisted checkpoints.
+
+Swift produces replacements only after complete shared admission, preserving
+Unicode bytes, signed zero and opaque data. The TypeScript adapter validates
+scope/version/base token and disjoint existing paths, reconstructs immutable
+document values and retains the existing public snapshot API. Invalid advertised
+responses fail explicitly; older engines retain full responses. Accepted peer
+receipts still publish when document content is identical. Owned-object reuse
+recognizes only successfully completed ownership walks, not foreign shallow
+freezes. Kotlin reports the optional capability and retains its full-response
+default.
+
 ## React and WASM
 
 The package exposes `swift/modern`, `swift/modern/react`, `swift/modern/host`,

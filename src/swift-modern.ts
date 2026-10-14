@@ -120,6 +120,7 @@ export interface ModernCapabilities {
   readonly commands: readonly ModernCommandName[]; readonly cutoverToModern: true; readonly clipboardVersion: 2;
   readonly localHistorySelectionVersion: 1; readonly canCopy: boolean; readonly canCut: boolean;
   readonly localSelectionAckVersion?: 1;
+  readonly documentSnapshotVersion?: 1;
   readonly wireInspectionVersion?: 1;
   readonly renderingBindingVersion?: 1;
   readonly allowedBlockTypes: readonly string[] | null; readonly allowedMarkTypes: readonly string[] | null;
@@ -133,15 +134,52 @@ export interface ModernPolicy { readonly allowedCommands?: readonly ModernComman
 export interface ModernTransport { call<T>(request: Record<string, unknown>): T; inspectJSON?<T>(bytes: Uint8Array): T }
 
 // Iterative ownership protects opaque metadata too, without serializing whole archives again.
+const ownedValues = new WeakSet<object>();
 function owned<T>(value: T): T {
   const pending: object[] = value !== null && typeof value === "object" ? [value] : [];
   const seen = new Set<object>();
   while (pending.length) {
-    const item = pending.pop()!; if (seen.has(item)) continue; seen.add(item);
+    const item = pending.pop()!; if (ownedValues.has(item) || seen.has(item)) continue; seen.add(item);
     for (const child of Object.values(item)) if (child !== null && typeof child === "object") pending.push(child);
     Object.freeze(item);
   }
+  // Trust only graphs whose complete ownership walk finished successfully.
+  for (const item of seen) ownedValues.add(item);
   return value;
+}
+
+function snapshotChanges(document: ModernDocument, changes: unknown): ModernDocument {
+  if (!Array.isArray(changes) || changes.length > 128) throw new Error("Invalid shared snapshot changes");
+  let result: unknown = document;
+  const paths: (string | number)[][] = [];
+  for (const change of changes) {
+    if (!change || typeof change !== "object" || !Array.isArray(change.path) || change.path.length > 100 ||
+        !Object.hasOwn(change, "value") || Object.keys(change).length !== 2) throw new Error("Invalid shared snapshot replacement");
+    const path: (string | number)[] = change.path;
+    if (!path.every(part => typeof part === "string" || typeof part === "number" && Number.isInteger(part) && part >= 0 && !Object.is(part, -0))) {
+      throw new Error("Invalid shared snapshot path");
+    }
+    if (paths.some(prior => prior.slice(0, Math.min(prior.length, path.length)).every((part, index) => Object.is(part, path[index])))) {
+      throw new Error("Overlapping shared snapshot replacements");
+    }
+    paths.push(path);
+    function replace(value: unknown, index: number): unknown {
+      if (index === path.length) return change.value;
+      const part = path[index];
+      if (Array.isArray(value)) {
+        if (typeof part !== "number" || part >= value.length) throw new Error("Shared snapshot array path is unavailable");
+        const next = value.slice(); next[part] = replace(value[part], index + 1); return next;
+      }
+      if (!value || typeof value !== "object" || typeof part !== "string" || !Object.hasOwn(value, part)) throw new Error("Shared snapshot object path is unavailable");
+      return { ...value, [part]: replace((value as Record<string, unknown>)[part], index + 1) };
+    }
+    result = replace(result, 0);
+  }
+  if (!result || typeof result !== "object" || Array.isArray(result)) throw new Error("Shared snapshot document is unavailable");
+  const next = result as ModernDocument;
+  if (next.format !== document.format || next.formatVersion !== 1 || next.documentID !== document.documentID ||
+      typeof next.title !== "string" || !Array.isArray(next.blocks)) throw new Error("Shared snapshot document has incompatible scope or format");
+  return next;
 }
 
 // Reconcile decoded JSON without normalizing strings, signed zero or opaque
@@ -172,6 +210,8 @@ export class SwiftModernSession {
   private bindingReadSupported: boolean | undefined;
   private renderingBindingSupported: boolean | undefined;
   private localSelectionAckSupported: boolean | undefined;
+  private documentSnapshotSupported: boolean | undefined;
+  private documentView: { readonly token: string; readonly document: ModernDocument } | undefined;
   private renderingBindingCache: { token: string; bindings: readonly ModernNodeBinding[] } | undefined;
   private constructor(private readonly transport: ModernTransport, private readonly handle: string, private snapshot: ModernSnapshot) { this.snapshot = owned(snapshot); }
   static create(transport: ModernTransport, options: ModernScope & ModernPolicy & { readonly actorID: string; readonly document: ModernDocument }): SwiftModernSession {
@@ -214,11 +254,42 @@ export class SwiftModernSession {
     this.assertOpen();
     try { return owned(this.transport.call<T>({ command, session: this.handle, ...args })); }
     catch (error) {
-      if (error instanceof SwiftModernRecoveryError) this.publish(this.transport.call<ModernSnapshot>({ command: "modernSnapshot", session: this.handle }));
+      if (error instanceof SwiftModernRecoveryError) {
+        this.documentView = undefined;
+        this.publish(this.transport.call<ModernSnapshot>({ command: "modernSnapshot", session: this.handle }));
+      }
       throw error;
     }
   }
-  private update(command: string, args: Record<string, unknown> = {}): void { this.publish(this.call<ModernSnapshot>(command, args)); }
+  private callSnapshot<T extends ModernSnapshot>(command: string, args: Record<string, unknown> = {}): T {
+    this.documentSnapshotSupported ??= this.capabilities().documentSnapshotVersion === 1;
+    if (!this.documentSnapshotSupported) return this.call<T>(command, args);
+    const previous = this.documentView;
+    const response = this.call<Record<string, unknown>>(command, { ...args, documentSnapshotVersion: 1,
+      ...(previous ? { knownDocumentToken: previous.token } : {}) });
+    const view = response.documentSnapshot as { version?: number; token?: string; baseToken?: string; changes?: unknown } | undefined;
+    const scope = response.syncState as ModernReceipt | undefined;
+    if (!view || view.version !== 1 || typeof view.token !== "string" || !view.token || new TextEncoder().encode(view.token).length > 128 ||
+        response.version !== 7 || scope?.version !== 7 || scope.documentID !== this.snapshot.syncState.documentID || scope.epoch !== this.snapshot.syncState.epoch) {
+      throw new Error("Shared document snapshot has incompatible scope or version");
+    }
+    let document: ModernDocument;
+    if (Object.hasOwn(response, "document")) {
+      if (Object.hasOwn(view, "changes") || Object.hasOwn(view, "baseToken")) throw new Error("Ambiguous shared document snapshot");
+      document = response.document as ModernDocument;
+      if (!document || document.documentID !== scope.documentID || document.format !== this.snapshot.document.format || document.formatVersion !== 1) {
+        throw new Error("Shared full document snapshot has incompatible scope or format");
+      }
+    } else {
+      if (!previous || view.baseToken !== previous.token) throw new Error("Shared document snapshot has an unknown base token");
+      document = snapshotChanges(previous.document, view.changes);
+    }
+    const { documentSnapshot: _view, ...snapshot } = response;
+    document = owned(sharedJSON(this.snapshot.document, document));
+    this.documentView = { token: view.token, document };
+    return owned({ ...snapshot, document }) as unknown as T;
+  }
+  private update(command: string, args: Record<string, unknown> = {}): void { this.publish(this.callSnapshot<ModernSnapshot>(command, args)); }
   insertionValue(descriptorID: string, id: string, childIDs: readonly string[] = []): ModernObject { return this.call("modernInsertionValue", { descriptorID, id, childIDs }); }
   insertionCatalog(query = ""): readonly ModernInsertionDescriptor[] { return this.call("modernInsertionCatalog", { query }); }
   availability(name: ModernCommandName): ModernAvailability { return this.call("modernAvailability", { name }); }
@@ -229,7 +300,7 @@ export class SwiftModernSession {
   capabilities(): ModernCapabilities { return this.call("modernCapabilities"); }
   execute(command: ModernAuthorCommand): ModernResult {
     const scope = this.snapshot.syncState;
-    const result = this.call<ModernResult>("modernCommand", { request: { documentID: scope.documentID, epoch: scope.epoch, ...command } });
+    const result = this.callSnapshot<ModernResult>("modernCommand", { request: { documentID: scope.documentID, epoch: scope.epoch, ...command } });
     return this.publish(result);
   }
   /** Actual Swift origins in one read. Older protocol-7 engines retain the
@@ -293,7 +364,7 @@ export class SwiftModernSession {
    * occurs at preparation. The core binds preparationID to this live session. */
   finishCut(preparation: ModernCutPreparation, published: boolean): ModernResult {
     const { preparationID, documentID, epoch } = preparation;
-    const result = this.call<ModernResult>("modernFinishCut", { preparationID, documentID, epoch, published });
+    const result = this.callSnapshot<ModernResult>("modernFinishCut", { preparationID, documentID, epoch, published });
     this.publish(result); return result;
   }
   cancelCut(preparationID: string): void { this.update("modernCancelCut", { preparationID }); }
@@ -336,7 +407,7 @@ export class SwiftModernSession {
   localSelection(): ModernLocalSelection | null { return this.call("modernLocalSelection"); }
   exportHistorySelection(): ModernHistorySelectionArchive { return this.call("modernExportHistorySelection"); }
   restoreHistorySelection(archive: ModernHistorySelectionArchive): void { this.update("modernRestoreHistorySelection", { archive }); }
-  close(): void { if (this.closed) return; this.call("destroy"); this.closed = true; this.renderingBindingCache = undefined; this.listeners.clear(); }
+  close(): void { if (this.closed) return; this.call("destroy"); this.closed = true; this.renderingBindingCache = undefined; this.documentView = undefined; this.listeners.clear(); }
 }
 
 export interface ModernCutoverArchive extends ModernScope {

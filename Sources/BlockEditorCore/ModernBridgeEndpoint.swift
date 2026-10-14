@@ -5,6 +5,19 @@ import Foundation
 final class ModernBridgeEndpoint {
     private var sessions: [String: ModernSession] = [:]
     private var holds: [String: [String: () throws -> Void]] = [:]
+    private struct SnapshotView {
+        let owner: ModernSession
+        let document: JSONValue
+        let receipt: JSONValue
+        let token: String
+    }
+    private var snapshotViews: [String: SnapshotView] = [:]
+    private let snapshotCommands: Set<String> = ["modernSnapshot", "modernCommand", "modernReceive", "modernRestoreRecovery",
+        "modernRepairUndo", "modernRepairRedo", "modernRetainAsyncResult", "modernFinishCut", "modernCancelCut", "modernForgetCut",
+        "modernRestoreAsyncRequests", "modernCancelAsyncBlock", "modernForgetAsyncBlock", "modernFailAsyncBlock",
+        "modernComposition", "modernSetAuthoringPolicy", "modernSetContentPolicy", "modernSetListPolicy", "modernEndTypingGroup",
+        "modernHoldRemote", "modernReleaseRemote", "modernRestoreDeferredChanges", "modernRetryDeferredChanges",
+        "modernSetLocalSelection", "modernRestoreHistorySelection"]
     private struct CutPublication { let preparation: ModernCutPreparation; let bytes: Int }
     private var cuts: [String: [String: CutPublication]] = [:]
     private let commands = ModernSession.authorCommands
@@ -15,6 +28,40 @@ final class ModernBridgeEndpoint {
         return command.hasPrefix("modern") || ["createModern", "restoreModern", "cutoverToModern"].contains(command) || contains(input["session"]?.string ?? "")
     }
     func dispatch(_ input: JSONValue) throws -> JSONValue {
+        guard var request = input.object else { throw EditorError.invalidChange }
+        let version = request.removeValue(forKey: "documentSnapshotVersion")
+        let known = request.removeValue(forKey: "knownDocumentToken")
+        if version != nil || known != nil {
+            guard version == .number(1), let command = request["command"]?.string, snapshotCommands.contains(command),
+                  !(command == "modernSetLocalSelection" && request["includeSnapshot"] == .bool(false)) else { throw EditorError.invalidChange }
+            if let known { guard let token = known.string, !token.isEmpty, token.utf8.count <= 128 else { throw EditorError.invalidChange } }
+        }
+        let handle = request["session"]?.string ?? ""
+        defer { if sessions[handle] == nil { snapshotViews.removeValue(forKey: handle) } }
+        let result = try dispatchFull(.object(request))
+        guard version != nil else { return result }
+        guard let session = sessions[handle], var response = result.object,
+              let document = response["document"], let receipt = response["syncState"], response["version"] == .number(7) else {
+            throw EditorError.invalidChange
+        }
+        let previous = snapshotViews[handle].flatMap { $0.owner === session ? $0 : nil }
+        let changes: [JSONValue]?
+        if let previous {
+            // An unchanged admitted receipt cannot mutate this session's content.
+            changes = ModernSnapshotDelta.equal(previous.receipt, receipt) ? [] :
+                ModernSnapshotDelta.changes(from: previous.document, to: document)
+        } else { changes = nil }
+        let token = changes?.isEmpty == true ? previous!.token : UUID().uuidString
+        var view: [String: JSONValue] = ["version": .number(1), "token": .string(token)]
+        if let previous, known?.string == previous.token, let changes {
+            response.removeValue(forKey: "document")
+            view["baseToken"] = .string(previous.token); view["changes"] = .array(changes)
+        }
+        response["documentSnapshot"] = .object(view)
+        snapshotViews[handle] = SnapshotView(owner: session, document: document, receipt: receipt, token: token)
+        return .object(response)
+    }
+    private func dispatchFull(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
         if command == "modernInspectJSON" {
@@ -40,6 +87,7 @@ final class ModernBridgeEndpoint {
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
             values["localHistorySelectionVersion"] = .number(1)
             values["localSelectionAckVersion"] = .number(1)
+            values["documentSnapshotVersion"] = .number(1)
             values["wireInspectionVersion"] = .number(1)
             values["renderingBindingVersion"] = .number(1)
             let cutSession = sessions[handle]

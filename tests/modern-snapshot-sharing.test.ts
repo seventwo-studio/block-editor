@@ -112,3 +112,59 @@ test("old engines retain full local selection snapshots and notifications", () =
   expect(notifications).toBe(2);
   expect(requests.filter(request => request.command === "modernSetLocalSelection").every(request => !("includeSnapshot" in request))).toBe(true);
 });
+
+test("negotiated snapshots preserve full documents, opaque ownership and same-value peer receipts", () => {
+  const initial = fixture(); const opaque = initial.document.opaque as { zero: number; spelling: string; __proto__: { retain: boolean } };
+  opaque.zero = -0; Object.freeze(opaque); // A foreign shallow freeze is not proof of owned descendants.
+  let phase = 0; const requests: Record<string, unknown>[] = [];
+  const session = SwiftModernSession.create({ call<T>(request: Record<string, unknown>): T {
+    requests.push(request);
+    if (request.command === "modernCapabilities") return { documentSnapshotVersion: 1 } as T;
+    if (request.command !== "modernCommand") return initial as T;
+    phase++;
+    const base = { version: 7, canUndo: true, canRedo: false, recovery: null, status: "applied", transaction: null, focus: null, selection: null,
+      syncState: { version: 7, documentID: "shared", epoch: "epoch", received: [{ actor: "peer", counter: phase }] } };
+    if (phase === 1) return { ...base, document: structuredClone(initial.document), documentSnapshot: { version: 1, token: "first" } } as T;
+    if (phase === 2) return { ...base, documentSnapshot: { version: 1, token: "second", baseToken: "first", changes: [
+      { path: ["blocks", 0, "content", 0, "text"], value: "東京😀" }, { path: ["opaque", "spelling"], value: "é" },
+      { path: ["opaque", "zero"], value: 0 }, { path: ["opaque", "__proto__", "retain"], value: false }] } } as T;
+    return { ...base, documentSnapshot: { version: 1, token: "second", baseToken: "second", changes: [] } } as T;
+  } }, { actorID: "a", documentID: "shared", epoch: "epoch", document: initial.document });
+  expect(Object.isFrozen(opaque.__proto__)).toBe(true);
+  const before = session.getSnapshot(); session.execute({ command: "undo", arguments: {} });
+  expect(session.getSnapshot().document).toBe(before.document);
+  session.execute({ command: "undo", arguments: {} });
+  const expected = structuredClone(initial.document);
+  (expected.blocks[0].content as { text: string }[])[0].text = "東京😀";
+  (expected.opaque as typeof opaque).spelling = "é"; (expected.opaque as typeof opaque).zero = 0;
+  (expected.opaque as typeof opaque).__proto__.retain = false;
+  const changed = session.getSnapshot(); expect(changed.document).toEqual(expected);
+  expect(Object.getPrototypeOf(changed.document.opaque)).toBe(Object.prototype);
+  expect((before.document.opaque as typeof opaque).spelling).toBe("é"); expect(Object.is((before.document.opaque as typeof opaque).zero, -0)).toBe(true);
+  expect(Object.isFrozen((changed.document.opaque as typeof opaque).__proto__)).toBe(true);
+  session.execute({ command: "undo", arguments: {} });
+  expect(session.getSnapshot().document).toBe(changed.document); expect(session.getSnapshot().syncState.received[0].counter).toBe(3);
+  expect(requests.filter(request => request.command === "modernCommand").map(request => request.knownDocumentToken)).toEqual([undefined, "first", "second"]);
+});
+
+test("advertised malformed snapshots never publish or replace the accepted document", () => {
+  for (const failure of ["base", "overlap", "array", "scope", "ambiguous"]) {
+    let count = 0;
+    const session = SwiftModernSession.create({ call<T>(request: Record<string, unknown>): T {
+      if (request.command === "modernCapabilities") return { documentSnapshotVersion: 1 } as T;
+      if (request.command !== "modernCommand") return fixture() as T;
+      count++;
+      if (count === 1) return { ...fixture(), documentSnapshot: { version: 1, token: "known" } } as T;
+      const { document, ...snapshot } = fixture();
+      const changes = failure === "overlap" ? [{ path: ["title"], value: "X" }, { path: ["title"], value: "Y" }] :
+        failure === "array" ? [{ path: ["blocks", 2], value: {} }] : [];
+      return { ...snapshot, ...(failure === "ambiguous" ? { document } : {}),
+        syncState: { ...snapshot.syncState, epoch: failure === "scope" ? "foreign" : "epoch" },
+        documentSnapshot: { version: 1, token: "next", baseToken: failure === "base" ? "foreign" : "known", changes } } as T;
+    } }, { actorID: "a", documentID: "shared", epoch: "epoch", document: fixture().document });
+    session.execute({ command: "undo", arguments: {} }); const before = session.getSnapshot(); let notifications = 0;
+    session.subscribe(() => { notifications++; });
+    expect(() => session.execute({ command: "undo", arguments: {} })).toThrow();
+    expect(session.getSnapshot()).toBe(before); expect(notifications).toBe(0);
+  }
+});

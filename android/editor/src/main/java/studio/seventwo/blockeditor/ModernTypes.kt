@@ -204,6 +204,7 @@ data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val
     }
 }
 class ModernCapabilities internal constructor(value: JSONObject) : ModernValue(value) {
+    val documentSnapshotVersion get() = export().optInt("documentSnapshotVersion", 0)
     val localSelectionAckVersion get() = export().optInt("localSelectionAckVersion", 0)
     val renderingBindingVersion get() = export().optInt("renderingBindingVersion", 0)
     val wireInspectionVersion get() = number("wireInspectionVersion").toInt()
