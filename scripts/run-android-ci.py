@@ -49,7 +49,7 @@ def main():
             result = device("shell", "am", "instrument", "-w", "-r", "-e", "class", class_name,
                             "-e", "expectedAbi", args.abi, *extra_args, "studio.seventwo.blockeditor.test/androidx.test.runner.AndroidJUnitRunner",
                             capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired as error:
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
             def captured(value):
                 return value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
             (output / filename).write_text(captured(error.stdout) + captured(error.stderr))
@@ -82,6 +82,8 @@ def main():
                                  "-no-snapshot", "-no-boot-anim", "-wipe-data", "-accel", "on", "-gpu", "swiftshader_indirect",
                                  "-memory", "2048", "-cores", "2", "-camera-back", "none", "-camera-front", "none", "-no-metrics"],
                                 stdout=emulator_log, stderr=subprocess.STDOUT, env=environment)
+    live_log = None
+    log_reader = None
     try:
         deadline = time.monotonic() + 240
         while True:
@@ -95,6 +97,12 @@ def main():
             time.sleep(2)
         properties = device("shell", "getprop", capture_output=True, text=True).stdout
         (output / "device-properties.txt").write_text(properties)
+        # A guest restart can erase the ring buffer before final collection.
+        # Keep the original stream and its terminal status; do not reconnect or
+        # retry instrumentation, which would hide the failed execution.
+        live_log = (output / "logcat-live.txt").open("w")
+        log_reader = subprocess.Popen([str(adb), "-s", serial, "logcat", "-v", "threadtime"],
+                                      stdout=live_log, stderr=subprocess.STDOUT, env=environment)
         actual_api = device("shell", "getprop", "ro.build.version.sdk", capture_output=True, text=True).stdout.strip()
         actual_abis = device("shell", "getprop", "ro.product.cpu.abilist", capture_output=True, text=True).stdout.strip().split(",")
         if actual_api != args.api or args.abi not in actual_abis:
@@ -245,6 +253,11 @@ def main():
                                    "-e", "sourceDirty", str(bool(run("git", "status", "--porcelain", capture_output=True, text=True).stdout.strip())).lower()), timeout=1800)
             read_fixture(device, "files/performance/android-writing.json", performance_output / f"performance-writing-{label}.json")
     finally:
+        (output / "runtime-process-status.json").write_text(json.dumps({
+            "emulatorExitBeforeCleanup": emulator.poll(),
+            "logcatExitBeforeCleanup": log_reader.poll() if log_reader is not None else None,
+            "logcatStarted": log_reader is not None,
+        }, indent=2) + "\n")
         try:
             diagnostics = [("logcat.txt", ["logcat", "-d"])]
             # Partial fixture output remains useful when an assertion fails.
@@ -267,6 +280,15 @@ def main():
                     except (subprocess.TimeoutExpired, OSError) as error:
                         log.write(f"\nDiagnostic collection failed: {error}\n")
         finally:
+            if log_reader is not None and log_reader.poll() is None:
+                log_reader.terminate()
+                try:
+                    log_reader.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    log_reader.kill()
+                    log_reader.wait()
+            if live_log is not None:
+                live_log.close()
             emulator.terminate()
             try:
                 emulator.wait(timeout=15)
