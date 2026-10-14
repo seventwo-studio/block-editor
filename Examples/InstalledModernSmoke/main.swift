@@ -31,5 +31,5 @@ let incompatible = json.replacingOccurrences(of: "\"formatVersion\":1", with: "\
 do {
     _ = try ModernDocument(json: Data(incompatible.utf8))
     throw NSError(domain: "IncompatibleDocumentAccepted", code: 1)
-} catch EditorError.unsupportedVersion { }
+} catch EditorError.invalidDocument(_) { }
 print("Native installed API smoke passed: exact Unicode/title/appearance, two columns, opaque metadata, atomic reference, stable identity, edit/save/reopen/Undo/Redo and incompatible format rejection")
