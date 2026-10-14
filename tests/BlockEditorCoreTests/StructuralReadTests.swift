@@ -46,6 +46,29 @@ import Testing
         #expect(try hidden.visibleOrder(in: .root) == [a])
     }
 
+    @Test func writingActivityPreservesActiveViewsButRevealsInactiveBirthsAndKeepsCopiesIndependent() throws {
+        var original = try seed()
+        let node = original.nodes[b]!
+        original.nodes[b] = .init(identity: b, kind: node.kind, birthKind: node.birthKind,
+            fields: node.fields, collections: node.collections, birthActive: false)
+        #expect(try original.visibleOrder(in: .root) == [a])
+        #expect(try original.address(of: a) == NodeAddress("A"))
+        var retained = original
+        retained.retainWritingActivity(of: a)
+        #expect(retained.touched.contains(a))
+        #expect(!original.touched.contains(a))
+        #expect(try retained.visibleOrder(in: .root) == [a])
+        retained.retainWritingActivity(of: a)
+        retained.retainWritingActivity(of: b)
+        #expect(try retained.visibleOrder(in: .root) == [a, b])
+        #expect(try retained.address(of: b) == NodeAddress("B"))
+        #expect(try original.visibleOrder(in: .root) == [a])
+        #expect(throws: EditorError.self) { try original.address(of: b) }
+        retained.nodes[a]!.fields["id"] = .string("Renamed")
+        #expect(try retained.address(of: a) == NodeAddress("Renamed"))
+        #expect(try original.address(of: a) == NodeAddress("A"))
+    }
+
     @Test func collectionPlacementIndexRetainsInactiveAnchorsAndDetachesNestedMoves() throws {
         let childA = JSONValue.object(try Block.paragraph(id: "a", text: "A").fields)
         let childB = JSONValue.object(try Block.paragraph(id: "b", text: "B").fields)

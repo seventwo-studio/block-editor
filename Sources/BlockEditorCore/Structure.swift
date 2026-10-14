@@ -105,6 +105,17 @@ struct StructuralState {
     var touched = Set<NodeID>() { didSet { readCache = ReadCache() } }
     private(set) var modern = false { didSet { readCache = ReadCache() } }
 
+    /// Scalar projection retains activity for future replay. A currently active
+    /// birth is already visible wherever it has a valid placement, so this touch
+    /// cannot change placement arbitration, visibility, order or addresses.
+    /// Inactive births still invalidate the view so peer retention becomes live.
+    mutating func retainWritingActivity(of identity: NodeID) {
+        guard !touched.contains(identity) else { return }
+        let prior = readCache
+        touched.insert(identity)
+        if nodes[identity]?.birthActive == true { readCache = prior }
+    }
+
     static func seed(_ document: Document) -> Self {
         var result = Self(), after: NodePlacementID?
         for block in document.blocks {

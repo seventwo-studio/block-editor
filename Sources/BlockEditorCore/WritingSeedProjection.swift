@@ -41,7 +41,7 @@ func projectedWritingValues(structure: inout StructuralState, projection: Writin
         let original = structure.nodes[field.node]!.fields[field.name]!
         if projection.hasUntouchedIndependentField(field), structure.nodes[field.node]!.birthActive,
            !retainedOrigins || original == births[field]?.value {
-            if !projection.visibleKeys(in: field).isEmpty { structure.touched.insert(field.node) }
+            if !projection.visibleKeys(in: field).isEmpty { structure.retainWritingActivity(of: field.node) }
             continue
         }
         let nodes = projection.nodes(in: field)
@@ -49,7 +49,7 @@ func projectedWritingValues(structure: inout StructuralState, projection: Writin
             $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
             Set($0.object?.keys ?? Dictionary<String, JSONValue>().keys).isSubset(of: ["type", "text", "marks"])
         }) { throw EditorError.invalidDocument("Code conversion cannot flatten rich atoms") }
-        if !nodes.isEmpty { structure.touched.insert(field.node) }
+        if !nodes.isEmpty { structure.retainWritingActivity(of: field.node) }
         // Preserve exact baseline JSON for untouched fields, including empty
         // text runs and host extensions that have no visible scalar atoms.
         let baselineNodes = projection.independentSeedValues(in: field) ?? baselineNodesByField[field] ?? []
