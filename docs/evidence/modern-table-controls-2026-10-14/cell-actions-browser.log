@@ -1,0 +1,15 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:15563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 6 tests using 1 worker
+
+[1/6] [chromium] › tests/modern-context.swift.ts:42:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[2/6] [chromium] › tests/modern-context.swift.ts:61:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[3/6] [webkit] › tests/modern-context.swift.ts:42:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[4/6] [webkit] › tests/modern-context.swift.ts:61:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+[5/6] [firefox] › tests/modern-context.swift.ts:42:0 › cell actions capture on keyboard opening and retain peer text through author Undo
+[6/6] [firefox] › tests/modern-context.swift.ts:61:0 › open cell actions reject incompatible peer structure without refreshing their captured target
+  6 passed (48.9s)

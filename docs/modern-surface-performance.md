@@ -140,6 +140,17 @@ reports and original failures are in
 `docs/evidence/modern-snapshot-bindings-2026-10-14`. Further authoring/rendering
 repair remains required before repeating this workload.
 
+Capturing table targets only when their cell-action menu opens removes repeated
+render-time cohort work. Retain the target and argument shape through peer edits;
+successful actions dismiss, and reopening captures updated structure. The clean
+final run completes twenty input/menu samples per engine: input p95 is 1,644.1 ms
+Chromium, 1,852 ms WebKit and 2,240 ms Firefox; menus are 139.6, 241 and 285 ms.
+All targets still fail. Measurement completion is independent of target success,
+and explicit budget assertions now fail the test when missed. Complete reports,
+matching source/artifact receipts, hardware and the 54-case functional run are in
+`docs/evidence/modern-table-controls-2026-10-14`. Remaining authoring/snapshot
+and rendering costs need repair against the unchanged targets.
+
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked
 workloads, larger-document preservation and physical native campaigns. Physical
