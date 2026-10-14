@@ -75,6 +75,13 @@ selection/focus movement and shared command/composition boundaries still end
 grouping. Per-render formatting state reuse never becomes author history or
 replaces shared validation; persistence observes actual shared changes.
 
+Admitted projections retain a private baseline identity and affected-root mask
+for snapshot comparison. Matching baselines compare the union of both masks
+plus title and appearance, with the existing exact-value, path-depth and
+128-change limits. Structural, unrelated and reopened values use full
+comparison. These fields are excluded from serialization and public semantic
+equality, and never authorize input or become causal identities/checkpoints.
+
 Run `bun run build:wasm` and `bun run demo:dev`, then open the reference
 integration at `/block-editor/modern.html` with the existing
 demo server. `demo/modern-main.tsx` demonstrates local Help

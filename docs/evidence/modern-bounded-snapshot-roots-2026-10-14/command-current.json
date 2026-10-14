@@ -1,0 +1,65 @@
+{
+  "diagnostic": true,
+  "samples": [
+    {
+      "replaceMS": 130.05854199999976,
+      "shortcutMS": 4.049666000000343,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 22.90395899999976,
+      "shortcutMS": 1.6144170000002305,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 23.2356249999998,
+      "shortcutMS": 1.6441669999999249,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 28.313374999999724,
+      "shortcutMS": 1.772041000000172,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 22.7826670000004,
+      "shortcutMS": 1.6175839999996242,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 22.78241700000035,
+      "shortcutMS": 1.602708999999777,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 24.20291700000007,
+      "shortcutMS": 1.736417000000074,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 24.511417000000165,
+      "shortcutMS": 1.7016250000001492,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 25.147249999999985,
+      "shortcutMS": 1.6740419999996448,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 22.03429099999994,
+      "shortcutMS": 1.5971250000002328,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 22.854707999999846,
+      "shortcutMS": 1.724917000000005,
+      "status": "noop"
+    },
+    {
+      "replaceMS": 23.14975000000004,
+      "shortcutMS": 1.7142080000003261,
+      "status": "noop"
+    }
+  ]
+}

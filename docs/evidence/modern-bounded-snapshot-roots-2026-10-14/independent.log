@@ -1,0 +1,57 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 3] BlockEditorCoreTests-product
+[2 / 4] BlockEditorCoreTests-product
+[7 / 9] BlockEditorCoreTests-product
+[9 / 9] BlockEditorCoreTests-product
+Build complete! (12.27 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernRangeConversionTests started.
+◇ Suite ModernProjectedDocumentTests started.
+◇ Suite ModernSnapshotDeltaTests started.
+◇ Suite ModernBatchInteractionTests started.
+◇ Test oneLossyMemberRejectsCompleteRangeWithoutWriting() started.
+◇ Test rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() started.
+◇ Test nestedLiteralFieldsAndPeerTitleAppearanceRemainIndependentThroughAuthorUndo() started.
+◇ Test exactCapacityRejectsAnEditAtomicallyThenAllowsDeletionAndUndo() started.
+◇ Test representativeFieldBoundariesAcrossEveryFixtureKeepFullAdmissionAndExactUndoReopen() started.
+◇ Test unrelatedEqualValuedDocumentsCannotBorrowRootMasksOrHideOpaqueBitChanges() started.
+◇ Test exactOpaqueNumbersAndUnicodeDoNotUseNormalizedEqualityAndLargeChangesFallBack() started.
+◇ Test optInResponsesRetainLegacyShapeAndReconstructUnicodeAfterExternalWritingAndHandleReplacement() started.
+◇ Test admittedRootMasksMatchCompleteSnapshotsThroughPeerUndoAndStructuralFallback() started.
+◇ Test malformedNegotiationRejectsBeforeAuthoringOrLocalSelectionChanges() started.
+◇ Test rawKeyReplacementAndNumericPathOrderingRemainExact() started.
+◇ Test navigationAndDirectedSpanFollowLogicalColumnsWithoutWriting() started.
+◇ Test mediaPropertyUndoKeepsPeerCaptionAndRejectsOldSource() started.
+◇ Test inlineDelimiterFormattingPreservesUnicodeAndRestoresOriginalSelection() started.
+◇ Test logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() started.
+◇ Test repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() started.
+◇ Test authorRestrictionsPreserveAdmittedMarksAndPeerBlocks() started.
+◇ Test directedSpanFormattingIsAtomicAndKeepsLaterPeerText() started.
+◇ Test markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() started.
+✔ Test exactOpaqueNumbersAndUnicodeDoNotUseNormalizedEqualityAndLargeChangesFallBack() passed after 0.008 seconds.
+✔ Test rawKeyReplacementAndNumericPathOrderingRemainExact() passed after 0.008 seconds.
+✔ Test unrelatedEqualValuedDocumentsCannotBorrowRootMasksOrHideOpaqueBitChanges() passed after 0.008 seconds.
+✔ Test oneLossyMemberRejectsCompleteRangeWithoutWriting() passed after 0.008 seconds.
+✔ Test inlineDelimiterFormattingPreservesUnicodeAndRestoresOriginalSelection() passed after 0.008 seconds.
+✔ Test navigationAndDirectedSpanFollowLogicalColumnsWithoutWriting() passed after 0.008 seconds.
+✔ Test malformedNegotiationRejectsBeforeAuthoringOrLocalSelectionChanges() passed after 0.009 seconds.
+✔ Test logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() passed after 0.012 seconds.
+✔ Test authorRestrictionsPreserveAdmittedMarksAndPeerBlocks() passed after 0.019 seconds.
+✔ Test optInResponsesRetainLegacyShapeAndReconstructUnicodeAfterExternalWritingAndHandleReplacement() passed after 0.023 seconds.
+✔ Test repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() passed after 0.024 seconds.
+✔ Test mediaPropertyUndoKeepsPeerCaptionAndRejectsOldSource() passed after 0.045 seconds.
+✔ Test nestedLiteralFieldsAndPeerTitleAppearanceRemainIndependentThroughAuthorUndo() passed after 0.048 seconds.
+✔ Test rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() passed after 0.050 seconds.
+✔ Suite ModernRangeConversionTests passed after 0.050 seconds.
+✔ Test admittedRootMasksMatchCompleteSnapshotsThroughPeerUndoAndStructuralFallback() passed after 0.056 seconds.
+✔ Suite ModernSnapshotDeltaTests passed after 0.056 seconds.
+✔ Test directedSpanFormattingIsAtomicAndKeepsLaterPeerText() passed after 0.058 seconds.
+✔ Test markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() passed after 0.079 seconds.
+✔ Suite ModernBatchInteractionTests passed after 0.079 seconds.
+✔ Test exactCapacityRejectsAnEditAtomicallyThenAllowsDeletionAndUndo() passed after 0.622 seconds.
+✔ Test representativeFieldBoundariesAcrossEveryFixtureKeepFullAdmissionAndExactUndoReopen() passed after 26.953 seconds.
+✔ Suite ModernProjectedDocumentTests passed after 26.953 seconds.
+✔ Test run with 19 tests in 4 suites passed after 26.953 seconds.
