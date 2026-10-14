@@ -15,9 +15,15 @@ import org.json.JSONObject
 import studio.seventwo.blockeditor.*
 import java.io.File
 import java.util.UUID
+import java.security.MessageDigest
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+
+/** Development launch configuration; production authorization belongs to the app. */
+data class ModernRelayDemoConfiguration(val endpoint: String, val key: String, val documentID: String, val actorID: String, val token: String)
 
 /** No relay service is needed for local protocol-7 editing and paired reopen. */
-@Composable fun ModernDemo() {
+@Composable fun ModernDemo(relayConfiguration: ModernRelayDemoConfiguration? = null) {
     val context = LocalContext.current; val scope = rememberCoroutineScope()
     var asset by remember { mutableStateOf<Pair<String, CompletableDeferred<ModernPayload>>?>(null) }
     var allowPlainLink by remember { mutableStateOf(false) }
@@ -33,7 +39,15 @@ import java.util.UUID
         if (kind != "embed") picker.launch(arrayOf(if (kind == "image") "image/*" else "*/*"))
         return pending.await()
     }
-    val store = remember { ModernHostStore(File(context.filesDir, "modern-help.json")) }
+    val store = remember(relayConfiguration?.key, relayConfiguration?.documentID, relayConfiguration?.actorID) {
+        val file = relayConfiguration?.let { config ->
+            val identity = JSONArray(listOf(config.key, config.documentID, config.actorID)).toString().toByteArray(Charsets.UTF_8)
+            "modern-relay-${MessageDigest.getInstance("SHA-256").digest(identity).joinToString("") { "%02x".format(it) }}.json"
+        } ?: "modern-help.json"
+        ModernHostStore(File(context.filesDir, file))
+    }
+    var relay by remember { mutableStateOf<ModernAndroidRelay?>(null) }
+    var exported by remember { mutableStateOf<File?>(null) }
     var state by remember { mutableStateOf<ModernBlockEditorState?>(null) }
     var status by remember { mutableStateOf("Opening modern editor…") }
     var failure by remember { mutableStateOf<String?>(null) }
@@ -41,24 +55,56 @@ import java.util.UUID
     var retry by remember { mutableIntStateOf(0) }
     LaunchedEffect(retry) {
         try {
-            val pair = store.load()
-            val host = if (pair != null) ModernAndroidHost.restore(pair, store).let { resume = it.second; it.first } else {
+            val connection = relayConfiguration?.let { config -> ModernAndroidRelay.open(store, config.documentID, config.actorID, config.endpoint, config.key, config.token) }
+            relay = connection
+            val pair = if (connection == null) store.load() else null
+            val host = connection?.host ?: if (pair != null) ModernAndroidHost.restore(pair, store).let { resume = it.second; it.first } else {
                 val document = ModernDocument.restore(JSONObject().put("format", "seventwo.block-editor.document").put("formatVersion", 1)
                     .put("documentID", "modern-help-example").put("title", "Help")
                     .put("appearance", JSONObject().put("fontFamily", "sans").put("fontSize", "default").put("pageWidth", "readable"))
                     .put("blocks", JSONArray().put(JSONObject().put("id", "welcome").put("type", "paragraph").put("content", JSONArray()))))
                 ModernAndroidHost(ModernSession.create(document, "reference-author", UUID.randomUUID().toString()), "reference-author", store)
             }
+            if (connection != null) resume = connection.resumeDeferred
             state = ModernBlockEditorState(host) { failure = it.toString() }; failure = null; status = "Local modern editor"
         } catch (error: Throwable) { failure = error.toString() }
     }
-    DisposableEffect(state) { val current = state; onDispose { current?.host?.setActive(false); asset?.second?.completeExceptionally(kotlinx.coroutines.CancellationException("Document closed")); asset = null } }
+    DisposableEffect(state) { val current = state; val currentRelay = relay; onDispose { current?.host?.setActive(false); currentRelay?.close(); asset?.second?.completeExceptionally(kotlinx.coroutines.CancellationException("Document closed")); asset = null } }
     Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth().padding(8.dp)) {
-            Text(status, Modifier.weight(1f))
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(8.dp)) {
+            Text(status)
             state?.let { editor -> TextButton(onClick = { scope.launch { try { editor.host.save(); status = "Saved with author history and recovery" } catch (error: Throwable) { failure = error.toString() } } }) { Text("Save locally") } }
             resume?.let { release -> TextButton(onClick = { try { release(); resume = null } catch (error: Throwable) { failure = error.toString() } }) { Text("Resume saved packets") } }
+            relay?.let { connection ->
+                Text("${connection.pendingChanges} pending · ${connection.peers.size} peers")
+                Switch(checked = connection.connected, onCheckedChange = connection::setConnected)
+                TextButton(enabled = !connection.exchanging, onClick = { scope.launch {
+                    try { connection.exchange(); status = "Synchronization completed"; failure = null } catch (error: Throwable) { failure = error.toString() }
+                } }) { Text("Synchronize") }
+            }
         }
+        relay?.let { connection -> Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+            if (connection.host.session.snapshot.recovery != null) TextButton(onClick = { scope.launch { try {
+                val changes = connection.host.session.changes(connection.receipt).export().getJSONArray("changes")
+                val targets = (0 until changes.length()).map { changes.getJSONObject(it) }.filter {
+                    it.getJSONObject("id").getString("actor") == connection.host.actorID && it.getJSONObject("body").has("edit")
+                }.map { it.getJSONObject("id").let { id -> ModernChangeID(id.getString("actor"), id.getLong("counter")) } }
+                connection.host.session.repairUndo(targets); connection.host.save(); failure = null
+            } catch (error: Throwable) { failure = error.toString() } } }) { Text("Undo my rejected changes") }
+            TextButton(onClick = { scope.launch { try {
+                connection.host.save()
+                val directory = File(context.filesDir, "recovery-archives").apply { mkdirs() }
+                val file = File(directory, "modern-${UUID.randomUUID()}.json")
+                val archive = connection.host.exportCheckpoint()
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { file.writeBytes(archive) }
+                exported = file; status = "Complete recovery archive saved"
+            } catch (error: Throwable) { failure = error.toString() } } }) { Text("Export recovery") }
+        } }
+        exported?.let { file -> TextButton(onClick = {
+            val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.recovery", file)
+            context.startActivity(android.content.Intent.createChooser(android.content.Intent(android.content.Intent.ACTION_SEND).setType("application/json")
+                .putExtra(android.content.Intent.EXTRA_STREAM, uri).addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION), "Share recovery archive"))
+        }) { Text("Share recovery archive") } }
         state?.let { editor -> ModernBlockEditor(editor, Modifier.weight(1f), openReference = { target -> status = "Application navigation: $target" },
             resolveMedia = { _, value -> resolveModernAsset(context, value) },
             replaceMedia = { target -> chooseAsset(target.export().getJSONObject("origin").getString("kind")) },

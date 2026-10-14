@@ -18,6 +18,7 @@ android {
     }
     sourceSets.getByName("androidTest").assets.srcDir("../../tests/BlockEditorCoreTests/Fixtures")
     sourceSets.getByName("androidTest").assets.srcDir("../../benchmarks")
+    sourceSets.getByName("androidTest").assets.srcDir("../../docs/acceptance/modern-editor/documents")
     buildFeatures { compose = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }

@@ -13,6 +13,9 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.util.ArrayDeque
 import java.util.IdentityHashMap
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.nio.charset.CodingErrorAction
 
 /** The JNI byte-array boundary without a second, whole-packet UTF-16 string. */
 internal object NativeJsonTransport {
@@ -35,6 +38,9 @@ internal object NativeJsonTransport {
                 frames.addLast(CopyFrame(source, target))
             }
             is String, is Boolean -> source
+            is BigDecimal, is BigInteger -> source // immutable; retain exact untrusted numeric tokens for Swift admission
+            is Double -> if (source == 0.0 && source.toRawBits() < 0) -0.0 else JSONTokener(JSONObject.numberToString(source)).nextValue()
+            is Float -> if (source == 0.0f && source.toRawBits() < 0) -0.0 else JSONTokener(JSONObject.numberToString(source)).nextValue()
             is Number -> JSONTokener(JSONObject.numberToString(source)).nextValue()
             else -> source.toString()
         }
@@ -67,7 +73,8 @@ internal object NativeJsonTransport {
     // BufferedWriter keeps JsonWriter's character-at-a-time string escaping cheap
     // and bounds conversion scratch space. Closing also emits any pending surrogate.
     private fun write(value: JSONObject, sink: OutputStream) {
-        JsonWriter(BufferedWriter(OutputStreamWriter(sink, Charsets.UTF_8), 8192)).use { writer ->
+        val encoder = Charsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
+        JsonWriter(BufferedWriter(OutputStreamWriter(sink, encoder), 8192)).use { writer ->
             val frames = ArrayDeque<WriteFrame>()
             val active = IdentityHashMap<Any, Boolean>()
             fun emit(item: Any?) {
@@ -113,8 +120,9 @@ internal object NativeJsonTransport {
         }
     }
 
-    fun decode(bytes: ByteArray): JSONObject {
-        JsonReader(InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8)).use { reader ->
+    fun decode(bytes: ByteArray, strict: Boolean = false): JSONObject {
+        val decoder = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
+        JsonReader(InputStreamReader(ByteArrayInputStream(bytes), decoder)).use { reader ->
             check(reader.peek() == JsonToken.BEGIN_OBJECT) { "Swift response is not an object" }
             val root = JSONObject()
             reader.beginObject()
@@ -128,27 +136,51 @@ internal object NativeJsonTransport {
                     continue
                 }
                 val key = if (parent is JSONObject) reader.nextName() else null
+                if (strict && key != null) check(validUTF16(key)) { "Invalid relay Unicode key" }
+                if (strict && parent is JSONObject) check(!parent.has(key)) { "Duplicate relay JSON key" }
                 val value: Any = when (reader.peek()) {
                     JsonToken.BEGIN_OBJECT -> JSONObject().also { reader.beginObject() }
                     JsonToken.BEGIN_ARRAY -> JSONArray().also { reader.beginArray() }
-                    JsonToken.STRING -> reader.nextString()
-                    JsonToken.NUMBER -> number(reader.nextString())
+                    JsonToken.STRING -> reader.nextString().also { if (strict) check(validUTF16(it)) { "Invalid relay Unicode string" } }
+                    JsonToken.NUMBER -> reader.nextString().let { if (strict) preciseNumber(it) else number(it) }
                     JsonToken.BOOLEAN -> reader.nextBoolean()
                     JsonToken.NULL -> { reader.nextNull(); JSONObject.NULL }
                     else -> error("Unexpected Swift JSON token")
                 }
                 if (parent is JSONObject) parent.put(checkNotNull(key), value)
                 else (parent as JSONArray).put(value)
-                if (value is JSONObject || value is JSONArray) frames.addLast(value)
+                if (value is JSONObject || value is JSONArray) {
+                    if (strict) check(frames.size < 128) { "Relay JSON nesting exceeds limit" }
+                    frames.addLast(value)
+                }
             }
             check(reader.peek() == JsonToken.END_DOCUMENT) { "Trailing Swift JSON response" }
             return root
         }
     }
 
+    private fun validUTF16(text: String): Boolean {
+        var index = 0
+        while (index < text.length) {
+            val character = text[index++]
+            if (character.isHighSurrogate()) {
+                if (index >= text.length || !text[index++].isLowSurrogate()) return false
+            } else if (character.isLowSurrogate()) return false
+        }
+        return true
+    }
+
+    private fun preciseNumber(token: String): Number {
+        val decimal = BigDecimal(token)
+        if (token.startsWith('-') && decimal.signum() == 0) return -0.0
+        if (!token.contains('.') && !token.contains('e', true)) token.toLongOrNull()?.let { return it }
+        return decimal
+    }
+
     // Android JSONTokener prefers Int, then Long, then Double. Reading the token
     // as a string avoids nextDouble's precision loss for integral IDs > 2^53.
     private fun number(token: String): Number {
+        if (token == "-0") return -0.0
         if (!token.contains('.')) {
             token.toLongOrNull()?.let { value ->
                 return if (value in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) value.toInt() else value
@@ -165,7 +197,7 @@ internal object NativeJsonTransport {
     // JsonWriter normally uses Number.toString(). Keep JSONObject's canonical
     // spelling (including negative zero and integral-valued doubles) instead.
     private class WireNumber(private val value: Number) : Number() {
-        private val token = JSONObject.numberToString(value)
+        private val token = if (value is BigDecimal || value is BigInteger) value.toString() else JSONObject.numberToString(value)
         override fun toString() = token
         override fun toByte() = value.toByte()
         override fun toShort() = value.toShort()
