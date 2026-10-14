@@ -46,6 +46,30 @@ import Testing
         #expect(try hidden.visibleOrder(in: .root) == [a])
     }
 
+    @Test func collectionPlacementIndexRetainsInactiveAnchorsAndDetachesNestedMoves() throws {
+        let childA = JSONValue.object(try Block.paragraph(id: "a", text: "A").fields)
+        let childB = JSONValue.object(try Block.paragraph(id: "b", text: "B").fields)
+        let left = try Block(fields: ["id": .string("left"), "type": .string("toggle"), "summary": .array([textNode("Left")]), "children": .array([childA, childB])])
+        let right = try Block(fields: ["id": .string("right"), "type": .string("toggle"), "summary": .array([textNode("Right")]), "children": .array([])])
+        let original = StructuralState.seed(try ModernDocument(documentID: "groups", blocks: [left, right]))
+        let leftID = NodeID.baseline(blockID: "left", path: []), rightID = NodeID.baseline(blockID: "right", path: [])
+        let a = NodeID.baseline(blockID: "left", path: ["children", "a"]), b = NodeID.baseline(blockID: "left", path: ["children", "b"])
+        let source = NodeCollection(owner: leftID, field: "children"), destination = NodeCollection(owner: rightID, field: "children")
+        #expect(try original.visibleOrder(in: source) == [a, b])
+        #expect(try original.visibleOrder(in: destination) == [])
+        var moved = original
+        let old = moved.placements[.initial(a)]!
+        moved.placements[.initial(a)] = .init(id: old.id, after: old.after, node: a, collection: source, active: false)
+        let placement = NodePlacementID.edit(ElementID(change: ChangeID(counter: 1, actor: "peer"), index: 0))
+        moved.placements[placement] = .init(id: placement, after: nil, node: a, collection: destination, active: true)
+        #expect(try moved.visibleOrder(in: source) == [b])
+        #expect(try moved.visibleOrder(in: destination) == [a])
+        #expect(try moved.address(of: b) == NodeAddress("left", path: ["children", "b"]))
+        #expect(try moved.address(of: a) == NodeAddress("right", path: ["children", "a"]))
+        #expect(try original.visibleOrder(in: source) == [a, b])
+        #expect(try original.visibleOrder(in: destination) == [])
+    }
+
     @Test func movedColumnDescendantsResolveTheirOriginalIdentitiesThroughUndoAndReopen() throws {
         let path = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("docs/acceptance/modern-editor/documents/columns-7000.json")

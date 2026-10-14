@@ -12,6 +12,16 @@ struct ModernProjectionSeed {
     var fields: Set<WritingField> { Set(births.keys) }
     var title: WritingField { WritingField(node: .document(documentID: documentID), name: "title") }
 
+    /// Modern replay starts from these immutable births and only appends new
+    /// field births. Never substitute current rendered values or author activity
+    /// for baseline atoms: inactive edits and conversions still retain them.
+    func retainedAtoms(_ retained: [WritingField: WritingFieldBirth]) -> (atoms: [WritingAtomSeed], hidden: Set<WritingAtomKey>) {
+        let additional = retained.filter { births[$0.key] == nil }
+        guard !additional.isEmpty else { return (atoms, hidden) }
+        let fresh = seedWritingAtoms(additional)
+        return (atoms + fresh.atoms, hidden.union(fresh.hidden))
+    }
+
     init(_ document: ModernDocument) {
         documentID = document.documentID
         structure = StructuralState.seed(document)

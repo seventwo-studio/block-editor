@@ -35,6 +35,52 @@ import Testing
         #expect(try seed.document() == document)
     }
 
+    @Test func retainedBaselineAtomsMatchFreshAllocationAcrossNewInactiveUnicodeFields() throws {
+        let baseline = try ModernDocument(documentID: "atoms", title: "é e\u{301} 😀", blocks: [
+            Block.paragraph(id: "body", text: "A🧑🏽‍💻Z")])
+        let seed = ModernProjectionSeed(baseline)
+        var births = seed.births
+        let created = NodeID.inserted(creation: ElementID(change: ChangeID(counter: 1, actor: "peer"), index: 0), path: [])
+        let content = WritingField(node: created, name: "content")
+        let code = WritingField(node: created, name: "code")
+        births[content] = WritingFieldBirth(value: .array([textNode("e\u{301}😀"), .object([
+            "type": .string("entity-ref"), "entityId": .string("stable"), "entityType": .string("note"), "label": .string("原文")])]), active: false)
+        births[code] = WritingFieldBirth(value: .string("\t世界\n  😀"), active: true)
+        func bytes(_ atoms: [WritingAtomSeed]) throws -> [Data] {
+            try atoms.sorted { $0.key < $1.key }.map { try canonicalEncoder().encode($0) }
+        }
+        let cached = seed.retainedAtoms(births), fresh = seedWritingAtoms(births)
+        #expect(try bytes(cached.atoms) == bytes(fresh.atoms))
+        #expect(cached.hidden == fresh.hidden)
+        #expect(try bytes(seed.retainedAtoms(seed.births).atoms) == bytes(seed.atoms))
+        let projection = try WritingProjection(seeds: cached.atoms, edits: [], hiddenSeeds: cached.hidden)
+        #expect(projection.text(in: content).isEmpty)
+        #expect(projection.text(in: code) == "\t世界\n  😀")
+        #expect(projection.text(in: seed.title) == "é e\u{301} 😀")
+    }
+
+    @Test func finalProjectedEnvelopeKeepsOpaqueAppearanceAndRejectsInvalidOverrides() throws {
+        var fields = try ModernDocument(documentID: "final-envelope", title: "Original", blocks: [
+            Block.paragraph(id: "body", text: "世界 😀")]).fields
+        var appearance = fields["appearance"]!.object!
+        appearance["consumer"] = .object(["opaque": .string("retain e\u{301}")])
+        fields["appearance"] = .object(appearance)
+        fields["consumer"] = .object(["opaque": .number(-0.0)])
+        let original = try ModernDocument(fields: fields), structure = StructuralState.seed(original)
+        appearance["fontFamily"] = .string("serif")
+        let projected = try structure.document(documentID: original.documentID, text: [:], appearance: appearance)
+        var expected = fields; expected["appearance"] = .object(appearance)
+        #expect(try projected.json() == canonicalEncoder().encode(expected))
+        let opaque = try #require(projected.fields["consumer"]?["opaque"])
+        guard case .number(let signedZero) = opaque else { Issue.record("Opaque number was replaced"); return }
+        #expect(signedZero.bitPattern == (-0.0).bitPattern)
+        var invalid = appearance; invalid["fontFamily"] = .string("unavailable-font")
+        #expect(throws: EditorError.self) { try structure.document(documentID: original.documentID, text: [:], appearance: invalid) }
+        #expect(throws: EditorError.self) { try structure.document(documentID: original.documentID,
+            text: [.document(documentID: original.documentID): ["title": .string("invalid\n")]], appearance: appearance) }
+        #expect(try structure.document(documentID: original.documentID, text: [:]).json() == original.json())
+    }
+
     @Test func twoColumnsKeepScopedChildOriginsAndLogicalAddressOrder() throws {
         let child = JSONValue.object(try Block.paragraph(id: "same", text: "preserve").fields)
         let layout = try Block(fields: ["id": .string("layout"), "type": .string("columns"), "splitBasisPoints": .number(7000),

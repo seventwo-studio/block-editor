@@ -625,7 +625,7 @@ public final class ModernSession {
                 return []
             }
         })
-        let registeredSeeds = seedWritingAtoms(registeredBirths)
+        let registeredSeeds = seed.retainedAtoms(registeredBirths)
         try preflight(ordered, fields: Set(registeredBirths.keys), seeds: registeredSeeds.atoms)
         let active = activeStates(candidate)
         var raw = Materialized(); raw.structure = seed.structure
@@ -963,13 +963,15 @@ public final class ModernSession {
             }
         }
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(ordered), births: births,
-            protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
+            protocolVersion: 6, activeOverride: active, omitEmptyMarks: true, retainedSeeds: seed.retainedAtoms(births))
         var output = shared.0
         let projection = shared.1, values = shared.2
         output = try projectModernColumnRoutes(output, routes: routes)
-        var fields = try output.document(documentID: documentID, text: values).fields
-        fields["appearance"] = .object(appearance)
-        return (projection, try ModernDocument(fields: fields), output)
+        // Validate the final envelope once, including projected appearance.
+        // Constructing an intermediate validated document repeats every schema,
+        // nesting and capacity check without changing the admitted result.
+        let finalDocument = try output.document(documentID: documentID, text: values, appearance: appearance)
+        return (projection, finalDocument, output)
     }
     private func causalColumnStructure(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> StructuralState {
         try causalWritingReplay(cohort, in: candidate).1
@@ -1051,7 +1053,7 @@ public final class ModernSession {
             if !enabled { for node in retainedRoles { raw.structure!.nodes[node] = beforeRoleNodes[node] } }
         }
         let shared = try WritingSession.projectState(raw: raw, changes: modernProjectionChanges(subset.values.sorted { $0.id < $1.id }),
-            births: births, protocolVersion: 6, activeOverride: active, omitEmptyMarks: true)
+            births: births, protocolVersion: 6, activeOverride: active, omitEmptyMarks: true, retainedSeeds: seed.retainedAtoms(births))
         let output = shared.0
         return (shared.1, try projectModernColumnRoutes(output, routes: routes), shared.2)
     }

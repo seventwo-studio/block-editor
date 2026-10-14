@@ -71,6 +71,7 @@ struct StructuralState {
         var addresses: [NodeID: NodeAddress]?
         var identities: [NodeAddress: NodeID]?
         var orders: [NodeCollection: [NodeID]] = [:]
+        var placementCollections: [NodeCollection: [NodePlacementID: Placement]]?
     }
     private var readCache = ReadCache()
     struct Node {
@@ -305,8 +306,18 @@ struct StructuralState {
         return visible
     }
 
+    private func placementsGroupedByCollection() -> [NodeCollection: [NodePlacementID: Placement]] {
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        if let groups = readCache.placementCollections { return groups }
+        var groups: [NodeCollection: [NodePlacementID: Placement]] = [:]
+        for (id, placement) in placements { groups[placement.collection, default: [:]][id] = placement }
+        readCache.placementCollections = groups
+        return groups
+    }
+
     func order(in collection: NodeCollection, selected: [NodeID: Placement]) -> [NodeID] {
-        let entries = placements.filter { $0.value.collection == collection }
+        let groups = placementsGroupedByCollection()
+        let entries = groups[collection] ?? [:]
         var children: [NodePlacementID: [NodePlacementID]] = [:], roots: [NodePlacementID] = []
         for (id, p) in entries {
             if let after = p.after { children[after, default: []].append(id) } else { roots.append(id) }
@@ -314,7 +325,7 @@ struct StructuralState {
         var itemRanks: [NodePlacementID: Int] = [:]
         let originCollections = Set(entries.values.compactMap { $0.roleOrigin.flatMap { placements[$0]?.collection } })
         for originCollection in originCollections {
-            let old = placements.filter { $0.value.collection == originCollection }
+            let old = groups[originCollection] ?? [:]
             var successors: [NodePlacementID: [NodePlacementID]] = [:], pending: [NodePlacementID] = []
             for (id, placement) in old {
                 if let after = placement.after { successors[after, default: []].append(id) } else { pending.append(id) }
@@ -369,9 +380,12 @@ struct StructuralState {
 
     func visibleOrder(in collection: NodeCollection) throws -> [NodeID] {
         let (selected, visible) = try readView()
-        readCache.lock.lock(); defer { readCache.lock.unlock() }
-        if let result = readCache.orders[collection] { return result }
+        readCache.lock.lock()
+        let cached = readCache.orders[collection]
+        readCache.lock.unlock()
+        if let cached { return cached }
         let result = order(in: collection, selected: selected).filter { visible.contains($0) }
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
         readCache.orders[collection] = result
         return result
     }
@@ -434,11 +448,12 @@ struct StructuralState {
         return try Document(blocks: renderedBlocks(text: text))
     }
 
-    func document(documentID: String, text: [NodeID: [String: JSONValue]]) throws -> ModernDocument {
+    func document(documentID: String, text: [NodeID: [String: JSONValue]], appearance: [String: JSONValue]? = nil) throws -> ModernDocument {
         guard modern, let metadata = nodes[.document(documentID: documentID)], metadata.kind == .document,
               !deleted.contains(metadata.identity) else { throw EditorError.invalidPath }
         var fields = metadata.fields
         for (key, value) in text[metadata.identity] ?? [:] { fields[key] = value }
+        if let appearance { fields["appearance"] = .object(appearance) }
         fields["blocks"] = .array(try renderedBlocks(text: text).map { .object($0.fields) })
         return try ModernDocument(fields: fields)
     }

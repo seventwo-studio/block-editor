@@ -1830,8 +1830,9 @@ public final class WritingSession {
         return (state.0, state.1, document)
     }
     static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3,
-                             activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
-        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride)
+                             activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false,
+                             retainedSeeds: (atoms: [WritingAtomSeed], hidden: Set<WritingAtomKey>)? = nil) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+        let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride, retainedSeeds: retainedSeeds)
         let (structure, edits) = try orderedCuts(structure: inputs.structure, edits: inputs.edits,
             seeds: inputs.seeds, active: inputs.active, fields: inputs.fields, births: inputs.births,
             hidden: inputs.hidden, aliases: inputs.aliases, changes: changes,
@@ -1849,12 +1850,13 @@ public final class WritingSession {
         let aliases: [WritingField: WritingField]
     }
     @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
-        births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil) throws -> ProjectionInputs {
+        births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil,
+        retainedSeeds: (atoms: [WritingAtomSeed], hidden: Set<WritingAtomKey>)? = nil) throws -> ProjectionInputs {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
         fields = Set(retainedWritingFields(structure).keys)
-        let seeded = seedWritingAtoms(births)
+        let seeded = retainedSeeds ?? seedWritingAtoms(births)
         seeds = seeded.atoms; hidden = seeded.hidden
         var active: [ChangeID: Bool] = [:], edits: [WritingEdit] = []
         for change in changes {
