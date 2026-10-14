@@ -17,6 +17,7 @@ documentation/harness-only commits do not alter shared/native runtime inputs.
 | Matching independent Android HTTP/recovery | Five phases / five distinct PIDs passed |
 | Integrated modern browser relay/wire/recovery | Fifteen passed across the three engines |
 | Shared/native/WASM/JNI and production measurement builds | Passed |
+| Frozen matching JS/declarations/WASM and isolated package | Passed at `a352a38d`; local installation only |
 | 1,000 mixed-block surface input/menu budgets | **Failed/incomplete**, not accepted |
 
 The fixed workload has 1,000 schema blocks (860 roots), including twenty valid

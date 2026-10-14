@@ -66,5 +66,10 @@
     "passed": true,
     "phases": 5,
     "distinctPIDs": 5
+  },
+  "localPackage": {
+    "passed": true,
+    "sourceCommit": "a352a38dbe0bade4c071edb86dca865655f69251",
+    "registryRelease": false
   }
 }
