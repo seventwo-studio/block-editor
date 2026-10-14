@@ -574,6 +574,9 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   }
   function renderBlocks(values: readonly ModernObject[], collection: ModernCollection, rootID?: string, path: string[] = [], available = width): ReactNode {
     return values.map(value => {
+      const reusableRoot = !rootID && sharedBindings !== undefined;
+      const retained = reusableRoot ? renderedRoots.get(value) : undefined;
+      if (retained) return retained;
       const root = rootID ?? text(value.id), current = rootID ? [...path, text(value.id)] : [], node = origin(root, current), nodeKey = key(node), type = text(value.type);
       let content: ReactNode;
       if (type === "columns") {
@@ -646,7 +649,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       else if (type === "divider") content = <hr />;
       else if (["paragraph", "heading", "quote", "callout"].includes(type)) content = input(node, "content", array(value.content), type === "heading" ? "Heading" : "Block text");
       else content = <p role="status">Unsupported content preserved</p>;
-      return <div key={nodeKey} id={`modern-${encodeURIComponent(nodeKey)}`} data-block-type={type} data-level={value.level} data-ink={value.semanticColor} data-fill={value.semanticBackground}
+      const rendered = <div key={nodeKey} id={`modern-${encodeURIComponent(nodeKey)}`} data-block-type={type} data-level={value.level} data-ink={value.semanticColor} data-fill={value.semanticBackground}
         className={`modern-block ${nodes?.nodes.some(id => key(id) === nodeKey) ? "modern-selected" : ""}`}
         onDragStart={event => { event.stopPropagation(); drag.current = session.captureNodes(nodes?.nodes.some(id => key(id) === nodeKey) ? nodes.nodes : [node]); event.dataTransfer.setData("text/plain", "modern-local-move"); }}
         onDragOver={event => { if (!drag.current) return; event.preventDefault(); event.stopPropagation(); const bounds = event.currentTarget.getBoundingClientRect(), before = event.clientY < bounds.top + bounds.height / 2;
@@ -656,6 +659,8 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
         onDrop={event => { if (!drag.current || !drop.current) return; event.preventDefault(); event.stopPropagation(); const selection = drag.current, boundary = drop.current; drag.current = undefined; drop.current = undefined; delete event.currentTarget.dataset.drop; safe(() => execute({ command: "move", target: { selection, boundary }, arguments: {} })); }}>
         <button type="button" className="modern-handle" draggable={!readOnly} aria-label="Select block" onClick={event => selectedBlocks(node, event.shiftKey)}>⋮⋮</button>{content}
       </div>;
+      if (reusableRoot) renderedRoots.set(value, rendered);
+      return rendered;
     });
   }
   // Local menus/focus/formatting state do not alter the document body. Keep its
@@ -663,6 +668,14 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   // changes. Lifecycle reads still invalidate policy/composition/provider UI.
   const capabilitiesKey = key(session.capabilities());
   const providerPresentationKey = key(session.asyncRequests().map(record => ({ target: record.target, status: record.status, reason: record.reason })));
+  // Only immutable roots under the same confirmed identities and presentation
+  // context can retain controls. Events capture targets from the live session;
+  // title navigation remains outside this cache and reads the current document.
+  const renderedRoots = useMemo(() => new WeakMap<ModernObject, ReactNode>(), [
+    session, identityMaps, readOnly, capabilitiesKey, providerPresentationKey, registerInput, snapshot.document.appearance,
+    nodes, collapsed, split, width, fontMetric, props.host, props.onError, props.suggestLinks,
+    props.onOpenReference, props.resolveMedia, props.requestMediaReplacement,
+  ]);
   const body = useMemo(() => renderBlocks(snapshot.document.blocks, { field: "blocks" }), [
     session, bindings, snapshot.document, snapshot.syncState, readOnly, capabilitiesKey, providerPresentationKey, registerInput,
     nodes, collapsed, split, width, fontMetric, props.host, props.onError, props.suggestLinks,

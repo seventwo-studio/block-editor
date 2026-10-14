@@ -31,6 +31,28 @@ const cellActionsDocument: ModernDocument = { format: "seventwo.block-editor.doc
     { id: "T", type: "table", rows: [{ id: "R", cells: [{ id: "C", header: false, content: [{ type: "text", text: "Original 世界😀" }] }] }] }
   ] };
 
+test("unchanged sibling commands use current shared state after another block edits", async ({ page }) => {
+  const document: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "retained-sibling",
+    title: "Siblings", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+      { id: "A", type: "paragraph", content: [{ type: "text", text: "First" }] },
+      { id: "B", type: "paragraph", content: [{ type: "text", text: "Second" }] },
+    ] };
+  await mount(page, document);
+  const first = page.getByRole("textbox", { name: "Block text", exact: true }).first();
+  const second = page.getByRole("textbox", { name: "Block text", exact: true }).nth(1);
+  await first.click(); await first.press("End"); await page.keyboard.type("abc");
+  await expect(first).toHaveText("Firstabc");
+  await second.click(); await second.press("End"); await second.press("Enter");
+  await expect(page.getByRole("textbox", { name: "Block text", exact: true })).toHaveCount(3);
+  await expect(first).toHaveText("Firstabc"); await expect(second).toHaveText("Second");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Block text", exact: true })).toHaveCount(2);
+  await expect(first).toHaveText("Firstabc");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(document);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("ordinary keyboard typing groups until deliberate caret movement and retains Undo selection", async ({ page }) => {
   const document: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "keyboard-history",
     title: "History", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" },
