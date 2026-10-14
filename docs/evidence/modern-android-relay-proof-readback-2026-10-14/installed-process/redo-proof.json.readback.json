@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "passed": true,
+      "remote": "files/modern-process-d5e6c509-4b23-4043-af81-85810df31476-redo.json",
+      "expectedSHA256": "27bd0a8e8d06ea3ab793414043a2f5ba53172a6d3b7412eb8a7b22ccd09d9030",
+      "actualSHA256": "27bd0a8e8d06ea3ab793414043a2f5ba53172a6d3b7412eb8a7b22ccd09d9030",
+      "byteCount": 1788
+    }
+  ]
+}

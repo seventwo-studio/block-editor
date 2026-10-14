@@ -1,0 +1,15 @@
+bun test v1.4.2 (744846f84)
+
+tests/android-relay-proof-readback.test.ts:
+(pass) complete proof preserves literal Unicode and exact remote digest [2.16ms]
+(pass) empty exit255 read retries the immutable file without instrumentation [0.90ms]
+(pass) exit-zero truncated bytes require exact hash readback before publication [0.86ms]
+(pass) three total empty transport failures exhaust the read budget [1.49ms]
+(pass) denied, missing, timeout and nonempty exit255 fail without retries [2.18ms]
+(pass) changed immutable digest cannot replace the original after an incomplete read [0.56ms]
+(pass) invalid digest or complete malformed JSON fails without accepting content [0.93ms]
+
+ 7 pass
+ 0 fail
+ 47 expect() calls
+Ran 7 tests across 1 file. [75.00ms]
