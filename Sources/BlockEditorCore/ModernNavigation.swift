@@ -84,11 +84,30 @@ extension ModernSession {
     /// A disclosed container retains its own field while hidden descendants are
     /// omitted only from this local navigation projection.
     public func logicalFields(collapsed: Set<NodeID> = [], includingTitle: Bool = true) throws -> [WritingField] {
+        let view = try logicalFieldView(collapsed: collapsed)
+        return includingTitle ? view.fields : Array(view.fields.dropFirst())
+    }
+    private func logicalFieldView(collapsed: Set<NodeID>) throws -> (fields: [WritingField], indices: [WritingField: Int]) {
+        let current = modernCurrentReplay
+        let lease = current.2.renderingReadLease
+        // Set equality normalizes Swift strings; exact encoded origins distinguish
+        // local collapse requests without changing their existing resolution rules.
+        let collapseKey = try collapsed.map { try canonicalEncoder().encode($0) }.sorted { $0.lexicographicallyPrecedes($1) }
+        if current.0.usesIndependentFields, let cached = logicalFieldCache,
+           cached.lease === lease, cached.collapsed == collapseKey {
+            return (cached.fields, cached.indices)
+        }
         let hidden = try Set(collapsed.flatMap { container in try structure.descendants(of: container).filter { $0 != container } })
         let births = retainedWritingFields(structure)
-        return (includingTitle ? [titleField] : []) + (try logicalNodes(structure)).filter { !hidden.contains($0) }.flatMap { node in
+        let fields = [titleField] + (try logicalNodes(structure)).filter { !hidden.contains($0) }.flatMap { node in
             ["content", "summary", "caption", "code", "expression"].map { WritingField(node: node, name: $0) }.filter { births[$0] != nil }
         }
+        // Preserve the firstIndex semantics even for canonically equal origins.
+        var indices: [WritingField: Int] = [:]
+        for (index, field) in fields.enumerated() where indices[field] == nil { indices[field] = index }
+        if current.0.usesIndependentFields { logicalFieldCache = (lease, collapseKey, fields, indices) }
+        else { logicalFieldCache = nil }
+        return (fields, indices)
     }
     public func parentCollection(of node: NodeID) throws -> NodeCollection {
         _ = try structure.address(of: node)
@@ -98,11 +117,11 @@ extension ModernSession {
     /// One capture cohort for all fields in a directed text selection. Each
     /// range selects its captured atoms; subsequent peer insertions stay intact.
     public func captureTextSpan(from start: WritingPosition, to end: WritingPosition, collapsed: Set<NodeID> = []) throws -> [ModernTextRange] {
-        let fields = try logicalFields(collapsed: collapsed)
+        let view = try logicalFieldView(collapsed: collapsed), fields = view.fields
         let first = try resolve(start), last = try resolve(end)
         let firstField = try start.anchor.map { try modernCurrentReplay.0.field(of: $0) } ?? modernCurrentReplay.0.destination(of: start.field)
         let lastField = try end.anchor.map { try modernCurrentReplay.0.field(of: $0) } ?? modernCurrentReplay.0.destination(of: end.field)
-        guard let a = fields.firstIndex(of: firstField), let b = fields.firstIndex(of: lastField) else { throw EditorError.invalidRange }
+        guard let a = view.indices[firstField], let b = view.indices[lastField] else { throw EditorError.invalidRange }
         if a == b { return [try captureTextRange(in: firstField, start: first.offset, end: last.offset)] }
         guard firstField != titleField, lastField != titleField else { throw EditorError.invalidRange }
         let backward = a > b

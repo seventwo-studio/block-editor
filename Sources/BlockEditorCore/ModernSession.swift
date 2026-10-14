@@ -125,6 +125,7 @@ public final class ModernSession {
     // immediate predecessor for controls still displaying a captured selection.
     private var capturedRead: (cohort: Set<ChangeID>, replay: (WritingProjection, ModernDocument, StructuralState))?
     var renderingBindingCache: (lease: AnyObject, token: String, bindings: [ModernNodeBinding])?
+    var logicalFieldCache: (lease: AnyObject, collapsed: [Data], fields: [WritingField], indices: [WritingField: Int])?
     private var log: [ChangeID: ModernChange] = [:]
     private var counter: UInt64 = 0
     private var undoStack: [[ChangeID]] = [], redoStack: [[ChangeID]] = []
