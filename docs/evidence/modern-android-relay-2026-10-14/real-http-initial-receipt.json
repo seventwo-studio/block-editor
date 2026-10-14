@@ -1,0 +1,149 @@
+{
+  "runID": "dd2f4734-cf13-4b21-91b5-31cc3a244adc",
+  "passed": false,
+  "serial": "emulator-5568",
+  "adbPort": "5044",
+  "epoch": "modern-android-process-epoch",
+  "fixtureSHA256": "aeef0022543c093e27eba7f94db19974e311df0b011744a9328a3e760e0fa643",
+  "source": "d453cbf1597072cf8523b97c5166bb239d24acec",
+  "phases": [
+    {
+      "passed": true,
+      "phase": "seed",
+      "runID": "dd2f4734-cf13-4b21-91b5-31cc3a244adc",
+      "pid": 3729,
+      "packageName": "studio.seventwo.blockeditor.test",
+      "document": {
+        "appearance": {
+          "fontFamily": "sans",
+          "fontSize": "default",
+          "pageWidth": "readable"
+        },
+        "blocks": [
+          {
+            "columns": [
+              {
+                "children": [
+                  {
+                    "consumer": {
+                      "opaque": "retain-A"
+                    },
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "type": "bold"
+                          }
+                        ],
+                        "text": "ABC",
+                        "type": "text"
+                      }
+                    ],
+                    "id": "A",
+                    "type": "paragraph"
+                  },
+                  {
+                    "children": [
+                      {
+                        "content": [
+                          {
+                            "text": "Nested paragraph",
+                            "type": "text"
+                          }
+                        ],
+                        "id": "child",
+                        "type": "paragraph"
+                      },
+                      {
+                        "id": "todo",
+                        "items": [
+                          {
+                            "checked": false,
+                            "children": [
+                              {
+                                "checked": true,
+                                "content": [
+                                  {
+                                    "text": "Nested task",
+                                    "type": "text"
+                                  }
+                                ],
+                                "id": "child"
+                              }
+                            ],
+                            "content": [
+                              {
+                                "text": "Check this",
+                                "type": "text"
+                              }
+                            ],
+                            "id": "same"
+                          }
+                        ],
+                        "style": "todo",
+                        "type": "list"
+                      }
+                    ],
+                    "consumer": {
+                      "opaque": "keep-toggle"
+                    },
+                    "id": "B",
+                    "summary": [
+                      {
+                        "text": "Details",
+                        "type": "text"
+                      }
+                    ],
+                    "type": "toggle"
+                  }
+                ],
+                "id": "first-column"
+              },
+              {
+                "children": [
+                  {
+                    "code": "\tlet text = \"世界😀\"\n\n    print(text)  \n",
+                    "id": "C",
+                    "language": "swift",
+                    "type": "code"
+                  }
+                ],
+                "id": "second-column"
+              }
+            ],
+            "consumer": {
+              "opaque": "retain-layout"
+            },
+            "id": "layout",
+            "splitBasisPoints": 7000,
+            "type": "columns"
+          },
+          {
+            "content": [
+              {
+                "text": "Own Outside layout",
+                "type": "text"
+              }
+            ],
+            "id": "E",
+            "type": "paragraph"
+          }
+        ],
+        "documentID": "st140-columns",
+        "format": "seventwo.block-editor.document",
+        "formatVersion": 1,
+        "title": "Field notes"
+      },
+      "pending": 1,
+      "receipt": {
+        "documentID": "st140-columns",
+        "epoch": "modern-android-process-epoch",
+        "received": [],
+        "version": 7
+      },
+      "api": 35,
+      "abi": "arm64-v8a"
+    }
+  ],
+  "failure": "Error: invalidChange"
+}

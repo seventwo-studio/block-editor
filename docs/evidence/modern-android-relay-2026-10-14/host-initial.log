@@ -1,0 +1,177 @@
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+studio.seventwo.blockeditor.ModernRelayHostTest:
+INSTRUMENTATION_STATUS: test=duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed reply must fail mode 1
+	at org.junit.Assert.fail(Assert.java:89)
+	at studio.seventwo.blockeditor.ModernRelayHostTest$duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish$1.invokeSuspend(ModernRelayHostTest.kt:175)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:85)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:59)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:38)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at studio.seventwo.blockeditor.ModernRelayHostTest.duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish(ModernRelayHostTest.kt:158)
+
+INSTRUMENTATION_STATUS: stream=
+Error in duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish(studio.seventwo.blockeditor.ModernRelayHostTest):
+java.lang.AssertionError: Malformed reply must fail mode 1
+	at org.junit.Assert.fail(Assert.java:89)
+	at studio.seventwo.blockeditor.ModernRelayHostTest$duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish$1.invokeSuspend(ModernRelayHostTest.kt:175)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:85)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:59)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:38)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at studio.seventwo.blockeditor.ModernRelayHostTest.duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish(ModernRelayHostTest.kt:158)
+
+INSTRUMENTATION_STATUS: test=duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=inputDuringTransmissionRemainsPendingAndReceiptsReopenWithValidExponentNumbers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=inputDuringTransmissionRemainsPendingAndReceiptsReopenWithValidExponentNumbers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=failedAcknowledgmentSaveKeepsReceiptPendingAndReopenRetainsPeerUndo
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=failedAcknowledgmentSaveKeepsReceiptPendingAndReopenRetainsPeerUndo
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=originalUnpairedNativeBufferReopensExactlyAndMalformedPrivateFieldsFail
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=originalUnpairedNativeBufferReopensExactlyAndMalformedPrivateFieldsFail
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=rejectedRecoveryReopensAcceptedContentAndExplicitOwnRepairRetainsPeer
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=rejectedRecoveryReopensAcceptedContentAndExplicitOwnRepairRetainsPeer
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=originalHostAndCredentialABAIgnoreOlderResponse
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=originalHostAndCredentialABAIgnoreOlderResponse
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=capacityFailureRetainsCompleteAcceptedHistoryForExportAndReopen
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=capacityFailureRetainsCompleteAcceptedHistoryForExportAndReopen
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ordinaryReopenReceivesPeersWithoutResumeAndReadOnlyDoesNotSuppressSynchronization
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ordinaryReopenReceivesPeersWithoutResumeAndReadOnlyDoesNotSuppressSynchronization
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=heldPeerAndOriginalNativeDraftRemainInertUntilExplicitResume
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.ModernRelayHostTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=heldPeerAndOriginalNativeDraftRemainInertUntilExplicitResume
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 26.214
+There was 1 failure:
+1) duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish(studio.seventwo.blockeditor.ModernRelayHostTest)
+java.lang.AssertionError: Malformed reply must fail mode 1
+	at org.junit.Assert.fail(Assert.java:89)
+	at studio.seventwo.blockeditor.ModernRelayHostTest$duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish$1.invokeSuspend(ModernRelayHostTest.kt:175)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:85)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:59)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:38)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at studio.seventwo.blockeditor.ModernRelayHostTest.duplicateKeysRoundedNumbersForeignScopeAndUnknownReceiptsCannotPublish(ModernRelayHostTest.kt:158)
+
+FAILURES!!!
+Tests run: 9,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

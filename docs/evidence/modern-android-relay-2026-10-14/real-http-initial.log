@@ -1,0 +1,21 @@
+Native Android relay phase seed: passed in process 3729
+24 |       if (!request) { fail(new Error("Unexpected bridge output")); return; }
+25 |       try {
+26 |         const response = JSON.parse(line);
+27 |         if (!response.ok) request.reject(response.error === "modernRecoveryRequired" && response.recovery
+28 |           ? new SwiftModernRecoveryError(response.recovery) : response.error === "mergeRecoveryRequired" && response.recovery
+29 |           ? new SwiftMergeRecoveryError(response.recovery) : new Error(response.error));
+                                                                      ^
+error: invalidChange
+      at <anonymous> (/Users/luca/Developer/block-editor/demo/relay/bridge.ts:29:66)
+      at emit (node:events:100:22)
+      at [_onLine] (internal:readline/interface:201:16)
+      at [_normalWrite] (internal:readline/interface:289:22)
+      at ondata (internal:readline/interface:66:23)
+      at emit (node:events:100:22)
+      at addChunk (internal:streams/readable:267:47)
+      at readableAddChunkPushByteMode (internal:streams/readable:245:18)
+      at pushAndCheck (internal:streams/native-readable:66:19)
+      at handleNumberResult (internal:streams/native-readable:76:19)
+
+Bun v1.4.2 (macOS arm64)

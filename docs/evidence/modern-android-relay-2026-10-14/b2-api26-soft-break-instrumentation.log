@@ -1,0 +1,8 @@
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+studio.seventwo.blockeditor.WritingBuiltinImeTest:
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=installedLatinImeCommitsBeforeSharedSoftBreakAndKeepsAuthorUndo
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.WritingBuiltinImeTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS_CODE: 1

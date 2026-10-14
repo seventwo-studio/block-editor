@@ -1,0 +1,128 @@
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+studio.seventwo.blockeditor.NativeJsonTransportTest:
+INSTRUMENTATION_STATUS: test=strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at studio.seventwo.blockeditor.NativeJsonTransportTest.strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates(NativeJsonTransportTest.kt:17)
+
+INSTRUMENTATION_STATUS: stream=
+Error in strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates(studio.seventwo.blockeditor.NativeJsonTransportTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at studio.seventwo.blockeditor.NativeJsonTransportTest.strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates(NativeJsonTransportTest.kt:17)
+
+INSTRUMENTATION_STATUS: test=strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=preservesNumbersStringsNullAndContainerOrder
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=preservesNumbersStringsNullAndContainerOrder
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readerRejectsInvalidResponsesAndDoesNotSubstituteStringsOrNull
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=readerRejectsInvalidResponsesAndDoesNotSubstituteStringsOrNull
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=packagedJniPreservesRichOpaquePayloadAcrossEverySupportedEpoch
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=packagedJniPreservesRichOpaquePayloadAcrossEverySupportedEpoch
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=defensiveCopiesIsolateEveryContainerAndFreezeMutableNumbers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=defensiveCopiesIsolateEveryContainerAndFreezeMutableNumbers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=streamsWithoutCallingWholeContainerToStringAtLegalEnvelopeDepth
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=streamsWithoutCallingWholeContainerToStringAtLegalEnvelopeDepth
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=strictNetworkReaderBoundsNestingBeforeAdmission
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=studio.seventwo.blockeditor.NativeJsonTransportTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=7
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=strictNetworkReaderBoundsNestingBeforeAdmission
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.12
+There was 1 failure:
+1) strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates(studio.seventwo.blockeditor.NativeJsonTransportTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at studio.seventwo.blockeditor.NativeJsonTransportTest.strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates(NativeJsonTransportTest.kt:17)
+
+FAILURES!!!
+Tests run: 7,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

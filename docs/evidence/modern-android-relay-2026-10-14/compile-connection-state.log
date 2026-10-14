@@ -1,0 +1,62 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :editor:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :editor:preBuild UP-TO-DATE
+> Task :editor:preDebugBuild UP-TO-DATE
+> Task :editor:generateDebugResValues UP-TO-DATE
+> Task :editor:generateDebugResources UP-TO-DATE
+> Task :editor:packageDebugResources UP-TO-DATE
+> Task :editor:parseDebugLocalResources UP-TO-DATE
+> Task :editor:generateDebugRFile UP-TO-DATE
+> Task :demo:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :demo:preBuild UP-TO-DATE
+> Task :demo:preDebugBuild UP-TO-DATE
+> Task :editor:writeDebugAarMetadata UP-TO-DATE
+> Task :demo:checkDebugAarMetadata UP-TO-DATE
+> Task :demo:generateDebugResValues UP-TO-DATE
+> Task :demo:mapDebugSourceSetPaths UP-TO-DATE
+> Task :demo:generateDebugResources UP-TO-DATE
+> Task :demo:mergeDebugResources UP-TO-DATE
+> Task :demo:packageDebugResources UP-TO-DATE
+> Task :demo:parseDebugLocalResources UP-TO-DATE
+> Task :demo:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :demo:extractDeepLinksDebug UP-TO-DATE
+> Task :editor:extractDeepLinksDebug UP-TO-DATE
+> Task :editor:processDebugManifest UP-TO-DATE
+> Task :demo:processDebugMainManifest UP-TO-DATE
+> Task :demo:processDebugManifest UP-TO-DATE
+> Task :demo:processDebugManifestForPackage UP-TO-DATE
+> Task :editor:compileDebugLibraryResources UP-TO-DATE
+> Task :demo:processDebugResources UP-TO-DATE
+> Task :editor:javaPreCompileDebug UP-TO-DATE
+
+> Task :editor:compileDebugKotlin
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:47:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:48:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:50:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:50:60 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:53 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:67 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:52:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:52:54 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:52:71 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:31 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:47:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:48:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:50:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:50:60 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:24 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:53 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:51:67 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:52:18 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:52:54 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:52:71 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+w: file:///Users/luca/Developer/block-editor/android/editor/src/main/java/studio/seventwo/blockeditor/NativeJsonTransport.kt:54:31 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'NativeJsonTransport.CopyFrame?'.
+
+> Task :editor:compileDebugJavaWithJavac NO-SOURCE
+> Task :editor:bundleLibCompileToJarDebug
+> Task :demo:compileDebugKotlin
+
+BUILD SUCCESSFUL in 8s
+26 actionable tasks: 3 executed, 23 up-to-date
