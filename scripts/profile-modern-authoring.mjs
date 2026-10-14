@@ -17,6 +17,8 @@ runtime.call = request => {
   return result;
 };
 const report = { complete: false, sourceCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+  trackedPatchSHA256: createHash("sha256").update(execFileSync("git", ["diff", "HEAD", "--", "Sources", "src", "scripts/profile-modern-authoring.mjs"])).digest("hex"),
+  trackedSourceDirty: execFileSync("git", ["diff", "HEAD", "--", "Sources", "src", "scripts/profile-modern-authoring.mjs"]).length > 0,
   fixtureSHA256: createHash("sha256").update(fixture).digest("hex"), wasmSHA256: createHash("sha256").update(wasm).digest("hex"), calls,
   qualification: "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets." };
 mkdirSync(dirname(output), { recursive: true });

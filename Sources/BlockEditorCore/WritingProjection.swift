@@ -105,6 +105,7 @@ struct WritingProjection {
     private var fields: [WritingAtomKey: WritingField] = [:]
     private var order: [WritingAtomKey] = []
     private var visibleByField: [WritingField: [WritingAtomKey]] = [:]
+    private var retainedByField: [WritingField: [WritingAtomKey]] = [:]
 
     init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:]) throws {
         hidden = hiddenSeeds
@@ -189,8 +190,13 @@ struct WritingProjection {
         // Projection state is immutable after construction. Preserve global
         // traversal order while indexing each field once, rather than scanning
         // all document atoms for every field lookup.
-        for key in order where !hidden.contains(key) && key.element.index >= 0 {
-            if let field = fields[key] { visibleByField[field, default: []].append(key) }
+        for key in order {
+            if let field = fields[key] {
+                retainedByField[field, default: []].append(key)
+                if !hidden.contains(key) && key.element.index >= 0 {
+                    visibleByField[field, default: []].append(key)
+                }
+            }
         }
     }
 
@@ -234,7 +240,7 @@ struct WritingProjection {
     func offset(of key: WritingAtomKey, affinity: TextAffinity) throws -> Int {
         let field = try field(of: key)
         var offset = 0
-        for member in order where fields[member] == field {
+        for member in retainedByField[field] ?? [] {
             if member == key, affinity == .before { return offset }
             if member.element.index >= 0, !hidden.contains(member) {
                 offset += plainText([try value(of: member)]).utf16.count
@@ -248,7 +254,7 @@ struct WritingProjection {
     func retainedOffset(of key: WritingAtomKey, affinity: TextAffinity) throws -> Int {
         let field = try field(of: key)
         var offset = 0
-        for member in order where fields[member] == field {
+        for member in retainedByField[field] ?? [] {
             if member == key, affinity == .before { return offset }
             if member.element.index >= 0 { offset += plainText([try value(of: member)]).utf16.count }
             if member == key { return offset }
