@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "83b5ebc2b2cad4cd1c0c98e657acbc1076603fa0",
+  "apkSHA256": "61d528aa05cae03404a509b00c270d40dff5422b045719528c18587ecf92459c",
+  "packagedNativeHashes": {
+    "lib/arm64-v8a/libBlockEditorBridge.so": "a4501c993f366452060953ba1f55c889e368197e38de5b55237f74625bbce6c9",
+    "lib/arm64-v8a/libBlockEditorJNI.so": "89ebcd01390a38986b4d3d65c06d80809c095b259af66fdb3540d6aa47ab9f28",
+    "lib/arm64-v8a/libc++_shared.so": "7466ed097631a564ed6bff0b47768caa76bf03270d2047b5a65c03f497b824df",
+    "lib/x86_64/libBlockEditorBridge.so": "97ef9ed1688ec99ce535233444fbc206cd1de99c6f9ce92243cb5331588f7da4",
+    "lib/x86_64/libBlockEditorJNI.so": "6c6d46803f8a5553a44e5aa6d28b31f73e239946e9e954a6df62a041a141d6cc",
+    "lib/x86_64/libc++_shared.so": "7918ebd0b8074c312d0c610205d49760b98c008026e6b817cd92103a3e12241b"
+  }
+}
