@@ -1,0 +1,37 @@
+{
+  "sourceCommit": "74de1accfa86343357bd3edd662bd0c142c51676",
+  "failedRun": 38583783872,
+  "failedHead": "cc0950f1236da5f4413573abb54a3770109e955f",
+  "failedJob": 115920243270,
+  "failure": "Pinned android-ndk SHA-256 mismatch before editor build/instrumentation; artifact upload found no completed evidence",
+  "causeQualification": "Original installer deleted rejected bytes and omitted actual digest/size/headers. Precise cause unproven. Two API35 installers used the same pin successfully.",
+  "repair": "Strict original SHA always; exact locked size when available; retain rejection metadata/files. At most three attempts only for identified partial/truncated/transient transport failures, with fresh-cache request and 2/5 second delay. Full wrong hash/denied access/certificate failure halt. Hash-only lock entries remain supported. Upload diagnostic receipt before installation succeeds.",
+  "tests": {
+    "localHTTP": 7,
+    "provenance": 8,
+    "passed": true
+  },
+  "officialNDKProbe": {
+    "artifact": "android-ndk",
+    "attempt": 1,
+    "expectedSHA256": "753611f410d002cfcd3f3dc2ef49aad532089d3180b436c060a90bf0fcb64df2",
+    "actualSHA256": "753611f410d002cfcd3f3dc2ef49aad532089d3180b436c060a90bf0fcb64df2",
+    "expectedBytes": 738633529,
+    "receivedBytes": 738633529,
+    "httpStatus": 200,
+    "contentLength": "738633529",
+    "contentRange": null,
+    "contentType": "application/zip",
+    "freshCacheRequest": false,
+    "outcome": "verified",
+    "error": null,
+    "retryable": false,
+    "rejectedFile": null
+  },
+  "qualifications": [
+    "Actual official pin verified once; no SDK pin, visibility, billing, credential or branch protection changes.",
+    "Later exact download does not pass the failed original run or prove its missing cause.",
+    "Current fresh-head CI must still verify all seven required jobs. Existing runtime/editor/performance/native staging evidence retains earlier source qualifications.",
+    "No SDK archive committed or redistributed; its exact verified receipt is retained."
+  ]
+}
