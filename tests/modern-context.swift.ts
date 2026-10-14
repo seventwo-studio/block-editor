@@ -31,6 +31,24 @@ const cellActionsDocument: ModernDocument = { format: "seventwo.block-editor.doc
     { id: "T", type: "table", rows: [{ id: "R", cells: [{ id: "C", header: false, content: [{ type: "text", text: "Original 世界😀" }] }] }] }
   ] };
 
+test("editor actions preserve content without submitting an enclosing host form", async ({ page }) => {
+  const document = await mount(page, "unicode");
+  await page.evaluate(() => {
+    const root = window.document.getElementById("root")!;
+    const form = window.document.createElement("form");
+    root.parentElement!.insertBefore(form, root); form.append(root);
+    form.addEventListener("submit", event => { event.preventDefault(); window.modernAcceptance.events.push({ type: "host-submit", target: "host form" }); });
+  });
+  await page.getByRole("button", { name: "Insert", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Search blocks", exact: true })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Select block", exact: true }).first().click();
+  await page.keyboard.press("Escape");
+  const state = await page.evaluate(() => ({ submits: window.modernAcceptance.events.filter(event => event.type === "host-submit"), document: window.modernAcceptance.session.getSnapshot().document }));
+  expect(state.submits).toEqual([]);
+  expect(state.document).toEqual(document);
+});
+
 async function trackCellCaptures(page: Page) {
   await page.evaluate(() => {
     const { session, events } = window.modernAcceptance, capture = session.captureTableTarget.bind(session);
