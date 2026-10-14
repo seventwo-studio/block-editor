@@ -21,18 +21,40 @@ enum ModernSnapshotDelta {
                     if changes.count > limit { return }
                 }
             case (.object(let a), .object(let b)) where a.count == b.count && path.count < 100:
-                let left = a.keys.sorted { $0.utf8.lexicographicallyPrecedes($1.utf8) }
-                let right = b.keys.sorted { $0.utf8.lexicographicallyPrecedes($1.utf8) }
-                guard zip(left, right).allSatisfy({ $0.utf8.elementsEqual($1.utf8) }) else { replace(new, at: path); return }
-                for name in left {
-                    visit(a[name]!, b[name]!, path + [.string(name)])
+                // Dictionary lookup uses canonical Unicode equality. Check the
+                // stored spelling too before emitting any child replacements.
+                // Unchanged objects need no sorted key arrays; only the final
+                // changed paths require stable transport ordering.
+                for name in a.keys {
+                    guard let index = b.index(forKey: name), name.utf8.elementsEqual(b[index].key.utf8) else {
+                        replace(new, at: path); return
+                    }
+                }
+                for (name, value) in a {
+                    visit(value, b[name]!, path + [.string(name)])
                     if changes.count > limit { return }
                 }
             default: replace(new, at: path)
             }
         }
         visit(old, new, [])
-        return changes.count <= limit ? changes : nil
+        guard changes.count <= limit else { return nil }
+        if changes.count > 1 {
+            changes.sort { left, right in
+                let a = left["path"]!.array!, b = right["path"]!.array!
+                for (x, y) in zip(a, b) {
+                    switch (x, y) {
+                    case (.string(let x), .string(let y)):
+                        if !x.utf8.elementsEqual(y.utf8) { return x.utf8.lexicographicallyPrecedes(y.utf8) }
+                    case (.number(let x), .number(let y)):
+                        if x != y { return x < y }
+                    default: return x.string != nil
+                    }
+                }
+                return a.count < b.count
+            }
+        }
+        return changes
     }
     static func equal(_ old: JSONValue, _ new: JSONValue) -> Bool {
         changes(from: old, to: new, limit: 0)?.isEmpty == true

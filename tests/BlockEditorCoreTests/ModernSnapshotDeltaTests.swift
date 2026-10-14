@@ -3,6 +3,22 @@ import Foundation
 import Testing
 
 @Suite struct ModernSnapshotDeltaTests {
+    @Test func rawKeyReplacementAndNumericPathOrderingRemainExact() throws {
+        let before: JSONValue = .object(["parent": .object(["é": .string("old"), "a": .number(1)])])
+        let after: JSONValue = .object(["parent": .object(["é": .string("new"), "a": .number(2)])])
+        let replaced = try #require(ModernSnapshotDelta.changes(from: before, to: after))
+        #expect(replaced.count == 1)
+        #expect(replaced[0]["path"] == .array([.string("parent")]))
+        let raw = try JSONEncoder().encode(replaced[0]["value"]!)
+        #expect(String(decoding: raw, as: UTF8.self).contains("é"))
+        var values = Array(repeating: JSONValue.number(0), count: 12)
+        let original: JSONValue = .object(["z": .array(values), "a": .bool(false)])
+        values[10] = .number(10); values[2] = .number(2)
+        let edited: JSONValue = .object(["a": .bool(true), "z": .array(values)])
+        let changes = try #require(ModernSnapshotDelta.changes(from: original, to: edited))
+        #expect(changes.map { $0["path"]! } == [.array([.string("a")]), .array([.string("z"), .number(2)]), .array([.string("z"), .number(10)])])
+        #expect(ModernSnapshotDelta.changes(from: original, to: edited, limit: 2) == nil)
+    }
     private func call(_ bridge: EditorBridge, _ command: String, _ args: [String: JSONValue] = [:]) throws -> JSONValue {
         var fields = args; fields["command"] = .string(command); fields["session"] = .string("snapshot")
         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(fields)))
