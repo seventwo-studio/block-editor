@@ -1,0 +1,25 @@
+
+> Configure project :editor
+w: file:///Users/luca/Developer/block-editor/android/editor/build.gradle.kts:12:9: 'targetSdk: Int?' is deprecated. Will be removed from library DSL in v9.0. Use testOptions.targetSdk or/and lint.targetSdk instead
+e: file:///Users/luca/Developer/block-editor/android/editor/build.gradle.kts:44:18: Unresolved reference: io
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/Users/luca/Developer/block-editor/android/editor/build.gradle.kts' line: 44
+
+* What went wrong:
+Script compilation error:
+
+  Line 44:     require(java.io.File(deliveryDirectory).isAbsolute) { "Use an absolute staging directory" }
+                            ^ Unresolved reference: io
+
+1 error
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2s

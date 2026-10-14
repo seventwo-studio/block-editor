@@ -1,0 +1,44 @@
+{
+  "sourceCommit": "fe5a515c417e32f97b94fa4db5d08cdffd0779c2",
+  "candidateVersion": "0.2.1",
+  "sourcePackageVersion": "0.2.0",
+  "published": false,
+  "deploymentAuthorized": false,
+  "stagedFiles": 456,
+  "nativeBundle": "/private/tmp/modern-native-bundle-0.2.1-fe5a515",
+  "mavenCoordinate": "studio.seventwo:block-editor:0.2.1",
+  "runtimeBytesUnchangedFrom879574f": {
+    "javascript": true,
+    "wasm": true,
+    "android": true
+  },
+  "swift": {
+    "localGitDependency": true,
+    "freshDependencyBuildModuleCaches": true,
+    "apiSmokePassed": true,
+    "checks": "Exact independent title/appearance/Unicode/two-column/ref/opaque documents, stable identity, edit/save/reopen/Undo/Redo, incompatible format rejection",
+    "qualification": "Temporary local Git tag only, not private published installation or reader-access proof."
+  },
+  "kotlin": {
+    "isolatedHostCompiled": true,
+    "sourceProjectDependency": false,
+    "localMavenAAR": true,
+    "publicComposeAndUndoAPIs": true,
+    "qualification": "Compile only, reused public dependency/tool caches and resolved missing public BOM metadata; no installed JNI/runtime, private registry/access or fresh-cache acceptance claim."
+  },
+  "failedEvidence": [
+    "Kotlin DSL java.io name conflict",
+    "Incorrect non-existent Gradle wrapper provenance input",
+    "Incorrect supplied source SHA rejected before staging",
+    "Tracked hidden .gitignore rejected; partial preparation retained",
+    "Offline consumer lacked public Compose BOM metadata"
+  ],
+  "remainingGates": [
+    "Unused version and exact reviewed GitHub Verified source",
+    "Current CI/review and concrete remote deployment/publication approval",
+    "Explicit private Git/Maven reader authorization",
+    "Actual fresh-cache published consumers for all three runtimes",
+    "Matching JavaScript/WASM candidate; immutable 0.2.0 is not this source"
+  ],
+  "qualification": "Preparation only. Prior 717 native/66 browser/JNI/performance results keep source 879574f; no new broad acceptance pass. No protected-main/publication/access/billing/credential/Foliostrate changes."
+}
