@@ -838,8 +838,7 @@ public final class ModernSession {
                     case .resizeColumns(let layout, let split):
                         try modernReference(layout, before: change.id, cohort: cohort, registry: registry)
                         _ = try modernColumnIDs(layout, in: raw.structure!)
-                        let captured = try causalColumnStructure(cohort, in: candidate)
-                        _ = try captured.address(of: layout)
+                        try validateCausalColumnAddress(layout, cohort: cohort, in: candidate)
                         guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
                         try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: active[change.id] ?? true, to: &raw)
                     case .convertBlock(let node, let type, let attributes):
@@ -1004,6 +1003,24 @@ public final class ModernSession {
     }
     private func causalColumnStructure(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> StructuralState {
         try causalWritingReplay(cohort, in: candidate).1
+    }
+    private func validateCausalColumnAddress(_ layout: NodeID, cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws {
+        // Split and appearance properties cannot change node births, placement,
+        // paragraph activity or column routes, including when deactivated.
+        // Prove this over the entire captured cohort before using its baseline
+        // address. Any other operation retains the full causal writing replay.
+        let metadataOnly = cohort.allSatisfy { id in
+            guard let change = candidate[id] else { return false }
+            guard case .edit(let operations) = change.body else { return true }
+            return operations.allSatisfy { operation in
+                switch operation {
+                case .resizeColumns, .setAppearance: return true
+                default: return false
+                }
+            }
+        }
+        if metadataOnly { _ = try seed.structure.address(of: layout) }
+        else { _ = try causalColumnStructure(cohort, in: candidate).address(of: layout) }
     }
     private func causalWritingReplay(_ cohort: Set<ChangeID>, in candidate: [ChangeID: ModernChange]) throws -> (WritingProjection, StructuralState) {
         let value = try causalWritingMaterialized(cohort, in: candidate)
