@@ -1,0 +1,36 @@
+{
+  "result": {
+    "forceStopExit": 0,
+    "terminalConfirmed": true,
+    "processReadback": "ps"
+  },
+  "reads": [
+    {
+      "args": [
+        "shell",
+        "am",
+        "force-stop",
+        "studio.seventwo.blockeditor.test"
+      ],
+      "actualExit": 0
+    },
+    {
+      "args": [
+        "shell",
+        "pidof",
+        "studio.seventwo.blockeditor.test"
+      ],
+      "actualExit": 1,
+      "injected255": true
+    },
+    {
+      "args": [
+        "shell",
+        "ps",
+        "-A"
+      ],
+      "actualExit": 0
+    }
+  ],
+  "qualification": "Actual owned API35 arm64 emulator process listing and stop, with empty-255 status synthetically injected only after a real pidof absent-process response. Not an API26 rerun."
+}

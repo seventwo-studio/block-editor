@@ -1,0 +1,13 @@
+bun test v1.4.2 (744846f84)
+
+tests/android-process-stop.test.ts:
+(pass) unknown API26 force-stop outcome succeeds only after absent-process readback [0.90ms]
+(pass) remaining process, unknown readback and other stop failures cannot pass [0.15ms]
+(pass) normal stop also confirms process absence [0.03ms]
+(pass) empty API26 pidof 255 requires a fresh successful complete process listing [0.14ms]
+(pass) process-list fallback rejects live package services, malformed rows and failed transport [0.14ms]
+
+ 5 pass
+ 0 fail
+ 19 expect() calls
+Ran 5 tests across 1 file. [49.00ms]

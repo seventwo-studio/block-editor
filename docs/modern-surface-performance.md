@@ -49,8 +49,10 @@ failures. A completed harness run alone does not pass the two performance budget
 ## Read ownership
 
 Structural reads reuse a validated placement/order/address view only while their
-value state is unchanged. Nested node, placement, deletion, touch and schema-mode
+value state is unchanged. Nested node, placement, deletion and schema-mode
 mutations detach that cache; independent value copies retain their own results.
+Writing activity on an already-active birth retains an equivalent structural
+view while still entering the touched set; inactive births invalidate normally.
 Immutable readers sharing results use a lock. Node addresses remain lookup paths;
 commands still capture opaque origins and all mutation/admission stays in Swift.
 
@@ -75,6 +77,19 @@ only exactly equal JSON subtrees, preserving signed zero, raw Unicode, key order
 and opaque own keys. New wrappers still publish lifecycle/history changes. An
 identical-valued peer replacement changes its receipt and invalidates origins
 even when its document storage is shared.
+
+An eligible independent-field projection can confirm an exact session-local
+rendering token before the consumer retains its checked binding array. Strong
+structural-view leases prevent object-address reuse from reviving a stale token.
+Unknown tokens and alias-bearing projections return complete bindings; tokens
+do not admit commands or enter saved histories. Receipt notifications continue.
+
+Final document admission can prove the 32 MB encoded size with a conservative
+string/punctuation bound and actual numeric codec sizes. If the bound cannot
+prove capacity, the original exact encoder decides; an overestimate never
+rejects an otherwise valid document. Schema, nesting and finite-value checks
+still run. This avoids full encoding solely for ordinary capacity checks, but
+does not accept the input, resource or complete platform campaigns.
 
 Writing atom ordering ranks exact encoded origin bytes once per sort. Raw
 components prevent Swift's Unicode-normalizing string equality from merging

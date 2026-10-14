@@ -1,0 +1,121 @@
+{
+  "runtimeCommit": "fd7955a29605759672000d7d4c8cd18561ec74bb",
+  "processRepairCommit": "f399bad76a208392d80289725ebba512a6e9057b",
+  "native": {
+    "focusedCases": 15,
+    "fullCoreCases": 598,
+    "fullAppleCases": 99,
+    "otherCases": 8,
+    "total": 705,
+    "normalExit": true,
+    "failures": [
+      "native-focused.log: compiler cache access denied before compilation",
+      "native-authorized.log: missing try around throwing operator; repaired native-repaired.log passed"
+    ]
+  },
+  "ABI": {
+    "responses": 968,
+    "fixtures": 30
+  },
+  "typedConsumer": {
+    "requests": 515,
+    "fixtures": 55,
+    "commands": 26,
+    "groups": 12
+  },
+  "browser": {
+    "cases": 63,
+    "normalExit": true,
+    "qualification": "Two earlier sandbox server-start failures retained; authorized unchanged original configuration passed all cases."
+  },
+  "JNI": {
+    "typedConsumerCases": 1,
+    "normalInstrumentation": true
+  },
+  "processStop": {
+    "unitCases": 5,
+    "expectations": 20,
+    "actualAPI35RecoveryProcesses": 5,
+    "source": "f399bad76a208392d80289725ebba512a6e9057b",
+    "psReadback": "ps-readback.json",
+    "qualification": "Fallback empty255 was injected only after actual absent pidof on API35; successful actual process listing required. This is not an API26 rerun."
+  },
+  "performance": {
+    "terminalExit": 1,
+    "inputPassed": false,
+    "menuPassed": true,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "fd7955a29605759672000d7d4c8cd18561ec74bb",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "dec8fa3ae1caa32bec8bf5fd898948faaf110aecdfbccdf5dc0e2f1776ca2b9f",
+        "summary": {
+          "inputP95MS": 389.5,
+          "menuP95MS": 48.90000009536743,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "fd7955a29605759672000d7d4c8cd18561ec74bb",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "dec8fa3ae1caa32bec8bf5fd898948faaf110aecdfbccdf5dc0e2f1776ca2b9f",
+        "summary": {
+          "inputP95MS": 465,
+          "menuP95MS": 65,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "fd7955a29605759672000d7d4c8cd18561ec74bb",
+        "sourceClean": true,
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "dec8fa3ae1caa32bec8bf5fd898948faaf110aecdfbccdf5dc0e2f1776ca2b9f",
+        "summary": {
+          "inputP95MS": 435,
+          "menuP95MS": 67,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "complete": true,
+        "targetsPassed": false
+      }
+    ]
+  },
+  "hostedFailure": {
+    "run": 38543944129,
+    "PRHead": "03adbf450fd0360e8b658bdb114a1f775e3be40f",
+    "job": 115785246367,
+    "row": "API26 x86_64",
+    "originalProcessSource": "e90e577e83f2cd27605cbc51bc282b3702a8af51",
+    "stage": "rejoin terminal process-stop readback",
+    "pidofExit": 255,
+    "output": "",
+    "qualification": "Preceding instrumentation and two complete process phases passed. Rejoin content proof is retained but its stop verification failed. Current fresh hosted repair remains required."
+  },
+  "qualifications": [
+    "Conservative size proof can admit only below the exact byte limit; failure to prove falls back to original exact encoding. Depth/schema/finite numeric and causal/history checks stay unchanged.",
+    "Direct sampled append timings exclude browser input/rendering; simultaneous native/browser work makes these exploratory diagnostics, not controlled p95 or resource acceptance. Inclusive CPU stack times overlap.",
+    "All performance reports pin clean fd7955a runtime and exact unchanged fixture; Chromium input did not improve versus preceding run. No net surface acceptance claimed.",
+    "Full rendered/physical/assistive/resource/private-install and final acceptance remain open. No protected-main landing, private release or Foliostrate edits occurred."
+  ]
+}

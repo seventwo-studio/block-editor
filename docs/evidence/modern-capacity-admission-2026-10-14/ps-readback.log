@@ -1,0 +1,5 @@
+{
+  forceStopExit: 0,
+  terminalConfirmed: true,
+  processReadback: "ps",
+}
