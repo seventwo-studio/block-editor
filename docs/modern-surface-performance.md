@@ -62,11 +62,19 @@ or duplicate causal IDs. Peer work, historical selections and author Undo remain
 the original checked operations.
 
 React indexes Swift-returned identities and fields within one immutable accepted
-document. It rebuilds after a new accepted snapshot and does not derive origins
+document and receipt. It rebuilds after either changes and does not derive origins
 from display labels. Contextual reads and the outline traverse actual schema
 collections; opaque consumer properties named `rows` or `children` retain their
 data without becoming editor nodes. Reused labels after peer deletion resolve to
 their new shared identities.
+
+An additive shared batch read supplies checked node kinds, addresses and scalar
+destination fields. React compares its schema traversal with these results;
+legacy runtimes retain individual checked reads. Snapshot publication shares
+only exactly equal JSON subtrees, preserving signed zero, raw Unicode, key order
+and opaque own keys. New wrappers still publish lifecycle/history changes. An
+identical-valued peer replacement changes its receipt and invalidates origins
+even when its document storage is shared.
 
 Writing atom ordering ranks exact encoded origin bytes once per sort. Raw
 components prevent Swift's Unicode-normalizing string equality from merging
@@ -121,6 +129,16 @@ during menus, leaving fourteen/seven/zero menu samples and terminal failure.
 These input observations contradict the 50 ms target; there is no complete menu
 or combined campaign acceptance. Retain raw failures and investigate full
 snapshot publication and binding work before another measurement run.
+
+The subsequent exact-snapshot/batch-binding candidate records input sample p95
+3,122.5 ms Chromium, 5,047 ms WebKit and 5,279 ms Firefox. Chromium completes
+twenty menu samples at p95 1,616.4 ms; WebKit and Firefox reach the same deadline
+after fifteen and six menu samples. All targets remain failed. Static JS/WASM
+stayed frozen; later engines report an untracked evidence directory created
+during the serial run, so preserve that source-clean discrepancy. The qualified
+reports and original failures are in
+`docs/evidence/modern-snapshot-bindings-2026-10-14`. Further authoring/rendering
+repair remains required before repeating this workload.
 
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked

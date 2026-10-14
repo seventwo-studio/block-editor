@@ -1,0 +1,118 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+
+[WebServer] (node:8880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 45 tests using 1 worker
+
+[1/45] [chromium] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+  1) [chromium] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 11
+    Received length: 12
+    Received array:  ["shared node/field binding read and exact no-op storage reuse", "captured Unicode peer range, immutable publication, idempotent receive, reopen and selection history", "document origin title/appearance, composition and author policy, listener failure isolation", "nested idempotent remote holds, deferred archive restore and release", "typed identity recovery, unchanged acceptance/receipt, archived recovery, author repair, failed release once", "typed readonly copy, explicit publication cut, foreign/cancelled/duplicate outcomes and retained paste", "typed local provider archive, inert save reopen, explicit archive restore, invocation generation invalidation and cleanup", "typed format, semantic color/state, link, conversion, split/merge, soft break, duplicate/move/delete and columns", "all five list actions, list policy and captured local item nodes", "independent complete document round trips", …]
+
+      22 |     return runModernAdapterContract(runtime, fixtures);
+      23 |   }, { root: `/block-editor/@fs${process.cwd()}`, fixtures });
+    > 24 |   expect(result.fixtures).toBe(55); expect(result.checks).toHaveLength(11);
+         |                                                          ^
+      25 |   expect(result.appliedCommands).toHaveLength(26);
+      26 |   await testInfo.attach("modern-adapter-contract", { body: JSON.stringify({ ...result, wasmSHA256: createHash("sha256").update(readFileSync(wasm)).digest("hex") }, null, 2), contentType: "application/json" });
+      27 | });
+        at /Users/luca/Developer/block-editor/tests/modern-adapter.swift.ts:24:58
+
+    Error Context: test-results/modern-adapter.swift.ts-ty-56d00-through-actual-browser-WASM-chromium/error-context.md
+
+
+[2/45] [chromium] › tests/modern-context.swift.ts:29:0 › keyboard column resize releases its preview before a peer resize
+[3/45] [chromium] › tests/modern-context.swift.ts:48:0 › Escape cancels a column drag without authoring or changing history
+[4/45] [chromium] › tests/modern-context.swift.ts:62:0 › accessible insertion cancellation returns to the original text caret
+[5/45] [chromium] › tests/modern-context.swift.ts:79:0 › Escape dismisses the Link action and retains its captured input
+[6/45] [chromium] › tests/modern-context.swift.ts:92:0 › contextual reads preserve opaque metadata named like schema collections
+[7/45] [chromium] › tests/modern-context.swift.ts:117:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[8/45] [chromium] › tests/modern-context.swift.ts:145:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[9/45] [chromium] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[10/45] [chromium] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[11/45] [chromium] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[12/45] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[13/45] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[14/45] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[15/45] [chromium] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[16/45] [webkit] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+  2) [webkit] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 11
+    Received length: 12
+    Received array:  ["shared node/field binding read and exact no-op storage reuse", "captured Unicode peer range, immutable publication, idempotent receive, reopen and selection history", "document origin title/appearance, composition and author policy, listener failure isolation", "nested idempotent remote holds, deferred archive restore and release", "typed identity recovery, unchanged acceptance/receipt, archived recovery, author repair, failed release once", "typed readonly copy, explicit publication cut, foreign/cancelled/duplicate outcomes and retained paste", "typed local provider archive, inert save reopen, explicit archive restore, invocation generation invalidation and cleanup", "typed format, semantic color/state, link, conversion, split/merge, soft break, duplicate/move/delete and columns", "all five list actions, list policy and captured local item nodes", "independent complete document round trips", …]
+
+      22 |     return runModernAdapterContract(runtime, fixtures);
+      23 |   }, { root: `/block-editor/@fs${process.cwd()}`, fixtures });
+    > 24 |   expect(result.fixtures).toBe(55); expect(result.checks).toHaveLength(11);
+         |                                                          ^
+      25 |   expect(result.appliedCommands).toHaveLength(26);
+      26 |   await testInfo.attach("modern-adapter-contract", { body: JSON.stringify({ ...result, wasmSHA256: createHash("sha256").update(readFileSync(wasm)).digest("hex") }, null, 2), contentType: "application/json" });
+      27 | });
+        at /Users/luca/Developer/block-editor/tests/modern-adapter.swift.ts:24:58
+
+    Error Context: test-results/modern-adapter.swift.ts-ty-56d00-through-actual-browser-WASM-webkit/error-context.md
+
+
+[17/45] [webkit] › tests/modern-context.swift.ts:29:0 › keyboard column resize releases its preview before a peer resize
+[18/45] [webkit] › tests/modern-context.swift.ts:48:0 › Escape cancels a column drag without authoring or changing history
+[19/45] [webkit] › tests/modern-context.swift.ts:62:0 › accessible insertion cancellation returns to the original text caret
+[20/45] [webkit] › tests/modern-context.swift.ts:79:0 › Escape dismisses the Link action and retains its captured input
+[21/45] [webkit] › tests/modern-context.swift.ts:92:0 › contextual reads preserve opaque metadata named like schema collections
+[22/45] [webkit] › tests/modern-context.swift.ts:117:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[23/45] [webkit] › tests/modern-context.swift.ts:145:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[24/45] [webkit] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[25/45] [webkit] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[26/45] [webkit] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[27/45] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[28/45] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[29/45] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[30/45] [webkit] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+[31/45] [firefox] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM
+  3) [firefox] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 11
+    Received length: 12
+    Received array:  ["shared node/field binding read and exact no-op storage reuse", "captured Unicode peer range, immutable publication, idempotent receive, reopen and selection history", "document origin title/appearance, composition and author policy, listener failure isolation", "nested idempotent remote holds, deferred archive restore and release", "typed identity recovery, unchanged acceptance/receipt, archived recovery, author repair, failed release once", "typed readonly copy, explicit publication cut, foreign/cancelled/duplicate outcomes and retained paste", "typed local provider archive, inert save reopen, explicit archive restore, invocation generation invalidation and cleanup", "typed format, semantic color/state, link, conversion, split/merge, soft break, duplicate/move/delete and columns", "all five list actions, list policy and captured local item nodes", "independent complete document round trips", …]
+
+      22 |     return runModernAdapterContract(runtime, fixtures);
+      23 |   }, { root: `/block-editor/@fs${process.cwd()}`, fixtures });
+    > 24 |   expect(result.fixtures).toBe(55); expect(result.checks).toHaveLength(11);
+         |                                                          ^
+      25 |   expect(result.appliedCommands).toHaveLength(26);
+      26 |   await testInfo.attach("modern-adapter-contract", { body: JSON.stringify({ ...result, wasmSHA256: createHash("sha256").update(readFileSync(wasm)).digest("hex") }, null, 2), contentType: "application/json" });
+      27 | });
+        at /Users/luca/Developer/block-editor/tests/modern-adapter.swift.ts:24:58
+
+    Error Context: test-results/modern-adapter.swift.ts-ty-56d00-through-actual-browser-WASM-firefox/error-context.md
+
+
+[32/45] [firefox] › tests/modern-context.swift.ts:29:0 › keyboard column resize releases its preview before a peer resize
+[33/45] [firefox] › tests/modern-context.swift.ts:48:0 › Escape cancels a column drag without authoring or changing history
+[34/45] [firefox] › tests/modern-context.swift.ts:62:0 › accessible insertion cancellation returns to the original text caret
+[35/45] [firefox] › tests/modern-context.swift.ts:79:0 › Escape dismisses the Link action and retains its captured input
+[36/45] [firefox] › tests/modern-context.swift.ts:92:0 › contextual reads preserve opaque metadata named like schema collections
+[37/45] [firefox] › tests/modern-context.swift.ts:117:0 › peer deletion and same-label insertion replace contextual bindings before author Undo
+[38/45] [firefox] › tests/modern-context.swift.ts:145:0 › same-value peer replacement invalidates origins while no-op snapshots preserve document storage
+[39/45] [firefox] › tests/modern-editor.swift.ts:7:0 › modern integrated editor preserves local writing through blocks, columns and paired reopen
+[40/45] [firefox] › tests/modern-editor.swift.ts:44:0 › cancelled slash query and app-owned media insertion retain the original editor
+[41/45] [firefox] › tests/modern-editor.swift.ts:61:0 › formatting keeps its captured Unicode selection and shared Undo
+[42/45] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: paired-reopen
+[43/45] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-activation
+[44/45] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: migration-refusal
+[45/45] [firefox] › tests/modern-preservation.swift.ts:8:2 › modern preservation: large-migration
+  3 failed
+    [chromium] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM 
+    [webkit] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM 
+    [firefox] › tests/modern-adapter.swift.ts:7:0 › typed protocol 7 consumer contract through actual browser WASM 
+  42 passed (5.6m)
