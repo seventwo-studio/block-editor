@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type KeyboardEvent } from "react";
 import { SwiftEditorRuntime } from "./swift.js";
 import { SwiftModernSession, type ModernAuthorCommand, type ModernDocument, type ModernField, type ModernNodeID, type ModernObject, type ModernPosition, type ModernTextRange, type ModernResult, type ModernNodes, type ModernBoundary, type ModernCollection, type ModernInsertionDescriptor, type ModernPolicy, type ModernSemanticTarget } from "./swift-modern.js";
 import { ModernBrowserHost } from "./swift-modern-host.js";
@@ -212,6 +212,33 @@ export interface SwiftModernEditorProps {
 
 export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const { session } = props, snapshot = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
+  // Every identity/field comes from Swift. Reuse only within this immutable
+  // accepted document; a peer move, conversion or reused label replaces it.
+  const bindings = useMemo(() => {
+    const addresses = new Map<string, ModernNodeID>(), values = new Map<string, { blockID: string; path: string[]; value: ModernObject }>();
+    const fields = new Map<string, ModernField>();
+    function visit(value: ModernObject, blockID: string, path: string[], kind: "block" | "column" | "item" | "row" | "cell") {
+      const address = { blockID, path }, node = session.node(address);
+      addresses.set(key(address), node); values.set(key(node), { blockID, path, value });
+      const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
+      if (kind === "block") {
+        if (value.type === "columns") children("columns", "column");
+        else if (value.type === "toggle") children("children", "block");
+        else if (value.type === "list") children("items", "item");
+        else if (value.type === "table") children("rows", "row");
+      } else if (kind === "column") children("children", "block");
+      else if (kind === "item") children("children", "item");
+      else if (kind === "row") children("cells", "cell");
+    }
+    for (const value of snapshot.document.blocks) visit(value, text(value.id), [], "block");
+    return { addresses, values, fields };
+  }, [session, snapshot.document]);
+  function boundField(node: ModernNodeID, name = "content"): ModernField {
+    const fieldKey = key([node, name]);
+    let field = bindings.fields.get(fieldKey);
+    if (!field) { field = session.field(node, name); bindings.fields.set(fieldKey, field); }
+    return field;
+  }
   const [error, setError] = useState<string>(), [focusMode, setFocusMode] = useState(false), [outline, setOutline] = useState(false);
   const [nodes, setNodes] = useState<ModernNodes>(), [menu, setMenu] = useState<{ boundary: ModernBoundary; range?: ModernTextRange; returnFocus?: ModernPosition; query: string; index: number; anchor?: DOMRect }>();
   const [link, setLink] = useState<{ range: ModernTextRange; query: string; internal: boolean }>(), [suggestions, setSuggestions] = useState<readonly ModernLinkSuggestion[]>([]);
@@ -341,9 +368,9 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     return { range: { start: backward ? textSpan.at(-1)!.start : textSpan[0].start, end: backward ? textSpan[0].end : textSpan.at(-1)!.end, observed: textSpan[0].observed } };
   }
   const catalog = session.insertionCatalog(menu?.query ?? "");
-  function origin(blockID: string, path: readonly string[]): ModernNodeID { return session.node({ blockID, path }); }
+  function origin(blockID: string, path: readonly string[]): ModernNodeID { return bindings.addresses.get(key({ blockID, path })) ?? session.node({ blockID, path }); }
   function input(node: ModernNodeID, name: string, value: readonly ModernObject[] | string, label: string, enter = true, navigate?: InputProps["navigate"]): ReactNode {
-    const field = session.field(node, name);
+    const field = boundField(node, name);
     return <ModernInput key={key(field)} session={session} host={props.host} field={field} value={value} label={label} readOnly={readOnly}
       register={(field, element) => { if (element) fields.current.set(key(field), element); else fields.current.delete(key(field)); }}
       selected={range => { selected.current = range; setTextSpan([]); redrawSelection(value => value + 1); }} report={report} execute={execute} navigate={(event, range) => navigate?.(event, range) || boundary(event, range)} openReference={props.onOpenReference}
@@ -367,15 +394,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       } : undefined} />;
   }
   function find(node: ModernNodeID): { blockID: string; path: string[]; value: ModernObject } | undefined {
-    let found: { blockID: string; path: string[]; value: ModernObject } | undefined;
-    function visit(values: readonly ModernObject[], blockID?: string, path: string[] = []): void {
-      for (const value of values) {
-        const root = blockID ?? text(value.id), current = blockID ? [...path, text(value.id)] : [];
-        if (key(origin(root, current)) === key(node)) { found = { blockID: root, path: current, value }; return; }
-        for (const field of ["columns", "children", "items", "rows", "cells"]) if (Array.isArray(value[field])) visit(array(value[field]), root, [...current, field]);
-      }
-    }
-    visit(snapshot.document.blocks); return found;
+    return bindings.values.get(key(node));
   }
   function parent(node: ModernNodeID): ModernCollection { return session.parentCollection(node); }
   function reveal(node: ModernNodeID): void {
@@ -499,7 +518,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
         const itemView = item;
         content = !array(value.items).length ? <button disabled={readOnly} onClick={() => safe(() => execute({ command: "paste", target: { boundary: session.captureListBoundary({ owner: node, field: "items" }) }, arguments: { clipboard: session.clipboardParts([{ node: { kind: "item", value: { id: crypto.randomUUID(), content: [], checked: false } } }]) } }))}>Add list item</button> : value.style === "ordered" ? <ol>{array(value.items).map((value, i) => item(value, [...current, "items"], i))}</ol> : <ul className={value.style === "todo" ? "modern-checklist" : ""}>{array(value.items).map((value, i) => item(value, [...current, "items"], i))}</ul>;
       } else if (type === "table") {
-        const tableRows = array(value.rows), cellFields = tableRows.flatMap(row => array(row.cells).map(cell => session.field(origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]))));
+        const tableRows = array(value.rows), cellFields = tableRows.flatMap(row => array(row.cells).map(cell => boundField(origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]))));
         content = <div className="modern-table-scroll"><table><tbody>{tableRows.map(row => <tr key={text(row.id)}>{array(row.cells).map(cell => {
           const rowNode = origin(root, [...current, "rows", text(row.id)]), cellNode = origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]), capturedCell = session.captureTableTarget(node, rowNode, cellNode), Tag = cell.header ? "th" : "td";
           return <Tag key={text(cell.id)} scope={cell.header ? "col" : undefined}>

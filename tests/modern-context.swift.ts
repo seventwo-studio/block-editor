@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 import type { ModernDocument } from "../src/swift-modern.js";
 import type {} from "./helpers/modern-surface.js";
 
-async function mount(page: Page, fixture: string) {
-  const document = JSON.parse(readFileSync(resolve("docs/acceptance/modern-editor/documents", `${fixture}.json`), "utf8")) as ModernDocument;
+async function mount(page: Page, fixture: string | ModernDocument) {
+  const document = typeof fixture === "string" ? JSON.parse(readFileSync(resolve("docs/acceptance/modern-editor/documents", `${fixture}.json`), "utf8")) as ModernDocument : fixture;
   await page.route("**/modern-engine.wasm", route => route.fulfill({ path: resolve(process.env.BLOCK_EDITOR_WASM ?? "dist/block-editor.wasm"), contentType: "application/wasm" }));
   await page.goto(`/block-editor/@fs${process.cwd()}/tests/helpers/modern-surface.html`);
   await page.evaluate(async ({ root, documentJSON }) => {
@@ -87,4 +87,50 @@ test("Escape dismisses the Link action and retains its captured input", async ({
   await expect(body).toBeFocused();
   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().canUndo)).toBe(false);
+});
+
+test("contextual reads preserve opaque metadata named like schema collections", async ({ page }) => {
+  const original: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "opaque-bindings", title: "Bindings",
+    appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+      { id: "opaque", type: "consumer-card", rows: [{ id: "foreign-row", cells: [{ id: "foreign-cell", keep: "opaque 世界😀" }] }], children: [{ id: "unrelated", keep: "consumer data" }] },
+      { id: "A", type: "paragraph", content: [{ type: "text", text: "ABC", marks: [] }] }
+    ] };
+  await mount(page, original);
+  const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  await body.focus(); await body.evaluate(root => { const selection = document.getSelection()!; selection.setBaseAndExtent(root.firstChild!, 0, root.firstChild!, 3); });
+  await page.getByText("Format", { exact: true }).click(); await page.getByRole("button", { name: "bold", exact: true }).click();
+  await expect(body.locator("strong")).toHaveText("ABC");
+  const expected = structuredClone(original); (expected.blocks[1].content as { marks: { type: string }[] }[])[0].marks = [{ type: "bold" }];
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(expected);
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
+test("peer deletion and same-label insertion replace contextual bindings before author Undo", async ({ page }) => {
+  const original: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "reused-bindings", title: "Bindings",
+    appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+      { id: "A", type: "paragraph", content: [{ type: "text", text: "Original", marks: [] }] },
+      { id: "B", type: "paragraph", content: [{ type: "text", text: "Later", marks: [] }] }
+    ] };
+  await mount(page, original);
+  const before = await page.evaluate(() => window.modernAcceptance.session.node({ blockID: "A", path: [] }));
+  await page.evaluate(() => {
+    const { peer, session } = window.modernAcceptance;
+    const removed = peer.execute({ command: "delete", target: { ranges: [], nodes: peer.captureNodes([peer.node({ blockID: "A", path: [] })]) }, arguments: {} });
+    const inserted = peer.execute({ command: "insertBlock", target: peer.captureBoundary({ field: "blocks" }, peer.node({ blockID: "B", path: [] })),
+      arguments: { block: { id: "A", type: "paragraph", content: [{ type: "text", text: "Replacement", marks: [] }] } } });
+    if (removed.status !== "applied" || inserted.status !== "applied") throw new Error("Independent peer fixture did not apply");
+    session.receive(peer.changes());
+  });
+  const replaced: ModernDocument = { ...original, blocks: [original.blocks[1], { id: "A", type: "paragraph", content: [{ type: "text", text: "Replacement", marks: [] }] }] };
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(replaced);
+  expect(await page.evaluate(() => window.modernAcceptance.session.node({ blockID: "A", path: [] }))).not.toEqual(before);
+  const body = page.getByRole("textbox", { name: "Block text", exact: true }).filter({ hasText: "Replacement" });
+  await body.focus(); await body.evaluate(root => { document.getSelection()!.setBaseAndExtent(root.firstChild!, 0, root.firstChild!, 11); });
+  await page.getByText("Format", { exact: true }).click(); await page.getByRole("button", { name: "bold", exact: true }).click();
+  await expect(body.locator("strong")).toHaveText("Replacement");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(replaced);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
 });
