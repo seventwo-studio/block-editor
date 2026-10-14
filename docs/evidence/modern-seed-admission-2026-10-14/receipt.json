@@ -1,0 +1,258 @@
+{
+  "sourceCommit": "489f29ea88f58c46cd9532c677315010f13be16b",
+  "native": {
+    "core": 602,
+    "apple": 104,
+    "other": 8,
+    "total": 714,
+    "terminalExit": 0
+  },
+  "focusedSession": {
+    "tests": 18,
+    "newMalformedReferenceVariants": 6,
+    "qualification": "New parametrized test spans title/baseline/new-born fields and active/disabled malformed edits; independent complete documents and author Undo/Redo/reopen."
+  },
+  "browser": {
+    "passed": 66,
+    "terminalExit": 0
+  },
+  "abi": {
+    "runtime": "native C ABI",
+    "library": "/Users/luca/Developer/block-editor/.build/out/Products/Debug/libBlockEditorBridge.dylib",
+    "librarySHA256": "e8f6579f6849788a0aa72efcb1c23d41782bc16e8e4b3f7f251db976845ae869",
+    "verifiedResponses": 968,
+    "independentFixtureHashes": {
+      "docs/acceptance/modern-editor/documents/unicode.json": "45f2e64136d867ded1adb1811059cb15a958e81e9816a04ceb124e439d0ccc54",
+      "docs/acceptance/modern-editor/documents/unicode-title-both.json": "268e869fd215341e0ced033bab3af90723baeda12842b6bf559b235d4a4f5184",
+      "docs/acceptance/modern-editor/documents/unicode-title-size-both.json": "7befd05619fbf53b9da4d0ad138f6d1aaf0bbf604a6e6b08c9ca9738748253df",
+      "docs/acceptance/modern-editor/documents/unicode-title-peer.json": "dbd6865898462ccba88f6080a518dbf4a0f3ef7eaa8fb9d03f9bc027fd53df30",
+      "docs/acceptance/modern-editor/documents/nested.json": "d1532e3794abad9a2b4663cec667ef87ebc0bdf0e41609e8213ad36628f51d27",
+      "docs/acceptance/modern-editor/documents/nested-moved.json": "9cf2ee7380c9a0820832c690a17e96148838b3ce1b183de77eb6dc0ad38d4185",
+      "docs/acceptance/modern-editor/documents/before-columns.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+      "docs/acceptance/modern-editor/documents/columns-created.json": "57a1f215750eae2c07417075666d9e770a96f87b9ac90464a0559316d38350a3",
+      "docs/acceptance/modern-editor/documents/columns-create-peer.json": "97e21b0a315269cc233557d3cf01c3a5c050a063c33d70d7ad2c9980d9b3c563",
+      "docs/acceptance/modern-editor/documents/columns-create-undone-peer.json": "869151b5ef01c28868829dcdf5ffba4c486a67670acb4bf7fcd7e56df875da4f",
+      "docs/acceptance/modern-editor/documents/columns-3000.json": "8aa181097145e152f43b81583abb104ea4101a4d780611eb6f9b4ebd86f7ed27",
+      "docs/acceptance/modern-editor/documents/columns-flattened.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+      "docs/acceptance/modern-editor/documents/columns-5000.json": "02204595fa843fb07613b451162043e173cc5d41b59bb74f61980f9213c6d5d9",
+      "docs/acceptance/modern-editor/documents/columns-split-a.json": "115f706aa4968e0de14818f7e160436d187388b31ba07d26f2005ac652073951",
+      "docs/acceptance/modern-editor/documents/columns-split-b.json": "fe0fe0ebe58019f017a9ab3688a7b429d8ad274f4ed6cd0d9fe66f53ae740a5f",
+      "docs/acceptance/modern-editor/documents/unicode-peer-heading.json": "c95df3ceebbc8d8ed06089fc712db85f2ffd77971f119cfcf8e0488c458ec633",
+      "docs/acceptance/modern-editor/documents/unicode-peer-suffix.json": "e5cb7144b59a0669746ebfb7bbe67b52dbdbe569c9a90aa8a4b213a8d3d9ec89",
+      "docs/acceptance/modern-editor/documents/unicode-soft-break.json": "594ca45344d3b1146415cb37b34ff568956730919a95c8f883faff0950d92193",
+      "docs/acceptance/modern-editor/documents/mixed.json": "4e190564a1cefb90920ff7a623daa229f7a754f0725b0f72764cd696c3b7c4b3",
+      "docs/acceptance/modern-editor/documents/mixed-duplicated.json": "61e66e9def49a79f289415d2fb9e0254d24263ab5f717f2f26f071f4aa98287b",
+      "docs/acceptance/modern-editor/documents/columns-root-copy.json": "9d2819f0a13e0f73ccfab6b8d8fda77113ac77ff9aac70f84c6edbaba836c171",
+      "docs/acceptance/modern-editor/documents/columns-flattened-paste.json": "4e561337397da4f2bd4a2242f01eb5db389f04f6489e160b4940e9b398413930",
+      "docs/acceptance/modern-editor/documents/blank.json": "79e88d39c8ea343792acfe423191b69904744373fb17452b8d7eca3ce488bc3c",
+      "docs/acceptance/modern-editor/documents/blank-plain-paste.json": "6b08edf016ccd3041f8c0c212fdfbf112f03be4aa9ab8e3af78ae060d5f907ba",
+      "docs/acceptance/modern-editor/documents/legacy-mixed.json": "b95c89cf1a4aef2395ff255246dc98707c962c797b2457879493ba7724270bb3",
+      "docs/acceptance/modern-editor/documents/migrated-mixed.json": "42ef39d2272bb5a71179477b664db2658fba4edc043b5e7dfe3f649ccfab7b07",
+      "docs/acceptance/modern-editor/documents/legacy-5001.json": "e6057ef0b7250baf77f3284e9915d6f7fa5ff25f180d7bfc82b2805678373f42",
+      "docs/acceptance/modern-editor/documents/migrated-5001.json": "23a2ae2007f3daa3887fd4d84f183fb1dd3b202d2a13dd0eb50df1fc20b42731",
+      "docs/acceptance/modern-editor/documents/legacy-collision.json": "5705ab8d1a38b188dba814535d082b161b88bba949acc5d93b848606861ea121",
+      "docs/acceptance/modern-editor/documents/unsupported-inline.json": "0c8895b27c50e4fe9f776c76c60fb8b3d349c4faf7a7eb5a45fc7254cd4ae74b"
+    },
+    "literalScenarios": [
+      "Explicit archived cutover: complete independent mixed/5001 documents, exact retained original bytes, chunk retry/gap and readback rejection, all three activation acknowledgments, incompatible content retained/exportable, all six legacy protocols/offline reconciliation, explicit remapped positions, fresh history/receipts, existing handle protection, old peer refusal, new author Undo/reopen and original archived Undo retained",
+      "Local author-history input: paired accepted/local archive restore, backward selection with peer prefix, canonical Undo/Redo and no-op preservation, original delayed invocation despite later input, explicit absent focus, mixed cut input captured at preparation, malformed/foreign/repeated archive rejection without accepted-state mutation, typed local row selection without generic mutation authority and no replicated local metadata",
+      "Local cut publication ordering: exact prepared mixed rich payload, failed publication/policy/composition unchanged, retained peer text and opaque metadata, scoped and malformed acknowledgment rejection, one shared deletion/Undo/Redo/reopen, duplicate callback after Undo, cancellation/forget/session replacement, title-only policy, whole layout retaining a later peer child in two valid original containers",
+      "Captured paste: independent full ACC-37 root layout, ACC-38 explicit flattened fallback and unchanged nested rejection, ACC-39 blank multiline/caret, whole-node selection, one Undo/Redo/reopen, retained rich policy/composition payloads and no-result no history",
+      "Version-2 protocol-7 read-only copy: exact rich reference/opaque subtree payloads, mixed backward range order, hidden toggle/columns plain fallback, local policy/composition, forged target rejection and unchanged accepted history",
+      "ABC split retains BC atoms; peer replaces B with X; author Undo yields AXC; reopen/Redo retains XC; merge and Undo preserve peer text",
+      "ABC code conversion; captured peer replacement yields AXC through author Undo and reopen/Redo; list creation and peer cut survive conversion Undo as A and BC paragraphs; sole empty checklist Enter preserves root metadata and Undo; opaque content on code blocks rejects list conversion unchanged",
+      "Retired peer item converts to a heading with metadata/peer convergence and Undo/reopen; first/middle/last empty root Enter preserve identities and literal list partitions through Undo/reopen",
+      "Multi-item list indent retains opaque fields; peer B! text survives Undo; scoped reorder moves original items between lists with stable caret and Undo/reopen; multi-item checked state and containing-list style preserve content and policy",
+      "Captured async image/file/preview metadata: ACC-15 replacement document, cancellation/generation, local policy/composition, retained provider results, separate request export/reopen, no focus change, source deletion, duplicate provider delivery after author Undo and distinct file insertion/completion history",
+      "ACC-12 full mixed duplicate fixture; exact rich reference and opaque metadata, node selection/input focus, later original peer edit, author Undo/reopen and unchanged policy/fresh-label rejection",
+      "Independent block ink/fill defaults, mixed/inherited state, captured backward semantic/link marks, peer text, reset, explicit Unicode labeled insertion, policy, one author Undo/reopen, marks across both fields after a peer split and unchanged unsafe submissions"
+    ],
+    "qualification": "Title/appearance/checked text commands plus structural packet admission and inserted-field editing/reopen. Checked structural targets, node/text/insertion focus intents and atomic multi-node deletion/move are exercised. Compound creation/removal/resize, peer-child creation Undo/reopen and split author Undo use independent column fixtures. Same-content heading conversion with peer text, stable caret, author Undo/reopen and soft breaks use independent writing fixtures. Retained split/merge use separately authored literal expectations over the unchanged unicode fixture. Literal code/list schema conversion and sole empty list-item Enter checks cover retained aliases, peer edits/cuts, author Undo/reopen and caret offsets. Empty first/middle/last root Enter and retained peer paragraph-role conversion add literal native expectations with identity and Undo/reopen checks. List-only hierarchy, scoped reorder, checklist/style state, local action policy and retained peer text/history have literal native checks. Semantic defaults, mixed/inherited state, checked link marks and labeled insertion have literal native checks. Deep duplication uses the independent ACC-12 mixed document and literal peer/history/policy checks. Captured async image/file/preview metadata and local provider lifecycle have inert native checks; no provider work is restarted or request identity replicated. Version-2 protocol-7 read-only rich copy and explicit plain fallback have literal native checks. Captured paste has full independent root layout, explicit flattened layout and blank multiline native ABI checks with local focus/selection, Undo/Redo/reopen and retained unavailable payloads. Local cut preparation/publication acknowledgment has literal native bridge checks; preparation IDs, clipboard payloads and callback state are never replicated or restored. Local author-history selection restoration has paired archive, backward/mixed, delayed invocation, peer-preservation and malformed import checks. Native UI input/focus ownership and atomic paired persistence, OS clipboard publication and active native invocation integration, durable host migration activation/rollback, typed Kotlin/TypeScript facades and complete provider/host acceptance remain pending. Explicit cutover preparation and local bridge activation are checked separately from durable host storage; no active host pointer is replaced by these checks."
+  },
+  "typedNative": {
+    "version": 1,
+    "transport": "native-C-ABI",
+    "librarySHA256": "e8f6579f6849788a0aa72efcb1c23d41782bc16e8e4b3f7f251db976845ae869",
+    "requests": 515,
+    "checks": [
+      "shared node/field binding read and exact no-op storage reuse",
+      "captured Unicode peer range, immutable publication, idempotent receive, reopen and selection history",
+      "document origin title/appearance, composition and author policy, listener failure isolation",
+      "nested idempotent remote holds, deferred archive restore and release",
+      "typed identity recovery, unchanged acceptance/receipt, archived recovery, author repair, failed release once",
+      "typed readonly copy, explicit publication cut, foreign/cancelled/duplicate outcomes and retained paste",
+      "typed local provider archive, inert save reopen, explicit archive restore, invocation generation invalidation and cleanup",
+      "typed format, semantic color/state, link, conversion, split/merge, soft break, duplicate/move/delete and columns",
+      "all five list actions, list policy and captured local item nodes",
+      "independent complete document round trips",
+      "chunked cutover, mandatory readback, fresh history, origin map and incompatible archival export",
+      "closed session lifecycle"
+    ],
+    "fixtures": 55,
+    "appliedCommands": [
+      "codeProperties",
+      "completeAsyncBlock",
+      "convertBlock",
+      "createColumns",
+      "delete",
+      "duplicate",
+      "format",
+      "insertBlock",
+      "listStructure",
+      "mediaProperties",
+      "mergeBlocks",
+      "move",
+      "paste",
+      "redo",
+      "removeColumns",
+      "replaceText",
+      "replaceTitle",
+      "resizeColumns",
+      "setAppearance",
+      "setLink",
+      "setSemanticColor",
+      "softBreak",
+      "splitBlock",
+      "tableStructure",
+      "typingShortcut",
+      "undo"
+    ],
+    "fixtureHashes": {
+      "nested-list-indented.json": "536bfe14196f1e5a115f7702a586b1d2a4571ccbb61e7d9cdbe09733fc291f44",
+      "unicode-range-deleted.json": "1668cbd91514991f47bf072fe281c9ddc726fc74fb94fd7d3340a6e7dbe52706",
+      "mixed-duplicated.json": "61e66e9def49a79f289415d2fb9e0254d24263ab5f717f2f26f071f4aa98287b",
+      "migrated-5001.json": "23a2ae2007f3daa3887fd4d84f183fb1dd3b202d2a13dd0eb50df1fc20b42731",
+      "blank-plain-paste.json": "6b08edf016ccd3041f8c0c212fdfbf112f03be4aa9ab8e3af78ae060d5f907ba",
+      "wide-table.json": "a23e4bc93705bada92f1300ed923229b9493a39a9e427530f7cee4631666ea3c",
+      "columns-flattened.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+      "columns-split-b.json": "fe0fe0ebe58019f017a9ab3688a7b429d8ad274f4ed6cd0d9fe66f53ae740a5f",
+      "unicode-heading.json": "3d21136678e282a96a18cf659c4f1cd5f3736ad825bab195c1274ba5ce482620",
+      "unicode-soft-break.json": "594ca45344d3b1146415cb37b34ff568956730919a95c8f883faff0950d92193",
+      "columns-flattened-paste.json": "4e561337397da4f2bd4a2242f01eb5db389f04f6489e160b4940e9b398413930",
+      "columns-7000.json": "aeef0022543c093e27eba7f94db19974e311df0b011744a9328a3e760e0fa643",
+      "nested.json": "d1532e3794abad9a2b4663cec667ef87ebc0bdf0e41609e8213ad36628f51d27",
+      "columns-flat-only.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+      "unicode-composed.json": "961e15f4f803f41af54a0da666fddfe901525a8004bf3492212ac599c740d16e",
+      "nested-list-tail.json": "7f8694db1b7730425658fa8dc7497b3df63d5995449fb7d275cf16c496f83200",
+      "unicode-bold.json": "b34e24414cf667a7383eed9d547e42c8bd79321fdd04f8c38f6b25152a0e3f01",
+      "blank-written.json": "c0df11dd2ded07eb6f6cf8d67b0d9069bd7d1607393550b821b3b0d7261051cd",
+      "mixed.json": "4e190564a1cefb90920ff7a623daa229f7a754f0725b0f72764cd696c3b7c4b3",
+      "unicode-inserted-heading.json": "c421f99c3e96a4f6ae247522a2ef947a0aa54ea3f52bac9d66f0d407b5b7c29f",
+      "columns-5000.json": "02204595fa843fb07613b451162043e173cc5d41b59bb74f61980f9213c6d5d9",
+      "unicode-deleted.json": "7fd894c58985a5156e82b66043e85305a240f76e19c7cf6e0902a515e6da0cea",
+      "columns-flat-peer.json": "96114da1c0de9e40c35a4b32acf4dfbd9d19009db4f9f76c900d7f222d80f4f0",
+      "unicode-peer-rtl.json": "49a26054b8a9dd51cef2f735b8ec4d17a8678b4373d2e398fdb6354dd5f9cdee",
+      "unicode-title-both.json": "268e869fd215341e0ced033bab3af90723baeda12842b6bf559b235d4a4f5184",
+      "columns-moved.json": "77d85dd711ad5c66d6df53c45e8cc6b4a9ceaa990329ba592d92fcf7ef1020d2",
+      "unicode-appearance-peer.json": "ecf5d8a6c8da2910539c3128b44078fe5695fa122c117ee10117da20c137a85c",
+      "columns-within-moved.json": "5fb7a6718a1f0fb150cb477924316625fc27b9370cfc1dc2f616eff54a6eda56",
+      "columns-created.json": "57a1f215750eae2c07417075666d9e770a96f87b9ac90464a0559316d38350a3",
+      "semantic-colors.json": "83f1890bf1e35b62a178cb93c587d83a65d10ea4e3d024f0708f8f13e48a5655",
+      "unsupported-inline.json": "0c8895b27c50e4fe9f776c76c60fb8b3d349c4faf7a7eb5a45fc7254cd4ae74b",
+      "unicode.json": "45f2e64136d867ded1adb1811059cb15a958e81e9816a04ceb124e439d0ccc54",
+      "migrated-mixed.json": "42ef39d2272bb5a71179477b664db2658fba4edc043b5e7dfe3f649ccfab7b07",
+      "columns-moved-out.json": "0e440f1225714cf03c155524444f573d9b14a4c6f8223f471e609991d0a89c6b",
+      "unicode-composed-moved.json": "b79657daa0c8c9fd8aaf2f047a26e6f3a7dfc97321b8e59f6f742d3f45b3b112",
+      "unicode-peer-suffix.json": "e5cb7144b59a0669746ebfb7bbe67b52dbdbe569c9a90aa8a4b213a8d3d9ec89",
+      "columns-create-peer.json": "97e21b0a315269cc233557d3cf01c3a5c050a063c33d70d7ad2c9980d9b3c563",
+      "unicode-peer-heading.json": "c95df3ceebbc8d8ed06089fc712db85f2ffd77971f119cfcf8e0488c458ec633",
+      "blank.json": "79e88d39c8ea343792acfe423191b69904744373fb17452b8d7eca3ce488bc3c",
+      "long.json": "9f2ee0fc89996cc34ccf8444cde7dc0f74e2c3ca9cc7d2fe580154ceef780b74",
+      "legacy-collision.json": "5705ab8d1a38b188dba814535d082b161b88bba949acc5d93b848606861ea121",
+      "unicode-title-peer.json": "dbd6865898462ccba88f6080a518dbf4a0f3ef7eaa8fb9d03f9bc027fd53df30",
+      "columns-create-undone-peer.json": "869151b5ef01c28868829dcdf5ffba4c486a67670acb4bf7fcd7e56df875da4f",
+      "legacy-5001.json": "e6057ef0b7250baf77f3284e9915d6f7fa5ff25f180d7bfc82b2805678373f42",
+      "nested-moved.json": "9cf2ee7380c9a0820832c690a17e96148838b3ce1b183de77eb6dc0ad38d4185",
+      "unicode-title-paste.json": "6f78c1533e39b1fd3b65d0a30a9e80a7c7f7faed1b415e1abd36dbf8c99abe62",
+      "colors-reset.json": "35c6b4cc523cec3e8fa6a7404c4ed3ab2b1cad76cb1b2f276dd3e1d2b245eeea",
+      "legacy-mixed.json": "b95c89cf1a4aef2395ff255246dc98707c962c797b2457879493ba7724270bb3",
+      "columns-split-a.json": "115f706aa4968e0de14818f7e160436d187388b31ba07d26f2005ac652073951",
+      "columns-3000.json": "8aa181097145e152f43b81583abb104ea4101a4d780611eb6f9b4ebd86f7ed27",
+      "mixed-code-paste.json": "08c932358984704df4d0ac9e53bd4b77e8af1792268954705def8c5efc4a5e78",
+      "before-columns.json": "076d2180e349f2f7dbaf01c72d69849e1434bc90b42a60ce415ee6744a83f4bf",
+      "columns-with-child.json": "7ccb3187d83393f83fcff5668c6ebdcc5e8ffc686f9248e793cff46c4d17ec88",
+      "unicode-query.json": "a8f624ac0816c954a7e7500993b0fefc616360ddaf6c247bcc729c221ace0b3c",
+      "unicode-title-size-both.json": "7befd05619fbf53b9da4d0ad138f6d1aaf0bbf604a6e6b08c9ca9738748253df",
+      "unicode-peer.json": "588f058e902de972f01aa17e0db16c7dd6ee907d9dadf96d65cf3936488a8202",
+      "columns-root-copy.json": "9d2819f0a13e0f73ccfab6b8d8fda77113ac77ff9aac70f84c6edbaba836c171",
+      "columns-rich.json": "f29fa37758cacba25edf8a4fc67df81555537c9653bb8dbd44031b36d44feccd",
+      "columns-peer-child.json": "3b1accde3d540b87e1a2408167586543f111cc53cb84372f3699eae983917957"
+    }
+  },
+  "android": {
+    "bothABIsBuilt": true,
+    "apkSHA256": "c7a482705d04a407ec9f80bb4ae419f053ad076e2aee4daeb4a857db62f991d8",
+    "matchingAPKNative": {
+      "libBlockEditorBridge.so": "a8215c48f0b95d9a6d030b8c2cc3b03862265a1611a8cb7b52f8a30060179718",
+      "libBlockEditorJNI.so": "89ebcd01390a38986b4d3d65c06d80809c095b259af66fdb3540d6aa47ab9f28",
+      "libc++_shared.so": "7466ed097631a564ed6bff0b47768caa76bf03270d2047b5a65c03f497b824df"
+    },
+    "actualJNIConsumerPassed": true,
+    "terminalInstrumentationCode": -1,
+    "qualification": "One actual owned API35 typed JNI consumer, not full rendered Compose/device acceptance. Emulator stopped before frozen timing."
+  },
+  "performance": {
+    "terminalExit": 1,
+    "inputPassed": false,
+    "engines": [
+      {
+        "browser": "chromium",
+        "complete": true,
+        "sourceClean": true,
+        "sourceCommit": "489f29ea88f58c46cd9532c677315010f13be16b",
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "fa2365338c44c653211d043620e7a0a020808a8cf494c7698a95869fe8742641",
+        "summary": {
+          "inputP95MS": 215.10000014305115,
+          "menuP95MS": 54,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "complete": true,
+        "sourceClean": true,
+        "sourceCommit": "489f29ea88f58c46cd9532c677315010f13be16b",
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "fa2365338c44c653211d043620e7a0a020808a8cf494c7698a95869fe8742641",
+        "summary": {
+          "inputP95MS": 267,
+          "menuP95MS": 76,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "complete": true,
+        "sourceClean": true,
+        "sourceCommit": "489f29ea88f58c46cd9532c677315010f13be16b",
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "fa2365338c44c653211d043620e7a0a020808a8cf494c7698a95869fe8742641",
+        "summary": {
+          "inputP95MS": 284,
+          "menuP95MS": 82,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "targetsPassed": false
+      }
+    ]
+  },
+  "qualifications": [
+    "Immutable baseline membership/birth/collection preparation only. Retained new fields extend original atom keys; authored membership remains separate. All original causal, value/schema/resource/duplicate checks remain.",
+    "All three input targets remain failed; menus pass 100 ms for this workload. Original failed evidence and previous sources remain separate.",
+    "No new profiler percentile claim; original CDP profile at 02725213 remains diagnostic in modern-selection-ack evidence.",
+    "Full finishing, current required CI/review, private native delivery and deferred physical/final acceptance remain open.",
+    "No protected-main, publication/grant/credential or concurrent Foliostrate changes."
+  ]
+}
