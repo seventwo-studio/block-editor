@@ -268,21 +268,32 @@ export interface SwiftModernEditorProps {
 
 export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const { session } = props, snapshot = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
-  // Every identity/field comes from Swift. Reuse only within this immutable
-  // accepted document; a peer move, conversion or reused label replaces it.
-  const bindings = useMemo(() => {
-    const addresses = new Map<string, ModernNodeID>(), values = new Map<string, { blockID: string; path: string[]; value: ModernObject; node: ModernNodeID; kind: "block" | "column" | "item" | "row" | "cell" }>();
+  // The adapter asks Swift before reusing this exact immutable batch. The
+  // session owner is also a dependency: equal wire IDs never cross owners.
+  const sharedBindings = useMemo(() => session.nodeBindings(), [session, snapshot.document, snapshot.syncState]);
+  const identityMaps = useMemo(() => {
+    const addresses = new Map<string, ModernNodeID>();
     const fields = new Map<string, ModernField>();
-    const shared = session.nodeBindings();
-    const origins = shared && new Map(shared.map(binding => [key(binding.address), binding]));
-    for (const binding of shared ?? []) {
+    const origins = sharedBindings && new Map(sharedBindings.map(binding => [key(binding.address), binding]));
+    for (const binding of sharedBindings ?? []) {
+      addresses.set(key(binding.address), binding.node);
       for (const [name, field] of Object.entries(binding.fields)) fields.set(key([binding.node, name]), field);
     }
+    return { addresses, fields, origins };
+  }, [session, sharedBindings]);
+  const bindings = useMemo(() => {
+    // Content is always read from the current admitted document. Older engines
+    // without shared batches retain fresh individual lookups on each snapshot.
+    const addresses = sharedBindings ? identityMaps.addresses : new Map<string, ModernNodeID>();
+    const fields = sharedBindings ? identityMaps.fields : new Map<string, ModernField>();
+    const origins = identityMaps.origins;
+    const values = new Map<string, { blockID: string; path: string[]; value: ModernObject; node: ModernNodeID; kind: "block" | "column" | "item" | "row" | "cell" }>();
     function visit(value: ModernObject, blockID: string, path: string[], kind: "block" | "column" | "item" | "row" | "cell") {
       const address = { blockID, path }, binding = origins?.get(key(address));
       if (origins && (!binding || binding.kind !== kind)) throw new Error("Shared node bindings differ from the accepted document");
       const node = binding?.node ?? session.node(address);
-      addresses.set(key(address), node); values.set(key(node), { blockID, path, value, node, kind });
+      if (!sharedBindings) addresses.set(key(address), node);
+      values.set(key(node), { blockID, path, value, node, kind });
       const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
       if (kind === "block") {
         if (value.type === "columns") children("columns", "column");
@@ -295,7 +306,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     }
     for (const value of snapshot.document.blocks) visit(value, text(value.id), [], "block");
     return { addresses, values, fields };
-  }, [session, snapshot.document, snapshot.syncState]);
+  }, [session, snapshot.document, snapshot.syncState, sharedBindings, identityMaps]);
   function boundField(node: ModernNodeID, name = "content"): ModernField {
     const fieldKey = key([node, name]);
     let field = bindings.fields.get(fieldKey);
