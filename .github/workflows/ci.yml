@@ -95,6 +95,7 @@ jobs:
             test-results/performance
             test-results/resource
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
+            ${{ runner.temp }}/editor-toolchains/download-evidence.jsonl
           if-no-files-found: error
           retention-days: 7
 
@@ -179,6 +180,7 @@ jobs:
           path: |
             ${{ runner.temp }}/wasm-reports
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
+            ${{ runner.temp }}/editor-toolchains/download-evidence.jsonl
             test-results
             dist/block-editor.wasm
             dist/modern-build-*.json
@@ -247,6 +249,7 @@ jobs:
             test-results/writing-system-input
             test-results/reference-capture
             ${{ runner.temp }}/editor-toolchains/installed-inputs.json
+            ${{ runner.temp }}/editor-toolchains/download-evidence.jsonl
             android/editor/build/reports/androidTests
           if-no-files-found: error
           retention-days: 7
