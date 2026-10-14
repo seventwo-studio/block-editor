@@ -160,7 +160,7 @@ function ModernInput(props: InputProps) {
   return <div ref={registerElement} className={`modern-input ${field.name === "code" ? "modern-code-input" : ""}`}
     role="textbox" aria-label={props.label} aria-multiline={field.name !== "title"} contentEditable={!props.readOnly} suppressContentEditableWarning
     onFocus={capture} onSelect={capture} onKeyUp={capture} onMouseUp={capture}
-    onBlur={() => { session.endTypingGroup(); }} onInput={() => { if (!composing.current) commit(); }}
+    onBlur={() => { offsets.current = undefined; session.endTypingGroup(); }} onInput={() => { if (!composing.current) commit(); }}
     onCompositionStart={() => { before.current = session.text(field); release.current = session.holdRemoteChanges(); composing.current = true; session.setComposing(true); }}
     onCompositionEnd={() => { composing.current = false; session.setComposing(false); commit(); const finish = release.current; release.current = undefined; finish?.(); }}
     onPaste={event => { if (!props.host) return; event.preventDefault(); try { const range = selection(); if (range) props.host.paste({ range }, event.clipboardData, field.name === "code" || field.name === "title"); } catch (error) { props.report(error); } }}
