@@ -89,6 +89,52 @@ test("successful cell actions dismiss and reopening captures the updated structu
   expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
 });
 
+test("body presentation retains composition through local menus and updates provider status", async ({ page }) => {
+  const original: ModernDocument = { ...cellActionsDocument, documentID: "body-lifecycle", blocks: [
+    { id: "A", type: "paragraph", content: [{ type: "text", text: "Original " }] },
+    { id: "image", type: "image", src: "https://example.test/asset.png", caption: [], width: 64, height: 64 }
+  ] };
+  await mount(page, original);
+  const input = page.getByRole("textbox", { name: "Block text", exact: true }), slider = page.getByRole("slider", { name: "Image width", exact: true });
+  await input.focus(); await input.dispatchEvent("compositionstart");
+  await input.evaluate(root => { root.textContent = "Original 未確定😀"; });
+  await input.dispatchEvent("input", { inputType: "insertCompositionText", isComposing: true });
+  await expect(slider).toBeDisabled();
+  await page.getByRole("button", { name: "Insert", exact: true }).click();
+  await page.getByRole("textbox", { name: "Search blocks" }).press("Escape");
+  await expect(input).toHaveText("Original 未確定😀");
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+  await input.dispatchEvent("compositionend"); await expect(slider).toBeEnabled();
+  await expect(input).toHaveText("Original 未確定😀");
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document.blocks[0].content)).toEqual([{ type: "text", text: "Original 未確定😀" }]);
+  await page.evaluate(() => {
+    const { session } = window.modernAcceptance;
+    const request = session.beginAsyncBlock(session.node({ blockID: "image", path: [] }), "pending-presentation");
+    session.failAsyncBlock(request, "Explicit provider retry remains pending");
+  });
+  await expect(page.locator("figure")).toContainText("Explicit provider retry remains pending");
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
+test("column stacking follows page content width and updated text metrics without authoring split", async ({ page }) => {
+  const loaded = JSON.parse(readFileSync(resolve("docs/acceptance/modern-editor/documents/columns-7000.json"), "utf8")) as ModernDocument;
+  const original: ModernDocument = { ...loaded, appearance: { fontFamily: "sans", fontSize: "small", pageWidth: "readable" } };
+  await page.setViewportSize({ width: 1280, height: 900 }); await mount(page, original);
+  const columns = page.locator(".modern-columns"), slider = page.getByRole("slider", { name: "Column split" });
+  const countColumns = () => columns.evaluate(root => getComputedStyle(root).gridTemplateColumns.split(" ").length);
+  await expect.poll(countColumns).toBe(2);
+  await page.getByText("Appearance", { exact: true }).click();
+  await page.getByLabel("Text size", { exact: true }).selectOption("large");
+  await expect.poll(countColumns).toBe(1); await expect(slider).toHaveValue("7000");
+  await page.getByLabel("Page width", { exact: true }).selectOption("wide");
+  await expect.poll(countColumns).toBe(2); await expect(slider).toHaveValue("7000");
+  const beforeResize = await page.evaluate(() => window.modernAcceptance.session.save());
+  await page.setViewportSize({ width: 500, height: 900 }); await expect.poll(countColumns).toBe(1);
+  expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(beforeResize);
+  await expect(slider).toHaveValue("7000");
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("keyboard column resize releases its preview before a peer resize", async ({ page }) => {
   const original = await mount(page, "columns-7000");
   const slider = page.getByRole("slider", { name: "Column split" });

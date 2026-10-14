@@ -285,7 +285,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const [formatAnchor, setFormatAnchor] = useState<{ left: number; top: number }>();
   const formatCapture = useRef<{ ranges: readonly ModernTextRange[] } | undefined>(undefined);
   const fields = useRef(new Map<string, HTMLElement>()), selected = useRef<ModernTextRange | undefined>(undefined), drag = useRef<ModernNodes | undefined>(undefined), drop = useRef<ModernBoundary | undefined>(undefined);
-  const viewport = useRef<HTMLDivElement>(null), [width, setWidth] = useState(680);
+  const viewport = useRef<HTMLDivElement>(null), [width, setWidth] = useState(680), [fontMetric, setFontMetric] = useState<number>();
   const readOnly = !!props.readOnly || !!snapshot.recovery;
   const report = (failure: unknown) => { setError(String(failure)); props.onError?.(failure); };
   const execute = (command: ModernAuthorCommand): ModernResult => {
@@ -335,8 +335,15 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     try { root.focus({ preventScroll: true }); const offset = session.resolvePosition(focused).offset; selectInline(root, offset); root.scrollIntoView({ block: "nearest" }); setFocused(undefined); } catch (failure) { report(failure); }
   }, [focused, snapshot]);
   useLayoutEffect(() => {
-    const root = viewport.current; if (!root) return;
-    const observer = new ResizeObserver(entries => setWidth(entries[0]?.contentRect.width ?? 680)); observer.observe(root); return () => observer.disconnect();
+    const page = viewport.current?.querySelector<HTMLElement>(".modern-page"); if (!page) return;
+    // The page content box excludes gutters and honors readable/wide presets.
+    // Its height also changes with scalable text, even at the same viewport width.
+    const observer = new ResizeObserver(entries => {
+      setWidth(entries[0]?.contentRect.width ?? 680);
+      const metric = Number.parseFloat(getComputedStyle(page).fontSize);
+      setFontMetric(Number.isFinite(metric) ? metric : undefined);
+    });
+    observer.observe(page); return () => observer.disconnect();
   }, []);
   useEffect(() => { if (props.host) props.host.readOnly = readOnly; }, [props.host, readOnly]);
   useEffect(() => {
@@ -511,7 +518,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       const root = rootID ?? text(value.id), current = rootID ? [...path, text(value.id)] : [], node = origin(root, current), nodeKey = key(node), type = text(value.type);
       let content: ReactNode;
       if (type === "columns") {
-        const containers = array(value.columns), usable = available - 24, minimum = (viewport.current ? Number.parseFloat(getComputedStyle(viewport.current).fontSize) : snapshot.document.appearance.fontSize === "large" ? 20 : snapshot.document.appearance.fontSize === "small" ? 15 : 17) * 20;
+        const containers = array(value.columns), usable = available - 24, minimum = (fontMetric ?? (snapshot.document.appearance.fontSize === "large" ? 20 : snapshot.document.appearance.fontSize === "small" ? 15 : 17)) * 20;
         const stored = Number(value.splitBasisPoints ?? 5000), preview = split[nodeKey] ?? stored, ratio = Math.max(minimum / Math.max(1, usable), Math.min(1 - minimum / Math.max(1, usable), preview / 10000));
         content = containers.length !== 2 ? <p role="status">Incompatible columns preserved</p> : <>
           <div className="modern-columns" style={{ display: "grid", gap: 24, gridTemplateColumns: usable < 2 * minimum ? "1fr" : `${ratio}fr ${1 - ratio}fr` }}>
@@ -592,6 +599,16 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       </div>;
     });
   }
+  // Local menus/focus/formatting state do not alter the document body. Keep its
+  // native controls intact until accepted content/identities or body presentation
+  // changes. Lifecycle reads still invalidate policy/composition/provider UI.
+  const capabilitiesKey = key(session.capabilities());
+  const providerPresentationKey = key(session.asyncRequests().map(record => ({ target: record.target, status: record.status, reason: record.reason })));
+  const body = useMemo(() => renderBlocks(snapshot.document.blocks, { field: "blocks" }), [
+    session, bindings, snapshot.document, snapshot.syncState, readOnly, capabilitiesKey, providerPresentationKey,
+    nodes, collapsed, split, width, fontMetric, props.host, props.onError, props.suggestLinks,
+    props.onOpenReference, props.resolveMedia, props.requestMediaReplacement,
+  ]);
   const appearance = snapshot.document.appearance, bodySize = appearance.fontSize === "small" ? 15 : appearance.fontSize === "large" ? 20 : 17;
   const documentNode: ModernNodeID = { document: { documentID: snapshot.document.documentID } };
   return <section onCopyCapture={event => { if (textSpan.length > 1 && props.host) { event.preventDefault(); event.stopPropagation(); void props.host.copy(selectedTarget()).catch(report); } }}
@@ -601,12 +618,12 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       if (event.key === "Backspace" || event.key === "Delete") { event.preventDefault(); event.stopPropagation(); safe(() => execute({ command: "delete", target: selectedTarget(), arguments: {} })); setTextSpan([]); }
       else if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey) { event.preventDefault(); event.stopPropagation(); safe(() => execute({ command: "paste", target: spanPasteTarget(), arguments: { clipboard: session.clipboard(event.key) } })); setTextSpan([]); }
     }} className="modern-editor" data-font={appearance.fontFamily} style={{ "--modern-body-size": `${bodySize}px`, "--modern-page-width": appearance.pageWidth === "wide" ? "960px" : "680px" } as CSSProperties}>
-    {!focusMode && <div className="modern-topbar"><button onClick={() => setOutline(!outline)} aria-expanded={outline}>Outline</button><button onClick={() => setFocusMode(true)}>Focus</button><details><summary>Appearance</summary>{(["fontFamily", "fontSize", "pageWidth"] as const).map(field => <label key={field}>{field}<select value={appearance[field]} disabled={readOnly} onChange={event => execute({ command: "setAppearance", target: documentNode, arguments: { field, value: event.target.value } } as ModernAuthorCommand)}>{(field === "fontFamily" ? ["sans", "serif", "monospace"] : field === "fontSize" ? ["small", "default", "large"] : ["readable", "wide"]).map(value => <option key={value}>{value}</option>)}</select></label>)}</details></div>}
+    {!focusMode && <div className="modern-topbar"><button onClick={() => setOutline(!outline)} aria-expanded={outline}>Outline</button><button onClick={() => setFocusMode(true)}>Focus</button><details><summary>Appearance</summary>{(["fontFamily", "fontSize", "pageWidth"] as const).map(field => <label key={field}>{({ fontFamily: "Font", fontSize: "Text size", pageWidth: "Page width" })[field]}<select aria-label={({ fontFamily: "Font", fontSize: "Text size", pageWidth: "Page width" })[field]} value={appearance[field]} disabled={readOnly} onChange={event => execute({ command: "setAppearance", target: documentNode, arguments: { field, value: event.target.value } } as ModernAuthorCommand)}>{(field === "fontFamily" ? ["sans", "serif", "monospace"] : field === "fontSize" ? ["small", "default", "large"] : ["readable", "wide"]).map(value => <option key={value}>{value}</option>)}</select></label>)}</details></div>}
     {outline && !focusMode && <nav aria-label="Heading outline">{[...bindings.values.values()].filter(entry => entry.kind === "block" && entry.value.type === "heading")
       .map(({ node, value }) => <button key={key(node)} onClick={() => reveal(node)}>{visible(array(value.content)) || "Heading"}</button>)}</nav>}
     <div className="modern-viewport" ref={viewport}><div className="modern-page"><div className="modern-title">{input(documentNode, "title", snapshot.document.title, "Document title")}</div>
       {!snapshot.document.blocks.length && <ModernEmptyInput session={session} host={props.host} readOnly={readOnly} execute={execute} report={report} />}
-      {renderBlocks(snapshot.document.blocks, { field: "blocks" })}
+      {body}
       {snapshot.recovery && <div role="alert">Editing is paused for document recovery. Accepted content and pending input are retained.</div>}
       {props.host?.inputs.map(draft => <div role="alert" key={draft.id}>Input retained: {draft.reason}<pre>{draft.text}</pre><button disabled={readOnly} onClick={() => safe(() => props.host?.retryInput(draft.id))}>Retry plain-text input</button></div>)}
       {props.host?.clipboard.map(item => <div role="alert" key={item.id}>Clipboard retained: {item.reason}<button disabled={readOnly} onClick={() => safe(() => props.host?.retryPaste(item.id))}>Retry original paste</button><button disabled={readOnly} onClick={() => safe(() => props.host?.retryPaste(item.id, true))}>Paste plain text</button></div>)}
