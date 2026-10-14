@@ -68,6 +68,13 @@ supply the matching WASM bytes, then call `runtime.createModern` or
 application-owned `ModernBrowserHost`. `SwiftModernEditorSurface` provides
 loading, retry and incompatibility presentation for initial documents.
 
+Browser input compares captured document/epoch/focus/selection by exact values,
+independent of object property order. Adjacent input retains one local typing
+token and Swift's returned caret anchor with its captured cohort. Deliberate
+selection/focus movement and shared command/composition boundaries still end
+grouping. Per-render formatting state reuse never becomes author history or
+replaces shared validation; persistence observes actual shared changes.
+
 Run `bun run build:wasm` and `bun run demo:dev`, then open the reference
 integration at `/block-editor/modern.html` with the existing
 demo server. `demo/modern-main.tsx` demonstrates local Help

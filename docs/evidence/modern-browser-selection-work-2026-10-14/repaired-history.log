@@ -1,0 +1,114 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:73240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+  ✘  1 [chromium] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (30.1s)
+  ✘  2 [webkit] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (30.1s)
+  ✘  3 [firefox] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (30.0s)
+
+
+  1) [chromium] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Redo', exact: true })
+
+
+      58 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+      59 |   await expect(body).toHaveText("Seed");
+    > 60 |   await page.getByRole("button", { name: "Redo", exact: true }).click();
+         |                                                                ^
+      61 |   await expect(body).toHaveText("Seedabc"); await expect(body).toBeFocused();
+      62 |   await body.press("ArrowLeft"); await page.keyboard.type("XY");
+      63 |   await expect(body).toHaveText("SeedabXYc");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:60:64
+
+    attachment #1: typing-command-and-selection-trace (application/json) ───────────────────────────
+    .build/finishing/20261014/browser-selection-work/repaired-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-chromium/attachments/typing-command-and-selection-trace-df23b4318a68ab2529fd3e6f39537dcd3fc09b99.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/browser-selection-work/repaired-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-chromium/error-context.md
+
+  2) [webkit] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Redo', exact: true })
+
+
+      58 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+      59 |   await expect(body).toHaveText("Seed");
+    > 60 |   await page.getByRole("button", { name: "Redo", exact: true }).click();
+         |                                                                ^
+      61 |   await expect(body).toHaveText("Seedabc"); await expect(body).toBeFocused();
+      62 |   await body.press("ArrowLeft"); await page.keyboard.type("XY");
+      63 |   await expect(body).toHaveText("SeedabXYc");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:60:64
+
+    attachment #1: typing-command-and-selection-trace (application/json) ───────────────────────────
+    .build/finishing/20261014/browser-selection-work/repaired-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-webkit/attachments/typing-command-and-selection-trace-8dc7ce61a23203a99bb4f75ae1ff682dbabfd2b5.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/browser-selection-work/repaired-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-webkit/error-context.md
+
+  3) [firefox] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Redo', exact: true })
+
+
+      58 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+      59 |   await expect(body).toHaveText("Seed");
+    > 60 |   await page.getByRole("button", { name: "Redo", exact: true }).click();
+         |                                                                ^
+      61 |   await expect(body).toHaveText("Seedabc"); await expect(body).toBeFocused();
+      62 |   await body.press("ArrowLeft"); await page.keyboard.type("XY");
+      63 |   await expect(body).toHaveText("SeedabXYc");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:60:64
+
+    attachment #1: typing-command-and-selection-trace (application/json) ───────────────────────────
+    .build/finishing/20261014/browser-selection-work/repaired-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-firefox/attachments/typing-command-and-selection-trace-ba4d546451fd08aa8cee78511179abd5967043bb.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .build/finishing/20261014/browser-selection-work/repaired-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-firefox/error-context.md
+
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+    [webkit] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+    [firefox] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 

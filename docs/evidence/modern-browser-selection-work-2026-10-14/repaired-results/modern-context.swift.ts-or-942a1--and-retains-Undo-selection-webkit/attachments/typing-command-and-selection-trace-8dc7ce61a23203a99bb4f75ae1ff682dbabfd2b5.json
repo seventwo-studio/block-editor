@@ -1,0 +1,1665 @@
+{
+  "trace": [
+    {
+      "beforeSelection": null,
+      "selection": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "observed": [],
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "",
+                    "counter": 0
+                  },
+                  "index": 3
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "selection": {
+          "text": {
+            "_0": {
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "",
+                      "counter": 0
+                    },
+                    "index": 3
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "",
+                      "counter": 0
+                    },
+                    "index": 3
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "command": "replaceText",
+        "target": {
+          "end": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "",
+                  "counter": 0
+                },
+                "index": 3
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          },
+          "observed": [],
+          "start": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "",
+                  "counter": 0
+                },
+                "index": 3
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        },
+        "arguments": {
+          "text": "a",
+          "typingGroup": "0ac5b388-28e5-4e66-91c8-6d4ce1f6c9c2"
+        }
+      }
+    },
+    {
+      "afterCommand": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 1
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observed": [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        "selection": {
+          "text": {
+            "_0": {
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 1
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 1
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "command": "typingShortcut",
+        "target": {
+          "end": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 1
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          },
+          "observed": [
+            {
+              "actor": "local",
+              "counter": 1
+            }
+          ],
+          "start": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 1
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        },
+        "arguments": {}
+      }
+    },
+    {
+      "afterCommand": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 1
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observed": [
+          {
+            "actor": "local",
+            "counter": 1
+          }
+        ],
+        "selection": {
+          "text": {
+            "_0": {
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 1
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 1
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "command": "replaceText",
+        "target": {
+          "end": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 1
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          },
+          "observed": [
+            {
+              "actor": "local",
+              "counter": 1
+            }
+          ],
+          "start": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 1
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        },
+        "arguments": {
+          "text": "b",
+          "typingGroup": "0ac5b388-28e5-4e66-91c8-6d4ce1f6c9c2"
+        }
+      }
+    },
+    {
+      "afterCommand": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 2
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observed": [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ],
+        "selection": {
+          "text": {
+            "_0": {
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 2
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 2
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "command": "typingShortcut",
+        "target": {
+          "end": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 2
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          },
+          "observed": [
+            {
+              "actor": "local",
+              "counter": 2
+            }
+          ],
+          "start": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 2
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        },
+        "arguments": {}
+      }
+    },
+    {
+      "afterCommand": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 2
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observed": [
+          {
+            "actor": "local",
+            "counter": 2
+          }
+        ],
+        "selection": {
+          "text": {
+            "_0": {
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 2
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 2
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "command": "replaceText",
+        "target": {
+          "end": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 2
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          },
+          "observed": [
+            {
+              "actor": "local",
+              "counter": 2
+            }
+          ],
+          "start": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 2
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        },
+        "arguments": {
+          "text": "c",
+          "typingGroup": "0ac5b388-28e5-4e66-91c8-6d4ce1f6c9c2"
+        }
+      }
+    },
+    {
+      "afterCommand": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 3
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observed": [
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ],
+        "selection": {
+          "text": {
+            "_0": {
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 3
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 3
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": {
+        "command": "typingShortcut",
+        "target": {
+          "end": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 3
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          },
+          "observed": [
+            {
+              "actor": "local",
+              "counter": 3
+            }
+          ],
+          "start": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 3
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        },
+        "arguments": {}
+      }
+    },
+    {
+      "afterCommand": {
+        "documentID": "keyboard-history",
+        "epoch": "surface-acceptance",
+        "focus": {
+          "text": {
+            "_0": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 3
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observed": [
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ],
+        "selection": {
+          "text": {
+            "_0": {
+              "end": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 3
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "start": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 3
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "history": {
+    "actorID": "local",
+    "current": {
+      "documentID": "keyboard-history",
+      "epoch": "surface-acceptance",
+      "focus": {
+        "text": {
+          "_0": {
+            "affinity": "after",
+            "anchor": {
+              "element": {
+                "change": {
+                  "actor": "local",
+                  "counter": 3
+                },
+                "index": 0
+              },
+              "origin": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "documentID": "keyboard-history",
+            "epoch": "surface-acceptance",
+            "field": {
+              "name": "content",
+              "node": {
+                "baseline": {
+                  "blockID": "p",
+                  "path": []
+                }
+              }
+            }
+          }
+        }
+      },
+      "observed": [
+        {
+          "actor": "local",
+          "counter": 3
+        }
+      ],
+      "selection": {
+        "text": {
+          "_0": {
+            "end": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 3
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            },
+            "start": {
+              "affinity": "after",
+              "anchor": {
+                "element": {
+                  "change": {
+                    "actor": "local",
+                    "counter": 3
+                  },
+                  "index": 0
+                },
+                "origin": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              },
+              "documentID": "keyboard-history",
+              "epoch": "surface-acceptance",
+              "field": {
+                "name": "content",
+                "node": {
+                  "baseline": {
+                    "blockID": "p",
+                    "path": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "documentID": "keyboard-history",
+    "epoch": "surface-acceptance",
+    "records": [
+      {
+        "after": {
+          "documentID": "keyboard-history",
+          "epoch": "surface-acceptance",
+          "focus": {
+            "text": {
+              "_0": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "local",
+                      "counter": 3
+                    },
+                    "index": 0
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "observed": [
+            {
+              "actor": "local",
+              "counter": 3
+            }
+          ],
+          "selection": {
+            "text": {
+              "_0": {
+                "end": {
+                  "affinity": "after",
+                  "anchor": {
+                    "element": {
+                      "change": {
+                        "actor": "local",
+                        "counter": 3
+                      },
+                      "index": 0
+                    },
+                    "origin": {
+                      "name": "content",
+                      "node": {
+                        "baseline": {
+                          "blockID": "p",
+                          "path": []
+                        }
+                      }
+                    }
+                  },
+                  "documentID": "keyboard-history",
+                  "epoch": "surface-acceptance",
+                  "field": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "start": {
+                  "affinity": "after",
+                  "anchor": {
+                    "element": {
+                      "change": {
+                        "actor": "local",
+                        "counter": 3
+                      },
+                      "index": 0
+                    },
+                    "origin": {
+                      "name": "content",
+                      "node": {
+                        "baseline": {
+                          "blockID": "p",
+                          "path": []
+                        }
+                      }
+                    }
+                  },
+                  "documentID": "keyboard-history",
+                  "epoch": "surface-acceptance",
+                  "field": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "before": {
+          "documentID": "keyboard-history",
+          "epoch": "surface-acceptance",
+          "focus": {
+            "text": {
+              "_0": {
+                "affinity": "after",
+                "anchor": {
+                  "element": {
+                    "change": {
+                      "actor": "",
+                      "counter": 0
+                    },
+                    "index": 3
+                  },
+                  "origin": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "documentID": "keyboard-history",
+                "epoch": "surface-acceptance",
+                "field": {
+                  "name": "content",
+                  "node": {
+                    "baseline": {
+                      "blockID": "p",
+                      "path": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "observed": [],
+          "selection": {
+            "text": {
+              "_0": {
+                "end": {
+                  "affinity": "after",
+                  "anchor": {
+                    "element": {
+                      "change": {
+                        "actor": "",
+                        "counter": 0
+                      },
+                      "index": 3
+                    },
+                    "origin": {
+                      "name": "content",
+                      "node": {
+                        "baseline": {
+                          "blockID": "p",
+                          "path": []
+                        }
+                      }
+                    }
+                  },
+                  "documentID": "keyboard-history",
+                  "epoch": "surface-acceptance",
+                  "field": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                },
+                "start": {
+                  "affinity": "after",
+                  "anchor": {
+                    "element": {
+                      "change": {
+                        "actor": "",
+                        "counter": 0
+                      },
+                      "index": 3
+                    },
+                    "origin": {
+                      "name": "content",
+                      "node": {
+                        "baseline": {
+                          "blockID": "p",
+                          "path": []
+                        }
+                      }
+                    }
+                  },
+                  "documentID": "keyboard-history",
+                  "epoch": "surface-acceptance",
+                  "field": {
+                    "name": "content",
+                    "node": {
+                      "baseline": {
+                        "blockID": "p",
+                        "path": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "edits": [
+          {
+            "actor": "local",
+            "counter": 1
+          },
+          {
+            "actor": "local",
+            "counter": 2
+          },
+          {
+            "actor": "local",
+            "counter": 3
+          }
+        ]
+      }
+    ],
+    "version": 1
+  }
+}

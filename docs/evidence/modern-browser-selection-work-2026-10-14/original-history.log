@@ -1,0 +1,123 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:71417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+  ✘  1 [chromium] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (12.9s)
+  ✘  2 [webkit] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (13.7s)
+  ✘  3 [firefox] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (14.1s)
+
+
+  1) [chromium] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Block text', exact: true })
+    Expected: "Seed"
+    Received: "Seedab"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Block text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Block text', exact: true })
+        14 × locator resolved to <div role="textbox" class="modern-input " aria-multiline="true" contenteditable="true" aria-label="Block text">Seedab</div>
+           - unexpected value "Seedab"
+
+
+      41 |   await expect(body).toHaveText("Seedabc");
+      42 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+    > 43 |   await expect(body).toHaveText("Seed");
+         |                     ^
+      44 |   await page.getByRole("button", { name: "Redo", exact: true }).click();
+      45 |   await expect(body).toHaveText("Seedabc"); await expect(body).toBeFocused();
+      46 |   await body.press("ArrowLeft"); await page.keyboard.type("X");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:43:21
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-chromium/error-context.md
+
+  2) [webkit] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Block text', exact: true })
+    Expected: "Seed"
+    Received: "Seedab"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Block text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Block text', exact: true })
+        14 × locator resolved to <div role="textbox" class="modern-input " aria-multiline="true" contenteditable="true" aria-label="Block text">Seedab</div>
+           - unexpected value "Seedab"
+
+
+      41 |   await expect(body).toHaveText("Seedabc");
+      42 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+    > 43 |   await expect(body).toHaveText("Seed");
+         |                     ^
+      44 |   await page.getByRole("button", { name: "Redo", exact: true }).click();
+      45 |   await expect(body).toHaveText("Seedabc"); await expect(body).toBeFocused();
+      46 |   await body.press("ArrowLeft"); await page.keyboard.type("X");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:43:21
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-webkit/error-context.md
+
+  3) [firefox] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Block text', exact: true })
+    Expected: "Seed"
+    Received: "Seedab"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Block text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Block text', exact: true })
+        14 × locator resolved to <div role="textbox" class="modern-input " aria-multiline="true" contenteditable="true" aria-label="Block text">Seedab</div>
+           - unexpected value "Seedab"
+
+
+      41 |   await expect(body).toHaveText("Seedabc");
+      42 |   await page.getByRole("button", { name: "Undo", exact: true }).click();
+    > 43 |   await expect(body).toHaveText("Seed");
+         |                     ^
+      44 |   await page.getByRole("button", { name: "Redo", exact: true }).click();
+      45 |   await expect(body).toHaveText("Seedabc"); await expect(body).toBeFocused();
+      46 |   await body.press("ArrowLeft"); await page.keyboard.type("X");
+        at /Users/luca/Developer/block-editor/tests/modern-context.swift.ts:43:21
+
+    attachment #2: original-failed-dom (text/html) ─────────────────────────────────────────────────
+    <!DOCTYPE html><html lang="en"><head>
+        <meta charset="utf-8">
+        <title>Modern surface acceptance</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="../../src/swift-modern.css">
+        <!-- /@fs HTML is served without Vite's index transf...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/modern-context.swift.ts-or-942a1--and-retains-Undo-selection-firefox/error-context.md
+
+  3 failed
+    [chromium] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+    [webkit] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
+    [firefox] › tests/modern-context.swift.ts:34:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection 
