@@ -1,0 +1,179 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 48]
+[2 / 49] BlockEditorCore
+[5 / 52] BlockEditorCore
+[19 / 66] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:336:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+334 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+335 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+336 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+337 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+338 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:358:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+356 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+357 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+358 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+359 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+360 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[30 / 80] editor-bridge-product
+[41 / 87] local-editor-product
+[59 / 99] BlockEditorLocalDemo
+[59 / 99] BlockEditorApple
+[60 / 100] BlockEditorCore
+[71 / 97] BlockEditorLocalDemo-product
+[73 / 97] BlockEditorLocalDemoTests-product
+[79 / 107] relay-client-product
+[81 / 123]
+[94 / 123] BlockEditorCoreTests-product
+[95 / 123] BlockEditorApple
+[100 / 123] BlockEditorCoreTests-product
+[100 / 123] BlockEditorApple
+[103 / 125] BlockEditorLocalDemoTests-product
+[105 / 125] BlockEditorLocalDemoTests-product
+[109 / 130] BlockEditorDemoApple
+[111 / 132] BlockEditorDemoApple
+[115 / 135] BlockEditorLocalDemoTests-product
+[116 / 135] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:64:41: warning: '#require(_:_:)' is redundant because 'captured[name]' never equals 'nil' (from macro 'require')
+ 62 |         for (key, source) in step["bindings"]?.object ?? [:] {
+ 63 |             let name = try #require(source.string)
+ 64 |             request[key] = try #require(captured[name])
+    |                                         `- warning: '#require(_:_:)' is redundant because 'captured[name]' never equals 'nil' (from macro 'require')
+ 65 |         }
+ 66 |         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(JSONValue.object(request))))
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:96:41: warning: '#require(_:_:)' is redundant because 'root.value(at: Array(path.dropFirst()))' never equals 'nil' (from macro 'require')
+ 94 |             let name = try #require(path.first)
+ 95 |             let root = try #require(captured[name])
+ 96 |             request[key] = try #require(root.value(at: Array(path.dropFirst())))
+    |                                         `- warning: '#require(_:_:)' is redundant because 'root.value(at: Array(path.dropFirst()))' never equals 'nil' (from macro 'require')
+ 97 |         }
+ 98 |         let response = try JSONDecoder().decode(JSONValue.self, from: bridge.call(JSONEncoder().encode(JSONValue.object(request))))
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:101:83: warning: '#require(_:_:)' is redundant because 'response["recovery"]' never equals 'nil' (from macro 'require')
+ 99 |         if let error = step["error"] {
+100 |             #expect(response["ok"] == .bool(false)); #expect(response["error"] == error)
+101 |             if let name = step["capture"]?.string { captured[name] = try #require(response["recovery"]) }
+    |                                                                                   `- warning: '#require(_:_:)' is redundant because 'response["recovery"]' never equals 'nil' (from macro 'require')
+102 |         } else {
+103 |             #expect(response["ok"] == .bool(true), "\(response)")
+
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/CompatibilityTests.swift:104:83: warning: '#require(_:_:)' is redundant because 'response["value"]' never equals 'nil' (from macro 'require')
+102 |         } else {
+103 |             #expect(response["ok"] == .bool(true), "\(response)")
+104 |             if let name = step["capture"]?.string { captured[name] = try #require(response["value"]) }
+    |                                                                                   `- warning: '#require(_:_:)' is redundant because 'response["value"]' never equals 'nil' (from macro 'require')
+105 |         }
+106 |     }
+[120 / 135] BlockEditorAppleTests-product
+[122 / 135] BlockEditorDemoApple
+[124 / 137] BlockEditorDemoApple
+[126 / 136] modern-relay-client-product
+[134 / 157]
+[141 / 157] BlockEditorAppleTests-product
+[142 / 157] local-editor-app-product
+[144 / 157] BlockEditorAppleTests-product
+[147 / 157] BlockEditorAppleTests-product
+[149 / 157] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[149 / 157] BlockEditorAppleTests-product
+[149 / 157] BlockEditorCoreTests-product
+macro expansion #expect:2:7: warning: result of call to 'contains' is unused [#NoUsage]
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |2 |   $0?.contains($1)
+    |  |       `- warning: result of call to 'contains' is unused [#NoUsage]
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+macro expansion #expect:1:76: warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+`- /Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/WritingNativeClipboardTests.swift:43:87: note: expanded code originates here
+ 41 |     #expect(view.string == "A東京X😀TASKBR")
+ 42 |     #expect(view.selectedRange() == NSRange(location: 10, length: 0))
+ 43 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains(reference))
+    |     `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall((a.document.blocks[0].fields["content"]?.array ?? []).self,calling: {
+    |  |                                                                            `- warning: left side of nil coalescing operator '??' has non-optional type '[JSONValue]?', so the right side is never used
+    |2 |   $0?.contains($1)
+    |3 | },reference,expression: .__fromFunctionCall(.__fromSyntaxNode(#"(a.document.blocks[0].fields["content"]?.array ?? [])"#),"contains",(nil,.__fromSyntaxNode("reference"))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+ 44 |     #expect((a.document.blocks[0].fields["content"]?.array ?? []).contains { $0["text"] == .string("X😀") && $0["marks"] == .array([.object(["type": .string("italic")])]) })
+ 45 |     try b.receive(a.changes()); #expect(a.document == b.document)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[149 / 157] BlockEditorAppleTests-product
+[151 / 157] BlockEditorAppleTests-product
+[155 / 160] BlockEditorCoreTests-product
+[161 / 165] BlockEditorCoreTests-product
+[165 / 165] local-editor-product
+[174 / 174] relay-client-product
+Build complete! (14.29 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite IndependentWritingProjectionTests started.
+◇ Suite ModernNodeBindingTests started.
+◇ Suite ModernCapturedReadTests started.
+◇ Test crossFieldEdgesTransfersAndJoinsKeepTheFullGraphPath() started.
+◇ Suite StructuralReadTests started.
+◇ Test canonicallyEquivalentWireOriginsKeepFullReplayAndExactCapturedSpelling() started.
+◇ Test checkedFieldRebuildRejectsMissingDuplicateAndCyclicAtomsWithoutChangingTheBaseline() started.
+◇ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() started.
+◇ Test bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() started.
+◇ Test directBindingOutputRetainsCompleteCodableShapeAndExactAliasOrigins() started.
+◇ Test collectionPlacementIndexRetainsInactiveAnchorsAndDetachesNestedMoves() started.
+◇ Test independentFieldsPreserveLiteralPeerTextMarksTombstonesAndAuthorDeactivation() started.
+◇ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() started.
+◇ Test independentCopiesKeepOriginalOriginsAndOrderAfterNestedMutation() started.
+◇ Test movedColumnDescendantsResolveTheirOriginalIdentitiesThroughUndoAndReopen() started.
+◇ Test writingActivityPreservesActiveViewsButRevealsInactiveBirthsAndKeepsCopiesIndependent() started.
+◇ Test untouchedBirthBecomesVisibleWithoutChangingTheEarlierCopy() started.
+✔ Test directBindingOutputRetainsCompleteCodableShapeAndExactAliasOrigins() passed after 0.002 seconds.
+✔ Test untouchedBirthBecomesVisibleWithoutChangingTheEarlierCopy() passed after 0.002 seconds.
+✔ Test canonicallyEquivalentWireOriginsKeepFullReplayAndExactCapturedSpelling() passed after 0.003 seconds.
+✔ Test checkedFieldRebuildRejectsMissingDuplicateAndCyclicAtomsWithoutChangingTheBaseline() passed after 0.003 seconds.
+✔ Test collectionPlacementIndexRetainsInactiveAnchorsAndDetachesNestedMoves() passed after 0.003 seconds.
+✔ Test writingActivityPreservesActiveViewsButRevealsInactiveBirthsAndKeepsCopiesIndependent() passed after 0.003 seconds.
+✔ Test independentCopiesKeepOriginalOriginsAndOrderAfterNestedMutation() passed after 0.003 seconds.
+✔ Test crossFieldEdgesTransfersAndJoinsKeepTheFullGraphPath() passed after 0.004 seconds.
+✔ Test independentFieldsPreserveLiteralPeerTextMarksTombstonesAndAuthorDeactivation() passed after 0.006 seconds.
+✔ Suite IndependentWritingProjectionTests passed after 0.006 seconds.
+✔ Test forgedCohortsCannotBorrowAValidatedCurrentOrPreviousRead() passed after 0.009 seconds.
+✔ Test bindingsContainOnlyLiveSchemaOriginsAndRetainSameValueReplacementThroughUndo() passed after 0.019 seconds.
+✔ Suite ModernNodeBindingTests passed after 0.019 seconds.
+✔ Test movedColumnDescendantsResolveTheirOriginalIdentitiesThroughUndoAndReopen() passed after 0.021 seconds.
+✔ Suite StructuralReadTests passed after 0.021 seconds.
+✔ Test currentPreviousAndOlderSelectionsRetainOnlyTheirOriginalAtomsThroughPeerWork() passed after 0.033 seconds.
+✔ Suite ModernCapturedReadTests passed after 0.033 seconds.
+✔ Test run with 13 tests in 4 suites passed after 0.033 seconds.

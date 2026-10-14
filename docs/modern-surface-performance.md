@@ -185,6 +185,18 @@ callback expectations plus all 63 affected browser cases pass. Matching evidence
 is in `docs/evidence/modern-binding-output-2026-10-14`; earlier full native results
 stay source-qualified. Remaining authoring/snapshot costs and full campaigns remain.
 
+Writing projection may preserve the structural read view when marking an active
+birth as touched: the activity still enters retained state but cannot change
+current visibility/order. Inactive births invalidate normally, and value copies
+remain independent. The matching candidate passes all 701 native tests, 63 browser
+cases, eighteen JNI cases and five recovery processes. Direct appends measure
+220–269 ms. Complete production input p95 is 492 ms Chromium, 574 ms WebKit and
+619 ms Firefox; menus are 45.7, 63 and 67 ms. All input targets still fail. Exact
+results and the preceding isolated CPU profile are in
+`docs/evidence/modern-writing-activity-2026-10-14`. Full-document processing on
+ordinary edits still needs repair; direct diagnostics do not accept surface or
+resource campaigns.
+
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked
 workloads, larger-document preservation and physical native campaigns. Physical
