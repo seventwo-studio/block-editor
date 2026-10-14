@@ -1,9 +1,12 @@
-# Modern editor integration candidate
+# Modern editor integration
 
-This is the P-ST-85 implementation candidate being prepared in cumulative PR #70.
-The proposed private package version is **0.2.0**. A version number in source is
-not proof of publication or consumer access. ST-34 and ST-144 remain open until
-private artifacts, approved Foliostrate access and the actual handoff are verified.
+Private JavaScript/WASM **0.2.0** pins delivered source
+`1bb9a89c3f73c043588f8acabcde62c4e1b16be3`. Its installation evidence and the
+separate Swift/Kotlin delivery requirements are described in
+[private installed-runtime acceptance](modern-private-installation.md).
+Finishing changes in cumulative PR #71 are not contained in that immutable
+release. A source version, local build or packed proposal does not establish a
+new published release, approved consumer access or finishing acceptance.
 
 ## Contract
 
@@ -81,6 +84,13 @@ plus title and appearance, with the existing exact-value, path-depth and
 128-change limits. Structural, unrelated and reopened values use full
 comparison. These fields are excluded from serialization and public semantic
 equality, and never authorize input or become causal identities/checkpoints.
+
+Untouched-field value/activity projection may reuse a completed proof only
+under the same strong structural read lease, immutable birth/index owner and
+complete current field set. Edited fields, inactive births and property
+mismatches retain individual checks; foreign owners, subsets and routed graphs
+keep the established fallback. Structural mutations detach the proof. These
+internal proofs never enter a saved session or authorize incoming operations.
 
 The browser renderer reuses identity maps only within one session and the exact
 immutable binding batch returned after shared confirmation. Accepted content
