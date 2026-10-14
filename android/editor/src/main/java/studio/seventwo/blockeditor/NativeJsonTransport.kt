@@ -70,8 +70,8 @@ internal object NativeJsonTransport {
         return sink.bytes
     }
 
-    // BufferedWriter keeps JsonWriter's character-at-a-time string escaping cheap
-    // and bounds conversion scratch space. Closing also emits any pending surrogate.
+    // BufferedWriter bounds conversion scratch space. Invalid surrogate units
+    // fail encoding; native uncommitted buffers use the separate private archive.
     private fun write(value: JSONObject, sink: OutputStream) {
         val encoder = Charsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
         JsonWriter(BufferedWriter(OutputStreamWriter(sink, encoder), 8192)).use { writer ->

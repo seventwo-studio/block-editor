@@ -176,6 +176,69 @@ document, confirmed receipt and pending count, without credentials. This is a
 reference integration and process-restart fixture, not a production network
 service or physical keyboard/touch proof.
 
+## Android reference
+
+`ModernAndroidRelay` binds the typed JNI session to `ModernAndroidHost`, retaining
+the existing authoring/storage boundary. Use the session's original thread
+(normally Main); HTTP, reply decoding and disk I/O run on IO dispatchers.
+Application authorization and synchronization scheduling remain external.
+
+```kotlin
+val relay = ModernAndroidRelay.open(store,
+    documentID = roomID, actorID = stableActor,
+    endpoint = localRelayURL, relayKey = "application-service:room",
+    token = applicationToken, policy = applicationPolicy)
+val editor = rememberModernBlockEditorState(relay.host)
+// Mount ModernBlockEditor(editor) with the existing host callbacks.
+relay.host.save() // app-controlled save
+relay.exchange()  // app-controlled synchronization
+```
+
+The app supplies Internet permission and its development loopback policy.
+Production consumers keep their own HTTPS/security policy. The default transport
+rejects redirects, embedded credentials, queries and fragments; HTTP endpoints
+must be loopback. Applications may supply a `ModernRelayTransport` callable.
+Requests and replies own their byte arrays; the host freezes every paired sidecar
+before an asynchronous write. `save()` retains its existing Unit API.
+
+Saved checkpoints open without credentials or network traffic. Stable actor,
+document and relay identities must match. Native pending counts advance only
+after the serialized checkpoint write confirms the server receipt; provider
+results and ordinary autosave use that same queue. The request contains exactly
+the accepted history captured by the completed save, while newer input stays
+pending. Host activation and credential generations are checked after waits;
+read-only author policy does not block authorized peer delivery.
+
+The private version-1 checkpoint has an additive optional `relay` record.
+Original accepted content reopens alongside valid retained recovery. Actual saved
+packet queues remain held until `resumeDeferred?.invoke()` after input/draft
+reconciliation; an empty queue releases its hold. Provider records and original
+buffers remain inert. Unknown sidecars and malformed private-field types fail
+explicitly. A rename followed by failed durability/readback confirmation requires
+checking the actual active revision before retry, retaining the original failure.
+
+The strict network decoder rejects duplicate keys, malformed UTF-8, unpaired
+Unicode escapes and excessive depth. It retains exact decimal tokens through
+defensive copies and JNI encoding so Swift can reject rounding/incompatible
+identities. Android's JSONObject number formatter must not normalize those
+tokens before admission; negative zero also survives decoding and copying.
+JNI UTF-8 encoding rejects invalid surrogates instead of authoring replacement
+text. Original uncommitted native UTF-16 buffers can contain a temporary unpaired
+unit: the private archive escapes it exactly, without treating it as shared text.
+Use `host.exportCheckpoint()` for that complete archive; credentials/presence are
+absent. The host still decides explicit repair, retry and document activation.
+
+The existing Android development app accepts `modernRelayEndpoint`,
+`modernRelayDocument`, `modernRelayActor`, `modernRelayKey` and
+`modernRelayToken` launch extras, then mounts the complete modern editor with
+manual save, connection, synchronization, recovery/repair and export controls.
+Use test/local tokens for this development launch path, not production secrets.
+With an emulator and the local reference server, map its loopback port using
+`adb reverse tcp:4319 tcp:4319`, then launch the existing MainActivity with the
+endpoint `http://127.0.0.1:4319/rooms/shared-modern` and matching document identity.
+No token is added to editor checkpoints or exported recovery. Production apps
+provide their existing authorization context instead of this launch mechanism.
+
 ## Verification boundaries
 
 `tests/modern-relay.test.ts` uses separate real server and Swift client processes
@@ -195,7 +258,15 @@ opens offline without credentials and verifies
 the complete independent two-column fixture plus peer-preserving author history.
 These tests do not simulate a power loss or prove physical native input.
 
-The Kotlin modern transport binding, complete physical/assistive
+`ModernRelayHostTest` runs actual JNI/disk lifecycle expectations with injected
+HTTP failures; `ModernRelayProcessTest` and `scripts/test-modern-android-relay.ts`
+exercise the default HTTP transport through five separate native processes and
+a separate restarted relay. The full independent column corpus, offline input,
+pending receipts, peer appearance/split and successive author Undo/Redo survive.
+The existing CI runs these scenarios in all three Android rows. The local API35
+arm64 emulator is separate evidence, with its own toolchain/runtime identities.
+
+Complete physical/assistive
 platform campaigns, broader performance and final product acceptance remain
 separate finishing work. The new JavaScript is not the existing published 0.2.0
 artifact; private delivery needs a new reviewed version and its concrete approval.
