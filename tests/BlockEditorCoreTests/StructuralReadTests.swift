@@ -8,6 +8,43 @@ import Testing
     private func seed() throws -> StructuralState {
         StructuralState.seed(try Document(blocks: [Block.paragraph(id: "A", text: "Alpha 😀"), Block.paragraph(id: "B", text: "Beta")]))
     }
+    @Test func columnMetadataDetachesPresentationButMatchesFullMutationAndProjection() throws {
+        let path = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("docs/acceptance/modern-editor/documents/columns-rich.json")
+        let document = try ModernDocument(json: Data(contentsOf: path)), seed = ModernProjectionSeed(document)
+        let data = seed.retainedAtoms(seed.births), layout = NodeID.baseline(blockID: document.blocks[0].id, path: [])
+        let indexed = try WritingProjection(seeds: data.atoms, edits: [], emptyFields: seed.fields, hiddenSeeds: data.hidden, seedIndex: data.index)
+        let full = try WritingProjection(seeds: data.atoms, edits: [], emptyFields: seed.fields, hiddenSeeds: data.hidden)
+        for hiddenBirth in [false, true] {
+            var original = seed.structure
+            if hiddenBirth {
+                let node = original.nodes[layout]!
+                original.nodes[layout] = .init(identity: node.identity, kind: node.kind, birthKind: node.birthKind,
+                    fields: node.fields, collections: node.collections, birthActive: false)
+            }
+            let oldOrder = try original.visibleOrder(in: .root)
+            _ = try original.cutoverAddresses(); _ = original.retainedWritingBirths()
+            _ = original.checkedWritingValueBasis(try #require(data.valueOrigins))
+            let oldLease = original.renderingReadLease
+            var fast = original, ordinary = Materialized(); ordinary.structure = original
+            try fast.setModernColumnSplit(layout, to: 1000)
+            try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(1000))], enabled: true, to: &ordinary)
+            #expect(fast.renderingReadLease !== oldLease)
+            var slow = try #require(ordinary.structure)
+            let a = try projectedWritingValues(structure: &fast, projection: indexed, seeds: data.atoms,
+                fields: seed.fields, births: seed.births, retainedOrigins: true, valueOrigins: data.valueOrigins)
+            let b = try projectedWritingValues(structure: &slow, projection: full, seeds: data.atoms,
+                fields: seed.fields, births: seed.births, retainedOrigins: true)
+            var expected = document.fields, blocks = document.blocks.map { JSONValue.object($0.fields) }, first = blocks[0].object!
+            first["splitBasisPoints"] = .number(1000); blocks[0] = .object(first); expected["blocks"] = .array(blocks)
+            #expect(try fast.document(documentID: document.documentID, text: a) == ModernDocument(fields: expected))
+            #expect(try fast.document(documentID: document.documentID, text: a) == slow.document(documentID: document.documentID, text: b))
+            #expect(fast.touched == slow.touched)
+            #expect(try fast.cutoverAddresses() == slow.cutoverAddresses())
+            #expect(try original.visibleOrder(in: .root) == oldOrder)
+            #expect(original.nodes[layout]?.fields["splitBasisPoints"] == document.blocks[0].fields["splitBasisPoints"])
+        }
+    }
 
     @Test func independentCopiesKeepOriginalOriginsAndOrderAfterNestedMutation() throws {
         let original = try seed()

@@ -840,7 +840,7 @@ public final class ModernSession {
                         _ = try modernColumnIDs(layout, in: raw.structure!)
                         try validateCausalColumnAddress(layout, cohort: cohort, in: candidate)
                         guard (1000...9000).contains(split) else { throw EditorError.invalidChange }
-                        try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: active[change.id] ?? true, to: &raw)
+                        if active[change.id] ?? true { try raw.structure!.setModernColumnSplit(layout, to: split) }
                     case .convertBlock(let node, let type, let attributes):
                         try modernReference(node, before: change.id, cohort: cohort, registry: registry)
                         let captured = try causalColumnStructure(cohort, in: candidate)
@@ -1065,7 +1065,7 @@ public final class ModernSession {
                 case .removeColumns(let layout, let source):
                     routes.append(try modernRemovalRoute(layout, source: source, change: change.id, enabled: enabled, structure: raw.structure!))
                 case .resizeColumns(let layout, let split):
-                    try apply([.setNodeField(identity: layout, path: ["splitBasisPoints"], value: .number(Double(split)))], enabled: enabled, to: &raw)
+                    if enabled { try raw.structure!.setModernColumnSplit(layout, to: split) }
                 case .convertBlock(let node, let type, let attributes):
                     try applyModernMetadataConversion(node: node, type: type, attributes: attributes,
                         enabled: enabled, raw: &raw, collectionBirths: collectionBirths)

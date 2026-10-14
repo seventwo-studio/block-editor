@@ -150,6 +150,26 @@ struct StructuralState {
         get { touchedStorage }
         set { touchedStorage = newValue; readCache = ReadCache() }
     }
+    /// This single metadata property leaves labels, collections and writing
+    /// births unchanged. Detach presentation/document state, while retaining
+    /// completed structural reads only when the touch cannot activate a birth.
+    mutating func setModernColumnSplit(_ identity: NodeID, to split: Int) throws {
+        guard modern, (1000...9000).contains(split), var node = nodes[identity],
+              node.kind == .block, node.fields["type"] == .string("columns") else { throw EditorError.invalidChange }
+        let prior = readCache, preservesActivity = node.birthActive || touchedStorage.contains(identity)
+        node.fields["splitBasisPoints"] = .number(Double(split))
+        nodes[identity] = node
+        touchedStorage.insert(identity)
+        guard preservesActivity else { return }
+        prior.lock.lock(); defer { prior.lock.unlock() }
+        readCache.selected = prior.selected; readCache.visible = prior.visible
+        readCache.addresses = prior.addresses; readCache.identities = prior.identities
+        readCache.orders = prior.orders; readCache.placementCollections = prior.placementCollections
+        readCache.writingBirths = prior.writingBirths; readCache.writingFields = prior.writingFields
+        readCache.writingValueBasis = prior.writingValueBasis
+        // modernDocumentBase and its rendering lease deliberately remain fresh:
+        // the new split must appear in the accepted document and host controls.
+    }
     private(set) var modern = false { didSet { readCache = ReadCache() } }
 
     /// Scalar projection retains activity for future replay. A currently active

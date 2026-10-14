@@ -7,12 +7,24 @@ import { Session } from "node:inspector";
 import { SwiftEditorRuntime } from "../dist/swift.js";
 
 const output = resolve(process.argv[2] ?? ".build/modern-columns-profile");
+const mode = process.argv[3] ?? "metadata";
+assert.ok(["metadata", "peer-text"].includes(mode));
 mkdirSync(output, { recursive: true });
 const fixture = readFileSync("benchmarks/modern-surface-1000.json"), wasm = readFileSync("dist/block-editor.wasm");
 const document = JSON.parse(fixture.toString()), runtime = await SwiftEditorRuntime.initialize(wasm);
 const session = runtime.createModern({ documentID: document.documentID, actorID: "resize-probe", epoch: "resize-probe", document });
+let expected = document, peer;
+if (mode === "peer-text") {
+  peer = runtime.createModern({ documentID: document.documentID, actorID: "peer", epoch: "resize-probe", document });
+  const field = peer.field(peer.node({ blockID: "note-1", path: [] }));
+  assert.equal(peer.execute({ command: "replaceText", target: peer.captureTextRange(field, 0, 0), arguments: { text: "Peer 世界😀 " } }).status, "applied");
+  session.receive(peer.changes());
+  expected = { ...document, blocks: document.blocks.map(block => block.id === "note-1" ? { ...block,
+    content: [{ type: "text", text: "Peer 世界😀 Note 0001. Unicode 世界😀 and é with retained writing." }] } : block) };
+  assert.deepEqual(session.getSnapshot().document, expected);
+}
 const target = { layout: session.node({ blockID: "group-0-layout", path: [] }) }, cpu = new Session();
-const report = { complete: false, sourceCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+const report = { complete: false, mode, sourceCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   patchSHA256: createHash("sha256").update(execFileSync("git", ["diff", "HEAD"])).digest("hex"),
   fixtureSHA256: createHash("sha256").update(fixture).digest("hex"), wasmSHA256: createHash("sha256").update(wasm).digest("hex"),
   milliseconds: [], qualification: "Actual shared WASM command diagnostic; excludes native input and rendering. CPU samples cover the 23rd resize only; not surface acceptance." };
@@ -27,10 +39,14 @@ try {
     assert.equal(session.execute({ command: "resizeColumns", target, arguments: { splitBasisPoints } }).status, "applied");
     report.milliseconds.push(performance.now() - start);
     if (i === 22) writeFileSync(resolve(output, "resize.cpuprofile"), JSON.stringify((await post("Profiler.stop")).profile));
-    assert.deepEqual(session.getSnapshot().document, { ...document, blocks: document.blocks.map(block => block.id === "group-0-layout" ? { ...block, splitBasisPoints } : block) });
+    assert.deepEqual(session.getSnapshot().document, { ...expected, blocks: expected.blocks.map(block => block.id === "group-0-layout" ? { ...block, splitBasisPoints } : block) });
   }
   for (let i = 0; i < 23; i++) session.execute({ command: "undo", arguments: {} });
-  assert.deepEqual(session.getSnapshot().document, document);
+  assert.deepEqual(session.getSnapshot().document, expected);
+  if (peer) {
+    peer.receive(session.changes()); peer.execute({ command: "undo", arguments: {} }); session.receive(peer.changes());
+    assert.deepEqual(session.getSnapshot().document, document);
+  }
   report.complete = true;
-} finally { cpu.disconnect(); session.close(); writeFileSync(resolve(output, "receipt.json"), JSON.stringify(report, null, 2) + "\n"); }
+} finally { cpu.disconnect(); session.close(); peer?.close(); writeFileSync(resolve(output, "receipt.json"), JSON.stringify(report, null, 2) + "\n"); }
 console.log(JSON.stringify(report));
