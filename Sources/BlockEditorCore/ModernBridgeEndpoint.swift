@@ -8,6 +8,7 @@ final class ModernBridgeEndpoint {
     private struct SnapshotView {
         let owner: ModernSession
         let document: JSONValue
+        let admitted: ModernDocument
         let receipt: JSONValue
         let token: String
     }
@@ -49,7 +50,7 @@ final class ModernBridgeEndpoint {
         if let previous {
             // An unchanged admitted receipt cannot mutate this session's content.
             changes = ModernSnapshotDelta.equal(previous.receipt, receipt) ? [] :
-                ModernSnapshotDelta.changes(from: previous.document, to: document)
+                ModernSnapshotDelta.changes(from: previous.admitted, to: session.document)
         } else { changes = nil }
         let token = changes?.isEmpty == true ? previous!.token : UUID().uuidString
         var view: [String: JSONValue] = ["version": .number(1), "token": .string(token)]
@@ -58,7 +59,7 @@ final class ModernBridgeEndpoint {
             view["baseToken"] = .string(previous.token); view["changes"] = .array(changes)
         }
         response["documentSnapshot"] = .object(view)
-        snapshotViews[handle] = SnapshotView(owner: session, document: document, receipt: receipt, token: token)
+        snapshotViews[handle] = SnapshotView(owner: session, document: document, admitted: session.document, receipt: receipt, token: token)
         return .object(response)
     }
     private func dispatchFull(_ input: JSONValue) throws -> JSONValue {

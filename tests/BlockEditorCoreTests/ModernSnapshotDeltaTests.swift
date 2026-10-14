@@ -3,6 +3,47 @@ import Foundation
 import Testing
 
 @Suite struct ModernSnapshotDeltaTests {
+    @Test func admittedRootMasksMatchCompleteSnapshotsThroughPeerUndoAndStructuralFallback() throws {
+        let toggle = try Block(fields: ["id": .string("t"), "type": .string("toggle"), "summary": .array([textNode("Summary")]),
+            "children": .array([.object(Block.paragraph(id: "p", text: "One😀").fields)])])
+        let original = try ModernDocument(documentID: "root-deltas", title: "Title", blocks: [toggle, .paragraph(id: "q", text: "Two")])
+        let a = try ModernSession(documentID: original.documentID, actorID: "a", epoch: "e", document: original)
+        let b = try ModernSession(documentID: original.documentID, actorID: "b", epoch: "e", document: original)
+        let p = try a.field(node: a.node(at: NodeAddress("t", path: ["children", "p"])))
+        let q = try b.field(node: b.node(at: NodeAddress("q")))
+        var previous = original
+        func check() throws {
+            let current = a.document
+            #expect(ModernSnapshotDelta.changes(from: previous, to: current) ==
+                ModernSnapshotDelta.changes(from: .object(previous.fields), to: .object(current.fields)))
+            #expect(try ModernDocument(fields: current.fields).json() == current.json())
+            previous = current
+        }
+        try a.replaceText(in: p, range: 5..<5, with: "!"); try check()
+        try b.replaceText(in: q, range: 3..<3, with: " peer")
+        try a.receive(b.changes()); try check()
+        #expect(ModernSnapshotDelta.changes(from: original, to: a.document, limit: 1) == nil)
+        try a.undo(); try check()
+        #expect(try a.text(in: p) == "One😀" && a.text(in: q) == "Two peer")
+        try a.redo(); try check()
+        try a.setAppearance(field: "fontSize", value: "large"); try check()
+        try a.replaceText(in: a.titleField, range: 5..<5, with: " é"); try check()
+        try a.move(p.node, into: .root, after: a.node(at: NodeAddress("t"))); try check()
+        try a.undo(); try check()
+        let reopened = try ModernSession.restore(a.save(), actorID: "a")
+        #expect(ModernSnapshotDelta.changes(from: a.document, to: reopened.document) == [])
+    }
+    @Test func unrelatedEqualValuedDocumentsCannotBorrowRootMasksOrHideOpaqueBitChanges() throws {
+        var fields = try ModernDocument(documentID: "opaque-delta", blocks: [.paragraph(id: "p", text: "Same")]).fields
+        fields["opaque"] = .object(["zero": .number(-0.0), "text": .string("é")])
+        let before = try ModernDocument(fields: fields)
+        fields["opaque"] = .object(["zero": .number(0), "text": .string("é")])
+        let after = try ModernDocument(fields: fields)
+        #expect(before == after) // Original public semantic equality is retained.
+        let changes = try #require(ModernSnapshotDelta.changes(from: before, to: after))
+        #expect(changes.count == 2)
+        #expect(changes == ModernSnapshotDelta.changes(from: .object(before.fields), to: .object(after.fields)))
+    }
     @Test func rawKeyReplacementAndNumericPathOrderingRemainExact() throws {
         let before: JSONValue = .object(["parent": .object(["é": .string("old"), "a": .number(1)])])
         let after: JSONValue = .object(["parent": .object(["é": .string("new"), "a": .number(2)])])

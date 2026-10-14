@@ -37,6 +37,13 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
     public let blocks: [Block]
     /// Includes admitted unknown envelope, appearance, block and inline fields.
     public let fields: [String: JSONValue]
+    private let admittedIdentity = ModernDocumentIdentity()
+    private let comparison: ModernDocumentComparison?
+
+    public static func == (lhs: ModernDocument, rhs: ModernDocument) -> Bool {
+        lhs.documentID == rhs.documentID && lhs.title == rhs.title && lhs.appearance == rhs.appearance &&
+            lhs.blocks == rhs.blocks && lhs.fields == rhs.fields
+    }
 
     public init(documentID: String, title: String = "", appearance: ModernAppearance = .default, blocks: [Block] = []) throws {
         try self.init(fields: ["format": .string(Self.format), "formatVersion": .number(Double(Self.formatVersion)),
@@ -70,6 +77,7 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
         }
         self.documentID = identity; self.title = title; self.appearance = appearance
         self.blocks = blocks; self.fields = fields
+        comparison = nil
     }
     public init(json: Data) throws {
         guard json.count <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
@@ -133,12 +141,27 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
         guard size <= 32_000_000 else { throw EditorError.invalidDocument("Document exceeds 32 MB") }
         let appearance = try ModernAppearance(output["appearance"])
         output["blocks"] = .array(roots.map { .object($0.fields) })
-        return ModernDocument(admittedFields: output, documentID: documentID, title: output["title"]!.string!, appearance: appearance, blocks: roots)
+        return ModernDocument(admittedFields: output, documentID: documentID, title: output["title"]!.string!, appearance: appearance,
+                              blocks: roots, comparison: ModernDocumentComparison(baseline: admittedIdentity, roots: Set(changed.keys)))
     }
 
-    private init(admittedFields: [String: JSONValue], documentID: String, title: String, appearance: ModernAppearance, blocks: [Block]) {
+    private init(admittedFields: [String: JSONValue], documentID: String, title: String, appearance: ModernAppearance,
+                 blocks: [Block], comparison: ModernDocumentComparison) {
         self.fields = admittedFields; self.documentID = documentID; self.title = title
         self.appearance = appearance; self.blocks = blocks
+        self.comparison = comparison
+    }
+
+    /// Only internal admitted projections can carry this proof. Serialized or
+    /// unrelated documents never borrow it, even when their visible values match.
+    func comparisonRoots(with other: ModernDocument) -> Set<Int>? {
+        if admittedIdentity === other.admittedIdentity { return [] }
+        if let next = other.comparison {
+            if admittedIdentity === next.baseline { return next.roots }
+            if let prior = comparison, prior.baseline === next.baseline { return prior.roots.union(next.roots) }
+        }
+        if let prior = comparison, other.admittedIdentity === prior.baseline { return prior.roots }
+        return nil
     }
 
     private static func inspect(_ value: JSONValue, maximumDepth: Int) throws {
@@ -150,6 +173,12 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
             else if let array = value.array { pending.append(contentsOf: array.map { ($0, depth + 1) }) }
         }
     }
+}
+
+private final class ModernDocumentIdentity: Sendable {}
+private struct ModernDocumentComparison: Sendable {
+    let baseline: ModernDocumentIdentity
+    let roots: Set<Int>
 }
 
 /// A structural read lease owns one immutable admitted baseline, never a chain
