@@ -56,9 +56,12 @@ try {
   const peer = "native-peer";
   await bridge.call({ command: "restoreModern", session: peer, actorID: peer, snapshot: baseline });
   for (const request of [
-    { command: "setAppearance", arguments: { field: "fontFamily", value: "serif" } },
+    { command: "setAppearance", target: { document: { documentID: document.documentID } }, arguments: { field: "fontFamily", value: "serif" } },
     { command: "resizeColumns", target: { layout: { baseline: { blockID: "layout", path: [] } } }, arguments: { splitBasisPoints: 3000 } },
-  ]) await bridge.call({ command: "modernCommand", session: peer, request: { documentID: document.documentID, epoch, ...request } });
+  ]) {
+    const result = await bridge.call({ command: "modernCommand", session: peer, request: { documentID: document.documentID, epoch, ...request } });
+    if (result.status !== "applied") throw new Error(`Peer command ${request.command} was not applied`);
+  }
   const response = await fetch(`${server.url}/rooms/${document.documentID}`, { method: "POST", headers: { "x-local-token": "modern-relay-test", "content-type": "application/json" },
     body: JSON.stringify({ actorID: peer, batch: await bridge.call({ command: "modernChanges", session: peer }), state: (await bridge.call({ command: "modernSnapshot", session: peer })).syncState }) });
   if (response.status !== 200) throw new Error("Peer setup did not persist");
