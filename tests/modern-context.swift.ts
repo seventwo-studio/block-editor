@@ -31,6 +31,90 @@ const cellActionsDocument: ModernDocument = { format: "seventwo.block-editor.doc
     { id: "T", type: "table", rows: [{ id: "R", cells: [{ id: "C", header: false, content: [{ type: "text", text: "Original 世界😀" }] }] }] }
   ] };
 
+declare global { interface Window { contextualReadCounts: { marks: number; semantics: number } } }
+
+test("closed contextual controls defer reads and opening shows current peer formatting and colors", async ({ page }) => {
+  await mount(page, { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "contextual-reads",
+    title: "Context", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+      { id: "A", type: "paragraph", content: [{ type: "text", text: "Bold", marks: [{ type: "bold" }] }, { type: "text", text: " plain" }] },
+    ] });
+  await page.evaluate(() => {
+    const session = window.modernAcceptance.session, counts = window.contextualReadCounts = { marks: 0, semantics: 0 };
+    const marks = session.markState.bind(session), semantics = session.semanticState.bind(session);
+    session.markState = (...args) => { counts.marks++; return marks(...args); };
+    session.semanticState = (...args) => { counts.semantics++; return semantics(...args); };
+  });
+  const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  await body.click(); await body.press("End"); await page.keyboard.type("!");
+  await expect(body).toHaveText("Bold plain!");
+  expect(await page.evaluate(() => window.contextualReadCounts)).toEqual({ marks: 0, semantics: 0 });
+  await body.evaluate(root => { root.focus(); document.getSelection()!.setBaseAndExtent(root, root.childNodes.length, root, 0); });
+  await page.getByText("Format", { exact: true }).click();
+  const bold = page.getByRole("button", { name: "bold", exact: true });
+  await expect(bold).toHaveAttribute("aria-pressed", "mixed");
+  await page.getByText("Format", { exact: true }).click();
+  await expect(bold).not.toBeVisible();
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await page.evaluate(() => {
+    window.contextualReadCounts.marks = 0; window.contextualReadCounts.semantics = 0;
+    const { session, peer } = window.modernAcceptance; peer.receive(session.changes());
+    const field = peer.field(peer.node({ blockID: "A", path: [] }));
+    peer.execute({ command: "format", target: { ranges: [peer.captureTextRange(field, 0, peer.text(field).length)] }, arguments: { markType: "bold", mark: { type: "bold" } } });
+    session.receive(peer.changes());
+  });
+  await expect(body.locator("strong")).toHaveText("Bold plain!");
+  expect(await page.evaluate(() => window.contextualReadCounts)).toEqual({ marks: 0, semantics: 0 });
+  await page.getByText("Format", { exact: true }).click(); await expect(bold).toHaveAttribute("aria-pressed", "true");
+  await bold.click(); await expect(body.locator("strong")).toHaveCount(0);
+  await page.getByRole("button", { name: "Undo", exact: true }).click(); await expect(body.locator("strong")).toHaveText("Bold plain!");
+  await expect.poll(() => page.evaluate(() => document.getSelection()?.toString())).toBe("Bold plain!");
+  const backward = () => body.evaluate(root => {
+    const selection = document.getSelection()!, a = document.createRange(), b = document.createRange();
+    a.selectNodeContents(root); a.setEnd(selection.anchorNode!, selection.anchorOffset);
+    b.selectNodeContents(root); b.setEnd(selection.focusNode!, selection.focusOffset);
+    return a.toString().length > b.toString().length;
+  });
+  await expect.poll(backward).toBe(true);
+  await body.press(process.platform === "darwin" ? "Meta+Shift+z" : "Control+Shift+z");
+  await expect(body.locator("strong")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.getSelection()?.toString())).toBe("Bold plain!");
+  await expect.poll(backward).toBe(true);
+  await page.getByRole("button", { name: "Undo", exact: true }).click(); await expect(body.locator("strong")).toHaveText("Bold plain!");
+  await page.getByText("Format", { exact: true }).click();
+  await page.getByText("More", { exact: true }).click();
+  const more = page.getByText("More", { exact: true }).locator("..");
+  await more.getByText("Text color: Default", { exact: true }).click();
+  const ink = more.getByText("Text color: Default", { exact: true }).locator("..");
+  await ink.getByRole("button", { name: "blue", exact: true }).click();
+  await expect(more.getByText("Text color: blue", { exact: true })).toBeVisible();
+  expect((await page.evaluate(() => window.contextualReadCounts)).semantics).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
+test("immutable binding roots keep outline values current after sibling and peer edits", async ({ page }) => {
+  await mount(page, { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "root-outline",
+    title: "Outline", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+      { id: "H", type: "heading", level: 2, content: [{ type: "text", text: "Original" }] },
+      { id: "P", type: "paragraph", content: [{ type: "text", text: "Body" }] },
+    ] });
+  await page.getByRole("button", { name: "Outline", exact: true }).click();
+  const outline = page.getByRole("navigation", { name: "Heading outline" });
+  const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  await body.click(); await body.press("End"); await page.keyboard.type("!");
+  await expect(body).toHaveText("Body!"); await expect(outline.getByRole("button", { name: "Original", exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const { session, peer } = window.modernAcceptance; peer.receive(session.changes());
+    const field = peer.field(peer.node({ blockID: "H", path: [] }));
+    peer.execute({ command: "replaceText", target: peer.captureTextRange(field, 0, 8), arguments: { text: "Updated" } }); session.receive(peer.changes());
+  });
+  await expect(outline.getByRole("button", { name: "Original", exact: true })).toHaveCount(0);
+  await outline.getByRole("button", { name: "Updated", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Heading", exact: true })).toBeFocused();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(body).toHaveText("Body"); await expect(outline.getByRole("button", { name: "Updated", exact: true })).toBeVisible();
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("unchanged sibling commands use current shared state after another block edits", async ({ page }) => {
   const document: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "retained-sibling",
     title: "Siblings", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [

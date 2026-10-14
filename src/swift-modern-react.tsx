@@ -281,19 +281,25 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     }
     return { addresses, fields, origins };
   }, [session, sharedBindings]);
+  type BoundValue = { blockID: string; path: string[]; value: ModernObject; node: ModernNodeID; kind: "block" | "column" | "item" | "row" | "cell" };
+  // Reuse only already checked immutable roots under the exact confirmed
+  // binding batch and session. Changed roots still traverse the actual schema.
+  const bindingRoots = useMemo(() => new WeakMap<ModernObject, readonly (readonly [string, BoundValue])[]>(), [session, identityMaps]);
   const bindings = useMemo(() => {
     // Content is always read from the current admitted document. Older engines
     // without shared batches retain fresh individual lookups on each snapshot.
     const addresses = sharedBindings ? identityMaps.addresses : new Map<string, ModernNodeID>();
     const fields = sharedBindings ? identityMaps.fields : new Map<string, ModernField>();
     const origins = identityMaps.origins;
-    const values = new Map<string, { blockID: string; path: string[]; value: ModernObject; node: ModernNodeID; kind: "block" | "column" | "item" | "row" | "cell" }>();
+    const values = new Map<string, BoundValue>();
+    let rootEntries: (readonly [string, BoundValue])[] = [];
     function visit(value: ModernObject, blockID: string, path: string[], kind: "block" | "column" | "item" | "row" | "cell") {
       const address = { blockID, path }, binding = origins?.get(key(address));
       if (origins && (!binding || binding.kind !== kind)) throw new Error("Shared node bindings differ from the accepted document");
       const node = binding?.node ?? session.node(address);
       if (!sharedBindings) addresses.set(key(address), node);
-      values.set(key(node), { blockID, path, value, node, kind });
+      const entry = [key(node), { blockID, path, value, node, kind }] as const;
+      values.set(...entry); rootEntries.push(entry);
       const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
       if (kind === "block") {
         if (value.type === "columns") children("columns", "column");
@@ -304,9 +310,14 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       else if (kind === "item") children("children", "item");
       else if (kind === "row") children("cells", "cell");
     }
-    for (const value of snapshot.document.blocks) visit(value, text(value.id), [], "block");
+    for (const value of snapshot.document.blocks) {
+      const retained = sharedBindings && bindingRoots.get(value);
+      if (retained) { for (const entry of retained) values.set(...entry); continue; }
+      rootEntries = []; visit(value, text(value.id), [], "block");
+      if (sharedBindings) bindingRoots.set(value, rootEntries);
+    }
     return { addresses, values, fields };
-  }, [session, snapshot.document, snapshot.syncState, sharedBindings, identityMaps]);
+  }, [session, snapshot.document, snapshot.syncState, sharedBindings, identityMaps, bindingRoots]);
   function boundField(node: ModernNodeID, name = "content"): ModernField {
     const fieldKey = key([node, name]);
     let field = bindings.fields.get(fieldKey);
@@ -321,7 +332,9 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const resizeGesture = useRef<{ key: string; cancelled: boolean } | undefined>(undefined);
   const [textSpan, setTextSpan] = useState<readonly ModernTextRange[]>([]), [, redrawSelection] = useState(0);
   const [formatAnchor, setFormatAnchor] = useState<{ left: number; top: number }>();
+  const [formatOpen, setFormatOpen] = useState(false), [paletteMode, setPaletteMode] = useState<"text" | "nodes">();
   const formatCapture = useRef<{ ranges: readonly ModernTextRange[] } | undefined>(undefined);
+  useEffect(() => { setFormatOpen(false); setPaletteMode(undefined); formatCapture.current = undefined; }, [session, !!nodes]);
   // A departing input cleans up its own session's map, even when an incoming
   // session reuses the same wire field. Ordinary renders retain registrations.
   const fields = useMemo(() => ({ owner: session, current: new Map<string, HTMLElement>() }), [session]);
@@ -340,7 +353,15 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       const ordinaryTyping = (command.command === "replaceText" || command.command === "replaceTitle") && !!command.arguments.typingGroup;
       if (command.command === "format" && "ranges" in command.target) {
         setTextSpan(command.target.ranges); restoreSpan(command.target.ranges);
-      } else if (result.focus && !ordinaryTyping && !(command.command === "typingShortcut" && result.status === "noop")) { setTextSpan([]); setFocused(result.focus); }
+      } else if (result.focus && !ordinaryTyping && !(command.command === "typingShortcut" && result.status === "noop")) {
+        setTextSpan([]); setFocused(result.focus);
+        if (command.command === "undo" || command.command === "redo") {
+          const local = session.localSelection(), selection = local?.selection;
+          const ranges = selection && "text" in selection ? [{ ...selection.text._0, observed: local!.observed }]
+            : selection && "mixed" in selection ? selection.mixed._0.ranges : [];
+          if (ranges.length) { setNodes(undefined); selected.current = ranges.at(-1); setTextSpan(ranges.length > 1 ? ranges : []); restoreSpan(ranges); }
+        }
+      }
     }
     return result;
   };
@@ -397,13 +418,15 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     return () => controller.abort();
   }, [link?.query, link?.internal, props.suggestLinks]);
   function restoreSpan(ranges: readonly ModernTextRange[]): void {
-    if (ranges.length < 2) return;
+    if (!ranges.length) return;
     requestAnimationFrame(() => { try {
       const backward = session.resolvePosition(ranges[0].start).offset > session.resolvePosition(ranges[0].end).offset;
       const start = backward ? ranges.at(-1)!.start : ranges[0].start, end = backward ? ranges[0].end : ranges.at(-1)!.end;
       const aRoot = fields.current.get(key(start.field)), bRoot = fields.current.get(key(end.field)); if (!aRoot || !bRoot) return;
+      bRoot.focus({ preventScroll: true });
       const a = domPoint(aRoot, session.resolvePosition(start).offset), b = domPoint(bRoot, session.resolvePosition(end).offset);
       document.getSelection()?.setBaseAndExtent(a.node, a.offset, b.node, b.offset);
+      bRoot.scrollIntoView({ block: "nearest" });
     } catch (failure) { report(failure); } });
   }
   useEffect(() => {
@@ -436,6 +459,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   }
   function selectedTarget(): { ranges: readonly ModernTextRange[] } { return { ranges: textSpan.length ? textSpan : selected.current ? [selected.current] : [] }; }
   function captureFormatting(open: boolean): void {
+    setFormatOpen(open);
     if (!open) { formatCapture.current = undefined; setFormatAnchor(undefined); return; }
     formatCapture.current = selectedTarget();
     const selection = document.getSelection();
@@ -446,8 +470,9 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     });
   }
   const formattingStates = new Map<string, "on" | "off" | "mixed">();
-  function formattingState(mark: string): "on" | "off" | "mixed" {
-    const prior = formattingStates.get(mark); if (prior) return prior;
+  function formattingState(mark: string, action = false): "on" | "off" | "mixed" {
+    if (!formatOpen && !action) return "off";
+    const prior = formattingStates.get(mark); if (prior && !action) return prior;
     let state: "on" | "off" | "mixed" = "off";
     try { const ranges = (formatCapture.current ?? selectedTarget()).ranges; if (ranges.length) state = session.markState(ranges, mark); } catch { /* Stale captures remain unavailable. */ }
     formattingStates.set(mark, state); return state;
@@ -458,7 +483,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     return (["ink", "fill"] as const).map(kind => {
       let current = semanticStates.get(kind);
       if (!semanticStates.has(kind)) {
-        try { if (target) current = session.semanticState(target, kind); } catch { /* Stale captures remain unavailable. */ }
+        try { if (target && paletteMode === (nodes ? "nodes" : "text")) current = session.semanticState(target, kind); } catch { /* Stale captures remain unavailable. */ }
         semanticStates.set(kind, current);
       }
       const state = current && "role" in current ? current.role._0 : current && "mixed" in current ? "mixed" : "reset";
@@ -705,12 +730,12 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     <div className="modern-accessory" role="toolbar" aria-label="Editing actions" onPointerDown={event => { if (event.target instanceof HTMLButtonElement) event.preventDefault(); }}>
       {nodes ? <><span>{nodes.nodes.length} selected</span><details><summary>Convert</summary>{["paragraph", "heading", "quote", "callout", "list", "code"].map(type => <button type="button" key={type} disabled={readOnly} onClick={() => execute({ command: "convertBlock", target: nodes, arguments: { type: type as "paragraph" } })}>{type}</button>)}</details>
         <details><summary>Move to</summary>{[{ label: "Document end", collection: { field: "blocks" } as ModernCollection }, ...snapshot.document.blocks.filter(value => value.type === "columns").flatMap(value => array(value.columns).map((column, index) => ({ label: `Column ${index + 1}`, collection: { owner: origin(text(value.id), ["columns", text(column.id)]), field: "children" } as ModernCollection })))].map((destination, index) => <button type="button" key={index} disabled={readOnly} onClick={() => safe(() => execute({ command: "move", target: { selection: nodes, boundary: session.captureBoundary(destination.collection, session.nodes(destination.collection).at(-1)) }, arguments: {} }))}>{destination.label}</button>)}</details>
-        <button type="button" disabled={readOnly} onClick={() => move(false)}>Move up</button><button type="button" disabled={readOnly} onClick={() => move(true)}>Move down</button><button type="button" disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button type="button" disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><details><summary>Color</summary>{palette()}</details><button type="button" onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button type="button" onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
+        <button type="button" disabled={readOnly} onClick={() => move(false)}>Move up</button><button type="button" disabled={readOnly} onClick={() => move(true)}>Move down</button><button type="button" disabled={readOnly} onClick={() => safe(() => execute({ command: "duplicate", target: { selection: nodes, boundary: session.captureBoundary(parent(nodes.nodes.at(-1)!), nodes.nodes.at(-1)) }, arguments: { newBlockIDs: nodes.nodes.map(() => crypto.randomUUID()) } }))}>Duplicate</button><button type="button" disabled={readOnly} onClick={() => { execute({ command: "delete", target: { nodes, ranges: [] }, arguments: {} }); setNodes(undefined); }}>Delete</button><details onToggle={event => setPaletteMode(event.currentTarget.open ? "nodes" : undefined)}><summary>Color</summary>{palette()}</details><button type="button" onClick={() => props.onCopyBlockLink?.(nodes.nodes[0])} disabled={!props.onCopyBlockLink}>Copy link</button><button type="button" onClick={() => { setNodes(undefined); if (selected.current) setFocused(selected.current.end); }}>Cancel selection</button></> : <>
         <button type="button" disabled={readOnly} onClick={() => safe(() => { setMenu({ boundary: selected.current ? session.captureInsertionBoundary(selected.current.start.field) : session.captureBoundary({ field: "blocks" }, session.nodes().at(-1)), returnFocus: selected.current?.end, query: "", index: 0 }); })}>Insert</button>
-        <details className="modern-format-menu" onToggle={event => captureFormatting(event.currentTarget.open)}><summary>Format</summary><div style={formatAnchor ? { position: "fixed", left: formatAnchor.left, top: formatAnchor.top, bottom: "auto" } : undefined}>{["bold", "italic", "strikethrough", "code"].map(mark => <button type="button" key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { const target = formatCapture.current ?? selectedTarget(); if (target.ranges.length) execute({ command: "format", target, arguments: { markType: mark, mark: formattingState(mark) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
+        <details className="modern-format-menu" onToggle={event => captureFormatting(event.currentTarget.open)}><summary>Format</summary><div style={formatAnchor ? { position: "fixed", left: formatAnchor.left, top: formatAnchor.top, bottom: "auto" } : undefined}>{["bold", "italic", "strikethrough", "code"].map(mark => <button type="button" key={mark} aria-pressed={formattingState(mark) === "mixed" ? "mixed" : formattingState(mark) === "on"} disabled={readOnly || !selected.current} onClick={() => { const target = formatCapture.current ?? selectedTarget(); if (target.ranges.length) execute({ command: "format", target, arguments: { markType: mark, mark: formattingState(mark, true) === "on" ? null : { type: mark } } }); }}>{mark}</button>)}</div></details>
         <button type="button" disabled={readOnly || !selected.current} onClick={() => { if (selected.current) setLink({ range: selected.current, query: "", internal: false }); }}>Link</button>
         <button type="button" disabled={readOnly || !snapshot.canUndo} onClick={() => execute({ command: "undo", arguments: {} })}>Undo</button>
-        <details><summary>More</summary><button type="button" disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button><button type="button" onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{palette()}</details>
+        <details onToggle={event => setPaletteMode(event.currentTarget.open ? "text" : undefined)}><summary>More</summary><button type="button" disabled={readOnly || !snapshot.canRedo} onClick={() => execute({ command: "redo", arguments: {} })}>Redo</button><button type="button" onClick={() => { if (selected.current) selectedBlocks(selected.current.start.field.node, false); }}>Select block</button>{palette()}</details>
       </>}{focusMode && <button type="button" onClick={() => setFocusMode(false)}>Leave focus mode</button>}
     </div>
     {menu && <div className="modern-picker" role="dialog" aria-label="Insert block" style={{ left: menu.anchor ? Math.max(8, Math.min(window.innerWidth - 300, menu.anchor.left)) : 16, top: menu.anchor ? Math.max(8, Math.min(window.innerHeight - 440, menu.anchor.bottom)) : 64 }}>
