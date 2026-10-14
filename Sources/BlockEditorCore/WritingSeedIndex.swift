@@ -3,6 +3,8 @@ import Foundation
 /// Immutable, separately validated field chains. Cross-field routing cannot
 /// use this index; it continues through the complete graph projection.
 struct WritingSeedIndex {
+    private final class Owner {}
+    let owner: AnyObject = Owner()
     let seeds: [WritingField: [WritingAtomSeed]]
     let hidden: [WritingField: Set<WritingAtomKey>]
     let projections: [WritingField: WritingProjection]
@@ -41,12 +43,31 @@ struct WritingSeedData {
     let hidden: Set<WritingAtomKey>
     let index: WritingSeedIndex?
     let keys: Set<WritingAtomKey>
+    let valueOrigins: WritingValueOrigins?
+}
+
+/// Strong ownership of immutable births and their checked scalar seed index.
+/// This is internal projection data, never command or packet authorization.
+final class WritingValueOrigins {
+    let births: [WritingField: WritingFieldBirth]
+    let index: WritingSeedIndex
+    init(births: [WritingField: WritingFieldBirth], index: WritingSeedIndex) {
+        self.births = births; self.index = index
+    }
+}
+
+struct WritingValueBasis {
+    let fields: Set<WritingField>
+    let remaining: Set<WritingField>
+    let activeNodes: Set<NodeID>
+    let activeFields: [NodeID: Set<WritingField>]
 }
 
 /// Each snapshot owns its small field dictionary and shares immutable baseline
 /// fields. Edited fields are rebuilt with the original checked graph algorithm;
 /// there is no parent-snapshot chain or unchecked mutable cache.
 struct IndependentWritingFields {
+    let seedOwner: AnyObject
     let projections: [WritingField: WritingProjection]
     let seeds: [WritingField: [WritingAtomSeed]]
     let changed: Set<WritingField>
@@ -92,6 +113,6 @@ struct IndependentWritingFields {
             projections[field] = try WritingProjection(seeds: index.seeds[field] ?? [], edits: values, active: active,
                 emptyFields: [field], hiddenSeeds: index.hidden[field] ?? [])
         }
-        return Self(projections: projections, seeds: index.seeds, changed: Set(perField.keys))
+        return Self(seedOwner: index.owner, projections: projections, seeds: index.seeds, changed: Set(perField.keys))
     }
 }

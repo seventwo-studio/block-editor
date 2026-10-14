@@ -209,6 +209,8 @@ struct WritingProjection {
         WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: -1))
     }
     var usesIndependentFields: Bool { independent != nil }
+    var changedIndependentFields: Set<WritingField>? { independent?.changed }
+    var independentSeedOwner: AnyObject? { independent?.seedOwner }
     func hasUntouchedIndependentField(_ field: WritingField) -> Bool {
         independent.map { $0.projections[field] != nil && !$0.changed.contains(field) } ?? false
     }

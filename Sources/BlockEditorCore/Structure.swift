@@ -74,6 +74,8 @@ struct StructuralState {
         var placementCollections: [NodeCollection: [NodePlacementID: Placement]]?
         var modernDocumentBase: ModernDocumentProjectionBase?
         var writingBirths: [WritingField: WritingFieldBirth]?
+        var writingFields: Set<WritingField>?
+        var writingValueBasis: (owner: WritingValueOrigins, value: WritingValueBasis)?
     }
     private var readCache = ReadCache()
     // A strong lease, not an address/hash. Retaining it prevents allocator reuse
@@ -87,6 +89,32 @@ struct StructuralState {
         let value = uncachedRetainedWritingFields(self)
         readCache.lock.lock(); defer { readCache.lock.unlock() }
         readCache.writingBirths = value
+        readCache.writingFields = Set(value.keys)
+        return value
+    }
+    func retainedWritingFieldSet() -> Set<WritingField> {
+        _ = retainedWritingBirths()
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        return readCache.writingFields!
+    }
+    /// The same read lease guarantees exact node properties and birth activity.
+    /// A different immutable origin owner rebuilds the complete proof.
+    func checkedWritingValueBasis(_ origins: WritingValueOrigins) -> WritingValueBasis {
+        readCache.lock.lock()
+        let prior = readCache.writingValueBasis
+        readCache.lock.unlock()
+        if let prior, prior.owner === origins { return prior.value }
+        let births = retainedWritingBirths(), fields = retainedWritingFieldSet()
+        var remaining = Set<WritingField>(), activeFields: [NodeID: Set<WritingField>] = [:]
+        for (field, birth) in births {
+            guard birth.active, birth.value == origins.births[field]?.value,
+                  let projection = origins.index.projections[field] else { remaining.insert(field); continue }
+            if !projection.visibleKeys(in: field).isEmpty { activeFields[field.node, default: []].insert(field) }
+        }
+        let value = WritingValueBasis(fields: fields, remaining: remaining,
+            activeNodes: Set(activeFields.keys), activeFields: activeFields)
+        readCache.lock.lock(); defer { readCache.lock.unlock() }
+        readCache.writingValueBasis = (origins, value)
         return value
     }
     struct Node {
@@ -137,6 +165,10 @@ struct StructuralState {
         guard !touchedStorage.contains(identity) else { return }
         if activeBirth { touchedStorage.insert(identity) }
         else { touched.insert(identity) }
+    }
+    /// All supplied nodes were proved active under this unchanged read lease.
+    mutating func retainActiveWritingActivity(of identities: Set<NodeID>) {
+        touchedStorage.formUnion(identities)
     }
 
     static func seed(_ document: Document) -> Self {

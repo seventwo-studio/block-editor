@@ -1849,6 +1849,7 @@ public final class WritingSession {
         let edits: [WritingEdit]
         let aliases: [WritingField: WritingField]
         let seedIndex: WritingSeedIndex?
+        let valueOrigins: WritingValueOrigins?
     }
     @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
         births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil,
@@ -1856,7 +1857,7 @@ public final class WritingSession {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
-        fields = Set(retainedWritingFields(structure).keys)
+        fields = structure.retainedWritingFieldSet()
         let seeded = retainedSeeds.map { (atoms: $0.atoms, hidden: $0.hidden) } ?? seedWritingAtoms(births)
         seeds = seeded.atoms; hidden = seeded.hidden
         var active: [ChangeID: Bool] = [:], edits: [WritingEdit] = []
@@ -2069,7 +2070,7 @@ public final class WritingSession {
             }
         }
         return ProjectionInputs(structure: structure, seeds: seeds, fields: fields, hidden: hidden,
-            births: births, active: active, edits: edits, aliases: aliases, seedIndex: retainedSeeds?.index)
+            births: births, active: active, edits: edits, aliases: aliases, seedIndex: retainedSeeds?.index, valueOrigins: retainedSeeds?.valueOrigins)
     }
     @inline(never) private static func assembleProjection(structure input: StructuralState,
         edits: [WritingEdit], inputs: ProjectionInputs,
@@ -2078,7 +2079,7 @@ public final class WritingSession {
         let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
         let hidden = inputs.hidden, aliases = inputs.aliases
         let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases, seedIndex: inputs.seedIndex)
-        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks)
+        let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks, valueOrigins: inputs.valueOrigins)
         for field in projection.joinedSources {
             if let node = structure.nodes[field.node], node.kind == .block,
                Set(node.fields.keys).isSubset(of: ["id", "type", "content"]), node.collections.isEmpty {

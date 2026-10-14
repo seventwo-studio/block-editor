@@ -10,6 +10,7 @@ struct ModernProjectionSeed {
     let atoms: [WritingAtomSeed]
     let hidden: Set<WritingAtomKey>
     let atomIndex: WritingSeedIndex?
+    let valueOrigins: WritingValueOrigins?
     let atomKeys: Set<WritingAtomKey>
     let fields: Set<WritingField>
     let collectionBirths: [NodeCollection: NodeKind]
@@ -20,11 +21,11 @@ struct ModernProjectionSeed {
     /// for baseline atoms: inactive edits and conversions still retain them.
     func retainedAtoms(_ retained: [WritingField: WritingFieldBirth]) -> WritingSeedData {
         let additional = retained.filter { births[$0.key] == nil }
-        guard !additional.isEmpty else { return WritingSeedData(atoms: atoms, hidden: hidden, index: atomIndex, keys: atomKeys) }
+        guard !additional.isEmpty else { return WritingSeedData(atoms: atoms, hidden: hidden, index: atomIndex, keys: atomKeys, valueOrigins: valueOrigins) }
         let fresh = seedWritingAtoms(additional)
         let index = atomIndex.flatMap { WritingSeedIndex(atoms: fresh.atoms, hiddenKeys: fresh.hidden, fields: Set(additional.keys), extending: $0) }
         return WritingSeedData(atoms: atoms + fresh.atoms, hidden: hidden.union(fresh.hidden), index: index,
-            keys: atomKeys.union(fresh.atoms.map(\.key)))
+            keys: atomKeys.union(fresh.atoms.map(\.key)), valueOrigins: index.map { WritingValueOrigins(births: retained, index: $0) })
     }
 
     init(_ document: ModernDocument) {
@@ -37,6 +38,8 @@ struct ModernProjectionSeed {
         atoms = seeded.atoms; hidden = seeded.hidden
         atomKeys = Set(seeded.atoms.map(\.key))
         atomIndex = WritingSeedIndex(atoms: seeded.atoms, hiddenKeys: seeded.hidden, fields: Set(births.keys))
+        if let atomIndex { valueOrigins = WritingValueOrigins(births: births, index: atomIndex) }
+        else { valueOrigins = nil }
     }
 
     /// Call only with the projection of admitted operations over this baseline.

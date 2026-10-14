@@ -31,13 +31,26 @@ func seedWritingAtoms(_ births: [WritingField: WritingFieldBirth]) -> (atoms: [W
 }
 
 /// Preserve untouched run JSON; only edited fields need atom-run compaction.
-func projectedWritingValues(structure: inout StructuralState, projection: WritingProjection, seeds: [WritingAtomSeed], fields: Set<WritingField>, births: [WritingField: WritingFieldBirth], retainedOrigins: Bool, omitEmptyMarks: Bool = false) throws -> [NodeID: [String: JSONValue]] {
+func projectedWritingValues(structure: inout StructuralState, projection: WritingProjection, seeds: [WritingAtomSeed], fields: Set<WritingField>, births: [WritingField: WritingFieldBirth], retainedOrigins: Bool, omitEmptyMarks: Bool = false, valueOrigins: WritingValueOrigins? = nil) throws -> [NodeID: [String: JSONValue]] {
     var values: [NodeID: [String: JSONValue]] = [:]
     var baselineNodesByField: [WritingField: [JSONValue]] = [:]
     if !projection.usesIndependentFields {
         for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
     }
-    for field in fields {
+    var fieldsToProject = fields
+    if retainedOrigins, let valueOrigins, projection.independentSeedOwner === valueOrigins.index.owner,
+       let changed = projection.changedIndependentFields {
+        let basis = structure.checkedWritingValueBasis(valueOrigins)
+        if basis.fields == fields {
+            fieldsToProject = basis.remaining.union(changed.filter { fields.contains($0) })
+            var activeNodes = basis.activeNodes
+            for node in Set(changed.map(\.node)) {
+                if basis.activeFields[node]?.isSubset(of: changed) == true { activeNodes.remove(node) }
+            }
+            structure.retainActiveWritingActivity(of: activeNodes)
+        }
+    }
+    for field in fieldsToProject {
         let source = structure.nodes[field.node]!, original = source.fields[field.name]!
         if let hasContent = projection.untouchedIndependentFieldHasContent(field), source.birthActive,
            !retainedOrigins || original == births[field]?.value {
