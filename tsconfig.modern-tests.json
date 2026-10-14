@@ -24,6 +24,8 @@
     "playwright.modern-relay.config.ts",
     "tests/helpers/modern-performance.tsx",
     "tests/modern-performance.swift.ts",
+    "tests/modern-wider.swift.ts",
+    "playwright.modern-wider.config.ts",
     "playwright.modern-performance.config.ts",
     "vite.modern-performance.config.ts"
   ],

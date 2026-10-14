@@ -6,7 +6,7 @@ import { SwiftModernBlockEditor } from "../../src/swift-modern-react.js";
 import type { ModernDocument } from "../../src/swift-modern.js";
 import "../../src/swift-modern.css";
 
-async function mount(document: ModernDocument) {
+async function mount(document: ModernDocument, options: { controlledImages?: boolean } = {}) {
   const runtime = await SwiftEditorRuntime.initialize(await (await fetch("/modern-engine.wasm")).arrayBuffer());
   if (window.modernPerformanceDiagnostic) {
     const call = runtime.call.bind(runtime), totals: Record<string, { calls: number; ms: number }> = {};
@@ -24,14 +24,24 @@ async function mount(document: ModernDocument) {
   const session = runtime.createModern({ documentID: document.documentID, actorID: "measurement", epoch: "surface-performance", document });
   const host = new ModernBrowserHost(session, "measurement", new ModernBrowserStore(`measurement-${crypto.randomUUID()}`), "document");
   const errors: string[] = [], root = createRoot(window.document.getElementById("root")!);
-  root.render(<SwiftModernBlockEditor session={session} host={host} onError={error => errors.push(String(error))} />);
-  return { session, host, errors, dispose() { root.unmount(); session.close(); } };
+  const resources = { created: 0, released: 0, active: 0, aborted: 0 };
+  const resolveMedia = options.controlledImages ? async (_node: unknown, value: { readonly type?: unknown }, signal: AbortSignal) => {
+    if (value.type !== "image") return { status: "unavailable" as const, reason: "Controlled benchmark supplies images only" };
+    await new Promise<void>(resolve => setTimeout(resolve, 5));
+    if (signal.aborted) { resources.aborted++; throw new DOMException("Unmounted benchmark image", "AbortError"); }
+    const url = URL.createObjectURL(new Blob(['<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="#71867b"/></svg>'], { type: "image/svg+xml" }));
+    resources.created++; resources.active++; let released = false;
+    return { status: "available" as const, url, dispose() { if (!released) { released = true; URL.revokeObjectURL(url); resources.released++; resources.active--; } } };
+  } : undefined;
+  root.render(<SwiftModernBlockEditor session={session} host={host} resolveMedia={resolveMedia} onError={error => errors.push(String(error))} />);
+  let disposed = false;
+  return { runtime, session, host, errors, resources, dispose() { if (disposed) return; disposed = true; host.setActive(false); root.unmount(); session.close(); } };
 }
 
-window.mountModernPerformance = async document => { window.modernPerformance = await mount(document); };
+window.mountModernPerformance = async (document, options) => { window.modernPerformance = await mount(document, options); };
 declare global {
   interface Window {
-    mountModernPerformance(document: ModernDocument): Promise<void>;
+    mountModernPerformance(document: ModernDocument, options?: { controlledImages?: boolean }): Promise<void>;
     modernPerformance: Awaited<ReturnType<typeof mount>>;
     modernPerformanceDiagnostic?: boolean;
     modernMeasurement?: { armed: boolean; result?: { elapsedMS: number; frameCount: number; error?: string; accepted?: boolean; displayed?: boolean; nativeBuffer?: string }; cleanup(): void };
