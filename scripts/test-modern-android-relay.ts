@@ -5,6 +5,7 @@ import { randomUUID, createHash } from "node:crypto";
 import { modernRelayProcess } from "../tests/helpers/modern-relay-process.ts";
 import { NativeBridge } from "../demo/relay/bridge.ts";
 import type { ModernDocument } from "../src/swift-modern.ts";
+import { verifyAndroidProcessStop } from "./verify-android-process-stop.ts";
 
 const args = process.argv.slice(2);
 function argument(name: string, fallback?: string): string {
@@ -23,7 +24,7 @@ async function command(parts: string[]): Promise<string> {
   return await new Promise((resolve, reject) => {
     const timeout = setTimeout(() => { child.kill(); reject(new Error("Android relay command timed out")); }, 180_000);
     child.once("error", error => { clearTimeout(timeout); reject(error); });
-    child.once("exit", code => { clearTimeout(timeout); if (code === 0) resolve(data); else reject(Object.assign(new Error(`Android relay command exited ${code}`), { output: data })); });
+    child.once("exit", code => { clearTimeout(timeout); if (code === 0) resolve(data); else reject(Object.assign(new Error(`Android relay command exited ${code}`), { output: data, exitCode: code, command: parts })); });
   });
 }
 const serverDirectory = join(output, "server"); await mkdir(serverDirectory);
@@ -45,7 +46,8 @@ async function phase(name: string, authorized: boolean) {
   await writeFile(join(output, `${name}-proof.json`), raw);
   const report = JSON.parse(raw); if (report.passed !== true || report.phase !== name || report.runID !== runID) throw new Error("Incomplete native relay proof");
   reports.push(report);
-  await command(["shell", "am", "force-stop", "studio.seventwo.blockeditor.test"]);
+  const stopped = await verifyAndroidProcessStop(command, "studio.seventwo.blockeditor.test");
+  await writeFile(join(output, `${name}-stopped.json`), JSON.stringify(stopped, null, 2) + "\n");
   console.log(`Native Android relay phase ${name}: passed in process ${report.pid}`);
 }
 try {
