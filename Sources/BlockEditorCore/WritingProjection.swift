@@ -337,20 +337,26 @@ private struct RawWritingField: Hashable {
     }
 }
 
-/// Encode each exact origin once per sort pass; retain the existing public
-/// Comparable contract, including canonically equivalent Unicode spellings.
+/// Rank each exact encoded origin once per pass. Baseline atoms in different
+/// fields share element indices; walking their common JSON/UTF-8 prefix in every
+/// atom comparison makes a mixed document expensive even for one local edit.
+/// Keep byte ordering and stable equal-key ordering from public Comparable.
 func writingAtomsSorted(_ keys: [WritingAtomKey]) -> [WritingAtomKey] {
     guard keys.count > 1 else { return keys }
-    var encoded: [RawWritingField: String] = [:]
-    let decorated = keys.map { key -> (key: WritingAtomKey, origin: String) in
+    var encoded: [RawWritingField: Data] = [:]
+    let origins = keys.map { key -> RawWritingField in
         let raw = RawWritingField(key.origin)
-        let value: String
-        if let existing = encoded[raw] { value = existing }
-        else { value = key.origin.key; encoded[raw] = value }
-        return (key, value)
+        if encoded[raw] == nil { encoded[raw] = Data(key.origin.key.utf8) }
+        return raw
     }
+    var ranks: [RawWritingField: Int] = [:], rank = -1, previous: Data?
+    for (raw, bytes) in encoded.sorted(by: { $0.value.lexicographicallyPrecedes($1.value) }) {
+        if previous != bytes { rank += 1; previous = bytes }
+        ranks[raw] = rank
+    }
+    let decorated = zip(keys, origins).map { (key: $0.0, rank: ranks[$0.1]!) }
     return decorated.sorted { lhs, rhs in
         if lhs.key.element != rhs.key.element { return lhs.key.element < rhs.key.element }
-        return lhs.origin.utf8.lexicographicallyPrecedes(rhs.origin.utf8)
+        return lhs.rank < rhs.rank
     }.map(\.key)
 }
