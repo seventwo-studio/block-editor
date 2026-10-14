@@ -34,8 +34,16 @@ func seedWritingAtoms(_ births: [WritingField: WritingFieldBirth]) -> (atoms: [W
 func projectedWritingValues(structure: inout StructuralState, projection: WritingProjection, seeds: [WritingAtomSeed], fields: Set<WritingField>, births: [WritingField: WritingFieldBirth], retainedOrigins: Bool, omitEmptyMarks: Bool = false) throws -> [NodeID: [String: JSONValue]] {
     var values: [NodeID: [String: JSONValue]] = [:]
     var baselineNodesByField: [WritingField: [JSONValue]] = [:]
-    for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
+    if !projection.usesIndependentFields {
+        for seed in seeds { baselineNodesByField[seed.key.origin, default: []].append(seed.node) }
+    }
     for field in fields {
+        let original = structure.nodes[field.node]!.fields[field.name]!
+        if projection.hasUntouchedIndependentField(field), structure.nodes[field.node]!.birthActive,
+           !retainedOrigins || original == births[field]?.value {
+            if !projection.visibleKeys(in: field).isEmpty { structure.touched.insert(field.node) }
+            continue
+        }
         let nodes = projection.nodes(in: field)
         if retainedOrigins, field.name == "code", !nodes.allSatisfy({
             $0["type"] == .string("text") && ($0["marks"]?.array ?? []).isEmpty &&
@@ -44,8 +52,7 @@ func projectedWritingValues(structure: inout StructuralState, projection: Writin
         if !nodes.isEmpty { structure.touched.insert(field.node) }
         // Preserve exact baseline JSON for untouched fields, including empty
         // text runs and host extensions that have no visible scalar atoms.
-        let original = structure.nodes[field.node]!.fields[field.name]!
-        let baselineNodes = baselineNodesByField[field] ?? []
+        let baselineNodes = projection.independentSeedValues(in: field) ?? baselineNodesByField[field] ?? []
         if nodes == baselineNodes, structure.nodes[field.node]!.birthActive,
            !retainedOrigins || original == births[field]?.value { continue }
         var runs: [JSONValue] = []

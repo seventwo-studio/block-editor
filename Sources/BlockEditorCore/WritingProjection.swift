@@ -106,8 +106,13 @@ struct WritingProjection {
     private var order: [WritingAtomKey] = []
     private var visibleByField: [WritingField: [WritingAtomKey]] = [:]
     private var retainedByField: [WritingField: [WritingAtomKey]] = [:]
+    private var independent: IndependentWritingFields?
 
-    init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:]) throws {
+    init(seeds: [WritingAtomSeed], edits: [WritingEdit], active: [ChangeID: Bool] = [:], emptyFields: Set<WritingField> = [], hiddenSeeds: Set<WritingAtomKey> = [], redirects: [WritingField: WritingField] = [:], seedIndex: WritingSeedIndex? = nil) throws {
+        if redirects.isEmpty, let seedIndex,
+           let fields = try IndependentWritingFields.make(index: seedIndex, edits: edits, active: active, emptyFields: emptyFields) {
+            independent = fields; return
+        }
         hidden = hiddenSeeds
         let sorted = edits.sorted { $0.id < $1.id }
         var births: [WritingAtomKey: WritingAtomSeed] = [:]
@@ -203,19 +208,38 @@ struct WritingProjection {
     private static func head(_ field: WritingField) -> WritingAtomKey {
         WritingAtomKey(origin: field, element: ElementID(change: ChangeID(counter: 0, actor: ""), index: -1))
     }
-    func hasField(_ field: WritingField) -> Bool { fields[Self.head(field)] != nil }
-    var joinedSources: Set<WritingField> { Set(joins.keys).subtracting(redirectSources) }
-    var retainedKeys: Set<WritingAtomKey> { Set(nodes.keys.filter { $0.element.index >= 0 }) }
+    var usesIndependentFields: Bool { independent != nil }
+    func hasUntouchedIndependentField(_ field: WritingField) -> Bool {
+        independent.map { $0.projections[field] != nil && !$0.changed.contains(field) } ?? false
+    }
+    func independentSeedValues(in field: WritingField) -> [JSONValue]? { independent.map { ($0.seeds[field] ?? []).map(\.node) } }
+    func hasField(_ field: WritingField) -> Bool { independent?.projections[field] != nil || fields[Self.head(field)] != nil }
+    var joinedSources: Set<WritingField> { independent == nil ? Set(joins.keys).subtracting(redirectSources) : [] }
+    var retainedKeys: Set<WritingAtomKey> {
+        if let independent { return independent.projections.values.reduce(into: []) { $0.formUnion($1.retainedKeys) } }
+        return Set(nodes.keys.filter { $0.element.index >= 0 })
+    }
+    func containsRetainedKey(_ key: WritingAtomKey) -> Bool {
+        guard key.element.index >= 0 else { return false }
+        if let independent { return independent.projections[key.origin]?.containsRetainedKey(key) ?? false }
+        return nodes[key] != nil
+    }
     func visibleKeys(in field: WritingField) -> [WritingAtomKey] {
-        visibleByField[field] ?? []
+        if let independent { return independent.projections[field]?.visibleKeys(in: field) ?? [] }
+        return visibleByField[field] ?? []
     }
     func nodes(in field: WritingField) -> [JSONValue] {
-        visibleKeys(in: field).compactMap { nodes[$0] }
+        if let independent { return independent.projections[field]?.nodes(in: field) ?? [] }
+        return visibleKeys(in: field).compactMap { nodes[$0] }
     }
     func text(in field: WritingField) -> String { plainText(nodes(in: field)) }
     /// Birth-route ancestry for concurrent cut ownership. Projection callers can
     /// distinguish unobserved descendants from atoms explicitly pinned later.
     func follows(_ key: WritingAtomKey, anyOf anchors: Set<WritingAtomKey>) throws -> Bool {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.follows(key, anyOf: anchors)
+        }
         var current = key, seen = Set<WritingAtomKey>()
         while true {
             if anchors.contains(current) { return true }
@@ -228,16 +252,28 @@ struct WritingProjection {
         }
     }
     func field(of key: WritingAtomKey) throws -> WritingField {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.field(of: key)
+        }
         guard let field = fields[key] else { throw WritingProjectionError.missingAtom }
         return field
     }
     func destination(of field: WritingField) throws -> WritingField { try self.field(of: Self.head(field)) }
     func startOffset(of field: WritingField) throws -> Int { try offset(of: Self.head(field), affinity: .after) }
     func value(of key: WritingAtomKey) throws -> JSONValue {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.value(of: key)
+        }
         guard key.element.index >= 0, let value = nodes[key] else { throw WritingProjectionError.missingAtom }
         return value
     }
     func offset(of key: WritingAtomKey, affinity: TextAffinity) throws -> Int {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.offset(of: key, affinity: affinity)
+        }
         let field = try field(of: key)
         var offset = 0
         for member in retainedByField[field] ?? [] {
@@ -252,6 +288,10 @@ struct WritingProjection {
     /// Split ordering uses retained ancestry, so deleting text between two cuts
     /// cannot collapse their ranks and retarget a surviving remote suffix.
     func retainedOffset(of key: WritingAtomKey, affinity: TextAffinity) throws -> Int {
+        if let independent {
+            guard let projection = independent.projections[key.origin] else { throw WritingProjectionError.missingAtom }
+            return try projection.retainedOffset(of: key, affinity: affinity)
+        }
         let field = try field(of: key)
         var offset = 0
         for member in retainedByField[field] ?? [] {
@@ -329,7 +369,7 @@ struct WritingProjection {
 
 /// String equality normalizes Unicode; canonical wire ordering compares bytes.
 /// Use raw components for memoization so equivalent spellings retain their order.
-private struct RawWritingField: Hashable {
+struct RawWritingField: Hashable {
     let components: [Data]
     init(_ field: WritingField) {
         var values: [String]

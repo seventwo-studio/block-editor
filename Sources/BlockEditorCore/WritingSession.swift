@@ -1831,7 +1831,7 @@ public final class WritingSession {
     }
     static func projectState(raw: Materialized, changes: [WritingChange], births retained: [WritingField: WritingFieldBirth]? = nil, protocolVersion: Int = 3,
                              activeOverride: [ChangeID: Bool]? = nil, omitEmptyMarks: Bool = false,
-                             retainedSeeds: (atoms: [WritingAtomSeed], hidden: Set<WritingAtomKey>)? = nil) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
+                             retainedSeeds: WritingSeedData? = nil) throws -> (StructuralState, WritingProjection, [NodeID: [String: JSONValue]]) {
         let inputs = try prepareProjection(raw: raw, changes: changes, births: retained, activeOverride: activeOverride, retainedSeeds: retainedSeeds)
         let (structure, edits) = try orderedCuts(structure: inputs.structure, edits: inputs.edits,
             seeds: inputs.seeds, active: inputs.active, fields: inputs.fields, births: inputs.births,
@@ -1848,15 +1848,16 @@ public final class WritingSession {
         let active: [ChangeID: Bool]
         let edits: [WritingEdit]
         let aliases: [WritingField: WritingField]
+        let seedIndex: WritingSeedIndex?
     }
     @inline(never) private static func prepareProjection(raw: Materialized, changes: [WritingChange],
         births retained: [WritingField: WritingFieldBirth]?, activeOverride: [ChangeID: Bool]? = nil,
-        retainedSeeds: (atoms: [WritingAtomSeed], hidden: Set<WritingAtomKey>)? = nil) throws -> ProjectionInputs {
+        retainedSeeds: WritingSeedData? = nil) throws -> ProjectionInputs {
         guard var structure = raw.structure else { throw EditorError.invalidChange }
         var seeds: [WritingAtomSeed] = [], fields = Set<WritingField>(), hidden = Set<WritingAtomKey>()
         let births = retained ?? retainedWritingFields(structure)
         fields = Set(retainedWritingFields(structure).keys)
-        let seeded = retainedSeeds ?? seedWritingAtoms(births)
+        let seeded = retainedSeeds.map { (atoms: $0.atoms, hidden: $0.hidden) } ?? seedWritingAtoms(births)
         seeds = seeded.atoms; hidden = seeded.hidden
         var active: [ChangeID: Bool] = [:], edits: [WritingEdit] = []
         for change in changes {
@@ -2057,7 +2058,7 @@ public final class WritingSession {
             }
         }
         return ProjectionInputs(structure: structure, seeds: seeds, fields: fields, hidden: hidden,
-            births: births, active: active, edits: edits, aliases: aliases)
+            births: births, active: active, edits: edits, aliases: aliases, seedIndex: retainedSeeds?.index)
     }
     @inline(never) private static func assembleProjection(structure input: StructuralState,
         edits: [WritingEdit], inputs: ProjectionInputs,
@@ -2065,7 +2066,7 @@ public final class WritingSession {
         var structure = input
         let seeds = inputs.seeds, active = inputs.active, fields = inputs.fields, births = inputs.births
         let hidden = inputs.hidden, aliases = inputs.aliases
-        let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases)
+        let projection = try WritingProjection(seeds: seeds, edits: edits, active: active, emptyFields: fields.union(births.keys), hiddenSeeds: hidden, redirects: aliases, seedIndex: inputs.seedIndex)
         let values = try projectedWritingValues(structure: &structure, projection: projection, seeds: seeds, fields: fields, births: births, retainedOrigins: retained != nil, omitEmptyMarks: omitEmptyMarks)
         for field in projection.joinedSources {
             if let node = structure.nodes[field.node], node.kind == .block,

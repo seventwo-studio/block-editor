@@ -13,12 +13,16 @@ const runtime = await SwiftEditorRuntime.initialize(wasm), call = runtime.call.b
 runtime.call = request => {
   const start = performance.now();
   const result = call(request);
-  calls.push({ command: request.command, authorCommand: request.request?.command, ms: performance.now() - start });
+  const ms = performance.now() - start;
+  calls.push({ command: request.command, authorCommand: request.request?.command, ms, residentBytes: process.memoryUsage().rss });
   return result;
 };
+const sourceFiles = [...new Set(execFileSync("git", ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "Sources", "src", "scripts/profile-modern-authoring.mjs"]).toString().split("\0").filter(Boolean))].sort();
+const sourceInputs = Object.fromEntries(sourceFiles.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { complete: false, sourceCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   trackedPatchSHA256: createHash("sha256").update(execFileSync("git", ["diff", "HEAD", "--", "Sources", "src", "scripts/profile-modern-authoring.mjs"])).digest("hex"),
   trackedSourceDirty: execFileSync("git", ["diff", "HEAD", "--", "Sources", "src", "scripts/profile-modern-authoring.mjs"]).length > 0,
+  sourceInputs, sourceDirty: execFileSync("git", ["status", "--porcelain", "--untracked-files=all", "--", "Sources", "src", "scripts/profile-modern-authoring.mjs"]).length > 0,
   fixtureSHA256: createHash("sha256").update(fixture).digest("hex"), wasmSHA256: createHash("sha256").update(wasm).digest("hex"), calls,
   qualification: "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets." };
 mkdirSync(dirname(output), { recursive: true });

@@ -9,17 +9,19 @@ struct ModernProjectionSeed {
     let births: [WritingField: WritingFieldBirth]
     let atoms: [WritingAtomSeed]
     let hidden: Set<WritingAtomKey>
+    let atomIndex: WritingSeedIndex?
     var fields: Set<WritingField> { Set(births.keys) }
     var title: WritingField { WritingField(node: .document(documentID: documentID), name: "title") }
 
     /// Modern replay starts from these immutable births and only appends new
     /// field births. Never substitute current rendered values or author activity
     /// for baseline atoms: inactive edits and conversions still retain them.
-    func retainedAtoms(_ retained: [WritingField: WritingFieldBirth]) -> (atoms: [WritingAtomSeed], hidden: Set<WritingAtomKey>) {
+    func retainedAtoms(_ retained: [WritingField: WritingFieldBirth]) -> WritingSeedData {
         let additional = retained.filter { births[$0.key] == nil }
-        guard !additional.isEmpty else { return (atoms, hidden) }
+        guard !additional.isEmpty else { return WritingSeedData(atoms: atoms, hidden: hidden, index: atomIndex) }
         let fresh = seedWritingAtoms(additional)
-        return (atoms + fresh.atoms, hidden.union(fresh.hidden))
+        let index = atomIndex.flatMap { WritingSeedIndex(atoms: fresh.atoms, hiddenKeys: fresh.hidden, fields: Set(additional.keys), extending: $0) }
+        return WritingSeedData(atoms: atoms + fresh.atoms, hidden: hidden.union(fresh.hidden), index: index)
     }
 
     init(_ document: ModernDocument) {
@@ -28,6 +30,7 @@ struct ModernProjectionSeed {
         births = retainedWritingFields(structure)
         let seeded = seedWritingAtoms(births)
         atoms = seeded.atoms; hidden = seeded.hidden
+        atomIndex = WritingSeedIndex(atoms: seeded.atoms, hiddenKeys: seeded.hidden, fields: Set(births.keys))
     }
 
     /// Call only with the projection of admitted operations over this baseline.
@@ -40,6 +43,6 @@ struct ModernProjectionSeed {
     }
 
     func document() throws -> ModernDocument {
-        try document(projecting: WritingProjection(seeds: atoms, edits: [], emptyFields: fields, hiddenSeeds: hidden))
+        try document(projecting: WritingProjection(seeds: atoms, edits: [], emptyFields: fields, hiddenSeeds: hidden, seedIndex: atomIndex))
     }
 }

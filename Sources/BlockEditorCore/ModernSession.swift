@@ -131,7 +131,7 @@ public final class ModernSession {
         self.documentID = documentID; self.actorID = actorID; self.epoch = epoch; baseline = document
         seed = ModernProjectionSeed(document)
         structure = seed.structure
-        projection = try WritingProjection(seeds: seed.atoms, edits: [], emptyFields: seed.fields)
+        projection = try WritingProjection(seeds: seed.atoms, edits: [], emptyFields: seed.fields, seedIndex: seed.atomIndex)
         self.document = document
     }
     public var titleField: WritingField { seed.title }
@@ -243,7 +243,7 @@ public final class ModernSession {
             history = available.filter { cohort.contains($0.key) }
         } else { history = available }
         if let anchor = position.anchor {
-            guard anchor.element.index >= 0, projection.retainedKeys.contains(anchor),
+            guard anchor.element.index >= 0, projection.containsRetainedKey(anchor),
                   modernRelatedFields(anchor.origin, position.field, changes: Array(history.values)) else { throw EditorError.invalidChange }
         }
         let active = activeStates(history)
