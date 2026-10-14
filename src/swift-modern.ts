@@ -114,6 +114,7 @@ export interface ModernCapabilities {
   readonly protocolVersion: 7; readonly format: ModernDocument["format"]; readonly formatVersion: 1;
   readonly commands: readonly ModernCommandName[]; readonly cutoverToModern: true; readonly clipboardVersion: 2;
   readonly localHistorySelectionVersion: 1; readonly canCopy: boolean; readonly canCut: boolean;
+  readonly wireInspectionVersion?: 1;
   readonly allowedBlockTypes: readonly string[] | null; readonly allowedMarkTypes: readonly string[] | null;
   readonly codeLanguages: readonly string[]; readonly tableActions: readonly ModernTableAction[]; readonly listActions: readonly ModernListAction[]; readonly asyncKinds: readonly ("image" | "file" | "embed")[];
   readonly canUndo?: boolean; readonly canRedo?: boolean; readonly isComposing?: boolean; readonly recoveryRequired?: boolean;
@@ -122,7 +123,7 @@ export interface ModernCutPreparation extends ModernScope { readonly preparation
 export interface ModernPolicy { readonly allowedCommands?: readonly ModernCommandName[]; readonly allowedListActions?: readonly ModernListAction[]; readonly allowedBlockTypes?: readonly string[]; readonly allowedMarkTypes?: readonly string[] }
 /** A synchronous, serialized bridge with newly owned decoded values on each call.
  * SwiftEditorRuntime implements this contract for WASM. No network/provider work is implicit. */
-export interface ModernTransport { call<T>(request: Record<string, unknown>): T }
+export interface ModernTransport { call<T>(request: Record<string, unknown>): T; inspectJSON?<T>(bytes: Uint8Array): T }
 
 // Iterative ownership protects opaque metadata too, without serializing whole archives again.
 function owned<T>(value: T): T {
@@ -156,6 +157,11 @@ export class SwiftModernSession {
     return { session: new SwiftModernSession(transport, handle, value), originMapping: owned(value.originMapping) };
   }
   getSnapshot = (): ModernSnapshot => this.snapshot;
+  inspectJSON<T>(bytes: Uint8Array): T {
+    this.assertOpen();
+    if (!this.transport.inspectJSON) throw new Error("Transport lacks shared raw JSON inspection");
+    return this.transport.inspectJSON<T>(bytes);
+  }
   subscribe = (listener: () => void): (() => void) => { this.assertOpen(); this.listeners.add(listener); return () => this.listeners.delete(listener); };
   /** Listener failures occur after accepted publication and never turn an applied edit
    * into an apparent command failure. Hosts may set this handler to report UI errors. */

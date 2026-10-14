@@ -3,11 +3,12 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { ModernDocument, ModernObject, ModernBatch, ModernReceipt } from "../../src/swift-modern.ts";
 import type { NativeBridge } from "./bridge.ts";
+import { encodeModernBridgeJSON } from "../../src/swift-modern-json.ts";
 
 export interface ModernRelayRoomTemplate { readonly document: ModernDocument; readonly epoch: string }
 
 async function persist(directory: string, file: string, snapshot: ModernObject): Promise<void> {
-  const bytes = JSON.stringify(snapshot), temporary = `${file}.${randomUUID()}.tmp`;
+  const bytes = encodeModernBridgeJSON(snapshot), temporary = `${file}.${randomUUID()}.tmp`;
   try {
     const output = await open(temporary, "wx", 0o600);
     try { await output.writeFile(bytes); await output.sync(); } finally { await output.close(); }
@@ -27,7 +28,7 @@ export async function modernRoom(bridge: NativeBridge, directory: string, id: st
   const file = join(directory, `${id}.json`), handle = `modern-relay-${randomUUID()}`;
   const call = (command: string, fields: Record<string, unknown> = {}) => bridge.call({ command, session: handle, ...fields });
   let existing: ModernObject | undefined;
-  try { existing = JSON.parse(await readFile(file, "utf8")); }
+  try { existing = await bridge.inspectJSON(await readFile(file)); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
   let opened = false;
   try {

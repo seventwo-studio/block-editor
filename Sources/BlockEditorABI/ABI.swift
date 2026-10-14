@@ -23,5 +23,15 @@ public func blockEditorCall(_ pointer: UnsafePointer<UInt8>?, _ length: Int32) -
     return output
 }
 
+/// Original bytes retain the full 64 MB budget without a second request envelope.
+@_cdecl("block_editor_inspect_json")
+public func blockEditorInspectJSON(_ pointer: UnsafePointer<UInt8>?, _ length: Int32) -> UnsafeMutablePointer<UInt8>? {
+    guard let pointer, length >= 0, length <= 64_000_000 else { return nil }
+    let result = ModernWireJSON.response(Data(bytes: pointer, count: Int(length)))
+    let output = UnsafeMutablePointer<UInt8>.allocate(capacity: result.count + 1)
+    result.copyBytes(to: output, count: result.count); output[result.count] = 0
+    return output
+}
+
 /// Keeps C exports reachable from the WASM executable.
 public func initializeBridge() { _ = bridge }

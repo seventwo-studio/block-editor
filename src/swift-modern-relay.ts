@@ -1,6 +1,7 @@
 import { SwiftModernSession, SwiftModernRecoveryError } from "./swift-modern.js";
 import type { ModernBatch, ModernObject, ModernPolicy, ModernReceipt, ModernScope, ModernTransport, ModernRecovery } from "./swift-modern.js";
 import { ModernBrowserHost, ModernBrowserStore } from "./swift-modern-host.js";
+import { encodeModernBridgeJSON } from "./swift-modern-json.js";
 
 export type ModernRelayFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 export interface ModernRelayOptions extends ModernScope {
@@ -13,6 +14,21 @@ export class ModernRelayCapacityError extends Error {
 interface Reply { batch: ModernBatch; state: ModernReceipt; presence: ModernObject[] }
 const identity = (value: { actor: string; counter: number }) => JSON.stringify([value.actor, value.counter]);
 const owners = new WeakMap<ModernBrowserHost, ModernBrowserRelay>();
+async function replyBytes(response: Response): Promise<Uint8Array> {
+  const reader = response.body?.getReader(); if (!reader) return new Uint8Array();
+  const chunks: Uint8Array[] = []; let count = 0;
+  try {
+    while (true) {
+      const { value, done } = await reader.read(); if (done) break;
+      count += value.byteLength;
+      if (count > 64_000_000) { await reader.cancel(); throw new Error("Relay reply exceeds shared JSON inspection capacity; local input remains retained"); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const result = new Uint8Array(count); let offset = 0;
+  for (const chunk of chunks) { result.set(chunk, offset); offset += chunk.byteLength; }
+  return result;
+}
 
 /** Optional reference HTTP lifecycle. Applications own authorization, endpoint,
  * scheduling and storage. No timer, production service or token persistence is
@@ -62,7 +78,9 @@ export class ModernBrowserRelay {
     if (!options.token) throw new Error("Opening a new relay document requires an application token; saved local documents can open offline");
     const response = await (options.fetch ?? globalThis.fetch)(endpoint.href, { headers: { "x-local-token": options.token }, redirect: "error" });
     if (!response.ok) throw new Error(`Relay opening rejected (${response.status})`);
-    const session = SwiftModernSession.restore(transport, await response.json(), options.actorID, options.policy);
+    if (!transport.inspectJSON) throw new Error("Transport lacks shared raw JSON inspection");
+    const snapshot = transport.inspectJSON<ModernObject>(await replyBytes(response));
+    const session = SwiftModernSession.restore(transport, snapshot, options.actorID, options.policy);
     try {
       const host = new ModernBrowserHost(session, options.actorID, store, key);
       const relay = new ModernBrowserRelay(host, options);
@@ -99,11 +117,12 @@ export class ModernBrowserRelay {
       const session = this.host.session, body = { actorID: this.host.actorID, batch: session.changes(this.receipt), state: session.getSnapshot().syncState,
         presence: { actor: this.host.actorID, revision: ++this.presenceRevision } };
       const response = await this.fetcher(this.endpoint, { method: "POST", headers: { "x-local-token": this.token, "content-type": "application/json" },
-        body: JSON.stringify(body), signal: request.signal, redirect: "error" });
+        body: encodeModernBridgeJSON(body), signal: request.signal, redirect: "error" });
       if (!current()) return;
-      const decoded = await response.json(); if (!current()) return;
+      const bytes = await replyBytes(response); if (!current()) return;
+      const decoded = session.inspectJSON<Reply & { error?: string; maxBytes?: number; recovery?: ModernRecovery }>(bytes); if (!current()) return;
       if (response.status === 413) {
-        if (decoded.error !== "transportCapacityExceeded" || !Number.isSafeInteger(decoded.maxBytes) || decoded.maxBytes <= 0) throw new Error("Invalid relay capacity response");
+        if (decoded.error !== "transportCapacityExceeded" || typeof decoded.maxBytes !== "number" || !Number.isSafeInteger(decoded.maxBytes) || decoded.maxBytes <= 0) throw new Error("Invalid relay capacity response");
         this.transportCapacityBytes = decoded.maxBytes; throw new ModernRelayCapacityError(decoded.maxBytes);
       }
       if (response.status === 409) {

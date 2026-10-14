@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { SwiftMergeRecoveryError } from "../../src/swift.ts";
 import { SwiftModernRecoveryError } from "../../src/swift-modern.ts";
+import { encodeModernBridgeJSON } from "../../src/swift-modern-json.ts";
 
 /** The demo server validates and materializes changes in the actual Swift engine. */
 export class NativeBridge {
@@ -35,8 +36,12 @@ export class NativeBridge {
     if (this.failure) return Promise.reject(this.failure);
     return new Promise((resolve, reject) => {
       this.pending.push({ resolve, reject });
-      this.child.stdin.write(JSON.stringify(request) + "\n");
+      const modern = typeof request.command === "string" && (request.command.startsWith("modern") || ["createModern", "restoreModern", "cutoverToModern"].includes(request.command));
+      this.child.stdin.write((modern ? encodeModernBridgeJSON(request) : JSON.stringify(request)) + "\n");
     });
+  }
+  inspectJSON(bytes: Uint8Array): Promise<any> {
+    return this.call({ command: "modernInspectJSON", encoded: new TextDecoder("utf-8", { fatal: true }).decode(bytes) });
   }
   close() { this.child.kill(); }
   waitForExit(): Promise<number | null> { return this.exited; }

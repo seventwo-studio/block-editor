@@ -10,6 +10,14 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 class NativeJsonTransportTest {
+    @Test fun sharedRawJNIInspectionRejectsOriginalMalformedBytesWithoutRounding() {
+        val valid = ModernWireJSON.inspect("""{"zero":-0,"unicode":"東京😀","number":1e3}""".toByteArray()) as JSONObject
+        assertEquals(java.lang.Double.doubleToRawLongBits(-0.0), java.lang.Double.doubleToRawLongBits(valid.getDouble("zero")))
+        assertEquals("東京😀", valid.getString("unicode")); assertEquals(1000, valid.getInt("number"))
+        for (raw in listOf("""{"x":1,"x":2}""", """{"counter":1.0000000000000001}""", "{\"x\":\"\\ud800\"}")) {
+            try { ModernWireJSON.inspect(raw.toByteArray()); fail("Shared inspector must reject original input") } catch (_: IllegalStateException) { }
+        }
+    }
     @Test fun strictNetworkReaderPreservesPreciseTokensThroughDefensiveCopiesAndRejectsDuplicates() {
         val bytes = """{"counter":1.0000000000000001,"large":18446744073709551616,"zero":-0.0,"valid":1e3}""".toByteArray()
         val decoded = NativeJsonTransport.decode(bytes, strict = true)

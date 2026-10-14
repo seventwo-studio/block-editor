@@ -17,6 +17,11 @@ final class ModernBridgeEndpoint {
     func dispatch(_ input: JSONValue) throws -> JSONValue {
         guard let command = input["command"]?.string else { throw EditorError.invalidChange }
         let handle = input["session"]?.string ?? ""
+        if command == "modernInspectJSON" {
+            try allowed(input, ["command", "session", "encoded"])
+            guard let encoded = input["encoded"]?.string else { throw EditorError.invalidChange }
+            return try ModernWireJSON.inspect(Data(encoded.utf8))
+        }
         if command == "modernCapabilities" {
             try allowed(input, ["command", "session"])
             var values: [String: JSONValue] = ["protocolVersion": .number(7), "format": .string(ModernDocument.format), "formatVersion": .number(1),
@@ -34,6 +39,7 @@ final class ModernBridgeEndpoint {
             values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
             values["localHistorySelectionVersion"] = .number(1)
+            values["wireInspectionVersion"] = .number(1)
             let cutSession = sessions[handle]
             values["canCut"] = .bool(cutSession.map { !$0.isComposing && $0.mergeRecovery == nil &&
                 ($0.allowedCommands == nil || $0.allowedCommands!.contains("delete") || $0.allowedCommands!.contains("replaceTitle")) } ?? true)

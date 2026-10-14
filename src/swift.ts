@@ -1,6 +1,7 @@
 import { WASI, File, OpenFile, ConsoleStdout } from "@bjorn3/browser_wasi_shim";
 import type { Block, Mark, InlineNode } from "./schema.js";
 import { parseClipboardHtml } from "./clipboard.js";
+import { encodeModernBridgeJSON } from "./swift-modern-json.js";
 import { SwiftModernSession, SwiftModernCutover, SwiftModernRecoveryError } from "./swift-modern.js";
 import type { ModernScope, ModernPolicy, ModernDocument, ModernObject, ModernRecovery } from "./swift-modern.js";
 export * from "./swift-modern.js";
@@ -69,6 +70,7 @@ type Exports = WebAssembly.Exports & {
   block_editor_alloc: (length: number) => number;
   block_editor_free: (pointer: number) => void;
   block_editor_call: (pointer: number, length: number) => number;
+  block_editor_inspect_json?: (pointer: number, length: number) => number;
 };
 
 export class SwiftEditorRuntime {
@@ -91,18 +93,28 @@ export class SwiftEditorRuntime {
     return new SwiftEditorRuntime(exports);
   }
   call<T>(request: Record<string, unknown>): T {
-    const bytes = new TextEncoder().encode(JSON.stringify(request));
+    const modern = typeof request.command === "string" && (request.command.startsWith("modern") || ["createModern", "restoreModern", "cutoverToModern"].includes(request.command));
+    return this.invoke(new TextEncoder().encode(modern ? encodeModernBridgeJSON(request) : JSON.stringify(request)), this.exports.block_editor_call);
+  }
+  /** Shared inspection of original UTF-8, before any host JSON parser. Older
+   * modules remain usable by legacy APIs and report explicit incompatibility here. */
+  inspectJSON<T>(bytes: Uint8Array): T {
+    const inspect = this.exports.block_editor_inspect_json;
+    if (!inspect) throw new Error("This WASM module lacks shared raw JSON inspection; use matching modern artifacts");
+    return this.invoke(bytes, inspect);
+  }
+  private invoke<T>(bytes: Uint8Array, operation: (pointer: number, length: number) => number): T {
     const input = this.exports.block_editor_alloc(bytes.length + 1);
     if (!input) throw new Error("Swift request exceeds the runtime limit");
     let output = 0;
     try {
       new Uint8Array(this.exports.memory.buffer, input, bytes.length).set(bytes);
-      output = this.exports.block_editor_call(input, bytes.length);
+      output = operation(input, bytes.length);
       if (!output) throw new Error("Swift engine returned no response");
       const memory = new Uint8Array(this.exports.memory.buffer);
       const end = memory.indexOf(0, output);
       if (end === -1) throw new Error("Invalid Swift response buffer");
-      const response = JSON.parse(new TextDecoder().decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery | SwiftWritingRecovery | ModernRecovery };
+      const response = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(memory.subarray(output, end))) as { ok: boolean; value?: T; error?: string; recovery?: SwiftMergeRecovery | SwiftWritingRecovery | ModernRecovery };
       if (!response.ok) {
         if (response.error === "modernRecoveryRequired" && response.recovery) throw new SwiftModernRecoveryError(response.recovery as ModernRecovery);
         if (response.error === "writingRecoveryRequired" && response.recovery) throw new SwiftWritingRecoveryError(response.recovery as SwiftWritingRecovery);

@@ -2,11 +2,12 @@ import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { resolve } from "node:path";
 import type { ModernRelayRoomTemplate } from "../../demo/relay/modern-room.ts";
+import { encodeModernBridgeJSON } from "../../src/swift-modern-json.ts";
 
 /** Separate server process; stop waits for server and its native bridge exit. */
 export async function modernRelayProcess(directory: string, modern: ModernRelayRoomTemplate) {
   const child = spawn(process.env.BUN_BIN ?? "bun", ["scripts/relay-process-fixture.ts"], { stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, RELAY_PROCESS_OPTIONS: JSON.stringify({ executable: resolve(process.env.BLOCK_EDITOR_BRIDGE ?? ".build/debug/editor-bridge"), directory,
+    env: { ...process.env, RELAY_PROCESS_OPTIONS: encodeModernBridgeJSON({ executable: resolve(process.env.BLOCK_EDITOR_BRIDGE ?? ".build/debug/editor-bridge"), directory,
       modern, token: "modern-relay-test", port: 0 }) } });
   let stderr = ""; child.stderr.on("data", bytes => { stderr += bytes; });
   const exited = new Promise<number | null>(resolve => child.once("exit", resolve));

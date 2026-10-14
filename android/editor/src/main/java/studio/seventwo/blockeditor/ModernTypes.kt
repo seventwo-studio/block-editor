@@ -182,6 +182,7 @@ data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val
     }
 }
 class ModernCapabilities internal constructor(value: JSONObject) : ModernValue(value) {
+    val wireInspectionVersion get() = number("wireInspectionVersion").toInt()
     val commands: List<ModernCommandName> get() = arrayValue("commands").let { values -> (0 until values.length()).map { index -> ModernCommandName.entries.first { it.wireValue == values.getString(index) } } }
     val canCopy get() = boolean("canCopy")
     val canCut get() = boolean("canCut")
