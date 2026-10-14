@@ -22,6 +22,12 @@ class ModernSessionTest {
         val field = ModernField(ModernNodeID.baseline("p"), "content")
         try {
             val a = create("kotlin-modern", "a"); val b = create("kotlin-modern", "b")
+            val savedBeforeBindings = a.save().export().toString()
+            val bindings = a.nodeBindings()
+            assertEquals(listOf("p", "image"), bindings.map { it.address.getString("blockID") })
+            assertEquals(listOf("block", "block"), bindings.map { it.kind })
+            assertEquals(field.wire().toString(), bindings.first().fields.getValue("content").wire().toString())
+            assertEquals(savedBeforeBindings, a.save().export().toString())
             assertEquals(ModernCommandName.entries.toSet(), a.capabilities().commands.toSet())
             val initial = a.snapshot
             initial.export().getJSONObject("document").put("title", "corrupt"); assertEquals("Title", a.snapshot.document.title)

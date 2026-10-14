@@ -217,8 +217,15 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const bindings = useMemo(() => {
     const addresses = new Map<string, ModernNodeID>(), values = new Map<string, { blockID: string; path: string[]; value: ModernObject; node: ModernNodeID; kind: "block" | "column" | "item" | "row" | "cell" }>();
     const fields = new Map<string, ModernField>();
+    const shared = session.nodeBindings();
+    const origins = shared && new Map(shared.map(binding => [key(binding.address), binding]));
+    for (const binding of shared ?? []) {
+      for (const [name, field] of Object.entries(binding.fields)) fields.set(key([binding.node, name]), field);
+    }
     function visit(value: ModernObject, blockID: string, path: string[], kind: "block" | "column" | "item" | "row" | "cell") {
-      const address = { blockID, path }, node = session.node(address);
+      const address = { blockID, path }, binding = origins?.get(key(address));
+      if (origins && (!binding || binding.kind !== kind)) throw new Error("Shared node bindings differ from the accepted document");
+      const node = binding?.node ?? session.node(address);
       addresses.set(key(address), node); values.set(key(node), { blockID, path, value, node, kind });
       const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
       if (kind === "block") {
@@ -232,7 +239,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     }
     for (const value of snapshot.document.blocks) visit(value, text(value.id), [], "block");
     return { addresses, values, fields };
-  }, [session, snapshot.document]);
+  }, [session, snapshot.document, snapshot.syncState]);
   function boundField(node: ModernNodeID, name = "content"): ModernField {
     const fieldKey = key([node, name]);
     let field = bindings.fields.get(fieldKey);

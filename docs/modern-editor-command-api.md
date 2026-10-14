@@ -4,6 +4,26 @@ ST-122's protocol-7 session uses immutable format-1 ModernDocument snapshots. Cr
 
 ## Cumulative candidate additions (ST-122–ST-138, ST-47)
 
+### Batched checked rendering reads
+
+`ModernSession.nodeBindings()` / `modernNodeBindings` returns logical live
+schema nodes with each opaque origin, checked address, kind and currently
+available field references. Swift owns every identity/reference; renderers do
+not infer them from labels. This read does not change the document or history,
+and consumer arrays named `rows` or `children` remain opaque. Swift, the C/WASM
+bridge, TypeScript and Kotlin expose the matching read.
+
+The TypeScript renderer keeps individual lookup as a fallback when an older
+protocol-7 engine rejects this new read as unsupported. Recovery and lifecycle
+errors still propagate. No author command, document format or saved protocol
+changes. Matching-source delivery and existing legacy entrypoints remain required.
+
+Typed snapshot publication may share exactly equal immutable JSON values,
+using strict string equality, `Object.is` numbers and unchanged key/array order.
+It still publishes notifications, history/recovery flags and changed receipts.
+Renderer bindings depend on both document and receipt: a same-value peer
+replacement has a new opaque identity even when document storage is reusable.
+
 The current candidate advertises 26 author commands. Historical receipts below
 retain their original 22-command source/runtime identities and qualifications.
 The four new commands are `typingShortcut`, `tableStructure`, `mediaProperties`

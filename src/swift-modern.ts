@@ -15,6 +15,11 @@ export type ModernPlacementID = { readonly initial: { readonly _0: ModernNodeID 
   | { readonly role: { readonly owner: ModernNodeID; readonly node: ModernNodeID } }
   | { readonly columnRoute: { readonly layout: ModernNodeID; readonly slot: ModernElementID; readonly node: ModernNodeID } };
 export interface ModernField { readonly node: ModernNodeID; readonly name: string }
+export interface ModernNodeBinding {
+  readonly address: { readonly blockID: string; readonly path: readonly string[] };
+  readonly node: ModernNodeID; readonly kind: "block" | "column" | "item" | "row" | "cell";
+  readonly fields: Readonly<Record<string, ModernField>>;
+}
 export interface ModernPosition {
   readonly documentID: string; readonly epoch: string; readonly field: ModernField;
   readonly affinity: "before" | "after";
@@ -137,11 +142,32 @@ function owned<T>(value: T): T {
   return value;
 }
 
+// Reconcile decoded JSON without normalizing strings, signed zero or opaque
+// fields. Only exact values share storage; scope/history still publish normally.
+function sharedJSON<T>(prior: T, next: T): T {
+  if (Object.is(prior, next)) return prior;
+  if (!prior || !next || typeof prior !== "object" || typeof next !== "object") return next;
+  if (Array.isArray(prior) !== Array.isArray(next)) return next;
+  const before = Object.keys(prior), after = Object.keys(next);
+  if (before.length !== after.length || before.some((name, index) => name !== after[index])) return next;
+  let unchanged = true, reused = false;
+  const values = after.map(name => {
+    const oldValue = (prior as Record<string, unknown>)[name], newValue = (next as Record<string, unknown>)[name];
+    const value = sharedJSON(oldValue, newValue);
+    unchanged &&= Object.is(value, oldValue); reused ||= !Object.is(value, newValue);
+    return [name, value] as const;
+  });
+  if (unchanged) return prior;
+  if (!reused) return next;
+  return (Array.isArray(next) ? values.map(([, value]) => value) : Object.fromEntries(values)) as T;
+}
+
 /** Explicit modern session. Command outcomes carry local focus intent; the host decides
  * when to apply it. Persist recovery, deferred input and local sidecars separately from save(). */
 export class SwiftModernSession {
   private closed = false;
   private listeners = new Set<() => void>();
+  private bindingReadSupported: boolean | undefined;
   private constructor(private readonly transport: ModernTransport, private readonly handle: string, private snapshot: ModernSnapshot) { this.snapshot = owned(snapshot); }
   static create(transport: ModernTransport, options: ModernScope & ModernPolicy & { readonly actorID: string; readonly document: ModernDocument }): SwiftModernSession {
     const handle = crypto.randomUUID();
@@ -167,11 +193,14 @@ export class SwiftModernSession {
    * into an apparent command failure. Hosts may set this handler to report UI errors. */
   onListenerError: (error: unknown) => void = error => { queueMicrotask(() => { throw error; }); };
   private assertOpen(): void { if (this.closed) throw new Error("Modern session is closed"); }
-  private publish(value: ModernSnapshot): void {
-    this.snapshot = owned(value);
+  private publish<T extends ModernSnapshot>(value: T): T {
+    const published = owned({ ...value, document: sharedJSON(this.snapshot.document, value.document),
+      syncState: sharedJSON(this.snapshot.syncState, value.syncState) });
+    this.snapshot = published;
     for (const listener of [...this.listeners]) {
       try { listener(); } catch (error) { try { this.onListenerError(error); } catch (reportError) { queueMicrotask(() => { throw reportError; }); } }
     }
+    return published;
   }
   private call<T>(command: string, args: Record<string, unknown> = {}): T {
     this.assertOpen();
@@ -193,7 +222,22 @@ export class SwiftModernSession {
   execute(command: ModernAuthorCommand): ModernResult {
     const scope = this.snapshot.syncState;
     const result = this.call<ModernResult>("modernCommand", { request: { documentID: scope.documentID, epoch: scope.epoch, ...command } });
-    this.publish(result); return result;
+    return this.publish(result);
+  }
+  /** Actual Swift origins in one read. Older protocol-7 engines retain the
+   * individual lookup path; genuine recovery/lifecycle errors still propagate. */
+  nodeBindings(): readonly ModernNodeBinding[] | undefined {
+    this.assertOpen();
+    if (this.bindingReadSupported === false) return undefined;
+    try {
+      const bindings = this.call<readonly ModernNodeBinding[]>("modernNodeBindings");
+      this.bindingReadSupported = true; return bindings;
+    } catch (error) {
+      if (this.bindingReadSupported === undefined && error instanceof Error && error.message === "invalidChange") {
+        this.bindingReadSupported = false; return undefined;
+      }
+      throw error;
+    }
   }
   save(): ModernObject { return this.call("modernSave"); }
   changes(since?: ModernReceipt): ModernBatch { return this.call("modernChanges", since === undefined ? {} : { since }); }

@@ -101,6 +101,9 @@ class ModernSession private constructor(private val handle: String, initial: JSO
     fun repairUndo(targets: List<ModernChangeID>) = update("modernRepairUndo", modernObject("targets" to JSONArray(targets.map { it.wire() })))
     fun repairRedo(targets: List<ModernChangeID>) = update("modernRepairRedo", modernObject("targets" to JSONArray(targets.map { it.wire() })))
     fun node(blockID: String, path: List<String> = emptyList()) = ModernNodeID.restore(objectCall("modernNode", modernObject("address" to modernObject("blockID" to blockID, "path" to JSONArray(path)))))
+    fun nodeBindings(): List<ModernNodeBinding> = (call("modernNodeBindings") as JSONArray).let { values ->
+        (0 until values.length()).map { ModernNodeBinding(values.getJSONObject(it)) }
+    }
     fun nodes(collection: ModernCollection = ModernCollection.Blocks): List<ModernNodeID> = (call("modernNodes", modernObject("collection" to collection.wire())) as JSONArray).let { values -> (0 until values.length()).map { ModernNodeID.restore(values.getJSONObject(it)) } }
     fun field(node: ModernNodeID, name: String = "content"): ModernField { val value = objectCall("modernField", modernObject("node" to node, "name" to name)); return ModernField(ModernNodeID.restore(value.getJSONObject("node")), value.getString("name")) }
     fun text(field: ModernField) = call("modernText", modernObject("field" to field.wire())) as String

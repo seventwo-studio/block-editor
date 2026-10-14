@@ -128,6 +128,9 @@ final class ModernBridgeEndpoint {
         case "modernNode":
             try allowed(input, ["command", "session", "address"])
             return try encode(session.node(at: decode(input["address"], as: NodeAddress.self)))
+        case "modernNodeBindings":
+            try allowed(input, ["command", "session"])
+            return try encode(session.nodeBindings())
         case "modernNodes":
             try allowed(input, ["command", "session", "collection"])
             return try encode(session.nodes(in: decode(input["collection"], as: NodeCollection.self)))

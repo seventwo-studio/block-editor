@@ -1,6 +1,26 @@
 import Foundation
 
+public struct ModernNodeBinding: Codable, Sendable {
+    public let address: NodeAddress
+    public let node: NodeID
+    public let kind: String
+    public let fields: [String: WritingField]
+}
+
 extension ModernSession {
+    /// Renderers receive checked origins in one read, without deriving an
+    /// identity from a display label or changing document/history state.
+    public func nodeBindings() throws -> [ModernNodeBinding] {
+        let shape = modernCurrentReplay.2
+        let addresses = try shape.cutoverAddresses()
+        let availableFields = Dictionary(grouping: retainedWritingFields(shape).keys, by: \.node)
+        return try logicalNodes(shape).map { node in
+            guard let address = addresses[node], let value = shape.nodes[node], value.kind != .document else { throw EditorError.invalidPath }
+            var fields: [String: WritingField] = [:]
+            for available in availableFields[node] ?? [] { fields[available.name] = try field(node: node, name: available.name) }
+            return ModernNodeBinding(address: address, node: node, kind: value.kind.rawValue, fields: fields)
+        }
+    }
     /// Catalog blocks are siblings of the containing block, never cells or list
     /// items. Capture this once before a picker takes the native input focus.
     public func captureInsertionBoundary(after field: WritingField) throws -> ModernBlockBoundary {

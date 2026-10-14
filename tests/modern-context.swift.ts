@@ -141,3 +141,31 @@ test("peer deletion and same-label insertion replace contextual bindings before 
   expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(replaced);
   expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
 });
+
+test("same-value peer replacement invalidates origins while no-op snapshots preserve document storage", async ({ page }) => {
+  const original: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "same-value-bindings", title: "Bindings",
+    appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" },
+    blocks: [{ id: "A", type: "paragraph", content: [{ type: "text", text: "Same 😀", marks: [] }] }] };
+  await mount(page, original);
+  const result = await page.evaluate(() => {
+    const { peer, session } = window.modernAcceptance;
+    const initial = session.getSnapshot(), origin = session.node({ blockID: "A", path: [] });
+    session.endTypingGroup();
+    const noopPreserved = session.getSnapshot().document === initial.document;
+    const removed = peer.execute({ command: "delete", target: { ranges: [], nodes: peer.captureNodes([peer.node({ blockID: "A", path: [] })]) }, arguments: {} });
+    const inserted = peer.execute({ command: "insertBlock", target: peer.captureBoundary(), arguments: { block: initial.document.blocks[0] } });
+    if (removed.status !== "applied" || inserted.status !== "applied") throw new Error("Peer replacement did not apply");
+    session.receive(peer.changes());
+    const changed = session.getSnapshot();
+    return { noopPreserved, equalDocumentPreserved: changed.document === initial.document,
+      receiptChanged: changed.syncState !== initial.syncState, originChanged: JSON.stringify(session.node({ blockID: "A", path: [] })) !== JSON.stringify(origin) };
+  });
+  expect(result).toEqual({ noopPreserved: true, equalDocumentPreserved: true, receiptChanged: true, originChanged: true });
+  const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  await body.focus(); await body.evaluate(root => { document.getSelection()!.setBaseAndExtent(root.firstChild!, 0, root.firstChild!, 7); });
+  await page.getByText("Format", { exact: true }).click(); await page.getByRole("button", { name: "bold", exact: true }).click();
+  await expect(body.locator("strong")).toHaveText("Same 😀");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});

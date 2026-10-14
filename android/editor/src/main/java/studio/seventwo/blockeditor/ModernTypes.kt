@@ -18,6 +18,19 @@ open class ModernValue internal constructor(value: JSONObject) {
 class ModernPayload private constructor(value: JSONObject) : ModernValue(value) {
     companion object { fun restore(value: JSONObject) = ModernPayload(value) }
 }
+class ModernNodeBinding internal constructor(value: JSONObject) : ModernValue(value) {
+    init {
+        require(value.keys().asSequence().toSet() == setOf("address", "node", "kind", "fields"))
+        require(kind in setOf("block", "column", "item", "row", "cell"))
+    }
+    val node get() = ModernNodeID.restore(objectValue("node"))
+    val kind get() = string("kind")
+    val address get() = objectValue("address")
+    val fields get() = objectValue("fields").let { fields -> fields.keys().asSequence().associateWith { name ->
+        val field = fields.getJSONObject(name)
+        ModernField(ModernNodeID.restore(field.getJSONObject("node")), field.getString("name"))
+    } }
+}
 internal fun modernObject(vararg entries: Pair<String, Any?>): JSONObject = JSONObject().also { result ->
     entries.forEach { (key, value) -> result.put(key, when (value) {
         is ModernValue -> value.export()
