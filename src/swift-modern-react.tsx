@@ -296,7 +296,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const formatCapture = useRef<{ ranges: readonly ModernTextRange[] } | undefined>(undefined);
   // A departing input cleans up its own session's map, even when an incoming
   // session reuses the same wire field. Ordinary renders retain registrations.
-  const fields = useMemo(() => ({ current: new Map<string, HTMLElement>() }), [session]);
+  const fields = useMemo(() => ({ owner: session, current: new Map<string, HTMLElement>() }), [session]);
   const registerInput = useCallback((field: ModernField, element: HTMLElement | null) => {
     if (element) fields.current.set(key(field), element); else fields.current.delete(key(field));
   }, [fields]);
@@ -349,7 +349,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
     if (!focused) return;
     const root = fields.current.get(key(focused.field)); if (!root) return;
     try { root.focus({ preventScroll: true }); const offset = session.resolvePosition(focused).offset; selectInline(root, offset); root.scrollIntoView({ block: "nearest" }); setFocused(undefined); } catch (failure) { report(failure); }
-  }, [focused, snapshot]);
+  }, [focused, snapshot, fields]);
   useLayoutEffect(() => {
     const page = viewport.current?.querySelector<HTMLElement>(".modern-page"); if (!page) return;
     // The page content box excludes gutters and honors readable/wide presets.
@@ -400,7 +400,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       } catch (failure) { report(failure); }
     };
     document.addEventListener("selectionchange", changed); return () => document.removeEventListener("selectionchange", changed);
-  }, [session]);
+  }, [session, fields]);
   function selectedTarget(): { ranges: readonly ModernTextRange[] } { return { ranges: textSpan.length ? textSpan : selected.current ? [selected.current] : [] }; }
   function captureFormatting(open: boolean): void {
     if (!open) { formatCapture.current = undefined; setFormatAnchor(undefined); return; }
@@ -621,7 +621,7 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   const capabilitiesKey = key(session.capabilities());
   const providerPresentationKey = key(session.asyncRequests().map(record => ({ target: record.target, status: record.status, reason: record.reason })));
   const body = useMemo(() => renderBlocks(snapshot.document.blocks, { field: "blocks" }), [
-    session, bindings, snapshot.document, snapshot.syncState, readOnly, capabilitiesKey, providerPresentationKey,
+    session, bindings, snapshot.document, snapshot.syncState, readOnly, capabilitiesKey, providerPresentationKey, registerInput,
     nodes, collapsed, split, width, fontMetric, props.host, props.onError, props.suggestLinks,
     props.onOpenReference, props.resolveMedia, props.requestMediaReplacement,
   ]);
