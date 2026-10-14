@@ -21,8 +21,9 @@ def git(*args):
 
 
 def source():
-    if git("status", "--porcelain", "--untracked-files=all"):
-        raise ValueError("Runtime evidence requires a clean checkout, including untracked source")
+    status = git("status", "--porcelain", "--untracked-files=all")
+    if status:
+        raise ValueError("Runtime evidence requires a clean checkout, including untracked source: " + status)
     return {"commit": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}")}
 
 
