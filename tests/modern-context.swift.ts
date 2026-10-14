@@ -156,7 +156,9 @@ test("keyboard column resize releases its preview before a peer resize", async (
 
 test("Escape cancels a column drag without authoring or changing history", async ({ page }) => {
   const original = await mount(page, "columns-7000");
-  const slider = page.getByRole("slider", { name: "Column split" }), box = await slider.boundingBox();
+  const slider = page.getByRole("slider", { name: "Column split" });
+  await slider.scrollIntoViewIfNeeded();
+  const box = await slider.boundingBox();
   expect(box).not.toBeNull();
   const before = await page.evaluate(() => window.modernAcceptance.session.save());
   await page.mouse.move(box!.x + box!.width * 0.75, box!.y + box!.height / 2); await page.mouse.down();
