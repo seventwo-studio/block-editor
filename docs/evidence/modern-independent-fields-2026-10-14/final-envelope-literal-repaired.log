@@ -1,0 +1,15 @@
+Building for debugging...
+[Provisioning 1 / 22]
+[2 / 8] BlockEditorCoreTests-product
+[3 / 12]
+[6 / 12] BlockEditorCoreTests-product
+[12 / 14] BlockEditorCoreTests-product
+Build complete! (9.05 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernProjectionTests started.
+◇ Test finalProjectedEnvelopeKeepsOpaqueAppearanceAndRejectsInvalidOverrides() started.
+✔ Test finalProjectedEnvelopeKeepsOpaqueAppearanceAndRejectsInvalidOverrides() passed after 0.001 seconds.
+✔ Suite ModernProjectionTests passed after 0.001 seconds.
+✔ Test run with 1 test in 1 suite passed after 0.001 seconds.

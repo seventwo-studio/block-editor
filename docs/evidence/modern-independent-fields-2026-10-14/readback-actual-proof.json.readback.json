@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "remote": "files/compatibility/readback-proof.json",
+      "passed": true,
+      "expectedSHA256": "8ec7750dc7e541f82de87fee2a98c17aae626b02b513be232707f7a5e958c57a",
+      "actualSHA256": "8ec7750dc7e541f82de87fee2a98c17aae626b02b513be232707f7a5e958c57a",
+      "byteCount": 1788
+    }
+  ]
+}

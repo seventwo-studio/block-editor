@@ -1,0 +1,21 @@
+test_exit_zero_partial_read_is_retained_then_verified (android_fixture_readback_test.FixtureReadbackTests) ... ok
+test_permission_missing_and_malformed_source_do_not_retry (android_fixture_readback_test.FixtureReadbackTests) ... FAIL
+test_three_attempt_limit_never_publishes_partial_fixture (android_fixture_readback_test.FixtureReadbackTests) ... ok
+test_unknown_255_recovers_only_with_complete_exact_bytes (android_fixture_readback_test.FixtureReadbackTests) ... ok
+
+======================================================================
+FAIL: test_permission_missing_and_malformed_source_do_not_retry (android_fixture_readback_test.FixtureReadbackTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/luca/Developer/block-editor/tests/android_fixture_readback_test.py", line 66, in test_permission_missing_and_malformed_source_do_not_retry
+    read_fixture(malformed, self.remote, Path(directory) / "fixture.json", lambda _: self.fail("Malformed source retried"))
+  File "/Users/luca/Developer/block-editor/scripts/android_fixture_readback.py", line 65, in read_fixture
+    sleep(2 if number == 1 else 5)
+  File "/Users/luca/Developer/block-editor/tests/android_fixture_readback_test.py", line 66, in <lambda>
+    read_fixture(malformed, self.remote, Path(directory) / "fixture.json", lambda _: self.fail("Malformed source retried"))
+AssertionError: Malformed source retried
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.006s
+
+FAILED (failures=1)

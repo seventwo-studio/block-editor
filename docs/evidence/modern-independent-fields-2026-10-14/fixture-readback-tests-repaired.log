@@ -1,0 +1,9 @@
+test_exit_zero_partial_read_is_retained_then_verified (android_fixture_readback_test.FixtureReadbackTests) ... ok
+test_permission_missing_and_malformed_source_do_not_retry (android_fixture_readback_test.FixtureReadbackTests) ... ok
+test_three_attempt_limit_never_publishes_partial_fixture (android_fixture_readback_test.FixtureReadbackTests) ... ok
+test_unknown_255_recovers_only_with_complete_exact_bytes (android_fixture_readback_test.FixtureReadbackTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.006s
+
+OK

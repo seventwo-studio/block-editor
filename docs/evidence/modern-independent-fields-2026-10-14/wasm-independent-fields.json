@@ -1,0 +1,79 @@
+{
+  "complete": true,
+  "sourceCommit": "d66db54651161cfeb0cc77f9297c4682286fbd35",
+  "trackedPatchSHA256": "babd9654c13ee3162bef2bccfd1d6a7e4de5d12775914d4346694f5063e6c574",
+  "trackedSourceDirty": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "91c8e40fceaada92c2f8c72e32c4871cfd9afd81bc6969351976ffe0eeecc119",
+  "calls": [
+    {
+      "command": "createModern",
+      "ms": 1989.9294169999998
+    },
+    {
+      "command": "modernNode",
+      "ms": 514.3590840000002
+    },
+    {
+      "command": "modernField",
+      "ms": 0.5308749999999236
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 1.676792000000205
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 1443.785167
+    },
+    {
+      "command": "modernText",
+      "ms": 11.624375000000327
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.5734159999997246
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 429.9746249999994
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 264.1125000000002
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.5689590000001772
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 1575.2797499999997
+    },
+    {
+      "command": "modernText",
+      "ms": 10.652541999999812
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.46504099999947357
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 425.93212499999936
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 281.9886660000002
+    },
+    {
+      "command": "destroy",
+      "ms": 36.43487500000083
+    }
+  ],
+  "qualification": "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets."
+}

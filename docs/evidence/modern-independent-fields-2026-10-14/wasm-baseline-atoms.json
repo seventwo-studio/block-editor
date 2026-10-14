@@ -1,0 +1,79 @@
+{
+  "complete": true,
+  "sourceCommit": "f66036022a1c604a8cdd15347b5f100ee6ae0ab1",
+  "trackedPatchSHA256": "8966f141236c18e2a7ff9121a5c34e09099662862e4b6cc6aca3c50b2d6965c9",
+  "trackedSourceDirty": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "69aeb26bbe5cd3226347bead31c75143fee17d2daa46fc15f4a4ea4a26a536e6",
+  "calls": [
+    {
+      "command": "createModern",
+      "ms": 1747.764875
+    },
+    {
+      "command": "modernNode",
+      "ms": 510.3511249999999
+    },
+    {
+      "command": "modernField",
+      "ms": 0.5545829999996386
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 1.660874999999578
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 2946.2610829999994
+    },
+    {
+      "command": "modernText",
+      "ms": 10.293249999999716
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.5395840000001044
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 146.70924999999988
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 79.43095900000026
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.5501250000006621
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "replaceText",
+      "ms": 2952.391291
+    },
+    {
+      "command": "modernText",
+      "ms": 10.234292000001005
+    },
+    {
+      "command": "modernCaptureTextRange",
+      "ms": 0.4702499999984866
+    },
+    {
+      "command": "modernCommand",
+      "authorCommand": "typingShortcut",
+      "ms": 146.23920800000087
+    },
+    {
+      "command": "modernMarkState",
+      "ms": 78.14491699999962
+    },
+    {
+      "command": "destroy",
+      "ms": 38.332916999999725
+    }
+  ],
+  "qualification": "Actual shared WASM API diagnostic including codec/memory copies; excludes browser input/rendering and does not accept surface budgets."
+}

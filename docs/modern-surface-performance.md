@@ -81,6 +81,15 @@ WASM calls on the same fixed workload. It verifies two accepted appends, explici
 no-op shortcuts and mark state, and records source/patch, fixture and WASM hashes.
 This excludes browser input/rendering and never accepts a surface budget.
 
+Modern baselines may share separately checked scalar-field projections. The
+eligible graph must keep placement edges and follow routes within the same
+exact wire origin. Edited fields still use the original graph checks; joins,
+transfers, aliases and differently spelled canonical equivalents use full
+replay. Each snapshot keeps a small immutable field map without parent chains,
+and unchanged birth JSON remains exact. Admission, causal closure, resource
+bounds and final document validation still run. Direct retained-key membership
+avoids building a whole atom set for each caret or paste check.
+
 ## Current evidence boundary
 
 The initial production workload exceeded its four-minute limit before producing
@@ -98,6 +107,20 @@ No-op shortcut calls measured 142–145 ms. These modest improvements leave the
 author replay/projection and complete snapshot paths far above the agreed input
 target even before browser rendering. They do not replace the failed production
 baseline or establish a complete p95.
+
+The subsequent field-projection and direct-membership candidate measures direct
+appends at 1,104–1,131 ms, no-op shortcuts at 25–29 ms and mark state near 1 ms.
+That is still above the 50 ms input target before rendering. Its serial probe
+records process resident memory as diagnostic data; two appends are not resource
+or lifecycle acceptance. Keep the production workload and broader campaigns.
+
+The frozen three-engine production follow-up recorded twenty verified input
+samples in each engine. Observed sample p95 is 3,943.8 ms (Chromium), 6,591 ms
+(WebKit) and 6,528 ms (Firefox). Each combined run hit its unchanged deadline
+during menus, leaving fourteen/seven/zero menu samples and terminal failure.
+These input observations contradict the 50 ms target; there is no complete menu
+or combined campaign acceptance. Retain raw failures and investigate full
+snapshot publication and binding work before another measurement run.
 
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked
