@@ -12,9 +12,10 @@ async function arm(page: Page, mode: "input" | "menu", expected: string) {
     window.modernMeasurement?.cleanup();
     const source = mode === "input" ? window.document.querySelector<HTMLElement>('[data-measurement-input]')! :
       Array.from(window.document.querySelectorAll<HTMLButtonElement>("button")).find(button => button.textContent === "Insert")!;
-    const type = mode === "input" ? "beforeinput" : "pointerdown";
+    const type = mode === "input" ? "keydown" : "pointerdown";
     const state: NonNullable<Window["modernMeasurement"]> = { armed: true, cleanup: () => source.removeEventListener(type, begin, true) };
-    function begin() {
+    function begin(event: Event) {
+      if (!event.isTrusted || (mode === "input" && (!(event instanceof KeyboardEvent) || event.key !== "!"))) return;
       const start = performance.now(); let frames = 0;
       state.cleanup(); state.armed = false;
       function frame() {
@@ -47,7 +48,7 @@ test("production modern surface measures original input and menu response on 100
     sourceClean: !execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim(), fixtureSHA256: createHash("sha256").update(fixture).digest("hex"),
     wasmSHA256: createHash("sha256").update(wasm).digest("hex"), browser: info.project.name, browserVersion: browser.version(),
     warmups: 3, repetitions: 20, inputMS: [], menuMS: [], productionReact: true,
-    method: "Trusted native beforeinput/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim." };
+    method: "Trusted native initiating keydown/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity and keydown validation. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim." };
   report.diagnostic = process.env.MODERN_SURFACE_DIAGNOSTIC === "1";
   const consoleMessages: string[] = [], pageErrors: string[] = [];
   const publish = () => writeFileSync(resolve(output, `${info.project.name}.json`), JSON.stringify(report, null, 2) + "\n");
@@ -62,6 +63,8 @@ test("production modern surface measures original input and menu response on 100
     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(document);
     const body = page.locator('[data-block-type="paragraph"]').filter({ hasText: "Note 0001." }).getByRole("textbox", { name: "Block text", exact: true });
     await body.evaluate(element => { element.setAttribute("data-measurement-input", ""); element.focus(); const range = window.document.createRange(); range.selectNodeContents(element); range.collapse(false); const selection = window.document.getSelection()!; selection.removeAllRanges(); selection.addRange(range); });
+    await expect(body).toBeFocused();
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     let expected = (document.blocks.find(block => block.id === "note-1")!.content as { text: string }[]).map(node => node.text).join("");
     const input: number[] = [], menu: number[] = [];
     for (let i = 0; i < 23; i++) {
