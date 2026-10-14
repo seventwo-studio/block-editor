@@ -28,7 +28,8 @@ function copy(source, relative) {
   files[relative] = digest(readFileSync(target));
 }
 // Git's tracked allowlist excludes credentials, local memory and build caches.
-const tracked = execFileSync('git', ['ls-files', '-z', 'Package.swift', 'Sources', 'Examples', 'tests', 'docs/acceptance', 'benchmarks', 'LICENSE'], { encoding: 'utf8' }).split('\0').filter(Boolean);
+const tracked = execFileSync('git', ['ls-files', '-z', 'Package.swift', 'Sources', 'Examples', 'tests', 'docs/acceptance', 'benchmarks', 'LICENSE'], { encoding: 'utf8' }).split('\0')
+  .filter(file => file && !file.split('/').some(part => part.startsWith('.')));
 for (const file of tracked) {
   assert(!file.split('/').some(part => part === '..' || part.startsWith('.')), `Unexpected source path ${file}`);
     assert(lstatSync(file).isFile() && !lstatSync(file).isSymbolicLink(), `Unsupported source entry ${file}`);
@@ -37,6 +38,7 @@ for (const file of tracked) {
 const coordinate = `studio.seventwo:block-editor:${version}`;
 const directory = join(mavenStage, 'studio', 'seventwo', 'block-editor', version);
 const prefix = `block-editor-${version}`;
+assert.equal(digest(readFileSync(join(directory, prefix + '.aar'))), digest(readFileSync('android/editor/build/outputs/aar/editor-release.aar')), 'Stage must match the current Gradle release AAR');
 for (const suffix of ['.aar', '.pom', '.module', '-sources.jar']) {
   const file = prefix + suffix; assert(existsSync(join(directory, file)), `Missing ${file}`); copy(join(directory, file), `maven/studio/seventwo/block-editor/${version}/${file}`);
 }
