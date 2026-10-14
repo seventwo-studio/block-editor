@@ -199,6 +199,35 @@ function ModernMediaView({ session, host, node, value, width, readOnly, resolve,
   </div>;
 }
 
+/** Capture once when the cell action surface opens, rather than during rendering.
+ * Retain that checked cohort through peer edits until dismissal. */
+function ModernTableCellActions({ session, table, row, cell, rowWidth, rowCount, header, readOnly, execute, report }: {
+  session: SwiftModernSession; table: ModernNodeID; row: ModernNodeID; cell: ModernNodeID;
+  rowWidth: number; rowCount: number; header: boolean; readOnly: boolean;
+  execute: InputProps["execute"]; report: InputProps["report"];
+}) {
+  const target = useRef<{ shared: ReturnType<SwiftModernSession["captureTableTarget"]>; rowWidth: number; rowCount: number; header: boolean } | undefined>(undefined);
+  const details = useRef<HTMLDetailsElement>(null);
+  function capture(): void {
+    try { target.current = { shared: session.captureTableTarget(table, row, cell), rowWidth, rowCount, header }; }
+    catch (error) { target.current = undefined; report(error); }
+  }
+  return <details ref={details} onToggle={event => { if (!event.currentTarget.open) target.current = undefined; else if (!target.current) capture(); }}>
+    <summary aria-label="Cell actions" onClick={event => { if (!(event.currentTarget.parentElement as HTMLDetailsElement).open) capture(); }}>⋯</summary>
+    {(["insertRow", "removeRow", "insertColumn", "removeColumn", "setHeader"] as const).map(action => <button key={action} disabled={readOnly} onClick={() => {
+      if (!target.current) capture();
+      if (!target.current) return;
+      const captured = target.current;
+      try { const result = execute({ command: "tableStructure", target: captured.shared, arguments: { action,
+        newIDs: Array.from({ length: action === "insertRow" ? captured.rowWidth + 1 : action === "insertColumn" ? captured.rowCount : 0 }, () => crypto.randomUUID()),
+        ...(action === "setHeader" ? { header: !captured.header } : {}) } });
+        if (result.status === "applied" || result.status === "noop") { target.current = undefined; if (details.current) details.current.open = false; }
+      }
+      catch (error) { report(error); }
+    }}>{action.replace(/([A-Z])/g, " $1")}</button>)}
+  </details>;
+}
+
 export interface ModernLinkSuggestion { readonly id: string; readonly type: string; readonly label: string; readonly availability: "available" | "denied" | "unavailable" }
 export interface SwiftModernEditorProps {
   readonly session: SwiftModernSession; readonly host?: ModernBrowserHost; readonly readOnly?: boolean;
@@ -527,14 +556,15 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       } else if (type === "table") {
         const tableRows = array(value.rows), cellFields = tableRows.flatMap(row => array(row.cells).map(cell => boundField(origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]))));
         content = <div className="modern-table-scroll"><table><tbody>{tableRows.map(row => <tr key={text(row.id)}>{array(row.cells).map(cell => {
-          const rowNode = origin(root, [...current, "rows", text(row.id)]), cellNode = origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]), capturedCell = session.captureTableTarget(node, rowNode, cellNode), Tag = cell.header ? "th" : "td";
+          const rowNode = origin(root, [...current, "rows", text(row.id)]), cellNode = origin(root, [...current, "rows", text(row.id), "cells", text(cell.id)]), Tag = cell.header ? "th" : "td";
           return <Tag key={text(cell.id)} scope={cell.header ? "col" : undefined}>
             {input(cellNode, "content", array(cell.content), cell.header ? "Table header" : "Table cell", false, (event, range) => {
               if (event.key !== "Tab" && event.key !== "Enter") return false;
               const index = cellFields.findIndex(field => key(field) === key(range.start.field)), next = cellFields[index + (event.shiftKey ? -1 : 1)];
               if (next) setFocused(session.position(next, 0)); return !!next;
             })}
-            <details><summary aria-label="Cell actions">⋯</summary>{["insertRow", "removeRow", "insertColumn", "removeColumn", "setHeader"].map(action => <button key={action} disabled={readOnly} onClick={() => execute({ command: "tableStructure", target: capturedCell, arguments: { action: action as "insertRow", newIDs: Array.from({ length: action === "insertRow" ? array(row.cells).length + 1 : action === "insertColumn" ? tableRows.length : 0 }, () => crypto.randomUUID()), ...(action === "setHeader" ? { header: !cell.header } : {}) } })}>{action.replace(/([A-Z])/g, " $1")}</button>)}</details>
+            <ModernTableCellActions key={key([node, rowNode, cellNode])} session={session} table={node} row={rowNode} cell={cellNode}
+              rowWidth={array(row.cells).length} rowCount={tableRows.length} header={!!cell.header} readOnly={readOnly} execute={execute} report={report} />
           </Tag>;
         })}</tr>)}</tbody></table></div>;
       } else if (type === "toggle") content = <div><button aria-expanded={!collapsed.has(nodeKey)} onClick={() => {

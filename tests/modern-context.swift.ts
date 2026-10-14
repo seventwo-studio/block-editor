@@ -26,6 +26,69 @@ test.afterEach(async ({ page }, info) => {
   await page.evaluate(() => window.modernAcceptance?.dispose());
 });
 
+const cellActionsDocument: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "cell-actions",
+  title: "Checked cell actions", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+    { id: "T", type: "table", rows: [{ id: "R", cells: [{ id: "C", header: false, content: [{ type: "text", text: "Original 世界😀" }] }] }] }
+  ] };
+
+async function trackCellCaptures(page: Page) {
+  await page.evaluate(() => {
+    const { session, events } = window.modernAcceptance, capture = session.captureTableTarget.bind(session);
+    session.captureTableTarget = (...args) => { events.push({ type: "table-capture", target: JSON.stringify(args) }); return capture(...args); };
+  });
+}
+async function captureCount(page: Page) { return page.evaluate(() => window.modernAcceptance.events.filter(event => event.type === "table-capture").length); }
+
+test("cell actions capture on keyboard opening and retain peer text through author Undo", async ({ page }) => {
+  const original = await mount(page, cellActionsDocument); await trackCellCaptures(page);
+  await page.getByRole("button", { name: "Outline", exact: true }).click();
+  expect(await captureCount(page)).toBe(0);
+  const summary = page.locator('summary[aria-label="Cell actions"]'); await summary.focus(); await summary.press("Enter");
+  await expect(page.getByRole("button", { name: "set Header", exact: true })).toBeVisible(); expect(await captureCount(page)).toBe(1);
+  await page.evaluate(() => {
+    const { peer, session } = window.modernAcceptance; peer.receive(session.changes());
+    const cell = peer.node({ blockID: "T", path: ["rows", "R", "cells", "C"] }), field = peer.field(cell);
+    peer.execute({ command: "replaceText", target: peer.captureTextRange(field, 0, 0), arguments: { text: "Peer: " } }); session.receive(peer.changes());
+  });
+  expect(await captureCount(page)).toBe(1); await page.getByRole("button", { name: "set Header", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Table header", exact: true })).toHaveText("Peer: Original 世界😀");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  const expected = structuredClone(original); ((expected.blocks[0].rows as { cells: { content: { text: string }[] }[] }[])[0].cells[0].content)[0].text = "Peer: Original 世界😀";
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(expected);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
+test("open cell actions reject incompatible peer structure without refreshing their captured target", async ({ page }) => {
+  await mount(page, cellActionsDocument); await trackCellCaptures(page);
+  await page.locator('summary[aria-label="Cell actions"]').click();
+  await expect(page.getByRole("button", { name: "insert Row", exact: true })).toBeVisible(); expect(await captureCount(page)).toBe(1);
+  await page.evaluate(() => {
+    const { peer, session } = window.modernAcceptance; peer.receive(session.changes());
+    const table = peer.node({ blockID: "T", path: [] }), row = peer.node({ blockID: "T", path: ["rows", "R"] }), cell = peer.node({ blockID: "T", path: ["rows", "R", "cells", "C"] });
+    peer.execute({ command: "tableStructure", target: peer.captureTableTarget(table, row, cell), arguments: { action: "insertColumn", newIDs: ["peer-cell"] } }); session.receive(peer.changes());
+  });
+  const before = await page.evaluate(() => window.modernAcceptance.session.save());
+  expect(await captureCount(page)).toBe(1); await page.getByRole("button", { name: "insert Row", exact: true }).first().click();
+  expect(await captureCount(page)).toBe(1);
+  expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(before);
+  expect(await page.evaluate(() => window.modernAcceptance.errors.length)).toBeGreaterThan(0);
+});
+
+test("successful cell actions dismiss and reopening captures the updated structure", async ({ page }) => {
+  await mount(page, cellActionsDocument); await trackCellCaptures(page);
+  const summary = page.locator('summary[aria-label="Cell actions"]').first(); await summary.click();
+  await page.getByRole("button", { name: "insert Row", exact: true }).first().click();
+  await expect(summary.locator('..')).not.toHaveAttribute("open", "");
+  expect(await captureCount(page)).toBe(1);
+  await summary.focus(); await summary.press("Enter");
+  await page.getByRole("button", { name: "insert Column", exact: true }).first().click();
+  const table = await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document.blocks[0]);
+  expect(table.rows).toHaveLength(2);
+  expect((table.rows as { cells: unknown[] }[]).map(row => row.cells.length)).toEqual([2, 2]);
+  expect(await captureCount(page)).toBe(2);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("keyboard column resize releases its preview before a peer resize", async ({ page }) => {
   const original = await mount(page, "columns-7000");
   const slider = page.getByRole("slider", { name: "Column split" });
