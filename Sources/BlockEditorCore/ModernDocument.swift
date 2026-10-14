@@ -65,7 +65,7 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
             try Validation.block(block, modern: true)
             return block
         }
-        guard try canonicalEncoder().encode(fields).count <= 32_000_000 else {
+        guard try canonicalJSONSizeFits(.object(fields), limit: 32_000_000) else {
             throw EditorError.invalidDocument("Document exceeds 32 MB")
         }
         self.documentID = identity; self.title = title; self.appearance = appearance
@@ -91,6 +91,46 @@ public struct ModernDocument: Encodable, Equatable, Sendable {
             else if let array = value.array { pending.append(contentsOf: array.map { ($0, depth + 1) }) }
         }
     }
+}
+
+/// Prove ordinary checked values fit without allocating their full encoded
+/// document. Every string byte contributes at most six JSON bytes (including
+/// escaped controls and surrogate pairs). Numbers use the actual codec. If the
+/// conservative bound cannot prove capacity, retain the exact original check;
+/// a loose bound must never reject an otherwise admitted document.
+func canonicalJSONSizeFits(_ value: JSONValue, limit: Int) throws -> Bool {
+    var remaining = limit, pending = [value]
+    let encoder = canonicalEncoder()
+    func consume(_ count: Int) -> Bool {
+        guard count <= remaining else { return false }
+        remaining -= count; return true
+    }
+    func stringFits(_ string: String) -> Bool {
+        guard consume(2) else { return false }
+        let bytes = string.utf8.count
+        guard bytes <= remaining / 6 else { return false }
+        return consume(bytes * 6)
+    }
+    var proven = limit >= 0
+    while proven, let next = pending.popLast() {
+        switch next {
+        case .null: proven = consume(4)
+        case .bool(let flag): proven = consume(flag ? 4 : 5)
+        case .number(let number): proven = try consume(encoder.encode(number).count)
+        case .string(let string): proven = stringFits(string)
+        case .array(let array):
+            proven = consume(2) && consume(max(0, array.count - 1))
+            if proven { pending.append(contentsOf: array) }
+        case .object(let object):
+            proven = consume(2) && consume(max(0, object.count - 1))
+            for (key, child) in object where proven {
+                proven = stringFits(key) && consume(1)
+                if proven { pending.append(child) }
+            }
+        }
+    }
+    if proven { return true }
+    return try encoder.encode(value).count <= limit
 }
 
 /// Foundation decoders collapse duplicate object keys. Check raw keys, including
