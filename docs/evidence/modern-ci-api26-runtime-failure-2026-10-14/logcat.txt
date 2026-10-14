@@ -1,0 +1,93 @@
+- waiting for device -
+--------- beginning of main
+10-14 15:18:50.850  1328  1328 W auditd  : type=2000 audit(0.0:1): initialized
+10-14 15:18:51.500  1328  1328 I auditd  : type=1403 audit(0.0:2): policy loaded auid=4294967295 ses=4294967295
+10-14 15:18:51.500  1328  1328 W auditd  : type=1404 audit(0.0:3): enforcing=1 old_enforcing=0 auid=4294967295 ses=4294967295
+10-14 15:18:51.750     1     1 W init    : type=1400 audit(0.0:4): avc: denied { module_request } for kmod="fs-configfs" scontext=u:r:init:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+10-14 15:18:51.770     1     1 W init    : type=1400 audit(0.0:5): avc: denied { module_request } for kmod="fs-cpuset" scontext=u:r:init:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+10-14 15:18:51.974  1329  1329 I SELinux : SELinux: Loaded service_contexts from:
+10-14 15:18:51.975  1329  1329 I SELinux :     /system/etc/selinux/plat_service_contexts
+10-14 15:18:51.975  1329  1329 I SELinux :     /vendor/etc/selinux/nonplat_service_contexts
+10-14 15:18:51.982  1332  1332 I SELinux : SELinux: Loaded service_contexts from:
+10-14 15:18:51.982  1332  1332 I SELinux :     /vendor/etc/selinux/vndservice_contexts
+10-14 15:18:52.004  1330  1330 E hwservicemanager: BINDER_SET_INHERIT_FIFO_PRIO failed with error -1
+10-14 15:18:52.033  1339  1339 I android.hardware.keymaster@3.0-impl: Fetching keymaster device name default
+10-14 15:18:52.033  1339  1339 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/keystore.ranchu.so from the current namespace instead.
+10-14 15:18:52.034  1339  1339 I android.hardware.keymaster@3.0-impl: Found keymaster2 module Trusty Keymaster HAL, version 200
+10-14 15:18:52.034  1339  1339 E TrustyKeymaster: calling trusty_keymaster_connect
+10-14 15:18:52.034  1339  1339 E TrustyKeymaster: failed to open KeymasterService3 pipe service
+10-14 15:18:52.034  1339  1339 E TrustyKeymaster: calling trusty_keymaster_connect failed
+10-14 15:18:52.034  1339  1339 I ServiceManagement: Removing namespace from process name android.hardware.keymaster@3.0-service to keymaster@3.0-s.
+10-14 15:18:52.035  1339  1339 I android.hardware.keymaster@3.0-service: Registration complete for android.hardware.keymaster@3.0::IKeymasterDevice/default.
+--------- beginning of system
+10-14 15:18:52.040  1340  1340 I vold    : Vold 3.0 (the awakening) firing up
+10-14 15:18:52.040  1340  1340 V vold    : Detected support for: ext4 vfat
+10-14 15:18:52.046  1340  1345 D vold    : e4crypt_init_user0
+10-14 15:18:52.046  1340  1345 D vold    : e4crypt_prepare_user_storage for volume null, user 0, serial 0, flags 1
+10-14 15:18:52.046  1340  1345 D vold    : Preparing: /data/system/users/0
+10-14 15:18:52.046  1340  1345 D vold    : Preparing: /data/misc/profiles/cur/0
+10-14 15:18:52.046  1340  1345 D vold    : Preparing: /data/system_de/0
+10-14 15:18:52.046  1340  1345 D vold    : Preparing: /data/misc_de/0
+10-14 15:18:52.046  1340  1345 D vold    : Preparing: /data/user_de/0
+10-14 15:18:52.046  1340  1345 D vold    : e4crypt_unlock_user_key 0 serial=0 token_present=0
+10-14 15:18:52.046  1340  1345 E vold    : Failed to chmod /data/system_ce/0: No such file or directory
+10-14 15:18:52.046  1340  1345 E vold    : Failed to chmod /data/misc_ce/0: No such file or directory
+10-14 15:18:52.046  1340  1345 E vold    : Failed to chmod /data/media/0: No such file or directory
+10-14 15:18:52.060  1377  1377 I /system/bin/tzdatacheck: timezone distro dir /data/misc/zoneinfo/current does not exist. No action required.
+10-14 15:18:52.081  1394  1394 I qemu-props: connected to 'boot-properties' qemud service.
+10-14 15:18:52.081  1394  1394 I qemu-props: receiving..
+10-14 15:18:52.081  1394  1394 I qemu-props: received: qemu.cmdline=androidboot.logcat=*:V androidboot.consolepipe=qemu_pipe,pipe:logcat
+10-14 15:18:52.088  1396  1396 I lowmemorykiller: Using in-kernel low memory killer interface
+10-14 15:18:52.092  1330  1330 W /system/bin/hwservicemanager: getTransportFromManifest: Cannot find entry android.hardware.health@1.0::IHealth in either framework or device manifest, using default transport.
+10-14 15:18:52.103  1395  1395 I boot-pipe: done populating /dev/random
+10-14 15:18:52.106  1383  1383 I ServiceManagement: Removing namespace from process name android.hardware.configstore@1.0-service to configstore@1.0.
+10-14 15:18:52.110  1386  1386 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/gatekeeper.ranchu.so from the current namespace instead.
+10-14 15:18:52.112  1390  1390 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/sensors.ranchu.so from the current namespace instead.
+10-14 15:18:52.120  1386  1386 E GoldfishGatekeeper: called goldfish_gatekeeper_open with gate keeper 0x78f4e6e2d118 device 0x78f4e6a69108
+10-14 15:18:52.120  1386  1386 I ServiceManagement: Removing namespace from process name android.hardware.gatekeeper@1.0-service to gatekeeper@1.0-.
+10-14 15:18:52.120  1386  1386 I android.hardware.gatekeeper@1.0-service: Registration complete for android.hardware.gatekeeper@1.0::IGatekeeper/default.
+10-14 15:18:52.124  1390  1390 I ServiceManagement: Removing namespace from process name android.hardware.sensors@1.0-service to sensors@1.0-ser.
+10-14 15:18:52.126  1390  1390 I android.hardware.sensors@1.0-service: Registration complete for android.hardware.sensors@1.0::ISensors/default.
+10-14 15:18:52.128  1388  1388 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/hwcomposer.ranchu.so from the current namespace instead.
+10-14 15:18:52.137  1387  1387 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/gralloc.ranchu.so from the current namespace instead.
+10-14 15:18:52.138  1389  1389 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/power.ranchu.so from the current namespace instead.
+10-14 15:18:52.139  1389  1389 I ServiceManagement: Removing namespace from process name android.hardware.power@1.0-service to power@1.0-servi.
+10-14 15:18:52.140  1389  1389 I android.hardware.power@1.0-service: Registration complete for android.hardware.power@1.0::IPower/default.
+10-14 15:18:52.150  1380  1380 I ServiceManagement: Removing namespace from process name android.hidl.allocator@1.0-service to allocator@1.0-s.
+10-14 15:18:52.153  1388  1388 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib64/hw/gralloc.ranchu.so from the current namespace instead.
+10-14 15:18:52.171  1388  1388 D         : HostConnection::get() New Host Connection established 0x7a50d422f3c0, tid 1388
+10-14 15:18:52.171  1387  1387 D         : HostConnection::get() New Host Connection established 0x7bd99ca2f180, tid 1387
+10-14 15:18:52.172  1387  1387 I ServiceManagement: Removing namespace from process name android.hardware.graphics.allocator@2.0-service to allocator@2.0-s.
+10-14 15:18:52.173  1387  1387 I android.hardware.graphics.allocator@2.0-service: Registration complete for android.hardware.graphics.allocator@2.0::IAllocator/default.
+10-14 15:18:52.177  1388  1388 I HwcPassthrough: Found HWC implementation v1.1
+10-14 15:18:52.177  1388  1388 E hwcomposer: unknown display attribute 6
+10-14 15:18:52.177  1388  1388 I ServiceManagement: Removing namespace from process name android.hardware.graphics.composer@2.1-service to composer@2.1-se.
+10-14 15:18:52.178  1388  1388 I android.hardware.graphics.composer@2.1-service: Registration complete for android.hardware.graphics.composer@2.1::IComposer/default.
+10-14 15:18:52.218  1394  1394 I qemu-props: receiving..
+10-14 15:18:52.218  1394  1394 I qemu-props: received: qemu.logcat=start
+10-14 15:18:52.221  1391  1391 I android.hardware.wifi@1.0-service: Wifi Hal is starting up...
+10-14 15:18:52.222  1391  1391 I ServiceManagement: Removing namespace from process name android.hardware.wifi@1.0-service to wifi@1.0-servic.
+10-14 15:18:52.226  1382  1382 I android.hardware.camera.provider@2.4-service: Camera provider Service is starting.
+10-14 15:18:52.229  1384  1384 D android.hardware.drm@1.0-service: android.hardware.drm@1.0-service starting...
+10-14 15:18:52.238  1382  1382 I vndksupport: sphal namespace is not configured for this process. Loading /vendor/lib/hw/camera.ranchu.so from the current namespace instead.
+10-14 15:18:52.255  1385  1385 D android.hardware.drm@1.0-service.widevine: android.hardware.drm@1.0-service.widevine starting...
+10-14 15:18:52.255  1385  1385 I ServiceManagement: Removing namespace from process name android.hardware.drm@1.0-service.widevine to drm@1.0-service.
+10-14 15:18:52.255  1385  1385 I ServiceManagement: Removing namespace from process name android.hardware.drm@1.0-service.widevine to drm@1.0-service.
+10-14 15:18:52.257  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::maxFrameBufferAcquiredBuffers retrieved: 3
+10-14 15:18:52.258  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::startGraphicsAllocatorService retrieved: 0
+10-14 15:18:52.259  1397  1397 I SurfaceFlinger: SurfaceFlinger is starting
+10-14 15:18:52.259  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::vsyncEventPhaseOffsetNs retrieved: 1000000 (default)
+10-14 15:18:52.259  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::vsyncSfEventPhaseOffsetNs retrieved: 1000000 (default)
+10-14 15:18:52.260  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasSyncFramework retrieved: 1
+10-14 15:18:52.260  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::useContextPriority retrieved: 0 (default)
+10-14 15:18:52.260  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::presentTimeOffsetFromVSyncNs retrieved: 0
+10-14 15:18:52.261  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::useHwcForRGBtoYUV retrieved: 0
+10-14 15:18:52.261  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::maxVirtualDisplaySize retrieved: 0 (default)
+10-14 15:18:52.261  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::useVrFlinger retrieved: 0 (default)
+10-14 15:18:52.261  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::maxFrameBufferAcquiredBuffers retrieved: 3
+10-14 15:18:52.262  1397  1397 I /system/bin/surfaceflinger: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-14 15:18:52.262  1397  1397 I SurfaceFlinger: Enabling HWC virtual displays
+10-14 15:18:52.262  1397  1397 I SurfaceFlinger: Disabling Triple Buffering
+10-14 15:18:52.262  1397  1397 I SurfaceFlinger: SurfaceFlinger's main thread ready to run. Initializing graphics H/W...
+10-14 15:18:52.262  1397  1397 I SurfaceFlinger: Phase offest NS: 1000000
+10-14 15:18:52.262  1397  1397 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.

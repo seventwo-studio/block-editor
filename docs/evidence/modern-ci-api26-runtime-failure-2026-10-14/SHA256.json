@@ -1,0 +1,13 @@
+{
+  "README.md": "636ee84362a04728c152f3fd197e912d8604682edaa5c8b138860d2a30924e1e",
+  "artifacts.json": "bfad1339347865fb096768bbbbd7ceec93b509307be6849d9320866eb0302604",
+  "emulator.log": "7cee84cc64f714c2d9bd5df9ccf265722e697fca886ca7633c5b4335c983d86c",
+  "job-clean.log": "10b2c2186ba086f62e797602b6ddab1462d9c54bfbfc7b8e9b4c9ac7909f90c2",
+  "job-raw.log": "982bd343672fafcd66c90dee9dff6b474fae120e26e410d74108e916a58f9ac8",
+  "jobs-observed.json": "c08adcb2975fbda9de1dde8b170ddef46f36e4fed8d6d928908c6523530a95fd",
+  "logcat.txt": "1385c8aa445a330e76b657117d942aa551fd2a0569c156c935114d5745020d46",
+  "writing-system-input/enter-instrumentation.log": "96600156b78e803e4b1ebe7a200f6563d9601c573eb8c1793784f609af9e3916",
+  "writing-system-input/environment.json": "7455519eb862d03f568a19bdb47cab985f85fd9fbd0d86247641725da2f36699",
+  "writing-system-input/keyboard-package.txt": "b55112cbd93cdd77663765f00987b8c6c3402b8e177ea2e2b2d9cdc13fc06517",
+  "writing-system-input/settings-after.log": "a7d0391f2b9ecc7dc302d6ca042251f413b26e1f1ee29d396e7db3df0701640f"
+}

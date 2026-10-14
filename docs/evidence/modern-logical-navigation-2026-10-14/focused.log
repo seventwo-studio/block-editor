@@ -1,0 +1,114 @@
+Building for debugging...
+[Computing dependencies]
+[1 / 4] BlockEditorCore
+[4 / 7] BlockEditorCore
+[17 / 21] BlockEditorCore
+[18 / 21] BlockEditorCore
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/Bridge.swift:264:41: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+262 |             let position = try session.mergeParagraphs(left: decode(input["left"], as: NodeID.self), right: decode(input["right"], as: NodeID.self))
+263 |             return .object(["snapshot": try writingSnapshot(session), "position": try encode(position)])
+264 |         case "markdown": return .string(try Markdown.serialize(session.document))
+    |                                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+265 |         default: throw EditorError.invalidChange
+266 |         }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:400:26: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+398 |                     selection: JSONValue? = nil, focusIntent: ModernFocusIntent? = nil,
+399 |                     selectionIntent: ModernSelectionIntent? = nil, reason: String? = nil) throws -> JSONValue {
+400 |             var fields = try snapshot(session).object!
+    |                          `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+401 |             fields["status"] = .string(status); fields["transaction"] = try transaction.map(encode) ?? .null
+402 |             fields["focus"] = try position.map(encode) ?? .null
+
+/Users/luca/Developer/block-editor/Sources/BlockEditorCore/ModernBridgeEndpoint.swift:422:32: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+420 |             let focusInserted = try arguments["focusInserted"].map { try decode($0, as: Bool.self) } ?? false
+421 |             func retained(_ status: String, _ reason: String) throws -> JSONValue {
+422 |                 var response = try result(status, reason: reason).object!
+    |                                `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+423 |                 response["retainedClipboard"] = try encode(clipboard); return .object(response)
+424 |             }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[21 / 22] BlockEditorCore
+[32 / 74] editor-bridge-product
+[47 / 73] editor-bridge-product
+[56 / 76] BlockEditorLocalDemoTests-product
+[69 / 102] BlockEditorApple
+[74 / 110] BlockEditorLocalDemoTests-product
+[75 / 106] BlockEditorLocalDemoTests-product
+[77 / 106] BlockEditorApple
+[81 / 107] BlockEditorApple
+[82 / 107] BlockEditorApple
+[84 / 107] BlockEditorApple
+[86 / 107] BlockEditorApple
+[88 / 111] modern-relay-client-product
+[90 / 111]
+[95 / 114] BlockEditorApple
+[96 / 114] BlockEditorCoreTests-product
+[97 / 114] BlockEditorDemoApple
+[101 / 119] local-editor-app-product
+[103 / 121] BlockEditorCoreTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorCoreTests/ModernInlineCommandsTests.swift:29:62: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 27 |         #expect(try s.save()==save && s.syncState==state && s.mergeRecovery==nil)
+ 28 |     }
+ 29 |     private func marks(_ s:ModernSession)throws->[JSONValue]{try s.document.blocks[0].fields["content"]!.array!}
+    |                                                              `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 30 | 
+ 31 |     @Test func multiBlockDefaultsPreservePeerTextOpaqueDataCaretAndOneUndoReopen() throws {
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+[104 / 121] BlockEditorCoreTests-product
+[104 / 121] BlockEditorApple
+[111 / 120] BlockEditorAppleTests-product
+[122 / 130] modern-relay-client-product
+[122 / 130] BlockEditorAppleTests-product
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:101:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+ 99 |         view.unmarkText()
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+102 |         view.doCommand(by: Selector(("moveUp:")))
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+
+/Users/luca/Developer/block-editor/tests/BlockEditorAppleTests/ModernNativeModelScopeTests.swift:102:28: warning: use '#selector' instead of explicitly constructing a 'Selector'
+100 |         #expect(try session.text(in: field) == "A東京")
+101 |         view.doCommand(by: Selector(("insertNewline:")))
+102 |         view.doCommand(by: Selector(("moveUp:")))
+    |                            `- warning: use '#selector' instead of explicitly constructing a 'Selector'
+103 |         view.setSelectedRange(NSRange(location: 0, length: 1)); view.copy(nil)
+104 |         #expect(calls == ["new submit", "new boundary"])
+[124 / 130] BlockEditorAppleTests-product
+[128 / 133] BlockEditorCoreTests-product
+[134 / 138] BlockEditorCoreTests-product
+[137 / 137] local-editor-product
+[145 / 145] BlockEditorBridge-product
+Build complete! (17.29 sec)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ModernBatchInteractionTests started.
+◇ Suite ModernRangeConversionTests started.
+◇ Test directedSpanFormattingIsAtomicAndKeepsLaterPeerText() started.
+◇ Test repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() started.
+◇ Test logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() started.
+◇ Test inlineDelimiterFormattingPreservesUnicodeAndRestoresOriginalSelection() started.
+◇ Test authorRestrictionsPreserveAdmittedMarksAndPeerBlocks() started.
+◇ Test mediaPropertyUndoKeepsPeerCaptionAndRejectsOldSource() started.
+◇ Test rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() started.
+◇ Test markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() started.
+◇ Test navigationAndDirectedSpanFollowLogicalColumnsWithoutWriting() started.
+◇ Test oneLossyMemberRejectsCompleteRangeWithoutWriting() started.
+✔ Test oneLossyMemberRejectsCompleteRangeWithoutWriting() passed after 0.004 seconds.
+✔ Test inlineDelimiterFormattingPreservesUnicodeAndRestoresOriginalSelection() passed after 0.006 seconds.
+✔ Test navigationAndDirectedSpanFollowLogicalColumnsWithoutWriting() passed after 0.006 seconds.
+✔ Test logicalNavigationDoesNotBorrowDeletedOriginsWhenPeerReusesTheSameVisibleBlock() passed after 0.009 seconds.
+✔ Test authorRestrictionsPreserveAdmittedMarksAndPeerBlocks() passed after 0.013 seconds.
+✔ Test repeatedNavigationRespectsCollapseMovesUndoAndNewPeerOrigins() passed after 0.017 seconds.
+✔ Test mediaPropertyUndoKeepsPeerCaptionAndRejectsOldSource() passed after 0.034 seconds.
+✔ Test rangeConversionHasUniqueBirthsAndOneUndoPreservingPeerText() passed after 0.040 seconds.
+✔ Suite ModernRangeConversionTests passed after 0.040 seconds.
+✔ Test directedSpanFormattingIsAtomicAndKeepsLaterPeerText() passed after 0.042 seconds.
+✔ Test markerConversionIsOneUndoAndLiteralCodeKeepsWhitespace() passed after 0.064 seconds.
+✔ Suite ModernBatchInteractionTests passed after 0.064 seconds.
+✔ Test run with 10 tests in 2 suites passed after 0.064 seconds.
