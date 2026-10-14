@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "packageName": "@seventwo-studio/block-editor-internal",
+  "version": "0.2.0",
+  "sourceCommit": "1bb9a89c3f73c043588f8acabcde62c4e1b16be3",
+  "wasmSHA256": "6f5febcfb962f735abde4bb8980aa175e568c64fd63c00404b83d512c73014fb",
+  "checks": [
+    "Installed provenance/artifact hashes",
+    "Explicit incompatible ABI rejection",
+    "Actual WASM initialization",
+    "Unicode title/appearance and two ordered columns",
+    "Atomic reference and opaque metadata preservation",
+    "Checked edit, save/reopen, stable identity and author Undo/Redo"
+  ],
+  "qualification": "Node-hosted installed JS/WASM API smoke only; not native installation, UI/browser/assistive or performance acceptance."
+}

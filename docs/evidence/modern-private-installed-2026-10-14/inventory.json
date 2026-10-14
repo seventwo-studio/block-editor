@@ -1,0 +1,18 @@
+{
+  "packageRootEntries": [
+    "LICENSE",
+    "README.md",
+    "dist",
+    "docs",
+    "package.json",
+    "src"
+  ],
+  "swiftSourcesPresent": false,
+  "AARPresent": false,
+  "authFileRemoved": true,
+  "temporaryCacheRemoved": true,
+  "registryResolved": true,
+  "sourceTags": [],
+  "sourceReleases": [],
+  "nativePublicationEvidence": "No versioned native delivery path identified in handoff, npm inventory or source tags/releases; native acceptance remains incomplete."
+}

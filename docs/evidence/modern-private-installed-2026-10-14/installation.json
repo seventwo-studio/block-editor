@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "package": "@seventwo-studio/block-editor-internal",
+  "version": "0.2.0",
+  "integrity": "sha512-A+nezh1ZE/jyArE3cPXk5n6ywtfN4KZOhSsIorgNRBzuZC5BfNzCVZkUy9+i77z/X65sKtc2zGjCz0XRnK/RIw==",
+  "lockSHA256": "bdede8f60f8af3dca7ae3461b13e9911732b5fe67f22938c00243da5050d9ec2",
+  "manager": "11.25.0",
+  "freshCacheAndStore": true,
+  "scriptsDisabled": true,
+  "credentialSource": "Existing authorized GitHub CLI; no credential scope/grant changes",
+  "consumerPath": "/private/tmp/modern-registry-install-Jkbes7/consumer"
+}
