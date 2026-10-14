@@ -1989,7 +1989,18 @@ public final class WritingSession {
             }
             let selected = try structure.effectivePlacements()
             var afterByRoot: [NodeID: NodePlacementID] = [:]
-            let entries = structuralPlacementsSorted(structure.placements.values.filter { $0.active }, by: \.id)
+            let activePlacements = structure.placements.values.filter { $0.active }
+            // Initial placements have a strict raw-byte order, so discarding
+            // entries that cannot reach this fallback preserves relative order.
+            // Keep the original full sort for authored/role/route identities:
+            // their historical owner-String/UTF8 rules must remain unchanged.
+            let initialOnly = activePlacements.allSatisfy { if case .initial = $0.id { return true }; return false }
+            let candidates = initialOnly ? activePlacements.filter {
+                guard $0.active, let owner = $0.collection.owner else { return false }
+                return $0.collection.field == "items" ||
+                    ($0.collection.field == "children" && listRoots[owner] != nil)
+            } : activePlacements
+            let entries = structuralPlacementsSorted(candidates, by: \.id)
             for placement in entries {
                 guard let owner = placement.collection.owner,
                       selected[placement.node]?.id == placement.id || (selected[placement.node] == nil && listRoots[owner] != nil) else { continue }

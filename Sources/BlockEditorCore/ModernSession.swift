@@ -73,6 +73,20 @@ public struct ModernBatch: Encodable, Equatable, Sendable {
         self = try decodeModernBatch(value)
     }
     public func json() throws -> Data { try canonicalEncoder().encode(self) }
+    /// Exact wire size while reusing the immutable baseline's encoded count.
+    /// The placeholder contributes two bytes; its real value is encoded only
+    /// once per session. Public batch serialization remains unchanged.
+    func capacityByteCount(baselineByteCount: Int) throws -> Int {
+        struct Envelope: Encodable {
+            let version: Int
+            let documentID: String
+            let epoch: String
+            let baseline: [String: JSONValue] = [:]
+            let changes: [ModernChange]
+        }
+        let envelope = Envelope(version: version, documentID: documentID, epoch: epoch, changes: changes)
+        return try canonicalEncoder().encode(envelope).count - 2 + baselineByteCount
+    }
 }
 public struct ModernRecovery: Encodable, Equatable, Sendable {
     public let reason: MergeRecoveryReason
@@ -104,6 +118,7 @@ public final class ModernSession {
     var modernAsyncRequests: [String: ModernAsyncRecord] = [:]
     var modernAsyncGeneration: UInt64 = 0
     private let seed: ModernProjectionSeed
+    private var baselineCapacityByteCount: Int?
     var structure: StructuralState
     private var projection: WritingProjection
     // One immutable historical read cohort. Ordinary input preserves its
@@ -455,7 +470,13 @@ public final class ModernSession {
         guard candidate.count <= 100_000 else { throw EditorError.recoveryCapacityExceeded }
         try validateResources(Array(candidate.values))
         let edits = candidate.values.filter { if case .edit = $0.body { return true }; return false }.map(\.id).sorted()
-        guard try batch(Array(candidate.values)).json().count <= 64_000_000 - 1024 - canonicalEncoder().encode(edits).count - edits.count * 2 else { throw EditorError.recoveryCapacityExceeded }
+        let baselineBytes: Int
+        if let cached = baselineCapacityByteCount { baselineBytes = cached }
+        else {
+            baselineBytes = try baseline.json().count
+            baselineCapacityByteCount = baselineBytes
+        }
+        guard try batch(Array(candidate.values)).capacityByteCount(baselineByteCount: baselineBytes) <= 64_000_000 - 1024 - canonicalEncoder().encode(edits).count - edits.count * 2 else { throw EditorError.recoveryCapacityExceeded }
     }
     private func candidateIncludingRecovery() throws -> [ChangeID: ModernChange] {
         var result = log
