@@ -67,7 +67,7 @@ jobs:
           bun scripts/run-native-compatibility.mjs .build/debug/editor-bridge
           bun scripts/run-native-writing-resource.mjs .build/debug/editor-bridge
           "$SWIFT_BIN" build --product relay-client
-          bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts tests/modern-relay.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
+          bun test tests/relay.test.ts tests/relay-recovery-limits.test.ts tests/modern-relay.test.ts tests/modern-relay-wire.test.ts 2>&1 | tee test-results/compatibility/relay-tests.txt
       - name: Verify optimized measurement harness
         run: |
           "$SWIFT_BIN" build -c release --product editor-bridge

@@ -20,6 +20,8 @@ def main():
     runtime.block_editor_alloc.restype = pointer
     runtime.block_editor_call.argtypes = [pointer, ctypes.c_int32]
     runtime.block_editor_call.restype = pointer
+    runtime.block_editor_inspect_json.argtypes = [pointer, ctypes.c_int32]
+    runtime.block_editor_inspect_json.restype = pointer
     runtime.block_editor_free.argtypes = [pointer]
     runtime.block_editor_free.restype = None
     root = Path(__file__).resolve().parents[1]
@@ -33,16 +35,17 @@ def main():
         hashes[str(path.relative_to(root))] = hashlib.sha256(data).hexdigest()
         return json.loads(data)
 
-    def raw_call(data):
+    def raw_call(data, operation=None):
         nonlocal responses
         source = runtime.block_editor_alloc(len(data))
         assert source, 'ABI input allocation failed'
         output = None
         try:
             ctypes.memmove(source, data, len(data))
-            output = runtime.block_editor_call(source, len(data))
+            output = (operation or runtime.block_editor_call)(source, len(data))
             assert output, 'ABI returned no response'
-            result = json.loads(ctypes.string_at(output))
+            result = json.loads(ctypes.string_at(output),
+                                parse_int=lambda token: -0.0 if token == '-0' else int(token))
             responses += 1
             return result
         finally:
@@ -59,6 +62,14 @@ def main():
         assert result.get('ok') is True, result
         return result['value']
 
+    admitted = raw_call(b'{"opaque":-0,"unicode":"\\ud83d\\ude00"}', runtime.block_editor_inspect_json)
+    import math
+    assert admitted['ok'] is True and math.copysign(1, admitted['value']['opaque']) == -1
+    assert admitted['value']['unicode'] == '😀'
+    for original in (b'{"x":1,"x":2}', b'{"counter":1.00000000000000000001}',
+                     b'{"x":"\xff"}', b'{"x":"\\ud800"}'):
+        assert raw_call(original, runtime.block_editor_inspect_json)['ok'] is False
+
     baseline = fixture('unicode')
     expected_both = fixture('unicode-title-both')
     expected_size = fixture('unicode-title-size-both')
@@ -72,6 +83,7 @@ def main():
     capabilities = success('modernCapabilities')
     assert capabilities['protocolVersion'] == 7 and capabilities['formatVersion'] == 1
     assert capabilities['cutoverToModern'] is True
+    assert capabilities['wireInspectionVersion'] == 1
     assert all(name in capabilities['commands'] for name in ('createColumns', 'removeColumns', 'resizeColumns'))
     title = {'node': {'document': {'documentID': document_id}}, 'name': 'title'}
     document_origin = title['node']

@@ -55,6 +55,15 @@ try {
     assert.equal(typeof SwiftModernRecoveryError, 'function');
     assert.equal(typeof SwiftBlockEditor, 'function');
     const runtime = await SwiftEditorRuntime.initialize(readFileSync(new URL(import.meta.resolve(${moduleName('/swift/modern.wasm')}))));
+    const admitted = runtime.inspectJSON(new TextEncoder().encode('{"opaque":-0,"unicode":"😀"}'));
+    assert.ok(Object.is(admitted.opaque, -0));
+    assert.equal(admitted.unicode, '😀');
+    for (const malformed of [
+      new TextEncoder().encode('{"duplicate":1,"duplicate":2}'),
+      new TextEncoder().encode('{"counter":1.00000000000000000001}'),
+      Uint8Array.of(123, 34, 120, 34, 58, 34, 255, 34, 125),
+      new TextEncoder().encode('{"unpaired":"' + String.fromCharCode(92) + 'ud800"}')
+    ]) assert.throws(() => runtime.inspectJSON(malformed));
     const session = runtime.createModern({ documentID: 'isolated-install', actorID: 'consumer', epoch: 'isolated-candidate', document: {
       format: 'seventwo.block-editor.document', formatVersion: 1, documentID: 'isolated-install', title: 'Help', appearance: { fontFamily: 'sans', fontSize: 'default', pageWidth: 'readable' }, blocks: []
     } });

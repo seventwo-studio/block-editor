@@ -239,6 +239,32 @@ endpoint `http://127.0.0.1:4319/rooms/shared-modern` and matching document ident
 No token is added to editor checkpoints or exported recovery. Production apps
 provide their existing authorization context instead of this launch mechanism.
 
+## Original wire admission
+
+Modern HTTP requests, replies and saved relay records must reach shared Swift
+before a host JSON parser can normalize duplicate keys, decimal tokens or invalid
+text. `ModernWireJSON.inspect` is the stateless shared check; the additive
+`block_editor_inspect_json` C/WASM export and Android `ModernWireJSON` facade
+accept original UTF-8 bytes directly, up to 64,000,000 bytes. They return a checked
+value or an explicit error without replacing or authoring a document. The CLI's
+read-only `modernInspectJSON` command supports the bounded reference server;
+`wireInspectionVersion: 1` advertises the capability.
+
+Browser relay code uses `SwiftModernSession.inspectJSON` before applying either
+GET or exchange replies. The runtime requires the matching WASM inspection export
+for that operation and reports incompatibility when it is missing; original
+legacy exports remain usable. Modern host request/storage serialization retains
+signed zero in opaque values instead of silently turning it into positive zero.
+Byte bounds, UTF-8/Unicode validity, duplicate-key rejection and exact numeric
+admission remain shared decisions. The reference server still caps requests at
+8 MB; direct inspection does not relax a transport's own limits.
+
+`tests/modern-relay-wire.contract.ts` checks malformed original replies plus
+signed-zero GET/exchange, durable reopen and original-scope preservation through
+actual WASM in all three browser engines. `tests/modern-relay-wire.test.ts` checks
+original requests and saved records with a real server process; neither check
+establishes physical input or a registry release.
+
 ## Verification boundaries
 
 `tests/modern-relay.test.ts` uses separate real server and Swift client processes
