@@ -1,0 +1,3 @@
+Performing Streamed Install
+adb: failed to install android/editor/build/outputs/apk/androidTest/debug/editor-debug-androidTest.apk: Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package studio.seventwo.blockeditor.test signatures do not match newer version; ignoring!]
+
