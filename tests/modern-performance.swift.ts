@@ -82,9 +82,15 @@ test("production modern surface measures original input and menu response on 100
     const expectedDocument = structuredClone(document); (expectedDocument.blocks.find(block => block.id === "note-1")!.content as { text: string }[])[0].text = expected;
     expect(await page.evaluate(() => window.modernPerformance.session.getSnapshot().document)).toEqual(expectedDocument);
     report.environment = await page.evaluate(() => ({ userAgent: navigator.userAgent, hardwareConcurrency: navigator.hardwareConcurrency, viewport: { width: innerWidth, height: innerHeight }, devicePixelRatio }));
-    report.summary = { inputP95MS: percentile(input, .95), menuP95MS: percentile(menu, .95), targets: { inputP95MS: 50, menuP95MS: 100 } };
+    const inputP95MS = percentile(input, .95), menuP95MS = percentile(menu, .95);
+    report.summary = { inputP95MS, menuP95MS, targets: { inputP95MS: 50, menuP95MS: 100 } };
+    report.targetsPassed = inputP95MS <= 50 && menuP95MS <= 100;
     report.complete = true;
     await page.screenshot({ path: info.outputPath("mixed-surface.png") });
+    // Completing measurement is distinct from meeting the accepted budgets.
+    // Retain all samples and finish with failure when either target is missed.
+    expect.soft(inputP95MS, "1,000-block edit-to-display p95 must meet 50 ms").toBeLessThanOrEqual(50);
+    expect.soft(menuP95MS, "1,000-block menu p95 must meet 100 ms").toBeLessThanOrEqual(100);
   } catch (error) { report.error = String(error); throw error; }
   finally {
     report.consoleMessages = consoleMessages; report.pageErrors = pageErrors;
