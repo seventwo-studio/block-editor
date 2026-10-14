@@ -4,6 +4,7 @@
 .modern-viewport { overflow:auto; min-height:0; overscroll-behavior:contain; }
 .modern-page { max-width:var(--modern-page-width,680px); padding:48px 48px 64px; margin:auto; box-sizing:content-box; }
 .modern-block { position:relative; min-width:0; border-radius:8px; margin:12px 0; padding:4px; }
+.modern-columns > div { min-width:0; }
 .modern-handle { position:absolute; left:-44px; width:40px; opacity:0; }
 .modern-block:hover>.modern-handle,.modern-block:focus-within>.modern-handle { opacity:1; }
 .modern-selected { background:var(--modern-selection); outline:1px solid var(--modern-accent); }
