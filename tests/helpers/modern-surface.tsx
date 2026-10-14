@@ -22,9 +22,11 @@ export async function mountModernSurface(document: ModernDocument) {
   const eventTypes = ["pointerdown", "pointerup", "pointercancel", "keydown", "keyup", "input", "change"];
   for (const type of eventTypes) window.addEventListener(type, record, true);
   const root = createRoot(window.document.getElementById("root")!);
-  root.render(<SwiftModernBlockEditor session={session} host={host} onError={error => errors.push(String(error))}
-    suggestLinks={async query => [{ id: "linked", type: "page", label: `Page ${query}`, availability: "available" }]} />);
-  return { session, peer, errors, events, dispose() { for (const type of eventTypes) window.removeEventListener(type, record, true); root.unmount(); session.close(); peer.close(); } };
+  const suggestLinks = async (query: string) => [{ id: "linked", type: "page", label: `Page ${query}`, availability: "available" as const }];
+  const render = (openReference?: (id: string, type: string) => void) => root.render(<SwiftModernBlockEditor session={session} host={host}
+    onError={error => errors.push(String(error))} suggestLinks={suggestLinks} onOpenReference={openReference} />);
+  render();
+  return { session, peer, errors, events, setOpenReference: render, dispose() { for (const type of eventTypes) window.removeEventListener(type, record, true); root.unmount(); session.close(); peer.close(); } };
 }
 
 declare global { interface Window { modernAcceptance: Awaited<ReturnType<typeof mountModernSurface>> } }

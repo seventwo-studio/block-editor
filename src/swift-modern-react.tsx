@@ -50,6 +50,13 @@ function ModernInput(props: InputProps) {
   const original = useRef<ModernTextRange | undefined>(undefined), rendered = useRef<string | undefined>(undefined);
   const pending = useRef(false), value = typeof props.value === "string" ? props.value : visible(props.value);
   const fieldKey = key(field);
+  const openReference = useRef(props.openReference);
+  useLayoutEffect(() => {
+    // Inline DOM survives composition and unchanged-value renders. Its handlers
+    // must follow committed host callbacks without rebuilding the native buffer.
+    openReference.current = props.openReference;
+    return () => { openReference.current = undefined; };
+  }, [props.openReference]);
   function selection(): ModernTextRange | undefined {
     const root = element.current; if (!root) return;
     const selected = inlineSelection(root); if (!selected) return;
@@ -106,7 +113,7 @@ function ModernInput(props: InputProps) {
   useLayoutEffect(() => {
     if (!element.current || composing.current || pending.current) return;
     const signature = key(props.value);
-    if (rendered.current !== signature) { renderInline(element.current, props.value, props.openReference); rendered.current = signature; }
+    if (rendered.current !== signature) { renderInline(element.current, props.value, (id, type) => openReference.current?.(id, type)); rendered.current = signature; }
     before.current = value;
     original.current = session.captureTextRange(field, 0, value.length);
     if (document.activeElement === element.current && anchors.current) {

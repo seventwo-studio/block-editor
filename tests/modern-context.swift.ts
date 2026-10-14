@@ -116,6 +116,36 @@ test("body presentation retains composition through local menus and updates prov
   expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
 });
 
+test("inline references follow committed host callbacks while retaining the composing native buffer", async ({ page }) => {
+  const original: ModernDocument = { ...cellActionsDocument, documentID: "callback-host", blocks: [
+    { id: "A", type: "paragraph", content: [{ type: "entity-ref", entityId: "target", entityType: "page", label: "Page target" }] }
+  ] };
+  await mount(page, original);
+  await page.evaluate(() => {
+    const host = window.modernAcceptance;
+    host.setOpenReference((id, type) => host.events.push({ type: "open:first", target: id, value: type }));
+  });
+  const reference = page.getByRole("link", { name: "Page target", exact: true }); await reference.click();
+  const input = page.getByRole("textbox", { name: "Block text", exact: true });
+  await input.dispatchEvent("compositionstart");
+  await input.evaluate(root => root.append(document.createTextNode(" Pending😀")));
+  await page.evaluate(() => {
+    const host = window.modernAcceptance;
+    host.setOpenReference((id, type) => host.events.push({ type: "open:second", target: id, value: type }));
+  });
+  await reference.focus(); await reference.press("Enter");
+  expect(await page.evaluate(() => window.modernAcceptance.events.filter(event => event.type.startsWith("open:")))).toEqual([
+    { type: "open:first", target: "target", value: "page" }, { type: "open:second", target: "target", value: "page" }
+  ]);
+  await expect(input).toHaveText("Page target Pending😀");
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document)).toEqual(original);
+  await input.dispatchEvent("compositionend");
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document.blocks[0].content)).toEqual([
+    { type: "entity-ref", entityId: "target", entityType: "page", label: "Page target" }, { type: "text", text: " Pending😀" }
+  ]);
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("column stacking follows page content width and updated text metrics without authoring split", async ({ page }) => {
   const loaded = JSON.parse(readFileSync(resolve("docs/acceptance/modern-editor/documents/columns-7000.json"), "utf8")) as ModernDocument;
   const original: ModernDocument = { ...loaded, appearance: { fontFamily: "sans", fontSize: "small", pageWidth: "readable" } };
