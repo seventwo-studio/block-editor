@@ -148,7 +148,12 @@ def main():
         instrument("studio.seventwo.blockeditor.CompatibilityTest", "compatibility-instrumentation.txt", 8)
         instrument("studio.seventwo.blockeditor.WritingSessionTest", "writing-session-instrumentation.txt", 19)
         instrument("studio.seventwo.blockeditor.ModernSessionTest", "modern-session-instrumentation.txt", 1)
-        instrument("studio.seventwo.blockeditor.ModernRelayHostTest", "modern-relay-host-instrumentation.txt", 9)
+        # The translated ARM row exhausted the whole-suite 300-second limit
+        # during large retained history after six completed tests. Keep all nine
+        # assertions in the same process, with a bounded execution deadline;
+        # this is separate from physical surface performance acceptance.
+        instrument("studio.seventwo.blockeditor.ModernRelayHostTest", "modern-relay-host-instrumentation.txt", 9,
+                   timeout=600 if args.abi == "arm64-v8a" else 300)
         environment["EVIDENCE_SOURCE_SHA"] = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
         run("bun", "scripts/test-modern-android-relay.ts", "--sdk", sdk, "--serial", serial,
             "--apk", apk, "--output", output / "modern-relay-process")
