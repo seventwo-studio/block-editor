@@ -57,6 +57,8 @@ function ModernInput(props: InputProps) {
   const { session, field } = props, element = useRef<HTMLDivElement>(null), composing = useRef(false);
   const release = useRef<(() => void) | undefined>(undefined), before = useRef("");
   const anchors = useRef<ModernTextRange | undefined>(undefined), typing = useRef<string | undefined>(undefined);
+  const offsets = useRef<{ session: SwiftModernSession; fieldKey: string; range: ModernTextRange;
+    receipt: ReturnType<SwiftModernSession["getSnapshot"]>["syncState"]; start: number; end: number } | undefined>(undefined);
   typing.current ??= crypto.randomUUID();
   const original = useRef<ModernTextRange | undefined>(undefined), rendered = useRef<string | undefined>(undefined);
   const pending = useRef(false), value = typeof props.value === "string" ? props.value : visible(props.value);
@@ -71,13 +73,23 @@ function ModernInput(props: InputProps) {
     openReference.current = props.openReference;
     return () => { openReference.current = undefined; };
   }, [props.openReference]);
+  function resolveRange(range: ModernTextRange): { start: number; end: number } {
+    const receipt = session.getSnapshot().syncState, prior = offsets.current;
+    // Reuse only these exact anchors under the same session, field and accepted
+    // history. Peer work, Undo/Redo and identity replacement change the receipt.
+    if (prior?.session === session && prior.fieldKey === fieldKey && prior.range === range && prior.receipt === receipt) return prior;
+    const start = session.resolvePosition(range.start).offset;
+    const end = sameJSON(range.start, range.end) ? start : session.resolvePosition(range.end).offset;
+    offsets.current = { session, fieldKey, range, receipt, start, end };
+    return offsets.current;
+  }
   function selection(): ModernTextRange | undefined {
     const root = element.current; if (!root) return;
     const selected = inlineSelection(root); if (!selected) return;
     const previous = anchors.current;
     if (previous) {
       try {
-        const start = session.resolvePosition(previous.start).offset, end = session.resolvePosition(previous.end).offset;
+        const { start, end } = resolveRange(previous);
         if (Math.min(start, end) === selected.start && Math.max(start, end) === selected.end && (start > end) === !!selected.backward) return previous;
       } catch { /* A deleted field is handled by the retained draft path. */ }
     }
@@ -117,6 +129,7 @@ function ModernInput(props: InputProps) {
         const offset = session.resolvePosition(result.focus).offset;
         const captured = session.captureTextRange(result.focus.field, offset, offset);
         anchors.current = { ...captured, start: result.focus, end: result.focus };
+        offsets.current = { session, fieldKey, range: anchors.current, receipt: session.getSnapshot().syncState, start: offset, end: offset };
       }
       capture();
       if (anchors.current && session.availability("typingShortcut").available) {
@@ -138,7 +151,7 @@ function ModernInput(props: InputProps) {
     original.current = session.captureTextRange(field, 0, value.length);
     if (document.activeElement === element.current && anchors.current) {
       try {
-        const a = session.resolvePosition(anchors.current.start).offset, b = session.resolvePosition(anchors.current.end).offset;
+        const { start: a, end: b } = resolveRange(anchors.current);
         selectInline(element.current, Math.min(a, b), Math.max(a, b), a > b);
       } catch (error) { props.report(error); }
     }

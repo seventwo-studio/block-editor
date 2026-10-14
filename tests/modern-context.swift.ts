@@ -48,6 +48,30 @@ test("large-document Unicode composition and adjacent typing retain author histo
   expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
 });
 
+test("input caret follows peer prefixes and author deactivation after cached native reads", async ({ page }) => {
+  await mount(page, { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "caret-history",
+    title: "Caret history", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
+      { id: "A", type: "paragraph", content: [{ type: "text", text: "Seed" }], opaque: { retained: "世界😀" } }
+    ] });
+  const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  await body.click(); await body.press("End"); await page.keyboard.type("!");
+  await expect(body).toHaveText("Seed!");
+  await page.evaluate(() => {
+    const { session, peer } = window.modernAcceptance; peer.receive(session.changes());
+    const field = peer.field(peer.node({ blockID: "A", path: [] }));
+    peer.execute({ command: "replaceText", target: peer.captureTextRange(field, 0, 0), arguments: { text: "世界" } });
+    session.receive(peer.changes());
+  });
+  await expect(body).toHaveText("世界Seed!"); await expect(body).toBeFocused();
+  await body.press("ArrowLeft"); await page.keyboard.type("X"); await expect(body).toHaveText("世界SeedX!");
+  await page.getByRole("button", { name: "Undo", exact: true }).click(); await expect(body).toHaveText("世界Seed!");
+  await page.getByRole("button", { name: "Undo", exact: true }).click(); await expect(body).toHaveText("世界Seed");
+  await page.evaluate(() => { const { session, peer } = window.modernAcceptance; peer.execute({ command: "undo", arguments: {} }); session.receive(peer.changes()); });
+  await expect(body).toHaveText("Seed"); await page.keyboard.type("Y"); await expect(body).toHaveText("SeedY");
+  expect(await page.evaluate(() => window.modernAcceptance.session.getSnapshot().document.blocks[0].opaque)).toEqual({ retained: "世界😀" });
+  expect(await page.evaluate(() => window.modernAcceptance.errors)).toEqual([]);
+});
+
 test("closed contextual controls defer reads and opening shows current peer formatting and colors", async ({ page }) => {
   await mount(page, { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "contextual-reads",
     title: "Context", appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
