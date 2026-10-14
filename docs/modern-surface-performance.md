@@ -163,6 +163,18 @@ incorrect-layout timings. Raw reports, exact receipts and qualified functional
 checks are in `docs/evidence/modern-body-presentation-2026-10-14`. Shared authoring
 and complete snapshot publication remain unresolved; no full acceptance is claimed.
 
+Isolated actual-WASM CPU sampling identifies repeated identity JSON encoding in
+structural sort comparators. Encode a key once per item while retaining each
+original String/UTF8, canonical-equality, tier/Element and stable-tie rule. The
+matching shared candidate passes all 699 native regressions and sixty affected
+browser cases. Direct appends fall to 290–317 ms, still above the input target
+before rendering. The complete clean production run records input p95 835 ms
+Chromium, 972 ms WebKit and 1,036 ms Firefox; menu p95 is 42.6, 56 and 70 ms.
+All input targets still fail. Exact CPU/direct/surface evidence, matching JNI
+recovery and the original Android harness failure remain in
+`docs/evidence/modern-structural-ordering-2026-10-14`. Inclusive CPU stacks overlap;
+API and resident-memory diagnostics do not accept surface/resource campaigns.
+
 Preserve the failed original evidence, current required CI, full functional,
 rendered, accessibility, selection/scroll/media/resource and resized/stacked
 workloads, larger-document preservation and physical native campaigns. Physical

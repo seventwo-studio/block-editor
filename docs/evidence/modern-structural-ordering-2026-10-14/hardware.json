@@ -1,0 +1,8 @@
+{
+  "model": "Mac16,9",
+  "memoryBytes": "38654705664",
+  "logicalCPUs": "14",
+  "cpu": "Apple M4 Max",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+  "architecture": "arm64"
+}

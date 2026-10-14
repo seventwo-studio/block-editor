@@ -1,0 +1,185 @@
+{
+  "runtimeCommit": "264d1877d8c2a7db61a590051d9b71d66ff75466",
+  "native": {
+    "focusedCases": 13,
+    "fullCoreCases": 592,
+    "fullAppleCases": 99,
+    "fullOtherCases": 8,
+    "total": 699,
+    "normalExit": true
+  },
+  "nativeABI": {
+    "responses": 968,
+    "fixtures": 30,
+    "normalExit": true
+  },
+  "typedConsumer": {
+    "requests": 512,
+    "fixtures": 55,
+    "commands": 26,
+    "requirementGroups": 12,
+    "normalExit": true
+  },
+  "browser": {
+    "cases": 60,
+    "normalExit": true
+  },
+  "android": {
+    "initialHarnessFailure": "Nonexistent ModernJSONTest class; ten valid cases completed but overall instrumentation failed. Raw log retained.",
+    "correctedCases": 18,
+    "normalInstrumentation": true,
+    "separateRelayProcesses": 5,
+    "processReceipt": "android-process/receipt.json"
+  },
+  "directProfiles": {
+    "baseline": {
+      "sourceCommit": "6b94088d31f18f3d42ad28f6d4fa0d1fa13034e9",
+      "sourceDirty": false,
+      "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+      "wasmSHA256": "6b0e62e3de90e62103baeca48e8f6dede2537bae90f4eb4ce64c60509fae1f11",
+      "calls": [
+        {
+          "command": "createModern",
+          "ms": 2062.389834,
+          "residentBytes": 518324224
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "replaceText",
+          "ms": 1147.699541,
+          "residentBytes": 565100544
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "typingShortcut",
+          "ms": 29.34133299999985,
+          "residentBytes": 569868288
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "replaceText",
+          "ms": 1122.4787079999996,
+          "residentBytes": 583450624
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "typingShortcut",
+          "ms": 26.16320900000028,
+          "residentBytes": 585662464
+        }
+      ]
+    },
+    "cached-keys": {
+      "sourceCommit": "264d1877d8c2a7db61a590051d9b71d66ff75466",
+      "sourceDirty": false,
+      "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+      "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+      "calls": [
+        {
+          "command": "createModern",
+          "ms": 2007.974208,
+          "residentBytes": 504119296
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "replaceText",
+          "ms": 317.1718329999999,
+          "residentBytes": 547405824
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "typingShortcut",
+          "ms": 29.00387499999988,
+          "residentBytes": 552189952
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "replaceText",
+          "ms": 290.08604200000036,
+          "residentBytes": 565641216
+        },
+        {
+          "command": "modernCommand",
+          "authorCommand": "typingShortcut",
+          "ms": 26.05358299999989,
+          "residentBytes": 567984128
+        }
+      ]
+    }
+  },
+  "performance": {
+    "terminalExit": 1,
+    "completedAllThree": true,
+    "menuTargetsPassed": true,
+    "inputTargetsPassed": false,
+    "engines": [
+      {
+        "browser": "chromium",
+        "browserVersion": "153.0.8010.12",
+        "sourceCommit": "264d1877d8c2a7db61a590051d9b71d66ff75466",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 835,
+          "menuP95MS": 42.59999990463257,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "firefox",
+        "browserVersion": "155.0",
+        "sourceCommit": "264d1877d8c2a7db61a590051d9b71d66ff75466",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 1036,
+          "menuP95MS": 70,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+        "complete": true,
+        "targetsPassed": false
+      },
+      {
+        "browser": "webkit",
+        "browserVersion": "26.6",
+        "sourceCommit": "264d1877d8c2a7db61a590051d9b71d66ff75466",
+        "sourceClean": true,
+        "summary": {
+          "inputP95MS": 972,
+          "menuP95MS": 56,
+          "targets": {
+            "inputP95MS": 50,
+            "menuP95MS": 100
+          }
+        },
+        "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+        "wasmSHA256": "47ed567ecf2771a29761266e032e815f13c808b8fef0e9a6013f0a958d01918d",
+        "complete": true,
+        "targetsPassed": false
+      }
+    ],
+    "productionAssets": {
+      ".build/modern-performance-web/assets/modern-performance-B9F4U2VV.js": "bdc07c58f3e5e49714ffa20f7ed5d6fc0207fdf985ebeff4faf5a56649a875b1",
+      ".build/modern-performance-web/assets/modern-performance-CoD1n0CS.css": "575c004b0449eb809e17408369152229bae2b6cd3842c1ec99fd0b5ab0195035",
+      ".build/modern-performance-web/modern-performance.html": "21222c4ae11ca368a57db0798a936ff5da1f94d0e9d80de5ea561a6e3deffc10"
+    }
+  },
+  "qualifications": [
+    "Sort keys encode once per item and preserve the original String versus UTF8 comparison branches, tier/Element priority, canonical owner equality and stable ties. Cache keys never become identities or saved history.",
+    "V8 sampled inclusive stacks overlap; the isolated first-append CPU profile includes shared execution and adapter publication and is diagnostic.",
+    "Direct two-append API measurements exclude native input/rendering and do not accept surface or resource budgets.",
+    "Final uninstrumented production reports pin clean 264d187 and matching JS/WASM/JNI source receipts, the unchanged fixture, every required sample and strict input/menu assertions.",
+    "All three input targets still fail. Complete physical/assistive/resource/private-install/final acceptance remains open; no protected-main landing or registry update occurred.",
+    "Prior hosted CI belongs to 6b94088. Fresh current-head required CI/review remains necessary."
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "qualification": "Inclusive sampled stacks overlap; do not sum ancestor and descendant values. Isolated first accepted append, diagnostic only.",
+  "hotspots": [
+    {
+      "sampledInclusiveMS": 983.79,
+      "function": "$s15BlockEditorCore13ModernSessionC6replay33_22C05A362EFF5B3819F814F4930F9483LLyAA17WritingProjectionV_AA0D8DocumentVAA15StructuralStateVtSDyAA8ChangeIDVAA0dS0VGKF"
+    },
+    {
+      "sampledInclusiveMS": 487.749,
+      "function": "$s15BlockEditorCore15StructuralStateV8document0F2ID4text10appearanceAA14ModernDocumentVSS_SDyAA04NodeG0OSDySSAA9JSONValueOGGANSgtKF"
+    },
+    {
+      "sampledInclusiveMS": 435.582,
+      "function": "$s15BlockEditorCore15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6NodeIDOAC9PlacementVGyKF"
+    },
+    {
+      "sampledInclusiveMS": 428.458,
+      "function": "$s15BlockEditorCore14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZTf4nnnnnd_n"
+    },
+    {
+      "sampledInclusiveMS": 422.416,
+      "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKFySryxGz_SiztKXEfU_15BlockEditorCore15StructuralStateV9PlacementV_Tg504$s15ef248Core14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZSbAA15hi2V9J13V_A6_tXEfU13_Tf1nnncn_n"
+    },
+    {
+      "sampledInclusiveMS": 422.416,
+      "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKF15BlockEditorCore6NodeIDO_Tg504$s15ef247Core14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZSbAA6H14IDO_A4_tXEfU2_Tf1cn_nTm"
+    },
+    {
+      "sampledInclusiveMS": 422.416,
+      "function": "$sSTsE6sorted2bySay7ElementQzGSbAD_ADtKXE_tKFSay15BlockEditorCore15StructuralStateV9PlacementVG_Tg504$s15de248Core14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZSbAA15gh2V9I13V_A6_tXEfU13_Tf1cn_n"
+    },
+    {
+      "sampledInclusiveMS": 396.458,
+      "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKFySryxGz_SiztKXEfU_15BlockEditorCore6NodeIDO_Tg504$s15ef93Core15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6H34IDOAC9PlacementVGyKFSbAG_AGtXEfU2_Tf1nnncn_nTm"
+    },
+    {
+      "sampledInclusiveMS": 396.458,
+      "function": "$sSr15_stableSortImpl2byySbx_xtKXE_tKF15BlockEditorCore6NodeIDO_Tg504$s15ef93Core15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6H34IDOAC9PlacementVGyKFSbAG_AGtXEfU2_Tf1cn_nTm"
+    },
+    {
+      "sampledInclusiveMS": 396.458,
+      "function": "$sSMsSkRzrlE4sort2byySb7ElementSTQz_ADtKXE_tKFs15ContiguousArrayVy15BlockEditorCore6NodeIDOG_Tg504$s15fg93Core15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6I34IDOAC9PlacementVGyKFSbAG_AGtXEfU2_Tf1cn_nTm"
+    },
+    {
+      "sampledInclusiveMS": 116.918,
+      "function": "$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15BlockEditorCore15StructuralStateV9PlacementV_Tg504$s15gh248Core14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZSbAA15jk2V9L13V_A6_tXEfU13_Tf1nnnnc_n"
+    },
+    {
+      "sampledInclusiveMS": 116.918,
+      "function": "$sSr13_mergeTopRuns_6buffer2bySbSaySnySiGGz_SpyxGSbx_xtKXEtKF15BlockEditorCore15StructuralStateV9PlacementV_Tg504$s15fg248Core14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZSbAA15ij2V9K13V_A6_tXEfU13_Tf1nncn_n"
+    },
+    {
+      "sampledInclusiveMS": 108.293,
+      "function": "$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15BlockEditorCore6NodeIDO_Tg504$s15gh93Core15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6J34IDOAC9PlacementVGyKFSbAG_AGtXEfU2_Tf1nnnnc_nTm"
+    },
+    {
+      "sampledInclusiveMS": 108.293,
+      "function": "$sSr13_mergeTopRuns_6buffer2bySbSaySnySiGGz_SpyxGSbx_xtKXEtKF15BlockEditorCore6NodeIDO_Tg504$s15fg93Core15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6I34IDOAC9PlacementVGyKFSbAG_AGtXEfU2_Tf1nncn_nTm"
+    },
+    {
+      "sampledInclusiveMS": 48.124,
+      "function": "$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15BlockEditorCore15StructuralStateV9PlacementV_Tg504$s15gh248Core14WritingSessionC17prepareProjection33_5B30EEE738D701CBF35604E9C9FE8C20LL3raw7changes6births14activeOverride13retainedSeedsAC0G6InputsAELLVAA12MaterializedV_SayAA0D6ChangeVGSDyAA0D5FieldVAA0dZ5BirthVGSgSDyAA0Y2IDVSbGSgAA0D8SeedDataVSgtKFZSbAA15jk2V9L13V_A6_tXEfU13_Tf1nnnnc_n"
+    },
+    {
+      "sampledInclusiveMS": 43.667,
+      "function": "$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15BlockEditorCore6NodeIDO_Tg504$s15gh93Core15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6J34IDOAC9PlacementVGyKFSbAG_AGtXEfU2_Tf1nnnnc_nTm"
+    },
+    {
+      "sampledInclusiveMS": 4.125,
+      "function": "$sSlsE3mapySayqd__Gqd__7ElementQzqd_0_YKXEqd_0_YKs5ErrorRd_0_r0_lFSay15BlockEditorCore15WritingAtomSeedVG_AF0gH3KeyV_AF9JSONValueOts5NeverOTg504$s15de69Core13ModernSessionC6replay33_22C05A362EFF5B3819F814F4930F9483LLyAA17g77ProjectionV_AA0D8DocumentVAA15StructuralStateVtSDyAA8ChangeIDVAA0dS0VGKFAA0N7hj5V_AA9k8OtAA0nU4I7VXEfU1_Tf1cn_n"
+    },
+    {
+      "sampledInclusiveMS": 3.0,
+      "function": "$s15BlockEditorCore15StructuralStateV26computeEffectivePlacements33_2E6A37700D097E985B78AAA91EA57919LLSDyAA6NodeIDOAC9PlacementVGyKF8selectedL_AJyFTf0ss_n"
+    }
+  ]
+}
