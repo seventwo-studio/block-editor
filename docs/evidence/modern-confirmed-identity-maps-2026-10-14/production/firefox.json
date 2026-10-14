@@ -1,0 +1,100 @@
+{
+  "complete": true,
+  "sourceCommit": "ea80b9c469b60f7f6179b6a94572c968aa5bfd79",
+  "sourceClean": true,
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "408fff8604afc1cf21de91a9390a49e8c38910bed58c942a2c8e026f662478e2",
+  "browser": "firefox",
+  "browserVersion": "155.0",
+  "warmups": 3,
+  "repetitions": 20,
+  "inputMS": [
+    148,
+    152,
+    188,
+    151,
+    147,
+    146,
+    145,
+    148,
+    147,
+    151,
+    148,
+    149,
+    184,
+    159,
+    154,
+    157,
+    154,
+    156,
+    156,
+    158
+  ],
+  "menuMS": [
+    32,
+    34,
+    33,
+    32,
+    32,
+    33,
+    32,
+    33,
+    31,
+    33,
+    31,
+    33,
+    32,
+    33,
+    33,
+    32,
+    33,
+    33,
+    32,
+    32
+  ],
+  "productionReact": true,
+  "method": "Trusted native initiating keydown/pointerdown to the second animation frame with accepted text and rendered content/menu focus verified; conservative presented-frame proxy, includes at least one frame opportunity and keydown validation. Sequential warmups excluded. No network/disk-cold startup or physical input/assistive acceptance claim.",
+  "diagnostic": false,
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:155.0) Gecko/20100101 Firefox/155.0",
+    "hardwareConcurrency": 14,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "devicePixelRatio": 1
+  },
+  "summary": {
+    "inputP95MS": 184,
+    "menuP95MS": 33,
+    "targets": {
+      "inputP95MS": 50,
+      "menuP95MS": 100
+    }
+  },
+  "targetsPassed": false,
+  "consoleMessages": [],
+  "pageErrors": [],
+  "lastState": {
+    "accepted": {
+      "consumer": {
+        "keep": 1
+      },
+      "content": [
+        {
+          "text": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+          "type": "text"
+        }
+      ],
+      "id": "note-1",
+      "type": "paragraph"
+    },
+    "nativeBuffer": "Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!!!!!!!!!!!!!!!!",
+    "focused": "Block text",
+    "measurement": {
+      "elapsedMS": 32,
+      "frameCount": 2
+    },
+    "errors": []
+  }
+}

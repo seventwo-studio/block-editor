@@ -82,6 +82,12 @@ plus title and appearance, with the existing exact-value, path-depth and
 comparison. These fields are excluded from serialization and public semantic
 equality, and never authorize input or become causal identities/checkpoints.
 
+The browser renderer reuses identity maps only within one session and the exact
+immutable binding batch returned after shared confirmation. Accepted content
+and node/address/kind validation still refresh. A changed batch replaces the
+maps; older engines retain fresh individual lookups. Local callbacks, provider
+presentation, composition and geometry retain their existing invalidation.
+
 Run `bun run build:wasm` and `bun run demo:dev`, then open the reference
 integration at `/block-editor/modern.html` with the existing
 demo server. `demo/modern-main.tsx` demonstrates local Help

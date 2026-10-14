@@ -1,0 +1,5 @@
+{
+  "modern-build-wasm.json": true,
+  "modern-build-android.json": true,
+  "modern-build-javascript.json": false
+}
