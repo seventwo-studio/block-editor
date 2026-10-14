@@ -1,0 +1,20 @@
+[WebServer] $ vite --host 127.0.0.1 --port "4287" --strictPort
+[WebServer] (node:1602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 3 workers
+
+  ✓   3 [chromium] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (17.1s)
+  ✓   2 [webkit] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (17.2s)
+  ✓   1 [firefox] › tests/modern-context.swift.ts:36:0 › large-document Unicode composition and adjacent typing retain author history (19.7s)
+  ✓   4 [chromium] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads (10.6s)
+  ✓   5 [webkit] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads (11.2s)
+  ✓   6 [firefox] › tests/modern-context.swift.ts:51:0 › input caret follows peer prefixes and author deactivation after cached native reads (10.8s)
+  ✓   7 [chromium] › tests/modern-context.swift.ts:75:0 › closed contextual controls defer reads and opening shows current peer formatting and colors (10.9s)
+  ✓   8 [webkit] › tests/modern-context.swift.ts:75:0 › closed contextual controls defer reads and opening shows current peer formatting and colors (11.5s)
+  ✓   9 [firefox] › tests/modern-context.swift.ts:75:0 › closed contextual controls defer reads and opening shows current peer formatting and colors (10.9s)
+  ✓  10 [chromium] › tests/modern-context.swift.ts:179:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (10.5s)
+  ✓  11 [webkit] › tests/modern-context.swift.ts:179:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (10.9s)
+  ✓  12 [firefox] › tests/modern-context.swift.ts:179:0 › ordinary keyboard typing groups until deliberate caret movement and retains Undo selection (10.1s)
+
+  12 passed (52.4s)

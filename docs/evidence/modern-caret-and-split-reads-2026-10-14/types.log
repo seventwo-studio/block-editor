@@ -1,0 +1,1 @@
+src/swift-modern-react.tsx(83,32): error TS2353: Object literal may only specify known properties, and 'session' does not exist in type '{ start: number; end: number; }'.

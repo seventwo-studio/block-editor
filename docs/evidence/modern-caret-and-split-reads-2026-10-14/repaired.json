@@ -1,0 +1,406 @@
+{
+  "diagnostic": true,
+  "qualification": "Instrumented five edits after three warmups; excludes a frozen acceptance claim. Complete independently expected document checked after all edits.",
+  "sourceCommit": "38bda9c234f0e03658f9667c019ee1e3154e748d",
+  "fixtureSHA256": "03431f1bfdbd765b3baeaf2463caaa72a9e62610482493d71a73e0a3f7e839e3",
+  "wasmSHA256": "85dfac6c756fb6a25846f490e88e77ff8af81c09e364970905c019d180b61908",
+  "edits": [
+    {
+      "calls": [
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 15
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        }
+      ],
+      "elapsedMS": 47
+    },
+    {
+      "calls": [
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 14
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 2
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        }
+      ],
+      "elapsedMS": 45
+    },
+    {
+      "calls": [
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 13
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 1
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 1
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 1
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        }
+      ],
+      "elapsedMS": 49
+    },
+    {
+      "calls": [
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 13
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 2
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        }
+      ],
+      "elapsedMS": 46
+    },
+    {
+      "calls": [
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "execute",
+          "command": "replaceText",
+          "ms": 14
+        },
+        {
+          "name": "resolvePosition",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 1
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        },
+        {
+          "name": "availability",
+          "ms": 0
+        },
+        {
+          "name": "execute",
+          "command": "typingShortcut",
+          "ms": 2
+        },
+        {
+          "name": "nodeBindings",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "captureTextRange",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 1
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "asyncRequests",
+          "ms": 0
+        },
+        {
+          "name": "capabilities",
+          "ms": 0
+        },
+        {
+          "name": "localSelection",
+          "ms": 0
+        }
+      ],
+      "elapsedMS": 48
+    }
+  ],
+  "errors": [],
+  "complete": true
+}

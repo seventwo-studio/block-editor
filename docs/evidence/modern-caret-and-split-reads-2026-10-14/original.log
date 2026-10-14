@@ -1,0 +1,1890 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  {
+    appearance: {
+      fontFamily: 'sans',
+      fontSize: 'default',
+      pageWidth: 'readable'
+...
+          {
++           text: 'Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!',
+-           text: 'Note 0001.!!!!!!!!',
+            type: 'text'
+          }
+        ],
+        id: 'note-1',
+        type: 'paragraph'
+
+    at file:///Users/luca/Developer/block-editor/.build/finishing/20261014/caret-read-cache/probe.mjs:22:178 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    appearance: { fontFamily: 'sans', fontSize: 'default', pageWidth: 'readable' },
+    blocks: [
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-0-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-0-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-1-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-1-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-2-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-2-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-3-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-3-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-4-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-4-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-5-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-5-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-6-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-6-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-7-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-7-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-8-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-8-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-9-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-9-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-10-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-10-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-11-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-11-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-12-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-12-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-13-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-13-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-14-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-14-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-15-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-15-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-16-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-16-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-17-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-17-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-18-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-18-E',
+        type: 'paragraph'
+      },
+      {
+        columns: [
+          { children: [Array], id: 'first-column' },
+          { children: [Array], id: 'second-column' }
+        ],
+        consumer: { opaque: 'retain-layout' },
+        id: 'group-19-layout',
+        splitBasisPoints: 3000,
+        type: 'columns'
+      },
+      {
+        content: [ { text: 'Outside layout', type: 'text' } ],
+        id: 'group-19-E',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 0 },
+        content: [
+          {
+            text: 'Note 0000. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-0',
+        level: 2,
+        type: 'heading'
+      },
+      {
+        consumer: { keep: 1 },
+        content: [
+          {
+            text: 'Note 0001. Unicode 世界😀 and é with retained writing.!!!!!!!!',
+            type: 'text'
+          }
+        ],
+        id: 'note-1',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 2 },
+        content: [
+          {
+            text: 'Note 0002. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-2',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 3 },
+        content: [
+          {
+            text: 'Note 0003. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-3',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 4 },
+        content: [
+          {
+            text: 'Note 0004. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-4',
+        type: 'paragraph'
+      },
+      {
+        code: '\tlet value = "世界😀"\n\n    print(value)  \n',
+        consumer: { keep: 5 },
+        id: 'note-5',
+        language: 'swift',
+        type: 'code'
+      },
+      {
+        consumer: { keep: 6 },
+        content: [
+          {
+            text: 'Note 0006. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-6',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 7 },
+        id: 'note-7',
+        items: [
+          { checked: false, content: [Array], id: 'one' },
+          { checked: true, content: [Array], id: 'two' }
+        ],
+        style: 'todo',
+        type: 'list'
+      },
+      {
+        consumer: { keep: 8 },
+        content: [
+          {
+            text: 'Note 0008. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-8',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 9 },
+        content: [
+          {
+            text: 'Note 0009. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-9',
+        type: 'quote'
+      },
+      {
+        consumer: { keep: 10 },
+        content: [
+          {
+            text: 'Note 0010. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-10',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 11 },
+        content: [
+          {
+            text: 'Note 0011. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-11',
+        type: 'callout',
+        variant: 'info'
+      },
+      {
+        consumer: { keep: 12 },
+        content: [
+          {
+            text: 'Note 0012. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-12',
+        type: 'paragraph'
+      },
+      { id: 'note-13', type: 'divider' },
+      {
+        consumer: { keep: 14 },
+        content: [
+          {
+            text: 'Note 0014. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-14',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 15 },
+        content: [
+          {
+            text: 'Note 0015. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-15',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 16 },
+        content: [
+          {
+            text: 'Note 0016. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-16',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 17 },
+        content: [
+          {
+            text: 'Note 0017. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-17',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 18 },
+        content: [
+          {
+            text: 'Note 0018. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-18',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 19 },
+        content: [
+          {
+            text: 'Note 0019. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-19',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 20 },
+        content: [
+          {
+            text: 'Note 0020. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-20',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 21 },
+        content: [
+          {
+            text: 'Note 0021. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-21',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 22 },
+        content: [
+          {
+            text: 'Note 0022. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-22',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 23 },
+        content: [
+          {
+            text: 'Note 0023. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-23',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 24 },
+        content: [
+          {
+            text: 'Note 0024. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-24',
+        type: 'paragraph'
+      },
+      {
+        code: '\tlet value = "世界😀"\n\n    print(value)  \n',
+        consumer: { keep: 25 },
+        id: 'note-25',
+        language: 'swift',
+        type: 'code'
+      },
+      {
+        consumer: { keep: 26 },
+        content: [
+          {
+            text: 'Note 0026. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-26',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 27 },
+        id: 'note-27',
+        items: [
+          { checked: false, content: [Array], id: 'one' },
+          { checked: true, content: [Array], id: 'two' }
+        ],
+        style: 'todo',
+        type: 'list'
+      },
+      {
+        consumer: { keep: 28 },
+        content: [
+          {
+            text: 'Note 0028. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-28',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 29 },
+        content: [
+          {
+            text: 'Note 0029. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-29',
+        type: 'quote'
+      },
+      {
+        consumer: { keep: 30 },
+        content: [
+          {
+            text: 'Note 0030. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-30',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 31 },
+        content: [
+          {
+            text: 'Note 0031. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-31',
+        type: 'callout',
+        variant: 'info'
+      },
+      {
+        consumer: { keep: 32 },
+        content: [
+          {
+            text: 'Note 0032. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-32',
+        type: 'paragraph'
+      },
+      { id: 'note-33', type: 'divider' },
+      {
+        consumer: { keep: 34 },
+        content: [
+          {
+            text: 'Note 0034. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-34',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 35 },
+        content: [
+          {
+            text: 'Note 0035. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-35',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 36 },
+        content: [
+          {
+            text: 'Note 0036. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-36',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 37 },
+        content: [
+          {
+            text: 'Note 0037. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-37',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 38 },
+        content: [
+          {
+            text: 'Note 0038. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-38',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 39 },
+        content: [
+          {
+            text: 'Note 0039. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-39',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 40 },
+        content: [
+          {
+            text: 'Note 0040. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-40',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 41 },
+        content: [
+          {
+            text: 'Note 0041. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-41',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 42 },
+        content: [
+          {
+            text: 'Note 0042. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-42',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 43 },
+        content: [
+          {
+            text: 'Note 0043. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-43',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 44 },
+        content: [
+          {
+            text: 'Note 0044. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-44',
+        type: 'paragraph'
+      },
+      {
+        code: '\tlet value = "世界😀"\n\n    print(value)  \n',
+        consumer: { keep: 45 },
+        id: 'note-45',
+        language: 'swift',
+        type: 'code'
+      },
+      {
+        consumer: { keep: 46 },
+        content: [
+          {
+            text: 'Note 0046. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-46',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 47 },
+        id: 'note-47',
+        items: [
+          { checked: false, content: [Array], id: 'one' },
+          { checked: true, content: [Array], id: 'two' }
+        ],
+        style: 'todo',
+        type: 'list'
+      },
+      {
+        consumer: { keep: 48 },
+        content: [
+          {
+            text: 'Note 0048. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-48',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 49 },
+        content: [
+          {
+            text: 'Note 0049. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-49',
+        type: 'quote'
+      },
+      {
+        consumer: { keep: 50 },
+        content: [
+          {
+            text: 'Note 0050. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-50',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 51 },
+        content: [
+          {
+            text: 'Note 0051. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-51',
+        type: 'callout',
+        variant: 'info'
+      },
+      {
+        consumer: { keep: 52 },
+        content: [
+          {
+            text: 'Note 0052. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-52',
+        type: 'paragraph'
+      },
+      { id: 'note-53', type: 'divider' },
+      {
+        consumer: { keep: 54 },
+        content: [
+          {
+            text: 'Note 0054. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-54',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 55 },
+        content: [
+          {
+            text: 'Note 0055. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-55',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 56 },
+        content: [
+          {
+            text: 'Note 0056. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-56',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 57 },
+        content: [
+          {
+            text: 'Note 0057. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-57',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 58 },
+        content: [
+          {
+            text: 'Note 0058. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-58',
+        type: 'paragraph'
+      },
+      {
+        consumer: { keep: 59 },
+        content: [
+          {
+            text: 'Note 0059. Unicode 世界😀 and é with retained writing.',
+            type: 'text'
+          }
+        ],
+        id: 'note-59',
+        type: 'paragraph'
+      },
+      ... 760 more items
+    ],
+    consumer: {
+      fixture: 'independently constructed from approved vocabulary and unchanged columns-rich input'
+    },
+    documentID: 'modern-performance-1000',
+    format: 'seventwo.block-editor.document',
+    formatVersion: 1,
+    title: 'Mixed long-document measurement'
+  },
+  expected: {
+    format: 'seventwo.block-editor.document',
+    formatVersion: 1,
+    documentID: 'modern-performance-1000',
+    title: 'Mixed long-document measurement',
+    appearance: { fontFamily: 'sans', fontSize: 'default', pageWidth: 'readable' },
+    blocks: [
+      {
+        id: 'group-0-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-0-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-1-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-1-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-2-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-2-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-3-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-3-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-4-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-4-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-5-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-5-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-6-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-6-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-7-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-7-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-8-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-8-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-9-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-9-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-10-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-10-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-11-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-11-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-12-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-12-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-13-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-13-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-14-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-14-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-15-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-15-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-16-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-16-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-17-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-17-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-18-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-18-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'group-19-layout',
+        type: 'columns',
+        columns: [
+          { id: 'first-column', children: [Array] },
+          { id: 'second-column', children: [Array] }
+        ],
+        splitBasisPoints: 3000,
+        consumer: { opaque: 'retain-layout' }
+      },
+      {
+        id: 'group-19-E',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Outside layout' } ]
+      },
+      {
+        id: 'note-0',
+        type: 'heading',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0000. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 0 },
+        level: 2
+      },
+      {
+        id: 'note-1',
+        type: 'paragraph',
+        content: [ { type: 'text', text: 'Note 0001.!!!!!!!!' } ],
+        consumer: { keep: 1 }
+      },
+      {
+        id: 'note-2',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0002. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 2 }
+      },
+      {
+        id: 'note-3',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0003. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 3 }
+      },
+      {
+        id: 'note-4',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0004. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 4 }
+      },
+      {
+        id: 'note-5',
+        type: 'code',
+        consumer: { keep: 5 },
+        code: '\tlet value = "世界😀"\n\n    print(value)  \n',
+        language: 'swift'
+      },
+      {
+        id: 'note-6',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0006. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 6 }
+      },
+      {
+        id: 'note-7',
+        type: 'list',
+        consumer: { keep: 7 },
+        style: 'todo',
+        items: [
+          { id: 'one', content: [Array], checked: false },
+          { id: 'two', content: [Array], checked: true }
+        ]
+      },
+      {
+        id: 'note-8',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0008. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 8 }
+      },
+      {
+        id: 'note-9',
+        type: 'quote',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0009. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 9 }
+      },
+      {
+        id: 'note-10',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0010. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 10 }
+      },
+      {
+        id: 'note-11',
+        type: 'callout',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0011. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 11 },
+        variant: 'info'
+      },
+      {
+        id: 'note-12',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0012. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 12 }
+      },
+      { id: 'note-13', type: 'divider' },
+      {
+        id: 'note-14',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0014. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 14 }
+      },
+      {
+        id: 'note-15',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0015. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 15 }
+      },
+      {
+        id: 'note-16',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0016. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 16 }
+      },
+      {
+        id: 'note-17',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0017. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 17 }
+      },
+      {
+        id: 'note-18',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0018. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 18 }
+      },
+      {
+        id: 'note-19',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0019. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 19 }
+      },
+      {
+        id: 'note-20',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0020. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 20 }
+      },
+      {
+        id: 'note-21',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0021. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 21 }
+      },
+      {
+        id: 'note-22',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0022. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 22 }
+      },
+      {
+        id: 'note-23',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0023. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 23 }
+      },
+      {
+        id: 'note-24',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0024. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 24 }
+      },
+      {
+        id: 'note-25',
+        type: 'code',
+        consumer: { keep: 25 },
+        code: '\tlet value = "世界😀"\n\n    print(value)  \n',
+        language: 'swift'
+      },
+      {
+        id: 'note-26',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0026. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 26 }
+      },
+      {
+        id: 'note-27',
+        type: 'list',
+        consumer: { keep: 27 },
+        style: 'todo',
+        items: [
+          { id: 'one', content: [Array], checked: false },
+          { id: 'two', content: [Array], checked: true }
+        ]
+      },
+      {
+        id: 'note-28',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0028. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 28 }
+      },
+      {
+        id: 'note-29',
+        type: 'quote',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0029. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 29 }
+      },
+      {
+        id: 'note-30',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0030. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 30 }
+      },
+      {
+        id: 'note-31',
+        type: 'callout',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0031. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 31 },
+        variant: 'info'
+      },
+      {
+        id: 'note-32',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0032. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 32 }
+      },
+      { id: 'note-33', type: 'divider' },
+      {
+        id: 'note-34',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0034. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 34 }
+      },
+      {
+        id: 'note-35',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0035. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 35 }
+      },
+      {
+        id: 'note-36',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0036. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 36 }
+      },
+      {
+        id: 'note-37',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0037. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 37 }
+      },
+      {
+        id: 'note-38',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0038. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 38 }
+      },
+      {
+        id: 'note-39',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0039. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 39 }
+      },
+      {
+        id: 'note-40',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0040. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 40 }
+      },
+      {
+        id: 'note-41',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0041. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 41 }
+      },
+      {
+        id: 'note-42',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0042. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 42 }
+      },
+      {
+        id: 'note-43',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0043. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 43 }
+      },
+      {
+        id: 'note-44',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0044. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 44 }
+      },
+      {
+        id: 'note-45',
+        type: 'code',
+        consumer: { keep: 45 },
+        code: '\tlet value = "世界😀"\n\n    print(value)  \n',
+        language: 'swift'
+      },
+      {
+        id: 'note-46',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0046. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 46 }
+      },
+      {
+        id: 'note-47',
+        type: 'list',
+        consumer: { keep: 47 },
+        style: 'todo',
+        items: [
+          { id: 'one', content: [Array], checked: false },
+          { id: 'two', content: [Array], checked: true }
+        ]
+      },
+      {
+        id: 'note-48',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0048. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 48 }
+      },
+      {
+        id: 'note-49',
+        type: 'quote',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0049. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 49 }
+      },
+      {
+        id: 'note-50',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0050. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 50 }
+      },
+      {
+        id: 'note-51',
+        type: 'callout',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0051. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 51 },
+        variant: 'info'
+      },
+      {
+        id: 'note-52',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0052. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 52 }
+      },
+      { id: 'note-53', type: 'divider' },
+      {
+        id: 'note-54',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0054. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 54 }
+      },
+      {
+        id: 'note-55',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0055. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 55 }
+      },
+      {
+        id: 'note-56',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0056. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 56 }
+      },
+      {
+        id: 'note-57',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0057. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 57 }
+      },
+      {
+        id: 'note-58',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0058. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 58 }
+      },
+      {
+        id: 'note-59',
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'Note 0059. Unicode 世界😀 and é with retained writing.'
+          }
+        ],
+        consumer: { keep: 59 }
+      },
+      ... 760 more items
+    ],
+    consumer: {
+      fixture: 'independently constructed from approved vocabulary and unchanged columns-rich input'
+    }
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
