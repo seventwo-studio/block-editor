@@ -18,6 +18,17 @@ service, implicit provider calls, credential management or application routing.
 Deactivate outgoing host adapters before mounting another document. Captured
 targets name retained identities; do not regenerate them from display indices.
 
+Matching finishing engines advertise `localSelectionAckVersion: 1`. A
+`modernSetLocalSelection` request may then specify `includeSnapshot: false`;
+Swift still validates and records the selection and typing boundary, returning
+`{ version: 1, documentID, epoch }` instead of retransmitting unchanged document
+content. This acknowledgement version is independent of document format 1 and
+protocol 7. Omitted or true `includeSnapshot` retains the historical full
+snapshot response. The TypeScript adapter checks scope/version, preserves its
+accepted snapshot and notifies persistence subscribers so the local history
+sidecar can be saved. Older engines use the full response. Neither path authors
+a document change or bypasses shared validation.
+
 ## React and WASM
 
 The package exposes `swift/modern`, `swift/modern/react`, `swift/modern/host`,

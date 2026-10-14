@@ -39,6 +39,7 @@ final class ModernBridgeEndpoint {
             values["asyncKinds"] = .array(asyncEnabled ? ["image", "file", "embed"].map(JSONValue.string) : [])
             values["clipboardVersion"] = .number(2); values["canCopy"] = .bool(true)
             values["localHistorySelectionVersion"] = .number(1)
+            values["localSelectionAckVersion"] = .number(1)
             values["wireInspectionVersion"] = .number(1)
             values["renderingBindingVersion"] = .number(1)
             let cutSession = sessions[handle]
@@ -306,9 +307,17 @@ final class ModernBridgeEndpoint {
             try allowed(input, ["command", "session", "nodes"])
             return try encode(session.captureLocalNodes(decode(input["nodes"], as: [NodeID].self)))
         case "modernSetLocalSelection":
-            try allowed(input, ["command", "session", "selection"])
+            try allowed(input, ["command", "session", "selection", "includeSnapshot"])
+            if let include = input["includeSnapshot"] {
+                guard case .bool = include else { throw EditorError.invalidChange }
+            }
             guard let value = input["selection"] else { throw EditorError.invalidChange }
             try session.setLocalSelection(value == .null ? nil : decode(value, as: ModernLocalSelection.self))
+            // Local selection changes no accepted content, receipt or Undo flags.
+            // Keep the historical full response unless explicitly negotiated.
+            if input["includeSnapshot"] == .bool(false) {
+                return .object(["version": .number(1), "documentID": .string(session.documentID), "epoch": .string(session.epoch)])
+            }
         case "modernLocalSelection":
             try allowed(input, ["command", "session"]); return try session.resolvedLocalSelection().map(encode) ?? .null
         case "modernExportHistorySelection":

@@ -79,3 +79,36 @@ test("shared binding tokens preserve exact array ownership and reject an unknown
   unknown = true; expect(() => session.nodeBindings()).toThrow("omitted unknown bindings");
   unknown = false; fail = true; expect(() => session.nodeBindings()).toThrow("invalidChange");
 });
+
+test("compact local selection retains accepted snapshot and notifies persistence after checked acknowledgement", () => {
+  let fail = false, foreign = false, capabilityReads = 0;
+  const requests: Record<string, unknown>[] = [];
+  const session = SwiftModernSession.create({ call<T>(request: Record<string, unknown>): T {
+    if (request.command === "modernCapabilities") { capabilityReads++; return { localSelectionAckVersion: 1 } as T; }
+    if (request.command === "modernSetLocalSelection") {
+      requests.push(request); if (fail) throw new Error("invalidSelection");
+      return (request.includeSnapshot === false ? { version: 1, documentID: "shared", epoch: foreign ? "foreign" : "epoch" } : fixture()) as T;
+    }
+    return fixture() as T;
+  } }, { actorID: "a", documentID: "shared", epoch: "epoch", document: fixture().document });
+  const initial = session.getSnapshot(); let notifications = 0;
+  session.subscribe(() => { notifications++; expect(session.getSnapshot()).toBe(initial); });
+  session.setLocalSelection(null); session.setLocalSelection(null);
+  expect(requests.every(request => request.includeSnapshot === false)).toBe(true);
+  expect(capabilityReads).toBe(1); expect(notifications).toBe(2);
+  foreign = true; expect(() => session.setLocalSelection(null)).toThrow("incompatible scope");
+  fail = true; expect(() => session.setLocalSelection(null)).toThrow("invalidSelection");
+  expect(notifications).toBe(2); expect(session.getSnapshot()).toBe(initial);
+});
+
+test("old engines retain full local selection snapshots and notifications", () => {
+  const requests: Record<string, unknown>[] = [];
+  const session = SwiftModernSession.create({ call<T>(request: Record<string, unknown>): T {
+    requests.push(request);
+    return (request.command === "modernCapabilities" ? {} : fixture()) as T;
+  } }, { actorID: "a", documentID: "shared", epoch: "epoch", document: fixture().document });
+  let notifications = 0; session.subscribe(() => { notifications++; });
+  session.setLocalSelection(null); session.setLocalSelection(null);
+  expect(notifications).toBe(2);
+  expect(requests.filter(request => request.command === "modernSetLocalSelection").every(request => !("includeSnapshot" in request))).toBe(true);
+});

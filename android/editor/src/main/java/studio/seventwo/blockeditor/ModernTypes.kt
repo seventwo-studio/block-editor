@@ -204,6 +204,7 @@ data class ModernPolicy(val allowedCommands: Set<ModernCommandName>? = null, val
     }
 }
 class ModernCapabilities internal constructor(value: JSONObject) : ModernValue(value) {
+    val localSelectionAckVersion get() = export().optInt("localSelectionAckVersion", 0)
     val renderingBindingVersion get() = export().optInt("renderingBindingVersion", 0)
     val wireInspectionVersion get() = number("wireInspectionVersion").toInt()
     val commands: List<ModernCommandName> get() = arrayValue("commands").let { values -> (0 until values.length()).map { index -> ModernCommandName.entries.first { it.wireValue == values.getString(index) } } }

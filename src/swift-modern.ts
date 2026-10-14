@@ -119,6 +119,7 @@ export interface ModernCapabilities {
   readonly protocolVersion: 7; readonly format: ModernDocument["format"]; readonly formatVersion: 1;
   readonly commands: readonly ModernCommandName[]; readonly cutoverToModern: true; readonly clipboardVersion: 2;
   readonly localHistorySelectionVersion: 1; readonly canCopy: boolean; readonly canCut: boolean;
+  readonly localSelectionAckVersion?: 1;
   readonly wireInspectionVersion?: 1;
   readonly renderingBindingVersion?: 1;
   readonly allowedBlockTypes: readonly string[] | null; readonly allowedMarkTypes: readonly string[] | null;
@@ -170,6 +171,7 @@ export class SwiftModernSession {
   private listeners = new Set<() => void>();
   private bindingReadSupported: boolean | undefined;
   private renderingBindingSupported: boolean | undefined;
+  private localSelectionAckSupported: boolean | undefined;
   private renderingBindingCache: { token: string; bindings: readonly ModernNodeBinding[] } | undefined;
   private constructor(private readonly transport: ModernTransport, private readonly handle: string, private snapshot: ModernSnapshot) { this.snapshot = owned(snapshot); }
   static create(transport: ModernTransport, options: ModernScope & ModernPolicy & { readonly actorID: string; readonly document: ModernDocument }): SwiftModernSession {
@@ -200,10 +202,13 @@ export class SwiftModernSession {
     const published = owned({ ...value, document: sharedJSON(this.snapshot.document, value.document),
       syncState: sharedJSON(this.snapshot.syncState, value.syncState) });
     this.snapshot = published;
+    this.notifyListeners();
+    return published;
+  }
+  private notifyListeners(): void {
     for (const listener of [...this.listeners]) {
       try { listener(); } catch (error) { try { this.onListenerError(error); } catch (reportError) { queueMicrotask(() => { throw reportError; }); } }
     }
-    return published;
   }
   private call<T>(command: string, args: Record<string, unknown> = {}): T {
     this.assertOpen();
@@ -314,7 +319,20 @@ export class SwiftModernSession {
   deferredChanges(): readonly ModernBatch[] { return this.call("modernDeferredChanges"); }
   restoreDeferredChanges(packets: readonly ModernBatch[]): void { this.update("modernRestoreDeferredChanges", { packets }); }
   retryDeferredChanges(): void { this.update("modernRetryDeferredChanges"); }
-  setLocalSelection(selection: ModernLocalSelection | null): void { this.update("modernSetLocalSelection", { selection }); }
+  setLocalSelection(selection: ModernLocalSelection | null): void {
+    this.assertOpen();
+    this.localSelectionAckSupported ??= this.capabilities().localSelectionAckVersion === 1;
+    if (!this.localSelectionAckSupported) { this.update("modernSetLocalSelection", { selection }); return; }
+    const acknowledgement = this.call<{ readonly version: number; readonly documentID: string; readonly epoch: string }>(
+      "modernSetLocalSelection", { selection, includeSnapshot: false });
+    const scope = this.snapshot.syncState;
+    if (acknowledgement?.version !== 1 || acknowledgement.documentID !== scope.documentID || acknowledgement.epoch !== scope.epoch) {
+      throw new Error("Shared local selection acknowledgement has incompatible scope or version");
+    }
+    // Persistence subscribers still observe the updated local history sidecar.
+    // The accepted document snapshot remains exactly the same immutable value.
+    this.notifyListeners();
+  }
   localSelection(): ModernLocalSelection | null { return this.call("modernLocalSelection"); }
   exportHistorySelection(): ModernHistorySelectionArchive { return this.call("modernExportHistorySelection"); }
   restoreHistorySelection(archive: ModernHistorySelectionArchive): void { this.update("modernRestoreHistorySelection", { archive }); }

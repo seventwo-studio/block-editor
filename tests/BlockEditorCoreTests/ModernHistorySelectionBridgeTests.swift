@@ -33,7 +33,13 @@ import BlockEditorCore
     }
     @Test func localSelectionAndPairedArchiveReturnCanonicalBackwardUndoAndCaretRedoIncludingReopen() throws {
         let bridge = EditorBridge(); try create(bridge); let captured = try range(bridge), before = try encoded(context(captured))
-        _ = try success(bridge, "modernSetLocalSelection", "a", ["selection": before])
+        let initial = try success(bridge, "modernSnapshot"), savedBefore = try success(bridge, "modernSave")
+        let acknowledgement = try success(bridge, "modernSetLocalSelection", "a", ["selection": before, "includeSnapshot": .bool(false)])
+        #expect(acknowledgement == .object(["version": .number(1), "documentID": .string("history"), "epoch": .string("history")]))
+        #expect(try success(bridge, "modernCapabilities")["localSelectionAckVersion"] == .number(1))
+        #expect(try success(bridge, "modernSnapshot") == initial && success(bridge, "modernSave") == savedBefore)
+        #expect(try success(bridge, "modernLocalSelection") == before)
+        #expect(try success(bridge, "modernSetLocalSelection", "a", ["selection": before]) == initial)
         #expect(try success(bridge, "modernCapabilities")["localHistorySelectionVersion"] == .number(1))
         _ = try command(bridge, "replaceText", encoded(captured), ["text": .string("X")])
         let saved = try success(bridge, "modernSave"), archive = try success(bridge, "modernExportHistorySelection")
@@ -49,6 +55,19 @@ import BlockEditorCore
         #expect(noop["status"] == .string("noop") && noop["focusIntent"] == .null && noop["selectionIntent"] == .null)
         #expect(try success(bridge, "modernSave") == stable && success(bridge, "modernExportHistorySelection") == metadata)
         let redone = try command(bridge, "redo"); #expect(try offset(bridge, redone["focus"]!) == 2 && offset(bridge, redone["selection"]!["start"]!) == 2)
+    }
+    @Test func compactSelectionAcknowledgementRejectsMalformedOptionsAndForeignScopeWithoutChangingHistory() throws {
+        let bridge = EditorBridge(); try create(bridge); let selection = try encoded(context(range(bridge)))
+        _ = try success(bridge, "modernSetLocalSelection", "a", ["selection": selection, "includeSnapshot": .bool(false)])
+        let saved = try success(bridge, "modernSave"), archive = try success(bridge, "modernExportHistorySelection")
+        for option: JSONValue in [.null, .number(0), .string("false")] {
+            #expect(try call(bridge, "modernSetLocalSelection", "a", ["selection": .null, "includeSnapshot": option])["ok"] == .bool(false))
+        }
+        var foreign = try #require(selection.object); foreign["epoch"] = .string("foreign")
+        #expect(try call(bridge, "modernSetLocalSelection", "a", ["selection": .object(foreign), "includeSnapshot": .bool(false)])["ok"] == .bool(false))
+        #expect(try success(bridge, "modernSave") == saved && success(bridge, "modernExportHistorySelection") == archive)
+        _ = try success(bridge, "modernSetLocalSelection", "a", ["selection": .null, "includeSnapshot": .bool(false)])
+        #expect(try success(bridge, "modernLocalSelection") == .null && success(bridge, "modernSave") == saved)
     }
     @Test func checkedInvocationOverrideUsesOriginalInputAndExplicitNoneDoesNotFabricateFocus() throws {
         let bridge = EditorBridge(); try create(bridge); let original = try range(bridge), other = try range(bridge, "q", start: 3, end: 3)
