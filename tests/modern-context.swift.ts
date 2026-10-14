@@ -92,11 +92,18 @@ test("Escape dismisses the Link action and retains its captured input", async ({
 test("contextual reads preserve opaque metadata named like schema collections", async ({ page }) => {
   const original: ModernDocument = { format: "seventwo.block-editor.document", formatVersion: 1, documentID: "opaque-bindings", title: "Bindings",
     appearance: { fontFamily: "sans", fontSize: "default", pageWidth: "readable" }, blocks: [
-      { id: "opaque", type: "consumer-card", rows: [{ id: "foreign-row", cells: [{ id: "foreign-cell", keep: "opaque 世界😀" }] }], children: [{ id: "unrelated", keep: "consumer data" }] },
+      { id: "opaque", type: "consumer-card", rows: [{ id: "foreign-row", cells: [{ id: "foreign-cell", keep: "opaque 世界😀" }] }],
+        children: [{ id: "unrelated", type: "heading", content: [{ type: "text", text: "Consumer heading" }], keep: "consumer data" }] },
       { id: "A", type: "paragraph", content: [{ type: "text", text: "ABC", marks: [] }] }
     ] };
   await mount(page, original);
   const body = page.getByRole("textbox", { name: "Block text", exact: true });
+  const saved = await page.evaluate(() => window.modernAcceptance.session.save());
+  await page.getByRole("button", { name: "Outline", exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "Heading outline" })).toHaveCount(1);
+  await expect(page.getByRole("navigation", { name: "Heading outline" }).getByRole("button")).toHaveCount(0);
+  await expect(body).toBeVisible();
+  expect(await page.evaluate(() => window.modernAcceptance.session.save())).toEqual(saved);
   await body.focus(); await body.evaluate(root => { const selection = document.getSelection()!; selection.setBaseAndExtent(root.firstChild!, 0, root.firstChild!, 3); });
   await page.getByText("Format", { exact: true }).click(); await page.getByRole("button", { name: "bold", exact: true }).click();
   await expect(body.locator("strong")).toHaveText("ABC");

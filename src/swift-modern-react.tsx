@@ -215,11 +215,11 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
   // Every identity/field comes from Swift. Reuse only within this immutable
   // accepted document; a peer move, conversion or reused label replaces it.
   const bindings = useMemo(() => {
-    const addresses = new Map<string, ModernNodeID>(), values = new Map<string, { blockID: string; path: string[]; value: ModernObject }>();
+    const addresses = new Map<string, ModernNodeID>(), values = new Map<string, { blockID: string; path: string[]; value: ModernObject; node: ModernNodeID; kind: "block" | "column" | "item" | "row" | "cell" }>();
     const fields = new Map<string, ModernField>();
     function visit(value: ModernObject, blockID: string, path: string[], kind: "block" | "column" | "item" | "row" | "cell") {
       const address = { blockID, path }, node = session.node(address);
-      addresses.set(key(address), node); values.set(key(node), { blockID, path, value });
+      addresses.set(key(address), node); values.set(key(node), { blockID, path, value, node, kind });
       const children = (name: string, childKind: typeof kind) => array(value[name]).forEach(child => visit(child, blockID, [...path, name, text(child.id)], childKind));
       if (kind === "block") {
         if (value.type === "columns") children("columns", "column");
@@ -565,7 +565,8 @@ export function SwiftModernBlockEditor(props: SwiftModernEditorProps) {
       else if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey) { event.preventDefault(); event.stopPropagation(); safe(() => execute({ command: "paste", target: spanPasteTarget(), arguments: { clipboard: session.clipboard(event.key) } })); setTextSpan([]); }
     }} className="modern-editor" data-font={appearance.fontFamily} style={{ "--modern-body-size": `${bodySize}px`, "--modern-page-width": appearance.pageWidth === "wide" ? "960px" : "680px" } as CSSProperties}>
     {!focusMode && <div className="modern-topbar"><button onClick={() => setOutline(!outline)} aria-expanded={outline}>Outline</button><button onClick={() => setFocusMode(true)}>Focus</button><details><summary>Appearance</summary>{(["fontFamily", "fontSize", "pageWidth"] as const).map(field => <label key={field}>{field}<select value={appearance[field]} disabled={readOnly} onChange={event => execute({ command: "setAppearance", target: documentNode, arguments: { field, value: event.target.value } } as ModernAuthorCommand)}>{(field === "fontFamily" ? ["sans", "serif", "monospace"] : field === "fontSize" ? ["small", "default", "large"] : ["readable", "wide"]).map(value => <option key={value}>{value}</option>)}</select></label>)}</details></div>}
-    {outline && !focusMode && <nav aria-label="Heading outline">{(() => { const items: ReactNode[] = []; function walk(values: readonly ModernObject[], root?: string, path: string[] = []) { values.forEach(value => { const id = root ?? text(value.id), current = root ? [...path, text(value.id)] : []; const node = origin(id, current); if (value.type === "heading") items.push(<button key={key(node)} onClick={() => reveal(node)}>{visible(array(value.content)) || "Heading"}</button>); for (const field of ["columns", "children"]) walk(array(value[field]), id, [...current, field]); }); } walk(snapshot.document.blocks); return items; })()}</nav>}
+    {outline && !focusMode && <nav aria-label="Heading outline">{[...bindings.values.values()].filter(entry => entry.kind === "block" && entry.value.type === "heading")
+      .map(({ node, value }) => <button key={key(node)} onClick={() => reveal(node)}>{visible(array(value.content)) || "Heading"}</button>)}</nav>}
     <div className="modern-viewport" ref={viewport}><div className="modern-page"><div className="modern-title">{input(documentNode, "title", snapshot.document.title, "Document title")}</div>
       {!snapshot.document.blocks.length && <ModernEmptyInput session={session} host={props.host} readOnly={readOnly} execute={execute} report={report} />}
       {renderBlocks(snapshot.document.blocks, { field: "blocks" })}
